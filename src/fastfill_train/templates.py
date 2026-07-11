@@ -1,4 +1,4 @@
-"""Prompt templates for the FastFill planner (two training targets).
+"""Prompt templates for the FastFill planner (three training targets).
 
 Template A ("direct"):   user = instruction + input codec,
                          assistant = layout codec.
@@ -8,6 +8,10 @@ Template B ("plan"):     assistant = one short structured plan line, then
                          (28%→33%), but FastFill is token-budgeted, so the
                          plan is a compact single line, never long chain of
                          thought.
+Template C ("plan_nl"): assistant = one templated natural-language plan
+                         sentence, then the layout codec — OptiScene's own
+                         comparison showed NL descriptions beating symbolic
+                         intermediates, so the ablation needs this arm.
 
 The plan line for training labels is DERIVED deterministically from the
 ground-truth layout (decoded from the record's output codec), so no extra
@@ -23,7 +27,7 @@ import fastfill_train  # noqa: F401  (vendor path bootstrap)
 from scenesmith.growing_world.fastfill.codec import decode_floor_layout
 from scenesmith.growing_world.fastfill.schema import Anchor, FloorLayout
 
-TEMPLATES = ("direct", "plan")
+TEMPLATES = ("direct", "plan", "plan_nl")
 PLAN_PREFIX = "PLAN:"
 LAYOUT_PREFIX = "LAYOUT:"
 
@@ -57,6 +61,37 @@ def _zone_for(category: str) -> str | None:
         if keyword in lowered:
             return zone
     return None
+
+
+def derive_plan_sentence(layout: FloorLayout) -> str:
+    """One natural-language plan sentence (template C, "plan_nl").
+
+    OptiScene's own comparison found natural-language semantic descriptions
+    significantly better than symbolic/structured intermediates, so the A/B
+    needs an NL arm. Same deterministic facts as the structured line,
+    transcribed into one templated sentence — still short, never long CoT.
+    """
+    zones: list[str] = []
+    for obj in layout.objects:
+        zone = _zone_for(obj.category)
+        if zone and zone not in zones:
+            zones.append(zone)
+    wall = [
+        o.category.lower().replace(" ", "_")
+        for o in layout.objects
+        if o.anchor in (Anchor.WALL, Anchor.CORNER)
+    ]
+    wall_unique = list(dict.fromkeys(wall))
+    zones_txt = " and ".join(zones[:3]) if zones else "general use"
+    if wall_unique:
+        against = ", ".join(wall_unique[:5])
+        middle = f"place the {against} against the walls and keep the rest free-standing"
+    else:
+        middle = "keep circulation open between the pieces"
+    return (
+        f"{PLAN_PREFIX} Arrange the room for {zones_txt}: {middle}; "
+        f"{len(layout.objects)} objects total."
+    )
 
 
 def derive_plan_line(layout: FloorLayout) -> str:
@@ -114,7 +149,11 @@ def render_sft_example(
     if template == "direct" or _is_surface_record(record):
         return RenderedExample(user=user, assistant=output)
     layout = decode_floor_layout(output, room_id)
-    plan = derive_plan_line(layout)
+    plan = (
+        derive_plan_sentence(layout)
+        if template == "plan_nl"
+        else derive_plan_line(layout)
+    )
     return RenderedExample(
         user=user, assistant=f"{plan}\n{LAYOUT_PREFIX}\n{output}"
     )
@@ -131,10 +170,10 @@ def split_completion(text: str) -> tuple[str, str]:
     the model echoing extra whitespace, but never rewrites layout content.
     """
     stripped = text.strip()
+    if LAYOUT_PREFIX in stripped:
+        plan_part, _, rest = stripped.partition(LAYOUT_PREFIX)
+        return plan_part.strip(), rest.lstrip("\n").lstrip()
     if not stripped.startswith(PLAN_PREFIX):
         return "", stripped
     plan_line, _, rest = stripped.partition("\n")
-    rest = rest.strip()
-    if rest.startswith(LAYOUT_PREFIX):
-        rest = rest[len(LAYOUT_PREFIX) :].lstrip("\n").lstrip()
-    return plan_line.strip(), rest
+    return plan_line.strip(), rest.strip()

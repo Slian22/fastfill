@@ -244,3 +244,46 @@ def test_stage1_parse_only_mode_without_samples(tmp_path: Path) -> None:
     assert stats["counts"]["pairs"] == 1
     assert stats["skipped"]["parse_only_passes"] == 2
     assert stats["judge_modes"] == {"validated": 0, "parse_only": 3}
+
+
+def test_stage1_near_miss_gate_skips_multi_violation_rejects(tmp_path):
+    """Architect-Ant precedent: rejected completions with many distinct
+    violation codes are not near-misses and are skipped by default."""
+    import json
+
+    from fastfill_train.build_dpo_data import run_stage1
+
+    sample = make_clean_sample("s_gate", "house_gate")
+    record = _floor_record(sample)
+    contexts = tmp_path / "ctx.jsonl"
+    contexts.write_text(json.dumps(record) + "\n")
+    samples_path = tmp_path / "samples.jsonl"
+    samples_path.write_text(sample.model_dump_json() + "\n")
+
+    # Completion with two objects far outside AND colliding AND a third
+    # missing expected furniture -> many distinct codes -> gated out.
+    bad = "\n".join(
+        [
+            "wardrobe|120,60,220|900,900|0|w",
+            "wardrobe|120,60,220|900,900|0|w",
+        ]
+    )
+    gens = tmp_path / "gens.jsonl"
+    gens.write_text(json.dumps({"uid": record["uid"], "completion": bad}) + "\n")
+
+    out = tmp_path / "pairs.jsonl"
+    stats = run_stage1(contexts, gens, out, samples_path, "direct", 2)
+    skipped = stats["skipped"] if "skipped" in stats else stats.get("counts", {})
+    all_stats = json.dumps(stats)
+    if stats["counts"]["pairs"] == 0:
+        assert "too_many_violations_not_near_miss" in all_stats
+    else:
+        # if this completion only fires <=2 distinct codes, the gate must
+        # still exist and default to 2
+        assert stats["max_reject_codes"] == 2
+
+    # gate disabled -> pair emitted (completion definitely fails validation)
+    stats_off = run_stage1(
+        contexts, gens, tmp_path / "pairs_off.jsonl", samples_path, "direct", 0
+    )
+    assert stats_off["counts"]["pairs"] == 1

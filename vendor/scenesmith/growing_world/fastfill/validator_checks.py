@@ -42,7 +42,14 @@ from scenesmith.growing_world.fastfill.transforms import (
 
 # ------------------------------------------------------ contract thresholds
 
-_CONTAINMENT_TOL_M = 0.01  # 1 cm containment tolerance (floor + surfaces)
+_FLOOR_CONTAINMENT_TOL_M = 0.05  # floor containment tolerance: 5 cm.
+# Calibrated on real data: in 3D-SynthPlace ground truth, wall-flush
+# furniture bboxes overshoot the floor polygon by up to 4.75 cm on 574/574
+# measured cases (3D-FRONT-family floor polygons trace the inner floor,
+# excluding the wall inset) — a 1 cm tolerance failed 100% of that
+# human-curated corpus. 5 cm admits wall-flush placement, still far below
+# any real placement error; repair clamps anything beyond it.
+_SURFACE_CONTAINMENT_TOL_M = 0.01  # surfaces keep the tight 1 cm tolerance
 _MIN_OVERLAP_AREA_M2 = 1e-4  # smallest intersection that counts as overlap
 _FLOATING_MAX_ABS_Z_M = 0.02  # |z_local| beyond this -> L1_FLOATING
 _NEAR_MAX_GAP_M = 0.6  # 'near' relation: footprint gap limit
@@ -191,7 +198,7 @@ def _build_surface_entries(
                 (x - centroid[0], y - centroid[1]) for x, y in surface.polygon_local
             )
             poly_local = _valid_polygon(shifted)
-            poly_local_tol = poly_local.buffer(_CONTAINMENT_TOL_M)
+            poly_local_tol = poly_local.buffer(_SURFACE_CONTAINMENT_TOL_M)
         entries[surface.surface_id] = _SurfaceEntry(
             spec=surface,
             parent=parent,
@@ -274,7 +281,7 @@ def _build_geometry(layout: RoomContentLayout, context: RoomContext) -> _Geometr
     surface_objects = _build_surface_object_entries(layout)
     return _Geometry(
         floor_poly=floor_poly,
-        floor_poly_tol=floor_poly.buffer(_CONTAINMENT_TOL_M),
+        floor_poly_tol=floor_poly.buffer(_FLOOR_CONTAINMENT_TOL_M),
         floor_objects=floor_objects,
         floor_footprints=floor_footprints,
         surfaces=surfaces,
@@ -547,9 +554,34 @@ def _l1_floor_bounds(geo: _Geometry, col: _Collector) -> None:
                 "L1_FLOOR_OUT_OF_BOUNDS",
                 Severity.ERROR,
                 f"floor object '{object_id}' footprint leaves the floor "
-                "polygon (1 cm tolerance)",
+                "polygon (5 cm wall-flush tolerance)",
                 object_ids=(object_id,),
             )
+
+
+_FUNCTIONAL_OVERLAP_CLASSES: tuple[tuple[tuple[str, ...], tuple[str, ...]], ...] = (
+    # Tucked seating: chair slides under the table/desk top — bbox footprints
+    # overlap heavily while the meshes do not touch (SceneSmith's own COL
+    # metric tolerates <1 mm mesh penetration; a zero-tolerance bbox check
+    # over-fires here). Measured on 150 real 3D-FRONT rooms: chair x table
+    # is the #1 GT "collision" (112 pairs), bed x nightstand #2 (87).
+    (("chair", "stool", "bench"), ("table", "desk")),
+    # Bedside tuck: nightstand inside the bed's half-extent bbox (headboard).
+    (("nightstand",), ("bed",)),
+    # Coffee table pushed against sofa (armrest/cushion bbox overhang).
+    (("sofa", "couch"), ("table",)),
+)
+
+
+def _is_functional_overlap(category_a: str, category_b: str) -> bool:
+    """True when the pair matches a whitelisted functional-overlap class."""
+    a, b = category_a.lower(), category_b.lower()
+    for class_x, class_y in _FUNCTIONAL_OVERLAP_CLASSES:
+        if (any(k in a for k in class_x) and any(k in b for k in class_y)) or (
+            any(k in b for k in class_x) and any(k in a for k in class_y)
+        ):
+            return True
+    return False
 
 
 def _l1_floor_collisions(geo: _Geometry, col: _Collector) -> None:
@@ -560,14 +592,26 @@ def _l1_floor_collisions(geo: _Geometry, col: _Collector) -> None:
             area = (
                 geo.floor_footprints[id_a].intersection(geo.floor_footprints[id_b]).area
             )
-            if area > _MIN_OVERLAP_AREA_M2:
+            if area <= _MIN_OVERLAP_AREA_M2:
+                continue
+            cat_a = geo.floor_objects[id_a].category
+            cat_b = geo.floor_objects[id_b].category
+            if _is_functional_overlap(cat_a, cat_b):
                 col.violation(
-                    "L1_FLOOR_COLLISION",
-                    Severity.ERROR,
+                    "L1_FUNCTIONAL_OVERLAP",
+                    Severity.WARNING,
                     f"floor objects '{id_a}' and '{id_b}' overlap by "
-                    f"{area:.4f} m^2",
+                    f"{area:.4f} m^2 (whitelisted functional pair — "
+                    "recorded, not failing; repair must not separate them)",
                     object_ids=(id_a, id_b),
                 )
+                continue
+            col.violation(
+                "L1_FLOOR_COLLISION",
+                Severity.ERROR,
+                f"floor objects '{id_a}' and '{id_b}' overlap by " f"{area:.4f} m^2",
+                object_ids=(id_a, id_b),
+            )
 
 
 def _clearance_rect(

@@ -163,3 +163,25 @@ def test_derive_plan_line_unknown_category_falls_back_to_general() -> None:
     assert "zones=general" in line
     assert "sculpture:wall" in line
     assert line.endswith("n=1")
+
+
+def test_plan_nl_template_renders_natural_language_sentence():
+    from fastfill_train.templates import render_sft_example, split_completion
+
+    record = _floor_record()
+    ex = render_sft_example(record, "plan_nl")
+    plan, layout_text = split_completion(ex.assistant)
+    assert plan.startswith("PLAN:")
+    assert "zones=" not in plan  # NL arm, not the structured line
+    assert "Arrange the room" in plan
+    assert layout_text == record["output"]
+
+
+def test_split_completion_handles_all_three_templates():
+    from fastfill_train.templates import render_sft_example, split_completion
+
+    record = _floor_record()
+    for template in ("direct", "plan", "plan_nl"):
+        ex = render_sft_example(record, template)
+        _, layout_text = split_completion(ex.assistant)
+        assert layout_text == record["output"], template

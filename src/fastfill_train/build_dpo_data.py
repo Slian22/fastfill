@@ -305,8 +305,20 @@ def run_stage1(
     out_path: Path,
     samples_path: Optional[Path],
     template: str,
+    max_reject_codes: int = 2,
 ) -> dict:
-    """Pair SFT ground truths with failing model completions; return stats."""
+    """Pair SFT ground truths with failing model completions; return stats.
+
+    Near-miss gate (Architect-Ant precedent): model-pair DPO scored higher
+    on rules but produced WORSE layouts when preference pairs contained
+    many non-target differences (shortcut/reward-hacking risk). Rejected
+    completions failing with more than ``max_reject_codes`` distinct
+    violation codes are therefore skipped and counted — stage 2's
+    single-factor synthetic pairs are the primary recipe; stage 1 is the
+    near-miss complement (OptiScene reported +7pp from model pairs, so it
+    stays available as an ablation arm; disable the gate with
+    --max-reject-codes 0).
+    """
     contexts = {r["uid"]: r for r in read_records([contexts_path])}
     samples: dict[str, FastFillSample] = {}
     if samples_path is not None:
@@ -330,6 +342,14 @@ def run_stage1(
             if not verdict.startswith("reject_"):
                 _bump(skipped, verdict.removeprefix("skip_"))
                 continue
+            distinct_codes = len(set(codes))
+            if (
+                verdict == "reject_validation_failure"
+                and max_reject_codes > 0
+                and distinct_codes > max_reject_codes
+            ):
+                _bump(skipped, "too_many_violations_not_near_miss")
+                continue
             row = _stage1_row(record, gen["completion"], template, verdict, codes)
             if row["chosen"][0]["content"] == row["rejected"][0]["content"]:
                 _bump(skipped, "identical_completion")
@@ -343,6 +363,7 @@ def run_stage1(
         "samples_path": str(samples_path) if samples_path else None,
         "out_path": str(out_path),
         "template": template,
+        "max_reject_codes": max_reject_codes,
         "counts": counts,
         "judge_modes": modes,
         "judge_mode_note": (
@@ -381,6 +402,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="FastFillSample JSONL for full validation (else parse-only mode)",
     )
     p1.add_argument("--template", choices=TEMPLATES, default="direct")
+    p1.add_argument(
+        "--max-reject-codes",
+        type=int,
+        default=2,
+        help=(
+            "near-miss gate: skip rejected completions with more distinct "
+            "violation codes than this (0 disables; Architect-Ant precedent)"
+        ),
+    )
     return parser
 
 
@@ -403,6 +433,7 @@ def main(argv: Optional[list[str]] = None) -> None:
             Path(args.out),
             Path(args.samples) if args.samples else None,
             args.template,
+            args.max_reject_codes,
         )
     print(json.dumps(stats, indent=2))
 
