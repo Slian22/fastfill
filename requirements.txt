@@ -1,0 +1,17 @@
+# Training server requirements (CUDA torch assumed preinstalled or via pip).
+torch>=2.5
+transformers>=4.55
+trl>=0.21
+peft>=0.15
+datasets>=3.0
+accelerate>=1.0
+pydantic>=2.7
+shapely>=2.0
+numpy>=1.26,<2.0
+pyyaml>=6.0
+matplotlib>=3.8
+openai>=1.60          # eval_layout --endpoint client
+# optional:
+# vllm                # serving merged weights (scripts/serve_vllm.sh)
+# flash-attn          # faster attention on the training server
+# swanlab / wandb     # set report_to accordingly

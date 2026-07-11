@@ -1,0 +1,17 @@
+# DPO stage 1 (human/validator-consensus positives vs SFT self-negatives).
+# Paper config: same LoRA, lr 5e-7, 5 epochs. NOTE the README shows
+# lr 5e-6 / 10 epochs / r32 a16 — that inverts the paper's LoRA and is 10x
+# the paper LR; we follow the paper.
+model_name_or_path: out/sft_full_merged
+dataset_files: [data/dpo/stage1_pairs.jsonl]
+output_dir: out/dpo_stage1
+learning_rate: 5.0e-7
+epochs: 5
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+max_length: 3200
+max_prompt_length: 3200
+dpo_beta: 0.1
+save_steps: 100
+eval_steps: 100
+lora: {r: 16, alpha: 32, dropout: 0.05}

@@ -1,0 +1,18 @@
+# Paper-reference SFT (OptiScene Sec 4.1): Qwen3-8B, LoRA r16/a32/drop0.05,
+# lr 5e-6, 10 epochs, cosine. NOTE the official repo README differs
+# (Qwen2.5-7B, epochs=1, default lr 5e-5) — README is a runnable example,
+# not the paper config; we follow the paper here.
+model_name_or_path: Qwen/Qwen3-8B
+dataset_files: [data/sft/floor_sft.jsonl, data/sft/surface_sft.jsonl]
+template: direct           # run a second job with template: plan for the A/B
+output_dir: out/sft_full
+learning_rate: 5.0e-6
+epochs: 10
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 2
+max_seq_length: 2048
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+save_steps: 200
+eval_steps: 200
+lora: {r: 16, alpha: 32, dropout: 0.05}

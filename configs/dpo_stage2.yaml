@@ -1,0 +1,16 @@
+# DPO stage 2 (validator-taxonomy hard negatives injected into clean
+# layouts — our violation spectrum is much wider than OptiScene's two
+# noise types). Paper config: lr 5e-7, 5 epochs, same LoRA.
+model_name_or_path: out/dpo_stage1_merged
+dataset_files: [data/dpo/stage2_pairs.jsonl]
+output_dir: out/dpo_stage2
+learning_rate: 5.0e-7
+epochs: 5
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+max_length: 3200
+max_prompt_length: 3200
+dpo_beta: 0.1
+save_steps: 100
+eval_steps: 100
+lora: {r: 16, alpha: 32, dropout: 0.05}

@@ -1,0 +1,14 @@
+# T3.1 smoke: verify the full loop (data -> LoRA -> merge -> vLLM -> eval)
+# cheaply before any long run. NOT a quality run.
+model_name_or_path: Qwen/Qwen3-8B
+dataset_files: [data/sft/floor_sft.jsonl, data/sft/surface_sft.jsonl]
+template: direct
+output_dir: out/sft_smoke
+learning_rate: 1.0e-5
+max_steps: 100
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+max_seq_length: 2048
+save_steps: 100
+eval_steps: 50
+lora: {r: 16, alpha: 32, dropout: 0.05}
