@@ -237,9 +237,17 @@ def convert(
     data_dir: Path, limit: int | None, stats: ConversionStats
 ) -> Iterator[FastFillSample]:
     """Yield FastFillSamples from the real 3D-SynthPlace download."""
-    scenes_dir = data_dir / SCENES_SUBDIR
-    if not scenes_dir.is_dir():
-        raise FileNotFoundError(f"3D-SynthPlace scenes dir not found: {scenes_dir}")
+    # HF downloads land in two layouts: with or without the
+    # 3D-SynthPlace_Scenes_Assets/ intermediate dir — probe both.
+    candidates = (
+        data_dir / SCENES_SUBDIR,
+        data_dir / "3D-SynthPlace_indoor_scenes_dataset" / "scenes",
+    )
+    scenes_dir = next((c for c in candidates if c.is_dir()), None)
+    if scenes_dir is None:
+        raise FileNotFoundError(
+            f"3D-SynthPlace scenes dir not found; tried: {[str(c) for c in candidates]}"
+        )
     converted = 0
     for path in sorted(scenes_dir.glob("*.json")):
         if limit is not None and converted >= limit:

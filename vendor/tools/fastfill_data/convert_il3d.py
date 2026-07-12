@@ -35,6 +35,7 @@ Skip reasons counted in :class:`ConversionStats`: ``bad_json``,
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -208,6 +209,13 @@ def _convert_object(
         scale = obj.get("scale") or (1.0, 1.0, 1.0)
         object_path = str(obj.get("object_path") or "")
         x, y, z = yup_to_zup_point(position)
+        if not all(
+            math.isfinite(float(v))
+            for seq in (position, rotation, bbox, scale)
+            for v in seq
+        ):  # full-corpus files contain NaN poses; they would poison hashing
+            stats.skip("nonfinite_values")
+            return None
     except (KeyError, TypeError, ValueError, IndexError):
         stats.skip("malformed_object")
         return None
