@@ -1,12 +1,12 @@
 # fastfill_train — FastFill 布局模型训练工作区
 
 独立于 scenesmith 的训练仓:在训练服务器上把 FastFill 布局规划器(调用 1 Floor + 调用 2 Surface,
-紧凑 codec 文本输出)蒸馏到 Qwen3-8B LoRA。产出 merge 后的权重目录,由 vLLM 以
+紧凑 codec 文本输出)在 Qwen3-8B(对照底座)与 Qwen3.5-9B(候选,A/B 三项赢两项才切换)上,经 Stage-0 三臂(LoRA r32 / r128 / 全参)决出训练方式后训练;Qwen3.6-27B 仅作探顶与 RSFT 采样器。产出 merge 后的权重目录,由 vLLM 以
 OpenAI 兼容端点服务,scenesmith 侧 fastfill 后端零改动接入(改环境变量即可)。
 
 ```
 数据集(服务器) ──vendor/tools converters──▶ FastFillSample JSONL ──dedup/export──▶ SFT JSONL
-        ──train_sft(smoke→full, 模板A/B)──▶ LoRA ──merge──▶ merged/
+        ──train_sft(smoke→full, 模板A/B/C)──▶ LoRA ──merge──▶ merged/
         ──build_dpo_data(stage1 自负例 / stage2 注入负例)──▶ train_dpo ×2 ──merge──▶ final/
         ──scripts/serve_vllm.sh──▶ http://host:8901/v1 ──eval_layout 验收──▶ 权重下载给 scenesmith
 ```
@@ -30,7 +30,7 @@ OpenAI 兼容端点服务,scenesmith 侧 fastfill 后端零改动接入(改环�
 # 1) 环境(CUDA 机)
 python3 -m venv .venv && source .venv/bin/activate
 pip install vllm                          # 先装:让 vllm 钉死它兼容的 torch
-pip install -r requirements.txt           # 后装其余依赖(不会动已钉的 torch)
+pip install -r requirements.txt           # 后装其余;装完前后各记 torch/cuda/vllm 版本+pip check
 python3 -c "import torch,vllm; print(torch.__version__, torch.cuda.is_available(), vllm.__version__)"
 pip check                                 # 安装前后各跑一次,记录进 smoke 报告
 export PYTHONPATH=src                     # 包内 bootstrap 会自动接上 vendor/
@@ -40,8 +40,9 @@ python3 vendor/tools/fastfill_data/convert_3d_synthplace.py --out out/conv/synth
 python3 vendor/tools/fastfill_data/convert_m3dlayout.py --split 3dfront --out out/conv/m3dlayout.jsonl
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
+python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/*.jsonl \
-    --out out/conv/deduped.jsonl --priority m3dlayout,il3d,3d_synthplace,mansionworld
+    --out out/conv/deduped.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
 # export 默认剔除 CC BY-NC(铁律 2)与 unverified-yaw 的 Floor 记录(MansionWorld 朝向防毒)
 
@@ -50,17 +51,19 @@ python3 -m fastfill_train.train_sft --config configs/sft_smoke.yaml
 python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
     --lora out/sft_smoke/checkpoint-100 --out out/sft_smoke_merged
 bash scripts/serve_vllm.sh out/sft_smoke_merged &
+until curl -sf http://127.0.0.1:8901/v1/models >/dev/null; do sleep 2; done   # 就绪再评;评完 kill 掉旧服务
 python3 -m fastfill_train.eval_layout --records data/sft/floor_sft.jsonl \
     --samples out/conv/deduped.jsonl --endpoint http://127.0.0.1:8901/v1 \
     --model fastfill-planner --limit 50 --out out/eval_smoke.json
 
-# 4) 正式 SFT(论文配置;模板 A/B 各跑一档做消融)
+# 4) 正式 SFT(论文配置;模板 A/B/C 各跑一档做消融(--set template=plan / plan_nl))
 python3 -m fastfill_train.train_sft --config configs/sft_full.yaml
 python3 -m fastfill_train.train_sft --config configs/sft_full.yaml \
     --set template=plan --set output_dir=out/sft_full_plan
 
 # 5) DPO(条件项 T3.3,先例提示大概率值得)
-#    stage1:老师/真值为 chosen,SFT 模型自产且过不了 validator 的为 rejected
+#    stage1(near-miss 默认门):rejected 违规码种类 ≤2 才入库,超限跳过计数;
+#    --max-reject-codes 0 恢复完整 model-pair 仅作消融。stage2 注入器均为单对象单属性扰动+双向核验。
 python3 -m fastfill_train.eval_layout --records data/sft/floor_sft.jsonl \
     --endpoint http://127.0.0.1:8901/v1 --model fastfill-planner \
     --dump-generations out/gens_sft.jsonl --out out/eval_sft.json
@@ -122,13 +125,17 @@ python3 -m fastfill_train.build_rsft_data --contexts data/sft/floor_sft.jsonl \
 # 每轮报告:mean_object_delta_vs_gt(负值扩大=在缩水)+ 人工抽看 20 例。
 ```
 
-阶段 0 三臂决策(configs/stage0_*.yaml):冻结同一数据快照 + 同一 held-out,
+阶段 0 三臂决策(configs/stage0_*.yaml)。先冻结快照(house-first 切分、先切后抽、泄漏硬失败、SNAPSHOT.json 记 hash/seed/构成;leakage_check=passed 结果才有效):
+```bash
+python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl --out-dir data/stage0 --val-fraction 0.1 --max-train 8000
+```
+
 LoRA r32 / r128 全线性层 / 全参各跑,比修复前通过率 + CTR + 严格解析率 +
 p50/p95 延迟 + 遗忘;胜者当默认主线,**亚军在全量规模复跑一次确认排序不翻转**。
 validator 碰撞校准已完成并同步(vendor @ scenesmith 23e8b57;GT 探针:
 SynthPlace 100% / IL3D 93% / M3DLayout 73%),全量建库不再被铁律 3 饿死。
 
-## 已知数据问题(训练前必读)
+## 历史校准记录与剩余数据问题
 
 - **真值也过不了严检**:真数据探针(40 个 M3DLayout 3dfront 房)显示 ground truth 修复前仅
   10% 通过 validator,违规全部是 `L1_FLOOR_COLLISION`(3D-FRONT 原始布局本身含 bbox 重叠,
@@ -143,5 +150,5 @@ SynthPlace 100% / IL3D 93% / M3DLayout 73%),全量建库不再被铁律 3 饿死
 ## 测试
 
 ```bash
-PYTHONPATH=src python3 -m pytest tests -q     # 全部无 torch,可在任何机器跑
+PYTHONPATH=src python3 -m pytest tests -q     # 单测不依赖 torch/GPU;以实际 collected/passed 为准
 ```
