@@ -29,7 +29,10 @@ OpenAI 兼容端点服务,scenesmith 侧 fastfill 后端零改动接入(改环�
 ```bash
 # 1) 环境(CUDA 机)
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt          # vllm / flash-attn 视需要再装
+pip install vllm                          # 先装:让 vllm 钉死它兼容的 torch
+pip install -r requirements.txt           # 后装其余依赖(不会动已钉的 torch)
+python3 -c "import torch,vllm; print(torch.__version__, torch.cuda.is_available(), vllm.__version__)"
+pip check                                 # 安装前后各跑一次,记录进 smoke 报告
 export PYTHONPATH=src                     # 包内 bootstrap 会自动接上 vendor/
 
 # 2) 数据:把原始数据集放到 ./data(或 export WORLDEDGE_DATA_DIR=...),然后
@@ -106,6 +109,24 @@ export FASTFILL_LLM_MODEL=fastfill-planner
 - MansionWorld 朝向未按资产校准:export 默认剔其 Floor 记录(Surface 保留,局部系不受影响)。
 - 3D-SynthPlace 数据许可未落地(代码 MIT ≠ 数据可商用;3D-FRONT 衍生部分受其 ToU 约束):
   先研究用途训练,provenance 里 license_pending 已打标。
+
+## RSFT(SFT 后的拒绝采样自举)
+
+```bash
+# 对训练 context 采 K 次(eval_layout --dump-generations 跑 K 轮或采样 n=K)
+python3 -m fastfill_train.build_rsft_data --contexts data/sft/floor_sft.jsonl \
+    --generations out/gens_k.jsonl --samples out/conv/deduped.jsonl \
+    --out data/rsft/round1.jsonl
+# 硬门槛:parse + validator 过 + 物体数 >= max(3, 0.6x真值) —— 防"越训越空"坍缩;
+# dry_rate > 0.5 触发 collapse_alarm 并 exit 2:该轮禁止入训,别靠人眼盯。
+# 每轮报告:mean_object_delta_vs_gt(负值扩大=在缩水)+ 人工抽看 20 例。
+```
+
+阶段 0 三臂决策(configs/stage0_*.yaml):冻结同一数据快照 + 同一 held-out,
+LoRA r32 / r128 全线性层 / 全参各跑,比修复前通过率 + CTR + 严格解析率 +
+p50/p95 延迟 + 遗忘;胜者当默认主线,**亚军在全量规模复跑一次确认排序不翻转**。
+validator 碰撞校准已完成并同步(vendor @ scenesmith 23e8b57;GT 探针:
+SynthPlace 100% / IL3D 93% / M3DLayout 73%),全量建库不再被铁律 3 饿死。
 
 ## 已知数据问题(训练前必读)
 

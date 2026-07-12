@@ -342,6 +342,12 @@ def build_report(results: Sequence[RecordResult], n_missing: int) -> dict:
     codes = Counter(code for r in floor for code in r.violation_codes)
     chars = [r.completion_chars for r in results]
     latencies = [r.latency_ms for r in results if r.latency_ms is not None]
+
+    def _pct(vals, q):
+        if not vals:
+            return None
+        s = sorted(vals)
+        return s[min(len(s) - 1, int(q * len(s)))]
     coverages = [
         r.furniture_coverage for r in floor if r.furniture_coverage is not None
     ]
@@ -358,6 +364,9 @@ def build_report(results: Sequence[RecordResult], n_missing: int) -> dict:
         "violations_top": dict(codes.most_common(TOP_VIOLATIONS)),
         "expected_furniture_coverage": _mean(coverages),
         "completion_chars_mean": _mean(chars),
+        "completion_chars_p95": _pct(chars, 0.95),
+        "latency_ms_p50": _pct(latencies, 0.50),
+        "latency_ms_p95": _pct(latencies, 0.95),
         "completion_chars_median": (statistics.median(chars) if chars else None),
         "latency_ms_mean": _mean(latencies),
         "per_source": _per_source(results),

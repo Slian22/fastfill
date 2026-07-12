@@ -1,0 +1,13 @@
+# Stage-0 decision arm: LoRA r=32.
+# FROZEN data snapshot + FROZEN held-out shared by all three arms — results
+# are incomparable otherwise. Winner = default mainline; runner-up re-run
+# once at full data scale before locking (small-sample ranking can flip).
+model_name_or_path: Qwen/Qwen3-8B
+dataset_files: [data/stage0/train.jsonl]
+template: direct
+output_dir: out/stage0_lora_r32
+learning_rate: 2.0e-5
+epochs: 2
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 2
+lora: {r: 32, alpha: 64, dropout: 0.05}
