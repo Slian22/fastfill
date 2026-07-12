@@ -54,7 +54,7 @@ def test_selects_valid_candidate_and_rejects_bad(tmp_path):
     assert not stats["collapse_alarm"]
     row = json.loads((tmp_path / "rsft.jsonl").read_text())
     assert row["output"] == good
-    assert row["uid"].endswith("#rsft")
+    assert row["uid"].endswith("::rsft")
 
 
 def test_collapse_alarm_when_all_candidates_fail(tmp_path):

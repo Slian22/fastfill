@@ -58,7 +58,7 @@ def test_dpo_stage1_matches_paper() -> None:
     assert (cfg.lora.r, cfg.lora.alpha) == (16, 32)  # paper, NOT README r32/a16
     assert cfg.dpo_beta == pytest.approx(0.1)
     assert cfg.max_length == 3200
-    assert cfg.max_prompt_length == 3200
+    assert cfg.max_prompt_length == 2048
 
 
 def test_dpo_stage2_chains_from_stage1() -> None:
@@ -164,7 +164,7 @@ def test_dpo_config_mapping_paper_values() -> None:
     kwargs = build_dpo_config(cfg, has_eval=True)
     assert kwargs["beta"] == pytest.approx(0.1)
     assert kwargs["max_length"] == 3200
-    assert kwargs["max_prompt_length"] == 3200
+    assert kwargs["max_prompt_length"] == 2048
     assert kwargs["learning_rate"] == pytest.approx(5e-7)
     assert kwargs["num_train_epochs"] == 5
     assert "max_steps" not in kwargs

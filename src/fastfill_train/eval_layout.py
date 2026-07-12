@@ -146,6 +146,7 @@ def generate_live(
             messages=[{"role": "user", "content": user}],
             temperature=LIVE_TEMPERATURE,
             max_tokens=LIVE_MAX_TOKENS,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         latency_ms = (time.perf_counter() - start) * 1000.0
         completion = response.choices[0].message.content or ""

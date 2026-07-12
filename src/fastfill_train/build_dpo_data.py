@@ -332,6 +332,9 @@ def run_stage1(
             if "uid" not in gen or "completion" not in gen:
                 raise ValueError(f"generation row needs uid+completion: {gen!r}")
             counts["generations"] += 1
+            if not str(gen["completion"]).strip():
+                _bump(skipped, "empty_completion")
+                continue
             record = contexts.get(gen["uid"])
             if record is None:
                 _bump(skipped, "unknown_uid")

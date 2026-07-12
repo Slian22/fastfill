@@ -116,7 +116,7 @@ def run_rsft(
             out.write(
                 json.dumps(
                     {
-                        "uid": f"{uid}#rsft",
+                        "uid": f"{uid}::rsft",  # NEVER '#': that marks surface records
                         "split_key": record.get("split_key", ""),
                         "source_dataset": record.get("source_dataset", ""),
                         "instruction": record["instruction"],
