@@ -143,7 +143,10 @@ def _exclusion_reason(
     sample: FastFillSample, exclude_nc: bool, contamination: frozenset[str]
 ) -> str | None:
     """Sample-level filter (checked in 铁律 order), ``None`` = exportable."""
-    if sample.provenance.source_room_id in contamination:
+    if (
+        sample.provenance.source_room_id in contamination
+        or sample.provenance.source_house_id in contamination
+    ):  # scenesmith scenes key on house_id (scene_XXX); room_id is a room name
         return "excluded_contamination"
     if exclude_nc and sample.provenance.license_tag is LicenseTag.CC_BY_NC:
         return "excluded_nc_license"
