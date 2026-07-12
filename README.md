@@ -27,13 +27,15 @@ OpenAI 兼容端点服务,scenesmith 侧 fastfill 后端零改动接入(改环�
 ## 服务器上手
 
 ```bash
-# 1) 环境(CUDA 机)
-python3 -m venv .venv && source .venv/bin/activate
-pip install vllm                          # 先装:让 vllm 钉死它兼容的 torch
-pip install -r requirements.txt           # 后装其余;装完前后各记 torch/cuda/vllm 版本+pip check
-python3 -c "import torch,vllm; print(torch.__version__, torch.cuda.is_available(), vllm.__version__)"
-pip check                                 # 安装前后各跑一次,记录进 smoke 报告
-export PYTHONPATH=src                     # 包内 bootstrap 会自动接上 vendor/
+# 1) 环境(conda,一次装完 —— 版本已钉死为 node03 验证过的 cu12.8 组合)
+conda create -n fastfill python=3.12 -y && conda activate fastfill
+pip install --upgrade pip
+pip install -r requirements.txt
+python -c "import torch,vllm; print(torch.__version__, torch.version.cuda, torch.cuda.is_available(), vllm.__version__)"
+#   期望:2.10.0 12.8 True 0.19.0 —— 若 cuda 显示 13.x,用 cu128 源重装 torch:
+#   pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu128
+pip check
+export PYTHONPATH=src && python -m pytest tests -q     # 88 passed
 
 # 2) 数据:把原始数据集放到 ./data(或 export WORLDEDGE_DATA_DIR=...),然后
 python3 vendor/tools/fastfill_data/convert_3d_synthplace.py --out out/conv/synthplace.jsonl
