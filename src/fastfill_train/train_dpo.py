@@ -7,9 +7,10 @@ Invocation:
 
 ``cfg.model_name_or_path`` must point at a MERGED SFT directory (see
 ``fastfill_train.merge_lora``); a fresh LoRA adapter is trained on top of
-it. With PEFT active, ``ref_model=None`` — TRL uses the base weights with
-adapters disabled as the implicit reference model (same as OptiScene's
-DPO script). Heavy deps are imported lazily so :func:`build_dpo_config`
+it. With PEFT active (``use_lora: true``) ``ref_model=None`` — TRL uses the
+base weights with adapters disabled as the implicit reference (same as
+OptiScene). Full-parameter DPO (``use_lora: false``) loads a frozen copy of
+the SFT weights as the explicit reference. Heavy deps are imported lazily so :func:`build_dpo_config`
 stays testable without trl/torch installed.
 """
 
@@ -67,6 +68,16 @@ def build_dpo_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
     return kwargs
 
 
+def _load_ref(cfg):
+    """Full-param DPO needs a frozen reference copy (LoRA uses adapters-off)."""
+    import torch
+    from transformers import AutoModelForCausalLM
+
+    return AutoModelForCausalLM.from_pretrained(
+        cfg.model_name_or_path, torch_dtype=torch.bfloat16
+    )
+
+
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser("FastFill DPO training (LoRA)").parse_args(argv)
     cfg = load_config(args.config, args.overrides)
@@ -81,12 +92,12 @@ def main(argv: list[str] | None = None) -> None:
     dpo_args = DPOConfig(**build_dpo_config(cfg, has_eval=eval_dataset is not None))
     trainer = DPOTrainer(
         model,
-        ref_model=None,  # PEFT active: adapters-off base acts as reference
+        ref_model=None if cfg.use_lora else _load_ref(cfg),  # PEFT active: adapters-off base acts as reference
         args=dpo_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
-        peft_config=build_lora_config(cfg),
+        peft_config=build_lora_config(cfg) if cfg.use_lora else None,
     )
     trainer.train()
     trainer.save_model(cfg.output_dir)

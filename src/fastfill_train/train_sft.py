@@ -79,6 +79,8 @@ def build_sft_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
     kwargs["eval_strategy"] = "steps" if has_eval else "no"
     if has_eval:
         kwargs["eval_steps"] = cfg.eval_steps
+    if cfg.deepspeed:
+        kwargs["deepspeed"] = cfg.deepspeed
     return kwargs
 
 
@@ -154,7 +156,7 @@ def main(argv: list[str] | None = None) -> None:
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
-        peft_config=build_lora_config(cfg),
+        peft_config=build_lora_config(cfg) if cfg.use_lora else None,
     )
     trainer.train()
     trainer.save_model(cfg.output_dir)

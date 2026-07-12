@@ -58,6 +58,8 @@ class TrainConfig:
     max_grad_norm: float = 1.0
     bf16: bool = True
     gradient_checkpointing: bool = True
+    use_lora: bool = True  # False = full-parameter fine-tune (80G-class GPUs)
+    deepspeed: str | None = None  # e.g. configs/ds_zero2.json for full-param
 
     # DPO-only
     dpo_beta: float = 0.1
