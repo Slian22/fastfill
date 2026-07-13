@@ -324,7 +324,9 @@ def _surface_ground_truth(
     the sample, group, surface, or parent cannot be resolved."""
     if sample is None or "#" not in uid:
         return None
-    group_id = uid.split("#", 1)[1]
+    # rsplit: mansionworld sample_ids contain "#" (building names like
+    # "..._fp001#3"); group_ids never do, so the LAST "#" is the separator.
+    group_id = uid.rsplit("#", 1)[1]
     group = next(
         (g for g in sample.layout.surface_groups if g.group_id == group_id), None
     )
@@ -410,7 +412,7 @@ def evaluate(
             missing += 1
             continue
         if _is_surface_uid(uid):
-            sample = samples.get(uid.split("#", 1)[0])
+            sample = samples.get(uid.rsplit("#", 1)[0])
             results.append(score_surface(record, generation, sample))
         else:
             results.append(score_floor(record, generation, samples.get(uid)))
