@@ -72,6 +72,7 @@ def build_sft_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
         # Non-reentrant checkpointing: required for LoRA (frozen inputs
         # otherwise break the autograd graph under the reentrant variant).
         kwargs["gradient_checkpointing_kwargs"] = {"use_reentrant": False}
+    kwargs["completion_only_loss"] = True  # prompt must never enter the loss
     if cfg.max_steps > 0:
         kwargs["max_steps"] = cfg.max_steps
     else:

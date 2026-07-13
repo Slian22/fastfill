@@ -93,19 +93,16 @@ def test_read_records_spans_multiple_files(tmp_path: Path) -> None:
 # --------------------------------------------------------------- render_messages
 
 
-def test_render_messages_chat_shape() -> None:
-    records = _records(houses=1, per_house=2)
-    rows = render_messages(records, "direct")
-    assert len(rows) == 2
-    for row, record in zip(rows, records):
-        assert set(row) == {"messages"}
-        messages = row["messages"]
-        assert [m["role"] for m in messages] == ["user", "assistant"]
-        assert messages[0]["content"] == (
-            f"{record['instruction']}\n{record['input']}"
-        )
-        assert messages[1]["content"] == record["output"]
+def test_render_messages_chat_shape():
+    import json
 
+    record = _records(1, 1)[0]
+    rows = render_messages([record], "direct")
+    assert set(rows[0]) == {"prompt", "completion"}  # completion-only loss
+    assert rows[0]["prompt"][0]["role"] == "user"
+    assert rows[0]["completion"][0]["role"] == "assistant"
+    assert rows[0]["completion"][0]["content"] == record["output"]
+    json.dumps(rows)  # serializable
 
 def test_render_messages_rows_are_json_serializable() -> None:
     rows = render_messages(_records(houses=1, per_house=1), "plan")

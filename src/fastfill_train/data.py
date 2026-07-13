@@ -58,11 +58,23 @@ def split_house_first(
 
 
 def render_messages(records: list[dict], template: str) -> list[dict]:
-    """SFT records -> [{'messages': [...]}] rows (TRL chat format)."""
-    return [
-        {"messages": render_sft_example(r, template).to_messages()}
-        for r in records
-    ]
+    """SFT records -> TRL prompt-completion rows (COMPLETION-ONLY loss).
+
+    Deliberately NOT the plain "messages" format: with messages TRL trains
+    on the full sequence, so the model also learns to echo the RoomContext
+    (observed in smoke: completions regurgitating the input). The
+    prompt/completion split makes TRL mask the prompt from the loss.
+    """
+    rows = []
+    for r in records:
+        ex = render_sft_example(r, template)
+        rows.append(
+            {
+                "prompt": [{"role": "user", "content": ex.user}],
+                "completion": [{"role": "assistant", "content": ex.assistant}],
+            }
+        )
+    return rows
 
 
 def load_sft_datasets(
