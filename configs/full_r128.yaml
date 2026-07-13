@@ -1,0 +1,22 @@
+# Full-data runoff arm B: LoRA r=128 all-linear (stage-0 runner-up).
+# FAIR conditions vs configs/full_fp.yaml: same data/full snapshot, same
+# epochs=3, same template, same val split. Arm-specific lr/batch follow the
+# stage-0 arm (each method keeps its own working hyperparams).
+# Launch (single GPU):
+#   CUDA_VISIBLE_DEVICES=0 nohup python3 -m fastfill_train.train_sft \
+#     --config configs/full_r128.yaml > train_full_r128.log 2>&1 &
+model_name_or_path: Qwen/Qwen3-8B
+dataset_files: [data/full/train.jsonl]
+template: direct
+output_dir: out/full_r128
+learning_rate: 5.0e-5
+epochs: 3
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 2
+max_seq_length: 2048
+save_steps: 4000   # ~14k total steps; keep checkpoint bloat down
+eval_steps: 1000
+lora: {r: 128, alpha: 256, dropout: 0.05}
+val_fraction: 0.05
+seed: 43   # snapshot froze heldout with seed 42; same seed here would leave
+           # train-time val EMPTY (bucket subset already removed) -> silent eval off
