@@ -313,7 +313,14 @@ def _fix_surface_oob(violation: Violation, state: _WorkState, ctx: RoomContext) 
         state.steps.append(f"skip:surface_oob:{violation.surface_id}:unknown_surface")
         state.failed_surfaces.add(violation.surface_id)
         return
-    polygon = Polygon(surface.polygon_local)
+    # position_local is in the SURFACE-CENTROID frame (README contract); the
+    # validator shifts polygon_local to that frame before containment, so
+    # repair must clamp in the SAME shifted frame or it clamps to the wrong
+    # region whenever polygon_local is not centroid-centered.
+    cx, cy = polygon_centroid(surface.polygon_local)
+    polygon = Polygon(
+        tuple((x - cx, y - cy) for x, y in surface.polygon_local)
+    )
     for object_id in violation.object_ids:
         located = _find_surface_object(state, violation.surface_id, object_id)
         if located is None:

@@ -5,8 +5,11 @@
 #   SFT (100 steps, LoRA) -> merge -> vLLM serve -> layout eval vs endpoint.
 #
 # Assumes (done beforehand, see vendor/tools/fastfill_data/):
-#   - convert_*.py + deduplicate.py + export_sft.py already produced
-#     data/sft/floor_sft.jsonl and data/sft/surface_sft.jsonl
+#   - the data chain already ran IN THIS ORDER (see README step 2):
+#       convert_*.py -> deduplicate.py --contamination-list (dedup #1 +
+#       closure on raw hashes) -> sanitize.py -> deduplicate.py (dedup #2)
+#       -> export_sft.py -> make_snapshot (train/heldout/test)
+#     producing data/stage0/{train,heldout}.jsonl
 #   - training deps installed (requirements.txt) on a CUDA machine,
 #     including vllm for step 3.
 #
@@ -45,10 +48,10 @@ curl -sf "http://127.0.0.1:$PORT/v1/models" > /dev/null \
 
 # --- 4. Layout eval against the live endpoint ------------------------------
 PYTHONPATH=src python3 -m fastfill_train.eval_layout \
-  --records data/sft/floor_sft.jsonl \
+  --records data/stage0/heldout.jsonl \
   --samples out/conv/deduped.jsonl \
   --endpoint "http://127.0.0.1:$PORT/v1" \
-  --model fastfill-planner --limit 50 \
+  --model fastfill-planner --limit 100 \
   --out out/eval_smoke.json
 
 echo "smoke pipeline complete — adapter: out/sft_smoke, merged: out/sft_smoke_merged"

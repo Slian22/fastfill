@@ -3,7 +3,9 @@
 # (Qwen2.5-7B, epochs=1, default lr 5e-5) — README is a runnable example,
 # not the paper config; we follow the paper here.
 model_name_or_path: Qwen/Qwen3-8B
-dataset_files: [data/sft/floor_sft.jsonl, data/sft/surface_sft.jsonl]
+# Train ONLY on the frozen snapshot train side — the raw export still
+# contains heldout/test rows (make_snapshot splits them out).
+dataset_files: [data/stage0/train.jsonl]
 template: direct           # run a second job with template: plan for the A/B
 output_dir: out/sft_full
 learning_rate: 5.0e-6

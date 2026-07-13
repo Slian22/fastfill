@@ -39,14 +39,18 @@ real downloads in `<repo>/../data/`.
 | `transforms.py` | Coordinate conversions (Y-up→Z-up, recentering, local frames) with hand-derived test vectors |
 | `provenance.py` | `geometry_hash` / `layout_hash` for 铁律-4 cross-source dedup; split keys are house-first |
 | `interfaces.py` | Protocols: LLMBackend, generator, asset resolver, context backend |
-| `generator.py` | Two-stage API generation (call 1 floor, call 2 batched surfaces, ≤1 batched semantic repair) |
+| `generator.py` | Line-codec API generation (1 floor call, 1 call per support surface, per-failed-surface semantic repair); prompts are training-parity (no system message, instruction + codec) |
 | `validator.py` | Deterministic L0–L3 + SupportValidatorSuite; rebuilds task evidence independently — model self-claims never count |
 | `repair.py` | Bounded deterministic repair (floor ≤20 steps, ≤10 per surface, identity on valid layouts) |
 | `codec.py` | Compact training codec (cm / degree integers) with lossless-under-quantization roundtrip |
 | `asset_resolver.py` | CanonicalAssetResolver (category-table bbox proxies + canonical top surfaces); real-library resolver is an adapter point |
 | `context_builder.py` | v1 backend: build RoomContext from growing_world room data (hook T1.1) |
 
-Data converters and SFT export live in `tools/fastfill_data/` (repo root).
+Data converters, the label sanitizer and SFT export live in
+`tools/fastfill_data/` (repo root). Pipeline order: convert →
+`deduplicate.py --contamination-list` (dedup #1 + hash closure on raw
+hashes) → `sanitize.py` (validate/repair labels, restamp hashes) →
+`deduplicate.py` (dedup #2) → `export_sft.py`.
 
 ## Running tests
 

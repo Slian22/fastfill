@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
@@ -38,6 +39,7 @@ if TYPE_CHECKING:
 console_logger = logging.getLogger(__name__)
 
 _DOOR_CLEARANCE_M = 0.9
+_MAX_REPAIR_ROUNDS = 3  # mirrors eval_layout / fastfill_api_smoke / sanitize
 
 
 def _room_center(placed: Any) -> tuple[float, float]:
@@ -184,13 +186,28 @@ class FastFillContentHook(ContentHooks):
     Always writes ``fastfill/room_context.json``. With ``generate=True`` it
     runs the fixed-call pipeline (generate → validate → deterministic repair
     → revalidate) and writes ``room_content_layout.json`` +
-    ``validation_report.json``. Generation failures are logged and never
-    break the growth loop.
+    ``validation_report.json``.
+
+    Failure policy: every generation failure writes a structured
+    ``generation_error.json`` and increments ``failure_count`` — a room can
+    never stay empty silently. With ``strict=False`` (production default)
+    the growth loop survives; ``strict=True`` (or ``$FASTFILL_STRICT=1``)
+    re-raises so smoke runs and CI fail fast.
     """
 
-    def __init__(self, world_dir: Path, *, generate: bool = False) -> None:
+    def __init__(
+        self,
+        world_dir: Path,
+        *,
+        generate: bool = False,
+        strict: bool | None = None,
+    ) -> None:
         self.world_dir = Path(world_dir)
         self.generate = generate
+        if strict is None:
+            strict = os.environ.get("FASTFILL_STRICT", "") not in ("", "0", "false")
+        self.strict = strict
+        self.failure_count = 0
 
     def populate_room(
         self,
@@ -238,14 +255,27 @@ class FastFillContentHook(ContentHooks):
             from scenesmith.growing_world.fastfill.validator import validate
 
             generator = FastFillGenerator(
-                llm=OpenAIChatBackend(), resolver=CanonicalAssetResolver()
+                llm=OpenAIChatBackend(),
+                resolver=CanonicalAssetResolver(),
+                surface_failure_mode="raise" if self.strict else "skip",
             )
             result = generator.generate_room(ctx)
-            report = validate(result.layout, ctx)
-            outcome = deterministic_repair(result.layout, report, ctx)
-            final_report = validate(outcome.layout, ctx)
+            # Iterated repair -> revalidate, same depth as the eval harness
+            # and smoke script (a single round would under-repair rooms the
+            # acceptance metrics certified as passing).
+            layout = result.layout
+            report = validate(layout, ctx)
+            final_report = report
+            for _ in range(_MAX_REPAIR_ROUNDS):
+                if final_report.passed:
+                    break
+                outcome = deterministic_repair(layout, final_report, ctx)
+                if outcome.layout == layout:
+                    break  # no progress possible
+                layout = outcome.layout
+                final_report = validate(layout, ctx)
             (out_dir / "room_content_layout.json").write_text(
-                outcome.layout.model_dump_json(indent=2)
+                layout.model_dump_json(indent=2)
             )
             (out_dir / "validation_report.json").write_text(
                 final_report.model_dump_json(indent=2)
@@ -257,13 +287,26 @@ class FastFillContentHook(ContentHooks):
                 len(final_report.violations),
                 result.trace.llm_calls,
             )
-        except Exception:  # noqa: BLE001 — content must not kill growth
+        except Exception as exc:  # noqa: BLE001 — counted + surfaced, never silent
+            self.failure_count += 1
             console_logger.exception(
-                "[fastfill] room '%s': generation failed", ctx.room_id
+                "[fastfill] room '%s': generation failed (failure #%d)",
+                ctx.room_id,
+                self.failure_count,
             )
-            (out_dir / "generation_error.txt").write_text(
-                "fastfill generation failed; see grow log for traceback"
+            (out_dir / "generation_error.json").write_text(
+                json.dumps(
+                    {
+                        "room_id": ctx.room_id,
+                        "error_type": type(exc).__name__,
+                        "message": str(exc),
+                        "strict": self.strict,
+                    },
+                    indent=2,
+                )
             )
+            if self.strict:
+                raise
 
 
 def dump_context_json(ctx: RoomContext) -> str:

@@ -24,12 +24,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
-from scenesmith.growing_world.fastfill.codec import decode_floor_layout
+from scenesmith.growing_world.fastfill.codec import (
+    LAYOUT_PREFIX,
+    PLAN_PREFIX,
+    decode_floor_layout,
+    strip_plan_prefix,
+)
 from scenesmith.growing_world.fastfill.schema import Anchor, FloorLayout
 
 TEMPLATES = ("direct", "plan", "plan_nl")
-PLAN_PREFIX = "PLAN:"
-LAYOUT_PREFIX = "LAYOUT:"
 
 _ZONE_BY_KEYWORD: tuple[tuple[str, str], ...] = (
     ("bed", "sleeping"),
@@ -166,14 +169,7 @@ def _is_surface_record(record: dict) -> bool:
 def split_completion(text: str) -> tuple[str, str]:
     """Invert the template at eval time: ``(plan_line, layout_codec_text)``.
 
-    Handles both formats: direct completions return an empty plan. Robust to
-    the model echoing extra whitespace, but never rewrites layout content.
+    Delegates to the vendored ``codec.strip_plan_prefix`` — the SAME
+    splitter the scenesmith runtime uses, so eval and runtime cannot drift.
     """
-    stripped = text.strip()
-    if LAYOUT_PREFIX in stripped:
-        plan_part, _, rest = stripped.partition(LAYOUT_PREFIX)
-        return plan_part.strip(), rest.lstrip("\n").lstrip()
-    if not stripped.startswith(PLAN_PREFIX):
-        return "", stripped
-    plan_line, _, rest = stripped.partition("\n")
-    return plan_line.strip(), rest.strip()
+    return strip_plan_prefix(text)

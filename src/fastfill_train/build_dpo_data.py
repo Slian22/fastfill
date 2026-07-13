@@ -45,6 +45,7 @@ import fastfill_train  # noqa: F401  (vendor path bootstrap)
 from fastfill_data.export_sft import (
     FLOOR_INSTRUCTION,
     SURFACE_INSTRUCTION,
+    UNVERIFIED_YAW_NOTE,
     build_support_context,
 )
 from scenesmith.growing_world.fastfill.codec import (
@@ -57,6 +58,7 @@ from scenesmith.growing_world.fastfill.codec import (
 from scenesmith.growing_world.fastfill.schema import (
     FastFillSample,
     FloorLayout,
+    LicenseTag,
     RoomContentLayout,
     RoomContext,
     SurfaceObjectGroup,
@@ -184,6 +186,9 @@ def _emit_sample_pairs(
 ) -> int:
     """Try injectors in round-robin order until ``per_sample`` pairs emitted."""
     original_codes = original_violation_codes(sample)
+    # Same facing-poison gate as export_sft: unverified-yaw samples must not
+    # contribute FLOOR-level chosen labels (surface pairs stay legal).
+    skip_floor = UNVERIFIED_YAW_NOTE in sample.provenance.notes
     emitted = 0
     for name in rotated_names:
         if emitted >= per_sample:
@@ -191,6 +196,9 @@ def _emit_sample_pairs(
         injection = ALL_INJECTORS[name](sample)
         if injection is None:
             _bump(skipped, f"not_applicable:{name}")
+            continue
+        if skip_floor and injection.level == FLOOR_LEVEL:
+            _bump(skipped, f"excluded_unverified_yaw_floor:{name}")
             continue
         if not verify_injection(sample, injection, original_codes):
             _bump(skipped, f"verification_failed:{name}")
@@ -206,9 +214,19 @@ def _emit_sample_pairs(
 
 
 def run_stage2(
-    in_path: Path, out_path: Path, template: str, per_sample: int, seed: int
+    in_path: Path,
+    out_path: Path,
+    template: str,
+    per_sample: int,
+    seed: int,
+    exclude_nc: bool = True,
 ) -> dict:
-    """Build stage-2 pairs from FastFillSample JSONL; return the stats dict."""
+    """Build stage-2 pairs from FastFillSample JSONL; return the stats dict.
+
+    Applies the SAME sample-level 铁律 gates as export_sft (NC license,
+    unverified-yaw floors) — stage-2 chosen completions are training labels
+    and must obey the training-data rules, not just the SFT export.
+    """
     names = sorted(ALL_INJECTORS)
     random.Random(seed).shuffle(names)
     counts: dict[str, int] = {"input_samples": 0, "pairs": 0}
@@ -218,6 +236,9 @@ def run_stage2(
     with out_path.open("w", encoding="utf-8") as out:
         for index, sample in enumerate(_load_samples(in_path)):
             counts["input_samples"] += 1
+            if exclude_nc and sample.provenance.license_tag is LicenseTag.CC_BY_NC:
+                _bump(skipped, "excluded_nc_license")
+                continue
             start = index % len(names)
             rotated = names[start:] + names[:start]
             emitted = _emit_sample_pairs(
@@ -235,6 +256,7 @@ def run_stage2(
         "template": template,
         "per_sample": per_sample,
         "seed": seed,
+        "exclude_nc": exclude_nc,
         "counts": counts,
         "per_injector": dict(sorted(per_injector.items())),
         "skipped": dict(sorted(skipped.items())),
@@ -395,6 +417,12 @@ def _build_parser() -> argparse.ArgumentParser:
     p2.add_argument("--template", choices=TEMPLATES, default="direct")
     p2.add_argument("--per-sample", type=int, default=DEFAULT_PER_SAMPLE)
     p2.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    p2.add_argument(
+        "--exclude-nc",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="exclude CC BY-NC samples from chosen labels (铁律 2; default on)",
+    )
     p1 = sub.add_parser("stage1", help="model self-negatives vs ground truth")
     p1.add_argument("--contexts", required=True, help="floor SFT JSONL")
     p1.add_argument("--generations", required=True, help="{uid,completion} JSONL")
@@ -428,6 +456,7 @@ def main(argv: Optional[list[str]] = None) -> None:
             args.template,
             args.per_sample,
             args.seed,
+            args.exclude_nc,
         )
     else:
         stats = run_stage1(

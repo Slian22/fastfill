@@ -1,7 +1,9 @@
 # T3.1 smoke: verify the full loop (data -> LoRA -> merge -> vLLM -> eval)
 # cheaply before any long run. NOT a quality run.
 model_name_or_path: Qwen/Qwen3-8B
-dataset_files: [data/sft/floor_sft.jsonl, data/sft/surface_sft.jsonl]
+# Train ONLY on the frozen snapshot train side — the raw export still
+# contains heldout/test rows (make_snapshot splits them out).
+dataset_files: [data/stage0/train.jsonl]
 template: direct
 output_dir: out/sft_smoke
 learning_rate: 1.0e-5

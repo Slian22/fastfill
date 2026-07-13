@@ -41,6 +41,44 @@ from scenesmith.growing_world.fastfill.transforms import normalize_deg
 _ANCHOR_TO_FLAG = {Anchor.WALL: "W", Anchor.CORNER: "C", Anchor.FREE: "F"}
 _FLAG_TO_ANCHOR = {v: k for k, v in _ANCHOR_TO_FLAG.items()}
 
+# Canonical task instructions for the two training targets. Training
+# (export_sft), DPO building and RUNTIME prompts all read these — the user
+# message a served model sees must be byte-identical to training.
+FLOOR_INSTRUCTION = (
+    "Place floor-standing furniture in the room described below. Output one "
+    "object per line as category|w,d,h|x,y|yaw|flags with sizes/positions in "
+    "cm integers, yaw in degree integers CCW about +Z (front faces +Y at "
+    "yaw 0), positions in the room frame (floor centroid origin)."
+)
+SURFACE_INSTRUCTION = (
+    "Place small objects on the support surface described below. Output a "
+    "group header line then one object per line as category|w,d,h|x,y|yaw|t "
+    "with sizes/positions in cm integers relative to the surface-local frame "
+    "(surface centroid origin, parent-relative yaw in degree integers)."
+)
+
+# Plan-template markers (mirrored by fastfill_train.templates, which
+# delegates to strip_plan_prefix so the two sides cannot drift).
+PLAN_PREFIX = "PLAN:"
+LAYOUT_PREFIX = "LAYOUT:"
+
+
+def strip_plan_prefix(text: str) -> tuple[str, str]:
+    """Split a completion into ``(plan_line, layout_codec_text)``.
+
+    Inverts the "plan"/"plan_nl" training templates at inference time;
+    "direct" completions return an empty plan. Robust to extra whitespace,
+    never rewrites layout content.
+    """
+    stripped = text.strip()
+    if LAYOUT_PREFIX in stripped:
+        plan_part, _, rest = stripped.partition(LAYOUT_PREFIX)
+        return plan_part.strip(), rest.lstrip("\n").lstrip()
+    if not stripped.startswith(PLAN_PREFIX):
+        return "", stripped
+    plan_line, _, rest = stripped.partition("\n")
+    return plan_line.strip(), rest.strip()
+
 
 # ------------------------------------------------------------- scalar helpers
 
@@ -242,13 +280,20 @@ def _decode_pattern(token: str) -> tuple[GroupPattern, PatternParams]:
 
 
 def encode_surface_groups(groups: Sequence[SurfaceObjectGroup]) -> str:
-    """Group header line + one line per surface object."""
+    """Group header line + one line per surface object.
+
+    ``anchor`` is written as the member id TAIL (text after the last ``/``)
+    because the decoder regenerates member ids as
+    ``<group_id>/<category>_<n>`` — a full verbatim id could never match a
+    decoded member.
+    """
     lines: list[str] = []
     for g in groups:
+        anchor_tail = g.anchor_object_id.rsplit("/", 1)[-1]
         lines.append(
             f"group {g.group_id} surface={g.surface_id} "
             f"pattern={_encode_pattern(g.pattern, g.pattern_params)} "
-            f"anchor={g.anchor_object_id or '-'}"
+            f"anchor={anchor_tail or '-'}"
         )
         for obj in g.objects:
             cat = _check_token(obj.category, "category")
@@ -265,14 +310,21 @@ def _decode_group_header(line: str) -> SurfaceObjectGroup:
     if len(parts) != 5 or parts[0] != "group":
         raise ValueError(f"malformed group header: {line!r}")
     fields = dict(p.split("=", 1) for p in parts[2:])
+    if set(fields) != {"surface", "pattern", "anchor"}:
+        raise ValueError(
+            f"group header needs surface=/pattern=/anchor= fields: {line!r}"
+        )
     pattern, params = _decode_pattern(fields["pattern"])
     anchor = fields["anchor"]
+    group_id = parts[1]
     return SurfaceObjectGroup(
-        group_id=parts[1],
+        group_id=group_id,
         surface_id=fields["surface"],
         pattern=pattern,
         pattern_params=params,
-        anchor_object_id="" if anchor == "-" else anchor,
+        # Anchor is encoded as the member TAIL (category_n); decoded member
+        # ids are <group_id>/<category>_<n>, so rebuild the full id here.
+        anchor_object_id="" if anchor == "-" else f"{group_id}/{anchor}",
     )
 
 

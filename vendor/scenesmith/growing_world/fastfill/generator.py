@@ -1,15 +1,33 @@
-"""FastFill two-stage API generation (§2 call budget: 2 + <=1 repair).
+"""FastFill generation over the training line codec (per-support calls).
 
-``FastFillGenerator`` orchestrates the fixed call sequence: call 1 produces
-floor furniture, the deterministic asset resolver binds real dimensions and
-support-surface geometry, call 2 fills all surfaces in ONE batched call, and
-``semantic_repair`` regenerates only failed groups in at most one extra call.
-Each model call retries at most ``max_retries_per_call`` times on a
-parse/schema failure (the error text is appended to the user message), then
-raises :class:`GenerationError`.
+``FastFillGenerator`` orchestrates the call sequence: call 1 produces floor
+furniture (line codec, one call per room), the deterministic asset resolver
+binds real dimensions and support-surface geometry, then ONE call PER
+support surface fills that surface — matching the one-support-per-record
+SFT shape — and ``semantic_repair`` regenerates failed surfaces with one
+extra call per failed surface. Model output is parsed with the SAME codec
+used to build the training labels (``decode_floor_layout`` /
+``decode_surface_groups``, plan prefixes stripped first); JSON is gone from
+the runtime protocol. Each model call retries at most
+``max_retries_per_call`` times on a parse/schema failure (the error text is
+appended to the user message), then raises :class:`GenerationError`.
+
+Per-surface failures follow ``surface_failure_mode``: ``"skip"`` (default)
+records the failure in the trace notes and leaves that surface empty —
+production world growth survives; ``"raise"`` propagates (smoke/CI
+fail-fast).
+
+Budget note: ``OutputBudget.max_output_tokens_surface`` is the cap for EACH
+per-surface call (the historical single batched surface call no longer
+exists).
 
 ``OpenAIChatBackend`` is the real backend; it imports ``openai`` lazily so
 unit tests (which inject a fake ``LLMBackend``) never touch the package.
+An empty system prompt is NOT sent (training used a single user turn), the
+default temperature is 0.0 (deterministic eval parity), and Qwen thinking
+is explicitly disabled via ``chat_template_kwargs`` (override with
+``$FASTFILL_LLM_EXTRA_BODY``, e.g. ``{}`` for servers that reject the
+field).
 """
 
 from __future__ import annotations
@@ -21,6 +39,11 @@ from typing import Callable, Sequence, TypeVar
 
 from pydantic import ValidationError
 
+from scenesmith.growing_world.fastfill.codec import (
+    decode_floor_layout,
+    decode_surface_groups,
+    strip_plan_prefix,
+)
 from scenesmith.growing_world.fastfill.interfaces import (
     AssetResolver,
     GenerationResult,
@@ -46,55 +69,23 @@ from scenesmith.growing_world.fastfill.schema import (
 ENV_BASE_URL = "FASTFILL_LLM_BASE_URL"
 ENV_API_KEY = "FASTFILL_LLM_API_KEY"
 ENV_MODEL = "FASTFILL_LLM_MODEL"
+ENV_EXTRA_BODY = "FASTFILL_LLM_EXTRA_BODY"
 LLM_CONFIG_ROLE = "fastfill"  # role key in growing_world llm_config models
+
+# Qwen chat templates default to thinking mode; training completions carry
+# no thinking, so it must be off for parity (vLLM honors this kwarg).
+DEFAULT_EXTRA_BODY: dict = {"chat_template_kwargs": {"enable_thinking": False}}
 
 _DEFAULT_SURFACE_MAX_TOKENS = OutputBudget().max_output_tokens_surface
 _MAX_ERROR_CHARS = 600
 _MAX_NEIGHBOR_CATEGORIES = 6
+_SURFACE_FAILURE_MODES = ("skip", "raise")
 
 _T = TypeVar("_T")
 
 
 class GenerationError(RuntimeError):
-    """A model call failed to yield schema-valid JSON within the retry budget."""
-
-
-# ------------------------------------------------------------ JSON extraction
-
-
-def extract_first_json(text: str) -> object:
-    """Parse the first balanced JSON array/object embedded in ``text``.
-
-    Robust to markdown fences and surrounding prose: scans from the first
-    ``[`` or ``{`` with string/escape awareness. Raises ``ValueError`` when
-    no parsable JSON value is present.
-    """
-    starts = [i for i in (text.find("["), text.find("{")) if i != -1]
-    if not starts:
-        raise ValueError("no JSON array/object found in model output")
-    start = min(starts)
-    depth = 0
-    in_string = False
-    escaped = False
-    for i in range(start, len(text)):
-        ch = text[i]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif ch == "\\":
-                escaped = True
-            elif ch == '"':
-                in_string = False
-            continue
-        if ch == '"':
-            in_string = True
-        elif ch in "[{":
-            depth += 1
-        elif ch in "]}":
-            depth -= 1
-            if depth == 0:
-                return json.loads(text[start : i + 1])
-    raise ValueError("unbalanced JSON in model output")
+    """A model call failed to yield codec-valid output within the retry budget."""
 
 
 # -------------------------------------------------------------- real backend
@@ -136,6 +127,23 @@ def _resolve_backend_config(
     )
 
 
+def _resolve_extra_body(extra_body: dict | None) -> dict:
+    if extra_body is not None:
+        return extra_body
+    env = os.environ.get(ENV_EXTRA_BODY)
+    if env is not None:
+        try:
+            parsed = json.loads(env)
+        except json.JSONDecodeError as err:
+            raise GenerationError(
+                f"${ENV_EXTRA_BODY} is not valid JSON: {err}"
+            ) from err
+        if not isinstance(parsed, dict):
+            raise GenerationError(f"${ENV_EXTRA_BODY} must be a JSON object")
+        return parsed
+    return DEFAULT_EXTRA_BODY
+
+
 class OpenAIChatBackend:
     """OpenAI-compatible Chat Completions backend (:class:`LLMBackend`)."""
 
@@ -146,7 +154,8 @@ class OpenAIChatBackend:
         api_key: str | None = None,
         model: str | None = None,
         config_path: str | None = None,
-        temperature: float = 0.2,
+        temperature: float = 0.0,
+        extra_body: dict | None = None,
     ) -> None:
         cfg = _resolve_backend_config(base_url, api_key, model, config_path)
         # Lazy import: unit tests inject fake backends and must never
@@ -156,18 +165,33 @@ class OpenAIChatBackend:
         self._client = OpenAI(api_key=cfg.api_key, base_url=cfg.base_url)
         self._model = cfg.model
         self._temperature = temperature
+        self._extra_body = _resolve_extra_body(extra_body)
 
     def complete(self, *, system: str, user: str, max_tokens: int) -> str:
+        # Training rendered a single user turn; an empty system prompt is
+        # omitted entirely so the served prompt matches training bytes.
+        messages = [{"role": "system", "content": system}] if system else []
+        messages.append({"role": "user", "content": user})
+        kwargs: dict = {}
+        if self._extra_body:
+            kwargs["extra_body"] = self._extra_body
         response = self._client.chat.completions.create(
             model=self._model,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            messages=messages,
             max_tokens=max_tokens,
             temperature=self._temperature,
+            **kwargs,
         )
-        return response.choices[0].message.content or ""
+        choice = response.choices[0]
+        if getattr(choice, "finish_reason", None) == "length":
+            # The line codec is prefix-closed: a truncated completion still
+            # decodes, silently losing tail objects. Fail as a parse error
+            # so _call_with_retry retries instead of accepting it.
+            raise ValueError(
+                f"completion truncated at max_tokens={max_tokens} "
+                "(finish_reason=length)"
+            )
+        return choice.message.content or ""
 
 
 # ----------------------------------------------------------------- generator
@@ -182,9 +206,17 @@ class _CallStats:
     prompt_chars: int = 0
     completion_chars: int = 0
 
+    def __add__(self, other: "_CallStats") -> "_CallStats":
+        return _CallStats(
+            calls=self.calls + other.calls,
+            retries=self.retries + other.retries,
+            prompt_chars=self.prompt_chars + other.prompt_chars,
+            completion_chars=self.completion_chars + other.completion_chars,
+        )
+
 
 class FastFillGenerator:
-    """The two fixed generation calls plus one optional semantic repair."""
+    """Floor call + per-surface calls + per-failed-surface semantic repair."""
 
     def __init__(
         self,
@@ -192,10 +224,16 @@ class FastFillGenerator:
         resolver: AssetResolver,
         *,
         max_retries_per_call: int = 1,
+        surface_failure_mode: str = "skip",
     ) -> None:
+        if surface_failure_mode not in _SURFACE_FAILURE_MODES:
+            raise ValueError(
+                f"surface_failure_mode must be one of {_SURFACE_FAILURE_MODES}"
+            )
         self._llm = llm
         self._resolver = resolver
         self._max_retries = max_retries_per_call
+        self._surface_failure_mode = surface_failure_mode
 
     # ------------------------------------------------------------- call 1
 
@@ -215,16 +253,11 @@ class FastFillGenerator:
 
     @staticmethod
     def _parse_floor(text: str, room_id: str) -> FloorLayout:
-        data = extract_first_json(text)
-        if isinstance(data, dict):
-            data = data.get("objects", data)
-        if not isinstance(data, list) or not data:
-            raise ValueError("expected a non-empty JSON array of floor objects")
-        objects = tuple(FloorObjectSpec.model_validate(item) for item in data)
-        ids = [o.object_id for o in objects]
-        if len(set(ids)) != len(ids):
-            raise ValueError(f"duplicate object_id values in floor output: {ids}")
-        return FloorLayout(room_id=room_id, objects=objects)
+        _, layout_text = strip_plan_prefix(text)
+        floor = decode_floor_layout(layout_text, room_id)
+        if not floor.objects:
+            raise ValueError("expected at least one floor object line")
+        return floor
 
     # ----------------------------------------------------------- resolver
 
@@ -315,7 +348,56 @@ class FastFillGenerator:
         )
         return tuple(kept), notes
 
-    # ------------------------------------------------------------- call 2
+    # ---------------------------------------------------- per-surface calls
+
+    @staticmethod
+    def _parse_groups(text: str) -> tuple[SurfaceObjectGroup, ...]:
+        _, layout_text = strip_plan_prefix(text)
+        groups = decode_surface_groups(layout_text)
+        if not groups:
+            raise ValueError("expected at least one group header line")
+        if not any(group.objects for group in groups):
+            raise ValueError("expected at least one surface object line")
+        return groups
+
+    @staticmethod
+    def _rebind_groups(
+        groups: Sequence[SurfaceObjectGroup], surface_id: str, prefix: str
+    ) -> tuple[SurfaceObjectGroup, ...]:
+        """Pin groups to the requested surface and uniquify ids.
+
+        The model may echo a wrong surface_id, repeat a group id within one
+        completion, and every training label starts at ``g0`` — so ids are
+        namespaced ``<prefix>_<position>_<model id>``: unique within the
+        call by position, unique room-wide by the per-call prefix.
+        """
+        rebound: list[SurfaceObjectGroup] = []
+        for position, group in enumerate(groups):
+            new_gid = f"{prefix}_{position}_{group.group_id}"
+            objects = tuple(
+                obj.model_copy(
+                    update={
+                        "object_id": (
+                            f"{new_gid}/{obj.object_id.split('/', 1)[-1]}"
+                        )
+                    }
+                )
+                for obj in group.objects
+            )
+            anchor = group.anchor_object_id
+            rebound.append(
+                group.model_copy(
+                    update={
+                        "group_id": new_gid,
+                        "surface_id": surface_id,
+                        "objects": objects,
+                        "anchor_object_id": (
+                            f"{new_gid}/{anchor.split('/', 1)[-1]}" if anchor else ""
+                        ),
+                    }
+                )
+            )
+        return tuple(rebound)
 
     def generate_surfaces(
         self,
@@ -323,8 +405,8 @@ class FastFillGenerator:
         *,
         max_tokens: int = _DEFAULT_SURFACE_MAX_TOKENS,
     ) -> list[SurfaceObjectGroup]:
-        """Call 2: fill all support surfaces in ONE batched call."""
-        groups, _ = self._generate_surfaces(contexts, max_tokens=max_tokens)
+        """Fill every support surface, ONE model call per surface."""
+        groups, _, _ = self._generate_surfaces(contexts, max_tokens=max_tokens)
         return groups
 
     def _generate_surfaces(
@@ -332,52 +414,61 @@ class FastFillGenerator:
         contexts: Sequence[SupportContext],
         *,
         max_tokens: int = _DEFAULT_SURFACE_MAX_TOKENS,
-    ) -> tuple[list[SurfaceObjectGroup], _CallStats]:
-        if not contexts:
-            return [], _CallStats()
-        system, user = build_surface_prompt(contexts)
-        groups, stats = self._call_with_retry(
-            system, user, max_tokens=max_tokens, parse=self._parse_groups
-        )
-        return list(expand_patterns(groups)), stats
-
-    @staticmethod
-    def _parse_groups(text: str) -> tuple[SurfaceObjectGroup, ...]:
-        data = extract_first_json(text)
-        if isinstance(data, dict):
-            data = data.get("groups", data)
-        if not isinstance(data, list):
-            raise ValueError("expected a JSON array of surface object groups")
-        return tuple(SurfaceObjectGroup.model_validate(item) for item in data)
+    ) -> tuple[list[SurfaceObjectGroup], _CallStats, tuple[str, ...]]:
+        all_groups: list[SurfaceObjectGroup] = []
+        stats = _CallStats()
+        notes: tuple[str, ...] = ()
+        for index, context in enumerate(contexts):
+            surface_id = context.surface.surface_id
+            system, user = build_surface_prompt(context)
+            try:
+                groups, call_stats = self._call_with_retry(
+                    system, user, max_tokens=max_tokens, parse=self._parse_groups
+                )
+            except GenerationError as err:
+                if self._surface_failure_mode == "raise":
+                    raise
+                failed_stats = getattr(err, "stats", None)
+                stats = stats + (
+                    failed_stats
+                    if isinstance(failed_stats, _CallStats)
+                    else _CallStats(calls=self._max_retries + 1)
+                )
+                notes += (f"surface '{surface_id}' generation failed: {err}",)
+                continue
+            stats = stats + call_stats
+            rebound = self._rebind_groups(groups, surface_id, f"s{index}")
+            all_groups.extend(expand_patterns(rebound))
+        return all_groups, stats, notes
 
     # ---------------------------------------------------------- full room
 
     def generate_room(self, context: RoomContext) -> GenerationResult:
-        """Assemble the full room: 2 model calls on the happy path."""
+        """Assemble the full room: 1 floor call + 1 call per surface."""
         floor_raw, floor_stats = self._generate_floor(context)
         bound_floor, contexts, notes = self._resolve_and_contextualize(
             context, floor_raw
         )
         if contexts:
-            groups, surface_stats = self._generate_surfaces(
+            groups, surface_stats, surface_notes = self._generate_surfaces(
                 contexts, max_tokens=context.budget.max_output_tokens_surface
             )
+            notes += surface_notes
         else:
             groups, surface_stats = [], _CallStats()
-            notes += ("no surface contexts; surface call skipped",)
+            notes += ("no surface contexts; surface calls skipped",)
         layout = RoomContentLayout(
             room_id=context.room_id,
             floor_layout=bound_floor,
             surface_groups=tuple(groups),
             meta=context.meta,
         )
+        total = floor_stats + surface_stats
         trace = GenerationTrace(
-            llm_calls=floor_stats.calls + surface_stats.calls,
-            retries=floor_stats.retries + surface_stats.retries,
-            prompt_chars=floor_stats.prompt_chars + surface_stats.prompt_chars,
-            completion_chars=(
-                floor_stats.completion_chars + surface_stats.completion_chars
-            ),
+            llm_calls=total.calls,
+            retries=total.retries,
+            prompt_chars=total.prompt_chars,
+            completion_chars=total.completion_chars,
             notes=notes,
         )
         return GenerationResult(
@@ -396,25 +487,49 @@ class FastFillGenerator:
         violations_text: str,
         contexts: Sequence[SupportContext],
     ) -> RoomContentLayout:
-        """Regenerate ONLY the failed surfaces' groups (one model call)."""
+        """Regenerate failed surfaces' groups, one model call per surface.
+
+        A surface whose repair call fails (or that has no matching context)
+        keeps its original groups under ``surface_failure_mode="skip"``;
+        ``"raise"`` propagates the failure.
+        """
         failed = set(failed_surface_ids)
         if not failed:
             return layout
-        failed_groups = tuple(
-            g for g in layout.surface_groups if g.surface_id in failed
+        by_surface = {c.surface.surface_id: c for c in contexts}
+        kept = list(
+            g for g in layout.surface_groups if g.surface_id not in failed
         )
-        relevant = tuple(c for c in contexts if c.surface.surface_id in failed)
-        system, user = build_repair_prompt(failed_groups, violations_text, relevant)
-        groups, _ = self._call_with_retry(
-            system,
-            user,
-            max_tokens=_DEFAULT_SURFACE_MAX_TOKENS,
-            parse=self._parse_groups,
-        )
-        kept = tuple(g for g in layout.surface_groups if g.surface_id not in failed)
-        return layout.model_copy(
-            update={"surface_groups": kept + expand_patterns(groups)}
-        )
+        for index, surface_id in enumerate(sorted(failed)):
+            old_groups = tuple(
+                g for g in layout.surface_groups if g.surface_id == surface_id
+            )
+            context = by_surface.get(surface_id)
+            if context is None:
+                if self._surface_failure_mode == "raise":
+                    raise GenerationError(
+                        f"no support context for failed surface '{surface_id}'"
+                    )
+                kept.extend(old_groups)
+                continue
+            system, user = build_repair_prompt(
+                old_groups, violations_text, context
+            )
+            try:
+                groups, _ = self._call_with_retry(
+                    system,
+                    user,
+                    max_tokens=_DEFAULT_SURFACE_MAX_TOKENS,
+                    parse=self._parse_groups,
+                )
+            except GenerationError:
+                if self._surface_failure_mode == "raise":
+                    raise
+                kept.extend(old_groups)
+                continue
+            rebound = self._rebind_groups(groups, surface_id, f"r{index}")
+            kept.extend(expand_patterns(rebound))
+        return layout.model_copy(update={"surface_groups": tuple(kept)})
 
     # ------------------------------------------------------------ plumbing
 
@@ -438,15 +553,16 @@ class FastFillGenerator:
             completion_chars += len(text)
             try:
                 value = parse(text)
-            except (ValueError, ValidationError) as err:
+            except (ValueError, IndexError, ValidationError) as err:
                 last_error = err
                 if attempt < self._max_retries:
                     retries += 1
                     current_user = (
                         f"{user}\n\nYour previous response was invalid:\n"
                         f"{str(err)[:_MAX_ERROR_CHARS]}\n"
-                        "Return ONLY corrected JSON matching the required "
-                        "shape."
+                        "Output ONLY the corrected layout lines in the exact "
+                        "plain-text line format required by the instruction "
+                        "— no JSON, no prose, no markdown."
                     )
                 continue
             return value, _CallStats(
@@ -455,6 +571,14 @@ class FastFillGenerator:
                 prompt_chars=prompt_chars,
                 completion_chars=completion_chars,
             )
-        raise GenerationError(
+        error = GenerationError(
             f"model output stayed invalid after {calls} attempts: {last_error}"
         )
+        # Real call accounting must survive the failure (trace correctness).
+        error.stats = _CallStats(  # type: ignore[attr-defined]
+            calls=calls,
+            retries=retries,
+            prompt_chars=prompt_chars,
+            completion_chars=completion_chars,
+        )
+        raise error

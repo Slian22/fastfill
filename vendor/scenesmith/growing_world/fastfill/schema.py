@@ -184,7 +184,9 @@ class OutputBudget(_Frozen):
     """Hard output limits (§2). Silent batch-splitting is forbidden; overflow
     follows ``overflow_policy`` with the pruning priority: task-required
     surfaces > expected-manipuland surfaces > functional completeness >
-    decorative clutter. Task evidence is never pruned."""
+    decorative clutter. Task evidence is never pruned.
+    ``max_output_tokens_surface`` caps EACH per-surface model call (the
+    runtime makes one call per support surface)."""
 
     max_support_surfaces_per_room: int = Field(default=12, gt=0)
     max_surface_objects_per_surface: int = Field(default=12, gt=0)

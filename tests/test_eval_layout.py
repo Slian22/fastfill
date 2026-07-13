@@ -274,3 +274,150 @@ def test_offline_or_endpoint_required(tmp_path: Path) -> None:
     _write_jsonl(records_path, [json.dumps(_record("s0", _floor_text()))])
     with pytest.raises(SystemExit):
         main(["--records", str(records_path), "--out", str(tmp_path / "r.json")])
+
+
+# ------------------------------------------- surface geometry validation
+
+
+def _surface_sample(sample_id: str = "s0") -> FastFillSample:
+    from scenesmith.growing_world.fastfill.schema import SupportSurfaceSpec
+
+    table = FloorObjectSpec(
+        object_id="table_0",
+        category="table",
+        dimensions=(1.2, 0.8, 0.75),
+        position_xy=(0.5, 0.0),
+    )
+    surface = SupportSurfaceSpec(
+        surface_id="surf0",
+        parent_object_id="table_0",
+        height_m=0.75,
+        polygon_local=((-0.6, -0.4), (0.6, -0.4), (0.6, 0.4), (-0.6, 0.4)),
+    )
+    group = SurfaceObjectGroup(
+        group_id="g0",
+        surface_id="surf0",
+        objects=(
+            SurfaceObjectSpec(
+                object_id="g0/plate_0",
+                category="plate",
+                dimensions=(0.25, 0.25, 0.03),
+                position_local=(0.0, 0.0),
+            ),
+        ),
+    )
+    return FastFillSample(
+        sample_id=sample_id,
+        room_context=_context(),
+        layout=RoomContentLayout(
+            room_id="r0",
+            floor_layout=FloorLayout(
+                room_id="r0", objects=(table,), support_surfaces=(surface,)
+            ),
+            surface_groups=(group,),
+        ),
+        provenance=ProvenanceMeta(source_dataset="test_ds", split_key="house0"),
+    )
+
+
+def _off_surface_text() -> str:
+    group = SurfaceObjectGroup(
+        group_id="g0",
+        surface_id="surf0",
+        objects=(
+            SurfaceObjectSpec(
+                object_id="g0/plate_0",
+                category="plate",
+                dimensions=(0.25, 0.25, 0.03),
+                position_local=(5.0, 5.0),  # far off the 1.2x0.8 table top
+            ),
+        ),
+    )
+    return encode_surface_groups([group])
+
+
+def test_surface_records_validated_with_samples(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0#g0", _surface_text())],
+        generations=[{"uid": "s0#g0", "completion": _surface_text()}],
+        samples=[_surface_sample()],
+    )
+    assert report["n_validated_surface"] == 1
+    assert report["surface_parse_rate"] == 1.0
+    assert report["surface_pass_pre_repair"] == 1.0
+    assert report["surface_pass_post_repair"] == 1.0
+    assert report["per_source"]["test_ds"]["surface_pass_post_repair"] == 1.0
+
+
+def test_off_surface_generation_fails_pre_passes_post(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0#g0", _surface_text())],
+        generations=[{"uid": "s0#g0", "completion": _off_surface_text()}],
+        samples=[_surface_sample()],
+    )
+    assert report["surface_pass_pre_repair"] == 0.0
+    assert report["surface_pass_post_repair"] == 1.0  # repair clamps back
+    assert "L1_SURFACE_OBJECT_OUT_OF_BOUNDS" in report["violations_top"]
+
+
+def test_surface_garbage_counts_as_failed_validated(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0#g0", _surface_text())],
+        generations=[{"uid": "s0#g0", "completion": "garbage"}],
+        samples=[_surface_sample()],
+    )
+    assert report["surface_parse_rate"] == 0.0
+    assert report["n_validated_surface"] == 1
+    assert report["surface_pass_post_repair"] == 0.0
+
+
+# ------------------------------------------------- deterministic selection
+
+
+def test_stratified_selection_deterministic_and_covering(tmp_path: Path) -> None:
+    from fastfill_train.eval_layout import select_records
+
+    records = []
+    for i in range(16):
+        r = _record(f"a{i}", _floor_text())
+        r["source_dataset"] = "src_a"
+        records.append(r)
+    for i in range(4):
+        r = _record(f"b{i}", _floor_text())
+        r["source_dataset"] = "src_b"
+        records.append(r)
+    picked = select_records(records, 5, "stratified", 42)
+    again = select_records(records, 5, "stratified", 42)
+    assert [r["uid"] for r in picked] == [r["uid"] for r in again]
+    assert len(picked) == 5
+    sources = {r["source_dataset"] for r in picked}
+    assert sources == {"src_a", "src_b"}  # small stratum still represented
+
+
+def test_head_mode_reproduces_old_slice(tmp_path: Path) -> None:
+    from fastfill_train.eval_layout import select_records
+
+    records = [_record(f"s{i}", _floor_text()) for i in range(10)]
+    picked = select_records(records, 3, "head", 0)
+    assert [r["uid"] for r in picked] == ["s0", "s1", "s2"]
+
+
+def test_uid_manifest_written_with_report(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0", _floor_text()), _record("s1", _floor_text())],
+        generations=[
+            {"uid": "s0", "completion": _floor_text()},
+            {"uid": "s1", "completion": _floor_text()},
+        ],
+        extra=["--limit", "1", "--sample-mode", "shuffle", "--seed", "7"],
+    )
+    manifest = json.loads((tmp_path / "report.uids.json").read_text())
+    assert manifest["n"] == 1
+    assert manifest["sample_mode"] == "shuffle"
+    assert manifest["seed"] == 7
+    assert report["selection"]["uids_sha256"] == manifest["uids_sha256"]
+    assert manifest["uids"][0] in {"s0", "s1"}

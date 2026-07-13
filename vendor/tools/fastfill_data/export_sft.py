@@ -1,7 +1,9 @@
 """Export deduped FastFill JSONL to SFT training records (floor + surface).
 
-Reads ``FastFillSample`` JSONL (normally the deduplicate.py output) and emits
-two files under ``--out-dir``:
+Reads ``FastFillSample`` JSONL — normally the output of the full chain
+``convert -> sanitize.py -> deduplicate.py`` (samples missing the
+``sanitized=v1`` note are counted as ``unsanitized_input_samples``) — and
+emits two files under ``--out-dir``:
 
 - ``floor_sft.jsonl``   — one record per sample: RoomContext codec text in,
   floor-layout codec text out;
@@ -43,7 +45,10 @@ for _extra in (
         sys.path.insert(0, str(_extra))
 
 from fastfill_data.common import read_jsonl  # noqa: E402
+from fastfill_data.sanitize import SANITIZED_NOTE  # noqa: E402
 from scenesmith.growing_world.fastfill.codec import (  # noqa: E402
+    FLOOR_INSTRUCTION,
+    SURFACE_INSTRUCTION,
     encode_floor_layout,
     encode_room_context,
     encode_support_context,
@@ -59,19 +64,6 @@ from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
 FLOOR_FILE = "floor_sft.jsonl"
 SURFACE_FILE = "surface_sft.jsonl"
 REPORT_FILE = "export_report.json"
-
-FLOOR_INSTRUCTION = (
-    "Place floor-standing furniture in the room described below. Output one "
-    "object per line as category|w,d,h|x,y|yaw|flags with sizes/positions in "
-    "cm integers, yaw in degree integers CCW about +Z (front faces +Y at "
-    "yaw 0), positions in the room frame (floor centroid origin)."
-)
-SURFACE_INSTRUCTION = (
-    "Place small objects on the support surface described below. Output a "
-    "group header line then one object per line as category|w,d,h|x,y|yaw|t "
-    "with sizes/positions in cm integers relative to the surface-local frame "
-    "(surface centroid origin, parent-relative yaw in degree integers)."
-)
 
 
 def load_contamination_list(path: Path | None) -> frozenset[str]:
@@ -116,6 +108,8 @@ def _floor_record(sample: FastFillSample) -> dict:
         "uid": sample.sample_id,
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "room_type": sample.room_context.room_type,
+        "layer": "floor",
         "instruction": FLOOR_INSTRUCTION,
         "input": encode_room_context(sample.room_context),
         "output": encode_floor_layout(sample.layout.floor_layout),
@@ -129,6 +123,8 @@ def _surface_record(
         "uid": f"{sample.sample_id}#{group.group_id}",
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "room_type": sample.room_context.room_type,
+        "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
         "input": encode_support_context(context),
         "output": encode_surface_groups([group]),
@@ -143,9 +139,10 @@ def _exclusion_reason(
     sample: FastFillSample, exclude_nc: bool, contamination: frozenset[str]
 ) -> str | None:
     """Sample-level filter (checked in 铁律 order), ``None`` = exportable."""
-    if (
-        sample.provenance.source_room_id in contamination
-        or sample.provenance.source_house_id in contamination
+    room_id = sample.provenance.source_room_id
+    house_id = sample.provenance.source_house_id
+    if (room_id and room_id in contamination) or (
+        house_id and house_id in contamination
     ):  # scenesmith scenes key on house_id (scene_XXX); room_id is a room name
         return "excluded_contamination"
     if exclude_nc and sample.provenance.license_tag is LicenseTag.CC_BY_NC:
@@ -188,6 +185,8 @@ def _export_sample(
     exclude_unverified_yaw: bool,
 ) -> None:
     _bump(counts, "input_samples")
+    if SANITIZED_NOTE not in sample.provenance.notes:
+        _bump(counts, "unsanitized_input_samples")
     reason = _exclusion_reason(sample, exclude_nc, contamination)
     if reason is not None:
         _bump(counts, reason)
@@ -206,10 +205,12 @@ def _export_sample(
         try:
             record = _floor_record(sample)
         except ValueError:  # codec-illegal token (e.g. '|' in a category)
+            # Count and fall through: a bad floor category must not also
+            # discard the sample's independently valid surface groups.
             _bump(counts, "skipped_floor_codec_error")
-            return
-        floor_out.write(json.dumps(record, ensure_ascii=False) + "\n")
-        _bump(counts, "floor_records")
+        else:
+            floor_out.write(json.dumps(record, ensure_ascii=False) + "\n")
+            _bump(counts, "floor_records")
     _export_surface_groups(sample, surface_out, counts)
 
 

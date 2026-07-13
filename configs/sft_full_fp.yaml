@@ -5,7 +5,9 @@
 # Launch: accelerate launch --num_processes 8 -m fastfill_train.train_sft \
 #           --config configs/sft_full_fp.yaml
 model_name_or_path: Qwen/Qwen3-8B
-dataset_files: [data/sft/floor_sft.jsonl, data/sft/surface_sft.jsonl]
+# Train ONLY on the frozen snapshot train side — the raw export still
+# contains heldout/test rows (make_snapshot splits them out).
+dataset_files: [data/stage0/train.jsonl]
 template: direct
 output_dir: out/sft_full_fp
 use_lora: false

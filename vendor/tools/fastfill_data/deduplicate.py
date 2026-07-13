@@ -6,18 +6,26 @@ can enter the corpus several times. This tool groups samples by
 ``fastfill/provenance.py``) and keeps exactly ONE sample per hash, preferring
 the earliest source in ``--priority`` and breaking ties by first-seen order.
 
+Contamination closure (``--contamination-list``, 铁律 1): eval-room ids are
+matched against room/house ids in pass 1, the matching samples' geometry
+hashes become a contaminated-hash set, and EVERY sample sharing one of those
+hashes is dropped — so a cross-source copy of a contaminated room can never
+survive dedup under a different id. This must run here, BEFORE a winner is
+chosen, not only in export_sft's id-based filter.
+
 Two streaming passes over the inputs: pass 1 records only the winning
 (file, line) reference per hash plus per-hash source sets; pass 2 re-streams
 and copies winning lines verbatim, so full samples are never held in memory.
 
 A dedup report JSON is written next to ``--out``: per-source input counts,
-per-source kept counts, and the cross-source collision matrix (how many
-hashes were seen in BOTH source a and source b — the three-source dedup
-evidence). Malformed lines are skipped and counted, never silently dropped.
+per-source kept counts, contamination-removal counts, and the cross-source
+collision matrix (how many hashes were seen in BOTH source a and source b —
+the three-source dedup evidence). Malformed lines are skipped and counted,
+never silently dropped.
 
     python tools/fastfill_data/deduplicate.py \
         --in out/m3dlayout.jsonl out/il3d.jsonl --out out/deduped.jsonl \
-        --priority m3dlayout,il3d
+        --priority m3dlayout,il3d --contamination-list eval_rooms.txt
 """
 
 from __future__ import annotations
@@ -66,6 +74,10 @@ class _ScanState:
     hashless_refs: set[LineRef] = field(default_factory=set)
     hashless_by_source: dict[str, int] = field(default_factory=dict)
     malformed_by_file: dict[str, int] = field(default_factory=dict)
+    contaminated_hashes: set[str] = field(default_factory=set)
+    contaminated_hashless_refs: set[LineRef] = field(default_factory=set)
+    contaminated_hashless_by_source: dict[str, int] = field(default_factory=dict)
+    contaminated_direct: dict[str, int] = field(default_factory=dict)
 
 
 def _iter_lines(path: Path) -> Iterator[tuple[int, str]]:
@@ -96,6 +108,7 @@ def _scan_line(
     sequence: int,
     file_name: str,
     priority: Sequence[str],
+    contamination: frozenset[str],
 ) -> None:
     """Classify one input line into winner / hashless / malformed buckets."""
     try:
@@ -105,11 +118,26 @@ def _scan_line(
         return
     source = sample.provenance.source_dataset
     _bump(state.input_counts, source)
+    room_id = sample.provenance.source_room_id
+    house_id = sample.provenance.source_house_id
+    is_contaminated = bool(
+        (room_id and room_id in contamination)
+        or (house_id and house_id in contamination)
+    )
+    if is_contaminated:
+        _bump(state.contaminated_direct, source)
     geometry_hash = sample.provenance.geometry_hash
     if not geometry_hash:  # ungroupable — pass through, never collapse
         state.hashless_refs.add(ref)
         _bump(state.hashless_by_source, source)
+        if is_contaminated:
+            state.contaminated_hashless_refs.add(ref)
+            _bump(state.contaminated_hashless_by_source, source)
         return
+    if is_contaminated:
+        # Closure key: every sample sharing this geometry dies, whatever
+        # id or source it carries.
+        state.contaminated_hashes.add(geometry_hash)
     state.sources_by_hash.setdefault(geometry_hash, set()).add(source)
     candidate = _Winner(
         rank=_priority_rank(source, priority),
@@ -125,7 +153,11 @@ def _scan_line(
         state.winners[geometry_hash] = candidate
 
 
-def _scan_inputs(inputs: Sequence[Path], priority: Sequence[str]) -> _ScanState:
+def _scan_inputs(
+    inputs: Sequence[Path],
+    priority: Sequence[str],
+    contamination: frozenset[str],
+) -> _ScanState:
     """Pass 1: stream every input, keeping only refs and counters."""
     state = _ScanState()
     sequence = 0
@@ -138,6 +170,7 @@ def _scan_inputs(inputs: Sequence[Path], priority: Sequence[str]) -> _ScanState:
                 sequence,
                 path.name,
                 priority,
+                contamination,
             )
             sequence += 1
     return state
@@ -166,13 +199,23 @@ def _write_kept(inputs: Sequence[Path], keep_refs: set[LineRef], out_path: Path)
 
 
 def _build_report(
-    state: _ScanState, inputs: Sequence[Path], priority: Sequence[str]
+    state: _ScanState,
+    inputs: Sequence[Path],
+    priority: Sequence[str],
+    kept_winners: dict[str, _Winner],
+    contamination_size: int,
 ) -> dict:
-    per_source_kept = dict(state.hashless_by_source)
-    for winner in state.winners.values():
+    per_source_kept = {
+        source: count - state.contaminated_hashless_by_source.get(source, 0)
+        for source, count in state.hashless_by_source.items()
+    }
+    per_source_kept = {s: c for s, c in per_source_kept.items() if c}
+    for winner in kept_winners.values():
         _bump(per_source_kept, winner.source)
     total_in = sum(state.input_counts.values())
     total_kept = sum(per_source_kept.values())
+    winners_removed = len(state.winners) - len(kept_winners)
+    hashless_removed = len(state.contaminated_hashless_refs)
     return {
         "inputs": [str(p) for p in inputs],
         "priority": list(priority),
@@ -182,20 +225,51 @@ def _build_report(
             sorted(_collision_matrix(state.sources_by_hash).items())
         ),
         "unique_hashes": len(state.winners),
-        "duplicates_removed": total_in - total_kept,
+        "duplicates_removed": total_in - total_kept - winners_removed - hashless_removed,
         "no_geometry_hash": dict(sorted(state.hashless_by_source.items())),
         "malformed_lines": dict(sorted(state.malformed_by_file.items())),
+        "contamination": {
+            "list_size": contamination_size,
+            "direct_matches_by_source": dict(
+                sorted(state.contaminated_direct.items())
+            ),
+            "contaminated_hashes": len(state.contaminated_hashes),
+            "winners_removed_by_closure": winners_removed,
+            "hashless_removed": hashless_removed,
+        },
     }
 
 
 def deduplicate(
-    inputs: Sequence[Path], out_path: Path, priority: Sequence[str] = ()
+    inputs: Sequence[Path],
+    out_path: Path,
+    priority: Sequence[str] = (),
+    contamination: frozenset[str] = frozenset(),
 ) -> dict:
     """Dedup ``inputs`` into ``out_path``; write and return the report."""
-    state = _scan_inputs(inputs, priority)
-    keep_refs = {w.ref for w in state.winners.values()} | state.hashless_refs
-    _write_kept(inputs, keep_refs, out_path)
-    report = _build_report(state, inputs, priority)
+    resolved_inputs = {p.resolve() for p in inputs}
+    if out_path.resolve() in resolved_inputs:
+        raise ValueError(
+            f"--out {out_path} is also an input; pass 2 would truncate it "
+            "before re-reading — write to a fresh path"
+        )
+    state = _scan_inputs(inputs, priority, contamination)
+    kept_winners = {
+        h: w for h, w in state.winners.items() if h not in state.contaminated_hashes
+    }
+    keep_refs = {w.ref for w in kept_winners.values()} | (
+        state.hashless_refs - state.contaminated_hashless_refs
+    )
+    written = _write_kept(inputs, keep_refs, out_path)
+    report = _build_report(
+        state, inputs, priority, kept_winners, len(contamination)
+    )
+    report["written_lines"] = written
+    if written != sum(report["per_source_kept"].values()):
+        raise RuntimeError(
+            f"dedup wrote {written} lines but counters expected "
+            f"{sum(report['per_source_kept'].values())} — report is unreliable"
+        )
     report_path = out_path.with_suffix(".report.json")
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
@@ -218,15 +292,31 @@ def main() -> None:
         default="",
         help="comma-separated source_dataset order; earlier wins a collision",
     )
+    parser.add_argument(
+        "--contamination-list",
+        default=None,
+        help=(
+            "file with one source_room_id/house_id per line; matching samples "
+            "AND every sample sharing their geometry_hash are dropped (铁律 1)"
+        ),
+    )
     args = parser.parse_args()
 
+    contamination: frozenset[str] = frozenset()
+    if args.contamination_list:
+        from fastfill_data.export_sft import load_contamination_list
+
+        contamination = load_contamination_list(Path(args.contamination_list))
     priority = tuple(s for s in args.priority.split(",") if s)
     out_path = Path(args.out)
-    report = deduplicate([Path(p) for p in args.inputs], out_path, priority)
+    report = deduplicate(
+        [Path(p) for p in args.inputs], out_path, priority, contamination
+    )
     kept = sum(report["per_source_kept"].values())
     print(f"kept {kept} / {sum(report['per_source_input'].values())} -> {out_path}")
     print(f"report -> {out_path.with_suffix('.report.json')}")
     print(f"collision matrix: {report['collision_matrix']}")
+    print(f"contamination: {report['contamination']}")
 
 
 if __name__ == "__main__":

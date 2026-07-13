@@ -37,11 +37,15 @@ def read_records(paths: Iterable[str | Path]) -> Iterator[dict]:
                     raise ValueError(f"{path}:{line_no}: bad JSONL line") from exc
 
 
+def split_bucket(split_key: str, seed: int) -> int:
+    """Deterministic house-level bucket in [0, _SPLIT_BUCKETS)."""
+    digest = hashlib.sha1(f"{seed}:{split_key}".encode("utf-8")).hexdigest()
+    return int(digest[:8], 16) % _SPLIT_BUCKETS
+
+
 def is_validation_key(split_key: str, val_fraction: float, seed: int) -> bool:
     """Deterministic house-level split membership."""
-    digest = hashlib.sha1(f"{seed}:{split_key}".encode("utf-8")).hexdigest()
-    bucket = int(digest[:8], 16) % _SPLIT_BUCKETS
-    return bucket < int(val_fraction * _SPLIT_BUCKETS)
+    return split_bucket(split_key, seed) < int(val_fraction * _SPLIT_BUCKETS)
 
 
 def split_house_first(
@@ -50,7 +54,10 @@ def split_house_first(
     train: list[dict] = []
     val: list[dict] = []
     for record in records:
-        key = record.get("split_key") or record.get("uid", "")
+        # Fallback for records without a split_key: bucket by the BASE uid
+        # (before '#') so a room's floor and surface records can never
+        # straddle the split.
+        key = record.get("split_key") or str(record.get("uid", "")).split("#", 1)[0]
         (val if is_validation_key(key, val_fraction, seed) else train).append(
             record
         )

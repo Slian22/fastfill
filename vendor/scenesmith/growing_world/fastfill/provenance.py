@@ -107,10 +107,25 @@ def layout_hash(
     return _digest(parts)
 
 
-def make_split_key(source_dataset: str, source_house_id: str) -> str:
-    """House-first split key: every room of a house lands in one split."""
-    house = source_house_id or "no_house"
-    return f"{source_dataset}/{house}"
+def make_split_key(
+    source_dataset: str, source_house_id: str, source_room_id: str = ""
+) -> str:
+    """House-first split key: every room of a house lands in one split.
+
+    Sources without a house ID (e.g. 3D-SynthPlace) fall back to ROOM
+    identity — a room-scope split (documented limitation: cross-file
+    copies of one upstream house cannot be grouped without a house map).
+    A shared sentinel like ``no_house`` is forbidden: it would fuse every
+    houseless sample into ONE split unit. Both ids empty = converter bug.
+    """
+    if source_house_id:
+        return f"{source_dataset}/{source_house_id}"
+    if source_room_id:
+        return f"{source_dataset}/room:{source_room_id}"
+    raise ValueError(
+        f"cannot build split key for {source_dataset!r}: "
+        "source_house_id and source_room_id are both empty"
+    )
 
 
 def stamp_hashes(
@@ -123,6 +138,8 @@ def stamp_hashes(
         update={
             "geometry_hash": geometry_hash(floor_polygon, objects),
             "layout_hash": layout_hash(floor_polygon, objects),
-            "split_key": make_split_key(meta.source_dataset, meta.source_house_id),
+            "split_key": make_split_key(
+                meta.source_dataset, meta.source_house_id, meta.source_room_id
+            ),
         }
     )

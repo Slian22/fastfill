@@ -43,10 +43,21 @@ python3 vendor/tools/fastfill_data/convert_m3dlayout.py --split 3dfront --out ou
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
 python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
+# dedup #1 + 污染 closure(原始 hash 上做:同源拷贝必然碰撞,closure 召回最大)
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/*.jsonl \
+    --out out/conv/deduped_raw.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes \
+    --contamination-list data/eval_rooms.txt
+# 标签清洗(decode->validate->有界 repair->round-trip;repair 后重算 hash)
+python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
+    --out out/conv/sanitized.jsonl
+# dedup #2(清洗后的新 hash 可能新增碰撞)
+python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
     --out out/conv/deduped.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
 # export 默认剔除 CC BY-NC(铁律 2)与 unverified-yaw 的 Floor 记录(MansionWorld 朝向防毒)
+# 冻结快照:train/heldout/test 三切分(test 只在最终报告读一次)
+python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
+    --out-dir data/stage0
 
 # 3) smoke(T3.1:先证明链路,不求质量;100 步)
 python3 -m fastfill_train.train_sft --config configs/sft_smoke.yaml
@@ -54,9 +65,11 @@ python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
     --lora out/sft_smoke/checkpoint-100 --out out/sft_smoke_merged
 bash scripts/serve_vllm.sh out/sft_smoke_merged &
 until curl -sf http://127.0.0.1:8901/v1/models >/dev/null; do sleep 2; done   # 就绪再评;评完 kill 掉旧服务
-python3 -m fastfill_train.eval_layout --records data/sft/floor_sft.jsonl \
+python3 -m fastfill_train.eval_layout --records data/stage0/heldout.jsonl \
     --samples out/conv/deduped.jsonl --endpoint http://127.0.0.1:8901/v1 \
-    --model fastfill-planner --limit 50 --out out/eval_smoke.json
+    --model fastfill-planner --limit 100 --out out/eval_smoke.json
+# 评测默认:--sample-mode stratified --seed 42 --temperature 0.0;
+# 实评 UID 清单 + sha256 落在 out/eval_smoke.uids.json
 
 # 4) 正式 SFT(论文配置;模板 A/B/C 各跑一档做消融(--set template=plan / plan_nl))
 python3 -m fastfill_train.train_sft --config configs/sft_full.yaml
@@ -108,10 +121,15 @@ export FASTFILL_LLM_MODEL=fastfill-planner
 
 ## 数据红线(与 scenesmith 侧一致)
 
-- 铁律 1:SceneEval 污染名单走 `export_sft --contamination-list`。
-- 铁律 2:CC BY-NC(HSSD 衍生,IL3D 约 27% 样本)默认不进训练。
-- 铁律 4:先 dedup(geometry_hash 三源同房去重)再 export;split 永远 house-first。
-- MansionWorld 朝向未按资产校准:export 默认剔其 Floor 记录(Surface 保留,局部系不受影响)。
+- 铁律 1:SceneEval 污染名单走 `deduplicate --contamination-list`(直接 ID 命中
+  + geometry_hash closure,跨源换 ID 的拷贝一并剔除);`export_sft
+  --contamination-list` 保留为第二道 ID 防线。
+- 铁律 2:CC BY-NC(HSSD 衍生,IL3D 约 27% 样本)默认不进训练;
+  `build_dpo_data stage2` 的 chosen 侧同样默认剔除(--no-exclude-nc 关闭)。
+- 铁律 4:dedup#1+closure → sanitize(清洗后重算 hash)→ dedup#2 → export;
+  split 永远 house-first(无 house 的源回退 room:<id>,禁止共享 no_house)。
+- MansionWorld 朝向未按资产校准:export 默认剔其 Floor 记录(Surface 保留,局部系
+  不受影响);stage2 的 Floor 级注入对这类样本同样跳过。
 - 3D-SynthPlace 数据许可未落地(代码 MIT ≠ 数据可商用;3D-FRONT 衍生部分受其 ToU 约束):
   先研究用途训练,provenance 里 license_pending 已打标。
 
