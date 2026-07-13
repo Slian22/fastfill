@@ -545,13 +545,16 @@ class FastFillGenerator:
         current_user = user
         last_error: Exception | None = None
         for attempt in range(self._max_retries + 1):
-            text = self._llm.complete(
-                system=system, user=current_user, max_tokens=max_tokens
-            )
             calls += 1
             prompt_chars += len(system) + len(current_user)
-            completion_chars += len(text)
+            # complete() sits INSIDE the try: backend-raised parse-class
+            # errors (e.g. finish_reason=length truncation -> ValueError)
+            # must hit the retry loop, not escape it.
             try:
+                text = self._llm.complete(
+                    system=system, user=current_user, max_tokens=max_tokens
+                )
+                completion_chars += len(text)
                 value = parse(text)
             except (ValueError, IndexError, ValidationError) as err:
                 last_error = err

@@ -38,13 +38,17 @@ pip check
 export PYTHONPATH=src && python -m pytest tests -q     # 88 passed
 
 # 2) 数据:把原始数据集放到 ./data(或 export WORLDEDGE_DATA_DIR=...),然后
+export PYTHONPATH="$PWD/src"     # fresh shell 必须先设,后面所有 -m fastfill_train.* 依赖
 python3 vendor/tools/fastfill_data/convert_3d_synthplace.py --out out/conv/synthplace.jsonl
 python3 vendor/tools/fastfill_data/convert_m3dlayout.py --split 3dfront --out out/conv/m3dlayout.jsonl
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
 python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
 # dedup #1 + 污染 closure(原始 hash 上做:同源拷贝必然碰撞,closure 召回最大)
-python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/*.jsonl \
+# 注意:输入必须显式列出,不要用 out/conv/*.jsonl —— 重跑时 glob 会吃进旧的中间产物
+python3 vendor/tools/fastfill_data/deduplicate.py \
+    --in out/conv/synthplace.jsonl out/conv/m3dlayout.jsonl out/conv/il3d.jsonl \
+         out/conv/mansionworld.jsonl out/conv/scenesmith.jsonl \
     --out out/conv/deduped_raw.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes \
     --contamination-list data/eval_rooms.txt
 # 标签清洗(decode->validate->有界 repair->round-trip;repair 后重算 hash)
@@ -54,7 +58,8 @@ python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
     --out out/conv/deduped.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
-# export 默认剔除 CC BY-NC(铁律 2)与 unverified-yaw 的 Floor 记录(MansionWorld 朝向防毒)
+# export 默认硬门:剔除无 sanitized=v1 标的样本、CC BY-NC(铁律 2)、
+# unverified-yaw / floor_unrepaired 的 Floor 记录(Surface 保留)
 # 冻结快照:train/heldout/test 三切分(test 只在最终报告读一次)
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
     --out-dir data/stage0
@@ -77,17 +82,30 @@ python3 -m fastfill_train.train_sft --config configs/sft_full.yaml \
     --set template=plan --set output_dir=out/sft_full_plan
 
 # 5) DPO(条件项 T3.3,先例提示大概率值得)
+#    两个 stage 都必须带 --snapshot:DPO 的 chosen 就是训练标签,
+#    不过滤会把 Stage-0 heldout/test 的 GT 喂进 DPO train(泄漏)。
 #    stage1(near-miss 默认门):rejected 违规码种类 ≤2 才入库,超限跳过计数;
 #    --max-reject-codes 0 恢复完整 model-pair 仅作消融。stage2 注入器均为单对象单属性扰动+双向核验。
-python3 -m fastfill_train.eval_layout --records data/sft/floor_sft.jsonl \
+# 先从 train 侧构造 stage1 的 contexts/generations(不要拿全量 floor_sft 去打模型,heldout/test 输入也别碰):
+python3 - <<'EOF'
+import json
+rows = [json.loads(l) for l in open("data/stage0/train.jsonl")]
+with open("data/stage0/train_floor.jsonl", "w") as f:
+    for r in rows:
+        if "#" not in r["uid"]:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+EOF
+python3 -m fastfill_train.eval_layout --records data/stage0/train_floor.jsonl \
     --endpoint http://127.0.0.1:8901/v1 --model fastfill-planner \
     --dump-generations out/gens_sft.jsonl --out out/eval_sft.json
-python3 -m fastfill_train.build_dpo_data stage1 --contexts data/sft/floor_sft.jsonl \
+python3 -m fastfill_train.build_dpo_data stage1 --contexts data/stage0/train_floor.jsonl \
     --generations out/gens_sft.jsonl --samples out/conv/deduped.jsonl \
+    --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage1_pairs.jsonl
 python3 -m fastfill_train.train_dpo --config configs/dpo_stage1.yaml
 #    stage2:validator 全谱注入负例(越界/碰撞/堵门/错向/漏必放/悬空/出面/错 parent/超载)
 python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped.jsonl \
+    --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage2_pairs.jsonl
 python3 -m fastfill_train.train_dpo --config configs/dpo_stage2.yaml
 ```

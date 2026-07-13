@@ -11,29 +11,41 @@ SFT text would let dirty labels re-enter through ``build_dpo_data`` stage
 
 Per sample:
 
-- FLOOR layer: quantize to codec precision (cm / whole degrees,
-  id-preserving), validate floor-scope (semantic conditioning stripped —
-  geometry only), apply bounded ``deterministic_repair`` rounds with
-  re-quantization, revalidate, then gate on an encode -> decode ->
-  revalidate round-trip. Samples whose floor stays invalid are DROPPED and
-  counted per source x violation code.
-- SURFACE layer: each group is validated in a synthetic single-parent room
-  built from the REAL parent surface (floor violations of the original room
-  cannot kill a valid surface group), repaired, revalidated, and codec
-  round-tripped. Unrepairable groups are dropped and counted; ``z_local``
-  is zeroed (the codec deliberately does not encode it).
+- Guards first: non-finite numbers anywhere drop the sample (counted,
+  never crash the batch); floor objects with non-positive codec-quantized
+  dimensions drop the sample, degenerate surface objects drop their group.
+- The ROOM CONTEXT is quantized to codec precision too — validation runs
+  against exactly the context the model will see in the prompt, not the
+  raw floats (a door shifted 5 mm by encoding can turn a passing layout
+  into L1_DOOR_BLOCKED).
+- FLOOR layer: quantize (id-preserving) -> validate floor-scope (semantic
+  conditioning stripped — geometry only) -> ≤3 ``deterministic_repair``
+  rounds with re-quantization -> revalidate -> encode/decode round-trip
+  gate. An unrepairable floor is NOT exported but no longer kills the
+  sample: it is kept best-effort with a ``floor_unrepaired=v1`` note so
+  the sample's valid surface groups survive (export_sft skips the floor
+  record for such samples).
+- SURFACE layer: groups are validated PER SURFACE as one set (cross-group
+  collisions/capacity/occupancy aggregate) in a synthetic single-parent
+  room built from the REAL parent surface, repaired, revalidated, and
+  codec round-tripped. ``z_local`` is zeroed (the codec does not encode
+  it).
+- FINAL gate (floor-ok samples): the fully assembled cleaned layout is
+  validated as ONE room (+ ≤3 repair rounds) so cross-surface totals
+  (room object budget) hold; failures drop the sample, counted.
 - Provenance hashes + split key are RESTAMPED from the cleaned geometry
-  (repair moves objects), and ``sanitized=v1`` is appended to the notes so
-  the exporter can flag unsanitized inputs.
+  and ``sanitized=v1`` is appended to the notes (exact-token checked by
+  the exporter's hard gate).
 
     python tools/fastfill_data/sanitize.py \
-        --in out/conv/*.jsonl --out out/sanitized.jsonl
+        --in out/conv/deduped_raw.jsonl --out out/conv/sanitized.jsonl
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Sequence
@@ -47,7 +59,7 @@ for _extra in (
     if str(_extra) not in sys.path:
         sys.path.insert(0, str(_extra))
 
-from fastfill_data.common import read_jsonl  # noqa: E402
+from fastfill_data.common import read_jsonl  # noqa: E402, F401 (re-export)
 from scenesmith.growing_world.fastfill.codec import (  # noqa: E402
     decode_floor_layout,
     decode_surface_groups,
@@ -63,6 +75,7 @@ from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
     FastFillSample,
     FloorLayout,
     FloorObjectSpec,
+    ForbiddenRegion,
     OutputBudget,
     PatternParams,
     RoomContentLayout,
@@ -76,8 +89,25 @@ from scenesmith.growing_world.fastfill.transforms import normalize_deg  # noqa: 
 from scenesmith.growing_world.fastfill.validator import validate  # noqa: E402
 
 SANITIZED_NOTE = "sanitized=v1"
+FLOOR_UNREPAIRED_NOTE = "floor_unrepaired=v1"
 MAX_REPAIR_ROUNDS = 3
 _SCOPE_MARGIN_M = 5.0  # synthetic-room slack around the parent footprint
+
+
+def has_note(notes: str, token: str) -> bool:
+    """Exact ';'-separated token membership ('unsanitized=v1' must NOT
+    substring-match 'sanitized=v1')."""
+    return token in {part.strip() for part in notes.split(";")}
+
+
+def has_sanitized_note(notes: str) -> bool:
+    return has_note(notes, SANITIZED_NOTE)
+
+
+def _append_note(notes: str, token: str) -> str:
+    if has_note(notes, token):
+        return notes
+    return f"{notes}; {token}" if notes else token
 
 
 # ------------------------------------------------------- codec quantization
@@ -96,6 +126,69 @@ def _q_vec3(v: Sequence[float]) -> tuple[float, float, float]:
 def _q_deg(value: float) -> float:
     return float(normalize_deg(int(round(float(value)))))
 
+def _q_poly(poly: Sequence[Sequence[float]]) -> tuple[tuple[float, float], ...]:
+    return tuple(_q_vec2(v) for v in poly)
+
+
+def _q_region(region: ForbiddenRegion) -> ForbiddenRegion:
+    return region.model_copy(update={"polygon": _q_poly(region.polygon)})
+
+
+def quantize_room_context(ctx: RoomContext) -> RoomContext:
+    """Codec-precision copy of the context — validation must judge the
+    label against the context the model actually reads in the prompt."""
+    return ctx.model_copy(
+        update={
+            "floor_polygon": _q_poly(ctx.floor_polygon),
+            "ceiling_height_m": _q_m(ctx.ceiling_height_m),
+            "doors": tuple(
+                d.model_copy(
+                    update={
+                        "center_xy": _q_vec2(d.center_xy),
+                        "width_m": _q_m(d.width_m),
+                        "clearance_depth_m": _q_m(d.clearance_depth_m),
+                    }
+                )
+                for d in ctx.doors
+            ),
+            "windows": tuple(
+                w.model_copy(
+                    update={
+                        "center_xy": _q_vec2(w.center_xy),
+                        "width_m": _q_m(w.width_m),
+                        "sill_height_m": _q_m(w.sill_height_m),
+                        "height_m": _q_m(w.height_m),
+                    }
+                )
+                for w in ctx.windows
+            ),
+            "portals": tuple(
+                p.model_copy(
+                    update={
+                        "center_xy": _q_vec2(p.center_xy),
+                        "width_m": _q_m(p.width_m),
+                    }
+                )
+                for p in ctx.portals
+            ),
+            "forbidden_regions": tuple(
+                _q_region(r) for r in ctx.forbidden_regions
+            ),
+        }
+    )
+
+
+def quantize_surface(surface: SupportSurfaceSpec) -> SupportSurfaceSpec:
+    return surface.model_copy(
+        update={
+            "height_m": _q_m(surface.height_m),
+            "polygon_local": _q_poly(surface.polygon_local),
+            "forbidden_regions_local": tuple(
+                _q_region(r) for r in surface.forbidden_regions_local
+            ),
+        }
+    )
+
 
 def quantize_floor(layout: FloorLayout) -> FloorLayout:
     """Codec-precision copy of a floor layout, ORIGINAL object ids kept."""
@@ -109,7 +202,10 @@ def quantize_floor(layout: FloorLayout) -> FloorLayout:
         )
         for obj in layout.objects
     )
-    return layout.model_copy(update={"objects": objects})
+    surfaces = tuple(quantize_surface(s) for s in layout.support_surfaces)
+    return layout.model_copy(
+        update={"objects": objects, "support_surfaces": surfaces}
+    )
 
 
 def quantize_group(group: SurfaceObjectGroup) -> SurfaceObjectGroup:
@@ -134,6 +230,52 @@ def quantize_group(group: SurfaceObjectGroup) -> SurfaceObjectGroup:
         radius_m=_q_m(params.radius_m),
     )
     return group.model_copy(update={"objects": objects, "pattern_params": q_params})
+
+
+# ---------------------------------------------------------------- guards
+
+
+def _sample_numbers(sample: FastFillSample):
+    ctx = sample.room_context
+    for x, y in ctx.floor_polygon:
+        yield x
+        yield y
+    yield ctx.ceiling_height_m
+    for door in ctx.doors:
+        yield from (*door.center_xy, door.width_m, door.clearance_depth_m)
+    for window in ctx.windows:
+        yield from (*window.center_xy, window.width_m, window.sill_height_m)
+    for obj in sample.layout.floor_layout.objects:
+        yield from (*obj.position_xy, obj.z, obj.yaw_deg, *obj.dimensions)
+    for surface in sample.layout.floor_layout.support_surfaces:
+        yield surface.height_m
+        for x, y in surface.polygon_local:
+            yield x
+            yield y
+    for group in sample.layout.surface_groups:
+        for obj in group.objects:
+            yield from (
+                *obj.position_local,
+                obj.z_local,
+                obj.yaw_deg_local,
+                *obj.dimensions,
+            )
+
+
+def _guard_reason(sample: FastFillSample) -> str | None:
+    """'nonfinite' / 'degenerate_dims' / None — checked before any math."""
+    if not all(math.isfinite(float(v)) for v in _sample_numbers(sample)):
+        return "nonfinite"
+    for obj in sample.layout.floor_layout.objects:
+        if any(_q_m(d) <= 0.0 for d in obj.dimensions[:2]):
+            return "degenerate_dims"
+    return None
+
+
+def _group_degenerate(group: SurfaceObjectGroup) -> bool:
+    return any(
+        _q_m(d) <= 0.0 for obj in group.objects for d in obj.dimensions[:2]
+    )
 
 
 # ------------------------------------------------------------- floor scope
@@ -172,26 +314,30 @@ def _repair_until_pass(
 
 
 def sanitize_floor(
-    sample: FastFillSample,
-) -> tuple[FloorLayout | None, str, ValidationReport | None]:
-    """(cleaned floor | None, drop_reason, pre-repair report)."""
-    if not sample.layout.floor_layout.objects:
-        return None, "empty_floor", None
+    sample: FastFillSample, context: RoomContext
+) -> tuple[FloorLayout, bool, str, ValidationReport | None]:
+    """(best-effort floor, ok, drop_reason, pre-repair report).
+
+    ``context`` must already be quantized + semantic-stripped. ``ok=False``
+    means the floor label may not be exported; the returned floor is still
+    the best repaired attempt (parents for surface records stay usable).
+    """
     floor = quantize_floor(sample.layout.floor_layout)
-    context = _geometry_only(sample.room_context)
+    if not floor.objects:
+        return floor, False, "empty_floor", None
     scope = RoomContentLayout(room_id=context.room_id, floor_layout=floor)
     final, pre, post = _repair_until_pass(scope, context)
-    if not post.passed:
-        return None, "unrepaired", pre
     cleaned = final.floor_layout
+    if not post.passed:
+        return cleaned, False, "unrepaired", pre
     try:
         decoded = decode_floor_layout(encode_floor_layout(cleaned), context.room_id)
     except ValueError:
-        return None, "codec_error", pre
+        return cleaned, False, "codec_error", pre
     round_trip = RoomContentLayout(room_id=context.room_id, floor_layout=decoded)
     if not validate(round_trip, context).passed:
-        return None, "roundtrip_fail", pre
-    return cleaned, "", pre
+        return cleaned, False, "roundtrip_fail", pre
+    return cleaned, True, "", pre
 
 
 # ----------------------------------------------------------- surface scope
@@ -349,6 +495,8 @@ class _Stats:
             {
                 "input": 0,
                 "kept": 0,
+                "kept_floor_unrepaired": 0,
+                "sample_dropped": {},
                 "floor_repaired": 0,
                 "floor_dropped": {},
                 "floor_pre_violations": {},
@@ -384,35 +532,69 @@ class _Stats:
         for bucket in self.per_source.values():
             for key in totals:
                 totals[key] += bucket[key]
-            bucket["floor_dropped"] = dict(sorted(bucket["floor_dropped"].items()))
-            bucket["groups_dropped"] = dict(sorted(bucket["groups_dropped"].items()))
+            for name in ("sample_dropped", "floor_dropped", "groups_dropped"):
+                bucket[name] = dict(sorted(bucket[name].items()))
         return {
             "totals": totals,
             "per_source": dict(sorted(self.per_source.items())),
         }
 
 
-def _with_sanitized_note(sample: FastFillSample) -> str:
-    notes = sample.provenance.notes
-    return f"{notes}; {SANITIZED_NOTE}" if notes else SANITIZED_NOTE
+def _final_room_gate(
+    floor: FloorLayout,
+    groups: Sequence[SurfaceObjectGroup],
+    context: RoomContext,
+) -> tuple[tuple[SurfaceObjectGroup, ...], bool]:
+    """Whole-room pass over the assembled cleaned sample.
+
+    Surface sets were validated per surface; only here do CROSS-surface
+    constraints (room object totals) get checked. Repair may trim
+    decorative objects to fit; a room that stays invalid is rejected.
+    """
+    if not groups:
+        return (), True
+    per_surface_cap = max(
+        [context.budget.max_surface_objects_per_surface]
+        + [s.capacity_max_objects for s in floor.support_surfaces]
+    )
+    gate_context = context.model_copy(
+        update={
+            "budget": context.budget.model_copy(
+                update={"max_surface_objects_per_surface": per_surface_cap}
+            )
+        }
+    )
+    layout = RoomContentLayout(
+        room_id=context.room_id,
+        floor_layout=floor,
+        surface_groups=tuple(groups),
+    )
+    final, _, post = _repair_until_pass(layout, gate_context)
+    return final.surface_groups, post.passed
 
 
 def sanitize_sample(
     sample: FastFillSample, stats: _Stats
 ) -> FastFillSample | None:
-    """Cleaned sample, or ``None`` when the floor layer is unrepairable."""
+    """Cleaned sample, or ``None`` when nothing exportable survives."""
     source = sample.provenance.source_dataset
     bucket = stats._bucket(source)
     bucket["input"] += 1
 
-    floor, reason, pre = sanitize_floor(sample)
-    if floor is None:
-        stats._bump(bucket["floor_dropped"], reason)
+    guard = _guard_reason(sample)
+    if guard is not None:
+        stats._bump(bucket["sample_dropped"], guard)
+        return None
+
+    context = _geometry_only(quantize_room_context(sample.room_context))
+    floor, floor_ok, floor_reason, pre = sanitize_floor(sample, context)
+    if floor_ok:
+        stats.record_violations(source, "floor", pre)
+    else:
+        stats._bump(bucket["floor_dropped"], floor_reason)
         if pre is not None:
             for violation in pre.errors():
                 stats._bump(bucket["floor_pre_violations"], violation.code)
-        return None
-    stats.record_violations(source, "floor", pre)
 
     # Groups sharing a surface validate as ONE set (cross-group collisions,
     # capacity and occupancy aggregate per surface).
@@ -421,6 +603,9 @@ def sanitize_sample(
         bucket["groups_input"] += 1
         if not group.objects:
             stats._bump(bucket["groups_dropped"], "empty")
+            continue
+        if _group_degenerate(group):
+            stats._bump(bucket["groups_dropped"], "degenerate_dims")
             continue
         if _resolve_surface_parent(floor, group) is None:
             stats._bump(bucket["groups_dropped"], "unresolved")
@@ -448,18 +633,35 @@ def sanitize_sample(
         dropped = len(groups) - len(kept)
         if dropped:
             stats._bump(bucket["groups_dropped"], "emptied_by_repair", n=dropped)
-        bucket["groups_kept"] += len(kept)
         kept_groups.extend(kept)
 
-    provenance = sample.provenance.model_copy(
-        update={"notes": _with_sanitized_note(sample)}
-    )
-    stamped = stamp_hashes(
-        provenance, sample.room_context.floor_polygon, floor.objects
-    )
+    if floor_ok and kept_groups:
+        final_groups, room_ok = _final_room_gate(floor, kept_groups, context)
+        if not room_ok:
+            stats._bump(bucket["sample_dropped"], "final_room_unrepaired")
+            return None
+        trimmed = len(kept_groups) - len(
+            [g for g in final_groups if g.objects]
+        )
+        if trimmed > 0:
+            stats._bump(bucket["groups_dropped"], "final_room_trimmed", n=trimmed)
+        kept_groups = [g for g in final_groups if g.objects]
+
+    if not floor_ok and not kept_groups:
+        stats._bump(bucket["sample_dropped"], "nothing_exportable")
+        return None
+
+    bucket["groups_kept"] += len(kept_groups)
+    notes = _append_note(sample.provenance.notes, SANITIZED_NOTE)
+    if not floor_ok:
+        notes = _append_note(notes, FLOOR_UNREPAIRED_NOTE)
+        bucket["kept_floor_unrepaired"] += 1
+    provenance = sample.provenance.model_copy(update={"notes": notes})
+    stamped = stamp_hashes(provenance, context.floor_polygon, floor.objects)
     bucket["kept"] += 1
     return sample.model_copy(
         update={
+            "room_context": quantize_room_context(sample.room_context),
             "layout": sample.layout.model_copy(
                 update={
                     "floor_layout": floor,
@@ -474,17 +676,44 @@ def sanitize_sample(
 
 def sanitize(inputs: Sequence[Path], out_path: Path) -> dict:
     """Stream every input into cleaned JSONL; write and return the report."""
+    from pydantic import ValidationError
+
     stats = _Stats()
+    malformed_by_file: dict[str, int] = {}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as out:
         for path in inputs:
-            for sample in read_jsonl(path):
-                cleaned = sanitize_sample(sample, stats)
-                if cleaned is not None:
-                    out.write(cleaned.model_dump_json() + "\n")
+            with path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # Line-level robustness: a malformed row (e.g. a NaN
+                    # literal pydantic's JSON parser rejects) must be
+                    # counted, never kill the batch.
+                    try:
+                        sample = FastFillSample.model_validate_json(line)
+                    except ValidationError:
+                        malformed_by_file[path.name] = (
+                            malformed_by_file.get(path.name, 0) + 1
+                        )
+                        continue
+                    try:
+                        cleaned = sanitize_sample(sample, stats)
+                    except Exception as exc:  # noqa: BLE001 — one bad sample
+                        # must never kill the batch; counted, never silent.
+                        bucket = stats._bucket(sample.provenance.source_dataset)
+                        stats._bump(
+                            bucket["sample_dropped"],
+                            f"sanitize_error:{type(exc).__name__}",
+                        )
+                        continue
+                    if cleaned is not None:
+                        out.write(cleaned.model_dump_json() + "\n")
     report = {
         "inputs": [str(p) for p in inputs],
         "max_repair_rounds": MAX_REPAIR_ROUNDS,
+        "malformed_lines": dict(sorted(malformed_by_file.items())),
         **stats.to_dict(),
     }
     report_path = out_path.with_suffix(".report.json")

@@ -90,6 +90,14 @@ class Generation:
     completion: str
     latency_ms: Optional[float] = None
     completion_tokens: Optional[int] = None
+    finish_reason: Optional[str] = None
+
+    @property
+    def truncated(self) -> bool:
+        """The line codec is prefix-decodable: a completion cut at a line
+        boundary parses cleanly with tail objects silently missing — so a
+        length-stopped completion is a FAILURE, never a valid layout."""
+        return self.finish_reason == "length"
 
 
 @dataclass(frozen=True)
@@ -126,7 +134,10 @@ def load_generations(path: str | Path) -> dict[str, Generation]:
             raise ValueError(
                 f"{path}: generation row missing fields {sorted(missing)}"
             )
-        generations[str(row["uid"])] = Generation(completion=str(row["completion"]))
+        generations[str(row["uid"])] = Generation(
+            completion=str(row["completion"]),
+            finish_reason=row.get("finish_reason"),
+        )
     return generations
 
 
@@ -174,11 +185,15 @@ def generate_live(
             **kwargs,
         )
         latency_ms = (time.perf_counter() - start) * 1000.0
-        completion = response.choices[0].message.content or ""
+        choice = response.choices[0]
+        completion = choice.message.content or ""
         usage = getattr(response, "usage", None)
         tokens = getattr(usage, "completion_tokens", None) if usage else None
         generations[str(record["uid"])] = Generation(
-            completion, latency_ms, tokens
+            completion,
+            latency_ms,
+            tokens,
+            getattr(choice, "finish_reason", None),
         )
     return generations
 
@@ -186,15 +201,17 @@ def generate_live(
 def dump_generations(
     generations: dict[str, Generation], records: Sequence[dict], path: str | Path
 ) -> None:
-    """Write {"uid","completion"} rows (the build_dpo_data stage-1 shape)."""
-    lines = [
-        json.dumps(
-            {"uid": record["uid"], "completion": generations[record["uid"]].completion},
-            ensure_ascii=False,
-        )
-        for record in records
-        if record["uid"] in generations
-    ]
+    """Write {"uid","completion"[,"finish_reason"]} rows (stage-1 shape)."""
+    lines = []
+    for record in records:
+        uid = str(record["uid"])
+        if uid not in generations:
+            continue
+        generation = generations[uid]
+        row: dict = {"uid": uid, "completion": generation.completion}
+        if generation.finish_reason is not None:
+            row["finish_reason"] = generation.finish_reason
+        lines.append(json.dumps(row, ensure_ascii=False))
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
@@ -264,10 +281,12 @@ def score_floor(
     """Score one floor record: parse, then validate+repair when possible."""
     _, layout_text = split_completion(generation.completion)
     room_id = sample.room_context.room_id if sample else "eval"
-    try:
-        floor: Optional[FloorLayout] = decode_floor_layout(layout_text, room_id)
-    except (ValueError, ValidationError):
-        floor = None
+    floor: Optional[FloorLayout] = None
+    if not generation.truncated:
+        try:
+            floor = decode_floor_layout(layout_text, room_id)
+        except (ValueError, IndexError, ValidationError):
+            floor = None
     parse_ok = floor is not None and bool(floor.objects)
     coverage = (
         _furniture_coverage(
@@ -337,10 +356,12 @@ def score_surface(
     synthetic single-parent room, so floor-layer noise cannot leak in.
     """
     _, layout_text = split_completion(generation.completion)
-    try:
-        groups = decode_surface_groups(layout_text)
-    except (ValueError, IndexError, ValidationError):
-        groups = ()
+    groups: tuple = ()
+    if not generation.truncated:
+        try:
+            groups = decode_surface_groups(layout_text)
+        except (ValueError, IndexError, ValidationError):
+            groups = ()
     parse_ok = any(group.objects for group in groups)
     truth = _surface_ground_truth(str(record["uid"]), sample)
     pass_pre = pass_post = False
@@ -720,6 +741,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ]
     report["usage_completion_tokens_total"] = sum(tokens) if tokens else None
     report["usage_completion_tokens_mean"] = _mean(tokens) if tokens else None
+    report["n_truncated"] = sum(
+        1
+        for r in records
+        if str(r["uid"]) in generations and generations[str(r["uid"])].truncated
+    )
     report["selection"] = {
         "sample_mode": args.sample_mode,
         "seed": args.seed,

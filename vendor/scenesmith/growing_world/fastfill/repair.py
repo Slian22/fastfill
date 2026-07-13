@@ -58,6 +58,7 @@ CODE_DOOR_BLOCKED = "L1_DOOR_BLOCKED"
 CODE_WINDOW_BLOCKED = "L1_WINDOW_BLOCKED"
 CODE_FORBIDDEN_REGION = "L1_FORBIDDEN_REGION"
 CODE_SURFACE_OOB = "L1_SURFACE_OBJECT_OUT_OF_BOUNDS"
+CODE_SURFACE_FORBIDDEN = "L1_SURFACE_FORBIDDEN_REGION"
 CODE_SURFACE_COLLISION = "L1_SURFACE_COLLISION"
 CODE_SURFACE_FLOATING = "L1_FLOATING"
 CODE_SURFACE_CAPACITY = "L1_SURFACE_CAPACITY_EXCEEDED"
@@ -307,20 +308,33 @@ def _replace_surface_object(
     state.groups[gi] = group.model_copy(update={"objects": tuple(objects)})
 
 
+def _surface_allowed_region(surface: SupportSurfaceSpec) -> BaseGeometry:
+    """Placeable region in the surface-CENTROID frame (README contract):
+    polygon_local shifted to its centroid origin, minus forbidden regions
+    (same frame). Mirrors the validator's construction exactly."""
+    cx, cy = polygon_centroid(surface.polygon_local)
+    allowed: BaseGeometry = Polygon(
+        tuple((x - cx, y - cy) for x, y in surface.polygon_local)
+    )
+    if surface.forbidden_regions_local:
+        allowed = allowed.difference(
+            unary_union(
+                [
+                    Polygon(tuple((x - cx, y - cy) for x, y in r.polygon))
+                    for r in surface.forbidden_regions_local
+                ]
+            )
+        )
+    return allowed
+
+
 def _fix_surface_oob(violation: Violation, state: _WorkState, ctx: RoomContext) -> None:
     surface = state.surfaces.get(violation.surface_id)
     if surface is None:
         state.steps.append(f"skip:surface_oob:{violation.surface_id}:unknown_surface")
         state.failed_surfaces.add(violation.surface_id)
         return
-    # position_local is in the SURFACE-CENTROID frame (README contract); the
-    # validator shifts polygon_local to that frame before containment, so
-    # repair must clamp in the SAME shifted frame or it clamps to the wrong
-    # region whenever polygon_local is not centroid-centered.
-    cx, cy = polygon_centroid(surface.polygon_local)
-    polygon = Polygon(
-        tuple((x - cx, y - cy) for x, y in surface.polygon_local)
-    )
+    allowed = _surface_allowed_region(surface)
     for object_id in violation.object_ids:
         located = _find_surface_object(state, violation.surface_id, object_id)
         if located is None:
@@ -328,7 +342,7 @@ def _fix_surface_oob(violation: Violation, state: _WorkState, ctx: RoomContext) 
             continue
         gi, oi, obj = located
         pos = _nearest_position(
-            polygon,
+            allowed,
             Point(obj.position_local),
             obj.dimensions[0] / 2.0,
             obj.dimensions[1] / 2.0,
@@ -503,6 +517,7 @@ _RULES: dict[str, Callable[[Violation, _WorkState, RoomContext], None]] = {
     CODE_WINDOW_BLOCKED: _fix_clearance_blocked,
     CODE_FORBIDDEN_REGION: _fix_forbidden_region,
     CODE_SURFACE_OOB: _fix_surface_oob,
+    CODE_SURFACE_FORBIDDEN: _fix_surface_oob,  # same clamp: allowed region
     CODE_SURFACE_COLLISION: _fix_surface_collision,
     CODE_SURFACE_FLOATING: _fix_surface_floating,
     CODE_SURFACE_CAPACITY: _fix_surface_overflow,

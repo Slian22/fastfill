@@ -134,6 +134,7 @@ def make_clean_sample(
         source_dataset="synthetic",
         split_key=split_key,
         license_tag=LicenseTag.PERMISSIVE,
+        notes="sanitized=v1",  # stage2 hard-gates on the sanitizer marker
     )
     return FastFillSample(
         sample_id=sample_id,

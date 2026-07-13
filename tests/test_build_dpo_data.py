@@ -287,3 +287,133 @@ def test_stage1_near_miss_gate_skips_multi_violation_rejects(tmp_path):
         contexts, gens, tmp_path / "pairs_off.jsonl", samples_path, "direct", 0
     )
     assert stats_off["counts"]["pairs"] == 1
+
+
+# ------------------------------------------------------- holdout + gates
+
+
+def test_stage2_snapshot_filter_excludes_holdout(tmp_path: Path) -> None:
+    """DPO chosen labels must never come from Stage-0 heldout/test keys."""
+    from fastfill_train.data import split_bucket
+
+    seed, val, test = 42, 0.1, 0.05
+    cutoff = int((val + test) * 10_000)
+    holdout_key = next(
+        f"house_h{i}" for i in range(1000) if split_bucket(f"house_h{i}", seed) < cutoff
+    )
+    train_key = next(
+        f"house_t{i}" for i in range(1000) if split_bucket(f"house_t{i}", seed) >= cutoff
+    )
+    samples = [
+        make_clean_sample("s_hold", holdout_key),
+        make_clean_sample("s_train", train_key),
+    ]
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [s.model_dump_json() for s in samples])
+    snapshot = tmp_path / "SNAPSHOT.json"
+    snapshot.write_text(
+        json.dumps({"seed": seed, "val_fraction": val, "test_fraction": test})
+    )
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--snapshot", str(snapshot),
+            "--per-sample", "1",
+        ]
+    )
+
+    rows = _read_jsonl(out_path)
+    assert rows, "train-side sample must still produce pairs"
+    assert {row["split_key"] for row in rows} == {train_key}
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["skipped"]["excluded_holdout"] == 1
+    assert "warning" not in stats
+
+
+def test_stage2_without_snapshot_warns(tmp_path: Path) -> None:
+    in_path = tmp_path / "samples.jsonl"
+    _write_samples(in_path, n=1)
+    out_path = tmp_path / "pairs.jsonl"
+    main(["stage2", "--in", str(in_path), "--out", str(out_path)])
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert "heldout/test" in stats["warning"]
+
+
+def test_stage2_hard_gates_unsanitized_samples(tmp_path: Path) -> None:
+    sample = make_clean_sample("s_raw", "house_raw")
+    sample = sample.model_copy(
+        update={"provenance": sample.provenance.model_copy(update={"notes": ""})}
+    )
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [sample.model_dump_json()])
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(["stage2", "--in", str(in_path), "--out", str(out_path)])
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["skipped"]["excluded_unsanitized"] == 1
+    assert stats["counts"]["pairs"] == 0
+
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(tmp_path / "pairs_off.jsonl"),
+            "--no-require-sanitized",
+        ]
+    )
+    stats_off = json.loads(
+        (tmp_path / "pairs_off.stats.json").read_text()
+    )
+    assert stats_off["counts"]["pairs"] > 0
+
+
+def test_stage1_snapshot_filter_excludes_holdout_contexts(tmp_path: Path) -> None:
+    from fastfill_train.data import split_bucket
+
+    seed, val, test = 42, 0.1, 0.05
+    cutoff = int((val + test) * 10_000)
+    holdout_key = next(
+        f"h{i}" for i in range(1000) if split_bucket(f"h{i}", seed) < cutoff
+    )
+    train_key = next(
+        f"t{i}" for i in range(1000) if split_bucket(f"t{i}", seed) >= cutoff
+    )
+    hold_sample = make_clean_sample("s_hold", holdout_key)
+    train_sample = make_clean_sample("s_train", train_key)
+    contexts = tmp_path / "contexts.jsonl"
+    _write_jsonl(
+        contexts,
+        [_floor_record(hold_sample), _floor_record(train_sample)],
+    )
+    generations = tmp_path / "gens.jsonl"
+    _write_jsonl(
+        generations,
+        [
+            {"uid": "s_hold", "completion": "not a layout"},
+            {"uid": "s_train", "completion": "not a layout"},
+        ],
+    )
+    snapshot = tmp_path / "SNAPSHOT.json"
+    snapshot.write_text(
+        json.dumps({"seed": seed, "val_fraction": val, "test_fraction": test})
+    )
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(
+        [
+            "stage1",
+            "--contexts", str(contexts),
+            "--generations", str(generations),
+            "--snapshot", str(snapshot),
+            "--out", str(out_path),
+        ]
+    )
+
+    rows = _read_jsonl(out_path)
+    assert [row["uid"] for row in rows] == ["s_train"]
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["skipped"]["excluded_holdout"] == 1

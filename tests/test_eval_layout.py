@@ -421,3 +421,37 @@ def test_uid_manifest_written_with_report(tmp_path: Path) -> None:
     assert manifest["seed"] == 7
     assert report["selection"]["uids_sha256"] == manifest["uids_sha256"]
     assert manifest["uids"][0] in {"s0", "s1"}
+
+
+def test_truncated_generation_counts_as_parse_fail(tmp_path: Path) -> None:
+    """finish_reason=length: the prefix-decodable codec would silently
+    accept a clipped layout — must score as failure instead."""
+    records_path = tmp_path / "records.jsonl"
+    _write_jsonl(records_path, [json.dumps(_record("s0", _floor_text()))])
+    gens_path = tmp_path / "gens.jsonl"
+    _write_jsonl(
+        gens_path,
+        [
+            json.dumps(
+                {
+                    "uid": "s0",
+                    "completion": _floor_text(),  # decodes fine — but clipped
+                    "finish_reason": "length",
+                }
+            )
+        ],
+    )
+    out_path = tmp_path / "report.json"
+    assert (
+        main(
+            [
+                "--records", str(records_path),
+                "--generations", str(gens_path),
+                "--out", str(out_path),
+            ]
+        )
+        == 0
+    )
+    report = json.loads(out_path.read_text())
+    assert report["parse_rate"] == 0.0
+    assert report["n_truncated"] == 1

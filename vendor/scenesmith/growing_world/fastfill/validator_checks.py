@@ -734,6 +734,40 @@ def _objects_by_surface(geo: _Geometry) -> dict[str, list[str]]:
     return by_surface
 
 
+def _l1_surface_forbidden(geo: _Geometry, col: _Collector) -> None:
+    """Surface-local forbidden regions (e.g. sink basins) must stay empty.
+
+    ``forbidden_regions_local`` shares polygon_local's frame, so regions are
+    shifted to the same centroid-origin frame object footprints live in.
+    """
+    for surface_id, ids in _objects_by_surface(geo).items():
+        surface = geo.surfaces.get(surface_id)
+        if surface is None or not surface.spec.forbidden_regions_local:
+            continue
+        cx, cy = surface.centroid_parent_local
+        for region in surface.spec.forbidden_regions_local:
+            shifted = _valid_polygon(
+                tuple((x - cx, y - cy) for x, y in region.polygon)
+            )
+            for object_id in ids:
+                footprint = geo.surface_objects[object_id].footprint_local
+                if footprint is None:
+                    continue
+                col.check()
+                area = shifted.intersection(footprint).area
+                if area > _MIN_OVERLAP_AREA_M2:
+                    col.violation(
+                        "L1_SURFACE_FORBIDDEN_REGION",
+                        Severity.ERROR,
+                        f"surface object '{object_id}' intrudes into "
+                        f"forbidden region '{region.region_id}' on "
+                        f"'{surface_id}'",
+                        object_ids=(object_id,),
+                        surface_id=surface_id,
+                        details=region.reason,
+                    )
+
+
 def _l1_surface_overlap(geo: _Geometry, col: _Collector) -> None:
     for surface_id, ids in _objects_by_surface(geo).items():
         for i, id_a in enumerate(ids):
@@ -806,5 +840,6 @@ def run_l1(
     _l1_door_clearance(context, geo, col)
     _l1_forbidden_regions(context, geo, col)
     _l1_surface_objects(geo, col)
+    _l1_surface_forbidden(geo, col)
     _l1_surface_overlap(geo, col)
     _l1_surface_load(geo, col)

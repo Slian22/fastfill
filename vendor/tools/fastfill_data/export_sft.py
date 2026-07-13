@@ -45,7 +45,11 @@ for _extra in (
         sys.path.insert(0, str(_extra))
 
 from fastfill_data.common import read_jsonl  # noqa: E402
-from fastfill_data.sanitize import SANITIZED_NOTE  # noqa: E402
+from fastfill_data.sanitize import (  # noqa: E402
+    FLOOR_UNREPAIRED_NOTE,
+    has_note,
+    has_sanitized_note,
+)
 from scenesmith.growing_world.fastfill.codec import (  # noqa: E402
     FLOOR_INSTRUCTION,
     SURFACE_INSTRUCTION,
@@ -183,10 +187,18 @@ def _export_sample(
     exclude_nc: bool,
     contamination: frozenset[str],
     exclude_unverified_yaw: bool,
+    require_sanitized: bool,
 ) -> None:
     _bump(counts, "input_samples")
-    if SANITIZED_NOTE not in sample.provenance.notes:
-        _bump(counts, "unsanitized_input_samples")
+    if not has_sanitized_note(sample.provenance.notes):
+        # Hard gate (exact-token check): unsanitized labels are dirty by
+        # definition — they never went through validate/repair/round-trip.
+        _bump(
+            counts,
+            "excluded_unsanitized" if require_sanitized else "unsanitized_input_samples",
+        )
+        if require_sanitized:
+            return
     reason = _exclusion_reason(sample, exclude_nc, contamination)
     if reason is not None:
         _bump(counts, reason)
@@ -195,12 +207,15 @@ def _export_sample(
     # (e.g. MansionWorld: per-asset canonical fronts) would poison facing
     # supervision — skip the FLOOR record only. Surface records stay: their
     # local frames are parent-relative, so intra-surface poses are consistent
-    # regardless of the parent's absolute facing.
-    skip_floor = (
-        exclude_unverified_yaw and UNVERIFIED_YAW_NOTE in sample.provenance.notes
-    )
+    # regardless of the parent's absolute facing. Same one-sided skip for
+    # floors the sanitizer could not repair.
+    skip_floor = ""
+    if exclude_unverified_yaw and UNVERIFIED_YAW_NOTE in sample.provenance.notes:
+        skip_floor = "excluded_unverified_yaw_floor"
+    elif has_note(sample.provenance.notes, FLOOR_UNREPAIRED_NOTE):
+        skip_floor = "excluded_unrepaired_floor"
     if skip_floor:
-        _bump(counts, "excluded_unverified_yaw_floor")
+        _bump(counts, skip_floor)
     else:
         try:
             record = _floor_record(sample)
@@ -221,6 +236,7 @@ def export_sft(
     exclude_nc: bool = True,
     contamination: frozenset[str] = frozenset(),
     exclude_unverified_yaw: bool = True,
+    require_sanitized: bool = True,
 ) -> dict:
     """Stream ``in_path`` into SFT JSONL files; write and return the report."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -240,11 +256,13 @@ def export_sft(
                     exclude_nc,
                     contamination,
                     exclude_unverified_yaw,
+                    require_sanitized,
                 )
     report = {
         "in_path": str(in_path),
         "exclude_nc": exclude_nc,
         "exclude_unverified_yaw": exclude_unverified_yaw,
+        "require_sanitized": require_sanitized,
         "contamination_list_size": len(contamination),
         "counts": dict(sorted(counts.items())),
     }
@@ -281,6 +299,16 @@ def main() -> None:
             "facing convention (surface records kept; default on)"
         ),
     )
+    parser.add_argument(
+        "--require-sanitized",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "hard gate: exclude samples without the sanitize.py "
+            "'sanitized=v1' note (default on; --no-require-sanitized only "
+            "counts them)"
+        ),
+    )
     args = parser.parse_args()
 
     contamination_path = (
@@ -292,6 +320,7 @@ def main() -> None:
         exclude_nc=args.exclude_nc,
         contamination=load_contamination_list(contamination_path),
         exclude_unverified_yaw=args.exclude_unverified_yaw,
+        require_sanitized=args.require_sanitized,
     )
     print(f"report -> {Path(args.out_dir) / REPORT_FILE}")
     print(json.dumps(report["counts"], indent=2))

@@ -42,6 +42,11 @@ _DOOR_CLEARANCE_M = 0.9
 _MAX_REPAIR_ROUNDS = 3  # mirrors eval_layout / fastfill_api_smoke / sanitize
 
 
+class _StrictValidationFailure(RuntimeError):
+    """Raised in strict mode when a room stays invalid after full repair
+    (already counted in failure_count when raised)."""
+
+
 def _room_center(placed: Any) -> tuple[float, float]:
     """Global center of a PlacedRoom (position is the min corner)."""
     return (
@@ -242,6 +247,8 @@ class FastFillContentHook(ContentHooks):
     def _generate_content(self, ctx: RoomContext, out_dir: Path) -> None:
         """Fixed-call content pipeline; imports deferred (heavy/optional)."""
         try:
+            from dataclasses import asdict
+
             from scenesmith.growing_world.fastfill.asset_resolver import (
                 CanonicalAssetResolver,
             )
@@ -264,21 +271,58 @@ class FastFillContentHook(ContentHooks):
             # and smoke script (a single round would under-repair rooms the
             # acceptance metrics certified as passing).
             layout = result.layout
-            report = validate(layout, ctx)
-            final_report = report
+            final_report = validate(layout, ctx)
+            repair_steps: list[str] = []
             for _ in range(_MAX_REPAIR_ROUNDS):
                 if final_report.passed:
                     break
                 outcome = deterministic_repair(layout, final_report, ctx)
+                repair_steps.extend(outcome.applied_steps)
                 if outcome.layout == layout:
                     break  # no progress possible
                 layout = outcome.layout
+                final_report = validate(layout, ctx)
+            # Surfaces still failing after deterministic repair get one
+            # semantic-repair pass (per-surface model calls), same as the
+            # smoke script — production must not run a weaker pipeline than
+            # the one the acceptance metrics were measured on.
+            semantic_used = False
+            failed_surfaces = sorted(
+                {v.surface_id for v in final_report.errors() if v.surface_id}
+            )
+            if failed_surfaces:
+                violations_text = "\n".join(
+                    f"{v.code} [{v.surface_id}]: {v.message}"
+                    for v in final_report.errors()
+                    if v.surface_id
+                )
+                layout = generator.semantic_repair(
+                    layout,
+                    tuple(failed_surfaces),
+                    violations_text,
+                    result.support_contexts,
+                )
+                semantic_used = True
                 final_report = validate(layout, ctx)
             (out_dir / "room_content_layout.json").write_text(
                 layout.model_dump_json(indent=2)
             )
             (out_dir / "validation_report.json").write_text(
                 final_report.model_dump_json(indent=2)
+            )
+            (out_dir / "generation_trace.json").write_text(
+                json.dumps(
+                    {
+                        "room_id": ctx.room_id,
+                        "trace": asdict(result.trace),
+                        "repair_steps": repair_steps,
+                        "semantic_repair_used": semantic_used,
+                        "semantic_repair_surfaces": failed_surfaces,
+                        "passed": final_report.passed,
+                        "violations": len(final_report.violations),
+                    },
+                    indent=2,
+                )
             )
             console_logger.info(
                 "[fastfill] room '%s': %s (%d violations, llm_calls=%d)",
@@ -287,8 +331,18 @@ class FastFillContentHook(ContentHooks):
                 len(final_report.violations),
                 result.trace.llm_calls,
             )
+            if not final_report.passed:
+                # A room that stays invalid after the full repair ladder is
+                # a failure, not a quiet FAILED file on disk.
+                self.failure_count += 1
+                if self.strict:
+                    raise _StrictValidationFailure(
+                        f"room '{ctx.room_id}' failed validation after "
+                        f"repair: {len(final_report.errors())} errors"
+                    )
         except Exception as exc:  # noqa: BLE001 — counted + surfaced, never silent
-            self.failure_count += 1
+            if not isinstance(exc, _StrictValidationFailure):
+                self.failure_count += 1
             console_logger.exception(
                 "[fastfill] room '%s': generation failed (failure #%d)",
                 ctx.room_id,
