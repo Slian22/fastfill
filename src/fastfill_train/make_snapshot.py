@@ -21,6 +21,7 @@ from pathlib import Path
 
 import fastfill_train  # noqa: F401
 from fastfill_train.data import read_records, split_bucket
+from fastfill_train.templates import record_layer as _layer
 
 _BUCKETS = 10_000
 
@@ -46,10 +47,6 @@ def _assign(record: dict, val_fraction: float, test_fraction: float, seed: int) 
     if bucket < int((val_fraction + test_fraction) * _BUCKETS):
         return "test"
     return "train"
-
-
-def _layer(record: dict) -> str:
-    return "surface" if "#" in str(record.get("uid", "")) else "floor"
 
 
 def _source_layer_counts(rows: list[dict]) -> dict[str, int]:

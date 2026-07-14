@@ -307,11 +307,19 @@ class SurfaceObjectSpec(_Frozen):
     required_by_task: bool = False
 
 
+#: Hard per-dimension cap on MATRIX rows/cols. Expansion allocates
+#: rows x cols cells BEFORE the validator's capacity check runs, so an
+#: unbounded value from a stray model completion could OOM the process.
+#: A real surface never holds this many objects; the L0 capacity check
+#: rejects oversize-but-bounded grids later. 32 x 32 = 1024 cells ceiling.
+MAX_MATRIX_DIM = 32
+
+
 class PatternParams(_Frozen):
     """Deterministic expansion parameters for non-FREE group patterns."""
 
-    rows: int = Field(default=0, ge=0)
-    cols: int = Field(default=0, ge=0)
+    rows: int = Field(default=0, ge=0, le=MAX_MATRIX_DIM)
+    cols: int = Field(default=0, ge=0, le=MAX_MATRIX_DIM)
     spacing_x_m: float = Field(default=0.0, ge=0)
     spacing_y_m: float = Field(default=0.0, ge=0)
     radius_m: float = Field(default=0.0, ge=0)

@@ -2,9 +2,9 @@
 # FAIR conditions vs configs/full_fp.yaml: same data/full snapshot, same
 # epochs=3, same template, same val split. Arm-specific lr/batch follow the
 # stage-0 arm (each method keeps its own working hyperparams).
-# Launch in a DETACHED session (tmux/setsid) so a terminal hangup can't
-# SIGHUP the run — TorchElastic installs its own SIGHUP handler, so bare
-# `nohup` is not sufficient on its own:
+# Launch in a DETACHED session (tmux/setsid) so a terminal hangup can't kill
+# the run. This single-GPU arm is a plain `python3 -m` (no accelerate/torchrun,
+# so no TorchElastic) — a detached session is enough here:
 #   tmux new -s full_r128
 #   CUDA_VISIBLE_DEVICES=0 python3 -m fastfill_train.train_sft \
 #     --config configs/full_r128.yaml > train_full_r128.log 2>&1

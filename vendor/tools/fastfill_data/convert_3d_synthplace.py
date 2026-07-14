@@ -10,14 +10,24 @@ missing on 48 files — those are all-UUID, i.e. 3D-FRONT).
 
 Caveats carried into ``provenance.notes`` / this docstring:
 
-- FACING UNVERIFIED: the source yaw convention vs our front=+Y contract has
-  not been visually verified (pending ``visualize_sample.py``); ``rotation.y``
-  is normalized and carried through unchanged.
+- FACING (per-source calibration): the source yaw convention vs our front=+Y
+  contract differs BY UPSTREAM DATASET, so it is calibrated per source, not
+  carried uniformly. Holodeck-Synth assets already face +Y after the Y-up->
+  Z-up map, so ``yaw = normalize(rotation.y)``. 3D-FRONT assets face -Y, so
+  ``yaw = normalize(rotation.y + 180)`` (sign preserved — NOT negated; the
+  yup_to_zup map has determinant +1). Files with no ``source`` tag are all
+  3D-FRONT (all-UUID asset ids) and take the +180 branch. Calibration is
+  backed by a server-side full-corpus audit (17,528 scenes) and MUST be
+  reconfirmed there before training; this converter no longer emits the
+  generic ``yaw_facing=unverified_per_asset`` gate token for either subset.
 - BBOX ORDER: the frozen contract maps ``bbox`` as ``[height, width, depth]``
-  (``transforms.hwd_cm_to_dimensions``). This holds for the HOLODECK subset
-  and ~84% of strict beds overall, but ~10% of 3DFRONT beds ship height-LAST
-  (``[w, d, h]``-like); those records get transposed dimensions. We apply
-  the frozen mapping uniformly rather than guess per record.
+  (``transforms.hwd_cm_to_dimensions``). This holds for the HOLODECK subset.
+  3D-FRONT ships a MIX of axis orders (~73% HWD, ~27% DWH per mesh-vertex
+  audit), so the uniform mapping is wrong for a large minority. Until the
+  per-record permutation is resolved from ``bbox_vertices.npy`` on the
+  server, 3D-FRONT records carry the ``bbox_axis=unverified_3dfront`` note
+  so ``export_sft`` ISOLATES them (kept for dedup + contamination closure,
+  never exported as training labels). Holodeck records export normally.
 - No house ids exist in the source, so ``split_key`` is room-level.
 - Elevated objects (|z_zup| > 0.10 m — 28 of 147,222 corpus-wide) are not
   floor layer and are skipped + counted; kept objects are floor-standing so
@@ -76,12 +86,35 @@ _UUID_RE = re.compile(
 )
 _TRAILING_INDEX_RE = re.compile(r"-\d+$")
 _SOURCE_TO_UPSTREAM = {"3DFRONT": "3D-FRONT", "HOLODECK": "Holodeck-Synth"}
-_NOTES = (
-    "no house id in source (split is room-level); "
-    "yaw facing convention vs front=+Y unverified (carried from source); "
-    "bbox mapped as [h,w,d] per contract but a 3DFRONT minority ships "
-    "height-last (see converter docstring)"
+_UPSTREAM_3DFRONT = "3D-FRONT"
+_UPSTREAM_HOLODECK = "Holodeck-Synth"
+
+#: Per-source yaw calibration to the front=+Y contract (degrees, added before
+#: normalize). Holodeck faces +Y already (0); 3D-FRONT faces -Y (+180). Sign
+#: is preserved — the yup_to_zup map has determinant +1. Server-audited.
+_YAW_OFFSET_DEG = {_UPSTREAM_HOLODECK: 0.0, _UPSTREAM_3DFRONT: 180.0}
+
+#: Isolation token for the 3D-FRONT subset: bbox axis order is a per-record
+#: mix (HWD/DWH) not resolvable without mesh vertices, so export_sft keeps
+#: these for dedup + contamination closure but never emits them as labels.
+BBOX_UNVERIFIED_3DFRONT_NOTE = "bbox_axis=unverified_3dfront"
+
+_NOTES_COMMON = "no house id in source (split is room-level)"
+_NOTES_HOLODECK = (
+    f"{_NOTES_COMMON}; yaw calibrated per source (holodeck: raw, front=+Y "
+    "verified by server audit); bbox mapped [h,w,d] per contract (holodeck "
+    "subset verified)"
 )
+_NOTES_3DFRONT = (
+    f"{_NOTES_COMMON}; yaw calibrated per source (3d-front: raw+180, front=+Y "
+    f"per server audit); {BBOX_UNVERIFIED_3DFRONT_NOTE} (axis order is a "
+    "per-record HWD/DWH mix — isolated from export pending mesh-vertex "
+    "resolution)"
+)
+
+
+def _notes_for(upstream: str) -> str:
+    return _NOTES_3DFRONT if upstream == _UPSTREAM_3DFRONT else _NOTES_HOLODECK
 
 
 def _is_finite_number(value: object) -> bool:
@@ -135,9 +168,13 @@ def _object_skip_reason(raw: object) -> str | None:
 
 
 def _parse_object(
-    raw: object, offset: Vec2, stats: ConversionStats
+    raw: object, offset: Vec2, yaw_offset_deg: float, stats: ConversionStats
 ) -> FloorObjectSpec | None:
-    """One source object -> FloorObjectSpec in the recentered room frame."""
+    """One source object -> FloorObjectSpec in the recentered room frame.
+
+    ``yaw_offset_deg`` is the per-source facing calibration (see
+    ``_YAW_OFFSET_DEG``): added to the raw yaw before normalization so the
+    object faces the front=+Y contract. Sign is preserved (never negated)."""
     reason = _object_skip_reason(raw)
     if reason is not None:
         stats.skip(reason)
@@ -157,8 +194,18 @@ def _parse_object(
         dimensions=hwd_cm_to_dimensions(raw["bbox"]),
         position_xy=(x - offset[0], y - offset[1]),
         z=0.0,
-        yaw_deg=normalize_deg(float(raw["rotation"].get("y", 0.0))),
+        yaw_deg=normalize_deg(float(raw["rotation"].get("y", 0.0)) + yaw_offset_deg),
     )
+
+
+def _collect_asset_ids(raw_objects: Sequence[object]) -> list[str]:
+    """Unique ``assetId`` strings, in first-seen order (for upstream vote)."""
+    asset_ids: list[str] = []
+    for raw in raw_objects:
+        asset_id = raw.get("assetId") if isinstance(raw, dict) else None
+        if isinstance(asset_id, str) and asset_id and asset_id not in asset_ids:
+            asset_ids.append(asset_id)
+    return asset_ids
 
 
 def _upstream_dataset(data: dict, asset_ids: Sequence[str]) -> str:
@@ -194,16 +241,18 @@ def _convert_scene(path: Path, stats: ConversionStats) -> FastFillSample | None:
     if not isinstance(raw_objects, list):
         stats.skip("missing_objects")
         return None
+    # Upstream must be resolved BEFORE parsing objects: it selects the yaw
+    # calibration. The source tag decides it; the UUID vote is the fallback,
+    # so collect asset ids up front.
+    asset_ids = _collect_asset_ids(raw_objects)
+    upstream = _upstream_dataset(data, asset_ids)
+    yaw_offset = _YAW_OFFSET_DEG.get(upstream, 0.0)
     objects: list[FloorObjectSpec] = []
-    asset_ids: list[str] = []
     for raw in raw_objects:
-        spec = _parse_object(raw, offset, stats)
+        spec = _parse_object(raw, offset, yaw_offset, stats)
         if spec is None:
             continue
         objects.append(spec)
-        asset_id = raw.get("assetId") if isinstance(raw, dict) else None
-        if isinstance(asset_id, str) and asset_id and asset_id not in asset_ids:
-            asset_ids.append(asset_id)
     if not objects:
         stats.skip("no_valid_objects")
         return None
@@ -214,9 +263,9 @@ def _convert_scene(path: Path, stats: ConversionStats) -> FastFillSample | None:
         source_house_id="",  # unknown in source -> room-level split key
         source_room_id=stem,
         source_asset_ids=tuple(asset_ids),
-        upstream_dataset=_upstream_dataset(data, asset_ids),
+        upstream_dataset=upstream,
         license_tag=LicenseTag.LICENSE_PENDING,
-        notes=_NOTES,
+        notes=_notes_for(upstream),
     )
     return FastFillSample(
         sample_id=f"{SOURCE_DATASET}/{stem}",

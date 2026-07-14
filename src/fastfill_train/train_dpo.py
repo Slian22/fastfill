@@ -56,6 +56,8 @@ def build_dpo_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
         "seed": cfg.seed,
         "remove_unused_columns": False,
     }
+    if cfg.save_total_limit is not None:
+        kwargs["save_total_limit"] = cfg.save_total_limit
     if cfg.gradient_checkpointing:
         kwargs["gradient_checkpointing_kwargs"] = {"use_reentrant": False}
     if cfg.max_steps > 0:
@@ -99,7 +101,7 @@ def main(argv: list[str] | None = None) -> None:
         processing_class=tokenizer,
         peft_config=build_lora_config(cfg) if cfg.use_lora else None,
     )
-    trainer.train()
+    trainer.train(resume_from_checkpoint=cfg.resume_from_checkpoint or None)
     trainer.save_model(cfg.output_dir)
     print(f"DPO adapter saved to {cfg.output_dir}")
 

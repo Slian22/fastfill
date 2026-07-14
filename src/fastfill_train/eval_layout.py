@@ -71,7 +71,12 @@ from scenesmith.growing_world.fastfill.schema import (
 from scenesmith.growing_world.fastfill.validator import validate
 
 from fastfill_train.data import read_records
-from fastfill_train.templates import TEMPLATES, render_sft_example, split_completion
+from fastfill_train.templates import (
+    TEMPLATES,
+    record_layer,
+    render_sft_example,
+    split_completion,
+)
 
 MAX_REPAIR_ROUNDS = 3  # mirrors scenesmith/scripts/fastfill_api_smoke.py
 LIVE_MAX_TOKENS = 1200
@@ -226,15 +231,8 @@ def _is_surface_uid(uid: str) -> bool:
 
 
 def _is_surface_record(record: dict) -> bool:
-    """Prefer the explicit ``layer`` field; fall back to the uid heuristic.
-
-    Exports carry ``layer`` ("floor"|"surface"); older records without it
-    fall back to ``#`` in the uid — but that heuristic misroutes floor uids
-    that legitimately contain ``#`` (e.g. mansionworld ``..._fp001#3``)."""
-    layer = str(record.get("layer", "")).strip().lower()
-    if layer in ("floor", "surface"):
-        return layer == "surface"
-    return _is_surface_uid(str(record.get("uid", "")))
+    """Canonical layer routing (shared with templates/make_snapshot)."""
+    return record_layer(record) == "surface"
 
 
 def _norm_category(text: str) -> str:
@@ -361,6 +359,39 @@ def _surface_ground_truth(
     return surface, parent
 
 
+def _rebind_groups(groups, surface_id: str, prefix: str = "eval"):
+    """Pin groups to ``surface_id`` and uniquify ids by position.
+
+    Mirrors ``FastFillGenerator._rebind_groups`` (generator.py): the model
+    may repeat a group id within one completion and every label starts at
+    ``g0``, so ids are namespaced ``<prefix>_<position>_<model id>`` — unique
+    within the call by position. Object/anchor ids are rebased on the new
+    group id, matching runtime so eval and runtime agree on L0_DUPLICATE_ID."""
+    rebound = []
+    for position, group in enumerate(groups):
+        new_gid = f"{prefix}_{position}_{group.group_id}"
+        objects = tuple(
+            obj.model_copy(
+                update={"object_id": f"{new_gid}/{obj.object_id.split('/', 1)[-1]}"}
+            )
+            for obj in group.objects
+        )
+        anchor = group.anchor_object_id
+        rebound.append(
+            group.model_copy(
+                update={
+                    "group_id": new_gid,
+                    "surface_id": surface_id,
+                    "objects": objects,
+                    "anchor_object_id": (
+                        f"{new_gid}/{anchor.split('/', 1)[-1]}" if anchor else ""
+                    ),
+                }
+            )
+        )
+    return tuple(rebound)
+
+
 def score_surface(
     record: dict, generation: Generation, sample: Optional[FastFillSample]
 ) -> RecordResult:
@@ -383,12 +414,13 @@ def score_surface(
     codes: tuple[str, ...] = ()
     if truth is not None and parse_ok:
         surface, parent = truth
-        pinned = tuple(
-            g.model_copy(update={"surface_id": surface.surface_id}) for g in groups
-        )
-        # Runtime expands declared patterns into concrete placements before
-        # validation (generator.py:441); mirror it so a legal 1-template
-        # MATRIX is not failed on L0_PATTERN_INVALID (rows*cols != n).
+        # Mirror runtime's _rebind_groups (generator.py): pin the surface AND
+        # uniquify group/object ids by position, so a model that repeats a
+        # group id in one completion is not failed on L0_DUPLICATE_ID (runtime
+        # namespaces those ids and passes). Then expand declared patterns into
+        # concrete placements before validation (generator.py:441), so a legal
+        # 1-template MATRIX is not failed on L0_PATTERN_INVALID (rows*cols!=n).
+        pinned = _rebind_groups(groups, surface.surface_id)
         expanded = expand_patterns(pinned)
         room_type = str(record.get("room_type", "")) or "room"
         pre, post, _ = surface_reports_with_repair(

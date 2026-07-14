@@ -417,3 +417,21 @@ def test_stage1_snapshot_filter_excludes_holdout_contexts(tmp_path: Path) -> Non
     assert [row["uid"] for row in rows] == ["s_train"]
     stats = json.loads(out_path.with_suffix(".stats.json").read_text())
     assert stats["skipped"]["excluded_holdout"] == 1
+
+
+def test_self_built_records_carry_explicit_layer() -> None:
+    # build_dpo_data builds its own SFT-shape records; they MUST carry an
+    # explicit "layer" so a floor uid containing '#' (e.g. mansionworld) is
+    # not misrouted by the '#'-in-uid heuristic under plan/plan_nl.
+    from fastfill_train.build_dpo_data import _floor_record, _surface_record
+
+    sample = make_clean_sample("s0", "house0")
+    floor = _floor_record(sample)
+    assert floor["layer"] == "floor"
+    assert "#" not in floor["uid"]
+
+    group = sample.layout.surface_groups[0]
+    surface = _surface_record(sample, group)
+    assert surface is not None
+    assert surface["layer"] == "surface"
+    assert "#" in surface["uid"]

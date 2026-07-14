@@ -133,6 +133,8 @@ def _floor_record(sample: FastFillSample) -> dict:
         "uid": sample.sample_id,
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "room_type": sample.room_context.room_type,
+        "layer": "floor",  # explicit layer: a floor uid may contain '#'
         "instruction": FLOOR_INSTRUCTION,
         "input": encode_room_context(sample.room_context),
         "output": encode_floor_layout(sample.layout.floor_layout),
@@ -148,6 +150,8 @@ def _surface_record(sample: FastFillSample, group: SurfaceObjectGroup) -> Option
         "uid": f"{sample.sample_id}#{group.group_id}",
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "room_type": sample.room_context.room_type,
+        "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
         "input": encode_support_context(context),
         "output": encode_surface_groups([group]),

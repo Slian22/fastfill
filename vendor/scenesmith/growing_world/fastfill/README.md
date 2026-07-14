@@ -94,8 +94,14 @@ uv run python -m scenesmith.growing_world.grow run --task "..." --out out/world 
 ## Per-source facing calibration (measured, 2026-07-10)
 
 The contract front is +Y at yaw 0. Wall-backed-category audit (do objects
-face the room?): 3d_synthplace 100% raw → no offset; m3dlayout 5% raw →
-**+180° applied** (95% after); il3d 8% raw → **+180° applied** (92% after);
+face the room?): 3d_synthplace is NOT homogeneous — calibrate by
+`upstream_dataset`: Holodeck-Synth 100% raw → no offset; 3D-FRONT (incl. the
+48 source-less all-UUID scenes) 2.5% raw / 97% after **+180°** → +180° applied
+(full-corpus audit 2026-07-14, 22,393 Holodeck vs 11,895 3D-FRONT wall-backed
+objects). Separately, 3D-FRONT bbox axis order is a per-record HWD/DWH mix
+(~73/27), so 3D-FRONT floor records are ISOLATED at export (kept for dedup +
+contamination closure) until per-record mesh-vertex resolution. m3dlayout 5%
+raw → **+180° applied** (95% after); il3d 8% raw → **+180° applied** (92% after);
 scenesmith already contract-aligned (mesh canonicalization front=+Y);
 mansionworld is inconsistent PER CATEGORY (cabinets 3% vs toilets 100% —
 objaverse assets lack a shared canonical front), so no offset is applied and

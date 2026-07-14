@@ -162,8 +162,21 @@ def render_sft_example(
     )
 
 
+def record_layer(record: dict) -> str:
+    """Canonical layer of an export record: "floor" | "surface".
+
+    Prefers the explicit ``layer`` field (exports carry it); falls back to
+    the ``#``-in-uid heuristic only for older records without it. The bare
+    heuristic misroutes floor uids that legitimately contain ``#`` (e.g.
+    mansionworld ``..._fp001#3``), so every layer decision routes here."""
+    layer = str(record.get("layer", "")).strip().lower()
+    if layer in ("floor", "surface"):
+        return layer
+    return "surface" if "#" in str(record.get("uid", "")) else "floor"
+
+
 def _is_surface_record(record: dict) -> bool:
-    return "#" in str(record.get("uid", ""))  # surface uids: <sample>#<group>
+    return record_layer(record) == "surface"
 
 
 def split_completion(text: str) -> tuple[str, str]:

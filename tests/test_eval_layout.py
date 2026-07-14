@@ -455,3 +455,101 @@ def test_truncated_generation_counts_as_parse_fail(tmp_path: Path) -> None:
     report = json.loads(out_path.read_text())
     assert report["parse_rate"] == 0.0
     assert report["n_truncated"] == 1
+
+
+# ------------------------------------- runtime-parity regression coverage
+
+
+def _floor_hash_sample(sample_id: str) -> FastFillSample:
+    return FastFillSample(
+        sample_id=sample_id,
+        room_context=_context(),
+        layout=RoomContentLayout(
+            room_id="r0",
+            floor_layout=FloorLayout(room_id="r0", objects=(_bed((0.0, 0.0)),)),
+        ),
+        provenance=ProvenanceMeta(source_dataset="test_ds", split_key="house0"),
+    )
+
+
+def test_floor_uid_with_hash_and_explicit_layer_scores_as_floor(
+    tmp_path: Path,
+) -> None:
+    # A mansionworld-style floor uid contains '#'; the explicit layer field
+    # must route it to FLOOR scoring, not surface (the '#' heuristic misroutes).
+    uid = "test_ds/bldg_fp001#3"
+    record = _record(uid, _floor_text())
+    record["layer"] = "floor"
+    report = _run(
+        tmp_path,
+        records=[record],
+        generations=[{"uid": uid, "completion": _floor_text()}],
+        samples=[_floor_hash_sample(uid)],
+    )
+    assert report["n_floor"] == 1
+    assert report["n_surface"] == 0
+    assert report["n_validated"] == 1  # scored as a floor with its sample
+
+
+def _matrix_surface_text() -> str:
+    from scenesmith.growing_world.fastfill.schema import GroupPattern, PatternParams
+
+    # 1 template declaring a 2x2 MATRIX: n=1 pre-expand (would fail
+    # L0_PATTERN_INVALID rows*cols!=n), 4 post-expand (runtime passes).
+    group = SurfaceObjectGroup(
+        group_id="g0",
+        surface_id="surf0",
+        pattern=GroupPattern.MATRIX,
+        pattern_params=PatternParams(rows=2, cols=2, spacing_x_m=0.3, spacing_y_m=0.3),
+        objects=(
+            SurfaceObjectSpec(
+                object_id="g0/plate_0",
+                category="plate",
+                dimensions=(0.15, 0.15, 0.03),
+                position_local=(0.0, 0.0),
+            ),
+        ),
+    )
+    return encode_surface_groups([group])
+
+
+def test_matrix_pattern_not_failed_on_l0_pattern_invalid(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0#g0", _matrix_surface_text())],
+        generations=[{"uid": "s0#g0", "completion": _matrix_surface_text()}],
+        samples=[_surface_sample()],
+    )
+    # The pre-expand pattern check must not fire: eval expands like runtime.
+    assert "L0_PATTERN_INVALID" not in report["violations_top"]
+    assert report["surface_parse_rate"] == 1.0
+
+
+def _dup_group_id_text() -> str:
+    def _grp(oid: str) -> SurfaceObjectGroup:
+        return SurfaceObjectGroup(
+            group_id="g0",  # SAME id twice — runtime rebinds, eval must too
+            surface_id="surf0",
+            objects=(
+                SurfaceObjectSpec(
+                    object_id=oid,
+                    category="plate",
+                    dimensions=(0.12, 0.12, 0.03),
+                    position_local=(0.2, 0.0),
+                ),
+            ),
+        )
+
+    return encode_surface_groups([_grp("g0/plate_0"), _grp("g0/plate_1")])
+
+
+def test_duplicate_group_id_not_failed_on_l0_duplicate_id(tmp_path: Path) -> None:
+    report = _run(
+        tmp_path,
+        records=[_record("s0#g0", _dup_group_id_text())],
+        generations=[{"uid": "s0#g0", "completion": _dup_group_id_text()}],
+        samples=[_surface_sample()],
+    )
+    # eval namespaces ids by position like runtime's _rebind_groups.
+    assert "L0_DUPLICATE_ID" not in report["violations_top"]
+    assert report["surface_parse_rate"] == 1.0

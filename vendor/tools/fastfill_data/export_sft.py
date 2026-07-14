@@ -177,6 +177,11 @@ def _export_surface_groups(
 
 
 UNVERIFIED_YAW_NOTE = "yaw_facing=unverified_per_asset"
+# Mirrors convert_3d_synthplace.BBOX_UNVERIFIED_3DFRONT_NOTE — 3D-FRONT bbox
+# axis order is a per-record HWD/DWH mix not resolvable without mesh vertices,
+# so these floor labels are isolated (kept upstream for dedup + contamination
+# closure, never exported). Defined here to avoid importing the converter.
+BBOX_UNVERIFIED_NOTE = "bbox_axis=unverified_3dfront"
 
 
 def _export_sample(
@@ -210,7 +215,12 @@ def _export_sample(
     # regardless of the parent's absolute facing. Same one-sided skip for
     # floors the sanitizer could not repair.
     skip_floor = ""
-    if exclude_unverified_yaw and UNVERIFIED_YAW_NOTE in sample.provenance.notes:
+    if BBOX_UNVERIFIED_NOTE in sample.provenance.notes:
+        # 3D-FRONT: bbox axis order unresolved -> isolate the whole floor
+        # record (this source is floor-only). Kept upstream for dedup +
+        # contamination closure; never a training label until mesh-resolved.
+        skip_floor = "excluded_bbox_unverified_3dfront"
+    elif exclude_unverified_yaw and UNVERIFIED_YAW_NOTE in sample.provenance.notes:
         skip_floor = "excluded_unverified_yaw_floor"
     elif has_note(sample.provenance.notes, FLOOR_UNREPAIRED_NOTE):
         skip_floor = "excluded_unrepaired_floor"
