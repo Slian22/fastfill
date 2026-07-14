@@ -41,6 +41,8 @@ import random
 from pathlib import Path
 from typing import Optional, TextIO
 
+from pydantic import ValidationError
+
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
 from fastfill_data.export_sft import (
     BBOX_UNVERIFIED_NOTE,
@@ -354,7 +356,7 @@ def _judge_generation(
     room_id = sample.room_context.room_id if sample else "eval"
     try:
         decode_floor_layout(layout_text, room_id)
-    except (ValueError, IndexError):
+    except (ValueError, IndexError, ValidationError):
         return "reject_parse_failure", []
     if sample is None:
         return "skip_parse_only_passes", []

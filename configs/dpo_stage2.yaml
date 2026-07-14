@@ -13,4 +13,5 @@ max_prompt_length: 2048  # < max_length or chosen/rejected truncate to ~0 silent
 dpo_beta: 0.1
 save_steps: 100
 eval_steps: 100
+seed: 43   # snapshot froze heldout with seed 42; same seed here would leave val empty
 lora: {r: 16, alpha: 32, dropout: 0.05}

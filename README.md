@@ -99,7 +99,7 @@ import json
 rows = [json.loads(l) for l in open("data/stage0/train.jsonl")]
 with open("data/stage0/train_floor.jsonl", "w") as f:
     for r in rows:
-        if "#" not in r["uid"]:
+        if r.get("layer") == "floor":
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 EOF
 python3 -m fastfill_train.eval_layout --records data/stage0/train_floor.jsonl \

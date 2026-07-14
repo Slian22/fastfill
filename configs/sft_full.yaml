@@ -17,4 +17,5 @@ warmup_ratio: 0.1
 lr_scheduler_type: cosine
 save_steps: 200
 eval_steps: 200
+seed: 43   # snapshot froze heldout with seed 42; same seed here would leave val empty
 lora: {r: 16, alpha: 32, dropout: 0.05}
