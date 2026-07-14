@@ -273,7 +273,6 @@ def test_stage1_near_miss_gate_skips_multi_violation_rejects(tmp_path):
 
     out = tmp_path / "pairs.jsonl"
     stats = run_stage1(contexts, gens, out, samples_path, "direct", 2)
-    skipped = stats["skipped"] if "skipped" in stats else stats.get("counts", {})
     all_stats = json.dumps(stats)
     if stats["counts"]["pairs"] == 0:
         assert "too_many_violations_not_near_miss" in all_stats

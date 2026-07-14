@@ -79,10 +79,14 @@ python3 -m fastfill_train.eval_layout --records data/stage0/heldout.jsonl \
 # 评测默认:--sample-mode stratified --seed 42 --temperature 0.0;
 # 实评 UID 清单 + sha256 落在 out/eval_smoke.uids.json
 
-# 4) 正式 SFT(论文配置;模板 A/B/C 各跑一档做消融(--set template=plan / plan_nl))
-python3 -m fastfill_train.train_sft --config configs/sft_full.yaml
-python3 -m fastfill_train.train_sft --config configs/sft_full.yaml \
-    --set template=plan --set output_dir=out/sft_full_plan
+# 4) 正式 SFT(全量数据 data/full;stage-0 三臂决出主线后跑)
+#    全参(多卡):full_fp.yaml;LoRA r128(单卡):full_r128.yaml
+#    configs/sft_full.yaml 读的是 data/stage0(8000 上限),是 stage-0 对比臂,不是全量训练
+#    模板消融:--set template=plan / plan_nl 追加跑
+CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 accelerate launch --num_processes 7 \
+    -m fastfill_train.train_sft --config configs/full_fp.yaml
+# 或 LoRA r128 单卡:
+# CUDA_VISIBLE_DEVICES=0 python3 -m fastfill_train.train_sft --config configs/full_r128.yaml
 
 # 5) DPO(条件项 T3.3,先例提示大概率值得)
 #    两个 stage 都必须带 --snapshot:DPO 的 chosen 就是训练标签,
