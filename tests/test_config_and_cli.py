@@ -1,12 +1,13 @@
 """Config loading + CLI mapping tests — NO torch/trl/peft required.
 
-Covers: paper-value assertions for all four configs, ``--set`` override
+Covers: loading every YAML config, paper-value assertions, ``--set`` override
 behavior (incl. nested ``lora.r``), the pure ``build_sft_config`` /
 ``build_dpo_config`` kwargs mappings, and the ``dump_config`` roundtrip.
 """
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -22,12 +23,7 @@ from fastfill_train.train_dpo import build_dpo_config  # noqa: E402
 from fastfill_train.train_sft import build_arg_parser, build_sft_config  # noqa: E402
 
 CONFIGS = REPO / "configs"
-ALL_CONFIG_FILES = (
-    "sft_smoke.yaml",
-    "sft_full.yaml",
-    "dpo_stage1.yaml",
-    "dpo_stage2.yaml",
-)
+ALL_CONFIG_FILES = tuple(path.name for path in sorted(CONFIGS.glob("*.yaml")))
 
 
 # --- config loading (paper values) -----------------------------------------
@@ -38,6 +34,9 @@ def test_all_configs_load(name: str) -> None:
     cfg = load_config(CONFIGS / name)
     assert isinstance(cfg, TrainConfig)
     assert cfg.dataset_files  # every config names its data
+    # Every checked-in training file consumes a seed-42 frozen snapshot.
+    # Reusing 42 makes its 5% val bucket a subset already removed from train.
+    assert cfg.seed == 43
 
 
 def test_sft_full_matches_paper() -> None:
@@ -72,6 +71,18 @@ def test_sft_smoke_is_step_capped() -> None:
     cfg = load_config(CONFIGS / "sft_smoke.yaml")
     assert cfg.max_steps == 100
     assert cfg.template == "direct"
+
+
+def test_deepspeed_zero2_contract() -> None:
+    raw = json.loads((CONFIGS / "ds_zero2.json").read_text(encoding="utf-8"))
+    assert raw["bf16"]["enabled"] is True
+    assert raw["zero_optimization"]["stage"] == 2
+    assert raw["gradient_accumulation_steps"] == "auto"
+    assert raw["train_micro_batch_size_per_gpu"] == "auto"
+    for name in ("sft_full_fp.yaml", "stage0_full.yaml", "full_fp.yaml"):
+        cfg = load_config(CONFIGS / name)
+        assert cfg.use_lora is False
+        assert cfg.deepspeed == "configs/ds_zero2.json"
 
 
 # --- --set overrides --------------------------------------------------------

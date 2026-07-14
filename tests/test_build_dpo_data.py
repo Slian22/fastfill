@@ -10,6 +10,8 @@ import json
 from pathlib import Path
 
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
+import fastfill_train.build_dpo_data as dpo_builder
+from pydantic import ValidationError
 from fastfill_data.export_sft import FLOOR_INSTRUCTION, SURFACE_INSTRUCTION
 from test_injectors import make_clean_sample
 
@@ -183,7 +185,7 @@ def _stage1_fixtures(tmp_path: Path) -> tuple[Path, Path, Path]:
     return contexts_path, generations_path, samples_path
 
 
-def test_stage1_validated_mode(tmp_path: Path) -> None:
+def test_stage1_validated_mode(tmp_path: Path, monkeypatch) -> None:
     # Arrange
     contexts_path, generations_path, samples_path = _stage1_fixtures(tmp_path)
     out_path = tmp_path / "stage1_pairs.jsonl"
@@ -218,6 +220,15 @@ def test_stage1_validated_mode(tmp_path: Path) -> None:
     assert stats["counts"] == {"generations": 4, "pairs": 2}
     assert stats["skipped"] == {"generation_passes": 1, "unknown_uid": 1}
     assert stats["judge_modes"] == {"validated": 3, "parse_only": 0}
+
+    # Schema validation failures are malformed generations, not fatal errors
+    # for the whole stage-1 build. Keep this aligned with eval_layout.
+    def _raise_validation_error(*_args: object, **_kwargs: object) -> None:
+        raise ValidationError.from_exception_data("FloorLayout", [])
+
+    monkeypatch.setattr(dpo_builder, "decode_floor_layout", _raise_validation_error)
+    verdict, codes = dpo_builder._judge_generation({}, "malformed", None)
+    assert (verdict, codes) == ("reject_parse_failure", [])
 
 
 def test_stage1_parse_only_mode_without_samples(tmp_path: Path) -> None:

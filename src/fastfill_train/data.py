@@ -64,6 +64,19 @@ def split_house_first(
     return train, val
 
 
+def _require_requested_validation(
+    val_records: list[dict], val_fraction: float, seed: int
+) -> None:
+    """Fail loudly when a requested validation split produced no records."""
+    if val_fraction > 0 and not val_records:
+        raise ValueError(
+            "house-first split produced an empty validation set "
+            f"(val_fraction={val_fraction}, seed={seed}); choose a different "
+            "seed or set val_fraction=0 to disable training-time evaluation "
+            "explicitly"
+        )
+
+
 def render_messages(records: list[dict], template: str) -> list[dict]:
     """SFT records -> TRL prompt-completion rows (COMPLETION-ONLY loss).
 
@@ -99,6 +112,7 @@ def load_sft_datasets(
     train_recs, val_recs = split_house_first(records, val_fraction, seed)
     if not train_recs:
         raise ValueError("house-first split left the training set empty")
+    _require_requested_validation(val_recs, val_fraction, seed)
     train = Dataset.from_list(render_messages(train_recs, template))
     val = Dataset.from_list(render_messages(val_recs, template)) if val_recs else None
     return train, val
@@ -116,6 +130,9 @@ def load_dpo_datasets(
         if missing:
             raise ValueError(f"DPO record missing fields: {sorted(missing)}")
     train_recs, val_recs = split_house_first(records, val_fraction, seed)
+    if not train_recs:
+        raise ValueError("house-first split left the training set empty")
+    _require_requested_validation(val_recs, val_fraction, seed)
     keep = ("prompt", "chosen", "rejected")
     train = Dataset.from_list([{k: r[k] for k in keep} for r in train_recs])
     val = (

@@ -35,7 +35,7 @@ python -c "import torch,vllm; print(torch.__version__, torch.version.cuda, torch
 #   期望:2.10.0 12.8 True 0.19.0 —— 若 cuda 显示 13.x,用 cu128 源重装 torch:
 #   pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu128
 pip check
-export PYTHONPATH=src && python -m pytest tests -q     # 109 passed
+export PYTHONPATH=src && python -m pytest tests -q     # all tests should pass
 
 # 2) 数据:把原始数据集放到 ./data(或 export WORLDEDGE_DATA_DIR=...),然后
 export PYTHONPATH="$PWD/src"     # fresh shell 必须先设,后面所有 -m fastfill_train.* 依赖
@@ -93,6 +93,7 @@ CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 accelerate launch --num_processes 7 \
 #    不过滤会把 Stage-0 heldout/test 的 GT 喂进 DPO train(泄漏)。
 #    stage1(near-miss 默认门):rejected 违规码种类 ≤2 才入库,超限跳过计数;
 #    --max-reject-codes 0 恢复完整 model-pair 仅作消融。stage2 注入器均为单对象单属性扰动+双向核验。
+#    --template 必须与主线 SFT 一致;以下以 direct 为例。若主线选 plan/plan_nl,三处一起替换。
 # 先从 train 侧构造 stage1 的 contexts/generations(不要拿全量 floor_sft 去打模型,heldout/test 输入也别碰):
 python3 - <<'EOF'
 import json
@@ -104,14 +105,17 @@ with open("data/stage0/train_floor.jsonl", "w") as f:
 EOF
 python3 -m fastfill_train.eval_layout --records data/stage0/train_floor.jsonl \
     --endpoint http://127.0.0.1:8901/v1 --model fastfill-planner \
+    --template direct \
     --dump-generations out/gens_sft.jsonl --out out/eval_sft.json
 python3 -m fastfill_train.build_dpo_data stage1 --contexts data/stage0/train_floor.jsonl \
     --generations out/gens_sft.jsonl --samples out/conv/deduped.jsonl \
+    --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage1_pairs.jsonl
 python3 -m fastfill_train.train_dpo --config configs/dpo_stage1.yaml
 #    stage2:validator 全谱注入负例(越界/碰撞/堵门/错向/漏必放/悬空/出面/错 parent/超载)
 python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped.jsonl \
+    --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage2_pairs.jsonl
 python3 -m fastfill_train.train_dpo --config configs/dpo_stage2.yaml

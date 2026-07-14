@@ -8,7 +8,12 @@ from pathlib import Path
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
 import pytest
 
-from fastfill_train.data import read_records, render_messages, split_house_first
+from fastfill_train.data import (
+    _require_requested_validation,
+    read_records,
+    render_messages,
+    split_house_first,
+)
 
 
 def _records(houses: int = 10, per_house: int = 3) -> list[dict]:
@@ -53,6 +58,14 @@ def test_val_fraction_zero_yields_no_val() -> None:
         train, val = split_house_first(records, val_fraction=0.0, seed=seed)
         assert val == []
         assert len(train) == len(records)
+
+
+def test_requested_validation_cannot_be_silently_empty() -> None:
+    _require_requested_validation([], val_fraction=0.0, seed=42)
+    with pytest.raises(ValueError, match="empty validation set") as excinfo:
+        _require_requested_validation([], val_fraction=0.05, seed=42)
+    assert "val_fraction=0" in str(excinfo.value)
+    assert "different seed" in str(excinfo.value)
 
 
 def test_split_falls_back_to_uid_without_split_key() -> None:
