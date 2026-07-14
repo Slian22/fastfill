@@ -419,6 +419,98 @@ def test_stage1_snapshot_filter_excludes_holdout_contexts(tmp_path: Path) -> Non
     assert stats["skipped"]["excluded_holdout"] == 1
 
 
+# -------------------------------------------------------- bbox-unverified gate
+
+
+def test_stage2_bbox_unverified_blocks_floor_pairs_allows_surface(
+    tmp_path: Path,
+) -> None:
+    """bbox_axis=unverified_3dfront must suppress Floor pairs but not Surface."""
+    from fastfill_data.export_sft import BBOX_UNVERIFIED_NOTE
+
+    sample = make_clean_sample("s_bbox", "house_bbox")
+    sample = sample.model_copy(
+        update={
+            "provenance": sample.provenance.model_copy(
+                update={"notes": f"sanitized=v1;{BBOX_UNVERIFIED_NOTE}"}
+            )
+        }
+    )
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [sample.model_dump_json()])
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9"])
+
+    rows = _read_jsonl(out_path)
+    floor_rows = [r for r in rows if "#" not in r["uid"]]
+    surface_rows = [r for r in rows if "#" in r["uid"]]
+
+    assert floor_rows == [], "bbox-unverified must produce no Floor pairs"
+    assert surface_rows, "bbox-unverified must still produce Surface pairs"
+
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    skipped_keys = " ".join(stats["skipped"])
+    assert "excluded_bbox_unverified_floor" in skipped_keys
+    assert "excluded_unverified_yaw_floor" not in skipped_keys
+
+
+def test_stage2_bbox_unverified_stats_key_not_yaw(tmp_path: Path) -> None:
+    """Stats key for bbox exclusions must be distinct from the yaw exclusion key."""
+    from fastfill_data.export_sft import BBOX_UNVERIFIED_NOTE, UNVERIFIED_YAW_NOTE
+    from fastfill_data.sanitize import FLOOR_UNREPAIRED_NOTE
+
+    def _make(note_extra: str, sample_id: str) -> object:
+        s = make_clean_sample(sample_id, f"house_{sample_id}")
+        return s.model_copy(
+            update={
+                "provenance": s.provenance.model_copy(
+                    update={"notes": f"sanitized=v1;{note_extra}"}
+                )
+            }
+        )
+
+    cases = [
+        ("bbox", _make(BBOX_UNVERIFIED_NOTE, "s_bbox")),
+        ("yaw", _make(UNVERIFIED_YAW_NOTE, "s_yaw")),
+        ("unrepaired", _make(FLOOR_UNREPAIRED_NOTE, "s_unrepaired")),
+    ]
+    for label, sample in cases:
+        out = tmp_path / f"pairs_{label}.jsonl"
+        _write_jsonl(tmp_path / f"in_{label}.jsonl", [sample.model_dump_json()])
+        main(
+            [
+                "stage2",
+                "--in", str(tmp_path / f"in_{label}.jsonl"),
+                "--out", str(out),
+                "--per-sample", "9",
+            ]
+        )
+        stats = json.loads(out.with_suffix(".stats.json").read_text())
+        skipped_keys = " ".join(stats["skipped"])
+        if label == "bbox":
+            assert "excluded_bbox_unverified_floor" in skipped_keys, label
+            assert "excluded_unverified_yaw_floor" not in skipped_keys, label
+        elif label == "yaw":
+            assert "excluded_unverified_yaw_floor" in skipped_keys, label
+            assert "excluded_bbox_unverified_floor" not in skipped_keys, label
+        elif label == "unrepaired":
+            assert "excluded_floor_unrepaired" in skipped_keys, label
+
+
+def test_stage2_clean_sample_unaffected_by_bbox_gate(tmp_path: Path) -> None:
+    """A sample with no exclusion notes must still produce floor pairs normally."""
+    in_path = tmp_path / "samples.jsonl"
+    _write_samples(in_path, n=1)
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9"])
+
+    rows = _read_jsonl(out_path)
+    floor_rows = [r for r in rows if "#" not in r["uid"]]
+    assert floor_rows, "clean sample must still produce Floor pairs"
+
+
 def test_self_built_records_carry_explicit_layer() -> None:
     # build_dpo_data builds its own SFT-shape records; they MUST carry an
     # explicit "layer" so a floor uid containing '#' (e.g. mansionworld) is

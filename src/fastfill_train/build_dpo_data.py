@@ -222,12 +222,17 @@ def _emit_sample_pairs(
     original_codes = original_violation_codes(sample)
     # Same floor-label gates as export_sft: unverified-yaw, sanitizer-unrepaired,
     # and unverified-bbox 3D-FRONT floors must not contribute FLOOR-level chosen
-    # labels (surface pairs stay legal).
-    skip_floor = (
-        UNVERIFIED_YAW_NOTE in sample.provenance.notes
-        or BBOX_UNVERIFIED_NOTE in sample.provenance.notes
-        or has_note(sample.provenance.notes, FLOOR_UNREPAIRED_NOTE)
-    )
+    # labels (surface pairs stay legal).  Each reason gets its own stats key so
+    # .stats.json reflects the actual exclusion cause, not a stale label.
+    notes = sample.provenance.notes
+    if UNVERIFIED_YAW_NOTE in notes:
+        skip_floor_reason: str | None = "excluded_unverified_yaw_floor"
+    elif BBOX_UNVERIFIED_NOTE in notes:
+        skip_floor_reason = "excluded_bbox_unverified_floor"
+    elif has_note(notes, FLOOR_UNREPAIRED_NOTE):
+        skip_floor_reason = "excluded_floor_unrepaired"
+    else:
+        skip_floor_reason = None
     emitted = 0
     for name in rotated_names:
         if emitted >= per_sample:
@@ -236,8 +241,8 @@ def _emit_sample_pairs(
         if injection is None:
             _bump(skipped, f"not_applicable:{name}")
             continue
-        if skip_floor and injection.level == FLOOR_LEVEL:
-            _bump(skipped, f"excluded_unverified_yaw_floor:{name}")
+        if skip_floor_reason is not None and injection.level == FLOOR_LEVEL:
+            _bump(skipped, f"{skip_floor_reason}:{name}")
             continue
         if not verify_injection(sample, injection, original_codes):
             _bump(skipped, f"verification_failed:{name}")

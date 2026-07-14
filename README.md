@@ -35,7 +35,7 @@ python -c "import torch,vllm; print(torch.__version__, torch.version.cuda, torch
 #   期望:2.10.0 12.8 True 0.19.0 —— 若 cuda 显示 13.x,用 cu128 源重装 torch:
 #   pip install torch==2.10.0 torchvision==0.25.0 torchaudio==2.10.0 --index-url https://download.pytorch.org/whl/cu128
 pip check
-export PYTHONPATH=src && python -m pytest tests -q     # 88 passed
+export PYTHONPATH=src && python -m pytest tests -q     # 109 passed
 
 # 2) 数据:把原始数据集放到 ./data(或 export WORLDEDGE_DATA_DIR=...),然后
 export PYTHONPATH="$PWD/src"     # fresh shell 必须先设,后面所有 -m fastfill_train.* 依赖
