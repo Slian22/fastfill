@@ -43,6 +43,7 @@ from typing import Optional, TextIO
 
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
 from fastfill_data.export_sft import (
+    BBOX_UNVERIFIED_NOTE,
     FLOOR_INSTRUCTION,
     SURFACE_INSTRUCTION,
     UNVERIFIED_YAW_NOTE,
@@ -62,7 +63,6 @@ from scenesmith.growing_world.fastfill.codec import (
 )
 from scenesmith.growing_world.fastfill.schema import (
     FastFillSample,
-    FloorLayout,
     LicenseTag,
     RoomContentLayout,
     RoomContext,
@@ -220,11 +220,13 @@ def _emit_sample_pairs(
 ) -> int:
     """Try injectors in round-robin order until ``per_sample`` pairs emitted."""
     original_codes = original_violation_codes(sample)
-    # Same floor-label gates as export_sft: unverified-yaw and
-    # sanitizer-unrepaired floors must not contribute FLOOR-level chosen
+    # Same floor-label gates as export_sft: unverified-yaw, sanitizer-unrepaired,
+    # and unverified-bbox 3D-FRONT floors must not contribute FLOOR-level chosen
     # labels (surface pairs stay legal).
-    skip_floor = UNVERIFIED_YAW_NOTE in sample.provenance.notes or has_note(
-        sample.provenance.notes, FLOOR_UNREPAIRED_NOTE
+    skip_floor = (
+        UNVERIFIED_YAW_NOTE in sample.provenance.notes
+        or BBOX_UNVERIFIED_NOTE in sample.provenance.notes
+        or has_note(sample.provenance.notes, FLOOR_UNREPAIRED_NOTE)
     )
     emitted = 0
     for name in rotated_names:

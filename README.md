@@ -49,20 +49,23 @@ python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmi
 python3 vendor/tools/fastfill_data/deduplicate.py \
     --in out/conv/synthplace.jsonl out/conv/m3dlayout.jsonl out/conv/il3d.jsonl \
          out/conv/mansionworld.jsonl out/conv/scenesmith.jsonl \
-    --out out/conv/deduped_raw.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes \
+    --out out/conv/deduped_raw.jsonl --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace \
     --contamination-list data/eval_rooms.txt
 # 标签清洗(decode->validate->有界 repair->round-trip;repair 后重算 hash)
 python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
     --out out/conv/sanitized.jsonl
 # dedup #2(清洗后的新 hash 可能新增碰撞)
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
-    --out out/conv/deduped.jsonl --priority 3d_synthplace,m3dlayout,il3d,mansionworld,scenesmith_scenes
+    --out out/conv/deduped.jsonl --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
 # export 默认硬门:剔除无 sanitized=v1 标的样本、CC BY-NC(铁律 2)、
-# unverified-yaw / floor_unrepaired 的 Floor 记录(Surface 保留)
-# 冻结快照:train/heldout/test 三切分(test 只在最终报告读一次)
+# unverified-yaw / floor_unrepaired / bbox_unverified 的 Floor 记录(Surface 保留)
+# 冻结快照(stage0):smoke + 三臂对比用;带 --max-train 8000 限制
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
-    --out-dir data/stage0
+    --out-dir data/stage0 --val-fraction 0.1 --max-train 8000
+# 冻结快照(full):正式训练用(configs/full_fp.yaml / full_r128.yaml 读 data/full/train.jsonl)
+python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
+    --out-dir data/full
 
 # 3) smoke(T3.1:先证明链路,不求质量;100 步)
 python3 -m fastfill_train.train_sft --config configs/sft_smoke.yaml
