@@ -68,6 +68,8 @@ def build_sft_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
         "report_to": cfg.report_to,
         "seed": cfg.seed,
     }
+    if cfg.save_total_limit is not None:
+        kwargs["save_total_limit"] = cfg.save_total_limit
     if cfg.gradient_checkpointing:
         # Non-reentrant checkpointing: required for LoRA (frozen inputs
         # otherwise break the autograd graph under the reentrant variant).
@@ -159,7 +161,7 @@ def main(argv: list[str] | None = None) -> None:
         processing_class=tokenizer,
         peft_config=build_lora_config(cfg) if cfg.use_lora else None,
     )
-    trainer.train()
+    trainer.train(resume_from_checkpoint=cfg.resume_from_checkpoint or None)
     trainer.save_model(cfg.output_dir)
     print(f"SFT adapter saved to {cfg.output_dir}")
 

@@ -2,9 +2,14 @@
 # FAIR conditions vs configs/full_fp.yaml: same data/full snapshot, same
 # epochs=3, same template, same val split. Arm-specific lr/batch follow the
 # stage-0 arm (each method keeps its own working hyperparams).
-# Launch (single GPU):
-#   CUDA_VISIBLE_DEVICES=0 nohup python3 -m fastfill_train.train_sft \
-#     --config configs/full_r128.yaml > train_full_r128.log 2>&1 &
+# Launch in a DETACHED session (tmux/setsid) so a terminal hangup can't
+# SIGHUP the run — TorchElastic installs its own SIGHUP handler, so bare
+# `nohup` is not sufficient on its own:
+#   tmux new -s full_r128
+#   CUDA_VISIBLE_DEVICES=0 python3 -m fastfill_train.train_sft \
+#     --config configs/full_r128.yaml > train_full_r128.log 2>&1
+# Resume after a crash (picks the latest checkpoint in output_dir):
+#   ... --config configs/full_r128.yaml --set resume_from_checkpoint=true
 model_name_or_path: Qwen/Qwen3-8B
 dataset_files: [data/full/train.jsonl]
 template: direct
@@ -15,6 +20,7 @@ per_device_train_batch_size: 4
 gradient_accumulation_steps: 2
 max_seq_length: 2048
 save_steps: 4000   # ~14k total steps; keep checkpoint bloat down
+save_total_limit: 2  # bound LoRA-adapter checkpoint bloat, keep resume point
 eval_steps: 1000
 lora: {r: 128, alpha: 256, dropout: 0.05}
 val_fraction: 0.05

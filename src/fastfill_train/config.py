@@ -71,6 +71,12 @@ class TrainConfig:
     save_steps: int = 200
     eval_steps: int = 200
     save_strategy: str = "steps"
+    # Cap on-disk checkpoints (None = keep all). Set on full-param runs where
+    # ZeRO optimizer states are large and disk is tight.
+    save_total_limit: int | None = None
+    # Resume a crashed run: True picks the latest checkpoint in output_dir,
+    # a path resumes that specific checkpoint, False starts fresh.
+    resume_from_checkpoint: bool | str = False
     report_to: str = "none"  # "none" | "wandb" | "swanlab"
     lora: LoraSettings = field(default_factory=LoraSettings)
 

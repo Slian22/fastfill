@@ -2,9 +2,15 @@
 # configs/full_r128.yaml: same data/full snapshot, same epochs=3, same
 # template, same val split — stage-0 gave fp a +1 epoch edge, this is the
 # equal-footing rematch that decides the mainline.
-# Launch (7 GPUs, leaving GPU 0 for the r128 arm):
+# Launch in a DETACHED session so a terminal hangup can't SIGHUP the run
+# (TorchElastic installs its own SIGHUP handler, so bare `nohup` is not
+# enough — use tmux/setsid):
+#   tmux new -s full_fp
 #   CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 accelerate launch --num_processes 7 \
-#     -m fastfill_train.train_sft --config configs/full_fp.yaml
+#     -m fastfill_train.train_sft --config configs/full_fp.yaml \
+#     > train_full_fp.log 2>&1
+# Resume after a crash (picks the latest checkpoint in output_dir):
+#   ... --config configs/full_fp.yaml --set resume_from_checkpoint=true
 model_name_or_path: Qwen/Qwen3-8B
 dataset_files: [data/full/train.jsonl]
 template: direct
@@ -17,7 +23,10 @@ per_device_train_batch_size: 8
 gradient_accumulation_steps: 2
 max_seq_length: 2048
 warmup_ratio: 0.03
-save_steps: 2000   # > total steps: final save only (ZeRO optim states are huge)
+# ~993 total steps. Periodic save so a crash is recoverable; keep only the
+# latest checkpoint since ZeRO-2 optim states are huge and disk is tight.
+save_steps: 250
+save_total_limit: 1
 eval_steps: 500
 val_fraction: 0.05
 seed: 43   # snapshot froze heldout with seed 42; same seed here would leave

@@ -58,6 +58,7 @@ from scenesmith.growing_world.fastfill.codec import (
     decode_floor_layout,
     decode_surface_groups,
 )
+from scenesmith.growing_world.fastfill.patterns import expand_patterns
 from scenesmith.growing_world.fastfill.repair import deterministic_repair
 from scenesmith.growing_world.fastfill.schema import (
     FastFillSample,
@@ -224,6 +225,18 @@ def _is_surface_uid(uid: str) -> bool:
     return "#" in uid  # surface uids: <sample>#<group>
 
 
+def _is_surface_record(record: dict) -> bool:
+    """Prefer the explicit ``layer`` field; fall back to the uid heuristic.
+
+    Exports carry ``layer`` ("floor"|"surface"); older records without it
+    fall back to ``#`` in the uid — but that heuristic misroutes floor uids
+    that legitimately contain ``#`` (e.g. mansionworld ``..._fp001#3``)."""
+    layer = str(record.get("layer", "")).strip().lower()
+    if layer in ("floor", "surface"):
+        return layer == "surface"
+    return _is_surface_uid(str(record.get("uid", "")))
+
+
 def _norm_category(text: str) -> str:
     return text.lower().replace(" ", "").replace("_", "")
 
@@ -373,9 +386,13 @@ def score_surface(
         pinned = tuple(
             g.model_copy(update={"surface_id": surface.surface_id}) for g in groups
         )
+        # Runtime expands declared patterns into concrete placements before
+        # validation (generator.py:441); mirror it so a legal 1-template
+        # MATRIX is not failed on L0_PATTERN_INVALID (rows*cols != n).
+        expanded = expand_patterns(pinned)
         room_type = str(record.get("room_type", "")) or "room"
         pre, post, _ = surface_reports_with_repair(
-            pinned,
+            expanded,
             surface,
             parent,
             room_type,
@@ -411,7 +428,7 @@ def evaluate(
         if generation is None:
             missing += 1
             continue
-        if _is_surface_uid(uid):
+        if _is_surface_record(record):
             sample = samples.get(uid.rsplit("#", 1)[0])
             results.append(score_surface(record, generation, sample))
         else:
@@ -423,7 +440,7 @@ def evaluate(
 
 
 def _record_layer(record: dict) -> str:
-    return "surface" if _is_surface_uid(str(record.get("uid", ""))) else "floor"
+    return "surface" if _is_surface_record(record) else "floor"
 
 
 def _record_room_type(record: dict) -> str:
