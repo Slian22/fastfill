@@ -97,11 +97,13 @@ def main(argv: list[str] | None = None) -> None:
             "--set model_name_or_path=out/full_fp"
         )
     from fastfill_train.provenance_guard import (
+        check_base_snapshot_consistency,
         verify_training_data,
         write_provenance,
     )
 
     provenance = verify_training_data(cfg)  # fail-closed BEFORE any setup
+    check_base_snapshot_consistency(cfg, provenance)
     dump_config(cfg, Path(cfg.output_dir) / RESOLVED_CONFIG_NAME)
     write_provenance(cfg, provenance)
     train_dataset, eval_dataset = load_dpo_datasets(

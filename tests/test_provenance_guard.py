@@ -37,17 +37,21 @@ def _cfg(tmp_path: Path, dataset: Path, allow: bool = False):
 
 
 def _snapshot_dir(tmp_path: Path) -> Path:
+    import hashlib
+
     out = tmp_path / "snap"
     out.mkdir()
     train = out / "train.jsonl"
     train.write_text('{"uid": "s0"}\n', encoding="utf-8")
-    sidecar = {
+    payload = {
         "hashes": {"train": _sha(train)},
-        "snapshot_id": "abc123",
         "license_mode": "permissive",
         "license_counts": {"train": {"permissive": 1}},
     }
-    (out / "SNAPSHOT.json").write_text(json.dumps(sidecar))
+    payload["snapshot_id"] = hashlib.sha256(
+        json.dumps(payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
+    (out / "SNAPSHOT.json").write_text(json.dumps(payload))
     return out
 
 
@@ -56,7 +60,8 @@ def test_verified_snapshot_file_passes(tmp_path: Path) -> None:
     provenance = verify_training_data(_cfg(tmp_path, snap / "train.jsonl"))
     assert provenance["verified"] is True
     (entry,) = provenance["files"]
-    assert entry["snapshot_id"] == "abc123"
+    assert entry["snapshot_id"]  # verified fingerprint, recomputed
+    assert provenance["snapshot_id"] == entry["snapshot_id"]
     assert entry["license_mode"] == "permissive"
     path = write_provenance(_cfg(tmp_path, snap / "train.jsonl"), provenance)
     assert json.loads(path.read_text())["verified"] is True
@@ -100,3 +105,46 @@ def test_dpo_pairs_without_snapshot_id_fail(tmp_path: Path) -> None:
     pairs.with_suffix(".stats.json").write_text(json.dumps({"snapshot_id": None}))
     with pytest.raises(SystemExit, match="snapshot_id"):
         verify_training_data(_cfg(tmp_path, pairs))
+
+
+def test_forged_snapshot_id_fails(tmp_path: Path) -> None:
+    snap = _snapshot_dir(tmp_path)
+    sidecar_path = snap / "SNAPSHOT.json"
+    payload = json.loads(sidecar_path.read_text())
+    payload["snapshot_id"] = "deadbeefdeadbeef"
+    sidecar_path.write_text(json.dumps(payload))
+    with pytest.raises(SystemExit, match="does not recompute"):
+        verify_training_data(_cfg(tmp_path, snap / "train.jsonl"))
+
+
+def test_resume_chains_previous_provenance(tmp_path: Path) -> None:
+    snap = _snapshot_dir(tmp_path)
+    cfg = _cfg(tmp_path, snap / "train.jsonl")
+    first = verify_training_data(cfg)
+    write_provenance(cfg, first)
+    second = verify_training_data(cfg)
+    path = write_provenance(cfg, second)
+    payload = json.loads(path.read_text())
+    assert payload["verified"] is True
+    assert payload["previous"]["verified"] is True  # both lineages visible
+
+
+def test_dpo_base_and_pairs_must_share_snapshot(tmp_path: Path) -> None:
+    from fastfill_train.provenance_guard import check_base_snapshot_consistency
+
+    base_dir = tmp_path / "base_model"
+    base_dir.mkdir()
+    (base_dir / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_a"})
+    )
+    from dataclasses import replace
+
+    cfg = replace(
+        _cfg(tmp_path, tmp_path / "unused.jsonl", allow=True),
+        model_name_or_path=str(base_dir),
+    )
+    with pytest.raises(SystemExit, match="share one snapshot"):
+        check_base_snapshot_consistency(cfg, {"snapshot_id": "snap_b"})
+    # Matching id passes; missing lineage on either side is soft.
+    check_base_snapshot_consistency(cfg, {"snapshot_id": "snap_a"})
+    check_base_snapshot_consistency(cfg, {"snapshot_id": None})

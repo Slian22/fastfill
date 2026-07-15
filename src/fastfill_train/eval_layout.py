@@ -651,7 +651,10 @@ _TEACHER_SELECTION_FIELDS = (
     "temperature",
     "sample_mode",
     "limit",
+    "template",
     "records_sha256",
+    "samples_sha256",
+    "generation_mode",
 )
 _TEACHER_REPORT_FIELDS = (
     "harness",
@@ -728,6 +731,19 @@ def apply_teacher(
             f"pass_rate_post_repair (got {teacher_pass!r}; need a finite "
             "float in [0, 1])"
         )
+    if float(teacher_pass) == 0.0 and not allow_mismatch:
+        raise ValueError(
+            f"teacher report {teacher_path} has pass_post_repair == 0 — a "
+            "teacher that passes nothing is not a usable T3.2 baseline "
+            "(--allow-teacher-mismatch for a trend-only record)"
+        )
+    student_pass = report.get("pass_post_repair")
+    if not _valid_rate(student_pass) and not allow_mismatch:
+        raise ValueError(
+            f"student pass_post_repair is not a valid rate ({student_pass!r})"
+            " — the eval scored no validated floor records; a formal T3.2 "
+            "ratio cannot be computed"
+        )
     mismatches = _identity_mismatches(report, teacher)
     if mismatches and not allow_mismatch:
         raise ValueError(
@@ -737,7 +753,6 @@ def apply_teacher(
             + " (pass --allow-teacher-mismatch for an explicitly "
             "trend-only ratio)"
         )
-    student_pass = report.get("pass_post_repair")
     ratio = None
     if float(teacher_pass) > 0 and _valid_rate(student_pass):
         ratio = float(student_pass) / float(teacher_pass)
@@ -912,12 +927,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "seed": args.seed,
         "limit": args.limit,
         "temperature": args.temperature,
+        "template": args.template,
         "uids_sha256": manifest["uids_sha256"],
         # Content hash of the records file: same UID list over edited
         # records must not pass as the same manifest.
         "records_sha256": hashlib.sha256(
             Path(args.records).read_bytes()
         ).hexdigest(),
+        # Samples drive floor validation — a different ground-truth file
+        # changes every pass rate, so it is part of the eval's identity.
+        "samples_sha256": (
+            hashlib.sha256(Path(args.samples).read_bytes()).hexdigest()
+            if args.samples
+            else None
+        ),
+        "generation_mode": "live" if args.endpoint else "offline",
+        "endpoint_model": args.model,
+        "extra_body_sha256": (
+            hashlib.sha256(str(args.extra_body).encode("utf-8")).hexdigest()[:16]
+            if args.endpoint
+            else None
+        ),
         "uids_manifest": str(out.with_suffix(".uids.json")),
     }
     if args.teacher_report:

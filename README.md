@@ -44,25 +44,35 @@ python3 vendor/tools/fastfill_data/convert_m3dlayout.py --split 3dfront --out ou
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
 python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
-# dedup #1 + 污染 closure(原始 hash 上做:同源拷贝必然碰撞,closure 召回最大)
+# dedup 从第一轮起就按 license 路线分叉(关键:route=all 的 license-first 选主
+# 会让 permissive 纯 floor 副本先吃掉 NC 的 surface-rich 副本,research 路线的
+# Surface 数据在分叉前就没了)。两路各自吃全量输入 —— contamination closure
+# 必须看见所有来源的拷贝。
 # 注意:输入必须显式列出,不要用 out/conv/*.jsonl —— 重跑时 glob 会吃进旧的中间产物
+# --- permissive 路线 ---
 python3 vendor/tools/fastfill_data/deduplicate.py \
     --in out/conv/synthplace.jsonl out/conv/m3dlayout.jsonl out/conv/il3d.jsonl \
          out/conv/mansionworld.jsonl out/conv/scenesmith.jsonl \
-    --out out/conv/deduped_raw.jsonl --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace \
+    --out out/conv/deduped_raw_permissive.jsonl --license-route permissive \
+    --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace \
     --contamination-list data/eval_rooms.txt
-# 标签清洗(decode->validate->有界 repair->round-trip;repair 后重算 hash)
-python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
-    --out out/conv/sanitized.jsonl
-# dedup #2 起按 license 路线各跑一份(route-aware:非法副本永不吞掉合法副本;
-# route 内按 --priority 选赢家)。permissive 路线:
-python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
+python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw_permissive.jsonl \
+    --out out/conv/sanitized_permissive.jsonl
+python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized_permissive.jsonl \
     --out out/conv/deduped_permissive.jsonl --license-route permissive \
     --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped_permissive.jsonl \
     --out-dir data/sft --license-mode permissive
-# research 路线(NC checkpoint,分目录冻结,不得混用):
-python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
+# --- research 路线(NC checkpoint,分目录冻结,不得混用)---
+python3 vendor/tools/fastfill_data/deduplicate.py \
+    --in out/conv/synthplace.jsonl out/conv/m3dlayout.jsonl out/conv/il3d.jsonl \
+         out/conv/mansionworld.jsonl out/conv/scenesmith.jsonl \
+    --out out/conv/deduped_raw_research.jsonl --license-route research \
+    --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace \
+    --contamination-list data/eval_rooms.txt
+python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw_research.jsonl \
+    --out out/conv/sanitized_research.jsonl
+python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized_research.jsonl \
     --out out/conv/deduped_research.jsonl --license-route research \
     --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped_research.jsonl \
@@ -73,13 +83,16 @@ python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped_research.
 # LICENSE_PENDING/UNKNOWN(如 3D-SynthPlace)两轨都剔,除非 --allow-unresolved-licenses
 # 冻结快照(stage0):smoke + 三臂对比用;带 --max-train 8000 限制;
 # make_snapshot 有 fail-closed license 门(--license-mode 须与 export 路线一致),
-# sidecar 记 snapshot_id/SPLIT_KEYS/license_counts,train_sft/train_dpo 启动时按
-# hash 验证(DATA_PROVENANCE.json 落进模型目录)
+# sidecar 记 snapshot_id/SPLIT_KEYS(裁剪前全量 key+geometry hash)/license_counts,
+# train_sft/train_dpo 启动时按 hash 验证(DATA_PROVENANCE.json 落进模型目录)
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
     --out-dir data/stage0 --val-fraction 0.1 --max-train 8000
 # 冻结快照(full):正式训练用(configs/full_fp.yaml / full_r128.yaml 读 data/full/train.jsonl)
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
     --out-dir data/full
+# research 路线同样冻结(license 门与路线一致):
+python3 -m fastfill_train.make_snapshot --in data/sft_research/floor_sft.jsonl \
+    data/sft_research/surface_sft.jsonl --out-dir data/full_research --license-mode research
 
 # 3) smoke(T3.1:先证明链路,不求质量;100 步)
 python3 -m fastfill_train.train_sft --config configs/sft_smoke.yaml
@@ -88,7 +101,7 @@ python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
 bash scripts/serve_vllm.sh out/sft_smoke_merged &
 until curl -sf http://127.0.0.1:8901/v1/models >/dev/null; do sleep 2; done   # 就绪再评;评完 kill 掉旧服务
 python3 -m fastfill_train.eval_layout --records data/stage0/heldout.jsonl \
-    --samples out/conv/deduped.jsonl --endpoint http://127.0.0.1:8901/v1 \
+    --samples out/conv/deduped_permissive.jsonl --endpoint http://127.0.0.1:8901/v1 \
     --model fastfill-planner --limit 100 --out out/eval_smoke.json
 # 评测默认:--sample-mode stratified --seed 42 --temperature 0.0;
 # 实评 UID 清单 + sha256 落在 out/eval_smoke.uids.json
@@ -130,7 +143,7 @@ python3 -m fastfill_train.eval_layout --records data/stage0/train_floor.jsonl \
     --template direct \
     --dump-generations out/gens_sft.jsonl --out out/eval_sft.json
 python3 -m fastfill_train.build_dpo_data stage1 --contexts data/stage0/train_floor.jsonl \
-    --generations out/gens_sft.jsonl --samples out/conv/deduped.jsonl \
+    --generations out/gens_sft.jsonl --samples out/conv/deduped_permissive.jsonl \
     --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage1_pairs.jsonl
@@ -141,7 +154,7 @@ python3 -m fastfill_train.train_dpo \
 python3 -m fastfill_train.merge_lora --base "$MAINLINE" \
     --lora out/dpo_stage1 --out out/dpo_stage1_merged
 #    stage2:validator 全谱注入负例(越界/碰撞/堵门/错向/漏必放/悬空/出面/错 parent/超载)
-python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped.jsonl \
+python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped_permissive.jsonl \
     --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage2_pairs.jsonl
@@ -208,7 +221,7 @@ export FASTFILL_LLM_MODEL=fastfill-planner
 ```bash
 # 对训练 context 采 K 次(eval_layout --dump-generations 跑 K 轮或采样 n=K)
 python3 -m fastfill_train.build_rsft_data --contexts data/sft/floor_sft.jsonl \
-    --generations out/gens_k.jsonl --samples out/conv/deduped.jsonl \
+    --generations out/gens_k.jsonl --samples out/conv/deduped_permissive.jsonl \
     --out data/rsft/round1.jsonl
 # 硬门槛:parse + validator 过 + 物体数 >= max(3, 0.6x真值) —— 防"越训越空"坍缩;
 # dry_rate > 0.5 触发 collapse_alarm 并 exit 2:该轮禁止入训,别靠人眼盯。

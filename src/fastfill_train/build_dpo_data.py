@@ -103,13 +103,21 @@ class SnapshotFilter:
     """Holdout predicate + corpus-identity data from a make_snapshot dir."""
 
     is_holdout: Callable[[str], bool]
-    known_keys: Optional[frozenset[str]]  # None for pre-SPLIT_KEYS snapshots
-    snapshot_id: Optional[str]
+    known_keys: frozenset[str]
+    known_hashes: Optional[frozenset[str]]  # None: pre-hash SPLIT_KEYS format
+    snapshot_id: str
+    license_mode: Optional[str]
 
-    def is_foreign(self, split_key: str) -> bool:
-        """True when the key was never part of the frozen corpus — its
-        sample is not authorized training material for this snapshot."""
-        return self.known_keys is not None and split_key not in self.known_keys
+    def is_foreign(self, split_key: str, geometry_hash: str = "") -> bool:
+        """True when the sample was never part of the frozen corpus — by
+        room identity (split_key) or, when the snapshot records them, by
+        content (geometry_hash). Foreign samples are not authorized
+        training material for this snapshot."""
+        if split_key not in self.known_keys:
+            return True
+        if self.known_hashes is not None and geometry_hash:
+            return geometry_hash not in self.known_hashes
+        return False
 
 
 def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
@@ -153,40 +161,60 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
             f"(val={val}, test={test}; each in [0,1), sum < 1)"
         )
     snapshot_id = sidecar.get("snapshot_id")
-    if snapshot_id is not None:
-        payload = {k: v for k, v in sidecar.items() if k != "snapshot_id"}
-        recomputed = hashlib.sha256(
-            json.dumps(payload, sort_keys=True).encode("utf-8")
-        ).hexdigest()[:16]
-        if recomputed != snapshot_id:
-            raise ValueError(
-                f"{snapshot_path}: snapshot_id mismatch (recorded "
-                f"{snapshot_id}, recomputed {recomputed}) — sidecar was "
-                "edited after freezing"
-            )
-    known_keys: Optional[frozenset[str]] = None
+    if snapshot_id is None:
+        raise ValueError(
+            f"{snapshot_path} has no snapshot_id — legacy sidecars are not "
+            "acceptable for pair building; re-freeze with the current "
+            "make_snapshot (or use --allow-no-snapshot for smoke)"
+        )
+    payload = {k: v for k, v in sidecar.items() if k != "snapshot_id"}
+    recomputed = hashlib.sha256(
+        json.dumps(payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
+    if recomputed != snapshot_id:
+        raise ValueError(
+            f"{snapshot_path}: snapshot_id mismatch (recorded "
+            f"{snapshot_id}, recomputed {recomputed}) — sidecar was "
+            "edited after freezing"
+        )
     keys_name = sidecar.get("split_keys_file")
-    if keys_name:
-        keys_path = snapshot_path.parent / keys_name
-        if not keys_path.exists():
-            raise ValueError(
-                f"{snapshot_path} references {keys_name} but it is missing "
-                "next to the sidecar — snapshot dir is incomplete"
-            )
-        digest = hashlib.sha256(keys_path.read_bytes()).hexdigest()[:16]
-        if digest != sidecar.get("split_keys_sha256"):
-            raise ValueError(
-                f"{keys_path}: content hash {digest} does not match the "
-                f"sidecar's split_keys_sha256 — key list was modified"
-            )
-        known_keys = frozenset(json.loads(keys_path.read_text(encoding="utf-8")))
+    if not keys_name:
+        raise ValueError(
+            f"{snapshot_path} has no split_keys_file — corpus membership "
+            "cannot be verified; re-freeze with the current make_snapshot"
+        )
+    keys_path = snapshot_path.parent / keys_name
+    if not keys_path.exists():
+        raise ValueError(
+            f"{snapshot_path} references {keys_name} but it is missing "
+            "next to the sidecar — snapshot dir is incomplete"
+        )
+    digest = hashlib.sha256(keys_path.read_bytes()).hexdigest()[:16]
+    if digest != sidecar.get("split_keys_sha256"):
+        raise ValueError(
+            f"{keys_path}: content hash {digest} does not match the "
+            f"sidecar's split_keys_sha256 — key list was modified"
+        )
+    keys_payload = json.loads(keys_path.read_text(encoding="utf-8"))
+    if isinstance(keys_payload, dict):
+        known_keys = frozenset(keys_payload.get("split_keys") or ())
+        known_hashes: Optional[frozenset[str]] = frozenset(
+            keys_payload.get("geometry_hashes") or ()
+        )
+    else:  # first-generation list format: keys only
+        known_keys = frozenset(keys_payload)
+        known_hashes = None
     cutoff = int((val + test) * _SPLIT_BUCKETS)
 
     def is_holdout(split_key: str) -> bool:
         return split_bucket(split_key, seed) < cutoff
 
     return SnapshotFilter(
-        is_holdout=is_holdout, known_keys=known_keys, snapshot_id=snapshot_id
+        is_holdout=is_holdout,
+        known_keys=known_keys,
+        known_hashes=known_hashes,
+        snapshot_id=snapshot_id,
+        license_mode=sidecar.get("license_mode"),
     )
 
 
@@ -413,7 +441,9 @@ def run_stage2(
             counts["input_samples"] += 1
             if snapshot_filter is not None:
                 key = sample.provenance.split_key
-                if snapshot_filter.is_foreign(key):
+                if snapshot_filter.is_foreign(
+                    key, sample.provenance.geometry_hash
+                ):
                     foreign += 1
                     continue
                 if snapshot_filter.is_holdout(key):
@@ -568,7 +598,7 @@ def run_stage1(
         n_context_records += 1
         if snapshot_filter is not None:
             key = record.get("split_key", "")
-            if snapshot_filter.is_foreign(key):
+            if snapshot_filter.is_foreign(key, str(record.get("geometry_hash", ""))):
                 foreign += 1
                 continue
             if snapshot_filter.is_holdout(key):

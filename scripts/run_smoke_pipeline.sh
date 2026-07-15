@@ -88,7 +88,7 @@ curl -sf "http://127.0.0.1:$PORT/v1/models" > /dev/null \
 # --- 4. Layout eval against the live endpoint ------------------------------
 PYTHONPATH=src python3 -m fastfill_train.eval_layout \
   --records data/stage0/heldout.jsonl \
-  --samples out/conv/deduped.jsonl \
+  --samples out/conv/deduped_permissive.jsonl \
   --endpoint "http://127.0.0.1:$PORT/v1" \
   --model fastfill-planner --limit 100 \
   --out out/eval_smoke.json

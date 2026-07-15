@@ -171,8 +171,30 @@ def test_sidecar_carries_fingerprint_and_split_keys(tmp_path: Path, monkeypatch)
     assert sidecar["snapshot_id"]
     assert sidecar["license_mode"] == "permissive"
     keys_path = tmp_path / sidecar["split_keys_file"]
-    keys = json.loads(keys_path.read_text())
-    assert len(keys) == sidecar["n_split_keys"] == 50
+    keys_payload = json.loads(keys_path.read_text())
+    assert len(keys_payload["split_keys"]) == sidecar["n_split_keys"] == 50
+
+
+def test_split_keys_capture_full_corpus_before_max_train(
+    tmp_path: Path, monkeypatch
+):
+    """--max-train trims the train FILE only: SPLIT_KEYS must still hold the
+    whole corpus, or a subsampled snapshot flags its own corpus as foreign."""
+    in_path = tmp_path / "in.jsonl"
+    _write_records(in_path, n=100)
+    sidecar = _run_main(
+        tmp_path,
+        [
+            "--in", str(in_path),
+            "--out-dir", str(tmp_path),
+            "--max-train", "5",
+        ],
+        monkeypatch,
+    )
+    assert sidecar["counts"]["train"] == 5
+    keys_payload = json.loads((tmp_path / sidecar["split_keys_file"]).read_text())
+    assert len(keys_payload["split_keys"]) == 100
+    assert sidecar["n_split_keys"] == 100
 
 
 def test_fraction_range_is_validated(tmp_path: Path, monkeypatch):

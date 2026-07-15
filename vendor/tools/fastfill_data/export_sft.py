@@ -128,6 +128,7 @@ def _floor_record(sample: FastFillSample) -> dict:
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
+        "geometry_hash": sample.provenance.geometry_hash,
         "room_type": sample.room_context.room_type,
         "layer": "floor",
         "instruction": FLOOR_INSTRUCTION,
@@ -144,6 +145,7 @@ def _surface_record(
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
+        "geometry_hash": sample.provenance.geometry_hash,
         "room_type": sample.room_context.room_type,
         "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
@@ -284,6 +286,13 @@ def _export_sample(
         # (bumped only after a real write, so the report cannot claim an
         # exported license sample while floor+surface records are both 0).
         _bump(counts, f"exported_license_{sample.provenance.license_tag.value}")
+        if "license_gate=" in sample.provenance.notes:
+            # Converter-recorded download-gate restrictions (e.g. MansionWorld
+            # non-commercial checkbox) must stay visible in export lineage.
+            _bump(
+                counts,
+                f"exported_with_license_gate_{sample.provenance.source_dataset}",
+            )
 
 
 def export_sft(

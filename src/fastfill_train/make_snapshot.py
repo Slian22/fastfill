@@ -141,6 +141,26 @@ def main() -> None:
             record
         )
     _enforce_license_mode(splits, args.license_mode, args.allow_unresolved_licenses)
+    # Corpus identity is captured BEFORE any subsampling: --max-train trims
+    # the train FILE, not the frozen corpus — downstream corpus-membership
+    # checks (build_dpo_data) must recognise every original sample, or a
+    # subsampled stage0 snapshot would flag its own corpus as foreign.
+    corpus_keys = sorted(
+        set().union(
+            *(
+                {r.get("split_key") for r in rows} - {None, ""}
+                for rows in splits.values()
+            )
+        )
+    )
+    corpus_geometry_hashes = sorted(
+        {
+            str(r["geometry_hash"])
+            for rows in splits.values()
+            for r in rows
+            if r.get("geometry_hash")
+        }
+    )
     train = splits["train"]
     if args.max_train and len(train) > args.max_train:
         rng = random.Random(args.seed)
@@ -167,11 +187,19 @@ def main() -> None:
             "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
         )
         files[name] = path
-    # The full split-key universe lets downstream consumers (build_dpo_data)
-    # verify their input corpus is the one this snapshot was frozen from.
+    # The full pre-subsample corpus universe (keys + geometry hashes) lets
+    # downstream consumers verify their input corpus is the one this
+    # snapshot was frozen from — by room identity AND by content.
     split_keys_path = out / "SPLIT_KEYS.json"
-    split_keys = sorted(set().union(*keys.values()))
-    split_keys_path.write_text(json.dumps(split_keys, indent=0))
+    split_keys_path.write_text(
+        json.dumps(
+            {
+                "split_keys": corpus_keys,
+                "geometry_hashes": corpus_geometry_hashes,
+            },
+            indent=0,
+        )
+    )
     sidecar = {
         "inputs": {p: _sha(Path(p)) for p in args.inputs},
         "seed": args.seed,
@@ -190,7 +218,8 @@ def main() -> None:
         "hashes": {name: _sha(path) for name, path in files.items()},
         "split_keys_file": split_keys_path.name,
         "split_keys_sha256": _sha(split_keys_path),
-        "n_split_keys": len(split_keys),
+        "n_split_keys": len(corpus_keys),
+        "n_geometry_hashes": len(corpus_geometry_hashes),
         "leakage_check": "passed",
         "test_split_policy": (
             "heldout drives learning curves and tuning; test.jsonl is read "

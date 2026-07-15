@@ -327,17 +327,7 @@ def test_stage2_snapshot_filter_excludes_holdout(tmp_path: Path) -> None:
     ]
     in_path = tmp_path / "samples.jsonl"
     _write_jsonl(in_path, [s.model_dump_json() for s in samples])
-    snapshot = tmp_path / "SNAPSHOT.json"
-    snapshot.write_text(
-        json.dumps(
-            {
-                "seed": seed,
-                "val_fraction": val,
-                "test_fraction": test,
-                "rule": "house-first sha1(split_key) bucket (data.split_bucket)",
-            }
-        )
-    )
+    snapshot = _freeze_snapshot(tmp_path, samples, val=val, test=test)
     out_path = tmp_path / "pairs.jsonl"
 
     main(
@@ -421,16 +411,8 @@ def test_stage1_snapshot_filter_excludes_holdout_contexts(tmp_path: Path) -> Non
             {"uid": "s_train", "completion": "not a layout"},
         ],
     )
-    snapshot = tmp_path / "SNAPSHOT.json"
-    snapshot.write_text(
-        json.dumps(
-            {
-                "seed": seed,
-                "val_fraction": val,
-                "test_fraction": test,
-                "rule": "house-first sha1(split_key) bucket (data.split_bucket)",
-            }
-        )
+    snapshot = _freeze_snapshot(
+        tmp_path, [hold_sample, train_sample], val=val, test=test
     )
     out_path = tmp_path / "pairs.jsonl"
 
@@ -649,7 +631,9 @@ def test_snapshot_sidecar_shape_is_validated(tmp_path: Path) -> None:
         )
 
 
-def _freeze_snapshot(tmp_path: Path, samples) -> Path:
+def _freeze_snapshot(
+    tmp_path: Path, samples, val: float = 0.1, test: float = 0.0
+) -> Path:
     """Freeze a real snapshot over the samples' floor records."""
     import sys as _sys
 
@@ -663,8 +647,8 @@ def _freeze_snapshot(tmp_path: Path, samples) -> Path:
         "make_snapshot",
         "--in", str(sft_path),
         "--out-dir", str(out_dir),
-        "--val-fraction", "0.1",
-        "--test-fraction", "0.0",
+        "--val-fraction", str(val),
+        "--test-fraction", str(test),
     ]
     try:
         snap_main()

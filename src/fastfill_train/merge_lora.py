@@ -52,7 +52,12 @@ def check_adapter_lineage(base: str, lora: str) -> str | None:
 
 
 def merge_lora(base: str, lora: str, out: str) -> None:
-    """Load base + adapter, ``merge_and_unload``, save model AND tokenizer."""
+    """Load base + adapter, ``merge_and_unload``, save model AND tokenizer.
+
+    The merged dir also gets a combined ``DATA_PROVENANCE.json`` — merged
+    weights carry BOTH lineages, and downstream DPO verifies its pairs
+    against the snapshot ids recorded here.
+    """
     import torch
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -67,6 +72,26 @@ def merge_lora(base: str, lora: str, out: str) -> None:
     merged = lora_model.merge_and_unload()
     merged.save_pretrained(out)
     tokenizer.save_pretrained(out)
+    _write_merged_provenance(base, lora, out)
+
+
+def _load_provenance(model_dir: str) -> dict | None:
+    path = Path(model_dir) / "DATA_PROVENANCE.json"
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_merged_provenance(base: str, lora: str, out: str) -> None:
+    lineage = {
+        "merged_base": base,
+        "merged_adapter": lora,
+        "base_provenance": _load_provenance(base),
+        "adapter_provenance": _load_provenance(lora),
+    }
+    (Path(out) / "DATA_PROVENANCE.json").write_text(
+        json.dumps(lineage, indent=2), encoding="utf-8"
+    )
 
 
 def main(argv: list[str] | None = None) -> None:
