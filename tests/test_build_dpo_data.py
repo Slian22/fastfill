@@ -14,6 +14,7 @@ import fastfill_train.build_dpo_data as dpo_builder
 from pydantic import ValidationError
 from fastfill_data.export_sft import FLOOR_INSTRUCTION, SURFACE_INSTRUCTION
 from test_injectors import make_clean_sample
+from fastfill_train.injectors import ALL_INJECTORS
 
 from fastfill_train.build_dpo_data import _floor_record, main
 
@@ -117,7 +118,7 @@ def test_stage2_counts_unrenderable_floating_pairs(tmp_path: Path) -> None:
     )
 
     rows = _read_jsonl(out_path)
-    assert len(rows) == 8  # 9 injectors, floating unrenderable in the codec
+    assert len(rows) == len(ALL_INJECTORS) - 1  # floating surface object unrenderable in codec
     stats = json.loads(out_path.with_suffix(".stats.json").read_text())
     assert {row["injector"] for row in rows} == set(stats["per_injector"])
     assert (
@@ -221,8 +222,14 @@ def test_stage1_validated_mode(tmp_path: Path, monkeypatch) -> None:
     assert stats["skipped"] == {"generation_passes": 1, "unknown_uid": 1}
     assert stats["judge_modes"] == {"validated": 3, "parse_only": 0}
 
-    # Schema validation failures are malformed generations, not fatal errors
-    # for the whole stage-1 build. Keep this aligned with eval_layout.
+
+def test_judge_generation_schema_validation_error_is_parse_failure(
+    monkeypatch,
+) -> None:
+    """ValidationError from a pydantic schema check must be treated as a
+    parse failure, not propagated as an unhandled exception.  This keeps
+    _judge_generation aligned with the same decode path in eval_layout."""
+
     def _raise_validation_error(*_args: object, **_kwargs: object) -> None:
         raise ValidationError.from_exception_data("FloorLayout", [])
 

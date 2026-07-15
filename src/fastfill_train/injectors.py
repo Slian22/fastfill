@@ -139,6 +139,10 @@ def _drop_floor_object(
     groups = tuple(
         g for g in layout.surface_groups if g.surface_id not in dropped_surfaces
     )
+    # Build the COMPLETE removed set before filtering relations/claims.
+    # Surface-object ids must be in the set before the filter runs or
+    # SemanticRelations/TaskEvidenceClaims that reference those ids survive
+    # and the returned layout carries dangling references.
     removed = {object_id} | dropped_surfaces
     for group in layout.surface_groups:
         if group.surface_id in dropped_surfaces:
