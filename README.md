@@ -88,6 +88,14 @@ CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 accelerate launch --num_processes 7 \
 # 或 LoRA r128 单卡:
 # CUDA_VISIBLE_DEVICES=0 python3 -m fastfill_train.train_sft --config configs/full_r128.yaml
 
+# 4b) Merge(仅 LoRA 臂需要;full_fp 产物已是完整权重,直接作 MAINLINE)
+#     full_fp 主线:
+#       export MAINLINE=out/full_fp
+#     full_r128 主线:
+python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
+    --lora out/full_r128 --out out/full_r128_merged
+#       export MAINLINE=out/full_r128_merged
+
 # 5) DPO(条件项 T3.3,先例提示大概率值得)
 #    两个 stage 都必须带 --snapshot:DPO 的 chosen 就是训练标签,
 #    不过滤会把 Stage-0 heldout/test 的 GT 喂进 DPO train(泄漏)。
@@ -112,13 +120,22 @@ python3 -m fastfill_train.build_dpo_data stage1 --contexts data/stage0/train_flo
     --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage1_pairs.jsonl
-python3 -m fastfill_train.train_dpo --config configs/dpo_stage1.yaml
+python3 -m fastfill_train.train_dpo \
+    --config configs/dpo_stage1.yaml --set "model_name_or_path=$MAINLINE"
+# ⚠ Merge DPO stage-1 adapter onto the SAME base used above (not Qwen/Qwen3-8B —
+#   the adapter ΔW is relative to the SFT-finetuned weights, not the raw base).
+python3 -m fastfill_train.merge_lora --base "$MAINLINE" \
+    --lora out/dpo_stage1 --out out/dpo_stage1_merged
 #    stage2:validator 全谱注入负例(越界/碰撞/堵门/错向/漏必放/悬空/出面/错 parent/超载)
 python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped.jsonl \
     --template direct \
     --snapshot data/stage0/SNAPSHOT.json \
     --out data/dpo/stage2_pairs.jsonl
-python3 -m fastfill_train.train_dpo --config configs/dpo_stage2.yaml
+python3 -m fastfill_train.train_dpo \
+    --config configs/dpo_stage2.yaml --set "model_name_or_path=out/dpo_stage1_merged"
+# ⚠ Merge DPO stage-2 adapter onto dpo_stage1_merged (same reasoning as above).
+python3 -m fastfill_train.merge_lora --base out/dpo_stage1_merged \
+    --lora out/dpo_stage2 --out out/dpo_stage2_merged
 ```
 
 ## 验收与对照(WP3/WP4 锚点)

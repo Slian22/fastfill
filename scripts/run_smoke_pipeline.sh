@@ -19,6 +19,9 @@ cd "$(dirname "$0")/.."
 
 BASE_MODEL="${BASE_MODEL:-Qwen/Qwen3-8B}"
 PORT="${PORT:-8901}"
+# Pin to one GPU. Override with e.g. CUDA_VISIBLE_DEVICES=2 bash scripts/run_smoke_pipeline.sh
+# when production training occupies other cards (full_r128 uses GPU 0, full_fp uses 1-7).
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 
 # --- 1. SFT smoke train (max_steps=100 -> LoRA adapter in out/sft_smoke) ---
 PYTHONPATH=src python3 -m fastfill_train.train_sft \
