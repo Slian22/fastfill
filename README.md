@@ -124,28 +124,32 @@ python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
 #       export MAINLINE=out/full_r128_merged
 
 # 5) DPO(条件项 T3.3,先例提示大概率值得)
-#    两个 stage 都必须带 --snapshot:DPO 的 chosen 就是训练标签,
-#    不过滤会把 Stage-0 heldout/test 的 GT 喂进 DPO train(泄漏)。
+#    两个 stage 都必须带 --snapshot,且必须用 **data/full** 的 snapshot ——
+#    正式 mainline($MAINLINE)是在 data/full 上训的,base guard 要求
+#    pairs 与 base 同一个 snapshot_id;data/stage0 只用于三臂阶段性对比。
+#    --license-mode 必须与 snapshot 的路线一致(guard 会硬校验)。
+#    DPO 的 chosen 就是训练标签,不过滤会把 heldout/test 的 GT 喂进
+#    DPO train(泄漏)。
 #    stage1(near-miss 默认门):rejected 违规码种类 ≤2 才入库,超限跳过计数;
 #    --max-reject-codes 0 恢复完整 model-pair 仅作消融。stage2 注入器均为单对象单属性扰动+双向核验。
 #    --template 必须与主线 SFT 一致;以下以 direct 为例。若主线选 plan/plan_nl,三处一起替换。
 # 先从 train 侧构造 stage1 的 contexts/generations(不要拿全量 floor_sft 去打模型,heldout/test 输入也别碰):
 python3 - <<'EOF'
 import json
-rows = [json.loads(l) for l in open("data/stage0/train.jsonl")]
-with open("data/stage0/train_floor.jsonl", "w") as f:
+rows = [json.loads(l) for l in open("data/full/train.jsonl")]
+with open("data/full/train_floor.jsonl", "w") as f:
     for r in rows:
         if r.get("layer") == "floor":
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 EOF
-python3 -m fastfill_train.eval_layout --records data/stage0/train_floor.jsonl \
+python3 -m fastfill_train.eval_layout --records data/full/train_floor.jsonl \
     --endpoint http://127.0.0.1:8901/v1 --model fastfill-planner \
     --template direct \
     --dump-generations out/gens_sft.jsonl --out out/eval_sft.json
-python3 -m fastfill_train.build_dpo_data stage1 --contexts data/stage0/train_floor.jsonl \
+python3 -m fastfill_train.build_dpo_data stage1 --contexts data/full/train_floor.jsonl \
     --generations out/gens_sft.jsonl --samples out/conv/deduped_permissive.jsonl \
     --template direct \
-    --snapshot data/stage0/SNAPSHOT.json \
+    --snapshot data/full/SNAPSHOT.json \
     --out data/dpo/stage1_pairs.jsonl
 python3 -m fastfill_train.train_dpo \
     --config configs/dpo_stage1.yaml --set "model_name_or_path=$MAINLINE"
@@ -156,7 +160,7 @@ python3 -m fastfill_train.merge_lora --base "$MAINLINE" \
 #    stage2:validator 全谱注入负例(越界/碰撞/堵门/错向/漏必放/悬空/出面/错 parent/超载)
 python3 -m fastfill_train.build_dpo_data stage2 --in out/conv/deduped_permissive.jsonl \
     --template direct \
-    --snapshot data/stage0/SNAPSHOT.json \
+    --snapshot data/full/SNAPSHOT.json \
     --out data/dpo/stage2_pairs.jsonl
 python3 -m fastfill_train.train_dpo \
     --config configs/dpo_stage2.yaml --set "model_name_or_path=out/dpo_stage1_merged"

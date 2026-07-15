@@ -23,7 +23,11 @@ from typing import Any
 
 from fastfill_train.config import TrainConfig, dump_config, load_config
 from fastfill_train.data import load_sft_datasets
-from fastfill_train.provenance_guard import verify_training_data, write_provenance
+from fastfill_train.provenance_guard import (
+    attach_resume_lineage,
+    verify_training_data,
+    write_provenance,
+)
 
 RESOLVED_CONFIG_NAME = "resolved_config.yaml"
 
@@ -146,6 +150,7 @@ def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser("FastFill SFT training (LoRA)").parse_args(argv)
     cfg = load_config(args.config, args.overrides)
     provenance = verify_training_data(cfg)  # fail-closed BEFORE any setup
+    provenance = attach_resume_lineage(cfg, provenance)
     dump_config(cfg, Path(cfg.output_dir) / RESOLVED_CONFIG_NAME)
     write_provenance(cfg, provenance)
     train_dataset, eval_dataset = load_sft_datasets(

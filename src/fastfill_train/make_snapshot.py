@@ -20,7 +20,12 @@ import random
 from pathlib import Path
 
 import fastfill_train  # noqa: F401
-from fastfill_train.data import read_records, split_bucket
+from fastfill_train.data import (
+    SNAPSHOT_SCHEMA_VERSION,
+    read_records,
+    record_identity_sha,
+    split_bucket,
+)
 from fastfill_train.templates import record_layer as _layer
 
 _BUCKETS = 10_000
@@ -161,6 +166,13 @@ def main() -> None:
             if r.get("geometry_hash")
         }
     )
+    # Record-level content manifest: the exact (uid, split_key, license,
+    # instruction, input, output) identities this snapshot authorizes as
+    # chosen training labels. geometry_hash alone is a near-dup signature
+    # (no categories/yaw/surfaces/outputs) — content tampering slips past it.
+    corpus_record_hashes = sorted(
+        {record_identity_sha(r) for rows in splits.values() for r in rows}
+    )
     train = splits["train"]
     if args.max_train and len(train) > args.max_train:
         rng = random.Random(args.seed)
@@ -194,13 +206,16 @@ def main() -> None:
     split_keys_path.write_text(
         json.dumps(
             {
+                "schema_version": SNAPSHOT_SCHEMA_VERSION,
                 "split_keys": corpus_keys,
                 "geometry_hashes": corpus_geometry_hashes,
+                "record_hashes": corpus_record_hashes,
             },
             indent=0,
         )
     )
     sidecar = {
+        "schema_version": SNAPSHOT_SCHEMA_VERSION,
         "inputs": {p: _sha(Path(p)) for p in args.inputs},
         "seed": args.seed,
         "val_fraction": args.val_fraction,

@@ -75,7 +75,12 @@ from scenesmith.growing_world.fastfill.schema import (
 )
 from scenesmith.growing_world.fastfill.validator import validate
 
-from fastfill_train.data import read_records, split_bucket
+from fastfill_train.data import (
+    SNAPSHOT_REQUIRED_FIELDS,
+    read_records,
+    record_identity_sha,
+    split_bucket,
+)
 from fastfill_train.injectors import (
     ALL_INJECTORS,
     FLOOR_LEVEL,
@@ -104,20 +109,17 @@ class SnapshotFilter:
 
     is_holdout: Callable[[str], bool]
     known_keys: frozenset[str]
-    known_hashes: Optional[frozenset[str]]  # None: pre-hash SPLIT_KEYS format
+    known_records: frozenset[str]  # record_identity_sha manifest
     snapshot_id: str
     license_mode: Optional[str]
+    allow_unresolved: bool
 
-    def is_foreign(self, split_key: str, geometry_hash: str = "") -> bool:
-        """True when the sample was never part of the frozen corpus — by
-        room identity (split_key) or, when the snapshot records them, by
-        content (geometry_hash). Foreign samples are not authorized
-        training material for this snapshot."""
-        if split_key not in self.known_keys:
-            return True
-        if self.known_hashes is not None and geometry_hash:
-            return geometry_hash not in self.known_hashes
-        return False
+    def is_foreign_key(self, split_key: str) -> bool:
+        return split_key not in self.known_keys
+
+    def authorizes(self, record: dict) -> bool:
+        """True when this exact record content was frozen into the corpus."""
+        return record_identity_sha(record) in self.known_records
 
 
 def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
@@ -129,21 +131,28 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
     on the train side). Without a snapshot no filtering happens — callers
     should treat that as smoke-only.
 
-    Validation is fail-closed: sidecar shape, fraction/seed value ranges,
-    the recorded ``snapshot_id`` fingerprint, and the ``SPLIT_KEYS.json``
-    hash are all verified, so a hand-edited or wrong-corpus sidecar cannot
-    silently mis-split.
+    Validation is fail-closed: full sidecar schema (schema_version + every
+    required field), fraction/seed value ranges, the recorded
+    ``snapshot_id`` fingerprint, the ``SPLIT_KEYS.json`` hash AND its
+    record-identity manifest are all verified — legacy or hand-edited
+    sidecars are rejected.
     """
     if snapshot_path is None:
         return None
     snapshot_path = Path(snapshot_path)
     sidecar = json.loads(snapshot_path.read_text(encoding="utf-8"))
-    required = ("seed", "val_fraction", "rule")
-    if not isinstance(sidecar, dict) or any(k not in sidecar for k in required):
+    if not isinstance(sidecar, dict) or any(
+        k not in sidecar for k in SNAPSHOT_REQUIRED_FIELDS
+    ):
+        missing = [
+            k
+            for k in SNAPSHOT_REQUIRED_FIELDS
+            if not isinstance(sidecar, dict) or k not in sidecar
+        ]
         raise ValueError(
-            f"{snapshot_path} is not a make_snapshot SNAPSHOT.json sidecar "
-            f"(missing one of {required}) — passing the wrong file here "
-            "silently mis-splits heldout/train"
+            f"{snapshot_path} is not a current make_snapshot sidecar "
+            f"(missing {missing}) — legacy/hand-written sidecars are not "
+            "accepted; re-freeze with the current make_snapshot"
         )
     if "split_bucket" not in str(sidecar["rule"]):
         raise ValueError(
@@ -160,13 +169,7 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
             f"{snapshot_path}: fractions out of range "
             f"(val={val}, test={test}; each in [0,1), sum < 1)"
         )
-    snapshot_id = sidecar.get("snapshot_id")
-    if snapshot_id is None:
-        raise ValueError(
-            f"{snapshot_path} has no snapshot_id — legacy sidecars are not "
-            "acceptable for pair building; re-freeze with the current "
-            "make_snapshot (or use --allow-no-snapshot for smoke)"
-        )
+    snapshot_id = sidecar["snapshot_id"]
     payload = {k: v for k, v in sidecar.items() if k != "snapshot_id"}
     recomputed = hashlib.sha256(
         json.dumps(payload, sort_keys=True).encode("utf-8")
@@ -177,17 +180,11 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
             f"{snapshot_id}, recomputed {recomputed}) — sidecar was "
             "edited after freezing"
         )
-    keys_name = sidecar.get("split_keys_file")
-    if not keys_name:
-        raise ValueError(
-            f"{snapshot_path} has no split_keys_file — corpus membership "
-            "cannot be verified; re-freeze with the current make_snapshot"
-        )
-    keys_path = snapshot_path.parent / keys_name
+    keys_path = snapshot_path.parent / sidecar["split_keys_file"]
     if not keys_path.exists():
         raise ValueError(
-            f"{snapshot_path} references {keys_name} but it is missing "
-            "next to the sidecar — snapshot dir is incomplete"
+            f"{snapshot_path} references {sidecar['split_keys_file']} but it "
+            "is missing next to the sidecar — snapshot dir is incomplete"
         )
     digest = hashlib.sha256(keys_path.read_bytes()).hexdigest()[:16]
     if digest != sidecar.get("split_keys_sha256"):
@@ -196,14 +193,12 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
             f"sidecar's split_keys_sha256 — key list was modified"
         )
     keys_payload = json.loads(keys_path.read_text(encoding="utf-8"))
-    if isinstance(keys_payload, dict):
-        known_keys = frozenset(keys_payload.get("split_keys") or ())
-        known_hashes: Optional[frozenset[str]] = frozenset(
-            keys_payload.get("geometry_hashes") or ()
+    if not isinstance(keys_payload, dict) or "record_hashes" not in keys_payload:
+        raise ValueError(
+            f"{keys_path} has no record_hashes manifest — re-freeze with "
+            "the current make_snapshot (content-level authorization is "
+            "required for pair building)"
         )
-    else:  # first-generation list format: keys only
-        known_keys = frozenset(keys_payload)
-        known_hashes = None
     cutoff = int((val + test) * _SPLIT_BUCKETS)
 
     def is_holdout(split_key: str) -> bool:
@@ -211,11 +206,35 @@ def load_holdout_filter(snapshot_path: Path | None) -> Optional[SnapshotFilter]:
 
     return SnapshotFilter(
         is_holdout=is_holdout,
-        known_keys=known_keys,
-        known_hashes=known_hashes,
+        known_keys=frozenset(keys_payload.get("split_keys") or ()),
+        known_records=frozenset(keys_payload["record_hashes"]),
         snapshot_id=snapshot_id,
         license_mode=sidecar.get("license_mode"),
+        allow_unresolved=bool(sidecar.get("allow_unresolved_licenses")),
     )
+
+
+def _enforce_route_match(
+    snapshot_filter: "SnapshotFilter",
+    license_mode: str,
+    allow_unresolved: bool,
+    snapshot: Path,
+) -> None:
+    """Pairs must follow the snapshot's license route exactly — a research
+    invocation over a permissive snapshot would smuggle NC chosen labels
+    into a permissive model's DPO stage."""
+    if snapshot_filter.license_mode and license_mode != snapshot_filter.license_mode:
+        raise SystemExit(
+            f"--license-mode {license_mode} != snapshot's "
+            f"{snapshot_filter.license_mode} ({snapshot}) — pairs must "
+            "follow the snapshot's route"
+        )
+    if allow_unresolved != snapshot_filter.allow_unresolved:
+        raise SystemExit(
+            f"--allow-unresolved-licenses={allow_unresolved} != snapshot's "
+            f"{snapshot_filter.allow_unresolved} ({snapshot}) — unresolved-"
+            "license policy must match the frozen corpus"
+        )
 
 
 def _enforce_corpus_match(
@@ -238,11 +257,16 @@ def _load_samples(path: str | Path) -> list[FastFillSample]:
 
 def _write_stats(out_path: Path, stats: dict) -> Path:
     # Content hash of the pairs file binds the stats (and its snapshot_id /
-    # license_mode lineage) to these exact pairs for the training-side gate.
+    # license_mode lineage) to these exact pairs for the training-side gate;
+    # stats_id fingerprints the stats payload itself so a hand-written stats
+    # file cannot vouch for arbitrary pairs.
     if out_path.exists():
         stats["out_sha256_16"] = hashlib.sha256(
             out_path.read_bytes()
         ).hexdigest()[:16]
+    stats["stats_id"] = hashlib.sha256(
+        json.dumps(stats, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
     stats_path = out_path.with_suffix(".stats.json")
     stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
     return stats_path
@@ -307,7 +331,10 @@ def _pair_record(
 
 
 def _stage2_row(
-    sample: FastFillSample, injection: Injection, template: str
+    sample: FastFillSample,
+    injection: Injection,
+    template: str,
+    snapshot_filter: Optional[SnapshotFilter] = None,
 ) -> tuple[Optional[dict], str]:
     """Render one DPO pair row; ``(None, reason)`` when it must be skipped."""
     try:
@@ -316,6 +343,12 @@ def _stage2_row(
         return None, "codec_error"
     if record is None or bad_output is None:
         return None, reason
+    if snapshot_filter is not None and not snapshot_filter.authorizes(record):
+        # Record-level authorization: the chosen content (incl. surface
+        # groups, categories, licenses) must be byte-identical to what the
+        # snapshot froze — a tampered sample sharing key/geometry with the
+        # corpus must not smuggle a modified chosen label in.
+        return None, "unauthorized_record"
     room_id = sample.room_context.room_id
     chosen = render_sft_example(record, template, room_id=room_id)
     rejected = render_sft_example(
@@ -344,6 +377,7 @@ def _emit_sample_pairs(
     out: TextIO,
     per_injector: dict[str, int],
     skipped: dict[str, int],
+    snapshot_filter: Optional[SnapshotFilter] = None,
 ) -> int:
     """Try injectors in round-robin order until ``per_sample`` pairs emitted."""
     original_codes = original_violation_codes(sample)
@@ -374,7 +408,7 @@ def _emit_sample_pairs(
         if not verify_injection(sample, injection, original_codes):
             _bump(skipped, f"verification_failed:{name}")
             continue
-        row, reason = _stage2_row(sample, injection, template)
+        row, reason = _stage2_row(sample, injection, template, snapshot_filter)
         if row is None:
             _bump(skipped, f"{reason}:{name}")
             continue
@@ -429,6 +463,8 @@ def run_stage2(
             f"license_mode must be one of {LICENSE_MODES}, got {license_mode!r}"
         )
     snapshot_filter = load_holdout_filter(snapshot)
+    if snapshot_filter is not None:
+        _enforce_route_match(snapshot_filter, license_mode, allow_unresolved, snapshot)
     names = sorted(ALL_INJECTORS)
     random.Random(seed).shuffle(names)
     counts: dict[str, int] = {"input_samples": 0, "pairs": 0}
@@ -441,9 +477,7 @@ def run_stage2(
             counts["input_samples"] += 1
             if snapshot_filter is not None:
                 key = sample.provenance.split_key
-                if snapshot_filter.is_foreign(
-                    key, sample.provenance.geometry_hash
-                ):
+                if snapshot_filter.is_foreign_key(key):
                     foreign += 1
                     continue
                 if snapshot_filter.is_holdout(key):
@@ -463,7 +497,14 @@ def run_stage2(
             start = index % len(names)
             rotated = names[start:] + names[:start]
             emitted = _emit_sample_pairs(
-                sample, rotated, template, per_sample, out, per_injector, skipped
+                sample,
+                rotated,
+                template,
+                per_sample,
+                out,
+                per_injector,
+                skipped,
+                snapshot_filter,
             )
             counts["pairs"] += emitted
             if emitted == 0:
@@ -588,6 +629,8 @@ def run_stage1(
             f"license_mode must be one of {LICENSE_MODES}, got {license_mode!r}"
         )
     snapshot_filter = load_holdout_filter(snapshot)
+    if snapshot_filter is not None:
+        _enforce_route_match(snapshot_filter, license_mode, allow_unresolved, snapshot)
     contexts: dict[str, dict] = {}
     holdout_uids: set[str] = set()
     license_skipped: dict[str, int] = {}
@@ -598,7 +641,9 @@ def run_stage1(
         n_context_records += 1
         if snapshot_filter is not None:
             key = record.get("split_key", "")
-            if snapshot_filter.is_foreign(key, str(record.get("geometry_hash", ""))):
+            if snapshot_filter.is_foreign_key(key) or not snapshot_filter.authorizes(
+                record
+            ):
                 foreign += 1
                 continue
             if snapshot_filter.is_holdout(key):

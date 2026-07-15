@@ -37,6 +37,39 @@ def read_records(paths: Iterable[str | Path]) -> Iterator[dict]:
                     raise ValueError(f"{path}:{line_no}: bad JSONL line") from exc
 
 
+# Snapshot/record identity shared by make_snapshot, build_dpo_data and
+# provenance_guard. SNAPSHOT_SCHEMA_VERSION bumps when the sidecar contract
+# changes; SNAPSHOT_REQUIRED_FIELDS is the fail-closed shape check.
+SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_REQUIRED_FIELDS = (
+    "schema_version",
+    "seed",
+    "val_fraction",
+    "rule",
+    "inputs",
+    "hashes",
+    "license_mode",
+    "split_keys_file",
+    "split_keys_sha256",
+    "leakage_check",
+    "counts",
+    "snapshot_id",
+)
+_RECORD_IDENTITY_FIELDS = ("uid", "split_key", "license", "instruction", "input", "output")
+
+
+def record_identity_sha(record: dict) -> str:
+    """Content identity of one SFT record: uid + split_key + license +
+    instruction + input + output. This is what the snapshot authorizes as a
+    chosen training label — the dedup geometry_hash is a category-free
+    near-duplicate signature and deliberately excludes categories, yaw,
+    surface groups and outputs, so it must never stand in for content."""
+    payload = {k: record.get(k) for k in _RECORD_IDENTITY_FIELDS}
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()[:16]
+
+
 def split_bucket(split_key: str, seed: int) -> int:
     """Deterministic house-level bucket in [0, _SPLIT_BUCKETS)."""
     digest = hashlib.sha1(f"{seed}:{split_key}".encode("utf-8")).hexdigest()

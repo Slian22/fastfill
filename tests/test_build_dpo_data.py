@@ -620,7 +620,7 @@ def test_snapshot_sidecar_shape_is_validated(tmp_path: Path) -> None:
     _write_samples(in_path, n=1)
     bogus = tmp_path / "not_a_sidecar.json"
     bogus.write_text(json.dumps({"seed": 42}))  # missing val_fraction/rule
-    with pytest.raises(ValueError, match="not a make_snapshot"):
+    with pytest.raises(ValueError, match="not a current make_snapshot"):
         main(
             [
                 "stage2",
@@ -640,6 +640,11 @@ def _freeze_snapshot(
     from fastfill_train.make_snapshot import main as snap_main
 
     records = [_floor_record(s) for s in samples]
+    for sample in samples:  # mirror export: surface records are frozen too
+        for group in sample.layout.surface_groups:
+            record = dpo_builder._surface_record(sample, group)
+            if record is not None:
+                records.append(record)
     sft_path = _write_jsonl(tmp_path / "floor_sft.jsonl", records)
     out_dir = tmp_path / "snap"
     argv_backup = _sys.argv
@@ -724,3 +729,74 @@ def test_stage1_license_gate_fails_closed_on_unrecorded(tmp_path: Path) -> None:
     stats = json.loads(out_path.with_suffix(".stats.json").read_text())
     assert stats["counts"]["pairs"] == 0
     assert stats["skipped"]["excluded_license_unknown"] == 3
+
+
+def test_stage2_route_must_match_snapshot(tmp_path: Path) -> None:
+    """A research invocation over a permissive snapshot must hard-fail —
+    otherwise NC chosen labels reach a permissive model's DPO stage."""
+    import pytest
+
+    corpus = [make_clean_sample(f"s{i}", f"house{i}") for i in range(2)]
+    snapshot = _freeze_snapshot(tmp_path, corpus)  # license_mode=permissive
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [s.model_dump_json() for s in corpus])
+    with pytest.raises(SystemExit, match="snapshot's"):
+        main(
+            [
+                "stage2",
+                "--in", str(in_path),
+                "--out", str(tmp_path / "pairs.jsonl"),
+                "--snapshot", str(snapshot),
+                "--license-mode", "research",
+            ]
+        )
+
+
+def test_stage2_tampered_content_is_unauthorized(tmp_path: Path) -> None:
+    """Same split_key + same geometry_hash but modified chosen content must
+    not produce pairs — the record-identity manifest catches what the
+    category-free dedup geometry_hash cannot."""
+    corpus = [make_clean_sample("s0", "house0")]
+    snapshot = _freeze_snapshot(tmp_path, corpus)
+
+    sample = corpus[0]
+    group = sample.layout.surface_groups[0]
+    tampered_objects = tuple(
+        obj.model_copy(update={"category": "SECRETCHANGEDLABEL"})
+        for obj in group.objects
+    )
+    tampered_groups = tuple(
+        g.model_copy(update={"objects": tampered_objects})
+        if g.group_id == group.group_id
+        else g
+        for g in sample.layout.surface_groups
+    )
+    tampered = sample.model_copy(
+        update={
+            "layout": sample.layout.model_copy(
+                update={"surface_groups": tampered_groups}
+            )
+        }
+    )
+    # The near-dup signature is blind to categories/surfaces — unchanged.
+    assert tampered.provenance.geometry_hash == sample.provenance.geometry_hash
+
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [tampered.model_dump_json()])
+    out_path = tmp_path / "pairs.jsonl"
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--snapshot", str(snapshot),
+            "--per-sample", "9",
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    unauthorized = sum(
+        v for k, v in stats["skipped"].items() if k.startswith("unauthorized_record")
+    )
+    assert unauthorized > 0
+    rows = _read_jsonl(out_path)
+    assert all("SECRETCHANGEDLABEL" not in json.dumps(row) for row in rows)

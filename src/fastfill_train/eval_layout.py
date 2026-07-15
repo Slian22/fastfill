@@ -655,6 +655,7 @@ _TEACHER_SELECTION_FIELDS = (
     "records_sha256",
     "samples_sha256",
     "generation_mode",
+    "extra_body_sha256",
 )
 _TEACHER_REPORT_FIELDS = (
     "harness",
@@ -731,20 +732,26 @@ def apply_teacher(
             f"pass_rate_post_repair (got {teacher_pass!r}; need a finite "
             "float in [0, 1])"
         )
-    if float(teacher_pass) == 0.0 and not allow_mismatch:
-        raise ValueError(
-            f"teacher report {teacher_path} has pass_post_repair == 0 — a "
-            "teacher that passes nothing is not a usable T3.2 baseline "
-            "(--allow-teacher-mismatch for a trend-only record)"
-        )
-    student_pass = report.get("pass_post_repair")
-    if not _valid_rate(student_pass) and not allow_mismatch:
-        raise ValueError(
-            f"student pass_post_repair is not a valid rate ({student_pass!r})"
-            " — the eval scored no validated floor records; a formal T3.2 "
-            "ratio cannot be computed"
-        )
     mismatches = _identity_mismatches(report, teacher)
+    if float(teacher_pass) == 0.0:
+        if not allow_mismatch:
+            raise ValueError(
+                f"teacher report {teacher_path} has pass_post_repair == 0 — "
+                "a teacher that passes nothing is not a usable T3.2 baseline "
+                "(--allow-teacher-mismatch for a trend-only record)"
+            )
+        mismatches.append("teacher pass_post_repair == 0 (trend only)")
+    student_pass = report.get("pass_post_repair")
+    if not _valid_rate(student_pass):
+        if not allow_mismatch:
+            raise ValueError(
+                f"student pass_post_repair is not a valid rate "
+                f"({student_pass!r}) — the eval scored no validated floor "
+                "records; a formal T3.2 ratio cannot be computed"
+            )
+        mismatches.append(
+            f"student pass_post_repair invalid ({student_pass!r}; trend only)"
+        )
     if mismatches and not allow_mismatch:
         raise ValueError(
             "teacher/student identity mismatch — T3.2 requires the same "
@@ -871,6 +878,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         raise SystemExit(
             "provide --generations for offline scoring, or --endpoint and "
             "--model for live mode"
+        )
+    if args.generations is not None and args.endpoint:
+        # Offline generations would be scored while the report claimed a
+        # live endpoint — hand-written answers could impersonate a teacher.
+        raise SystemExit(
+            "--generations and --endpoint are mutually exclusive: offline "
+            "files are scored as generation_mode=offline; live runs must "
+            "generate through the endpoint"
         )
     records = select_records(
         list(read_records([args.records])), args.limit, args.sample_mode, args.seed

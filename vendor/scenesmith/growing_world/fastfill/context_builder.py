@@ -213,6 +213,7 @@ class FastFillContentHook(ContentHooks):
             strict = os.environ.get("FASTFILL_STRICT", "") not in ("", "0", "false")
         self.strict = strict
         self.failure_count = 0
+        self.success_count = 0
 
     def populate_room(
         self,
@@ -340,6 +341,8 @@ class FastFillContentHook(ContentHooks):
                         f"room '{ctx.room_id}' failed validation after "
                         f"repair: {len(final_report.errors())} errors"
                     )
+            else:
+                self.success_count += 1
         except Exception as exc:  # noqa: BLE001 — counted + surfaced, never silent
             if not isinstance(exc, _StrictValidationFailure):
                 self.failure_count += 1
