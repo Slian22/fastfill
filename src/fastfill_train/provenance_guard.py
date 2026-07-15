@@ -205,22 +205,37 @@ def verify_training_data(cfg) -> dict:
 
 
 def attach_resume_lineage(cfg, provenance: dict) -> dict:
-    """Record the resumed checkpoint's own data lineage.
+    """Record the resumed checkpoint's own data lineage — and refuse route
+    contamination.
 
     ``resume_from_checkpoint`` as a path may live in ANOTHER run's output
-    dir — weights carry that run's data too, so its DATA_PROVENANCE.json is
-    embedded as ``resumed_from`` (or flagged missing)."""
+    dir — the weights carry that run's data, so its DATA_PROVENANCE.json is
+    embedded as ``resumed_from``. A checkpoint whose lineage records a
+    DIFFERENT license route than the current run is a hard error: resuming
+    research/NC weights into a permissive run puts NC-derived weights into
+    the permissive model, which no report field can undo."""
     resume = cfg.resume_from_checkpoint
     if not isinstance(resume, str) or not resume:
         return provenance
     ckpt = Path(resume)
     for candidate in (ckpt / "DATA_PROVENANCE.json", ckpt.parent / "DATA_PROVENANCE.json"):
         if candidate.exists():
+            resumed = json.loads(candidate.read_text(encoding="utf-8"))
+            current_mode = provenance.get("license_mode")
+            resumed_modes = _walk_values(resumed, "license_mode")
+            if current_mode and resumed_modes and resumed_modes != {current_mode}:
+                raise SystemExit(
+                    f"data provenance: checkpoint {resume} records license "
+                    f"modes {sorted(resumed_modes)} but this run is "
+                    f"{current_mode} — resuming across license routes "
+                    "contaminates the weights (set allow_unverified_data="
+                    "true only for smoke)"
+                )
             return {
                 **provenance,
                 "resumed_from": {
                     "checkpoint": resume,
-                    "provenance": json.loads(candidate.read_text(encoding="utf-8")),
+                    "provenance": resumed,
                 },
             }
     return {
@@ -251,35 +266,47 @@ def write_provenance(cfg, provenance: dict) -> Path:
     return path
 
 
-def model_dir_snapshot_ids(model_dir: str) -> set[str]:
-    """All snapshot_ids recorded (at any nesting) in a model directory's
-    DATA_PROVENANCE.json — merged dirs nest base/adapter payloads."""
-    path = Path(model_dir) / "DATA_PROVENANCE.json"
-    if not path.exists():
-        return set()
-    found: set[str] = set()
+def _walk_values(payload, key: str) -> set:
+    """Every str/bool value of ``key`` (at any nesting) in a payload."""
+    found: set = set()
 
     def _walk(node) -> None:
         if isinstance(node, dict):
-            value = node.get("snapshot_id")
-            if isinstance(value, str) and value:
-                found.add(value)
+            if key in node and isinstance(node[key], (str, bool)):
+                found.add(node[key])
             for child in node.values():
                 _walk(child)
         elif isinstance(node, list):
             for child in node:
                 _walk(child)
 
-    _walk(json.loads(path.read_text(encoding="utf-8")))
+    _walk(payload)
     return found
 
 
+def model_dir_snapshot_ids(model_dir: str) -> set[str]:
+    """All snapshot_ids recorded (at any nesting) in a model directory's
+    DATA_PROVENANCE.json — merged dirs nest base/adapter payloads."""
+    path = Path(model_dir) / "DATA_PROVENANCE.json"
+    if not path.exists():
+        return set()
+    return {
+        v
+        for v in _walk_values(
+            json.loads(path.read_text(encoding="utf-8")), "snapshot_id"
+        )
+        if isinstance(v, str) and v
+    }
+
+
 def check_base_snapshot_consistency(cfg, provenance: dict) -> None:
-    """DPO must train on pairs from the SAME snapshot/route its base used.
+    """DPO must train on pairs from EXACTLY the snapshot/route its base used.
 
     Hard requirements when the pairs carry a snapshot_id and the base is a
-    local model dir: the base must have a DATA_PROVENANCE.json, the pairs'
-    snapshot_id must appear in its lineage, and license modes must not mix.
+    local model dir: the base's lineage must be non-empty, contain no
+    verified=false entries, and its snapshot_id/license_mode sets must
+    EQUAL the pairs' — set membership is not enough (a base that mixes a
+    research checkpoint into its history still carries NC-derived weights).
     HF hub ids (no local dir) stay soft — they carry no lineage to check.
     """
     pairs_id = provenance.get("snapshot_id")
@@ -288,45 +315,47 @@ def check_base_snapshot_consistency(cfg, provenance: dict) -> None:
     base_dir = Path(cfg.model_name_or_path)
     if not base_dir.is_dir():
         return  # HF hub id — no local lineage to compare
-    if not (base_dir / "DATA_PROVENANCE.json").exists():
+    prov_path = base_dir / "DATA_PROVENANCE.json"
+    if not prov_path.exists():
         raise SystemExit(
             f"data provenance: base model {base_dir} has no "
             "DATA_PROVENANCE.json — retrain/merge with the current tooling "
             "or set allow_unverified_data=true for smoke"
         )
-    base_ids = model_dir_snapshot_ids(cfg.model_name_or_path)
-    if base_ids and pairs_id not in base_ids:
+    base_payload = json.loads(prov_path.read_text(encoding="utf-8"))
+    base_ids = {
+        v
+        for v in _walk_values(base_payload, "snapshot_id")
+        if isinstance(v, str) and v
+    }
+    if not base_ids:
+        raise SystemExit(
+            f"data provenance: base model {base_dir} has an empty lineage "
+            "(no snapshot_id anywhere in DATA_PROVENANCE.json) — not "
+            "acceptable for production DPO"
+        )
+    if False in _walk_values(base_payload, "verified"):
+        raise SystemExit(
+            f"data provenance: base model {base_dir} lineage contains a "
+            "verified=false entry — it was trained on unverified data and "
+            "cannot back a production DPO"
+        )
+    if base_ids != {pairs_id}:
         raise SystemExit(
             f"data provenance: DPO pairs come from snapshot {pairs_id} but "
             f"the base model {cfg.model_name_or_path} records "
-            f"{sorted(base_ids)} — base and pairs must share one snapshot "
-            "(set allow_unverified_data=true only for smoke)"
+            f"{sorted(base_ids)} — base and pairs must use EXACTLY one "
+            "shared snapshot (set allow_unverified_data=true only for smoke)"
         )
     pairs_mode = provenance.get("license_mode")
-    base_modes = _model_dir_license_modes(cfg.model_name_or_path)
-    if pairs_mode and base_modes and pairs_mode not in base_modes:
+    base_modes = {
+        v
+        for v in _walk_values(base_payload, "license_mode")
+        if isinstance(v, str) and v
+    }
+    if pairs_mode and base_modes != {pairs_mode}:
         raise SystemExit(
             f"data provenance: DPO pairs are {pairs_mode}-route but the base "
-            f"model records {sorted(base_modes)} — license routes must not mix"
+            f"model records {sorted(base_modes) or ['nothing']} — license "
+            "routes must match exactly"
         )
-
-
-def _model_dir_license_modes(model_dir: str) -> set[str]:
-    path = Path(model_dir) / "DATA_PROVENANCE.json"
-    if not path.exists():
-        return set()
-    found: set[str] = set()
-
-    def _walk(node) -> None:
-        if isinstance(node, dict):
-            value = node.get("license_mode")
-            if isinstance(value, str) and value:
-                found.add(value)
-            for child in node.values():
-                _walk(child)
-        elif isinstance(node, list):
-            for child in node:
-                _walk(child)
-
-    _walk(json.loads(path.read_text(encoding="utf-8")))
-    return found

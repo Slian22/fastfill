@@ -55,15 +55,26 @@ SNAPSHOT_REQUIRED_FIELDS = (
     "counts",
     "snapshot_id",
 )
-_RECORD_IDENTITY_FIELDS = ("uid", "split_key", "license", "instruction", "input", "output")
+_RECORD_IDENTITY_FIELDS = (
+    "uid",
+    "split_key",
+    "license",
+    # layer routes PLAN-rendering in templates.py — flipping floor/surface
+    # with an unchanged hash would poison plan/plan_nl DPO chosen labels.
+    "layer",
+    "instruction",
+    "input",
+    "output",
+)
 
 
 def record_identity_sha(record: dict) -> str:
     """Content identity of one SFT record: uid + split_key + license +
-    instruction + input + output. This is what the snapshot authorizes as a
-    chosen training label — the dedup geometry_hash is a category-free
-    near-duplicate signature and deliberately excludes categories, yaw,
-    surface groups and outputs, so it must never stand in for content."""
+    layer + instruction + input + output. This is what the snapshot
+    authorizes as a chosen training label — the dedup geometry_hash is a
+    category-free near-duplicate signature and deliberately excludes
+    categories, yaw, surface groups and outputs, so it must never stand in
+    for content."""
     payload = {k: record.get(k) for k in _RECORD_IDENTITY_FIELDS}
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")

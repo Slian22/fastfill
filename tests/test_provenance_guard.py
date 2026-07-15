@@ -248,9 +248,9 @@ def test_dpo_base_and_pairs_must_share_snapshot(tmp_path: Path) -> None:
         _cfg(tmp_path, tmp_path / "unused.jsonl", allow=True),
         model_name_or_path=str(base_dir),
     )
-    with pytest.raises(SystemExit, match="share one snapshot"):
+    with pytest.raises(SystemExit, match="EXACTLY one shared snapshot"):
         check_base_snapshot_consistency(cfg, {"snapshot_id": "snap_b"})
-    with pytest.raises(SystemExit, match="routes must not mix"):
+    with pytest.raises(SystemExit, match="routes must match exactly"):
         check_base_snapshot_consistency(
             cfg, {"snapshot_id": "snap_a", "license_mode": "research"}
         )
@@ -259,6 +259,114 @@ def test_dpo_base_and_pairs_must_share_snapshot(tmp_path: Path) -> None:
         cfg, {"snapshot_id": "snap_a", "license_mode": "permissive"}
     )
     check_base_snapshot_consistency(cfg, {"snapshot_id": None})
+
+
+def test_dpo_base_mixed_lineage_is_rejected(tmp_path: Path) -> None:
+    """Set membership is not enough: a base whose history mixes a research
+    checkpoint still carries NC-derived weights."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import check_base_snapshot_consistency
+
+    base_dir = tmp_path / "mixed_base"
+    base_dir.mkdir()
+    (base_dir / "DATA_PROVENANCE.json").write_text(
+        json.dumps(
+            {
+                "snapshot_id": "snap_p",
+                "license_mode": "permissive",
+                "resumed_from": {
+                    "provenance": {
+                        "snapshot_id": "snap_r",
+                        "license_mode": "research",
+                    }
+                },
+            }
+        )
+    )
+    cfg = replace(
+        _cfg(tmp_path, tmp_path / "unused.jsonl", allow=True),
+        model_name_or_path=str(base_dir),
+    )
+    with pytest.raises(SystemExit, match="EXACTLY one shared snapshot"):
+        check_base_snapshot_consistency(
+            cfg, {"snapshot_id": "snap_p", "license_mode": "permissive"}
+        )
+
+
+def test_dpo_base_empty_or_unverified_lineage_rejected(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import check_base_snapshot_consistency
+
+    empty_base = tmp_path / "empty_base"
+    empty_base.mkdir()
+    (empty_base / "DATA_PROVENANCE.json").write_text("{}")
+    cfg = replace(
+        _cfg(tmp_path, tmp_path / "unused.jsonl", allow=True),
+        model_name_or_path=str(empty_base),
+    )
+    with pytest.raises(SystemExit, match="empty lineage"):
+        check_base_snapshot_consistency(cfg, {"snapshot_id": "snap_a"})
+
+    unverified_base = tmp_path / "unverified_base"
+    unverified_base.mkdir()
+    (unverified_base / "DATA_PROVENANCE.json").write_text(
+        json.dumps(
+            {
+                "snapshot_id": "snap_a",
+                "license_mode": "permissive",
+                "previous": {"verified": False},
+            }
+        )
+    )
+    cfg = replace(cfg, model_name_or_path=str(unverified_base))
+    with pytest.raises(SystemExit, match="verified=false"):
+        check_base_snapshot_consistency(
+            cfg, {"snapshot_id": "snap_a", "license_mode": "permissive"}
+        )
+
+
+def test_resume_across_license_routes_is_rejected(tmp_path: Path) -> None:
+    """A research checkpoint must not resume into a permissive run — the
+    weights themselves would carry NC-derived training."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
+    research_run = tmp_path / "research_run"
+    (research_run / "checkpoint-50").mkdir(parents=True)
+    (research_run / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_r", "license_mode": "research"})
+    )
+    snap = _snapshot_dir(tmp_path)  # permissive
+    cfg = replace(
+        _cfg(tmp_path, snap / "train.jsonl"),
+        resume_from_checkpoint=str(research_run / "checkpoint-50"),
+    )
+    provenance = verify_training_data(cfg)
+    assert provenance["license_mode"] == "permissive"
+    with pytest.raises(SystemExit, match="across license routes"):
+        attach_resume_lineage(cfg, provenance)
+
+
+def test_record_identity_includes_layer() -> None:
+    """Flipping floor->surface must change the record identity — templates
+    route PLAN-rendering on layer, so an unchanged hash would poison
+    plan/plan_nl DPO chosens."""
+    from fastfill_train.data import record_identity_sha
+
+    record = {
+        "uid": "s0",
+        "split_key": "house0",
+        "license": "permissive",
+        "layer": "floor",
+        "instruction": "x",
+        "input": "room",
+        "output": "bed|1",
+    }
+    flipped = dict(record, layer="surface")
+    assert record_identity_sha(record) != record_identity_sha(flipped)
 
 
 def test_dpo_base_without_provenance_is_hard_error(tmp_path: Path) -> None:
