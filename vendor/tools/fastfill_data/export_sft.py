@@ -16,8 +16,13 @@ never silently dropped):
 
 - ``--contamination-list`` — file with one ``source_room_id`` per line;
   matching samples are excluded (铁律 1 eval-contamination hook);
-- ``--exclude-nc`` (default on) — CC BY-NC licensed samples are excluded
-  from training (铁律 2);
+- ``--license-mode`` (default ``permissive``) — ``permissive`` exports only
+  ``LicenseTag.PERMISSIVE`` samples (CC BY-NC / LICENSE_PENDING / UNKNOWN
+  are excluded and counted per tag, 铁律 2); ``research`` also exports
+  ``CC_BY_NC`` for a research-only checkpoint. Unresolved tags
+  (LICENSE_PENDING / UNKNOWN) never export unless
+  ``--allow-unresolved-licenses`` is passed explicitly. Every exported
+  record carries its ``license`` tag for downstream lineage audits;
 - samples with zero floor objects are skipped;
 - surface groups whose surface or parent furniture cannot be resolved from
   the stored layout are skipped (nothing is fabricated).
@@ -68,14 +73,24 @@ from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
 FLOOR_FILE = "floor_sft.jsonl"
 SURFACE_FILE = "surface_sft.jsonl"
 REPORT_FILE = "export_report.json"
+LICENSE_MODES = ("permissive", "research")
 
 
 def load_contamination_list(path: Path | None) -> frozenset[str]:
-    """One ``source_room_id`` per line; blank lines ignored."""
+    """One ``source_room_id`` per line; blank lines and #-comments ignored."""
     if path is None:
         return frozenset()
+    if not path.exists():
+        raise FileNotFoundError(
+            f"contamination list not found: {path} — create it (one "
+            "source_room_id per line; may be empty) or drop the flag"
+        )
     lines = path.read_text(encoding="utf-8").splitlines()
-    return frozenset(line.strip() for line in lines if line.strip())
+    return frozenset(
+        line.strip()
+        for line in lines
+        if line.strip() and not line.lstrip().startswith("#")
+    )
 
 
 def build_support_context(
@@ -112,6 +127,7 @@ def _floor_record(sample: FastFillSample) -> dict:
         "uid": sample.sample_id,
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "license": sample.provenance.license_tag.value,
         "room_type": sample.room_context.room_type,
         "layer": "floor",
         "instruction": FLOOR_INSTRUCTION,
@@ -127,6 +143,7 @@ def _surface_record(
         "uid": f"{sample.sample_id}#{group.group_id}",
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
+        "license": sample.provenance.license_tag.value,
         "room_type": sample.room_context.room_type,
         "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
@@ -140,7 +157,10 @@ def _bump(counter: dict[str, int], key: str) -> None:
 
 
 def _exclusion_reason(
-    sample: FastFillSample, exclude_nc: bool, contamination: frozenset[str]
+    sample: FastFillSample,
+    license_mode: str,
+    allow_unresolved: bool,
+    contamination: frozenset[str],
 ) -> str | None:
     """Sample-level filter (checked in 铁律 order), ``None`` = exportable."""
     room_id = sample.provenance.source_room_id
@@ -149,16 +169,33 @@ def _exclusion_reason(
         house_id and house_id in contamination
     ):  # scenesmith scenes key on house_id (scene_XXX); room_id is a room name
         return "excluded_contamination"
-    if exclude_nc and sample.provenance.license_tag is LicenseTag.CC_BY_NC:
-        return "excluded_nc_license"
+    tag = sample.provenance.license_tag
+    if not _license_allowed(tag, license_mode, allow_unresolved):
+        return f"excluded_license_{tag.value}"
     if not sample.layout.floor_layout.objects:
         return "skipped_empty_floor"
     return None
 
 
+def _license_allowed(
+    tag: LicenseTag, license_mode: str, allow_unresolved: bool
+) -> bool:
+    """permissive: PERMISSIVE only. research: + CC_BY_NC. Pending/unknown
+    licenses are unresolved (schema: they wait for confirmation) and only
+    flow with the explicit --allow-unresolved-licenses override."""
+    if tag is LicenseTag.PERMISSIVE:
+        return True
+    if license_mode != "research":
+        return False
+    if tag is LicenseTag.CC_BY_NC:
+        return True
+    return allow_unresolved
+
+
 def _export_surface_groups(
     sample: FastFillSample, surface_out: TextIO, counts: dict[str, int]
-) -> None:
+) -> int:
+    written = 0
     for group in sample.layout.surface_groups:
         if not group.objects:
             _bump(counts, "skipped_surface_group_empty")
@@ -174,6 +211,8 @@ def _export_surface_groups(
             continue
         surface_out.write(json.dumps(record, ensure_ascii=False) + "\n")
         _bump(counts, "surface_records")
+        written += 1
+    return written
 
 
 UNVERIFIED_YAW_NOTE = "yaw_facing=unverified_per_asset"
@@ -189,7 +228,8 @@ def _export_sample(
     floor_out: TextIO,
     surface_out: TextIO,
     counts: dict[str, int],
-    exclude_nc: bool,
+    license_mode: str,
+    allow_unresolved: bool,
     contamination: frozenset[str],
     exclude_unverified_yaw: bool,
     require_sanitized: bool,
@@ -204,7 +244,7 @@ def _export_sample(
         )
         if require_sanitized:
             return
-    reason = _exclusion_reason(sample, exclude_nc, contamination)
+    reason = _exclusion_reason(sample, license_mode, allow_unresolved, contamination)
     if reason is not None:
         _bump(counts, reason)
         return
@@ -224,6 +264,7 @@ def _export_sample(
         skip_floor = "excluded_unverified_yaw_floor"
     elif has_note(sample.provenance.notes, FLOOR_UNREPAIRED_NOTE):
         skip_floor = "excluded_unrepaired_floor"
+    wrote_floor = False
     if skip_floor:
         _bump(counts, skip_floor)
     else:
@@ -236,19 +277,30 @@ def _export_sample(
         else:
             floor_out.write(json.dumps(record, ensure_ascii=False) + "\n")
             _bump(counts, "floor_records")
-    _export_surface_groups(sample, surface_out, counts)
+            wrote_floor = True
+    wrote_surfaces = _export_surface_groups(sample, surface_out, counts)
+    if wrote_floor or wrote_surfaces:
+        # Per-tag accounting of what actually LANDED in the training files
+        # (bumped only after a real write, so the report cannot claim an
+        # exported license sample while floor+surface records are both 0).
+        _bump(counts, f"exported_license_{sample.provenance.license_tag.value}")
 
 
 def export_sft(
     in_path: Path,
     out_dir: Path,
     *,
-    exclude_nc: bool = True,
+    license_mode: str = "permissive",
+    allow_unresolved: bool = False,
     contamination: frozenset[str] = frozenset(),
     exclude_unverified_yaw: bool = True,
     require_sanitized: bool = True,
 ) -> dict:
     """Stream ``in_path`` into SFT JSONL files; write and return the report."""
+    if license_mode not in LICENSE_MODES:
+        raise ValueError(
+            f"license_mode must be one of {LICENSE_MODES}, got {license_mode!r}"
+        )
     out_dir.mkdir(parents=True, exist_ok=True)
     counts: dict[str, int] = {"input_samples": 0}
     counts.setdefault("floor_records", 0)
@@ -263,14 +315,16 @@ def export_sft(
                     floor_out,
                     surface_out,
                     counts,
-                    exclude_nc,
+                    license_mode,
+                    allow_unresolved,
                     contamination,
                     exclude_unverified_yaw,
                     require_sanitized,
                 )
     report = {
         "in_path": str(in_path),
-        "exclude_nc": exclude_nc,
+        "license_mode": license_mode,
+        "allow_unresolved_licenses": allow_unresolved,
         "exclude_unverified_yaw": exclude_unverified_yaw,
         "require_sanitized": require_sanitized,
         "contamination_list_size": len(contamination),
@@ -290,10 +344,22 @@ def main() -> None:
     )
     parser.add_argument("--out-dir", required=True, help="SFT output directory")
     parser.add_argument(
-        "--exclude-nc",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="exclude CC BY-NC licensed samples (铁律 2; default on)",
+        "--license-mode",
+        choices=LICENSE_MODES,
+        default="permissive",
+        help=(
+            "permissive: export only PERMISSIVE-tagged samples (铁律 2, "
+            "default); research: also export CC_BY_NC for a research-only "
+            "checkpoint (per-tag counts in the report)"
+        ),
+    )
+    parser.add_argument(
+        "--allow-unresolved-licenses",
+        action="store_true",
+        help=(
+            "DANGER: in research mode, also export LICENSE_PENDING/UNKNOWN "
+            "samples (schema says unresolved licenses wait for confirmation)"
+        ),
     )
     parser.add_argument(
         "--contamination-list",
@@ -327,7 +393,8 @@ def main() -> None:
     report = export_sft(
         Path(args.in_path),
         Path(args.out_dir),
-        exclude_nc=args.exclude_nc,
+        license_mode=args.license_mode,
+        allow_unresolved=args.allow_unresolved_licenses,
         contamination=load_contamination_list(contamination_path),
         exclude_unverified_yaw=args.exclude_unverified_yaw,
         require_sanitized=args.require_sanitized,

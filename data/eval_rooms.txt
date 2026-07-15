@@ -1,0 +1,9 @@
+# FastFill contamination list (铁律 1).
+# One source_room_id (or source_house_id) per line; blank lines and
+# #-comments are ignored by tools that strip them — the loader treats any
+# non-blank line as an id, so keep real ids only below this header block
+# when regenerating.
+#
+# Populate from the rooms used in API-teacher smokes and any hand-inspected
+# eval scenes BEFORE the next convert -> dedup -> export rebuild. Empty file
+# = no exclusions (valid for a fresh corpus with no eval exposure yet).

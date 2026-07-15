@@ -57,6 +57,16 @@ def _source_layer_counts(rows: list[dict]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def _license_counts(rows: list[dict]) -> dict[str, int]:
+    """License lineage per split — a permissive snapshot with any non-
+    permissive tag here was frozen from the wrong export route."""
+    counts: dict[str, int] = {}
+    for record in rows:
+        tag = record.get("license") or "unrecorded"
+        counts[tag] = counts.get(tag, 0) + 1
+    return dict(sorted(counts.items()))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="freeze stage-0 snapshot")
     parser.add_argument("--in", dest="inputs", nargs="+", required=True)
@@ -114,6 +124,9 @@ def main() -> None:
         "counts": {name: len(splits[name]) for name in files},
         "per_source_layer": {
             name: _source_layer_counts(splits[name]) for name in files
+        },
+        "license_counts": {
+            name: _license_counts(splits[name]) for name in files
         },
         "hashes": {name: _sha(path) for name, path in files.items()},
         "leakage_check": "passed",

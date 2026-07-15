@@ -2,8 +2,11 @@ __pycache__/
 *.pyc
 .venv/
 out/
-data/
+# data/* (not data/) so the negations below can re-include tracked files —
+# git cannot re-include a file whose parent directory is excluded.
+data/*
 !data/.gitkeep
+!data/eval_rooms.txt
 *.DS_Store
 wandb/
 swanlab/

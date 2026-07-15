@@ -51,13 +51,21 @@ def test_sft_full_matches_paper() -> None:
 
 def test_dpo_stage1_matches_paper() -> None:
     cfg = load_config(CONFIGS / "dpo_stage1.yaml")
-    assert cfg.model_name_or_path == "out/sft_full_merged"
+    # No runnable default base: train_dpo fails fast on this sentinel.
+    assert cfg.model_name_or_path == "SET_ME_TO_WINNING_MERGED_ARM"
     assert cfg.learning_rate == pytest.approx(5e-7)  # paper, NOT README 5e-6
     assert cfg.epochs == 5  # paper, NOT README 10
     assert (cfg.lora.r, cfg.lora.alpha) == (16, 32)  # paper, NOT README r32/a16
     assert cfg.dpo_beta == pytest.approx(0.1)
     assert cfg.max_length == 3200
     assert cfg.max_prompt_length == 2048
+
+
+def test_dpo_stage1_sentinel_fails_fast() -> None:
+    from fastfill_train.train_dpo import main as dpo_main
+
+    with pytest.raises(SystemExit, match="sentinel"):
+        dpo_main(["--config", str(CONFIGS / "dpo_stage1.yaml")])
 
 
 def test_dpo_stage2_chains_from_stage1() -> None:
@@ -221,3 +229,60 @@ def test_train_modules_import_without_heavy_deps() -> None:
     # train_dpo on a machine without torch; this pins the invariant.
     for mod in ("torch", "trl", "peft", "datasets", "transformers"):
         assert mod not in sys.modules
+
+
+# --- merge_lora lineage guard -------------------------------------------------
+
+
+def test_merge_lora_lineage_mismatch_detected(tmp_path: Path) -> None:
+    from fastfill_train.merge_lora import check_adapter_lineage
+
+    adapter = tmp_path / "adapter"
+    adapter.mkdir()
+    (adapter / "adapter_config.json").write_text(
+        json.dumps({"base_model_name_or_path": "out/sft_full_merged"})
+    )
+    error = check_adapter_lineage("Qwen/Qwen3-8B", str(adapter))
+    assert error is not None and "out/sft_full_merged" in error
+    assert check_adapter_lineage("out/sft_full_merged", str(adapter)) is None
+
+
+def test_merge_lora_missing_adapter_config_is_error(tmp_path: Path) -> None:
+    from fastfill_train.merge_lora import check_adapter_lineage
+
+    error = check_adapter_lineage("Qwen/Qwen3-8B", str(tmp_path / "nope"))
+    assert error is not None and "adapter config not found" in error
+
+
+def test_merge_lora_cli_blocks_mismatch(tmp_path: Path) -> None:
+    from fastfill_train.merge_lora import main as merge_main
+
+    adapter = tmp_path / "adapter"
+    adapter.mkdir()
+    (adapter / "adapter_config.json").write_text(
+        json.dumps({"base_model_name_or_path": "out/sft_full_merged"})
+    )
+    with pytest.raises(SystemExit, match="allow-base-mismatch"):
+        merge_main(
+            [
+                "--base", "Qwen/Qwen3-8B",
+                "--lora", str(adapter),
+                "--out", str(tmp_path / "merged"),
+            ]
+        )
+
+
+# --- build_dpo_data snapshot guard --------------------------------------------
+
+
+def test_build_dpo_data_requires_snapshot(tmp_path: Path) -> None:
+    from fastfill_train.build_dpo_data import main as dpo_data_main
+
+    with pytest.raises(SystemExit, match="snapshot"):
+        dpo_data_main(
+            [
+                "stage2",
+                "--in", str(tmp_path / "in.jsonl"),
+                "--out", str(tmp_path / "out.jsonl"),
+            ]
+        )

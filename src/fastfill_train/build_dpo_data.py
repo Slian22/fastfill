@@ -104,6 +104,18 @@ def load_holdout_filter(snapshot_path: Path | None):
     if snapshot_path is None:
         return None
     sidecar = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
+    required = ("seed", "val_fraction", "rule")
+    if not isinstance(sidecar, dict) or any(k not in sidecar for k in required):
+        raise ValueError(
+            f"{snapshot_path} is not a make_snapshot SNAPSHOT.json sidecar "
+            f"(missing one of {required}) — passing the wrong file here "
+            "silently mis-splits heldout/train"
+        )
+    if "split_bucket" not in str(sidecar["rule"]):
+        raise ValueError(
+            f"{snapshot_path} uses split rule {sidecar['rule']!r}; this "
+            "filter only reproduces the data.split_bucket house-first rule"
+        )
     seed = int(sidecar["seed"])
     cutoff = int(
         (float(sidecar["val_fraction"]) + float(sidecar.get("test_fraction", 0.0)))
@@ -259,23 +271,49 @@ def _emit_sample_pairs(
     return emitted
 
 
+LICENSE_MODES = ("permissive", "research")
+
+
+def _license_exclusion(
+    tag: LicenseTag, license_mode: str, allow_unresolved: bool
+) -> str | None:
+    """Mirror of export_sft's allowlist: permissive = PERMISSIVE only;
+    research adds CC_BY_NC; unresolved tags (LICENSE_PENDING/UNKNOWN) need
+    the explicit override. Stage-2 chosen completions are training labels,
+    so they must pass the same gate as the SFT export — the old exact-NC
+    check let pending/unknown samples re-enter a permissive DPO corpus."""
+    if tag is LicenseTag.PERMISSIVE:
+        return None
+    if license_mode == "research" and (
+        tag is LicenseTag.CC_BY_NC or allow_unresolved
+    ):
+        return None
+    return f"excluded_license_{tag.value}"
+
+
 def run_stage2(
     in_path: Path,
     out_path: Path,
     template: str,
     per_sample: int,
     seed: int,
-    exclude_nc: bool = True,
+    license_mode: str = "permissive",
+    allow_unresolved: bool = False,
     snapshot: Path | None = None,
     require_sanitized: bool = True,
 ) -> dict:
     """Build stage-2 pairs from FastFillSample JSONL; return the stats dict.
 
-    Applies the SAME sample-level 铁律 gates as export_sft (NC license,
-    unverified-yaw / unrepaired floors, sanitized-note hard gate) plus the
-    ``--snapshot`` holdout filter — stage-2 chosen completions are training
-    labels and must obey the training-data rules, not just the SFT export.
+    Applies the SAME sample-level 铁律 gates as export_sft (license
+    allowlist, unverified-yaw / unrepaired floors, sanitized-note hard gate)
+    plus the ``--snapshot`` holdout filter — stage-2 chosen completions are
+    training labels and must obey the training-data rules, not just the SFT
+    export.
     """
+    if license_mode not in LICENSE_MODES:
+        raise ValueError(
+            f"license_mode must be one of {LICENSE_MODES}, got {license_mode!r}"
+        )
     is_holdout = load_holdout_filter(snapshot)
     names = sorted(ALL_INJECTORS)
     random.Random(seed).shuffle(names)
@@ -294,8 +332,11 @@ def run_stage2(
             ):
                 _bump(skipped, "excluded_unsanitized")
                 continue
-            if exclude_nc and sample.provenance.license_tag is LicenseTag.CC_BY_NC:
-                _bump(skipped, "excluded_nc_license")
+            license_reason = _license_exclusion(
+                sample.provenance.license_tag, license_mode, allow_unresolved
+            )
+            if license_reason is not None:
+                _bump(skipped, license_reason)
                 continue
             start = index % len(names)
             rotated = names[start:] + names[:start]
@@ -314,7 +355,8 @@ def run_stage2(
         "template": template,
         "per_sample": per_sample,
         "seed": seed,
-        "exclude_nc": exclude_nc,
+        "license_mode": license_mode,
+        "allow_unresolved_licenses": allow_unresolved,
         "snapshot": str(snapshot) if snapshot else None,
         "require_sanitized": require_sanitized,
         "counts": counts,
@@ -505,10 +547,21 @@ def _build_parser() -> argparse.ArgumentParser:
     p2.add_argument("--per-sample", type=int, default=DEFAULT_PER_SAMPLE)
     p2.add_argument("--seed", type=int, default=DEFAULT_SEED)
     p2.add_argument(
-        "--exclude-nc",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="exclude CC BY-NC samples from chosen labels (铁律 2; default on)",
+        "--license-mode",
+        choices=LICENSE_MODES,
+        default="permissive",
+        help=(
+            "permissive: chosen labels only from PERMISSIVE samples (铁律 2, "
+            "default, mirrors export_sft); research: also CC_BY_NC"
+        ),
+    )
+    p2.add_argument(
+        "--allow-unresolved-licenses",
+        action="store_true",
+        help=(
+            "DANGER: in research mode, also use LICENSE_PENDING/UNKNOWN "
+            "samples as chosen labels"
+        ),
     )
     p2.add_argument(
         "--snapshot",
@@ -517,6 +570,11 @@ def _build_parser() -> argparse.ArgumentParser:
             "make_snapshot SNAPSHOT.json — drop samples in the Stage-0 "
             "heldout/test buckets (REQUIRED for real training runs)"
         ),
+    )
+    p2.add_argument(
+        "--allow-no-snapshot",
+        action="store_true",
+        help="smoke only: build pairs without heldout/test filtering",
     )
     p2.add_argument(
         "--require-sanitized",
@@ -543,6 +601,11 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     p1.add_argument(
+        "--allow-no-snapshot",
+        action="store_true",
+        help="smoke only: build pairs without heldout/test filtering",
+    )
+    p1.add_argument(
         "--max-reject-codes",
         type=int,
         default=2,
@@ -556,6 +619,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[list[str]] = None) -> None:
     args = _build_parser().parse_args(argv)
+    # Normalize: --snapshot '' must not slip past the gate and then decay to
+    # None at the Path conversion below.
+    snapshot_arg = (args.snapshot or "").strip() or None
+    if snapshot_arg is None and not args.allow_no_snapshot:
+        raise SystemExit(
+            "--snapshot is required: pairs built from the full corpus leak "
+            "Stage-0 heldout/test ground truths into DPO train. Pass the "
+            "snapshot sidecar, or --allow-no-snapshot for a smoke build."
+        )
+    snapshot_path = Path(snapshot_arg) if snapshot_arg else None
     if args.command == "stage2":
         if args.per_sample < 1:
             raise SystemExit("--per-sample must be >= 1")
@@ -565,8 +638,9 @@ def main(argv: Optional[list[str]] = None) -> None:
             args.template,
             args.per_sample,
             args.seed,
-            args.exclude_nc,
-            Path(args.snapshot) if args.snapshot else None,
+            args.license_mode,
+            args.allow_unresolved_licenses,
+            snapshot_path,
             args.require_sanitized,
         )
     else:
@@ -577,7 +651,7 @@ def main(argv: Optional[list[str]] = None) -> None:
             Path(args.samples) if args.samples else None,
             args.template,
             args.max_reject_codes,
-            Path(args.snapshot) if args.snapshot else None,
+            snapshot_path,
         )
     print(json.dumps(stats, indent=2))
 

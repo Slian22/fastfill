@@ -14,6 +14,41 @@ from __future__ import annotations
 import fastfill_train  # noqa: F401  (vendor path bootstrap — keep first)
 
 import argparse
+import json
+from pathlib import Path
+
+
+def check_adapter_lineage(base: str, lora: str) -> str | None:
+    """Return an error message when the adapter was trained on another base.
+
+    Compares ``--base`` against the adapter's recorded
+    ``base_model_name_or_path``. peft only errors on architecture mismatch,
+    so merging a DPO adapter onto the wrong same-architecture base (e.g. raw
+    Qwen3-8B instead of the merged SFT mainline) would otherwise succeed
+    silently and produce a broken model.
+    """
+    config_path = Path(lora) / "adapter_config.json"
+    if not config_path.exists():
+        return f"adapter config not found: {config_path}"
+    recorded = json.loads(config_path.read_text(encoding="utf-8")).get(
+        "base_model_name_or_path"
+    )
+    if not recorded:
+        return (
+            f"adapter config {config_path} records no base_model_name_or_path "
+            "— lineage cannot be verified"
+        )
+
+    def normalize(path: str) -> str:
+        return str(Path(path).resolve()) if Path(path).exists() else path
+
+    if normalize(recorded) != normalize(base):
+        return (
+            f"adapter {lora} was trained on base '{recorded}' but --base is "
+            f"'{base}'; pass the recorded base, or --allow-base-mismatch to "
+            "override deliberately"
+        )
+    return None
 
 
 def merge_lora(base: str, lora: str, out: str) -> None:
@@ -41,7 +76,18 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--base", required=True, help="base model dir or HF id")
     parser.add_argument("--lora", required=True, help="adapter dir (trainer output)")
     parser.add_argument("--out", required=True, help="merged model output dir")
+    parser.add_argument(
+        "--allow-base-mismatch",
+        action="store_true",
+        help="merge even when the adapter's recorded base differs from --base",
+    )
     args = parser.parse_args(argv)
+    lineage_error = check_adapter_lineage(args.base, args.lora)
+    if lineage_error is not None:
+        if args.allow_base_mismatch:
+            print(f"WARNING: {lineage_error} (continuing: --allow-base-mismatch)")
+        else:
+            raise SystemExit(f"ERROR: {lineage_error}")
     merge_lora(args.base, args.lora, args.out)
     print(f"merged {args.base} + {args.lora} -> {args.out}")
 

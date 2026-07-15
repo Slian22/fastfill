@@ -439,6 +439,32 @@ def _l0_finite(layout: RoomContentLayout, col: _Collector) -> None:
             )
 
 
+def _l0_positive_dims(layout: RoomContentLayout, col: _Collector) -> None:
+    """Non-positive extents are unrepairable geometry — FATAL, regenerate.
+
+    Non-finite components are ignored here: they are already FATAL via
+    ``_l0_finite`` and NaN comparisons would mask the degenerate case.
+    """
+    rows: list[tuple[str, str, tuple[float, ...]]] = [
+        (o.object_id, "", o.dimensions) for o in layout.floor_layout.objects
+    ]
+    for group in layout.surface_groups:
+        rows += [
+            (o.object_id, group.surface_id, o.dimensions) for o in group.objects
+        ]
+    for identifier, surface_id, dims in rows:
+        col.check()
+        if any(math.isfinite(float(d)) and float(d) <= 0 for d in dims):
+            col.violation(
+                "L0_DEGENERATE_DIMENSIONS",
+                Severity.FATAL,
+                f"'{identifier}' has non-positive dimensions "
+                f"{tuple(float(d) for d in dims)}",
+                object_ids=(identifier,),
+                surface_id=surface_id,
+            )
+
+
 def _l0_room_ids(
     layout: RoomContentLayout, context: RoomContext, col: _Collector
 ) -> None:
@@ -536,6 +562,7 @@ def run_l0(layout: RoomContentLayout, context: RoomContext, col: _Collector) -> 
     _l0_claim_refs(layout, col)
     _l0_relation_refs(layout, col)
     _l0_finite(layout, col)
+    _l0_positive_dims(layout, col)
     _l0_room_ids(layout, context, col)
     _l0_budget(layout, context, col)
     _l0_patterns(layout, col)
@@ -555,6 +582,25 @@ def _l1_floor_bounds(geo: _Geometry, col: _Collector) -> None:
                 Severity.ERROR,
                 f"floor object '{object_id}' footprint leaves the floor "
                 "polygon (5 cm wall-flush tolerance)",
+                object_ids=(object_id,),
+            )
+
+
+def _l1_floor_z(geo: _Geometry, col: _Collector) -> None:
+    """Floor-standing objects must sit on the floor plane.
+
+    The codec never emits a floor z, but GT conversions and repair inputs
+    carry one — an elevated or sunken floor object is a real placement error,
+    not a representable pose.
+    """
+    for object_id, obj in geo.floor_objects.items():
+        col.check()
+        if math.isfinite(obj.z) and abs(obj.z) > _FLOATING_MAX_ABS_Z_M:
+            col.violation(
+                "L1_FLOOR_FLOATING",
+                Severity.ERROR,
+                f"floor object '{object_id}' sits at z={obj.z:.3f} m "
+                f"(limit {_FLOATING_MAX_ABS_Z_M} m for floor-standing objects)",
                 object_ids=(object_id,),
             )
 
@@ -836,6 +882,7 @@ def run_l1(
     """All L1 geometry & support checks, in deterministic order."""
     del layout  # geometry is pre-indexed in ``geo``
     _l1_floor_bounds(geo, col)
+    _l1_floor_z(geo, col)
     _l1_floor_collisions(geo, col)
     _l1_door_clearance(context, geo, col)
     _l1_forbidden_regions(context, geo, col)

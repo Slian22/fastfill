@@ -3,11 +3,12 @@
 # lr 5e-6 / 10 epochs / r32 a16 — that inverts the paper's LoRA and is 10x
 # the paper LR; we follow the paper.
 #
-# ⚠ PRODUCTION DPO: this default points at the stage-0 paper-reference arm.
-# Before running the real DPO, override with the winning full-run checkpoint:
+# ⚠ PRODUCTION DPO: there is deliberately NO runnable default base —
+# train_dpo fails fast on the sentinel. Point at the winning checkpoint:
 #   full-param winner:  --set model_name_or_path=out/full_fp
 #   LoRA r128 winner:   --set model_name_or_path=out/full_r128_merged
-model_name_or_path: out/sft_full_merged
+#   stage-0 reference:  --set model_name_or_path=out/sft_full_merged
+model_name_or_path: SET_ME_TO_WINNING_MERGED_ARM
 dataset_files: [data/dpo/stage1_pairs.jsonl]
 output_dir: out/dpo_stage1
 learning_rate: 5.0e-7

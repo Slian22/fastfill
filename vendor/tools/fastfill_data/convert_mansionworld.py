@@ -7,7 +7,8 @@ Usage:
 Source layout: ``data/MansionWorld/mansionworld/<building>/floor_<n>.json``
 (ProcTHOR-style scenes; Y-up, meters, ``rotation.y`` in degrees) plus the
 objathor asset annotations at
-``data/MansionWorld/mansion_patch/asset/annotations.json.gz`` (assetId ->
+``data/MansionWorld/mansion_patch/asset/annotations.json.gz`` — or the
+uncompressed ``annotations.json`` — (assetId ->
 ``thor_metadata.assetMetadata.boundingBox`` min/max in Y-up meters, plus
 category/description/scale/size fields; the measured boundingBox is used,
 the GPT-4-estimated ``size`` is ignored).
@@ -128,7 +129,8 @@ def load_annotation_dims(annotations_path: str) -> dict[str, Vec3]:
     Uses ``thor_metadata.assetMetadata.boundingBox`` (Y-up meters); entries
     without a positive-extent box are dropped.
     """
-    with gzip.open(annotations_path, "rt", encoding="utf-8") as fh:
+    opener = gzip.open if annotations_path.endswith(".gz") else open
+    with opener(annotations_path, "rt", encoding="utf-8") as fh:
         raw = json.load(fh)
     dims: dict[str, Vec3] = {}
     for asset_id, entry in raw.items():
@@ -605,6 +607,26 @@ def convert_floor_file(
             yield sample
 
 
+def resolve_annotations_path(data_dir: Path) -> Path:
+    """Locate the objathor annotations, preferring the shipped ``.json.gz``.
+
+    Missing annotations are a hard error: without them every small object is
+    skipped as ``small_object_no_dims`` and the Surface corpus silently
+    vanishes (the pre-fix behaviour was an empty-dims fallback).
+    """
+    gz_path = data_dir / ANNOTATIONS_RELPATH
+    if gz_path.exists():
+        return gz_path
+    plain_path = gz_path.with_suffix("")  # annotations.json.gz -> .json
+    if plain_path.exists():
+        return plain_path
+    raise FileNotFoundError(
+        f"MansionWorld objathor annotations not found at {gz_path} (or "
+        "uncompressed annotations.json) — required for small-object "
+        "dimensions and surface groups"
+    )
+
+
 def convert(
     data_dir: Path, limit: int | None, stats: ConversionStats
 ) -> Iterator[FastFillSample]:
@@ -613,10 +635,15 @@ def convert(
     Conversion is restricted to floor 1 for speed; ``convert_floor_file``
     accepts any ``floor_<n>.json`` path.
     """
-    ann_path = data_dir / ANNOTATIONS_RELPATH
-    ann_dims: Mapping[str, Vec3] = (
-        load_annotation_dims(str(ann_path)) if ann_path.exists() else {}
-    )
+    ann_path = resolve_annotations_path(data_dir)
+    ann_dims: Mapping[str, Vec3] = load_annotation_dims(str(ann_path))
+    if not ann_dims:
+        raise ValueError(
+            f"annotations file {ann_path} parsed to zero usable bounding "
+            "boxes — every small object would be skipped as "
+            "small_object_no_dims and the Surface corpus would silently "
+            "vanish; the real file carries ~50k entries"
+        )
     emitted = 0
     for floor_path in sorted((data_dir / MANSIONWORLD_RELPATH).glob("*/floor_1.json")):
         for sample in convert_floor_file(floor_path, ann_dims, stats):

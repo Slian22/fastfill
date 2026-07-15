@@ -65,7 +65,7 @@ def test_stage2_end_to_end(tmp_path: Path) -> None:
             "2",
             "--seed",
             "7",
-        ]
+         "--allow-no-snapshot"]
     )
 
     # Assert: 2 verified pairs per sample.
@@ -114,7 +114,7 @@ def test_stage2_counts_unrenderable_floating_pairs(tmp_path: Path) -> None:
             str(out_path),
             "--per-sample",
             "9",
-        ]
+         "--allow-no-snapshot"]
     )
 
     rows = _read_jsonl(out_path)
@@ -145,7 +145,7 @@ def test_stage2_plan_template_renders_plan_line_on_floor_pairs(
             "plan",
             "--per-sample",
             "9",
-        ]
+         "--allow-no-snapshot"]
     )
 
     rows = _read_jsonl(out_path)
@@ -203,7 +203,7 @@ def test_stage1_validated_mode(tmp_path: Path, monkeypatch) -> None:
             str(out_path),
             "--samples",
             str(samples_path),
-        ]
+         "--allow-no-snapshot"]
     )
 
     # Assert
@@ -251,7 +251,7 @@ def test_stage1_parse_only_mode_without_samples(tmp_path: Path) -> None:
             str(generations_path),
             "--out",
             str(out_path),
-        ]
+         "--allow-no-snapshot"]
     )
 
     # Only the unparseable completion can become a negative in this mode; the
@@ -329,7 +329,14 @@ def test_stage2_snapshot_filter_excludes_holdout(tmp_path: Path) -> None:
     _write_jsonl(in_path, [s.model_dump_json() for s in samples])
     snapshot = tmp_path / "SNAPSHOT.json"
     snapshot.write_text(
-        json.dumps({"seed": seed, "val_fraction": val, "test_fraction": test})
+        json.dumps(
+            {
+                "seed": seed,
+                "val_fraction": val,
+                "test_fraction": test,
+                "rule": "house-first sha1(split_key) bucket (data.split_bucket)",
+            }
+        )
     )
     out_path = tmp_path / "pairs.jsonl"
 
@@ -355,7 +362,7 @@ def test_stage2_without_snapshot_warns(tmp_path: Path) -> None:
     in_path = tmp_path / "samples.jsonl"
     _write_samples(in_path, n=1)
     out_path = tmp_path / "pairs.jsonl"
-    main(["stage2", "--in", str(in_path), "--out", str(out_path)])
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--allow-no-snapshot"])
     stats = json.loads(out_path.with_suffix(".stats.json").read_text())
     assert "heldout/test" in stats["warning"]
 
@@ -369,7 +376,7 @@ def test_stage2_hard_gates_unsanitized_samples(tmp_path: Path) -> None:
     _write_jsonl(in_path, [sample.model_dump_json()])
     out_path = tmp_path / "pairs.jsonl"
 
-    main(["stage2", "--in", str(in_path), "--out", str(out_path)])
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--allow-no-snapshot"])
     stats = json.loads(out_path.with_suffix(".stats.json").read_text())
     assert stats["skipped"]["excluded_unsanitized"] == 1
     assert stats["counts"]["pairs"] == 0
@@ -380,7 +387,7 @@ def test_stage2_hard_gates_unsanitized_samples(tmp_path: Path) -> None:
             "--in", str(in_path),
             "--out", str(tmp_path / "pairs_off.jsonl"),
             "--no-require-sanitized",
-        ]
+         "--allow-no-snapshot"]
     )
     stats_off = json.loads(
         (tmp_path / "pairs_off.stats.json").read_text()
@@ -416,7 +423,14 @@ def test_stage1_snapshot_filter_excludes_holdout_contexts(tmp_path: Path) -> Non
     )
     snapshot = tmp_path / "SNAPSHOT.json"
     snapshot.write_text(
-        json.dumps({"seed": seed, "val_fraction": val, "test_fraction": test})
+        json.dumps(
+            {
+                "seed": seed,
+                "val_fraction": val,
+                "test_fraction": test,
+                "rule": "house-first sha1(split_key) bucket (data.split_bucket)",
+            }
+        )
     )
     out_path = tmp_path / "pairs.jsonl"
 
@@ -457,7 +471,7 @@ def test_stage2_bbox_unverified_blocks_floor_pairs_allows_surface(
     _write_jsonl(in_path, [sample.model_dump_json()])
     out_path = tmp_path / "pairs.jsonl"
 
-    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9"])
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9", "--allow-no-snapshot"])
 
     rows = _read_jsonl(out_path)
     floor_rows = [r for r in rows if "#" not in r["uid"]]
@@ -501,7 +515,7 @@ def test_stage2_bbox_unverified_stats_key_not_yaw(tmp_path: Path) -> None:
                 "--in", str(tmp_path / f"in_{label}.jsonl"),
                 "--out", str(out),
                 "--per-sample", "9",
-            ]
+             "--allow-no-snapshot"]
         )
         stats = json.loads(out.with_suffix(".stats.json").read_text())
         skipped_keys = " ".join(stats["skipped"])
@@ -521,7 +535,7 @@ def test_stage2_clean_sample_unaffected_by_bbox_gate(tmp_path: Path) -> None:
     _write_samples(in_path, n=1)
     out_path = tmp_path / "pairs.jsonl"
 
-    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9"])
+    main(["stage2", "--in", str(in_path), "--out", str(out_path), "--per-sample", "9", "--allow-no-snapshot"])
 
     rows = _read_jsonl(out_path)
     floor_rows = [r for r in rows if "#" not in r["uid"]]
@@ -544,3 +558,92 @@ def test_self_built_records_carry_explicit_layer() -> None:
     assert surface is not None
     assert surface["layer"] == "surface"
     assert "#" in surface["uid"]
+
+
+def test_stage2_license_allowlist_gates_pending(tmp_path: Path) -> None:
+    """Stage-2 chosen labels obey the same license allowlist as export_sft:
+    LICENSE_PENDING never trains under permissive OR plain research."""
+    from scenesmith.growing_world.fastfill.schema import LicenseTag
+
+    sample = make_clean_sample("s0", "house0")
+    sample = sample.model_copy(
+        update={
+            "provenance": sample.provenance.model_copy(
+                update={"license_tag": LicenseTag.LICENSE_PENDING}
+            )
+        }
+    )
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [sample.model_dump_json()])
+    out_path = tmp_path / "pairs.jsonl"
+
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--allow-no-snapshot",
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["counts"]["pairs"] == 0
+    assert stats["skipped"]["excluded_license_license_pending"] == 1
+
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--license-mode", "research",
+            "--allow-no-snapshot",
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["counts"]["pairs"] == 0  # research alone still excludes
+
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--license-mode", "research",
+            "--allow-unresolved-licenses",
+            "--allow-no-snapshot",
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["counts"]["pairs"] > 0
+
+
+def test_snapshot_empty_string_is_rejected(tmp_path: Path) -> None:
+    import pytest
+
+    in_path = tmp_path / "samples.jsonl"
+    _write_samples(in_path, n=1)
+    with pytest.raises(SystemExit, match="snapshot"):
+        main(
+            [
+                "stage2",
+                "--in", str(in_path),
+                "--out", str(tmp_path / "pairs.jsonl"),
+                "--snapshot", "",
+            ]
+        )
+
+
+def test_snapshot_sidecar_shape_is_validated(tmp_path: Path) -> None:
+    import pytest
+
+    in_path = tmp_path / "samples.jsonl"
+    _write_samples(in_path, n=1)
+    bogus = tmp_path / "not_a_sidecar.json"
+    bogus.write_text(json.dumps({"seed": 42}))  # missing val_fraction/rule
+    with pytest.raises(ValueError, match="not a make_snapshot"):
+        main(
+            [
+                "stage2",
+                "--in", str(in_path),
+                "--out", str(tmp_path / "pairs.jsonl"),
+                "--snapshot", str(bogus),
+            ]
+        )

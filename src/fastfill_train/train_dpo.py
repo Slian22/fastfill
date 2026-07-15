@@ -90,6 +90,12 @@ def _load_ref(cfg):
 def main(argv: list[str] | None = None) -> None:
     args = build_arg_parser("FastFill DPO training (LoRA)").parse_args(argv)
     cfg = load_config(args.config, args.overrides)
+    if cfg.model_name_or_path == "SET_ME_TO_WINNING_MERGED_ARM":
+        raise SystemExit(
+            "model_name_or_path is the config sentinel — pass the winning "
+            "merged SFT checkpoint, e.g. "
+            "--set model_name_or_path=out/full_fp"
+        )
     dump_config(cfg, Path(cfg.output_dir) / RESOLVED_CONFIG_NAME)
     train_dataset, eval_dataset = load_dpo_datasets(
         cfg.dataset_files, cfg.val_fraction, cfg.seed

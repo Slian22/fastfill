@@ -3,8 +3,11 @@
 Three of our sources share the 3D-FRONT upstream, so the same physical room
 can enter the corpus several times. This tool groups samples by
 ``provenance.geometry_hash`` (category-free, frame-normalized — see
-``fastfill/provenance.py``) and keeps exactly ONE sample per hash, preferring
-the earliest source in ``--priority`` and breaking ties by first-seen order.
+``fastfill/provenance.py``) and keeps exactly ONE sample per hash. The
+winner is chosen license-first (PERMISSIVE > CC_BY_NC > LICENSE_PENDING >
+UNKNOWN — so a permissive copy always survives for the permissive export
+route and an NC copy for the research route), then by the earliest source
+in ``--priority``, then by first-seen order.
 
 Contamination closure (``--contamination-list``, 铁律 1): eval-room ids are
 matched against room/house ids in pass 1, the matching samples' geometry
@@ -49,15 +52,34 @@ for _extra in (
 
 from pydantic import ValidationError  # noqa: E402
 
-from scenesmith.growing_world.fastfill.schema import FastFillSample  # noqa: E402
+from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
+    FastFillSample,
+    LicenseTag,
+)
 
 LineRef = tuple[int, int]  # (input file index, 1-based line number)
+
+# License-first winner policy: without it, a higher-priority NC source (e.g.
+# M3DLayout after the CC-BY-NC retag) would eat the permissive copy of a
+# duplicate room, and the permissive export would then drop the sample
+# entirely — the corpus loses a room it was licensed to train on.
+_LICENSE_RANK = {
+    LicenseTag.PERMISSIVE: 0,
+    LicenseTag.CC_BY_NC: 1,
+    LicenseTag.LICENSE_PENDING: 2,
+    LicenseTag.UNKNOWN: 3,
+}
+
+
+def _license_rank(tag: LicenseTag) -> int:
+    return _LICENSE_RANK.get(tag, len(_LICENSE_RANK))
 
 
 @dataclass(frozen=True)
 class _Winner:
     """Current best sample for one geometry hash."""
 
+    license_rank: int  # _LICENSE_RANK — permissive copies always win
     rank: int  # position in --priority (len(priority) if unlisted)
     sequence: int  # global first-seen order (tie-break)
     ref: LineRef
@@ -140,16 +162,18 @@ def _scan_line(
         state.contaminated_hashes.add(geometry_hash)
     state.sources_by_hash.setdefault(geometry_hash, set()).add(source)
     candidate = _Winner(
+        license_rank=_license_rank(sample.provenance.license_tag),
         rank=_priority_rank(source, priority),
         sequence=sequence,
         ref=ref,
         source=source,
     )
     incumbent = state.winners.get(geometry_hash)
-    if incumbent is None or (candidate.rank, candidate.sequence) < (
-        incumbent.rank,
-        incumbent.sequence,
-    ):
+    if incumbent is None or (
+        candidate.license_rank,
+        candidate.rank,
+        candidate.sequence,
+    ) < (incumbent.license_rank, incumbent.rank, incumbent.sequence):
         state.winners[geometry_hash] = candidate
 
 
@@ -219,6 +243,7 @@ def _build_report(
     return {
         "inputs": [str(p) for p in inputs],
         "priority": list(priority),
+        "winner_policy": "license_rank (permissive first), then priority, then first-seen",
         "per_source_input": dict(sorted(state.input_counts.items())),
         "per_source_kept": dict(sorted(per_source_kept.items())),
         "collision_matrix": dict(

@@ -58,8 +58,14 @@ python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
     --out out/conv/deduped.jsonl --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
 python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
-# export 默认硬门:剔除无 sanitized=v1 标的样本、CC BY-NC(铁律 2)、
+# export 默认硬门:剔除无 sanitized=v1 标的样本、
 # unverified-yaw / floor_unrepaired / bbox_unverified 的 Floor 记录(Surface 保留)
+# license 双轨(铁律 2):默认 --license-mode permissive 只放行 PERMISSIVE
+# (M3DLayout 整包 CC-BY-NC、3D-SynthPlace LICENSE_PENDING 都会被剔除并按 tag 计数);
+# 研究专用 NC checkpoint 用 --license-mode research(全放行,report 记 per-tag 数量),
+# 产物只能作 research-only 交付,与 permissive 快照分目录冻结,不得混用
+python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl \
+    --out-dir data/sft_research --license-mode research
 # 冻结快照(stage0):smoke + 三臂对比用;带 --max-train 8000 限制
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
     --out-dir data/stage0 --val-fraction 0.1 --max-train 8000
@@ -144,8 +150,12 @@ python3 -m fastfill_train.merge_lora --base out/dpo_stage1_merged \
   violation 直方图、输出长度、延迟。服务器 API teacher 实测参考(2026-07-10,20 runs,
   bathroom+task):parse 75.5%,修复前 50%,修复后 100%,正常路径 2 调/修复路径 3 调,
   均值 12.1s。**T3.2 线:held-out 修复后通过率(post-repair)≥ teacher 的 80–90%**
-  (`eval_layout --teacher-report` 计算 `ratio_pass_post_repair`;teacher 修复后 100%,
-  等价于学生修复后绝对值 ≥ 80–90%)。
+  (`eval_layout --teacher-report` 计算 `ratio_pass_post_repair`;兼容
+  `pass_post_repair` / smoke 的 `pass_rate_post_repair` 两种 key,缺 key 直接报错)。
+  **口径要求**:正式 T3.2 对比必须同 harness 同样本——teacher endpoint 也跑一遍
+  `eval_layout`(同 heldout、同 UID 清单、同参数),用它的 report.json 作
+  `--teacher-report`;上面 20 runs bathroom+task 的 smoke 数字只是趋势参考,
+  不是验收基线。post-repair 只证明修复器兜底能力,不能据此跳过 DPO。
 - 实验矩阵(用户定):纯 API Surface vs 1–2k LoRA Surface vs LoRA+确定性修复,同批
   SupportContext,比:合法支撑率/悬空穿透率/parent 正确率/必放覆盖/validated evidence/
   输出 token/推理时延。OptiScene-style SFT 作 Floor baseline(它的 prompt+格式,同底座),
@@ -171,8 +181,13 @@ export FASTFILL_LLM_MODEL=fastfill-planner
 - 铁律 1:SceneEval 污染名单走 `deduplicate --contamination-list`(直接 ID 命中
   + geometry_hash closure,跨源换 ID 的拷贝一并剔除);`export_sft
   --contamination-list` 保留为第二道 ID 防线。
-- 铁律 2:CC BY-NC(HSSD 衍生,IL3D 约 27% 样本)默认不进训练;
-  `build_dpo_data stage2` 的 chosen 侧同样默认剔除(--no-exclude-nc 关闭)。
+- 铁律 2:license 双轨白名单(`--license-mode`)。permissive(默认)只放行
+  PERMISSIVE;research 另放行 CC_BY_NC(research-only checkpoint);
+  LICENSE_PENDING/UNKNOWN 两轨都不放行,除非显式
+  `--allow-unresolved-licenses`。`build_dpo_data stage2` 的 chosen 侧同一套
+  门(`--license-mode` / `--allow-unresolved-licenses`);export 记录携带
+  `license` 字段,`make_snapshot` sidecar 记 per-split `license_counts`,
+  dedup 按 license 优先选赢家(permissive 副本永远存活)。
 - 铁律 4:dedup#1+closure → sanitize(清洗后重算 hash)→ dedup#2 → export;
   split 永远 house-first(无 house 的源回退 room:<id>,禁止共享 no_house)。
 - MansionWorld 朝向未按资产校准:export 默认剔其 Floor 记录(Surface 保留,局部系

@@ -82,7 +82,6 @@ from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
     RoomContext,
     SupportSurfaceSpec,
     SurfaceObjectGroup,
-    SurfaceObjectSpec,
     ValidationReport,
 )
 from scenesmith.growing_world.fastfill.transforms import normalize_deg  # noqa: E402
@@ -267,15 +266,13 @@ def _guard_reason(sample: FastFillSample) -> str | None:
     if not all(math.isfinite(float(v)) for v in _sample_numbers(sample)):
         return "nonfinite"
     for obj in sample.layout.floor_layout.objects:
-        if any(_q_m(d) <= 0.0 for d in obj.dimensions[:2]):
+        if any(_q_m(d) <= 0.0 for d in obj.dimensions):
             return "degenerate_dims"
     return None
 
 
 def _group_degenerate(group: SurfaceObjectGroup) -> bool:
-    return any(
-        _q_m(d) <= 0.0 for obj in group.objects for d in obj.dimensions[:2]
-    )
+    return any(_q_m(d) <= 0.0 for obj in group.objects for d in obj.dimensions)
 
 
 # ------------------------------------------------------------- floor scope

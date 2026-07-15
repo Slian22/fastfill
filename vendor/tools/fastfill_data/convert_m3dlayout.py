@@ -85,13 +85,18 @@ UPSTREAM_BY_SOURCE = {
     "Infinigen": "Infinigen",
 }
 LICENSE_BY_SOURCE = {
-    "3DFront": LicenseTag.LICENSE_PENDING,
-    "Matterport3D": LicenseTag.LICENSE_PENDING,
-    "Infinigen": LicenseTag.PERMISSIVE,
+    # The HuggingFace dataset card licenses the whole M3DLayout package
+    # CC-BY-NC-4.0; sub-source upstreams (e.g. Infinigen) may be permissive,
+    # but the redistribution being converted here is NC. Research-only.
+    "3DFront": LicenseTag.CC_BY_NC,
+    "Matterport3D": LicenseTag.CC_BY_NC,
+    "Infinigen": LicenseTag.CC_BY_NC,
 }
 
 FLOOR_MARGIN_M = 0.4  # synthesized floor rectangle margin per side
-MAX_FLOOR_BOTTOM_M = 0.5  # object bottom above this -> non-floor, skip
+# Floor z contract: the Floor codec does not encode z, so any object kept
+# with bottom above the snap band would silently train as floor-standing.
+# Bottoms beyond FLOOR_SNAP_M are skipped as "elevated" instead.
 FLOOR_SNAP_M = 0.02  # bottoms within this of z=0 snap to floor-standing
 
 CEILING_CATEGORIES = frozenset({"ceiling_lamp", "pendant_lamp"})
@@ -207,7 +212,7 @@ def _skip_bucket(obj: _RawObject, split: str) -> str | None:
             return f"manipuland:{obj.category}"
     if obj.category in CEILING_CATEGORIES:
         return "elevated"
-    if obj.bottom_z > MAX_FLOOR_BOTTOM_M:
+    if obj.bottom_z > FLOOR_SNAP_M:
         return "elevated"
     return None
 
@@ -287,7 +292,7 @@ def _floor_object_specs(
             category=obj.category,
             dimensions=obj.dimensions,
             position_xy=position,
-            z=obj.bottom_z if obj.bottom_z > FLOOR_SNAP_M else 0.0,
+            z=0.0,  # kept objects have bottom within FLOOR_SNAP_M of z=0
             yaw_deg=obj.yaw_deg,
         )
         for i, (obj, position) in enumerate(zip(objects, positions))

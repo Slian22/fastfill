@@ -229,10 +229,85 @@ def test_teacher_ratio_computed(tmp_path: Path) -> None:
         records=[_record("s0", _floor_text())],
         generations=[{"uid": "s0", "completion": _floor_text()}],
         samples=[_sample()],
-        extra=["--teacher-report", str(teacher_path)],
+        extra=[
+            "--teacher-report", str(teacher_path),
+            "--allow-teacher-mismatch",  # bare summary: no selection block
+        ],
     )
     assert report["teacher"]["pass_post_repair"] == 0.8
     assert report["teacher"]["ratio_pass_post_repair"] == pytest.approx(1.25)
+    assert report["teacher"]["trend_only"] is True
+
+
+def test_teacher_accepts_api_smoke_summary_key(tmp_path: Path) -> None:
+    """fastfill_api_smoke writes pass_rate_post_repair — allowed only as an
+    explicitly trend-only reference (it carries no UID manifest)."""
+    teacher_path = tmp_path / "teacher.json"
+    teacher_path.write_text(json.dumps({"pass_rate_post_repair": 0.8}))
+    report = _run(
+        tmp_path,
+        records=[_record("s0", _floor_text())],
+        generations=[{"uid": "s0", "completion": _floor_text()}],
+        samples=[_sample()],
+        extra=[
+            "--teacher-report", str(teacher_path),
+            "--allow-teacher-mismatch",
+        ],
+    )
+    assert report["teacher"]["pass_post_repair"] == 0.8
+    assert report["teacher"]["ratio_pass_post_repair"] == pytest.approx(1.25)
+    assert report["teacher"]["trend_only"] is True
+
+
+def test_teacher_same_manifest_needs_no_flag(tmp_path: Path) -> None:
+    """A prior eval_layout report over the SAME records is a valid teacher."""
+    first = _run(
+        tmp_path,
+        records=[_record("s0", _floor_text())],
+        generations=[{"uid": "s0", "completion": _floor_text()}],
+        samples=[_sample()],
+    )
+    teacher_path = tmp_path / "teacher_report.json"
+    teacher_path.write_text(json.dumps(first))
+    report = _run(
+        tmp_path,
+        records=[_record("s0", _floor_text())],
+        generations=[{"uid": "s0", "completion": _floor_text()}],
+        samples=[_sample()],
+        extra=["--teacher-report", str(teacher_path)],
+    )
+    assert report["teacher"]["trend_only"] is False
+    assert report["teacher"]["identity_mismatches"] == []
+    assert report["teacher"]["ratio_pass_post_repair"] == pytest.approx(1.0)
+
+
+def test_teacher_different_manifest_is_hard_error(tmp_path: Path) -> None:
+    from fastfill_train.eval_layout import apply_teacher
+
+    teacher_path = tmp_path / "teacher.json"
+    teacher_path.write_text(
+        json.dumps(
+            {"pass_post_repair": 0.8, "n": 20, "selection": {"uids_sha256": "bbb"}}
+        )
+    )
+    student = {
+        "pass_post_repair": 1.0,
+        "n": 1,
+        "selection": {"uids_sha256": "aaa"},
+    }
+    with pytest.raises(ValueError, match="identity mismatch"):
+        apply_teacher(student, teacher_path)
+    trend = apply_teacher(student, teacher_path, allow_mismatch=True)
+    assert trend["teacher"]["trend_only"] is True
+
+
+def test_teacher_without_pass_key_is_hard_error(tmp_path: Path) -> None:
+    from fastfill_train.eval_layout import apply_teacher
+
+    teacher_path = tmp_path / "teacher.json"
+    teacher_path.write_text(json.dumps({"runs": 20}))
+    with pytest.raises(ValueError, match="pass_post_repair"):
+        apply_teacher({"pass_post_repair": 1.0}, teacher_path)
 
 
 def test_dump_generations_row_shape(tmp_path: Path) -> None:

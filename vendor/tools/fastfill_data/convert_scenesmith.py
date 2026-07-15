@@ -1,7 +1,10 @@
 """Convert scenesmith released example scenes into FastFillSample JSONL.
 
 Source layout (see ``SCENESMITH_NOTES.md``): each scene under
-``<data>/scenesmith_scenes/{Room,House,NoCritic,NotGenerated}/scene_*/``
+``<data>/scenesmith_scenes/<subset>/scene_*/`` for the eight HuggingFace
+subsets (Room, House, NoAgentMemory, NoAssetValidation, NoCritic,
+NoObserveScene, NoSpecializedTools, NotGenerated; absent subset dirs skip
+cleanly)
 ships only the Drake directive ``combined_house/house.dmd.yaml`` (written by
 ``scenesmith/agent_utils/house.py::HouseScene.assemble``), per-room shell SDFs
 under ``room_geometry/`` and per-asset SDF+mesh dirs under
@@ -65,7 +68,16 @@ from scenesmith.growing_world.fastfill.transforms import (
 )
 
 SOURCE_DATASET = "scenesmith_scenes"
-SUBSETS: tuple[str, ...] = ("Room", "House", "NoCritic", "NotGenerated")
+SUBSETS: tuple[str, ...] = (
+    "Room",
+    "House",
+    "NoAgentMemory",
+    "NoAssetValidation",
+    "NoCritic",
+    "NoObserveScene",
+    "NoSpecializedTools",
+    "NotGenerated",
+)
 
 # An object is treated as upright when the rotated body +Z stays within
 # ~25 degrees of world +Z (R[2,2] >= 0.9). Tilted manipulands (fallen bags,
