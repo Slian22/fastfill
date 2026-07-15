@@ -70,7 +70,7 @@ python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/s
 # 3) smoke(T3.1:先证明链路,不求质量;100 步)
 python3 -m fastfill_train.train_sft --config configs/sft_smoke.yaml
 python3 -m fastfill_train.merge_lora --base Qwen/Qwen3-8B \
-    --lora out/sft_smoke/checkpoint-100 --out out/sft_smoke_merged
+    --lora out/sft_smoke --out out/sft_smoke_merged
 bash scripts/serve_vllm.sh out/sft_smoke_merged &
 until curl -sf http://127.0.0.1:8901/v1/models >/dev/null; do sleep 2; done   # 就绪再评;评完 kill 掉旧服务
 python3 -m fastfill_train.eval_layout --records data/stage0/heldout.jsonl \
@@ -126,8 +126,9 @@ python3 -m fastfill_train.train_dpo --config configs/dpo_stage2.yaml
 - 评测口径与 scenesmith `scripts/fastfill_api_smoke.py` 一致:parse 率、修复前/后通过率、
   violation 直方图、输出长度、延迟。服务器 API teacher 实测参考(2026-07-10,20 runs,
   bathroom+task):parse 75.5%,修复前 50%,修复后 100%,正常路径 2 调/修复路径 3 调,
-  均值 12.1s。**T3.2 线:held-out 管线一次通过率 ≥ teacher 的 80–90%**
-  (`eval_layout --teacher-report` 直接算比值)。
+  均值 12.1s。**T3.2 线:held-out 修复后通过率(post-repair)≥ teacher 的 80–90%**
+  (`eval_layout --teacher-report` 计算 `ratio_pass_post_repair`;teacher 修复后 100%,
+  等价于学生修复后绝对值 ≥ 80–90%)。
 - 实验矩阵(用户定):纯 API Surface vs 1–2k LoRA Surface vs LoRA+确定性修复,同批
   SupportContext,比:合法支撑率/悬空穿透率/parent 正确率/必放覆盖/validated evidence/
   输出 token/推理时延。OptiScene-style SFT 作 Floor baseline(它的 prompt+格式,同底座),
