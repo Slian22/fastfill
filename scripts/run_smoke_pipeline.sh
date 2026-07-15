@@ -19,9 +19,33 @@ cd "$(dirname "$0")/.."
 
 BASE_MODEL="${BASE_MODEL:-Qwen/Qwen3-8B}"
 PORT="${PORT:-8901}"
-# Pin to one GPU. Override with e.g. CUDA_VISIBLE_DEVICES=2 bash scripts/run_smoke_pipeline.sh
-# when production training occupies other cards (full_r128 uses GPU 0, full_fp uses 1-7).
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
+
+# GPU selection: honour an explicit override, otherwise find the first GPU
+# with < 1 GB used memory (training jobs each claim 80-90 GB, so anything
+# above 1 GB means the card is occupied). Fail fast rather than OOM-crash
+# mid-run or stomp on a live training job.
+if [[ -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+  echo "Using CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES} (explicit)"
+else
+  FOUND_GPU=""
+  for gpu in $(seq 0 7); do
+    used_mb=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits \
+                -i "$gpu" 2>/dev/null || echo 99999)
+    if [[ "$used_mb" -lt 1000 ]]; then
+      FOUND_GPU="$gpu"
+      break
+    fi
+  done
+  if [[ -z "$FOUND_GPU" ]]; then
+    echo "ERROR: no free GPU found (all 8 cards report >= 1 GB used)." >&2
+    echo "  Set CUDA_VISIBLE_DEVICES=<card> explicitly, e.g.:" >&2
+    echo "    CUDA_VISIBLE_DEVICES=2 bash scripts/run_smoke_pipeline.sh" >&2
+    nvidia-smi --query-gpu=index,memory.used --format=csv,noheader 2>/dev/null >&2
+    exit 1
+  fi
+  export CUDA_VISIBLE_DEVICES="$FOUND_GPU"
+  echo "Auto-selected GPU ${FOUND_GPU} for smoke pipeline"
+fi
 
 # --- 1. SFT smoke train (max_steps=100 -> LoRA adapter in out/sft_smoke) ---
 PYTHONPATH=src python3 -m fastfill_train.train_sft \
