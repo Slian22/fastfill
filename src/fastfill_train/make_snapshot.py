@@ -67,6 +67,38 @@ def _license_counts(rows: list[dict]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+_LICENSE_MODES = ("permissive", "research")
+_ALLOWED_BY_MODE = {
+    "permissive": frozenset({"permissive"}),
+    "research": frozenset({"permissive", "cc_by_nc"}),
+}
+
+
+def _enforce_license_mode(
+    splits: dict[str, list[dict]], license_mode: str, allow_unresolved: bool
+) -> None:
+    """Fail-closed license gate at freeze time: a permissive snapshot with
+    NC / pending / missing-license records must never come into existence —
+    counting alone lets the wrong export route freeze silently."""
+    allowed = set(_ALLOWED_BY_MODE[license_mode])
+    if allow_unresolved and license_mode == "research":
+        allowed |= {"license_pending", "unknown"}
+    bad: dict[str, int] = {}
+    for rows in splits.values():
+        for record in rows:
+            tag = record.get("license") or "unrecorded"
+            if tag not in allowed:
+                bad[tag] = bad.get(tag, 0) + 1
+    if bad:
+        raise SystemExit(
+            f"license gate ({license_mode}): refusing to freeze — input "
+            f"contains disallowed license tags {dict(sorted(bad.items()))}. "
+            "Re-export with the matching --license-mode (records must carry "
+            "a license field), or pass --allow-unresolved-licenses in "
+            "research mode for pending/unknown tags."
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="freeze stage-0 snapshot")
     parser.add_argument("--in", dest="inputs", nargs="+", required=True)
@@ -80,7 +112,26 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--max-train", type=int, default=None)
+    parser.add_argument(
+        "--license-mode",
+        choices=_LICENSE_MODES,
+        default="permissive",
+        help=(
+            "fail-closed gate: every input record's license field must be "
+            "allowed by this mode (permissive: PERMISSIVE only; research: "
+            "+ CC_BY_NC); recorded in the sidecar"
+        ),
+    )
+    parser.add_argument(
+        "--allow-unresolved-licenses",
+        action="store_true",
+        help="DANGER: research mode only — also accept pending/unknown tags",
+    )
     args = parser.parse_args()
+    if not 0.0 <= args.val_fraction < 1.0 or not 0.0 <= args.test_fraction < 1.0:
+        raise SystemExit("--val-fraction/--test-fraction must be in [0, 1)")
+    if args.val_fraction + args.test_fraction >= 1.0:
+        raise SystemExit("val_fraction + test_fraction must be < 1")
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -89,6 +140,7 @@ def main() -> None:
         splits[_assign(record, args.val_fraction, args.test_fraction, args.seed)].append(
             record
         )
+    _enforce_license_mode(splits, args.license_mode, args.allow_unresolved_licenses)
     train = splits["train"]
     if args.max_train and len(train) > args.max_train:
         rng = random.Random(args.seed)
@@ -115,12 +167,19 @@ def main() -> None:
             "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
         )
         files[name] = path
+    # The full split-key universe lets downstream consumers (build_dpo_data)
+    # verify their input corpus is the one this snapshot was frozen from.
+    split_keys_path = out / "SPLIT_KEYS.json"
+    split_keys = sorted(set().union(*keys.values()))
+    split_keys_path.write_text(json.dumps(split_keys, indent=0))
     sidecar = {
         "inputs": {p: _sha(Path(p)) for p in args.inputs},
         "seed": args.seed,
         "val_fraction": args.val_fraction,
         "test_fraction": args.test_fraction,
         "rule": "house-first sha1(split_key) bucket (data.split_bucket)",
+        "license_mode": args.license_mode,
+        "allow_unresolved_licenses": args.allow_unresolved_licenses,
         "counts": {name: len(splits[name]) for name in files},
         "per_source_layer": {
             name: _source_layer_counts(splits[name]) for name in files
@@ -129,12 +188,20 @@ def main() -> None:
             name: _license_counts(splits[name]) for name in files
         },
         "hashes": {name: _sha(path) for name, path in files.items()},
+        "split_keys_file": split_keys_path.name,
+        "split_keys_sha256": _sha(split_keys_path),
+        "n_split_keys": len(split_keys),
         "leakage_check": "passed",
         "test_split_policy": (
             "heldout drives learning curves and tuning; test.jsonl is read "
             "ONCE for the final report"
         ),
     }
+    # Immutable fingerprint over everything above — downstream tools verify
+    # a sidecar by recomputing this over the sorted payload.
+    sidecar["snapshot_id"] = hashlib.sha256(
+        json.dumps(sidecar, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
     (out / "SNAPSHOT.json").write_text(json.dumps(sidecar, indent=2))
     print(json.dumps(sidecar["counts"]), "->", out)
 

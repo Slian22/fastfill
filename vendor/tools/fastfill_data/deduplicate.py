@@ -3,11 +3,12 @@
 Three of our sources share the 3D-FRONT upstream, so the same physical room
 can enter the corpus several times. This tool groups samples by
 ``provenance.geometry_hash`` (category-free, frame-normalized — see
-``fastfill/provenance.py``) and keeps exactly ONE sample per hash. The
-winner is chosen license-first (PERMISSIVE > CC_BY_NC > LICENSE_PENDING >
-UNKNOWN — so a permissive copy always survives for the permissive export
-route and an NC copy for the research route), then by the earliest source
-in ``--priority``, then by first-seen order.
+``fastfill/provenance.py``) and keeps exactly ONE sample per hash. With
+``--license-route permissive|research`` the corpus is route-filtered FIRST
+(illegal copies can never eat a legal one) and winners are picked by source
+priority within the route — run once per route for the two-checkpoint
+policy. Without a route ("all"), the winner is license-first (PERMISSIVE >
+CC_BY_NC > LICENSE_PENDING > UNKNOWN), then priority, then first-seen.
 
 Contamination closure (``--contamination-list``, 铁律 1): eval-room ids are
 matched against room/house ids in pass 1, the matching samples' geometry
@@ -100,6 +101,7 @@ class _ScanState:
     contaminated_hashless_refs: set[LineRef] = field(default_factory=set)
     contaminated_hashless_by_source: dict[str, int] = field(default_factory=dict)
     contaminated_direct: dict[str, int] = field(default_factory=dict)
+    route_excluded: dict[str, int] = field(default_factory=dict)
 
 
 def _iter_lines(path: Path) -> Iterator[tuple[int, str]]:
@@ -123,6 +125,25 @@ def _bump(counter: dict[str, int], key: str) -> None:
     counter[key] = counter.get(key, 0) + 1
 
 
+LICENSE_ROUTES = ("all", "permissive", "research")
+_ROUTE_ALLOWED = {
+    "permissive": frozenset({LicenseTag.PERMISSIVE}),
+    "research": frozenset({LicenseTag.PERMISSIVE, LicenseTag.CC_BY_NC}),
+}
+
+
+def _route_allows(tag: LicenseTag, route: str, allow_unresolved: bool) -> bool:
+    if route == "all":
+        return True
+    if tag in _ROUTE_ALLOWED[route]:
+        return True
+    return (
+        route == "research"
+        and allow_unresolved
+        and tag in (LicenseTag.LICENSE_PENDING, LicenseTag.UNKNOWN)
+    )
+
+
 def _scan_line(
     state: _ScanState,
     line: str,
@@ -131,6 +152,8 @@ def _scan_line(
     file_name: str,
     priority: Sequence[str],
     contamination: frozenset[str],
+    route: str,
+    allow_unresolved: bool,
 ) -> None:
     """Classify one input line into winner / hashless / malformed buckets."""
     try:
@@ -148,8 +171,15 @@ def _scan_line(
     )
     if is_contaminated:
         _bump(state.contaminated_direct, source)
+    route_allowed = _route_allows(
+        sample.provenance.license_tag, route, allow_unresolved
+    )
+    if not route_allowed:
+        _bump(state.route_excluded, source)
     geometry_hash = sample.provenance.geometry_hash
     if not geometry_hash:  # ungroupable — pass through, never collapse
+        if not route_allowed:
+            return
         state.hashless_refs.add(ref)
         _bump(state.hashless_by_source, source)
         if is_contaminated:
@@ -158,11 +188,19 @@ def _scan_line(
         return
     if is_contaminated:
         # Closure key: every sample sharing this geometry dies, whatever
-        # id or source it carries.
+        # id, source OR license route it carries — contamination closure
+        # must see route-excluded copies too.
         state.contaminated_hashes.add(geometry_hash)
     state.sources_by_hash.setdefault(geometry_hash, set()).add(source)
+    if not route_allowed:
+        return  # closure/matrix recorded; never a winner on this route
     candidate = _Winner(
-        license_rank=_license_rank(sample.provenance.license_tag),
+        # Within an explicit route every surviving license is equally legal,
+        # so source priority decides (a license-first rank would pick a
+        # permissive floor-only copy over research's surface-rich NC copy).
+        license_rank=(
+            0 if route != "all" else _license_rank(sample.provenance.license_tag)
+        ),
         rank=_priority_rank(source, priority),
         sequence=sequence,
         ref=ref,
@@ -181,6 +219,8 @@ def _scan_inputs(
     inputs: Sequence[Path],
     priority: Sequence[str],
     contamination: frozenset[str],
+    route: str,
+    allow_unresolved: bool,
 ) -> _ScanState:
     """Pass 1: stream every input, keeping only refs and counters."""
     state = _ScanState()
@@ -195,6 +235,8 @@ def _scan_inputs(
                 path.name,
                 priority,
                 contamination,
+                route,
+                allow_unresolved,
             )
             sequence += 1
     return state
@@ -228,6 +270,7 @@ def _build_report(
     priority: Sequence[str],
     kept_winners: dict[str, _Winner],
     contamination_size: int,
+    license_route: str,
 ) -> dict:
     per_source_kept = {
         source: count - state.contaminated_hashless_by_source.get(source, 0)
@@ -240,17 +283,26 @@ def _build_report(
     total_kept = sum(per_source_kept.values())
     winners_removed = len(state.winners) - len(kept_winners)
     hashless_removed = len(state.contaminated_hashless_refs)
+    route_excluded = sum(state.route_excluded.values())
     return {
         "inputs": [str(p) for p in inputs],
         "priority": list(priority),
-        "winner_policy": "license_rank (permissive first), then priority, then first-seen",
+        "license_route": license_route,
+        "route_excluded_by_source": dict(sorted(state.route_excluded.items())),
+        "winner_policy": (
+            "route allowlist, then priority, then first-seen"
+            if license_route != "all"
+            else "license_rank (permissive first), then priority, then first-seen"
+        ),
         "per_source_input": dict(sorted(state.input_counts.items())),
         "per_source_kept": dict(sorted(per_source_kept.items())),
         "collision_matrix": dict(
             sorted(_collision_matrix(state.sources_by_hash).items())
         ),
         "unique_hashes": len(state.winners),
-        "duplicates_removed": total_in - total_kept - winners_removed - hashless_removed,
+        "duplicates_removed": (
+            total_in - total_kept - winners_removed - hashless_removed - route_excluded
+        ),
         "no_geometry_hash": dict(sorted(state.hashless_by_source.items())),
         "malformed_lines": dict(sorted(state.malformed_by_file.items())),
         "contamination": {
@@ -270,15 +322,29 @@ def deduplicate(
     out_path: Path,
     priority: Sequence[str] = (),
     contamination: frozenset[str] = frozenset(),
+    license_route: str = "all",
+    allow_unresolved: bool = False,
 ) -> dict:
-    """Dedup ``inputs`` into ``out_path``; write and return the report."""
+    """Dedup ``inputs`` into ``out_path``; write and return the report.
+
+    ``license_route`` produces a route-specific corpus: "permissive" /
+    "research" drop route-illegal samples BEFORE winner selection (so the
+    route never loses a legal copy to an illegal one) and pick winners by
+    source priority within the route; "all" keeps everything with the
+    license-first winner policy. Contamination closure always sees every
+    input sample regardless of route.
+    """
+    if license_route not in LICENSE_ROUTES:
+        raise ValueError(
+            f"license_route must be one of {LICENSE_ROUTES}, got {license_route!r}"
+        )
     resolved_inputs = {p.resolve() for p in inputs}
     if out_path.resolve() in resolved_inputs:
         raise ValueError(
             f"--out {out_path} is also an input; pass 2 would truncate it "
             "before re-reading — write to a fresh path"
         )
-    state = _scan_inputs(inputs, priority, contamination)
+    state = _scan_inputs(inputs, priority, contamination, license_route, allow_unresolved)
     kept_winners = {
         h: w for h, w in state.winners.items() if h not in state.contaminated_hashes
     }
@@ -287,7 +353,7 @@ def deduplicate(
     )
     written = _write_kept(inputs, keep_refs, out_path)
     report = _build_report(
-        state, inputs, priority, kept_winners, len(contamination)
+        state, inputs, priority, kept_winners, len(contamination), license_route
     )
     report["written_lines"] = written
     if written != sum(report["per_source_kept"].values()):
@@ -325,6 +391,21 @@ def main() -> None:
             "AND every sample sharing their geometry_hash are dropped (铁律 1)"
         ),
     )
+    parser.add_argument(
+        "--license-route",
+        choices=LICENSE_ROUTES,
+        default="all",
+        help=(
+            "permissive/research: drop route-illegal samples before winner "
+            "selection and pick winners by priority within the route (one "
+            "dedup output per route); all: keep everything, license-first"
+        ),
+    )
+    parser.add_argument(
+        "--allow-unresolved-licenses",
+        action="store_true",
+        help="research route only: also keep pending/unknown license tags",
+    )
     args = parser.parse_args()
 
     contamination: frozenset[str] = frozenset()
@@ -335,7 +416,12 @@ def main() -> None:
     priority = tuple(s for s in args.priority.split(",") if s)
     out_path = Path(args.out)
     report = deduplicate(
-        [Path(p) for p in args.inputs], out_path, priority, contamination
+        [Path(p) for p in args.inputs],
+        out_path,
+        priority,
+        contamination,
+        license_route=args.license_route,
+        allow_unresolved=args.allow_unresolved_licenses,
     )
     kept = sum(report["per_source_kept"].values())
     print(f"kept {kept} / {sum(report['per_source_input'].values())} -> {out_path}")

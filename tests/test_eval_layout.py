@@ -628,3 +628,40 @@ def test_duplicate_group_id_not_failed_on_l0_duplicate_id(tmp_path: Path) -> Non
     # eval namespaces ids by position like runtime's _rebind_groups.
     assert "L0_DUPLICATE_ID" not in report["violations_top"]
     assert report["surface_parse_rate"] == 1.0
+
+
+def test_teacher_scored_count_mismatch_is_hard_error(tmp_path: Path) -> None:
+    """Same selection but different actually-scored counts must not ratio."""
+    from fastfill_train.eval_layout import apply_teacher
+
+    base = {
+        "harness": "fastfill-eval/2",
+        "n": 100,
+        "n_validated": 100,
+        "n_missing_generation": 0,
+        "scored_uids_sha256": "aaa",
+        "pass_post_repair": 1.0,
+        "selection": {
+            "uids_sha256": "same",
+            "temperature": 0.0,
+            "sample_mode": "stratified",
+            "limit": 100,
+            "records_sha256": "rrr",
+        },
+    }
+    teacher = dict(base, n_validated=1, scored_uids_sha256="bbb",
+                   pass_post_repair=0.8)
+    teacher_path = tmp_path / "teacher.json"
+    teacher_path.write_text(json.dumps(teacher))
+    with pytest.raises(ValueError, match="n_validated"):
+        apply_teacher(base, teacher_path)
+
+
+def test_teacher_rate_must_be_finite_float_in_unit_range(tmp_path: Path) -> None:
+    from fastfill_train.eval_layout import apply_teacher
+
+    for bad in (True, float("nan"), 1.5, -0.1):
+        teacher_path = tmp_path / "teacher.json"
+        teacher_path.write_text(json.dumps({"pass_post_repair": bad}))
+        with pytest.raises(ValueError, match="finite float"):
+            apply_teacher({"pass_post_repair": 1.0}, teacher_path)

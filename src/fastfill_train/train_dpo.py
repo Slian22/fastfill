@@ -96,7 +96,14 @@ def main(argv: list[str] | None = None) -> None:
             "merged SFT checkpoint, e.g. "
             "--set model_name_or_path=out/full_fp"
         )
+    from fastfill_train.provenance_guard import (
+        verify_training_data,
+        write_provenance,
+    )
+
+    provenance = verify_training_data(cfg)  # fail-closed BEFORE any setup
     dump_config(cfg, Path(cfg.output_dir) / RESOLVED_CONFIG_NAME)
+    write_provenance(cfg, provenance)
     train_dataset, eval_dataset = load_dpo_datasets(
         cfg.dataset_files, cfg.val_fraction, cfg.seed
     )

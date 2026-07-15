@@ -78,6 +78,10 @@ class TrainConfig:
     # a path resumes that specific checkpoint, False starts fresh.
     resume_from_checkpoint: bool | str = False
     report_to: str = "none"  # "none" | "wandb" | "swanlab"
+    # Data provenance gate: training verifies each dataset file against the
+    # sibling SNAPSHOT.json (hash + license mode). True skips the check —
+    # smoke/ad-hoc data only, never production runs.
+    allow_unverified_data: bool = False
     lora: LoraSettings = field(default_factory=LoraSettings)
 
 

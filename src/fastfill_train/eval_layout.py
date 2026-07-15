@@ -43,6 +43,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import random
 import statistics
 import time
@@ -87,6 +88,9 @@ DEFAULT_SEED = 42
 DEFAULT_EXTRA_BODY = '{"chat_template_kwargs": {"enable_thinking": false}}'
 SAMPLE_MODES = ("stratified", "shuffle", "head")
 TOP_VIOLATIONS = 10
+# Bump on any change to scoring/repair/validator semantics: teacher/student
+# reports from different harness versions are not comparable for T3.2.
+HARNESS_VERSION = "fastfill-eval/2"
 
 
 @dataclass(frozen=True)
@@ -603,10 +607,16 @@ def build_report(results: Sequence[RecordResult], n_missing: int) -> dict:
         r.furniture_coverage for r in floor if r.furniture_coverage is not None
     ]
     return {
+        "harness": HARNESS_VERSION,
         "n": len(results),
         "n_floor": len(floor),
         "n_surface": len(surface),
         "n_missing_generation": n_missing,
+        # Hash of the uids that were actually scored (selection tells you
+        # what was ASKED for; missing generations drop out of scoring).
+        "scored_uids_sha256": hashlib.sha256(
+            "\n".join(sorted(r.uid for r in results)).encode("utf-8")
+        ).hexdigest(),
         "parse_rate": _mean([float(r.parse_ok) for r in floor]),
         "surface_parse_rate": _mean([float(r.parse_ok) for r in surface]),
         "n_validated": len(validated),
@@ -631,6 +641,67 @@ def build_report(results: Sequence[RecordResult], n_missing: int) -> dict:
     }
 
 
+# Identity fields a formal T3.2 teacher report MUST carry and match. The
+# selection block proves what was asked for; the top-level fields prove what
+# was actually scored and by which harness. "Present on both sides or it
+# counts as a mismatch" — optional-field skipping allowed a teacher with
+# only uids_sha256 to pass as a formal comparison.
+_TEACHER_SELECTION_FIELDS = (
+    "uids_sha256",
+    "temperature",
+    "sample_mode",
+    "limit",
+    "records_sha256",
+)
+_TEACHER_REPORT_FIELDS = (
+    "harness",
+    "n",
+    "n_validated",
+    "n_missing_generation",
+    "scored_uids_sha256",
+)
+
+
+def _valid_rate(value: object) -> bool:
+    """A pass rate must be a finite non-bool float in [0, 1]."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    return math.isfinite(float(value)) and 0.0 <= float(value) <= 1.0
+
+
+_MISSING = object()
+
+
+def _identity_mismatches(report: dict, teacher: dict) -> list[str]:
+    mismatches: list[str] = []
+    teacher_sel = teacher.get("selection") or {}
+    student_sel = report.get("selection") or {}
+    for key in _TEACHER_SELECTION_FIELDS:
+        t_val = teacher_sel.get(key, _MISSING)
+        s_val = student_sel.get(key, _MISSING)
+        if t_val is _MISSING or s_val is _MISSING:
+            mismatches.append(
+                f"selection.{key} missing on "
+                f"{'teacher' if t_val is _MISSING else 'student'} — "
+                "regenerate both reports with the current harness"
+            )
+        elif t_val != s_val:
+            mismatches.append(
+                f"selection.{key}: teacher {t_val!r} != student {s_val!r}"
+            )
+    for key in _TEACHER_REPORT_FIELDS:
+        t_val = teacher.get(key, _MISSING)
+        s_val = report.get(key, _MISSING)
+        if t_val is _MISSING or s_val is _MISSING:
+            mismatches.append(
+                f"{key} missing on "
+                f"{'teacher' if t_val is _MISSING else 'student'}"
+            )
+        elif t_val != s_val:
+            mismatches.append(f"{key}: teacher {t_val!r} != student {s_val!r}")
+    return mismatches
+
+
 def apply_teacher(
     report: dict, teacher_path: str | Path, *, allow_mismatch: bool = False
 ) -> dict:
@@ -638,50 +709,26 @@ def apply_teacher(
 
     Accepts either a prior eval_layout report (``pass_post_repair``) or a
     fastfill_api_smoke summary (``pass_rate_post_repair``). A teacher file
-    with neither key is a hard error — a silent None here previously made
-    the T3.2 ratio unreportable without anyone noticing.
+    with neither key — or a non-finite / out-of-range / boolean rate — is a
+    hard error.
 
-    Identity check: a valid T3.2 ratio needs the SAME harness on the SAME
-    samples, so the teacher report's ``selection`` (uids_sha256, temperature,
-    sample_mode, limit) and ``n`` must match the student's. Mismatches (or a
-    teacher with no selection block, e.g. an api-smoke summary) raise unless
-    ``allow_mismatch`` — and are then recorded in the output as a
-    trend-only comparison.
+    Identity check: a formal T3.2 ratio needs the SAME harness version on
+    the SAME samples, with the SAME number actually scored. Every field in
+    ``_TEACHER_SELECTION_FIELDS`` + ``_TEACHER_REPORT_FIELDS`` must be
+    present on both sides and equal; anything else raises unless
+    ``allow_mismatch`` — and is then recorded as a trend-only comparison.
     """
     teacher = json.loads(Path(teacher_path).read_text(encoding="utf-8"))
     teacher_pass = teacher.get(
         "pass_post_repair", teacher.get("pass_rate_post_repair")
     )
-    if not isinstance(teacher_pass, (int, float)):
+    if not _valid_rate(teacher_pass):
         raise ValueError(
-            f"teacher report {teacher_path} has no numeric 'pass_post_repair' "
-            "or 'pass_rate_post_repair' field"
+            f"teacher report {teacher_path} has no valid pass_post_repair / "
+            f"pass_rate_post_repair (got {teacher_pass!r}; need a finite "
+            "float in [0, 1])"
         )
-    mismatches: list[str] = []
-    teacher_sel = teacher.get("selection") or {}
-    student_sel = report.get("selection") or {}
-    if not teacher_sel.get("uids_sha256"):
-        mismatches.append(
-            "teacher report has no selection.uids_sha256 (api-smoke "
-            "summaries are trend references, not same-harness teachers)"
-        )
-    else:
-        for key in ("uids_sha256", "temperature", "sample_mode", "limit"):
-            if (
-                key in teacher_sel
-                and key in student_sel
-                and teacher_sel[key] != student_sel[key]
-            ):
-                mismatches.append(
-                    f"selection.{key}: teacher {teacher_sel[key]!r} != "
-                    f"student {student_sel[key]!r}"
-                )
-        if (
-            isinstance(teacher.get("n"), int)
-            and isinstance(report.get("n"), int)
-            and teacher["n"] != report["n"]
-        ):
-            mismatches.append(f"n: teacher {teacher['n']} != student {report['n']}")
+    mismatches = _identity_mismatches(report, teacher)
     if mismatches and not allow_mismatch:
         raise ValueError(
             "teacher/student identity mismatch — T3.2 requires the same "
@@ -692,8 +739,8 @@ def apply_teacher(
         )
     student_pass = report.get("pass_post_repair")
     ratio = None
-    if teacher_pass > 0 and isinstance(student_pass, (int, float)):
-        ratio = student_pass / teacher_pass
+    if float(teacher_pass) > 0 and _valid_rate(student_pass):
+        ratio = float(student_pass) / float(teacher_pass)
     return {
         **report,
         "teacher": {
@@ -866,6 +913,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "limit": args.limit,
         "temperature": args.temperature,
         "uids_sha256": manifest["uids_sha256"],
+        # Content hash of the records file: same UID list over edited
+        # records must not pass as the same manifest.
+        "records_sha256": hashlib.sha256(
+            Path(args.records).read_bytes()
+        ).hexdigest(),
         "uids_manifest": str(out.with_suffix(".uids.json")),
     }
     if args.teacher_report:

@@ -22,6 +22,7 @@ def _write_records(path: Path, n: int = 200) -> None:
                     "uid": f"s{i}",
                     "split_key": f"src/house_{i}",
                     "source_dataset": "src",
+                    "license": "permissive",
                     "instruction": "x",
                     "input": "room bedroom id=r",
                     "output": "bed|160,200,55|0,0|0|W",
@@ -34,6 +35,7 @@ def _write_records(path: Path, n: int = 200) -> None:
                     "uid": f"s{i}#g0",
                     "split_key": f"src/house_{i}",
                     "source_dataset": "src",
+                    "license": "permissive",
                     "instruction": "x",
                     "input": "surface s kind=top",
                     "output": "group g0 surface=s pattern=free anchor=-",
@@ -114,3 +116,79 @@ def test_max_train_subsamples_after_split(tmp_path: Path, monkeypatch):
         monkeypatch,
     )
     assert sidecar["counts"]["train"] == 20
+
+
+def test_license_gate_fails_closed(tmp_path: Path, monkeypatch):
+    """A permissive freeze must refuse NC / unrecorded license records."""
+    import pytest
+
+    in_path = tmp_path / "in.jsonl"
+    rows = [
+        json.dumps(
+            {
+                "uid": "s0",
+                "split_key": "src/h0",
+                "source_dataset": "src",
+                "license": "cc_by_nc",
+                "instruction": "x",
+                "input": "room bedroom id=r",
+                "output": "bed|160,200,55|0,0|0|W",
+            }
+        )
+    ]
+    in_path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["make_snapshot", "--in", str(in_path), "--out-dir", str(tmp_path)],
+    )
+    with pytest.raises(SystemExit, match="license gate"):
+        main()
+    # research mode accepts the same input.
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "make_snapshot",
+            "--in", str(in_path),
+            "--out-dir", str(tmp_path / "res"),
+            "--license-mode", "research",
+        ],
+    )
+    main()
+    sidecar = json.loads((tmp_path / "res" / "SNAPSHOT.json").read_text())
+    assert sidecar["license_mode"] == "research"
+
+
+def test_sidecar_carries_fingerprint_and_split_keys(tmp_path: Path, monkeypatch):
+    in_path = tmp_path / "in.jsonl"
+    _write_records(in_path, n=50)
+    sidecar = _run_main(
+        tmp_path,
+        ["--in", str(in_path), "--out-dir", str(tmp_path)],
+        monkeypatch,
+    )
+    assert sidecar["snapshot_id"]
+    assert sidecar["license_mode"] == "permissive"
+    keys_path = tmp_path / sidecar["split_keys_file"]
+    keys = json.loads(keys_path.read_text())
+    assert len(keys) == sidecar["n_split_keys"] == 50
+
+
+def test_fraction_range_is_validated(tmp_path: Path, monkeypatch):
+    import pytest
+
+    in_path = tmp_path / "in.jsonl"
+    _write_records(in_path, n=10)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "make_snapshot",
+            "--in", str(in_path),
+            "--out-dir", str(tmp_path),
+            "--val-fraction", "-0.5",
+        ],
+    )
+    with pytest.raises(SystemExit, match="fraction"):
+        main()

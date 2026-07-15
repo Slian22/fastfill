@@ -561,8 +561,14 @@ def _convert_room(
         source_room_id=room_id,
         source_asset_ids=_room_asset_ids(data, room_key),
         upstream_dataset="AI2-THOR/objathor",
+        # Card declares CC BY 4.0, but the HF download gate adds a
+        # "non-commercial research only" agreement the tag cannot express.
+        # The note keeps that visible in lineage; a written policy ruling is
+        # required before any commercial permissive checkpoint ships this.
         license_tag=LicenseTag.PERMISSIVE,
-        notes="; ".join(notes),
+        notes="; ".join(
+            [*notes, "license_gate=non_commercial_research_checkbox"]
+        ),
     )
     context = RoomContext(
         room_id=room_id,

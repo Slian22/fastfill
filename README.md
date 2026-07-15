@@ -54,19 +54,27 @@ python3 vendor/tools/fastfill_data/deduplicate.py \
 # 标签清洗(decode->validate->有界 repair->round-trip;repair 后重算 hash)
 python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
     --out out/conv/sanitized.jsonl
-# dedup #2(清洗后的新 hash 可能新增碰撞)
+# dedup #2 起按 license 路线各跑一份(route-aware:非法副本永不吞掉合法副本;
+# route 内按 --priority 选赢家)。permissive 路线:
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
-    --out out/conv/deduped.jsonl --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
-python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl --out-dir data/sft
+    --out out/conv/deduped_permissive.jsonl --license-route permissive \
+    --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
+python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped_permissive.jsonl \
+    --out-dir data/sft --license-mode permissive
+# research 路线(NC checkpoint,分目录冻结,不得混用):
+python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
+    --out out/conv/deduped_research.jsonl --license-route research \
+    --priority m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace
+python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped_research.jsonl \
+    --out-dir data/sft_research --license-mode research
 # export 默认硬门:剔除无 sanitized=v1 标的样本、
 # unverified-yaw / floor_unrepaired / bbox_unverified 的 Floor 记录(Surface 保留)
-# license 双轨(铁律 2):默认 --license-mode permissive 只放行 PERMISSIVE
-# (M3DLayout 整包 CC-BY-NC、3D-SynthPlace LICENSE_PENDING 都会被剔除并按 tag 计数);
-# 研究专用 NC checkpoint 用 --license-mode research(全放行,report 记 per-tag 数量),
-# 产物只能作 research-only 交付,与 permissive 快照分目录冻结,不得混用
-python3 vendor/tools/fastfill_data/export_sft.py --in out/conv/deduped.jsonl \
-    --out-dir data/sft_research --license-mode research
-# 冻结快照(stage0):smoke + 三臂对比用;带 --max-train 8000 限制
+# license 白名单(铁律 2):permissive 只放行 PERMISSIVE;research 另放行 CC_BY_NC;
+# LICENSE_PENDING/UNKNOWN(如 3D-SynthPlace)两轨都剔,除非 --allow-unresolved-licenses
+# 冻结快照(stage0):smoke + 三臂对比用;带 --max-train 8000 限制;
+# make_snapshot 有 fail-closed license 门(--license-mode 须与 export 路线一致),
+# sidecar 记 snapshot_id/SPLIT_KEYS/license_counts,train_sft/train_dpo 启动时按
+# hash 验证(DATA_PROVENANCE.json 落进模型目录)
 python3 -m fastfill_train.make_snapshot --in data/sft/floor_sft.jsonl data/sft/surface_sft.jsonl \
     --out-dir data/stage0 --val-fraction 0.1 --max-train 8000
 # 冻结快照(full):正式训练用(configs/full_fp.yaml / full_r128.yaml 读 data/full/train.jsonl)

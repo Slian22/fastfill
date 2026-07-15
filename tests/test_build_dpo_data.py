@@ -647,3 +647,96 @@ def test_snapshot_sidecar_shape_is_validated(tmp_path: Path) -> None:
                 "--snapshot", str(bogus),
             ]
         )
+
+
+def _freeze_snapshot(tmp_path: Path, samples) -> Path:
+    """Freeze a real snapshot over the samples' floor records."""
+    import sys as _sys
+
+    from fastfill_train.make_snapshot import main as snap_main
+
+    records = [_floor_record(s) for s in samples]
+    sft_path = _write_jsonl(tmp_path / "floor_sft.jsonl", records)
+    out_dir = tmp_path / "snap"
+    argv_backup = _sys.argv
+    _sys.argv = [
+        "make_snapshot",
+        "--in", str(sft_path),
+        "--out-dir", str(out_dir),
+        "--val-fraction", "0.1",
+        "--test-fraction", "0.0",
+    ]
+    try:
+        snap_main()
+    finally:
+        _sys.argv = argv_backup
+    return out_dir / "SNAPSHOT.json"
+
+
+def test_stage2_rejects_foreign_corpus_snapshot(tmp_path: Path) -> None:
+    """A snapshot frozen from corpus A must not filter corpus B."""
+    import pytest
+
+    corpus_a = [make_clean_sample(f"a{i}", f"houseA{i}") for i in range(3)]
+    snapshot = _freeze_snapshot(tmp_path, corpus_a)
+
+    corpus_b_path = tmp_path / "corpus_b.jsonl"
+    corpus_b = [make_clean_sample(f"b{i}", f"houseB{i}") for i in range(3)]
+    _write_jsonl(corpus_b_path, [s.model_dump_json() for s in corpus_b])
+
+    with pytest.raises(SystemExit, match="corpus mismatch"):
+        main(
+            [
+                "stage2",
+                "--in", str(corpus_b_path),
+                "--out", str(tmp_path / "pairs.jsonl"),
+                "--snapshot", str(snapshot),
+            ]
+        )
+
+
+def test_stage2_accepts_matching_corpus_snapshot(tmp_path: Path) -> None:
+    corpus = [make_clean_sample(f"s{i}", f"house{i}") for i in range(3)]
+    snapshot = _freeze_snapshot(tmp_path, corpus)
+    in_path = tmp_path / "samples.jsonl"
+    _write_jsonl(in_path, [s.model_dump_json() for s in corpus])
+    out_path = tmp_path / "pairs.jsonl"
+    main(
+        [
+            "stage2",
+            "--in", str(in_path),
+            "--out", str(out_path),
+            "--snapshot", str(snapshot),
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["snapshot_id"]
+    assert stats["out_sha256_16"]
+    rows = _read_jsonl(out_path)
+    assert rows and all(row["license"] == "permissive" for row in rows)
+
+
+def test_stage1_license_gate_fails_closed_on_unrecorded(tmp_path: Path) -> None:
+    """Context records without a license field are unresolved: no chosen
+    labels under permissive OR plain research."""
+    contexts_path, generations_path, samples_path = _stage1_fixtures(tmp_path)
+    # Strip the license field from every context record.
+    stripped = [
+        json.dumps({k: v for k, v in row.items() if k != "license"})
+        for row in _read_jsonl(contexts_path)
+    ]
+    _write_jsonl(contexts_path, stripped)
+    out_path = tmp_path / "stage1_pairs.jsonl"
+    main(
+        [
+            "stage1",
+            "--contexts", str(contexts_path),
+            "--generations", str(generations_path),
+            "--out", str(out_path),
+            "--samples", str(samples_path),
+            "--allow-no-snapshot",
+        ]
+    )
+    stats = json.loads(out_path.with_suffix(".stats.json").read_text())
+    assert stats["counts"]["pairs"] == 0
+    assert stats["skipped"]["excluded_license_unknown"] == 3
