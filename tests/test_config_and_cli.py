@@ -186,6 +186,12 @@ def test_dpo_config_mapping_paper_values() -> None:
     assert kwargs["remove_unused_columns"] is False
     assert kwargs["eval_strategy"] == "steps"
     assert kwargs["eval_steps"] == 100
+    # Optimizer fields — must stay in sync with build_sft_config; TRL DPO
+    # defaults differ (e.g. warmup_ratio=0, weight_decay=0).
+    assert kwargs["warmup_ratio"] == pytest.approx(cfg.warmup_ratio)
+    assert kwargs["lr_scheduler_type"] == cfg.lr_scheduler_type
+    assert kwargs["weight_decay"] == pytest.approx(cfg.weight_decay)
+    assert kwargs["max_grad_norm"] == pytest.approx(cfg.max_grad_norm)
 
 
 def test_dpo_config_eval_off_and_step_cap() -> None:

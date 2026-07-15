@@ -24,6 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import fastfill_train  # noqa: F401  (vendor path bootstrap)
+from pydantic import ValidationError
 from scenesmith.growing_world.fastfill.codec import (
     LAYOUT_PREFIX,
     PLAN_PREFIX,
@@ -151,7 +152,14 @@ def render_sft_example(
     output = record["output"]
     if template == "direct" or _is_surface_record(record):
         return RenderedExample(user=user, assistant=output)
-    layout = decode_floor_layout(output, room_id)
+    try:
+        layout = decode_floor_layout(output, room_id)
+    except (ValueError, IndexError, ValidationError) as exc:
+        uid = record.get("uid", "<unknown>")
+        raise ValueError(
+            f"render_sft_example: cannot decode floor layout for record {uid!r}; "
+            f"check export pipeline for malformed codec output. Original: {exc}"
+        ) from exc
     plan = (
         derive_plan_sentence(layout)
         if template == "plan_nl"

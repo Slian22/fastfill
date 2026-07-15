@@ -55,6 +55,11 @@ def build_dpo_config(cfg: TrainConfig, *, has_eval: bool) -> dict[str, Any]:
         "report_to": cfg.report_to,
         "seed": cfg.seed,
         "remove_unused_columns": False,
+        # Optimizer — keep in sync with build_sft_config; DPO defaults differ.
+        "warmup_ratio": cfg.warmup_ratio,
+        "lr_scheduler_type": cfg.lr_scheduler_type,
+        "weight_decay": cfg.weight_decay,
+        "max_grad_norm": cfg.max_grad_norm,
     }
     if cfg.save_total_limit is not None:
         kwargs["save_total_limit"] = cfg.save_total_limit
@@ -76,7 +81,9 @@ def _load_ref(cfg):
     from transformers import AutoModelForCausalLM
 
     return AutoModelForCausalLM.from_pretrained(
-        cfg.model_name_or_path, torch_dtype=torch.bfloat16
+        cfg.model_name_or_path,
+        torch_dtype=torch.bfloat16,
+        cache_dir=cfg.cache_dir,
     )
 
 
