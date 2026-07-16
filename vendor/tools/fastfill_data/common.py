@@ -111,3 +111,11 @@ def converter_main(
     report_path.write_text(json.dumps(stats.to_dict(), indent=2))
     print(f"wrote {n} samples -> {out_path}")
     print(f"stats -> {report_path}: {stats.to_dict()}")
+    if n == 0:
+        # A missing/mis-mounted dataset root yields 0 samples and would
+        # otherwise overwrite the output and exit 0 — a rebuild that ran
+        # this way silently drops the whole source.
+        raise SystemExit(
+            f"ERROR: converter produced 0 samples from {data_dir} — dataset "
+            f"root missing or mis-mounted? ({out_path} now has 0 rows)"
+        )

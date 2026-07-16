@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -249,6 +250,20 @@ def attach_resume_lineage(cfg, provenance: dict) -> dict:
                     "contaminates the weights (set allow_unverified_data="
                     "true only for smoke)"
                 )
+            current_id = provenance.get("snapshot_id")
+            resumed_ids = {
+                v
+                for v in _walk_values(resumed, "snapshot_id")
+                if isinstance(v, str) and v
+            }
+            if current_id and resumed_ids and resumed_ids != {current_id}:
+                raise SystemExit(
+                    f"data provenance: checkpoint {checkpoint_label} was "
+                    f"trained on snapshot(s) {sorted(resumed_ids)} but this "
+                    f"run uses {current_id} — warm-starting across snapshots "
+                    "mixes corpora in the weights (train fresh, or set "
+                    "allow_unverified_data=true only for smoke)"
+                )
             return {
                 **provenance,
                 "resumed_from": {
@@ -256,25 +271,50 @@ def attach_resume_lineage(cfg, provenance: dict) -> dict:
                     "provenance": resumed,
                 },
             }
-    return {
-        **provenance,
-        "resumed_from": {
-            "checkpoint": checkpoint_label,
-            "provenance": None,
-            "note": "no DATA_PROVENANCE.json found next to the checkpoint",
-        },
-    }
+    # No DATA_PROVENANCE next to the checkpoint: the weights are
+    # unverifiable — refuse rather than record a null lineage.
+    if cfg.allow_unverified_data is True:
+        return {
+            **provenance,
+            "resumed_from": {
+                "checkpoint": checkpoint_label,
+                "provenance": None,
+                "note": "no DATA_PROVENANCE.json found next to the checkpoint",
+            },
+        }
+    raise SystemExit(
+        f"data provenance: checkpoint {checkpoint_label} has no "
+        "DATA_PROVENANCE.json — refusing to resume unverifiable weights "
+        "(set allow_unverified_data=true only for smoke)"
+    )
 
 
 def write_provenance(cfg, provenance: dict) -> Path:
     out = Path(cfg.output_dir)
     out.mkdir(parents=True, exist_ok=True)
     path = out / "DATA_PROVENANCE.json"
+    # Multi-GPU launches (accelerate/deepspeed) run this in EVERY rank;
+    # only rank 0 owns the file — concurrent writes corrupt it and
+    # sequential ones self-chain a fake `previous` ladder.
+    rank = os.environ.get("RANK", os.environ.get("LOCAL_RANK", "0"))
+    if rank not in ("", "0"):
+        return path
     if path.exists():
-        # Rerun into the same output dir: chain the previous payload so
-        # weights trained on data A then data B show BOTH. (For a resume
-        # from a DIFFERENT dir, see attach_resume_lineage.)
         previous = json.loads(path.read_text(encoding="utf-8"))
+
+        def _core(payload: dict) -> dict:
+            return {
+                k: v
+                for k, v in payload.items()
+                if k not in ("previous", "previous_note")
+            }
+
+        if _core(previous) == _core(provenance):
+            # Identical rerun (restart of the same run): keep the existing
+            # payload instead of chaining a duplicate lineage level.
+            return path
+        # Rerun into the same output dir with DIFFERENT data: chain the
+        # previous payload so weights trained on data A then B show BOTH.
         provenance = {
             **provenance,
             "previous": previous,

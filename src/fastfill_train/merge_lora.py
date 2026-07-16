@@ -106,6 +106,14 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="merge even when the adapter's recorded base differs from --base",
     )
+    parser.add_argument(
+        "--allow-missing-provenance",
+        action="store_true",
+        help=(
+            "smoke only: merge an adapter that has no DATA_PROVENANCE.json "
+            "(the merged model would otherwise carry an unverifiable side)"
+        ),
+    )
     args = parser.parse_args(argv)
     lineage_error = check_adapter_lineage(args.base, args.lora)
     if lineage_error is not None:
@@ -113,6 +121,19 @@ def main(argv: list[str] | None = None) -> None:
             print(f"WARNING: {lineage_error} (continuing: --allow-base-mismatch)")
         else:
             raise SystemExit(f"ERROR: {lineage_error}")
+    if not (Path(args.lora) / "DATA_PROVENANCE.json").exists():
+        if args.allow_missing_provenance:
+            print(
+                "WARNING: adapter has no DATA_PROVENANCE.json — merged model "
+                "carries an unverifiable adapter lineage (smoke only)"
+            )
+        else:
+            raise SystemExit(
+                f"ERROR: adapter {args.lora} has no DATA_PROVENANCE.json — a "
+                "merged production model must carry BOTH lineages; retrain "
+                "with the current tooling, or pass --allow-missing-provenance "
+                "for smoke"
+            )
     merge_lora(args.base, args.lora, args.out)
     print(f"merged {args.base} + {args.lora} -> {args.out}")
 

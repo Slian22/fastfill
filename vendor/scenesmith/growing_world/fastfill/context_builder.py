@@ -206,12 +206,14 @@ class FastFillContentHook(ContentHooks):
         *,
         generate: bool = False,
         strict: bool | None = None,
+        llm_config_path: str | None = None,
     ) -> None:
         self.world_dir = Path(world_dir)
         self.generate = generate
         if strict is None:
             strict = os.environ.get("FASTFILL_STRICT", "") not in ("", "0", "false")
         self.strict = strict
+        self.llm_config_path = llm_config_path
         self.failure_count = 0
         self.success_count = 0
 
@@ -263,7 +265,7 @@ class FastFillContentHook(ContentHooks):
             from scenesmith.growing_world.fastfill.validator import validate
 
             generator = FastFillGenerator(
-                llm=OpenAIChatBackend(),
+                llm=OpenAIChatBackend(config_path=self.llm_config_path),
                 resolver=CanonicalAssetResolver(),
                 surface_failure_mode="raise" if self.strict else "skip",
             )
@@ -305,6 +307,17 @@ class FastFillContentHook(ContentHooks):
                 )
                 semantic_used = True
                 final_report = validate(layout, ctx)
+            # A skipped surface (non-strict mode swallows per-surface
+            # GenerationErrors into trace notes) is a generation failure
+            # even when the PARTIAL layout validates — the validator never
+            # requires every declared surface to have output, so
+            # passed=True with missing surfaces must not count as success.
+            surface_failures = tuple(
+                note
+                for note in result.trace.notes
+                if "generation failed" in note
+            )
+            room_success = final_report.passed and not surface_failures
             (out_dir / "room_content_layout.json").write_text(
                 layout.model_dump_json(indent=2)
             )
@@ -320,26 +333,32 @@ class FastFillContentHook(ContentHooks):
                         "semantic_repair_used": semantic_used,
                         "semantic_repair_surfaces": failed_surfaces,
                         "passed": final_report.passed,
+                        "surface_failures": len(surface_failures),
+                        "room_success": room_success,
                         "violations": len(final_report.violations),
                     },
                     indent=2,
                 )
             )
             console_logger.info(
-                "[fastfill] room '%s': %s (%d violations, llm_calls=%d)",
+                "[fastfill] room '%s': %s (%d violations, %d surface "
+                "failures, llm_calls=%d)",
                 ctx.room_id,
-                "PASSED" if final_report.passed else "FAILED",
+                "PASSED" if room_success else "FAILED",
                 len(final_report.violations),
+                len(surface_failures),
                 result.trace.llm_calls,
             )
-            if not final_report.passed:
-                # A room that stays invalid after the full repair ladder is
-                # a failure, not a quiet FAILED file on disk.
+            if not room_success:
+                # A room that stays invalid after the full repair ladder —
+                # or lost surfaces to generation failures — is a failure,
+                # not a quiet FAILED file on disk.
                 self.failure_count += 1
                 if self.strict:
                     raise _StrictValidationFailure(
-                        f"room '{ctx.room_id}' failed validation after "
-                        f"repair: {len(final_report.errors())} errors"
+                        f"room '{ctx.room_id}' failed: "
+                        f"{len(final_report.errors())} errors, "
+                        f"{len(surface_failures)} surface generation failures"
                     )
             else:
                 self.success_count += 1

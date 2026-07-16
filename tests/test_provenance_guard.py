@@ -192,16 +192,36 @@ def test_dpo_stats_forged_snapshot_id_fails(tmp_path: Path) -> None:
         verify_training_data(_cfg(tmp_path, pairs))
 
 
-def test_resume_chains_previous_provenance(tmp_path: Path) -> None:
+def test_rerun_with_different_data_chains_previous(tmp_path: Path) -> None:
     snap = _snapshot_dir(tmp_path)
     cfg = _cfg(tmp_path, snap / "train.jsonl")
     first = verify_training_data(cfg)
     write_provenance(cfg, first)
-    second = verify_training_data(cfg)
+    second = dict(verify_training_data(cfg), run_tag="second-different-data")
     path = write_provenance(cfg, second)
     payload = json.loads(path.read_text())
     assert payload["verified"] is True
     assert payload["previous"]["verified"] is True  # both lineages visible
+
+
+def test_identical_rerun_does_not_self_chain(tmp_path: Path) -> None:
+    """Multi-rank / restarted launches re-write the same payload — that must
+    not build a fake `previous` ladder (8 sequential writes previously
+    produced 7 nested levels)."""
+    snap = _snapshot_dir(tmp_path)
+    cfg = _cfg(tmp_path, snap / "train.jsonl")
+    for _ in range(8):
+        path = write_provenance(cfg, verify_training_data(cfg))
+    payload = json.loads(path.read_text())
+    assert "previous" not in payload
+
+
+def test_nonzero_rank_does_not_write(tmp_path: Path, monkeypatch) -> None:
+    snap = _snapshot_dir(tmp_path)
+    cfg = _cfg(tmp_path, snap / "train.jsonl")
+    monkeypatch.setenv("RANK", "3")
+    path = write_provenance(cfg, verify_training_data(cfg))
+    assert not path.exists()  # rank 0 owns the file
 
 
 def test_resume_from_external_checkpoint_is_recorded(tmp_path: Path) -> None:
@@ -209,18 +229,63 @@ def test_resume_from_external_checkpoint_is_recorded(tmp_path: Path) -> None:
 
     from fastfill_train.provenance_guard import attach_resume_lineage
 
+    snap = _snapshot_dir(tmp_path)
+    cfg = _cfg(tmp_path, snap / "train.jsonl")
+    current = verify_training_data(cfg)
     other_run = tmp_path / "other_run"
     (other_run / "checkpoint-100").mkdir(parents=True)
     (other_run / "DATA_PROVENANCE.json").write_text(
-        json.dumps({"snapshot_id": "snap_other"})
+        json.dumps(
+            {
+                "snapshot_id": current["snapshot_id"],  # same corpus
+                "license_mode": "permissive",
+                "run_tag": "earlier-run",
+            }
+        )
     )
+    cfg = replace(cfg, resume_from_checkpoint=str(other_run / "checkpoint-100"))
+    provenance = attach_resume_lineage(cfg, current)
+    assert provenance["resumed_from"]["provenance"]["run_tag"] == "earlier-run"
+
+
+def test_resume_across_snapshots_is_rejected(tmp_path: Path) -> None:
+    """Same route but a DIFFERENT snapshot: warm-starting mixes corpora."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
     snap = _snapshot_dir(tmp_path)
+    cfg = _cfg(tmp_path, snap / "train.jsonl")
+    other_run = tmp_path / "other_run"
+    (other_run / "checkpoint-100").mkdir(parents=True)
+    (other_run / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_OLD", "license_mode": "permissive"})
+    )
+    cfg = replace(cfg, resume_from_checkpoint=str(other_run / "checkpoint-100"))
+    with pytest.raises(SystemExit, match="across snapshots"):
+        attach_resume_lineage(cfg, verify_training_data(cfg))
+
+
+def test_resume_without_provenance_fails_closed(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
+    snap = _snapshot_dir(tmp_path)
+    bare = tmp_path / "bare_run"
+    (bare / "checkpoint-9").mkdir(parents=True)
     cfg = replace(
         _cfg(tmp_path, snap / "train.jsonl"),
-        resume_from_checkpoint=str(other_run / "checkpoint-100"),
+        resume_from_checkpoint=str(bare / "checkpoint-9"),
     )
-    provenance = attach_resume_lineage(cfg, verify_training_data(cfg))
-    assert provenance["resumed_from"]["provenance"]["snapshot_id"] == "snap_other"
+    with pytest.raises(SystemExit, match="unverifiable weights"):
+        attach_resume_lineage(cfg, verify_training_data(cfg))
+    cfg_allow = replace(
+        _cfg(tmp_path, snap / "train.jsonl", allow=True),
+        resume_from_checkpoint=str(bare / "checkpoint-9"),
+    )
+    provenance = attach_resume_lineage(cfg_allow, verify_training_data(cfg_allow))
+    assert provenance["resumed_from"]["provenance"] is None
 
 
 def test_string_allow_unverified_is_rejected(tmp_path: Path) -> None:
@@ -418,8 +483,14 @@ def test_boolean_resume_same_route_passes(tmp_path: Path) -> None:
     )
     out_dir = Path(cfg.output_dir)
     out_dir.mkdir(parents=True)
+    current = verify_training_data(cfg)
     (out_dir / "DATA_PROVENANCE.json").write_text(
-        json.dumps({"snapshot_id": "snap_p", "license_mode": "permissive"})
+        json.dumps(
+            {
+                "snapshot_id": current["snapshot_id"],  # same run crash-resume
+                "license_mode": "permissive",
+            }
+        )
     )
-    provenance = attach_resume_lineage(cfg, verify_training_data(cfg))
+    provenance = attach_resume_lineage(cfg, current)
     assert provenance["resumed_from"]["provenance"]["license_mode"] == "permissive"
