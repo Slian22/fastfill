@@ -77,6 +77,22 @@ def write_jsonl(samples: Iterable[FastFillSample], out_path: Path) -> int:
     return n
 
 
+def atomic_write_jsonl(samples: Iterable[FastFillSample], out_path: Path) -> int:
+    """Converter output contract: write to a temp file, hard-fail on zero
+    samples, atomically replace on success — a missing/mis-mounted dataset
+    root must never clobber the previous good output."""
+    tmp_path = out_path.with_name(out_path.name + ".tmp")
+    n = write_jsonl(samples, tmp_path)
+    if n == 0:
+        tmp_path.unlink(missing_ok=True)
+        raise SystemExit(
+            f"ERROR: converter produced 0 samples — dataset root missing or "
+            f"mis-mounted? ({out_path} left untouched)"
+        )
+    tmp_path.replace(out_path)
+    return n
+
+
 def read_jsonl(path: Path) -> Iterator[FastFillSample]:
     with path.open("r", encoding="utf-8") as fh:
         for line in fh:
@@ -102,7 +118,7 @@ def converter_main(
     data_dir = resolve_data_dir(args.data_dir)
     stats = ConversionStats()
     out_path = Path(args.out)
-    n = write_jsonl(
+    n = atomic_write_jsonl(
         (finalize_sample(s) for s in convert(data_dir, args.limit, stats)),
         out_path,
     )
@@ -111,11 +127,3 @@ def converter_main(
     report_path.write_text(json.dumps(stats.to_dict(), indent=2))
     print(f"wrote {n} samples -> {out_path}")
     print(f"stats -> {report_path}: {stats.to_dict()}")
-    if n == 0:
-        # A missing/mis-mounted dataset root yields 0 samples and would
-        # otherwise overwrite the output and exit 0 — a rebuild that ran
-        # this way silently drops the whole source.
-        raise SystemExit(
-            f"ERROR: converter produced 0 samples from {data_dir} — dataset "
-            f"root missing or mis-mounted? ({out_path} now has 0 rows)"
-        )

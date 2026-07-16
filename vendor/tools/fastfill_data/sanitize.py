@@ -673,11 +673,20 @@ def sanitize_sample(
 
 def sanitize(inputs: Sequence[Path], out_path: Path) -> dict:
     """Stream every input into cleaned JSONL; write and return the report."""
+    import os as _os
+
     from pydantic import ValidationError
 
-    resolved_out = Path(out_path).resolve()
+    out_path = Path(out_path)
     for path in inputs:
-        if Path(path).resolve() == resolved_out:
+        # samefile catches paths, symlinks AND hard links to the output.
+        if out_path.exists() and _os.path.samefile(path, out_path):
+            raise ValueError(
+                f"--out {out_path} is also an input; opening it for write "
+                "would truncate the input before reading — write to a "
+                "fresh path"
+            )
+        if Path(path).resolve() == out_path.resolve():
             raise ValueError(
                 f"--out {out_path} is also an input; opening it for write "
                 "would truncate the input before reading — write to a "
@@ -686,7 +695,11 @@ def sanitize(inputs: Sequence[Path], out_path: Path) -> dict:
     stats = _Stats()
     malformed_by_file: dict[str, int] = {}
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as out:
+    # Atomic output: write a temp file and replace on success, so a crash
+    # mid-run (or any lingering in==out alias) can never truncate/corrupt
+    # the destination.
+    tmp_path = out_path.with_name(out_path.name + ".tmp")
+    with tmp_path.open("w", encoding="utf-8") as out:
         for path in inputs:
             with path.open("r", encoding="utf-8") as fh:
                 for line in fh:
@@ -715,6 +728,7 @@ def sanitize(inputs: Sequence[Path], out_path: Path) -> dict:
                         continue
                     if cleaned is not None:
                         out.write(cleaned.model_dump_json() + "\n")
+    tmp_path.replace(out_path)
     report = {
         "inputs": [str(p) for p in inputs],
         "max_repair_rounds": MAX_REPAIR_ROUNDS,

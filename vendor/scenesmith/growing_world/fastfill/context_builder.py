@@ -317,7 +317,22 @@ class FastFillContentHook(ContentHooks):
                 for note in result.trace.notes
                 if "generation failed" in note
             )
-            room_success = final_report.passed and not surface_failures
+            # Repair can also EMPTY a group (e.g. over-occupancy drops the
+            # only object) — every kept support context must end with a
+            # non-empty group, or the room lost content without any note.
+            filled_surface_ids = {
+                g.surface_id for g in layout.surface_groups if g.objects
+            }
+            unfilled_surfaces = tuple(
+                sc.surface.surface_id
+                for sc in result.support_contexts
+                if sc.surface.surface_id not in filled_surface_ids
+            )
+            room_success = (
+                final_report.passed
+                and not surface_failures
+                and not unfilled_surfaces
+            )
             (out_dir / "room_content_layout.json").write_text(
                 layout.model_dump_json(indent=2)
             )
@@ -334,6 +349,7 @@ class FastFillContentHook(ContentHooks):
                         "semantic_repair_surfaces": failed_surfaces,
                         "passed": final_report.passed,
                         "surface_failures": len(surface_failures),
+                        "unfilled_surfaces": list(unfilled_surfaces),
                         "room_success": room_success,
                         "violations": len(final_report.violations),
                     },
@@ -351,14 +367,16 @@ class FastFillContentHook(ContentHooks):
             )
             if not room_success:
                 # A room that stays invalid after the full repair ladder —
-                # or lost surfaces to generation failures — is a failure,
-                # not a quiet FAILED file on disk.
+                # or lost surfaces to generation failures / repair-emptied
+                # groups — is a failure, not a quiet FAILED file on disk.
                 self.failure_count += 1
                 if self.strict:
                     raise _StrictValidationFailure(
                         f"room '{ctx.room_id}' failed: "
                         f"{len(final_report.errors())} errors, "
-                        f"{len(surface_failures)} surface generation failures"
+                        f"{len(surface_failures)} surface generation "
+                        f"failures, {len(unfilled_surfaces)} unfilled "
+                        "surfaces"
                     )
             else:
                 self.success_count += 1

@@ -205,6 +205,31 @@ def verify_training_data(cfg) -> dict:
     }
 
 
+def lineage_problem(payload) -> str | None:
+    """Why a provenance payload is NOT acceptable lineage (None = fine).
+
+    A lineage that exists but is empty, malformed, missing its identity
+    fields, or contains a verified=false entry must be treated like a
+    missing one — file presence alone proves nothing."""
+    if not isinstance(payload, dict) or not payload:
+        return "empty or non-dict payload"
+    ids = {
+        v
+        for v in _walk_values(payload, "snapshot_id")
+        if isinstance(v, str) and v
+    }
+    modes = {
+        v
+        for v in _walk_values(payload, "license_mode")
+        if isinstance(v, str) and v
+    }
+    if not ids or not modes:
+        return "records no snapshot_id/license_mode anywhere"
+    if False in _walk_values(payload, "verified"):
+        return "contains a verified=false entry"
+    return None
+
+
 def attach_resume_lineage(cfg, provenance: dict) -> dict:
     """Record the resumed checkpoint's own data lineage — and refuse route
     contamination.
@@ -236,6 +261,14 @@ def attach_resume_lineage(cfg, provenance: dict) -> dict:
     for candidate in candidates:
         if candidate.exists():
             resumed = json.loads(candidate.read_text(encoding="utf-8"))
+            problem = lineage_problem(resumed)
+            if problem is not None and cfg.allow_unverified_data is not True:
+                raise SystemExit(
+                    f"data provenance: checkpoint {checkpoint_label} has an "
+                    f"unacceptable lineage ({problem}) — refusing to resume "
+                    "unverifiable weights (set allow_unverified_data=true "
+                    "only for smoke)"
+                )
             current_mode = provenance.get("license_mode")
             resumed_modes = {
                 v

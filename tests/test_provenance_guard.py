@@ -494,3 +494,100 @@ def test_boolean_resume_same_route_passes(tmp_path: Path) -> None:
     )
     provenance = attach_resume_lineage(cfg, current)
     assert provenance["resumed_from"]["provenance"]["license_mode"] == "permissive"
+
+
+def test_resume_rejects_empty_or_unverified_lineage(tmp_path: Path) -> None:
+    """A provenance FILE proves nothing: {}, [], or verified=false lineage
+    must be treated like a missing one."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
+    snap = _snapshot_dir(tmp_path)
+    for i, payload in enumerate(("{}", "[]", None)):
+        run_dir = tmp_path / f"old_run_{i}"
+        (run_dir / "checkpoint-1").mkdir(parents=True)
+        if payload is None:
+            current = verify_training_data(_cfg(tmp_path, snap / "train.jsonl"))
+            payload = json.dumps(
+                {
+                    "verified": False,  # smoke-trained weights
+                    "snapshot_id": current["snapshot_id"],
+                    "license_mode": "permissive",
+                }
+            )
+        (run_dir / "DATA_PROVENANCE.json").write_text(payload)
+        cfg = replace(
+            _cfg(tmp_path, snap / "train.jsonl"),
+            resume_from_checkpoint=str(run_dir / "checkpoint-1"),
+        )
+        with pytest.raises(SystemExit, match="unacceptable lineage"):
+            attach_resume_lineage(cfg, verify_training_data(cfg))
+
+
+def test_smoke_merge_is_marked_unverified(tmp_path: Path) -> None:
+    """--allow-missing-provenance merges must carry verified=false forever
+    so the DPO base guard keeps rejecting them in production."""
+    from fastfill_train.merge_lora import _write_merged_provenance
+    from fastfill_train.provenance_guard import check_base_snapshot_consistency
+
+    base_dir = tmp_path / "base"
+    adapter_dir = tmp_path / "adapter"
+    out_dir = tmp_path / "merged"
+    for d in (base_dir, adapter_dir, out_dir):
+        d.mkdir()
+    (base_dir / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_a", "license_mode": "permissive"})
+    )
+    # adapter has NO provenance (smoke) -> merged must be verified=false
+    _write_merged_provenance(str(base_dir), str(adapter_dir), str(out_dir))
+    merged = json.loads((out_dir / "DATA_PROVENANCE.json").read_text())
+    assert merged["verified"] is False
+
+    from dataclasses import replace
+
+    cfg = replace(
+        _cfg(tmp_path, tmp_path / "unused.jsonl", allow=True),
+        model_name_or_path=str(out_dir),
+    )
+    with pytest.raises(SystemExit, match="verified=false"):
+        check_base_snapshot_consistency(
+            cfg, {"snapshot_id": "snap_a", "license_mode": "permissive"}
+        )
+
+
+def test_valid_merge_is_marked_verified(tmp_path: Path) -> None:
+    from fastfill_train.merge_lora import _write_merged_provenance
+
+    base_dir = tmp_path / "base"
+    adapter_dir = tmp_path / "adapter"
+    out_dir = tmp_path / "merged"
+    for d in (base_dir, adapter_dir, out_dir):
+        d.mkdir()
+    payload = json.dumps(
+        {"verified": True, "snapshot_id": "snap_a", "license_mode": "permissive"}
+    )
+    (base_dir / "DATA_PROVENANCE.json").write_text(payload)
+    (adapter_dir / "DATA_PROVENANCE.json").write_text(payload)
+    _write_merged_provenance(str(base_dir), str(adapter_dir), str(out_dir))
+    merged = json.loads((out_dir / "DATA_PROVENANCE.json").read_text())
+    assert merged["verified"] is True
+
+
+def test_merge_cli_rejects_empty_adapter_provenance(tmp_path: Path) -> None:
+    from fastfill_train.merge_lora import main as merge_main
+
+    adapter = tmp_path / "adapter"
+    adapter.mkdir()
+    (adapter / "adapter_config.json").write_text(
+        json.dumps({"base_model_name_or_path": "Qwen/Qwen3-8B"})
+    )
+    (adapter / "DATA_PROVENANCE.json").write_text("{}")  # file exists, empty
+    with pytest.raises(SystemExit, match="lineage unacceptable"):
+        merge_main(
+            [
+                "--base", "Qwen/Qwen3-8B",
+                "--lora", str(adapter),
+                "--out", str(tmp_path / "out"),
+            ]
+        )

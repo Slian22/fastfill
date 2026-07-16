@@ -49,9 +49,9 @@ for _extra in (
 
 from fastfill_data.common import (  # noqa: E402
     ConversionStats,
+    atomic_write_jsonl,
     finalize_sample,
     resolve_data_dir,
-    write_jsonl,
 )
 from scenesmith.growing_world.fastfill.schema import (  # noqa: E402
     FastFillSample,
@@ -440,7 +440,7 @@ def main() -> None:
     samples = iter_samples(
         data_dir, args.limit, stats, split=args.split, subset=args.subset
     )
-    n = write_jsonl((finalize_sample(s) for s in samples), out_path)
+    n = atomic_write_jsonl((finalize_sample(s) for s in samples), out_path)
     stats.converted = n
     report_path = out_path.with_suffix(".stats.json")
     report_path.write_text(json.dumps(stats.to_dict(), indent=2))

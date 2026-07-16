@@ -83,11 +83,28 @@ def _load_provenance(model_dir: str) -> dict | None:
 
 
 def _write_merged_provenance(base: str, lora: str, out: str) -> None:
+    from fastfill_train.provenance_guard import _walk_values, lineage_problem
+
+    base_prov = _load_provenance(base)
+    adapter_prov = _load_provenance(lora)
+    # A merged model is verified only when the adapter carries acceptable
+    # lineage AND neither side records verified=false — a smoke merge
+    # (--allow-missing-provenance) must stay verified=false forever so the
+    # DPO base guard keeps rejecting it in production.
+    verified = (
+        adapter_prov is not None
+        and lineage_problem(adapter_prov) is None
+        and (
+            base_prov is None
+            or False not in _walk_values(base_prov, "verified")
+        )
+    )
     lineage = {
+        "verified": verified,
         "merged_base": base,
         "merged_adapter": lora,
-        "base_provenance": _load_provenance(base),
-        "adapter_provenance": _load_provenance(lora),
+        "base_provenance": base_prov,
+        "adapter_provenance": adapter_prov,
     }
     (Path(out) / "DATA_PROVENANCE.json").write_text(
         json.dumps(lineage, indent=2), encoding="utf-8"
@@ -122,17 +139,23 @@ def main(argv: list[str] | None = None) -> None:
         else:
             raise SystemExit(f"ERROR: {lineage_error}")
     if not (Path(args.lora) / "DATA_PROVENANCE.json").exists():
+        adapter_problem: str | None = "no DATA_PROVENANCE.json"
+    else:
+        from fastfill_train.provenance_guard import lineage_problem
+
+        adapter_problem = lineage_problem(_load_provenance(args.lora))
+    if adapter_problem is not None:
         if args.allow_missing_provenance:
             print(
-                "WARNING: adapter has no DATA_PROVENANCE.json — merged model "
-                "carries an unverifiable adapter lineage (smoke only)"
+                f"WARNING: adapter lineage unacceptable ({adapter_problem}) "
+                "— merged model will be marked verified=false (smoke only)"
             )
         else:
             raise SystemExit(
-                f"ERROR: adapter {args.lora} has no DATA_PROVENANCE.json — a "
-                "merged production model must carry BOTH lineages; retrain "
-                "with the current tooling, or pass --allow-missing-provenance "
-                "for smoke"
+                f"ERROR: adapter {args.lora} lineage unacceptable "
+                f"({adapter_problem}) — a merged production model must carry "
+                "BOTH verifiable lineages; retrain with the current tooling, "
+                "or pass --allow-missing-provenance for smoke"
             )
     merge_lora(args.base, args.lora, args.out)
     print(f"merged {args.base} + {args.lora} -> {args.out}")
