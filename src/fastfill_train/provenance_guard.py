@@ -208,25 +208,43 @@ def attach_resume_lineage(cfg, provenance: dict) -> dict:
     """Record the resumed checkpoint's own data lineage — and refuse route
     contamination.
 
-    ``resume_from_checkpoint`` as a path may live in ANOTHER run's output
-    dir — the weights carry that run's data, so its DATA_PROVENANCE.json is
-    embedded as ``resumed_from``. A checkpoint whose lineage records a
-    DIFFERENT license route than the current run is a hard error: resuming
-    research/NC weights into a permissive run puts NC-derived weights into
-    the permissive model, which no report field can undo."""
+    Two official resume forms are covered: an explicit checkpoint path
+    (may live in ANOTHER run's output dir) and ``resume_from_checkpoint:
+    true`` (Trainer picks the latest checkpoint inside ``output_dir`` — the
+    dir may hold a previous run's weights from a different route). Either
+    way the resumed lineage is embedded as ``resumed_from``, and a lineage
+    recording a DIFFERENT license route than the current run is a hard
+    error: resuming research/NC weights into a permissive run puts
+    NC-derived weights into the permissive model, which no report field
+    can undo."""
     resume = cfg.resume_from_checkpoint
-    if not isinstance(resume, str) or not resume:
+    if resume is False or resume is None or resume == "":
         return provenance
-    ckpt = Path(resume)
-    for candidate in (ckpt / "DATA_PROVENANCE.json", ckpt.parent / "DATA_PROVENANCE.json"):
+    if resume is True:
+        # Trainer will resume the latest checkpoint in output_dir; its
+        # lineage is the DATA_PROVENANCE.json already sitting there.
+        candidates = (Path(cfg.output_dir) / "DATA_PROVENANCE.json",)
+        checkpoint_label = f"{cfg.output_dir} (latest checkpoint)"
+    else:
+        ckpt = Path(str(resume))
+        candidates = (
+            ckpt / "DATA_PROVENANCE.json",
+            ckpt.parent / "DATA_PROVENANCE.json",
+        )
+        checkpoint_label = str(resume)
+    for candidate in candidates:
         if candidate.exists():
             resumed = json.loads(candidate.read_text(encoding="utf-8"))
             current_mode = provenance.get("license_mode")
-            resumed_modes = _walk_values(resumed, "license_mode")
+            resumed_modes = {
+                v
+                for v in _walk_values(resumed, "license_mode")
+                if isinstance(v, str) and v
+            }
             if current_mode and resumed_modes and resumed_modes != {current_mode}:
                 raise SystemExit(
-                    f"data provenance: checkpoint {resume} records license "
-                    f"modes {sorted(resumed_modes)} but this run is "
+                    f"data provenance: checkpoint {checkpoint_label} records "
+                    f"license modes {sorted(resumed_modes)} but this run is "
                     f"{current_mode} — resuming across license routes "
                     "contaminates the weights (set allow_unverified_data="
                     "true only for smoke)"
@@ -234,14 +252,14 @@ def attach_resume_lineage(cfg, provenance: dict) -> dict:
             return {
                 **provenance,
                 "resumed_from": {
-                    "checkpoint": resume,
+                    "checkpoint": checkpoint_label,
                     "provenance": resumed,
                 },
             }
     return {
         **provenance,
         "resumed_from": {
-            "checkpoint": resume,
+            "checkpoint": checkpoint_label,
             "provenance": None,
             "note": "no DATA_PROVENANCE.json found next to the checkpoint",
         },

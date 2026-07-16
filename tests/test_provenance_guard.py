@@ -382,3 +382,44 @@ def test_dpo_base_without_provenance_is_hard_error(tmp_path: Path) -> None:
     )
     with pytest.raises(SystemExit, match="DATA_PROVENANCE"):
         check_base_snapshot_consistency(cfg, {"snapshot_id": "snap_a"})
+
+
+def test_boolean_resume_across_license_routes_is_rejected(tmp_path: Path) -> None:
+    """resume_from_checkpoint=true resumes output_dir's latest checkpoint —
+    an output_dir holding a research run's weights must not continue as a
+    permissive run (round-7 covered only explicit checkpoint paths)."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
+    snap = _snapshot_dir(tmp_path)  # permissive
+    cfg = replace(
+        _cfg(tmp_path, snap / "train.jsonl"), resume_from_checkpoint=True
+    )
+    out_dir = Path(cfg.output_dir)
+    out_dir.mkdir(parents=True)
+    (out_dir / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_r", "license_mode": "research"})
+    )
+    provenance = verify_training_data(cfg)
+    with pytest.raises(SystemExit, match="across license routes"):
+        attach_resume_lineage(cfg, provenance)
+
+
+def test_boolean_resume_same_route_passes(tmp_path: Path) -> None:
+    """Crash-resume of the SAME run (same route in output_dir) stays legal."""
+    from dataclasses import replace
+
+    from fastfill_train.provenance_guard import attach_resume_lineage
+
+    snap = _snapshot_dir(tmp_path)
+    cfg = replace(
+        _cfg(tmp_path, snap / "train.jsonl"), resume_from_checkpoint=True
+    )
+    out_dir = Path(cfg.output_dir)
+    out_dir.mkdir(parents=True)
+    (out_dir / "DATA_PROVENANCE.json").write_text(
+        json.dumps({"snapshot_id": "snap_p", "license_mode": "permissive"})
+    )
+    provenance = attach_resume_lineage(cfg, verify_training_data(cfg))
+    assert provenance["resumed_from"]["provenance"]["license_mode"] == "permissive"
