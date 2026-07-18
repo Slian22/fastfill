@@ -15,6 +15,27 @@ test -d out/research_v15_fp || { echo "ERROR: out/research_v15_fp missing" >&2; 
 V1_ARCHIVE="$(cat ~/.fastfill_v1_archive_path)"
 test -d "$V1_ARCHIVE/full_fp" || { echo "ERROR: archive missing: $V1_ARCHIVE/full_fp" >&2; exit 1; }
 
+# --- Weight + provenance verification BEFORE anything is served ---------------
+# v1 arm: archived weights must still match their frozen manifest.
+(cd "$V1_ARCHIVE/full_fp" && sha256sum -c MANIFEST.sha256 --quiet) \
+  || { echo "ERROR: v1 archive weights no longer match MANIFEST.sha256" >&2; exit 1; }
+# v1.5 arm: freeze a manifest now (first run) or verify against it (reruns),
+# and require verified provenance bound to the v1.5 snapshot.
+if [ ! -f out/research_v15_fp/MANIFEST.sha256 ]; then
+  (cd out/research_v15_fp && find . -maxdepth 1 -type f \
+     \( -name '*.safetensors' -o -name '*.json' \) -exec sha256sum {} + \
+     | sort -k2 > MANIFEST.sha256)
+fi
+(cd out/research_v15_fp && grep -v ' \./MANIFEST.sha256$' MANIFEST.sha256 | sha256sum -c --quiet) \
+  || { echo "ERROR: out/research_v15_fp weights do not match MANIFEST.sha256" >&2; exit 1; }
+test -f out/research_v15_fp/DATA_PROVENANCE.json \
+  || { echo "ERROR: out/research_v15_fp has no DATA_PROVENANCE.json" >&2; exit 1; }
+SNAP_ID="$(jq -r '.snapshot_id' data/full_research_v15/SNAPSHOT.json)"
+jq -e --arg sid "$SNAP_ID" '.verified == true and .snapshot_id == $sid' \
+    out/research_v15_fp/DATA_PROVENANCE.json >/dev/null \
+  || { echo "ERROR: v1.5 provenance not verified or bound to a different snapshot" >&2; \
+       echo "  expected snapshot_id $SNAP_ID; see DATA_PROVENANCE.json" >&2; exit 1; }
+
 for p in 8901 8902; do
   ss -ltn "sport = :$p" | grep -q LISTEN \
     && { echo "ERROR: port $p already listening" >&2; exit 1; }
@@ -45,6 +66,16 @@ curl -s http://127.0.0.1:8901/v1/models | jq -e '.data|any(.id=="fastfill-v15")'
   || { echo "ERROR: 8901 does not serve fastfill-v15" >&2; exit 1; }
 curl -s http://127.0.0.1:8902/v1/models | jq -e '.data|any(.id=="fastfill-v1")' >/dev/null \
   || { echo "ERROR: 8902 does not serve fastfill-v1" >&2; exit 1; }
+
+# PID -> model-path evidence, saved for the record (winner is only pinned
+# with this file present).
+{
+  echo "port=8901 alias=fastfill-v15 pid=$V15_PID path=$(realpath out/research_v15_fp)"
+  echo "  cmdline: $(ps -o args= -p "$V15_PID")"
+  echo "port=8902 alias=fastfill-v1 pid=$V1_PID path=$(realpath "$V1_ARCHIVE/full_fp")"
+  echo "  cmdline: $(ps -o args= -p "$V1_PID")"
+} > out/compare_identity.log
+cat out/compare_identity.log
 
 for tag in v15:8901:fastfill-v15 v1:8902:fastfill-v1; do
   IFS=: read -r t p m <<< "$tag"
