@@ -12,8 +12,14 @@ SAMPLES="out/conv/deduped_research.jsonl"
 test -f "$RECORDS" || { echo "ERROR: $RECORDS missing" >&2; exit 1; }
 test -f "$SAMPLES" || { echo "ERROR: $SAMPLES missing" >&2; exit 1; }
 test -d out/research_v15_fp || { echo "ERROR: out/research_v15_fp missing" >&2; exit 1; }
-V1_ARCHIVE="$(cat ~/.fastfill_v1_archive_path)"
-test -d "$V1_ARCHIVE/full_fp" || { echo "ERROR: archive missing: $V1_ARCHIVE/full_fp" >&2; exit 1; }
+# Archive pointer: repo-local archive/LATEST_V1 (all storage stays under the
+# repo tree), with fallback to the legacy ~/.fastfill_v1_archive_path.
+V1_ARCHIVE=""
+for f in archive/LATEST_V1 "$HOME/.fastfill_v1_archive_path"; do
+  if [ -f "$f" ] && [ -d "$(cat "$f")/full_fp" ]; then V1_ARCHIVE="$(cat "$f")"; break; fi
+done
+test -n "$V1_ARCHIVE" \
+  || { echo "ERROR: no v1 archive found (archive/LATEST_V1 missing) — run rebuild first" >&2; exit 1; }
 
 # --- Weight + provenance verification BEFORE anything is served ---------------
 # v1 arm: archived weights must still match their frozen manifest.

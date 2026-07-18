@@ -21,6 +21,19 @@ git merge-base --is-ancestor "$DATA_CONTRACT_COMMIT" HEAD \
 PRIORITY="m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace"
 LICENSE_ARGS=(--license-route research --allow-unresolved-licenses)
 
+# All storage stays inside the repo tree (user requirement): archive lives in
+# <repo>/archive (untouched by the wipe, which only removes out/ and data
+# artifacts). LATEST_V1 points at the newest verified archive; the legacy
+# ~/.fastfill_v1_archive_path is still read for runs archived before this.
+ARCHIVE_ROOT="${ARCHIVE_ROOT:-$PWD/archive}"
+V1_POINTER="$ARCHIVE_ROOT/LATEST_V1"
+read_v1_archive() {
+  for f in "$V1_POINTER" "$HOME/.fastfill_v1_archive_path"; do
+    if [ -f "$f" ] && [ -d "$(cat "$f")/full_fp" ]; then cat "$f"; return 0; fi
+  done
+  return 1
+}
+
 # =============================================================================
 # STATIC PREFLIGHT — no deletion, no writes beyond the contamination file.
 # =============================================================================
@@ -59,7 +72,7 @@ if [ -d out/full_fp ]; then
   done
   bash scripts/verify_v1_identity.sh
 
-  ARCHIVE=~/v1_archive_$(date +%Y%m%d_%H%M%S)
+  ARCHIVE="$ARCHIVE_ROOT/v1_$(date +%Y%m%d_%H%M%S)"
   mkdir -p "$ARCHIVE/conv"
   rsync -a --exclude='checkpoint-*' out/full_fp/         "$ARCHIVE/full_fp/"
   rsync -a --exclude='checkpoint-*' out/full_r128/       "$ARCHIVE/full_r128/"
@@ -85,7 +98,7 @@ if [ -d out/full_fp ]; then
     cmp -s "$f" "$ARCHIVE/conv/$(basename "$f")" \
       || { echo "ERROR: archive mismatch for $f" >&2; exit 1; }
   done
-  printf '%s\n' "$ARCHIVE" > ~/.fastfill_v1_archive_path
+  printf '%s\n' "$ARCHIVE" > "$V1_POINTER"
   echo "ARCHIVE-OK: $ARCHIVE"
 
   # Phase 1 — wipe (only after a verified archive).
@@ -94,8 +107,8 @@ if [ -d out/full_fp ]; then
     exit 1
   fi
   rm -rf out data/sft data/stage0 data/stage0_aux data/full
-elif [ -f ~/.fastfill_v1_archive_path ] && [ -d "$(cat ~/.fastfill_v1_archive_path)/full_fp" ]; then
-  echo "RESUME MODE: v1 already archived at $(cat ~/.fastfill_v1_archive_path); continuing"
+elif V1_ARCHIVED="$(read_v1_archive)"; then
+  echo "RESUME MODE: v1 already archived at $V1_ARCHIVED; continuing"
 else
   echo "ERROR: out/full_fp missing and no verified archive recorded — refusing" >&2
   exit 1
