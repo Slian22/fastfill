@@ -636,10 +636,12 @@ def resolve_annotations_path(data_dir: Path) -> Path:
 def convert(
     data_dir: Path, limit: int | None, stats: ConversionStats
 ) -> Iterator[FastFillSample]:
-    """Yield per-room samples from every building's ``floor_1.json``.
+    """Yield per-room samples from EVERY floor of every building.
 
-    Conversion is restricted to floor 1 for speed; ``convert_floor_file``
-    accepts any ``floor_<n>.json`` path.
+    All ``floor_<n>.json`` files are converted (the earlier floor-1-only
+    restriction dropped ~73% of MansionWorld rooms). Floor records from
+    this source are yaw-gated at export anyway; the extra floors mainly
+    add Surface supervision.
     """
     ann_path = resolve_annotations_path(data_dir)
     ann_dims: Mapping[str, Vec3] = load_annotation_dims(str(ann_path))
@@ -651,7 +653,7 @@ def convert(
             "vanish; the real file carries ~50k entries"
         )
     emitted = 0
-    for floor_path in sorted((data_dir / MANSIONWORLD_RELPATH).glob("*/floor_1.json")):
+    for floor_path in sorted((data_dir / MANSIONWORLD_RELPATH).glob("*/floor_*.json")):
         for sample in convert_floor_file(floor_path, ann_dims, stats):
             yield sample
             emitted += 1
