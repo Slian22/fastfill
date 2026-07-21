@@ -7,18 +7,24 @@ Source layout under ``<data>/InternScenes``:
   (closed floor-boundary ring, z = floor plane). 14,089 scenes across five
   room-type folders; the numeric scene id is shared across folders when
   rooms belong to the same house (global house coordinates).
-- ScanNet Real2Sim branch: ``Layout_info/scannet/<scan_id>/layout.json``
-  (M3DLayout-style per-scene dirs, no boundary file). Room types come from
-  ``Layout_info/room_types.csv`` (official ScanNet ``sceneType`` labels).
-  Rescans of one space share the ``sceneXXXX`` prefix and therefore the
-  house split key.
+- ScanNet Real2Sim branch (``--branch scannet``, NOT converted by default):
+  ``Layout_info/scannet/<scan_id>/layout.json`` (M3DLayout-style per-scene
+  dirs, no boundary file). Room types come from ``Layout_info/
+  room_types.csv`` (official ScanNet ``sceneType`` labels). Rescans of one
+  space share the ``sceneXXXX`` prefix and therefore the house split key.
+  Disabled by default pending two known fixes: the floor polygon is
+  synthesized from the TARGET objects (answer-envelope leakage; the real
+  ``StructureMesh/floor.glb`` should be parsed instead), and its 212-name
+  category vocabulary needs a furniture allowlist (the Gen-derived
+  manipuland blocklist lets shoes/backpacks/bags/persons through).
 
 The Matterport3D Real2Sim branch is deliberately NOT converted: 1,346 of its
-1,698 regions (72 of 73 houses) are the same physical regions already in the
-pipeline via the M3DLayout mp3d containers. Converting them under a second
-``source_dataset`` would give the same physical house two different split
-keys ("m3dlayout/<house>" vs "internscenes/<house>"), letting one house
-straddle train/heldout. Revisit only with a shared-house split-key scheme.
+1,696 regions (all 72 of its houses) are the same physical regions already
+in the pipeline via the M3DLayout mp3d containers. Converting them under a
+second ``source_dataset`` would give the same physical house two different
+split keys ("m3dlayout/<house>" vs "internscenes/<house>"), letting one
+house straddle train/heldout. Revisit only with a shared-house split-key
+scheme.
 
 Verified source semantics (hard-asserted in
 ``tests/unit/fastfill_data/test_convert_internscenes.py``):
@@ -37,7 +43,10 @@ Verified source semantics (hard-asserted in
 
 Gen ``category`` is dirty: ~1.5k objects carry raw Infinigen factory names
 (``comforterfactory(1227314)``); these are normalized before classification
-and counted. Architectural elements and small manipulands are skipped and
+and counted. Gen ``bbox`` sizes are occasionally corrupted (a 1,910 m tall
+bed, ~12 beds with 8-16 m footprints) — implausible dimensions are skipped
+and counted, as are degenerate boundary rings (~40 scenes with < 1 m^2
+floor area). Architectural elements and small manipulands are skipped and
 counted per bucket (audit datum, same policy as convert_m3dlayout).
 
 License: the whole InternScenes HF dataset is gated CC BY-NC-SA 4.0
@@ -88,6 +97,7 @@ from scenesmith.growing_world.fastfill.transforms import (  # noqa: E402
     ensure_ccw,
     footprint_corners,
     normalize_deg,
+    polygon_area,
     rad_to_yaw_deg,
     recenter_polygon,
     translate_points,
@@ -114,6 +124,12 @@ FLOOR_MARGIN_M = 0.4  # synthesized ScanNet floor rectangle margin per side
 FLOOR_SNAP_M = 0.02  # bottoms within this of the floor plane are floor-standing
 BELOW_FLOOR_M = 0.05  # bottoms below floor-minus-this are annotation glitches
 GEN_CEILING_HEIGHT_M = 2.9  # measured in the dataset README (ceiling ~2.9 m)
+
+# Corrupted-annotation guards (real Gen data contains a 1,910 m tall bed and
+# beds with 8-16 m footprints; boundary rings with near-zero area exist too).
+MAX_FOOTPRINT_DIM_M = 8.0  # widest plausible single furniture footprint side
+MAX_HEIGHT_M = 3.5  # tallest plausible furniture (ceilings are ~2.9 m)
+MIN_BOUNDARY_AREA_M2 = 1.0  # smallest plausible room floor area
 
 # Fixed wall/ceiling-mounted architecture: never floor furniture. Wall-mounted
 # leftovers not listed here (curtains, wall art, ...) still drop via the
@@ -219,6 +235,7 @@ class _RawObject:
     """One source object after coordinate conversion, before recentering."""
 
     category: str
+    model_uid: str
     position_xy: Vec2  # pre-recenter room frame
     dimensions: Vec3  # contract full [width, depth, height] = [dy, dx, dz]
     yaw_deg: float
@@ -257,8 +274,10 @@ def _parse_object(raw: object, floor_z: float) -> tuple[_RawObject, bool] | None
     if dx <= 0.0 or dy <= 0.0 or dz <= 0.0:
         return None
     name, was_factory = normalize_category(category)
+    model_uid = raw.get("model_uid")
     obj = _RawObject(
         category=name,
+        model_uid=model_uid if isinstance(model_uid, str) else "",
         position_xy=(cx, cy),
         dimensions=(dy, dx, dz),  # -90 deg frame swap, see YAW_OFFSET_DEG
         yaw_deg=normalize_deg(rad_to_yaw_deg(rz) + YAW_OFFSET_DEG),
@@ -277,6 +296,9 @@ def _skip_bucket(obj: _RawObject) -> str | None:
         return f"architecture:{obj.category}"
     if obj.category in MANIPULAND_CATEGORIES:
         return f"manipuland:{obj.category}"
+    width, depth, height = obj.dimensions
+    if width > MAX_FOOTPRINT_DIM_M or depth > MAX_FOOTPRINT_DIM_M or height > MAX_HEIGHT_M:
+        return "implausible_dimensions"
     if obj.tilt_deg > TILT_MAX_DEG:
         return "tilted_rotation"
     if obj.bottom_z < -BELOW_FLOOR_M:
@@ -375,7 +397,8 @@ def _build_sample(
     room_id: str,
     room_type: str,
     polygon: tuple[Vec2, ...],
-    objects: tuple[FloorObjectSpec, ...],
+    kept: list[_RawObject],
+    offset: Vec2,
     ceiling_height_m: float | None,
     house_id: str,
     upstream: str,
@@ -394,12 +417,17 @@ def _build_sample(
         ),
         layout=RoomContentLayout(
             room_id=room_id,
-            floor_layout=FloorLayout(room_id=room_id, objects=objects),
+            floor_layout=FloorLayout(
+                room_id=room_id, objects=_floor_object_specs(kept, offset)
+            ),
         ),
         provenance=ProvenanceMeta(
             source_dataset=SOURCE_DATASET,
             source_house_id=house_id,
             source_room_id=room_id,
+            source_asset_ids=tuple(
+                sorted({o.model_uid for o in kept if o.model_uid})
+            ),
             upstream_dataset=upstream,
             license_tag=LicenseTag.CC_BY_NC,
             notes=notes,
@@ -424,6 +452,9 @@ def convert_gen_scene(
         stats.skip("malformed_boundary")
         return None
     raw_polygon, floor_z = boundary
+    if polygon_area(raw_polygon) < MIN_BOUNDARY_AREA_M2:
+        stats.skip("degenerate_boundary")
+        return None
     kept = _keep_floor_objects(raw_objects, floor_z, stats)
     if not kept:
         stats.skip("no_floor_objects")
@@ -436,7 +467,8 @@ def convert_gen_scene(
         room_id=room_id,
         room_type=GEN_ROOM_TYPES[room_folder],
         polygon=polygon,
-        objects=_floor_object_specs(kept, offset),
+        kept=kept,
+        offset=offset,
         ceiling_height_m=GEN_CEILING_HEIGHT_M,
         # Same numeric id across room folders = same house (global coords),
         # so the house key must NOT include the room folder.
@@ -475,7 +507,8 @@ def convert_scannet_scene(
         room_id=scan_id,
         room_type=SCANNET_ROOM_TYPES.get(room_type_raw, fallback),
         polygon=polygon,
-        objects=_floor_object_specs(kept, offset),
+        kept=kept,
+        offset=offset,
         ceiling_height_m=None,  # unknown for scans -> schema default
         # scene0101_02 is the third rescan of space scene0101: rescans of one
         # space must share the house split key.
@@ -533,9 +566,14 @@ def iter_samples(
     limit: int | None,
     stats: ConversionStats,
     *,
-    branch: str = "all",
+    branch: str = "gen",
 ) -> Iterator[FastFillSample]:
-    """Yield converted samples for the requested branch(es)."""
+    """Yield converted samples for the requested branch(es).
+
+    Default is ``gen`` only: the ScanNet branch stays opt-in until its floor
+    polygon comes from the real ``floor.glb`` (not the target objects) and
+    its category vocabulary has a furniture allowlist (see module docstring).
+    """
     iterators = {
         "gen": (_iter_gen,),
         "scannet": (_iter_scannet,),
@@ -572,9 +610,11 @@ def main() -> None:
     parser.add_argument(
         "--branch",
         choices=(*BRANCHES, "all"),
-        default="all",
-        help="gen, scannet, or all (Matterport3D is excluded by design: "
-        "1,346/1,698 regions duplicate the m3dlayout mp3d source)",
+        default="gen",
+        help="gen (default), scannet, or all. scannet is opt-in until its "
+        "floor polygon reads the real floor.glb and its categories get a "
+        "furniture allowlist; Matterport3D is excluded by design "
+        "(1,346/1,696 regions duplicate the m3dlayout mp3d source)",
     )
     args = parser.parse_args()
 

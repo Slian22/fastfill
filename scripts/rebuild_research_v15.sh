@@ -42,12 +42,15 @@ for f in data/sceneeval_contamination.txt data/eval_rooms.txt; do
 done
 for d in data/MansionWorld/mansionworld data/M3DLayout data/IL3D \
          data/3D-SynthPlace_indoor_scenes_dataset data/scenesmith_scenes \
-         data/InternScenes/InternScenes_Gen/Layout_info \
-         data/InternScenes/Layout_info/scannet; do
+         data/InternScenes/InternScenes_Gen/Layout_info; do
   test -d "$d" || { echo "ERROR: missing dataset dir $d" >&2; exit 1; }
 done
-test -f data/InternScenes/Layout_info/room_types.csv \
-  || { echo "ERROR: missing data/InternScenes/Layout_info/room_types.csv" >&2; exit 1; }
+# InternScenes: Gen branch only (ScanNet stays opt-in until its floor
+# polygon reads the real floor.glb and its categories get an allowlist).
+for rt in bathroom bedroom diningroom kitchen livingroom; do
+  test -d "data/InternScenes/InternScenes_Gen/Layout_info/$rt" \
+    || { echo "ERROR: missing InternScenes Gen room folder: $rt" >&2; exit 1; }
+done
 # MansionWorld floors at the SAME depth the converter globs (building root
 # only — assets/floor_N_object_states.json lives deeper and is legitimate).
 total_floors=$(find data/MansionWorld/mansionworld -mindepth 2 -maxdepth 2 -name 'floor_*.json' | wc -l)
@@ -130,7 +133,8 @@ done
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
 python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
-python3 vendor/tools/fastfill_data/convert_internscenes.py --out out/conv/internscenes.jsonl
+python3 vendor/tools/fastfill_data/convert_internscenes.py --branch gen \
+  --out out/conv/internscenes.jsonl
 wc -l out/conv/*.jsonl
 
 # =============================================================================
@@ -174,6 +178,11 @@ python3 -m fastfill_train.make_snapshot \
   --in data/sft_research_v15/floor_sft.jsonl data/sft_research_v15/surface_sft.jsonl \
   --out-dir data/full_research_v15 --license-mode research --allow-unresolved-licenses
 jq '{snapshot_id, license_mode, counts, license_counts}' data/full_research_v15/SNAPSHOT.json
+intern_n=$(jq '[.per_source_layer | to_entries[] | select(.key | startswith("internscenes/")) | .value] | add // 0' \
+  data/full_research_v15/SNAPSHOT.json)
+test "$intern_n" -gt 0 \
+  || { echo "ERROR: internscenes contributed 0 records to the snapshot" >&2; exit 1; }
+echo "internscenes snapshot records: $intern_n"
 
 echo "=== REBUILD COMPLETE — next: tmux new -s research_v15_fp, then"
 echo "    bash scripts/train_research_v15.sh"
