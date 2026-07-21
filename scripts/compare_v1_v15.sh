@@ -47,11 +47,13 @@ for p in 8901 8902; do
     && { echo "ERROR: port $p already listening" >&2; exit 1; }
 done
 
-CUDA_VISIBLE_DEVICES=0 vllm serve "$(realpath out/research_v15_fp)" --port 8901 \
+# GPU picks are env-overridable for busy nodes (e.g. V15_GPU=4 V1_GPU=5
+# when GPUs 0-3 are taken by another job).
+CUDA_VISIBLE_DEVICES="${V15_GPU:-0}" vllm serve "$(realpath out/research_v15_fp)" --port 8901 \
   --served-model-name fastfill-v15 --dtype bfloat16 --gpu-memory-utilization 0.85 \
   --max-model-len 4096 > vllm_v15.log 2>&1 &
 V15_PID=$!
-CUDA_VISIBLE_DEVICES=1 vllm serve "$(realpath "$V1_ARCHIVE/full_fp")" --port 8902 \
+CUDA_VISIBLE_DEVICES="${V1_GPU:-1}" vllm serve "$(realpath "$V1_ARCHIVE/full_fp")" --port 8902 \
   --served-model-name fastfill-v1 --dtype bfloat16 --gpu-memory-utilization 0.85 \
   --max-model-len 4096 > vllm_v1.log 2>&1 &
 V1_PID=$!

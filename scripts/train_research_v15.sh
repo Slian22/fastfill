@@ -33,6 +33,15 @@ if [ -e out/research_v15_fp ]; then
   echo "RESUME MODE: continuing from last checkpoint in out/research_v15_fp"
 fi
 
+# Optional space-separated key=value config overrides, e.g. to keep the
+# effective batch at 112 on a 4-GPU node (7x8x2 -> 4x4x7):
+#   TRAIN_GPUS=4,5,6,7 TRAIN_NPROC=4 \
+#   TRAIN_EXTRA_SET="per_device_train_batch_size=4 gradient_accumulation_steps=7"
+EXTRA_ARGS=()
+for kv in ${TRAIN_EXTRA_SET:-}; do
+  EXTRA_ARGS+=(--set "$kv")
+done
+
 CUDA_VISIBLE_DEVICES="${TRAIN_GPUS:-1,2,3,4,5,6,7}" \
 accelerate launch --num_processes "${TRAIN_NPROC:-7}" \
   -m fastfill_train.train_sft --config configs/full_fp.yaml \
@@ -40,4 +49,5 @@ accelerate launch --num_processes "${TRAIN_NPROC:-7}" \
   --set output_dir=out/research_v15_fp \
   --set "model_name_or_path=$BASE_MODEL_DIR" \
   "${RESUME_ARGS[@]}" \
+  "${EXTRA_ARGS[@]}" \
   2>&1 | tee -a train_research_v15_fp.log
