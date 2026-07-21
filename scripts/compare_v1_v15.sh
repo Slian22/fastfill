@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 # Paired v1 (archived) vs v1.5 comparison on the NEW heldout — same harness,
-# same UID manifest, full fairness assertions, explicit server cleanup.
+# same UID manifest, full fairness assertions. Servers are LEFT RUNNING on
+# exit (user policy: no fastfill script ever kills a vLLM process).
 #
 # Usage: bash scripts/compare_v1_v15.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONPATH="$PWD/src"
+
+# Post-mortem aids: full command trace + exact failing line on any error.
+DEBUG_LOG="compare_debug_$(date +%Y%m%d_%H%M%S).log"
+exec 9>"$DEBUG_LOG"
+BASH_XTRACEFD=9
+PS4='+ [$(date "+%F %T")] ${BASH_SOURCE##*/}:${LINENO}: '
+set -x
+trap 'echo "[$(date "+%F %T")] FAILED at ${BASH_SOURCE##*/}:${LINENO}: $BASH_COMMAND" >&2' ERR
+echo "[$(date '+%F %T')] compare_v1_v15 start — command trace: $DEBUG_LOG"
 
 RECORDS="data/full_research_v15/heldout.jsonl"
 SAMPLES="out/conv/deduped_research.jsonl"
@@ -57,8 +67,9 @@ CUDA_VISIBLE_DEVICES="${V1_GPU:-1}" vllm serve "$(realpath "$V1_ARCHIVE/full_fp"
   --served-model-name fastfill-v1 --dtype bfloat16 --gpu-memory-utilization 0.85 \
   --max-model-len 4096 > vllm_v1.log 2>&1 &
 V1_PID=$!
-cleanup() { kill "$V15_PID" "$V1_PID" 2>/dev/null || true; wait 2>/dev/null || true; }
-trap cleanup EXIT
+# NO kill trap (user policy: scripts never kill vLLM); the trap only prints
+# the PIDs on exit so the user can kill them manually after inspection.
+trap 'echo "NOTE: vLLM servers left RUNNING — kill manually when done: kill $V15_PID $V1_PID"' EXIT
 
 wait_ready() { # port pid name
   for _ in $(seq 1 120); do
@@ -93,9 +104,8 @@ for tag in v15:8901:fastfill-v15 v1:8902:fastfill-v1; do
     --dump-generations "out/gens_${t}.jsonl" --out "out/eval_${t}.json"
 done
 
-# Explicit cleanup NOW (trap only fires when this shell exits).
-cleanup
-trap - EXIT
+# Servers intentionally left running (manual-kill policy) — the user can
+# re-query either arm; PIDs are printed by the EXIT trap.
 
 # --- FULL fairness assertions ------------------------------------------------
 # Everything that defines "same experiment" must match; endpoint_model and

@@ -16,6 +16,7 @@
 # Each numbered block is a standalone copy-paste unit.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+trap 'echo "FAILED at line $LINENO: $BASH_COMMAND" >&2' ERR
 
 BASE_MODEL="${BASE_MODEL:-Qwen/Qwen3-8B}"
 PORT="${PORT:-8901}"
@@ -73,7 +74,8 @@ mkdir -p out
 PORT="$PORT" bash scripts/serve_vllm.sh out/sft_smoke_merged \
   > out/vllm_smoke.log 2>&1 &
 VLLM_PID=$!
-trap 'kill "$VLLM_PID" 2>/dev/null || true' EXIT
+# NO kill trap (user policy: scripts never kill vLLM); PID printed on exit.
+trap 'echo "NOTE: smoke vLLM left RUNNING — kill manually when done: kill $VLLM_PID"' EXIT
 
 # Wait for the endpoint (vLLM cold start can take minutes; log has details).
 for _ in $(seq 1 120); do

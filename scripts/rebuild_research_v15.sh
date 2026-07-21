@@ -12,6 +12,17 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONPATH="$PWD/src"
 
+# Post-mortem aids: full command trace to a repo-root file (survives the
+# Phase-1 wipe) + the exact failing line/command on any unguarded error.
+RUN_STAMP="$(date +%Y%m%d_%H%M%S)"
+DEBUG_LOG="rebuild_debug_${RUN_STAMP}.log"
+exec 9>"$DEBUG_LOG"
+BASH_XTRACEFD=9
+PS4='+ [$(date "+%F %T")] ${BASH_SOURCE##*/}:${LINENO}: '
+set -x
+trap 'echo "[$(date "+%F %T")] FAILED at ${BASH_SOURCE##*/}:${LINENO}: $BASH_COMMAND" >&2' ERR
+echo "[$(date '+%F %T')] rebuild start — command trace: $DEBUG_LOG"
+
 # The DATA CONTRACT commit (MansionWorld all-floors converter) must be an
 # ancestor of HEAD — never pin HEAD itself, script fixes move it.
 DATA_CONTRACT_COMMIT="${DATA_CONTRACT_COMMIT:-b92f325}"
@@ -80,14 +91,45 @@ echo "contamination list: $CONTAM_LINES non-comment lines"
 
 # =============================================================================
 # Phase 0 — v1 identity verification + COMPLETE byte-verified archive.
-# Re-run mode: skip when a previous attempt already archived and wiped.
+# Re-run modes: SKIP_PHASE0=1 reuses an existing verified archive (skips the
+# ~5h verify, still wipes); plain re-run after archive+wipe resumes at convert.
 # =============================================================================
-if [ -d out/full_fp ]; then
+REPO_REAL="$(realpath "$PWD")"
+# User policy: NO fastfill script ever kills a vLLM process. Phase-0 servers
+# stay up after verify_v1_identity.sh returns; the wipe must not run while
+# they still serve from out/, so wait for the USER to inspect and kill them.
+wait_for_manual_vllm_kill() {
+  while pgrep -u "$USER" -f "vllm serve $REPO_REAL/out" >/dev/null; do
+    echo "[$(date '+%F %T')] WAITING: kill the Phase-0 vLLM servers manually to continue:"
+    pgrep -u "$USER" -af "vllm serve $REPO_REAL/out" | sed 's/^/    /'
+    echo "    -> inspect out/eval_id_*.json first, then: kill <pid> <pid> (script resumes by itself)"
+    sleep 60
+  done
+}
+wipe_v1_outputs() {
+  if pgrep -u "$USER" -f 'train_sft|accelerate' >/dev/null; then
+    echo "ERROR: training processes still running — stop them, then rerun with" >&2
+    echo "  SKIP_PHASE0=1 (archive already recorded; the ~5h verify won't repeat)" >&2
+    exit 1
+  fi
+  echo "[$(date '+%F %T')] Phase 1: wiping out/ + v1 data artifacts"
+  rm -rf out data/sft data/stage0 data/stage0_aux data/full
+}
+
+if [ "${SKIP_PHASE0:-0}" = "1" ]; then
+  V1_ARCHIVED="$(read_v1_archive)" \
+    || { echo "ERROR: SKIP_PHASE0=1 but no verified v1 archive pointer" >&2; exit 1; }
+  echo "[$(date '+%F %T')] SKIP_PHASE0=1: reusing verified archive $V1_ARCHIVED"
+  wait_for_manual_vllm_kill
+  wipe_v1_outputs
+elif [ -d out/full_fp ]; then
+  echo "[$(date '+%F %T')] Phase 0: verify v1 identity (servers stay up afterwards)"
   for d in out/full_fp out/full_r128 out/full_r128_merged; do
     test -d "$d" || { echo "ERROR: missing $d — nothing to freeze" >&2; exit 1; }
   done
   bash scripts/verify_v1_identity.sh
 
+  echo "[$(date '+%F %T')] Phase 0 PASSED — archiving v1"
   ARCHIVE="$ARCHIVE_ROOT/v1_$(date +%Y%m%d_%H%M%S)"
   mkdir -p "$ARCHIVE/conv"
   rsync -a --exclude='checkpoint-*' out/full_fp/         "$ARCHIVE/full_fp/"
@@ -98,7 +140,7 @@ if [ -d out/full_fp ]; then
     || { echo "ERROR: no out/conv/deduped*.jsonl to archive (old eval needs it)" >&2; exit 1; }
   cp -a out/conv/deduped*.jsonl "$ARCHIVE/conv/"
   cp -a out/eval_*.json out/eval_*.uids.json "$ARCHIVE/" 2>/dev/null || true
-  cp -a out/identity_*.log train_*.log "$ARCHIVE/" 2>/dev/null || true
+  cp -a out/identity_*.log out/vllm_id_*.log verify_debug_*.log train_*.log "$ARCHIVE/" 2>/dev/null || true
 
   (cd "$ARCHIVE/full_fp" && sha256sum -c MANIFEST.sha256 --quiet)
   for m in full_r128 full_r128_merged; do
@@ -117,12 +159,9 @@ if [ -d out/full_fp ]; then
   printf '%s\n' "$ARCHIVE" > "$V1_POINTER"
   echo "ARCHIVE-OK: $ARCHIVE"
 
-  # Phase 1 — wipe (only after a verified archive).
-  if pgrep -u "$USER" -af 'train_sft|vllm|accelerate' >/dev/null; then
-    echo "ERROR: training/serving processes still running — stop them first" >&2
-    exit 1
-  fi
-  rm -rf out data/sft data/stage0 data/stage0_aux data/full
+  # Phase 1 — wipe (only after a verified archive + manual server kill).
+  wait_for_manual_vllm_kill
+  wipe_v1_outputs
 elif V1_ARCHIVED="$(read_v1_archive)"; then
   echo "RESUME MODE: v1 already archived at $V1_ARCHIVED; continuing"
 else
@@ -134,6 +173,7 @@ mkdir -p out/conv
 # =============================================================================
 # Phase 3 — convert (atomic writers hard-fail on zero output).
 # =============================================================================
+echo "[$(date '+%F %T')] Phase 3: convert"
 python3 vendor/tools/fastfill_data/convert_3d_synthplace.py --out out/conv/synthplace.jsonl
 for subset in train val test; do
   python3 vendor/tools/fastfill_data/convert_m3dlayout.py --split all --subset "$subset" \
@@ -149,6 +189,7 @@ wc -l out/conv/*.jsonl
 # =============================================================================
 # Phase 4 — dedup #1 (contamination closure lives HERE only) + hit gate.
 # =============================================================================
+echo "[$(date '+%F %T')] Phase 4: dedup #1 + contamination gate"
 python3 vendor/tools/fastfill_data/deduplicate.py \
   --in out/conv/synthplace.jsonl out/conv/m3dlayout_train.jsonl \
        out/conv/m3dlayout_val.jsonl out/conv/m3dlayout_test.jsonl \
@@ -171,6 +212,7 @@ fi
 # =============================================================================
 # Phase 5-7 — sanitize -> dedup#2 -> export (surface gate) -> snapshot.
 # =============================================================================
+echo "[$(date '+%F %T')] Phase 5-7: sanitize -> dedup#2 -> export -> snapshot"
 python3 vendor/tools/fastfill_data/sanitize.py --in out/conv/deduped_raw.jsonl \
   --out out/conv/sanitized.jsonl
 python3 vendor/tools/fastfill_data/deduplicate.py --in out/conv/sanitized.jsonl \
@@ -198,5 +240,5 @@ echo "internscenes snapshot records: $intern_n"
 jq '.per_source_layer | map_values(with_entries(select(.key | startswith("internscenes/"))))' \
   data/full_research_v15/SNAPSHOT.json
 
-echo "=== REBUILD COMPLETE — next: tmux new -s research_v15_fp, then"
+echo "[$(date '+%F %T')] === REBUILD COMPLETE — next: tmux new -s research_v15_fp, then"
 echo "    bash scripts/train_research_v15.sh"

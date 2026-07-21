@@ -10,7 +10,8 @@
 #   3. Run eval_layout against BOTH endpoints with --dump-generations and
 #      assert n_missing_generation == 0 + identity fields present + both
 #      arms share the same records/samples/uids manifests.
-# Non-zero exit on ANY failure. Servers are killed on exit.
+# Non-zero exit on ANY failure. Servers are LEFT RUNNING on exit — user
+# policy: no fastfill script ever kills a vLLM process; kill manually.
 #
 # Usage: bash scripts/verify_v1_identity.sh
 set -euo pipefail
@@ -26,6 +27,16 @@ RECORDS="${RECORDS:-data/full/heldout.jsonl}"
 SAMPLES="${SAMPLES:-out/conv/deduped.jsonl}"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 IDENTITY_LOG="out/identity_${STAMP}.log"
+
+# Post-mortem aids: full command trace to a repo-root file (out/ may be wiped
+# later by the rebuild) + the exact failing line/command on any error.
+DEBUG_LOG="verify_debug_${STAMP}.log"
+exec 9>"$DEBUG_LOG"
+BASH_XTRACEFD=9
+PS4='+ [$(date "+%F %T")] ${BASH_SOURCE##*/}:${LINENO}: '
+set -x
+trap 'echo "[$(date "+%F %T")] FAILED at ${BASH_SOURCE##*/}:${LINENO}: $BASH_COMMAND" >&2' ERR
+echo "[$(date '+%F %T')] verify_v1_identity start — command trace: $DEBUG_LOG"
 
 # --- 1. Freeze manifests ----------------------------------------------------
 for d in out/full_fp out/full_r128 "$R128_DIR" out/sft_full out/sft_full_merged; do
@@ -59,7 +70,9 @@ CUDA_VISIBLE_DEVICES="$R128_GPU" vllm serve "$(realpath "$R128_DIR")" \
   --dtype bfloat16 --gpu-memory-utilization 0.85 --max-model-len 4096 \
   > "out/vllm_id_r128_${STAMP}.log" 2>&1 &
 R128_PID=$!
-trap 'kill "$FP_PID" "$R128_PID" 2>/dev/null || true' EXIT
+# NO kill trap (user policy: scripts never kill vLLM). On ANY exit — pass or
+# fail — both servers stay up; the trap only prints them for manual cleanup.
+trap 'echo "NOTE: vLLM servers left RUNNING — kill manually when done: kill $FP_PID $R128_PID"' EXIT
 
 wait_ready() { # port pid name
   for _ in $(seq 1 120); do
@@ -116,3 +129,7 @@ for t in fp r128; do
     "out/eval_id_${t}_${STAMP}.json" | sed "s/^fp:/full_fp:/;s/^r128:/r128:   /"
 done
 echo "reports: out/eval_id_{fp,r128}_${STAMP}.json   identity: $IDENTITY_LOG"
+echo "vLLM servers intentionally left running (manual-kill policy):"
+echo "  fp:   pid=$FP_PID port=$FP_PORT"
+echo "  r128: pid=$R128_PID port=$R128_PORT"
+echo "after inspecting the reports, kill them yourself: kill $FP_PID $R128_PID"
