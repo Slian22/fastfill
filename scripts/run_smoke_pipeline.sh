@@ -14,7 +14,7 @@
 #     including vllm for step 3.
 #
 # Each numbered block is a standalone copy-paste unit.
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 trap 'echo "FAILED at line $LINENO: $BASH_COMMAND" >&2' ERR
 

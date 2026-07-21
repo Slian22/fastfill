@@ -4,7 +4,7 @@
 # exit (user policy: no fastfill script ever kills a vLLM process).
 #
 # Usage: bash scripts/compare_v1_v15.sh
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONPATH="$PWD/src"
 

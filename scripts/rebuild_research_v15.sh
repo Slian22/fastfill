@@ -8,7 +8,7 @@
 # from the conversion phase instead of failing identity verification.
 #
 # Usage: bash scripts/rebuild_research_v15.sh
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONPATH="$PWD/src"
 
@@ -120,6 +120,20 @@ if [ "${SKIP_PHASE0:-0}" = "1" ]; then
   V1_ARCHIVED="$(read_v1_archive)" \
     || { echo "ERROR: SKIP_PHASE0=1 but no verified v1 archive pointer" >&2; exit 1; }
   echo "[$(date '+%F %T')] SKIP_PHASE0=1: reusing verified archive $V1_ARCHIVED"
+  # Re-verify the archive BEFORE trusting it for a wipe — the pointer could
+  # be stale or hand-edited; existence of full_fp/ alone proves nothing.
+  (cd "$V1_ARCHIVED/full_fp" && sha256sum -c MANIFEST.sha256 --quiet) \
+    || { echo "ERROR: $V1_ARCHIVED/full_fp fails MANIFEST.sha256" >&2; exit 1; }
+  for m in full_r128 full_r128_merged; do
+    if [ -f "$V1_ARCHIVED/$m/MANIFEST.sha256" ]; then
+      (cd "$V1_ARCHIVED/$m" && sha256sum -c MANIFEST.sha256 --quiet) \
+        || { echo "ERROR: $V1_ARCHIVED/$m fails MANIFEST.sha256" >&2; exit 1; }
+    fi
+  done
+  test -d "$V1_ARCHIVED/data_full_v1" \
+    || { echo "ERROR: $V1_ARCHIVED/data_full_v1 missing" >&2; exit 1; }
+  ls "$V1_ARCHIVED"/conv/deduped*.jsonl >/dev/null 2>&1 \
+    || { echo "ERROR: $V1_ARCHIVED/conv/deduped*.jsonl missing" >&2; exit 1; }
   wait_for_manual_vllm_kill
   wipe_v1_outputs
 elif [ -d out/full_fp ]; then
@@ -139,7 +153,7 @@ elif [ -d out/full_fp ]; then
   ls out/conv/deduped*.jsonl >/dev/null 2>&1 \
     || { echo "ERROR: no out/conv/deduped*.jsonl to archive (old eval needs it)" >&2; exit 1; }
   cp -a out/conv/deduped*.jsonl "$ARCHIVE/conv/"
-  cp -a out/eval_*.json out/eval_*.uids.json "$ARCHIVE/" 2>/dev/null || true
+  cp -a out/eval_*.json out/eval_*.uids.json out/gens_id_*.jsonl "$ARCHIVE/" 2>/dev/null || true
   cp -a out/identity_*.log out/vllm_id_*.log verify_debug_*.log train_*.log "$ARCHIVE/" 2>/dev/null || true
 
   (cd "$ARCHIVE/full_fp" && sha256sum -c MANIFEST.sha256 --quiet)

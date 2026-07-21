@@ -14,7 +14,7 @@
 # policy: no fastfill script ever kills a vLLM process; kill manually.
 #
 # Usage: bash scripts/verify_v1_identity.sh
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 FP_DIR="out/full_fp"
