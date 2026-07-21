@@ -47,10 +47,19 @@ for d in data/MansionWorld/mansionworld data/M3DLayout data/IL3D \
 done
 # InternScenes: Gen branch only (ScanNet stays opt-in until its floor
 # polygon reads the real floor.glb and its categories get an allowlist).
-for rt in bathroom bedroom diningroom kitchen livingroom; do
-  test -d "data/InternScenes/InternScenes_Gen/Layout_info/$rt" \
-    || { echo "ERROR: missing InternScenes Gen room folder: $rt" >&2; exit 1; }
+# Hard integrity counts: five room folders alone don't prove the ~8 GB
+# rsync is complete — a partial upload would silently shrink the corpus.
+for pair in bathroom:4855 bedroom:2360 diningroom:4057 kitchen:1931 livingroom:886; do
+  rt="${pair%%:*}"; want="${pair##*:}"
+  n=$(find "data/InternScenes/InternScenes_Gen/Layout_info/$rt" \
+        -mindepth 2 -maxdepth 2 -name layout.json 2>/dev/null | wc -l)
+  test "$n" -eq "$want" \
+    || { echo "ERROR: InternScenes Gen $rt has $n layout.json, expected $want (incomplete rsync?)" >&2; exit 1; }
 done
+nb=$(find data/InternScenes/InternScenes_Gen/Layout_info \
+       -mindepth 4 -maxdepth 4 -name boundary_points.json | wc -l)
+test "$nb" -eq 14089 \
+  || { echo "ERROR: InternScenes Gen boundary_points.json count $nb != 14089 (incomplete rsync?)" >&2; exit 1; }
 # MansionWorld floors at the SAME depth the converter globs (building root
 # only — assets/floor_N_object_states.json lives deeper and is legitimate).
 total_floors=$(find data/MansionWorld/mansionworld -mindepth 2 -maxdepth 2 -name 'floor_*.json' | wc -l)
@@ -178,11 +187,16 @@ python3 -m fastfill_train.make_snapshot \
   --in data/sft_research_v15/floor_sft.jsonl data/sft_research_v15/surface_sft.jsonl \
   --out-dir data/full_research_v15 --license-mode research --allow-unresolved-licenses
 jq '{snapshot_id, license_mode, counts, license_counts}' data/full_research_v15/SNAPSHOT.json
-intern_n=$(jq '[.per_source_layer | to_entries[] | select(.key | startswith("internscenes/")) | .value] | add // 0' \
+# per_source_layer is nested {split: {"<source>/<layer>": n}} — sum the
+# internscenes/* entries across all splits (a flat to_entries over the top
+# level only sees train/heldout/test and always yields 0).
+intern_n=$(jq '[.per_source_layer[]? | to_entries[] | select(.key | startswith("internscenes/")) | .value] | add // 0' \
   data/full_research_v15/SNAPSHOT.json)
 test "$intern_n" -gt 0 \
   || { echo "ERROR: internscenes contributed 0 records to the snapshot" >&2; exit 1; }
 echo "internscenes snapshot records: $intern_n"
+jq '.per_source_layer | map_values(with_entries(select(.key | startswith("internscenes/"))))' \
+  data/full_research_v15/SNAPSHOT.json
 
 echo "=== REBUILD COMPLETE — next: tmux new -s research_v15_fp, then"
 echo "    bash scripts/train_research_v15.sh"

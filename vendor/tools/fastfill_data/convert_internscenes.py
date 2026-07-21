@@ -130,6 +130,11 @@ GEN_CEILING_HEIGHT_M = 2.9  # measured in the dataset README (ceiling ~2.9 m)
 MAX_FOOTPRINT_DIM_M = 8.0  # widest plausible single furniture footprint side
 MAX_HEIGHT_M = 3.5  # tallest plausible furniture (ceilings are ~2.9 m)
 MIN_BOUNDARY_AREA_M2 = 1.0  # smallest plausible room floor area
+# Category caps where the generic 8 m limit is too loose: real Gen beds are
+# median 2.22 m / p95 2.39 m on their longest side, yet corrupted
+# annotations reach 6 m — nothing legitimate is near 3 m. (Long cabinet
+# runs up to ~5 m are real kitchen counter geometry — deliberately no cap.)
+CATEGORY_MAX_FOOTPRINT_M = {"bed": 3.0}
 
 # Fixed wall/ceiling-mounted architecture: never floor furniture. Wall-mounted
 # leftovers not listed here (curtains, wall art, ...) still drop via the
@@ -297,7 +302,8 @@ def _skip_bucket(obj: _RawObject) -> str | None:
     if obj.category in MANIPULAND_CATEGORIES:
         return f"manipuland:{obj.category}"
     width, depth, height = obj.dimensions
-    if width > MAX_FOOTPRINT_DIM_M or depth > MAX_FOOTPRINT_DIM_M or height > MAX_HEIGHT_M:
+    footprint_cap = CATEGORY_MAX_FOOTPRINT_M.get(obj.category, MAX_FOOTPRINT_DIM_M)
+    if width > footprint_cap or depth > footprint_cap or height > MAX_HEIGHT_M:
         return "implausible_dimensions"
     if obj.tilt_deg > TILT_MAX_DEG:
         return "tilted_rotation"
