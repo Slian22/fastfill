@@ -18,7 +18,7 @@ DATA_CONTRACT_COMMIT="${DATA_CONTRACT_COMMIT:-b92f325}"
 git merge-base --is-ancestor "$DATA_CONTRACT_COMMIT" HEAD \
   || { echo "ERROR: HEAD does not contain data-contract commit $DATA_CONTRACT_COMMIT (git pull)" >&2; exit 1; }
 
-PRIORITY="m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace"
+PRIORITY="m3dlayout,il3d,mansionworld,scenesmith_scenes,3d_synthplace,internscenes"
 LICENSE_ARGS=(--license-route research --allow-unresolved-licenses)
 
 # All storage stays inside the repo tree (user requirement): archive lives in
@@ -41,9 +41,13 @@ for f in data/sceneeval_contamination.txt data/eval_rooms.txt; do
   test -f "$f" || { echo "ERROR: missing $f" >&2; exit 1; }
 done
 for d in data/MansionWorld/mansionworld data/M3DLayout data/IL3D \
-         data/3D-SynthPlace_indoor_scenes_dataset data/scenesmith_scenes; do
+         data/3D-SynthPlace_indoor_scenes_dataset data/scenesmith_scenes \
+         data/InternScenes/InternScenes_Gen/Layout_info \
+         data/InternScenes/Layout_info/scannet; do
   test -d "$d" || { echo "ERROR: missing dataset dir $d" >&2; exit 1; }
 done
+test -f data/InternScenes/Layout_info/room_types.csv \
+  || { echo "ERROR: missing data/InternScenes/Layout_info/room_types.csv" >&2; exit 1; }
 # MansionWorld floors at the SAME depth the converter globs (building root
 # only — assets/floor_N_object_states.json lives deeper and is legitimate).
 total_floors=$(find data/MansionWorld/mansionworld -mindepth 2 -maxdepth 2 -name 'floor_*.json' | wc -l)
@@ -126,6 +130,7 @@ done
 python3 vendor/tools/fastfill_data/convert_il3d.py --out out/conv/il3d.jsonl
 python3 vendor/tools/fastfill_data/convert_mansionworld.py --out out/conv/mansionworld.jsonl
 python3 vendor/tools/fastfill_data/convert_scenesmith.py --out out/conv/scenesmith.jsonl
+python3 vendor/tools/fastfill_data/convert_internscenes.py --out out/conv/internscenes.jsonl
 wc -l out/conv/*.jsonl
 
 # =============================================================================
@@ -135,6 +140,7 @@ python3 vendor/tools/fastfill_data/deduplicate.py \
   --in out/conv/synthplace.jsonl out/conv/m3dlayout_train.jsonl \
        out/conv/m3dlayout_val.jsonl out/conv/m3dlayout_test.jsonl \
        out/conv/il3d.jsonl out/conv/mansionworld.jsonl out/conv/scenesmith.jsonl \
+       out/conv/internscenes.jsonl \
   --out out/conv/deduped_raw.jsonl --priority "$PRIORITY" \
   "${LICENSE_ARGS[@]}" \
   --contamination-list data/contamination_all.txt
