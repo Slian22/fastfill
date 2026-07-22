@@ -542,6 +542,34 @@ def test_self_built_records_carry_explicit_layer() -> None:
     assert "#" in surface["uid"]
 
 
+def test_self_built_records_canonicalize_room_type_and_keep_raw() -> None:
+    # room_type feeds the prompt: it must be the canonical form, byte-equal
+    # to what the codec renders into `input`; the converter's original value
+    # is preserved in room_type_raw (and must NOT appear in the prompt).
+    from fastfill_train.build_dpo_data import _floor_record, _surface_record
+
+    sample = make_clean_sample("s0", "house0")
+    sample = sample.model_copy(
+        update={
+            "room_context": sample.room_context.model_copy(
+                update={"room_type": "Bed Room"}
+            )
+        }
+    )
+    floor = _floor_record(sample)
+    assert floor["room_type"] == "bedroom"
+    assert floor["room_type_raw"] == "Bed Room"
+    assert "room bedroom id=" in floor["input"]
+    assert "Bed Room" not in floor["input"]
+
+    group = sample.layout.surface_groups[0]
+    surface = _surface_record(sample, group)
+    assert surface is not None
+    assert surface["room_type"] == "bedroom"
+    assert surface["room_type_raw"] == "Bed Room"
+    assert "\nroom bedroom\n" in surface["input"]
+
+
 def test_stage2_license_allowlist_gates_pending(tmp_path: Path) -> None:
     """Stage-2 chosen labels obey the same license allowlist as export_sft:
     LICENSE_PENDING never trains under permissive OR plain research."""

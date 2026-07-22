@@ -59,6 +59,7 @@ from fastfill_data.sanitize import (
     has_sanitized_note,
 )
 from scenesmith.growing_world.fastfill.codec import (
+    canonicalize_room_type,
     decode_floor_layout,
     encode_floor_layout,
     encode_room_context,
@@ -282,7 +283,8 @@ def _floor_record(sample: FastFillSample) -> dict:
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
-        "room_type": sample.room_context.room_type,
+        "room_type": canonicalize_room_type(sample.room_context.room_type),
+        "room_type_raw": sample.room_context.room_type,
         "layer": "floor",  # explicit layer: a floor uid may contain '#'
         "instruction": FLOOR_INSTRUCTION,
         "input": encode_room_context(sample.room_context),
@@ -300,7 +302,8 @@ def _surface_record(sample: FastFillSample, group: SurfaceObjectGroup) -> Option
         "split_key": sample.provenance.split_key,
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
-        "room_type": sample.room_context.room_type,
+        "room_type": canonicalize_room_type(sample.room_context.room_type),
+        "room_type_raw": sample.room_context.room_type,
         "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
         "input": encode_support_context(context),

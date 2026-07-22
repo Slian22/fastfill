@@ -125,11 +125,33 @@ def _parse_dims(token: str) -> Vec3:
 
 # ------------------------------------------------------------- room context
 
+# Conservative same-word merges only. Distinct concepts (restroom vs
+# bathroom, study vs office, living dining room) are NEVER merged here.
+_ROOM_TYPE_MERGES = {
+    "bed room": "bedroom",
+    "bath room": "bathroom",
+}
+
+
+def canonicalize_room_type(value: str) -> str:
+    """Conservative textual normalization of a room-type label.
+
+    Mechanical transforms only: lowercase, trim, underscores/hyphens to
+    spaces, whitespace collapse, plus the explicit same-word merges above.
+    Single source of truth for training exports AND runtime prompts — both
+    encoders below call this, so the two are byte-identical by construction.
+    Never returns an empty string for non-empty input.
+    """
+    canonical = " ".join(value.replace("_", " ").replace("-", " ").lower().split())
+    canonical = _ROOM_TYPE_MERGES.get(canonical, canonical)
+    return canonical if canonical else value.strip()
+
 
 def encode_room_context(ctx: RoomContext) -> str:
     """Render a RoomContext as a compact deterministic text block."""
+    room_type = canonicalize_room_type(ctx.room_type)
     lines = [
-        f"room {_check_token(ctx.room_type, 'room_type')} id={ctx.room_id}",
+        f"room {_check_token(room_type, 'room_type')} id={ctx.room_id}",
         f"ceil {_cm(ctx.ceiling_height_m)}",
         f"poly {_poly(ctx.floor_polygon)}",
     ]
@@ -229,7 +251,7 @@ def encode_support_context(sc: SupportContext) -> str:
     ]
     for f in s.forbidden_regions_local:
         lines.append(f"forbid {f.region_id} {_poly(f.polygon)}")
-    lines.append(f"room {sc.room_type}")
+    lines.append(f"room {canonicalize_room_type(sc.room_type)}")
     lines.append(f"task {sc.task or '-'}")
     lines.append(f"manip {_csv(sc.expected_manipulands_here)}")
     lines.append(f"near {_csv(sc.neighbor_objects)}")

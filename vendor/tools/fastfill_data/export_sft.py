@@ -58,6 +58,7 @@ from fastfill_data.sanitize import (  # noqa: E402
 from scenesmith.growing_world.fastfill.codec import (  # noqa: E402
     FLOOR_INSTRUCTION,
     SURFACE_INSTRUCTION,
+    canonicalize_room_type,
     encode_floor_layout,
     encode_room_context,
     encode_support_context,
@@ -129,7 +130,10 @@ def _floor_record(sample: FastFillSample) -> dict:
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
         "geometry_hash": sample.provenance.geometry_hash,
-        "room_type": sample.room_context.room_type,
+        # canonical value matches the prompt; raw preserves the converter's
+        # original label for traceability and must never enter the prompt.
+        "room_type": canonicalize_room_type(sample.room_context.room_type),
+        "room_type_raw": sample.room_context.room_type,
         "layer": "floor",
         "instruction": FLOOR_INSTRUCTION,
         "input": encode_room_context(sample.room_context),
@@ -146,7 +150,8 @@ def _surface_record(
         "source_dataset": sample.provenance.source_dataset,
         "license": sample.provenance.license_tag.value,
         "geometry_hash": sample.provenance.geometry_hash,
-        "room_type": sample.room_context.room_type,
+        "room_type": canonicalize_room_type(sample.room_context.room_type),
+        "room_type_raw": sample.room_context.room_type,
         "layer": "surface",
         "instruction": SURFACE_INSTRUCTION,
         "input": encode_support_context(context),
