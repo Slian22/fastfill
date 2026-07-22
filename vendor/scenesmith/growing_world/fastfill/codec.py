@@ -251,7 +251,9 @@ def encode_support_context(sc: SupportContext) -> str:
     ]
     for f in s.forbidden_regions_local:
         lines.append(f"forbid {f.region_id} {_poly(f.polygon)}")
-    lines.append(f"room {canonicalize_room_type(sc.room_type)}")
+    lines.append(
+        f"room {_check_token(canonicalize_room_type(sc.room_type), 'room_type')}"
+    )
     lines.append(f"task {sc.task or '-'}")
     lines.append(f"manip {_csv(sc.expected_manipulands_here)}")
     lines.append(f"near {_csv(sc.neighbor_objects)}")
