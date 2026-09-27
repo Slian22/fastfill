@@ -11,13 +11,17 @@ with the boundary AABB min corner at (0, 0):
         pos   bottom center of the object box
         yaw   radians about +Z, from room +X to the object's local +X = its semantic front
         anchor "floor" | "wall" | "ceiling" | "object" | None ; parent = id of supporting object | None
+    fixed   [{id, category, size, pos, yaw}] (build output only): immovable boxes already in the room that the
+            model is told about but never places (doors, windows, columns, stairs, unlabelled floor boxes)
     meta    front_known (True only when the adapter verified the front convention), n_incomplete, eval_only, ...
 
-Model I/O (spec: fastfill I/O design review, 2026-09-24), one turn, compact JSON:
+Model I/O (spec: fastfill I/O design review, 2026-09-24; fixed geometry added 2026-09-24), one turn, compact JSON:
     system     SYSTEM_PROMPT (constant for training, evaluation and inference)
-    user       {"room_type"?, "boundary_type", "boundary", "height"?, "objects": [{id, size, desc?}], "constraints"?}
+    user       {"room_type"?, "boundary_type", "boundary", "height"?, "fixed"?: [{id, size, pos, yaw}],
+                "objects": [{id, size, desc?}], "constraints"?}
     assistant  {"placements": [{"id", "on"?, "pos": [x, y, z], "yaw": int deg}, ...]}
-Objects are listed by footprint area (largest first) with ids slug(category)_k; the answer keeps that order.
+Fixed items and objects are listed by footprint area (largest first) with ids slug(category)_k over one shared
+namespace; the answer lists the objects only, in their listed order.
 Compared with OptiScene: polygon instead of area, one id per instance instead of "N description" groups,
 local-axis size with a front convention instead of h/w/d, integer degrees instead of 2-decimal radians,
 no design-rule meta prompt, no reasoning block (no reasoning data exists), explicit support ("on").
@@ -34,6 +38,8 @@ SYSTEM_PROMPT = (
     "Frame: meters, right-handed, Z up, floor z=0. boundary: floor polygon [[x,y],...], counter-clockwise; "
     "boundary_type \"polygon\" = walls, \"hull\" = convex hull of a scanned floor (the real floor may be smaller). "
     "height: ceiling height. A missing key means unknown.\n"
+    "fixed: boxes already in the room that cannot move (doors, windows, columns, stairs, ...), each with id, size, "
+    "pos and yaw as below; keep placements clear of them and do not block doors; they are not part of the answer.\n"
     "Object: id, size [sx,sy,sz] along its local X,Y,Z (local +X = its front), optional desc.\n"
     "Output only JSON {\"placements\":[{\"id\":id,\"on\":id,\"pos\":[x,y,z],\"yaw\":deg},...]}, "
     "every id once, in the listed order. on: the object it stands on, z = that object's top; "
@@ -45,15 +51,24 @@ SYSTEM_PROMPT = (
 )
 
 HASH = re.compile(r"(?=[a-f]*\d)[0-9a-f]{8}\b")                  # SAGE asset hashes: glassnightstand5c8f77c6
+GENERIC = re.compile(r"^(other\w*|objects?|unknown)( |$)")      # labels that say nothing: shown as "object"
 UNKNOWN_ROOM = {"misc", "other", "other room", "unknown", "undefined", "none"}
 REL = re.compile(r"[,;]?\s*\b(positioned|placed|resting|located|situated|sitting on|standing on|lying on|leaning "
                  r"against|next to|beside|in front of|on top of|on a flat surface|on the floor)\b.*$", re.I)
 DANGLING = {"a", "an", "the", "and", "or", "with", "of", "in", "on", "to", "for", "at", "by", "featuring", "its"}
 
 
+# labels whose first synonym is a bare modifier ('corner', 'three seat') or an Infinigen factory name
+ALIASES = {"corner/side table": "side table", "three-seat / multi-seat sofa": "three seat sofa",
+           "three-seat / multi-person sofa": "three seat sofa", "coffeetablefactory": "coffee table",
+           "sidetablefactory": "side table", "boxcomforterfactory": "comforter", "comforterfactory": "comforter"}
+
+
 def norm_cat(c):
     """Traceable category normalization (raw label stays in IR): first synonym, words only, no hash/instance no."""
-    c = re.split(r"[,(/]", (c or "").lower())[0]
+    c = (c or "").lower()
+    c = ALIASES.get(re.sub(r"\(.*", "", c).strip(), c)
+    c = re.split(r"[,(/]", c)[0]
     c = " ".join(re.sub(r"[^a-z0-9]+", " ", c).split())
     c = " ".join(HASH.sub(" ", c).split()).split(" or ")[0]
     return re.sub(r"(?<=[a-z])(?:\s*\d+)+$", "", c)
@@ -76,7 +91,10 @@ def norm_room_type(t):
     t = re.sub(r"\s*/\s*", "/", " ".join(t.lower().replace("_", " ").split())).rstrip(".").strip()
     t = " ".join(ROOM_WORDS.get(w, w) for w in t.split())
     t = re.sub(r"(?:\s+\d+)+$", "", t)                 # "meeting room 1" -> "meeting room"
-    return None if t in UNKNOWN_ROOM else t
+    # floor / apartment / capacity tags of MansionWorld: "restroom f1", "apartment 2 storage", "meeting room 4p"
+    t = " ".join(re.sub(r"\b(?:f\d+|apt\d+|apartment \d+|\d+p)\b", " ", t).split())
+    t = re.sub(r"\brestrooms\b", "restroom", t)
+    return None if not t or t in UNKNOWN_ROOM else t
 
 
 def num(x):
@@ -104,14 +122,30 @@ def short_desc(d, max_words=16):
     return " ".join(w).strip(" ,;")
 
 
-def clean_boundary(b):
-    """cm rounding, duplicate/collinear removal (<=1 cm deviation), CCW, start at the vertex nearest (0,0)."""
+def _clean_once(b):
     p = Polygon([(round(x, 2), round(y, 2)) for x, y in b]).simplify(0.01, preserve_topology=True)
+    if not p.is_valid and p.area > 0:   # cm rounding can pinch a valid ring into a self-touch: repair if harmless
+        q = p.buffer(0)
+        if q.geom_type == "Polygon" and not q.interiors and abs(q.area - p.area) < 0.01 * p.area:
+            p = q
     if not p.is_valid or p.area <= 0:
         return None
     pts = list(orient(p, 1.0).exterior.coords)[:-1]
     k = min(range(len(pts)), key=lambda i: (pts[i][0] ** 2 + pts[i][1] ** 2, pts[i]))
     return [[num(x), num(y)] for x, y in pts[k:] + pts[:k]]
+
+
+def clean_boundary(b):
+    """cm rounding, duplicate/collinear removal (<=1 cm deviation), CCW, start at the vertex nearest (0,0).
+    Repeated until nothing changes (simplify never drops a ring's start vertex, and the start moves), so it is
+    idempotent: a request echoing a clean boundary keeps it."""
+    out = _clean_once(b)
+    for _ in range(8):
+        nxt = _clean_once(out) if out else None
+        if nxt is None or nxt == out:
+            break
+        out = nxt
+    return out
 
 
 def rot90(room, k):
@@ -125,28 +159,39 @@ def rot90(room, k):
     mx, my = min(p[0] for p in b), min(p[1] for p in b)
     b = [[num(x - mx), num(y - my)] for x, y in b]           # rotation keeps CCW; only the start vertex moves
     s0 = min(range(len(b)), key=lambda i: (b[i][0] ** 2 + b[i][1] ** 2, b[i]))
-    objs = []
-    for o in room["objects"]:
+    def turn(o):
         x, y = rot(*o["pos"][:2])
-        objs.append({**o, "pos": [num(x - mx), num(y - my), o["pos"][2]],
-                     "yaw": (o["yaw"] + k * math.pi / 2) % (2 * math.pi)})
-    return {**room, "boundary": b[s0:] + b[:s0], "objects": objs}
+        return {**o, "pos": [num(x - mx), num(y - my), o["pos"][2]], "yaw": (o["yaw"] + k * math.pi / 2) % (2 * math.pi)}
+    out = {**room, "boundary": b[s0:] + b[:s0], "objects": [turn(o) for o in room["objects"]]}
+    if room.get("fixed"):
+        out["fixed"] = [turn(o) for o in room["fixed"]]
+    return out
+
+
+def slug(category):
+    nc = norm_cat(category)
+    return "object" if not nc or GENERIC.match(nc) else nc.replace(" ", "_")
 
 
 def canonical(room):
     """Order by footprint area desc (ties: category, size); identical instances by (z, x, y) when poses exist
-    (training), else keep input order (inference; the sort is stable). ids become slug(norm_cat)_k."""
+    (training), else keep input order (inference; the sort is stable). ids become slug(norm_cat)_k, counted over
+    the fixed items first, then the objects, so no id is shared between the two lists."""
     def key(o):
-        s = [round(v, 2) for v in o["size"]]
+        s = [max(round(v, 2), 0.01) for v in o["size"]]    # = shown_size (training sizes are already shown_size)
         k = (-round(s[0] * s[1], 4), norm_cat(o["category"]), [-v for v in s])
         return k + ((round(o["pos"][2], 2), round(o["pos"][0], 2), round(o["pos"][1], 2)) if "pos" in o else ())
+    fixed = sorted(room.get("fixed") or [], key=key)
     objs = sorted(room["objects"], key=key)
     count, new = {}, {}
-    for o in objs:
-        sl = norm_cat(o["category"]).replace(" ", "_") or "object"
+    for o in fixed + objs:
+        sl = slug(o["category"])
         count[sl] = count.get(sl, 0) + 1
         new[o["id"]] = f"{sl}_{count[sl]}"
-    return {**room, "objects": [{**o, "id": new[o["id"]], "parent": new.get(o.get("parent"))} for o in objs]}
+    out = {**room, "objects": [{**o, "id": new[o["id"]], "parent": new.get(o.get("parent"))} for o in objs]}
+    if fixed:
+        out["fixed"] = [{**o, "id": new[o["id"]]} for o in fixed]
+    return out
 
 
 def user_json(room, constraints=None, with_desc=True):
@@ -158,6 +203,9 @@ def user_json(room, constraints=None, with_desc=True):
     d["boundary"] = room["boundary"]
     if room.get("height"):
         d["height"] = num(room["height"])
+    if room.get("fixed"):
+        d["fixed"] = [{"id": o["id"], "size": shown_size(o), "pos": [num(v) for v in o["pos"]],
+                       "yaw": int(round(math.degrees(o["yaw"]))) % 360} for o in room["fixed"]]
     objs = []
     for o in room["objects"]:
         e = {"id": o["id"], "size": shown_size(o)}
@@ -200,6 +248,9 @@ def _isnum(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool)
 
 
+MAX_COORD = 1e3
+
+
 def parse(text, ids):
     """Never raises. -> (placements {id: {pos, yaw (rad), on}}, error | None).
     error: truncated_or_bad_json | bad_json | bad_item | bad_number | duplicate_id | missing_ids | extra_ids |
@@ -223,7 +274,7 @@ def parse(text, ids):
             vals = [float(v) for v in pos + [yaw]]          # OverflowError on absurdly long integers
         except OverflowError:
             vals = [math.inf]
-        if not all(map(math.isfinite, vals)):
+        if not all(math.isfinite(v) and abs(v) < MAX_COORD for v in vals):   # 1 km: nothing in a room is further
             err = err or "bad_number"
             continue
         if p["id"] in out:
@@ -274,6 +325,8 @@ if __name__ == "__main__":
     assert short_desc("A wooden table positioned next to a rectangular object. It is old.") == "wooden table"
     assert num(0.0) == 0 and num(-0.001) == 0 and num(2.704) == 2.7
     assert clean_boundary([[0, 0], [2, 0], [4, 0], [4, 3], [4, 3], [0, 3]]) == [[0, 0], [4, 0], [4, 3], [0, 3]]
+    wob = [[0, 0], [2.004, 0.006], [4, 0], [4.006, 1.504], [4, 3], [0, 3]]      # near-collinear after cm rounding
+    assert clean_boundary(clean_boundary(wob)) == clean_boundary(wob)
 
     ok = '{"placements":[{"id":"desk_1","pos":[1,1,0],"yaw":90},{"id":"lamp_1","on":"desk_1","pos":[1,1,0.75],"yaw":0}]}'
     ids = ["desk_1", "lamp_1"]
@@ -304,7 +357,19 @@ if __name__ == "__main__":
     c = canonical(room)
     assert [o["id"] for o in c["objects"]] == ["desk_1", "chair_1", "chair_2", "chair_3", "lamp_1"]
     m = messages(c)
-    assert json.loads(m[1]["content"])["room_type"] == "bed room"
+    assert json.loads(m[1]["content"])["room_type"] == "bed room" and "fixed" not in json.loads(m[1]["content"])
+    # fixed boxes: shared id namespace (a fixed chair takes chair_1), shown with pose, rotated with the room, not answered
+    fx = {**room, "fixed": [{"id": "col", "category": "column", "size": [.3, .3, 2.7], "pos": [3.5, 2.5, 0], "yaw": 0},
+                            {"id": "fc", "category": "chair", "size": [.5, .5, .9], "pos": [.5, .5, 0], "yaw": 0},
+                            {"id": "u", "category": "unknown", "size": [1, .4, .8], "pos": [2, 2.8, 0], "yaw": math.pi / 2}]}
+    cf = canonical(fx)
+    assert [o["id"] for o in cf["fixed"]] == ["object_1", "chair_1", "column_1"], cf["fixed"]
+    assert [o["id"] for o in cf["objects"]] == ["desk_1", "chair_2", "chair_3", "chair_4", "lamp_1"]
+    uj = json.loads(user_json(cf))
+    assert uj["fixed"][1] == {"id": "chair_1", "size": [0.5, 0.5, 0.9], "pos": [0.5, 0.5, 0], "yaw": 0} and "fixed" not in target_json(cf)
+    r1 = rot90(fx, 1)                                     # (3.5, 2.5) turned by 90 deg about the origin -> (-2.5, 3.5) -> shifted
+    assert r1["fixed"][0]["pos"] == [0.5, 3.5, 0] and abs(r1["fixed"][0]["yaw"] - math.pi / 2) < 1e-9, r1["fixed"][0]
+    assert slug("otherprop") == "object" == slug("") == slug("Objects") and slug("floor lamp") == "floor_lamp"
     pl, err = parse(m[2]["content"], [o["id"] for o in c["objects"]])
     assert err is None and pl["lamp_1"]["on"] == "desk_1" and pl["lamp_1"]["pos"] == [2.0, 0.3, 0.75]
     assert apply(c, pl)["objects"][-1]["parent"] == "desk_1"

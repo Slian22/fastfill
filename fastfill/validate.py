@@ -1,17 +1,24 @@
 """Geometric checks for a placed room (IR format, see scene.py). Box-level, upright objects.
 
-valid = no out-of-bounds object and no support failure. Collisions are reported separately in buckets
+valid = no out-of-bounds object, no support failure, nothing through the ceiling. Collisions are reported separately in buckets
 because reference layouts themselves collide at box level (chairs tucked under tables, nightstands against
 beds, boxes inside cabinets): 8-18% of GT rooms still have large "main" overlaps, so collisions are only
 meaningful relative to the GT value on the same rooms.
   oob           footprint leaves boundary.buffer(oob_tol) (only for boundary_type polygon/hull)
   support_fail  parent missing, bottom not within tol of the parent top, center off the parent footprint,
                 or no parent and |z| > tol (floating / sunk)
+                Support distances are inclusive: <= tol + SUPPORT_EPS, in XY and Z, including the floor.
   collisions    pairs with footprint overlap > min_area and height overlap > tol, supports excluded:
                 rugs / mats / boxes under 6 cm are ignored;
-                tuck (seat x table, bed x nightstand), contained (one inside the other), main (the rest),
+                tuck (seat x table, bed x nightstand), contained (a smaller box inside another), main (the
+                rest, including a duplicate: same category over half their union, or near-equal footprints),
                 severe (main pairs whose overlap covers > 30% of the smaller footprint)
   oor           OptiScene's object overlap rate (axis-aligned w x d boxes, no rotation), for comparison only
+  fixed_collisions  (object, fixed box) pairs overlapping like a collision: placements on a column, in a doorway
+                or through a stair; reported next to the GT value, not part of valid (reference layouts have some)
+  fixed_blocking    the fixed_collisions whose fixed box is not a window: furniture in front of a window (its box
+                sticks 5 cm into the room) is normal, a table through a column or a doorway is not. serve.py fails a
+                layout on these, build flags reference layouts with them (flag fixed_collision)
 """
 import math
 
@@ -22,6 +29,27 @@ from fastfill.scene import footprint, head, norm_cat
 
 SEAT = {"chair", "armchair", "stool", "bench", "seat", "ottoman", "pouf"}
 TABLE = {"table", "desk", "counter", "island", "bar", "workstation", "vanity", "workbench"}
+SUPPORT_EPS = 1e-9  # meters: floating-point allowance, not an additional geometric tolerance
+
+
+def support_contains(parent, xy, tol=0.05):
+    """Whether XY is within tol + SUPPORT_EPS of the parent's footprint, inclusive.
+
+    Use Euclidean distance, not a polygonal buffer approximation, so corners and edges share the same rule.
+    Accepts IR parent geometry (pos, size, yaw) and an XY coordinate; also used during runtime repair.
+    """
+    return Polygon(footprint(parent)).distance(Point(xy[:2])) <= tol + SUPPORT_EPS
+
+
+def support_ok(child, parent=None, tol=0.05):
+    """Inclusive support check for IR objects; parent=None means the floor.
+
+    Callers must reject an unresolved parent reference before passing None. Both the absolute bottom/top
+    height error and Euclidean XY distance to the parent footprint must be <= tol + SUPPORT_EPS.
+    """
+    top = parent["pos"][2] + parent["size"][2] if parent is not None else 0.0
+    return abs(child["pos"][2] - top) <= tol + SUPPORT_EPS and \
+        (parent is None or support_contains(parent, child["pos"], tol))
 
 
 def collision_kind(a, b, fa, fb, tol=0.05):
@@ -31,6 +59,10 @@ def collision_kind(a, b, fa, fb, tol=0.05):
     na, nb = norm_cat(a["category"]), norm_cat(b["category"])
     if (ha == "bed" and ("night" in nb or "bedside" in nb)) or (hb == "bed" and ("night" in na or "bedside" in na)):
         return "tuck"
+    # a copy of the same furniture on (almost) the same spot is a duplicate, not a box inside a cabinet
+    small, big = sorted((fa.area, fb.area))
+    if (na == nb and fa.intersection(fb).area >= 0.5 * fa.union(fb).area) or small >= 0.8 * big:
+        return "main"
     for x, y, fx, fy in ((a, b, fa, fb), (b, a, fb, fa)):
         if fy.buffer(tol).contains(fx) and x["pos"][2] + x["size"][2] <= y["pos"][2] + y["size"][2] + tol:
             return "contained"
@@ -43,7 +75,7 @@ def check(room, tol=0.05, oob_tol=0.10, min_area=0.01, severe=0.3):
     res = {"n": len(objs), "oob": [], "support_fail": [],
            "collisions": {"main": [], "severe": [], "tuck": [], "contained": []}}
     if room.get("boundary") and room.get("boundary_type") in ("polygon", "hull"):
-        inner = Polygon(room["boundary"]).buffer(oob_tol)
+        inner = Polygon(room["boundary"]).buffer(oob_tol + 1e-9)
         res["oob"] = [o["id"] for o, fp in zip(objs, fps) if not inner.contains(fp)]
     h = room.get("height")     # build drops a height that its own boxes exceed by > tol, so GT always passes
     res["ceiling"] = [o["id"] for o in objs if h and o["pos"][2] + o["size"][2] > h + tol]
@@ -64,17 +96,28 @@ def check(room, tol=0.05, oob_tol=0.10, min_area=0.01, severe=0.3):
                 if kind == "main" and area > severe * min(fps[i].area, fps[j].area):
                     res["collisions"]["severe"].append((a["id"], b["id"]))
 
+    res["fixed_collisions"] = []
+    for o, fp in zip(objs, fps):
+        if head(o) in FLAT or o["size"][2] < 0.06:
+            continue
+        for f in room.get("fixed") or []:
+            if min(o["pos"][2] + o["size"][2], f["pos"][2] + f["size"][2]) - max(o["pos"][2], f["pos"][2]) <= tol:
+                continue
+            if fp.intersection(Polygon(footprint(f))).area > min_area:
+                res["fixed_collisions"].append((o["id"], f["id"]))
+    windows = {f["id"] for f in room.get("fixed") or []
+               if {"window", "windows"}.intersection(norm_cat(f.get("category")).split())}
+    res["fixed_blocking"] = [p for p in res["fixed_collisions"] if p[1] not in windows]
+
     ids = {o["id"]: k for k, o in enumerate(objs)}
     for o in objs:
         k = ids.get(o.get("parent"))
         if not o.get("parent"):
-            bad = abs(o["pos"][2]) > tol
+            bad = not support_ok(o, tol=tol)
         elif k is None:
             bad = True
         else:
-            p = objs[k]
-            bad = abs(o["pos"][2] - p["pos"][2] - p["size"][2]) > tol or \
-                not fps[k].buffer(tol).contains(Point(o["pos"][0], o["pos"][1]))
+            bad = not support_ok(o, objs[k], tol)
         if bad:
             res["support_fail"].append(o["id"])
 
@@ -89,9 +132,10 @@ def check(room, tol=0.05, oob_tol=0.10, min_area=0.01, severe=0.3):
     return res
 
 
-def holds(c, objs, boundary):
-    """Constraint checker; semantics word for word as in scene.SYSTEM_PROMPT."""
-    o = {x["id"]: x for x in objs}
+def holds(c, objs, boundary, index=None):
+    """Constraint checker; semantics word for word as in scene.SYSTEM_PROMPT. index: an id -> object dict of objs,
+    passed by callers that test many constraints on one room (build.extract_constraints)."""
+    o = index if index is not None else {x["id"]: x for x in objs}
     fp = lambda i: Polygon(footprint(o[i]))
     t = c[0]
     if t == "on":
@@ -105,8 +149,9 @@ def holds(c, objs, boundary):
     if t == "against_wall":     # every point of the side, not samples of it
         q, zone = footprint(o[c[1]]), Polygon(boundary).exterior.buffer(0.1 + 1e-9)
         return any(zone.contains(LineString([q[i], q[(i + 1) % 4]])) for i in range(4))
-    if t == "between":
-        return LineString([o[c[2]]["pos"][:2], o[c[3]]["pos"][:2]]).intersects(fp(c[1]))
+    if t == "between":                # the segment runs through a's footprint, not just touching its edge
+        seg, f = LineString([o[c[2]]["pos"][:2], o[c[3]]["pos"][:2]]), fp(c[1])
+        return seg.intersects(f) and not seg.touches(f)
     raise ValueError(t)
 
 
@@ -118,6 +163,13 @@ if __name__ == "__main__":
                         {"id": "chair", "category": "chair", "size": [.5, .5, .9], "pos": [3.2, 0.8, 0.0], "yaw": 0.0}]}
     r = check(room)
     assert r["valid"] and r["collisions"]["tuck"] == [("desk", "chair")] and not r["collisions"]["main"], r
+    # a column through the bed and a window on the south wall behind the desk: only the column is a fixed collision
+    fx = [{"id": "col", "category": "column", "size": [.3, .3, 2.8], "pos": [1.5, 1.5, 0], "yaw": 0},
+          {"id": "win", "category": "window", "size": [1, .1, 1.2], "pos": [3.6, 0.05, 0.9], "yaw": 0}]
+    assert check({**room, "fixed": fx})["fixed_collisions"] == [("bed", "col")] and check({**room, "fixed": fx})["valid"]
+    tall = [{"id": "win2", "category": "window", "size": [1.5, .1, 1.2], "pos": [1.1, 2.3, 0.4], "yaw": 0}]   # behind the bed
+    r2 = check({**room, "fixed": fx + tall})
+    assert ("bed", "win2") in r2["fixed_collisions"] and r2["fixed_blocking"] == [("bed", "col")], r2
     room["objects"][1]["yaw"] = 0.0                    # unrotated desk spans x 3.0..4.2: out of bounds (tol 0.1)
     r = check(room)
     assert r["oob"] == ["desk"] and not r["valid"], r

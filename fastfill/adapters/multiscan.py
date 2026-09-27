@@ -21,7 +21,7 @@ import os
 import numpy as np
 from shapely.geometry import MultiPoint, Polygon
 
-from fastfill.adapters.internscenes import TILT_TOL_DEG, upright
+from fastfill.adapters.internscenes import TILT_TOL_DEG, tilted_bbox, upright
 from fastfill.adapters.unified import convert_room
 from fastfill.scene import footprint
 
@@ -41,16 +41,16 @@ def box(o):
     R = np.stack([axes[i] * (np.sign(d[f]) if i == f else 1) for i in order], axis=1)
     up = upright(R, [size[i] for i in order])
     if up is None:                                                              # tilted: keep a non-zero tilt
-        tilt = math.degrees(math.acos(min(1.0, float(np.abs(axes[:, 2]).max()))))
-        rot = {"x": tilt, "y": 0.0, "z": math.degrees(math.atan2(fr[1], fr[0]))}
-        sz, bottom = size, c[2] - 0.5 * float(np.abs(axes[:, 2]) @ np.array(size))
+        sz, yaw, k, tilt = tilted_bbox(R, [size[i] for i in order])
+        rot = {"x": tilt, "y": 0.0, "z": yaw}
     else:
         sz, yaw, k = up
-        rot, bottom = {"x": 0.0, "y": 0.0, "z": yaw}, c[2] - sz[2] / 2
+        rot = {"x": 0.0, "y": 0.0, "z": yaw}
+    bottom = c[2] - sz[2] / 2
     return {"furniture_category": o["category"].replace("_", " "), "furniture_instance_id": f"o{o['object_id']}",
             "furniture_position": {"x": c[0], "y": c[1], "z": bottom}, "furniture_rotation": rot,
             "furniture_size": {"width": sz[0], "length": sz[1], "height": sz[2]},
-            "front_vertical": up is not None and up[2] == 0,
+            "front_vertical": k == 0,
             "structure": o["is_architectural"] == "True" or o["is_opening"] == "True"}
 
 
@@ -93,7 +93,9 @@ def load(root):
                 "room_height": float(g["ceiling_height"]) - fz if g["height_reliable"] == "True" else None,
                 "furniture": furn}
         yield convert_room(room, source=SOURCE, uid=f"{SOURCE}::{sid}", group=f"multiscan:{s['scene_id']}",
-                           boundary_type=btype, extra=lambda f: {"structure": True} if f["structure"] else {},
+                           boundary_type=btype, extra=lambda f: {
+                               **({"structure": True} if f["structure"] else {}),
+                               **({"front_known": False} if f["front_vertical"] else {})},
                            meta={"scan_id": sid, "scene_id": s["scene_id"], "device": s["device"],
                                  "floor_z": fz, "floor_z_source": "median bottom of rests_on_floor objects" if bottoms
                                  else "regions.floor_height", "floor_height": float(g["floor_height"]), "poly_source": g["poly_source"],

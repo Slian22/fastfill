@@ -7,7 +7,9 @@ pytorch3d convention). Floor is at z = 0.
 Boundary: Real2Sim = 2D convex hull of the floor mesh (-> "hull"); Gen = boundary_points.json floor polygon.
 Some boxes are stored with a 90/180 deg X/Y rotation (Y-up assets, books lying flat); they are upright boxes
 with permuted axes and are re-expressed as yaw-only boxes (`upright`). Boxes tilted by more than TILT_TOL_DEG
-keep their rotation and are flagged tilted by convert_room.
+are replaced by the yaw-aligned bounding box of their 8 corners (`tilted_bbox`: true footprint, height and bottom,
+yaw = heading of the local X axis) with rotation x/y = None so convert_room flags them tilted; "tilt_deg" keeps
+the angle between the local axis closest to vertical and world Z.
 """
 import csv
 import io
@@ -50,18 +52,37 @@ def upright(R, size, tol_deg=TILT_TOL_DEG):
     return [size[hx], size[hy], size[k]], math.degrees(math.atan2(v[1], v[0])), k
 
 
+def tilted_bbox(R, size):
+    """World-from-local rotation + local sizes of a box that is NOT upright within tolerance -> (sizes [w, l, h] of
+    the yaw-aligned bounding box of its 8 corners, yaw_deg, k, tilt_deg); k = local axis closest to vertical, tilt =
+    its angle from world Z; yaw = heading of local X, or of local Y when X is the near-vertical axis (as upright()
+    does: X's small horizontal part is then only the lean direction, and a box aligned to it is up to 3x too big)."""
+    R = np.asarray(R, dtype=float)
+    k = int(np.argmax(np.abs(R[2])))
+    a = next((c for c in ((R[:2, 1], R[:2, 0]) if k == 0 else (R[:2, 0], R[:2, 1])) if np.hypot(*c) >= 1e-6), (1.0, 0.0))
+    yaw = math.atan2(a[1], a[0])
+    D = np.array([[math.cos(yaw), math.sin(yaw), 0], [-math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])   # u, v, z
+    ext = np.abs(D @ R) @ np.asarray(size, dtype=float)      # max - min of the (origin-symmetric) corners along u, v, z
+    return ext.tolist(), math.degrees(yaw), k, math.degrees(math.acos(min(1.0, abs(R[2, k]))))
+
+
 def canon(f):
     """Exported furniture -> same dict with an upright {x:0,y:0,z:yaw} rotation and permuted sizes when the box is
-    upright within tolerance; unchanged (tilted) otherwise."""
+    upright within tolerance; otherwise its yaw-aligned bounding box (`tilted_bbox`) with {x:None,y:None,z:yaw}
+    (convert_room flags it tilted) and "tilt_deg". The centre is unchanged either way."""
     b = f["source_fields"]["bbox"]
     if max(b[3:6]) > MAX_SIZE_M:                 # corrupt box (2 Gen beds are 1910 m / 803014 m tall)
         return {**f, "furniture_size": None}
-    up = upright(rot_zxy(b[6], b[7], b[8]), b[3:6])
+    R = rot_zxy(b[6], b[7], b[8])
+    up = upright(R, b[3:6])
     if up is None:
-        return f
-    (sx, sy, sz), yaw, k = up
-    return {**f, "furniture_size": {"width": sx, "length": sy, "height": sz},
-            "furniture_rotation": {"x": 0.0, "y": 0.0, "z": yaw}, "vertical_axis": k}
+        (sx, sy, sz), yaw, k, tilt = tilted_bbox(R, b[3:6])
+        rot, extra = {"x": None, "y": None, "z": yaw}, {"tilt_deg": tilt}
+    else:
+        (sx, sy, sz), yaw, k = up
+        rot, extra = {"x": 0.0, "y": 0.0, "z": yaw}, {}
+    return {**f, "furniture_size": {"width": sx, "length": sy, "height": sz}, "furniture_rotation": rot,
+            "vertical_axis": k, **extra}
 
 
 def convert(scene, source, uid, group, boundary_type, meta):
@@ -110,7 +131,7 @@ def load(root):
         # (median 27 -> 6 vertices; every polygon is valid, max shift 1 cm)
         poly = Polygon(s["rooms"][0]["room_boundary"]).simplify(0.01)
         s["rooms"][0]["room_boundary"] = [list(c) for c in poly.exterior.coords[:-1]]
-        ir = convert(s, SOURCE, uid=f"{SOURCE}::{rt}/{rid}", group=f"internscenes:gen/{rt}/{rid}",
+        ir = convert(s, SOURCE, uid=f"{SOURCE}::{rt}/{rid}", group=f"internscenes:gen/{rid}",   # one id = one generated house across room-type folders
                      boundary_type="polygon", meta={"asset_source": "Infinigen", "boundary_simplify_m": 0.01})
         doors = sorted(o["pos"][2] for o in ir["objects"] if o["category"] == "door")
         fz = doors[len(doors) // 2] if doors else None
@@ -129,4 +150,34 @@ if __name__ == "__main__":
     size, yaw, k = upright(rot_zxy(0.0, -math.pi / 2, math.radians(40)), [0.7, 0.8, 0.6])
     assert k == 1 and size == [0.7, 0.6, 0.8] and abs(yaw + 40) < 1e-6, (size, yaw)
     assert upright(rot_zxy(0.0, math.radians(10), 0.0), [1, 1, 1]) is None
+
+    # canon: sizes [1.0, 0.2, 0.1], ZXY angles in degrees, centre z
+    S = [1.0, 0.2, 0.1]
+
+    def rec(ax, ay, az=0.0, z=0.0):
+        return {"furniture_category": "box", "furniture_position": {"x": 1.0, "y": 1.0, "z": z},
+                "source_fields": {"bbox": [1.0, 1.0, z, *S, math.radians(az), math.radians(ax), math.radians(ay)]}}
+
+    def sz(c):
+        return [c["furniture_size"][key] for key in ("width", "length", "height")]
+
+    # (1) upright box yawed 30 deg: unchanged sizes, yaw 30
+    c = canon(rec(0, 0, az=30))
+    assert sz(c) == S and abs(c["furniture_rotation"]["z"] - 30) < 1e-9 and "tilt_deg" not in c, c
+    # (2) tilted 30 deg about X: yaw-aligned bounding box, yaw 0
+    s30, c30 = math.sin(math.radians(30)), math.cos(math.radians(30))
+    h, l = 0.2 * s30 + 0.1 * c30, 0.2 * c30 + 0.1 * s30              # 0.1866, 0.2232
+    c = canon(rec(30, 0))
+    assert np.allclose(sz(c), [1.0, l, h]) and abs(c["furniture_rotation"]["z"]) < 1e-9, c
+    assert c["furniture_rotation"]["x"] is None and c["vertical_axis"] == 2 and abs(c["tilt_deg"] - 30) < 1e-9, c
+    # (3) lying flat (a_x = 90): permuted upright box via upright(), not the tilted path
+    c = canon(rec(90, 0))
+    assert np.allclose(sz(c), [1.0, 0.1, 0.2]) and c["vertical_axis"] == 1 and "tilt_deg" not in c, c
+    assert c["furniture_rotation"]["x"] == 0.0 and abs(c["furniture_rotation"]["z"]) < 1e-9, c
+    # (4) tilted box centred at z = 0.2 -> convert_room bottom = 0.2 - h/2, flagged tilted
+    scene = {"scene_id": "s", "source_layout": "l", "source_dataset": "d",
+             "rooms": [{"room_type": "t", "room_boundary": [[0, 0], [4, 0], [4, 4], [0, 4]], "furniture": [rec(30, 0, z=0.2)]}]}
+    ir = convert(scene, "t", uid="u", group="g", boundary_type="polygon", meta={})
+    o = ir["objects"][0]
+    assert o["tilted"] and abs(o["pos"][2] - (0.2 - h / 2)) < 1e-9 and ir["meta"]["n_tilted"] == 1, (o, ir["meta"])
     print("internscenes.py self-check ok")
