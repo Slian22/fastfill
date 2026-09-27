@@ -6,17 +6,31 @@ Conventions (checked against IL3D's USDZ meshes, see il3d_3dfront.py for the sha
   The mesh bounds come from the HSSD-200 asset catalog (XXXpilar__hssd_clean/asset_catalog.csv, same GLB frame as
   IL3D's USDZ, checked on 79 assets) plus EXTRA_BOUNDS for the 54 assets it lacks.
 - boundary = the generated rectangular floor (exact for these rooms); no room height in the source.
+- category = the asset's category (furniture_category = asset_category = layout category for all 47,837 objects); the
+  box is the asset mesh the generator substituted, so its category is what the box is (a "bed" slot filled with a
+  3.0 x 0.11 x 1.18 m railing mesh stays a railing). The layout's own label (object_name, e.g. "dryer-0") is kept
+  as layout_name. Only when the asset category is the generic "furniture" (988 objects, HSSD label "Others": washers,
+  dryers, dishwashers, shelving) the layout label names the object better, so it becomes the category (instance
+  suffix dropped) and the asset category is kept as asset_category. Of those, 1 ("floor_drain_cover" on a washer
+  mesh) is thereby shown as a fixed structure box instead of placed. Against the mesh's HSSD synset (catalog
+  wnsynsetkey) the name agrees for 449, differs for 453 and the mesh has none for 86; the differences are mostly
+  look-alike swaps ("dryer" on 209 washing-machine placements, "washing_machine"/"dryer" on 78 of a "DISHWASHER HOBART"
+  mesh, shelving names on a bathroom rack filed as handcart.n.01). The name is used anyway: it is the layout's label
+  of the slot whose pose is the target, the size already is the mesh's, and a name-agrees-with-synset rule would put
+  539 back to "furniture".
 """
 import csv
 import json
 import math
 import os
+import re
 
 from fastfill.adapters.il3d_3dfront import IL3D, il3d_extra, load_assets, placed_size
 from fastfill.adapters.unified import convert_room, iter_records
 
 SOURCE = "IL3D_synthetic"
 FRONT_OFFSET_DEG = -90   # HSSD mesh +Z -> IR local -Y (front test)
+GENERIC_ASSET = "furniture"   # an asset category that names nothing: the layout's object_name is used instead
 
 # mesh bounds (m, y-up asset frame) of the 54 IL3D HSSD assets absent from the HSSD-200 catalog, read from
 # IL3D HSSD.zip USDZ (extents match assets.json meta for all 54)
@@ -97,6 +111,14 @@ def bottom_center(f, bounds):
     return {"x": p["x"] + c * cx + n * cz, "y": p["y"] + n * cx - c * cz, "z": p["z"] + by}
 
 
+def labels(f):
+    """-> (IR category, extra IR fields): the layout label is always kept; it is the category only for GENERIC_ASSET."""
+    cat, name = f.get("furniture_category"), f.get("object_name")
+    if cat == GENERIC_ASSET and name:
+        return re.sub(r"-\d+$", "", name), {"layout_name": name, "asset_category": cat}
+    return cat, {"layout_name": name} if name else {}
+
+
 def load(root):
     assets, catalog = load_assets(root), load_catalog(root)
     for scene in iter_records(os.path.join(root, IL3D, "synthetic_data.json")):
@@ -106,10 +128,11 @@ def load(root):
                 f = dict(f)
                 f["furniture_size"] = placed_size(f, assets.get(f.get("furniture_asset_id")))
                 f["furniture_position"] = bottom_center(f, catalog.get(f.get("furniture_asset_id")))
+                f["furniture_category"], f["_labels"] = labels(f)
                 furniture.append(f)
             yield convert_room({**room, "furniture": furniture}, source=SOURCE, uid=f"il3d:{scene['scene_id']}",
                                group=f"il3d:{scene['scene_id']}", subset="Synthetic Data", boundary_type="polygon",
-                               front_offset_deg=FRONT_OFFSET_DEG, extra=il3d_extra,
+                               front_offset_deg=FRONT_OFFSET_DEG, extra=lambda f: {**il3d_extra(f), **f["_labels"]},
                                meta={"il3d_scene_id": scene["scene_id"], "front_known": True,
                                      "position_from": "asset origin + HSSD-200 catalog mesh bounds",
                                      "size_from": "assets.json mesh extents x layout scale"})
@@ -120,4 +143,8 @@ if __name__ == "__main__":
          "source_fields": {"layout_object": {"scale": [1, 2, 1]}}}
     b = bottom_center(f, ([-0.5, -0.5, 0.0], [0.5, 0.0, 0.4]))   # hanging: origin at top, box centered at z=+0.2
     assert all(abs(b[k] - v) < 1e-9 for k, v in {"x": 1.2, "y": 1.0, "z": 1.0}.items()), b
+    assert labels({"furniture_category": "furniture", "object_name": "clothes_dryer-2"}) == (
+        "clothes_dryer", {"layout_name": "clothes_dryer-2", "asset_category": "furniture"})
+    assert labels({"furniture_category": "balcony_railing", "object_name": "bed-0"}) == ("balcony_railing", {"layout_name": "bed-0"})
+    assert labels({"furniture_category": "furniture"}) == ("furniture", {})
     print("il3d_synthetic self-check ok")

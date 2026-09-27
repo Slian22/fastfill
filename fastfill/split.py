@@ -62,10 +62,16 @@ def assign_splits(rooms, dev=0.05, test=0.05):
         for al in r.get("meta", {}).get("group_aliases") or []:
             union(g, "a:" + al)
     held_out = {find("g:" + r["group"]) for r in rooms if r.get("meta", {}).get("eval_only")}
+    # a component is hashed by its smallest GROUP name, not by its union-find root (which may be a furniture or layout
+    # key): the split of a house then does not depend on object content, and a prep change does not move houses
+    name = {}
+    for r in rooms:
+        c = find("g:" + r["group"])
+        name[c] = min(name.get(c, "g:" + r["group"]), "g:" + r["group"])
     out = []
     for r in rooms:
         c = find("g:" + r["group"])
-        h = int(hashlib.sha1(c.encode()).hexdigest(), 16) % 10000 / 10000
+        h = int(hashlib.sha1(name[c].encode()).hexdigest(), 16) % 10000 / 10000
         out.append("test" if c in held_out or h < test else "dev" if h < test + dev else "train")
     return out
 

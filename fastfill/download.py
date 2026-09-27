@@ -79,6 +79,7 @@ def main():
         repo, folder = SOURCES[name]
         by_repo.setdefault(repo, []).append((name, folder))
     api = HfApi()
+    failed_count = 0
     for repo, items in by_repo.items():
         # one listing per repo: listing a large repo takes minutes
         sizes = {f.path: f.size for f in api.list_repo_tree(repo, repo_type="dataset", recursive=True)
@@ -91,8 +92,11 @@ def main():
                   f"{sum(sizes[p] for p in todo) / 1e9:.2f} GB)", flush=True)
             with ThreadPoolExecutor(a.workers) as ex:
                 failed = [p for p, ok in zip(todo, ex.map(lambda p: fetch(repo, p, local), todo)) if not ok]
+            failed_count += len(failed)
             print(f"== {name}: done" if not failed else f"== {name}: {len(failed)} files failed, rerun to resume",
                   flush=True)
+    if failed_count:
+        raise SystemExit(1)
 
 
 def fetch(repo, path, local, tries=8):
