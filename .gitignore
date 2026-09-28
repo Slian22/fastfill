@@ -10,6 +10,7 @@ htmlcov/
 .env.*
 !.env.example
 data/
+/huggingface/
 ir/
 outputs/
 out/
