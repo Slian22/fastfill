@@ -23,3 +23,14 @@ checkpoints/
 *.pt
 *.pth
 *.ckpt
+
+# Local datasets, publication backups and research artifacts
+/dataset/
+/.repo-consolidation/
+/paper/
+/excel/
+/fastfill/review_*/
+/fastfill/batch3.txt
+/.benchmarks/
+/.code-review-graph/
+/.claude/
