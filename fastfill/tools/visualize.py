@@ -5,7 +5,7 @@ with bounding boxes, IDs, labels, and front orientation arrows.
 
 Usage:
     # 1. Visualize a sample from test.jsonl:
-    python -m fastfill.tools.visualize --data /essfs10/shanliantian/fastfill-v3/v3.1/test.jsonl --index 0 --out room_0.png
+    python -m fastfill.tools.visualize --data data/v3.1/test.jsonl --index 0 --out room_0.png
 
     # 2. Render the built-in synthetic demonstration:
     python -m fastfill.tools.visualize --out demo.png
