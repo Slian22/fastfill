@@ -2,10 +2,22 @@
 
 These notes describe the audited v3.2 implementation. A frozen and hash-verified release is reproducible; it does not imply that all defects are resolved.
 
+The [2026-09-28 source-by-source recheck](audit-2026-09-28.md) records the download inventory, raw-source checks, frozen-output comparisons, and the limits of each conclusion. No implementation or frozen dataset was changed during that audit.
+
 ## Open implementation issues
 
 - `fastfill/serve.py` bounds Content-Length but does not set a request-read timeout. The synchronous HTTP server can wait indefinitely for an incomplete request body. Add a request deadline before relying on this server for clients that may stall; concurrent model execution is a separate design decision.
-- In `fastfill/adapters/internscenes.py`, objects whose source semantic front is near vertical may be re-expressed using a horizontal geometric axis without propagating object-level `front_known=False`. Such objects can still receive yaw supervision. Confirmed examples include a TV in `InternScenes_mp3d::Matterport3D:matterport3d/1LXtFkjw3qL/region11` and a monitor in `InternScenes_3rscan::3RScan:3rscan/0f2f2723-b736-2f71-8c94-f692cca76661`. Representative rows remain in v3, v3.1 and v3.2; the corpus-wide incidence has not been measured in this audit.
+- `fastfill/adapters/scan2cad.py` does not recompute upright extents for objects tilted by more than its explicit 10-degree noise tolerance. Independent source-corner checks confirm wrong dimensions in eight targets across six saved v3.2 train rows; seven targets in five rows pass the default training flag filter, before token-length filtering and weighting.
+- `fastfill/adapters/il3d_3dfront.py` treats an exported opening's world-axis span as its length along an oblique wall. Confirmed ordinary rectangular windows are too short: 39 fixed-input boxes across 24 saved rooms, including 25 boxes in 15 train rows that pass the default flag filter. This is a fixed-input geometry issue, not a window placement-target issue.
+- `fastfill/adapters/spatialgen.py` retains local extents while discarding full tilt. Two affected paintings remain as targets in v3.2 test rows 5419 and 5423. Six other affected source objects are filtered before final messages; this source has no train rows.
+- `fastfill/tools/qa_report.py` repairs training reference containment without passing saved prompt constraints. Evaluation and the API preserve hard constraints during repair, so the QA repaired-containment statistic can disagree with them. A synthetic case is reproduced; the incidence in the saved dataset has not been measured.
+
+## Semantic-front evidence and intermediate IR
+
+- InternScenes deliberately substitutes a horizontal geometric axis when source local X is the closest-to-vertical axis. Its geometry helper passes independent corner checks. The retained source documentation does not establish a semantic front for every asset, so the earlier unconditional description of this as a verified near-vertical **semantic** front was too strong. The issue is unverified semantic interpretation of a known geometric fallback, not a demonstrated box-conversion error in the TV/monitor examples. In v3.2, 5,874 such target objects occur in 2,927 train rows after default flag filtering; these are exposure counts, **not error counts**. Setting `front_known=False` under the existing build policy can remove objects and alter room selection; no blanket relabeling was performed.
+- SceneSmith has 46 wall-mounted source objects whose asset origin is at the bottom, although the adapter assumes vertical center. Their frozen IR is shifted downward. None is directly retained as a target or fixed object in the current saved test messages; possible indirect effects through anchoring, filtering, or flags have not been excluded.
+- InteriorGS has a reproduced thin-object edge case in its 2 cm shortcut. The three inspected lamps are absent from final targets and fixed inputs. This is not evidence that all final room content is unaffected indirectly.
+- Several adapters use empirically calibrated front conventions. Wall-contact statistics and a geometric box axis do not establish per-asset semantic truth. Preserve this distinction when reporting facing accuracy or proposing data migrations.
 
 ## Metric and capability boundaries
 
