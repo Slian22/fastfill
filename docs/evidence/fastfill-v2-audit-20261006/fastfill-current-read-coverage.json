@@ -1,6 +1,7 @@
 {
   "date": "2026-10-06",
-  "scope": "36 current v2 production Python modules, original v1 not fresh full audited",
+  "scope": "36 current v2 production Python modules; original v1 not freshly full audited",
+  "implementation_commit": "435d4e6532bdbc24d130df5edc11c5aa002a0460",
   "files_read": 36,
   "lines_read": 7542,
   "files": [

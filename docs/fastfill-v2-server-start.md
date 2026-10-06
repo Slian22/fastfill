@@ -1,6 +1,6 @@
 # FastFill v2：Qwen3-8B 服务器启动
 
-**当前服务器主入口是 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。** 完整条件主集为 124,589 / 8,137 / 8,615 场景；真实 Qwen tokenizer／对象预算资格为 124,375 / 8,125 / 8,602。环境、Qwen 权重、七卡 NCCL 和有界生产 pilot 已验收，完整三轮训练尚未启动。实际配置与命令见 [多源完成记录](fastfill-v2-multisource-20261006.md)。最终下游是 RoomGenBench；本训练入口不依赖 vLLM 或 MinkowskiEngine。
+**当前服务器主入口是 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。** 完整条件主集为 124,589 / 8,137 / 8,615 场景；真实 Qwen tokenizer／对象预算资格为 124,375 / 8,125 / 8,602。环境、Qwen 权重、七卡 NCCL 和有界生产 pilot 已验收，完整三轮训练尚未启动。实际配置与命令见 [多源完成记录](fastfill-v2-multisource-20261006.md)。最终下游是 RoomGenBench；本训练入口不依赖 vLLM 或 MinkowskiEngine。当前实现提交 `435d4e6532bdbc24d130df5edc11c5aa002a0460` 的权威代码目录为该主入口下的 `project-current-audit-20261006`，旧 `project/` 保留为 pilot 快照。
 
 本页其余内容保留历史 review3 与 SpatialLM XY pilot 的准备和运行记录。它们的旧目录、数量和 checkpoint 均有各自版本，不能作为当前主任务的全量训练结果。服务器整理后的实际路径以最新发布／清理收据为准。
 

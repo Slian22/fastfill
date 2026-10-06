@@ -1,11 +1,16 @@
 {
   "date": "2026-10-06",
-  "scope": "portable selected audit receipts; upstream source duplicates/paper text/binaries/images/raw assets/model weights excluded; full original evidence retained in outputs",
+  "scope": "portable audit/publication/server receipts; full original evidence in outputs; binary papers/assets/duplicate source excluded",
   "files": [
     {
+      "path": "README.md",
+      "bytes": 1081,
+      "sha256": "52f33aa634ad702900cdd0fc0a6c427dc01676328f64c1d99c0fafa9f467edff"
+    },
+    {
       "path": "fastfill-current-read-coverage.json",
-      "bytes": 6912,
-      "sha256": "731ea8e187909ba57e8107995e46f43c5a420cf42b94c3ba5e8c8d4714642ced"
+      "bytes": 6985,
+      "sha256": "7f79c67c8886f6561fb326c4f3226d2e4276e8faef50c39656dc57fc706f18b9"
     },
     {
       "path": "fastfill-training/README.md",
@@ -16,6 +21,36 @@
       "path": "fastfill-training/scope-manifest.json",
       "bytes": 3514,
       "sha256": "9d5c9f8fb0f6fad1b7b56a9eab4316acd1e62f93b7c40b798a020a7b764d893a"
+    },
+    {
+      "path": "final-code-review.json",
+      "bytes": 4022,
+      "sha256": "ebf965c9b693eb921f5cfd934fc58368d279948740b786bff93d54b890db9340"
+    },
+    {
+      "path": "publication/actual-download-verification.json",
+      "bytes": 12845,
+      "sha256": "96a235be5d581edce5a024320a87f480dbf8eb62dcf941397879eba53fa5a79e"
+    },
+    {
+      "path": "publication/deletion-plan.json",
+      "bytes": 7473,
+      "sha256": "6240ba6e68b29cd0d30a7de8d2e96a8e6fd3b3d13acb3e3026111fe8facfc91c"
+    },
+    {
+      "path": "publication/hf-after-verification.json",
+      "bytes": 13581,
+      "sha256": "fc83591ece025775995edf77c52f6c110f2dac49c37231c06d4c19517960bb2a"
+    },
+    {
+      "path": "publication/hf-code-reference-update.json",
+      "bytes": 1015,
+      "sha256": "51deb4b948ee1e91db18a9ec2a7c354204c2e0b651a66afc25fbd1eda7294b80"
+    },
+    {
+      "path": "publication/hf-data-commit.json",
+      "bytes": 11997,
+      "sha256": "f950c6525ac57f07fcfa62fa1014fab2bb1fe583b342c25d3bc2629d4322224b"
     },
     {
       "path": "reference-minkowski-native/mechanism_repros.py",
@@ -178,14 +213,64 @@
       "sha256": "a0e5807217cfd4ecf89a5768f679e4f2f191cfbae296e70afdda1661625d2010"
     },
     {
+      "path": "security-pip-audit-final.json",
+      "bytes": 3078,
+      "sha256": "1de08e87b4b54fd04f4b44cf4d31b881ba1ddf0ab05ba01e940506a01f2987cd"
+    },
+    {
       "path": "security-server-current-pins.txt",
       "bytes": 871,
       "sha256": "4d3eb841f22a27eb70ba25a28fe4590b49813524cde6a2a63a8a8cf434be4577"
     },
     {
+      "path": "security-server-final-pins.txt",
+      "bytes": 901,
+      "sha256": "d5fe725335cc38098d87402521ecc855c491dc71ac4f8a962add13a37204fc96"
+    },
+    {
+      "path": "security-staged-review.json",
+      "bytes": 233,
+      "sha256": "7dcc2affd13c228ccb173f19301df2d991b0980c0e27cd23f9ec9b52cba9f1fd"
+    },
+    {
+      "path": "server-cleanup-receipt.json",
+      "bytes": 13224,
+      "sha256": "bdffab6afa592d8901fadd74ba39aa6cc88c2405ac0a8c840210b2a33b903666"
+    },
+    {
+      "path": "server-current/server-cleanup-receipt-20261006.json",
+      "bytes": 13224,
+      "sha256": "bdffab6afa592d8901fadd74ba39aa6cc88c2405ac0a8c840210b2a33b903666"
+    },
+    {
+      "path": "server-current/server-current-code-manifest-435d4e6532bdbc24d130df5edc11c5aa002a0460.json",
+      "bytes": 38073,
+      "sha256": "336c794b27344fc5ba53b8393b2b07269fa4a9f586c7eccbf421c323e94c15bd"
+    },
+    {
+      "path": "server-current/server-environment-current-435d4e6532bdbc24d130df5edc11c5aa002a0460.json",
+      "bytes": 3233,
+      "sha256": "bbb0ee11de8d67f9ac6347877b4b3e4808b656394741db22276edd9ec4852e85"
+    },
+    {
+      "path": "server-current/server-tests-current-435d4e6532bdbc24d130df5edc11c5aa002a0460.json",
+      "bytes": 2702,
+      "sha256": "9e837290f061333feeaf91912aa124706fcc09aef4ad52fd15200852beb5cd93"
+    },
+    {
+      "path": "server-references/EXPORT_SUMMARY.json",
+      "bytes": 1451,
+      "sha256": "7aa36903c34409188d596b01ca8670f203317b7568b7303c627e85ea198d53ef"
+    },
+    {
+      "path": "server-references/SERVER_VERIFICATION.json",
+      "bytes": 4417,
+      "sha256": "95d172deda9003a70c608d805a01f88ba9244667b946e49d574f6ba1f550dcca"
+    },
+    {
       "path": "test-security-receipt.json",
-      "bytes": 1121,
-      "sha256": "fa071f3db600a9301c0aee71cf52560abb075a3d645ed0ce2e3e7ba988f472aa"
+      "bytes": 1973,
+      "sha256": "d32a02157430c8ed944e0de2a330ca57470efabb3aa278d78bf6fb41215f6852"
     }
   ]
 }

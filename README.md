@@ -76,8 +76,13 @@ the [training pipeline](docs/fastfill-v2-training-pipeline.md). The completed
 build locations are `outputs/fastfill_v2/multisource-20261006/data`,
 `/Volumes/harddisk/FastFill_v2_multisource_20261006`, and the server copy
 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`. Final build hashes,
-split counts and actual Qwen tokenizer eligibility must come from the new
-manifests and preflight; no new multi-source private release is claimed here.
+split counts and actual Qwen tokenizer eligibility are frozen in the new
+manifests and preflight. The private multi-source release is fixed at
+`ba1c3bf018c49bc841b696c25f8c2e1d1ff61a88`, with main data, actual eligible
+view, independent minimal/rectangle ablations and held-out NEAR data. The
+24 canonical data files total 6,277,486,224 bytes; all 47 release files have
+verified remote sizes and SHA256. Historical directories were removed from
+current HF HEAD while their pinned revisions remain available.
 The independent three-field `reference_extent` ablation is built under
 `outputs/fastfill_v2/multisource-20261006/data-minimal-reference`; its XY coordinate
 translation, unknown physical boundary/floor flags and geometric-axis yaw policy

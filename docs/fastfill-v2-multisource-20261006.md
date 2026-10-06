@@ -50,7 +50,7 @@ v2 另拒绝 316 间：倾斜固定几何 185、斜向窗缺少来源修正 111�
 
 ## 服务器实际结果
 
-服务器：`yxd-dev`，包目录 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。模型：固定 Qwen3-8B revision `b968826d9c46dd6066d109eabc6255188de91218`。环境：torch 2.13.0+cu126、transformers 5.14.1、peft 0.21.0、accelerate 1.15.0。服务器核验 162 个代码文件及六个主数据文件；大数据采用同一已钉 hash 的父包在服务器重建，所有输出逐文件 SHA 与本地已追溯 IR 的版本相同，非盲目复用旧数据。
+服务器：`yxd-dev`，包目录 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。模型：固定 Qwen3-8B revision `b968826d9c46dd6066d109eabc6255188de91218`。环境：torch 2.13.0+cu126、transformers 5.14.1、peft 0.21.0、accelerate 1.15.0。前次 pilot 快照核验 162 个代码文件及六个主数据文件；本轮权威代码更新为 `project-current-audit-20261006`，与 Git 实现提交 `435d4e6532bdbc24d130df5edc11c5aa002a0460` 绑定；大数据采用同一已钉 hash 的父包在服务器重建，所有输出逐文件 SHA 与本地已追溯 IR 的版本相同，非盲目复用旧数据。
 
 真实 tokenizer 全量 preflight 已完成，16 个 train tags 全部保留，heldout 来源没有进入训练。实际可学 train labels：position 1,495,767、size 1,063,882、semantic yaw 523。所有 58 个 train yaw 场景均保留。预检报告、配置及排除台账见 [server-evidence.json](../outputs/fastfill_v2/multisource-20261006/server-evidence.json)。
 
@@ -67,7 +67,7 @@ v2 另拒绝 316 间：倾斜固定几何 185、斜向窗缺少来源修正 111�
 候选配置：[training-3epochs-world7-B1K16.json](../outputs/fastfill_v2/multisource-20261006/readiness7-B1K16/training-3epochs-world7-B1K16.json)，SHA256 `834654b3895a703e75213db2a692b3e385a5d79b54767802e1c6387599b7dbcd`。服务器同路径的 `readiness7-B1K16/` 保存实际七 rank 收据。仅在决定启动完整基线时执行：
 
 ```bash
-cd /home/jovyan/shanliantian/FastFill_v2_multisource_20261006/project
+cd /home/jovyan/shanliantian/FastFill_v2_multisource_20261006/project-current-audit-20261006
 CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 OMP_NUM_THREADS=1 \
   /home/jovyan/shanliantian/FastFill_v2_20261006_server/env/bin/python \
   -m torch.distributed.run --standalone --nproc_per_node=7 --module fastfill.v2.train \
@@ -90,3 +90,13 @@ CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 OMP_NUM_THREADS=1 \
 当前可以开展完整主数据的有记录基线研究实验；不据此宣布布局质量、真实资产 / mesh / physics / Solver / 持久 Host 验收完成。当前实际 checker / WorldEdge Host adapter 等仍有实现缺口，详见接口审核与 [训练流水线](fastfill-v2-training-pipeline.md)。本轮只完成有界 pilot，没有留下正式全量训练进程。
 
 数据路径：本地 `outputs/fastfill_v2/multisource-20261006`；外盘独立新包 `/Volumes/harddisk/FastFill_v2_multisource_20261006`；服务器同名新包。review2 / review3、原 IR、历史版本和旧 checkpoint 均未覆盖。
+
+## 当前发布与清理
+
+代码已发布至私有 GitHub `Slian22/fastfill`，实现提交 `435d4e6532bdbc24d130df5edc11c5aa002a0460`。私有 HF 数据 revision 为 `ba1c3bf018c49bc841b696c25f8c2e1d1ff61a88`；canonical24文件及47个发布文件的远端大小／SHA均一致。下载入口见 [数据发布用法](fastfill-v2-dataset-release.md)。历史 HEAD 文件已移除，旧固定 revision 仍可读取。
+
+服务器清理删除了废弃的 review3／单源 pilot 解包数据、重复传输包、探针与未完成上传，保留 raw sources、环境、冻结档案、checkpoint 和当前主／资格／消融／NEAR 视图。净删除逻辑量为 **1,717,202,511 bytes**，最终缺席目标12个；三份矩形消融曾为清理候选，随后为canonical发布从原JSONL原样筛选恢复，SHA完全一致且现保留。共享JuiceFS的free计数没有同步变化，不能把du估计当成实际磁盘回收量。逐路径收据见 [清理证据](evidence/fastfill-v2-audit-20261006/server-cleanup-receipt.json)。
+
+本轮最终完整本地回归为 **903 passed、114 subtests passed**；v2独立覆盖运行765 passed，statement coverage **88.35%**。服务器当前完整套件897 passed／114 subtests／6 Metal skips；v2服务器statement coverage为87.71%，合并旧v1＋v2为76.71%，范围不同。这不是模型质量通过率，当前同步和论文源码范围以 [本轮交付收据](fastfill-v2-release-20261006.md) 为准。
+
+参考源码及三份论文PDF已发布服务器 `references-20261006`：1772/1772导出文件SHA匹配，1755源码／文本与固定Git blob一致。它是源码／论文参考包，没有编译MinkowskiEngine、运行原detector或安装RoomGenBench生成方法权重。当前FastFill v2不依赖ME。

@@ -4,7 +4,21 @@
 
 当前主数据是 `multisource-20261006/data`，124,589 / 8,137 / 8,615 场景，1,787,052 个请求对象。真实 Qwen tokenizer 资格视图为 124,375 / 8,125 / 8,602，位于服务器 `preflight-main/eligible` 和本地 `eligible-local`。新主版本保留完整条件，处理 D1/D2 资格，保留 581 个有效语义 yaw；来源、精确 hash 与完成证据见 [多源记录](fastfill-v2-multisource-20261006.md)。
 
-本页下列两个固定 HF revision 描述历史 review3 与 SpatialLM pilot；它们不是新主数据下载入口。当前发布将主数据、实际资格视图、简化输入消融和 heldout NEAR 评测视图放入同一 `multisource-20261006` 版本。NEAR 和简化视图各自的真实 tokenizer 预检／模型评测尚未完成。
+当前数据固定 HF revision 为 **`ba1c3bf018c49bc841b696c25f8c2e1d1ff61a88`**，配套实现提交为 `435d4e6532bdbc24d130df5edc11c5aa002a0460`。主数据、实际资格视图、简化输入消融和 heldout NEAR 视图同置于 `multisource-20261006`。canonical 数据共 24 文件、6,277,486,224 bytes；连同审计、清单和 dataset card，47 个远端文件的大小／SHA 全部匹配。发布后仓库仍为 private。历史 review3 与 SpatialLM pilot 已从 HEAD 移除，固定旧 revision 保留。
+
+NEAR 和简化视图各自的真实 tokenizer 预检／模型评测尚未完成。主资格 `eligible/` 才是当前已完成真实 tokenizer preflight 的训练视图。SHA256SUMS 列 46 项，包括根 README 和发布 manifest；checksum 自身另以远端验收核对。完整发布证据见 [本轮发布与服务器收据](fastfill-v2-release-20261006.md)。
+
+```bash
+export FASTFILL_DATASET_ROOT=/path/to/fastfill-v2-current
+hf download liantian/fastfill-v2 --repo-type dataset \
+  --revision ba1c3bf018c49bc841b696c25f8c2e1d1ff61a88 \
+  --local-dir "$FASTFILL_DATASET_ROOT"
+cd "$FASTFILL_DATASET_ROOT"
+sha256sum -c multisource-20261006/SHA256SUMS
+export FASTFILL_MAIN_DATA="$FASTFILL_DATASET_ROOT/multisource-20261006/eligible"
+```
+
+私有访问使用已有 HF 登录。服务器已保存相同主数据与资格文件时直接使用其已验 SHA 路径，无需重复下载。
 
 ## 历史 SpatialLM pilot：最小 XY 输入 → bbox 布局
 
