@@ -1,12 +1,15 @@
 # FastFill v2 — experimental joint geometry generator
 
-Given room geometry/semantics, a specified object inventory and constraints,
-predict **one target local full size, bottom-center and yaw per requested ID**.
+Current task: **room type + room XY size + furniture list** predicts one target
+local full size, bottom-center and yaw per requested ID, then exports bbox scene
+JSON and colored GLB/SVG directly to downstream systems. No asset retrieval is
+required. The richer condition/asset-loop path remains optional.
 Qwen encodes condition tokens only. An external bidirectional object decoder
 cross-attends to all condition hidden states and produces continuous geometry.
 Text SFT is an independent token-CE comparison. Neither requires MinkowskiEngine.
 
-This implements the design frozen on 2026-10-05. It is **not a validated method**.
+The architecture implements the 2026-10-05 design; the direct minimal-input
+boundary follows the user's 2026-10-06 clarification. It is **not a validated method**.
 No production Qwen training, quality improvement, real Host deployment, mesh or
 physical simulation success is claimed. Existing `fastfill/train.py`,
 `evaluate.py`, `serve.py`, and v3/v3.1/v3.2 dataset/experiment lineage are retained.
@@ -22,13 +25,16 @@ Model version v2 is separate from the older dataset's v3-series numbering.
 | `boxes.py`, `regularizers.py` | Optional BEV oriented convex-hull GIoU, normalized collision-volume and convex-room boundary losses; no implicit 3D GIoU |
 | `audit.py`, `adapters.py`, `data.py`, `legacy_build.py`, `legacy_bridge.py`, `legacy_evidence.py` | Source inventory, immutable migration of the selected v3.2 corpus with inherited splits and evidence-based field masks; explicit raw MultiScan audit/smoke adapter |
 | `train.py`, `text_sft.py`, `evaluate.py` | Joint optimizer, assistant-only text CE, checkpoint inference, all-request failures, legal matching reference metrics and separated asset/system metrics |
-| `predict.py` | Standalone condition-only structured/text checkpoint inference, optionally followed by the asset loop |
+| `direct_layout.py`, `bbox_visualization.py`, `minimal_data.py` | Strict three-field request, source-audited XY dataset projection, canonical/RoomGenBench JSON, generation registry, no-asset bbox GLB/SVG and proxy diagnostics |
+| `predict.py` | `--request` minimal-input inference/export; richer `--condition` and legacy catalog path retained |
 | `runtime.py`, `validation.py`, `serve.py` | Catalog resolver contract, target/actual separation, pivot-to-canonical transforms, verified support propagation, bounded reselect/translation repair, atomic in-memory Host reference |
 
 The latest [objective update](../../docs/fastfill-v2-review3-objective.md) adds enabled-loss preflight and a globally counted accumulation-window optimizer guard. See the [server setup guide](../../docs/fastfill-v2-server-start.md) for the supplied H20Z host. The historical [review2 audit](../../docs/fastfill-v2-review-20261006.md) separates repaired defects, data provenance and remaining training limits.
 
+## Preserved rich-condition data and release history
+
 The local source audit is in [docs/fastfill-v2-data-audit.md](../../docs/fastfill-v2-data-audit.md).
-The primary training source is **our selected, frozen `.release/v3.2` corpus**,
+The historical broad training source is **our selected, frozen `.release/v3.2` corpus**,
 derived from the 5 local roots / 16 dataset families and represented by 18 source
 names in the frozen IR. Its saved splits contain 160,964 scenes (144,150 train,
 8,167 dev, 8,647 test); the existing training flag policy retains 124,843 of the
@@ -55,7 +61,7 @@ available with yaw masked. Legacy convention yaw is an explicit alternate policy
 not verified semantic front. Old inferred `on` relations are omitted, rather than
 turning bbox contact into support evidence. Tilted fixed geometry is rejected;
 unsupported requested-object geometry is masked. A scene with no reliable geometry
-field is rejected. Thus the primary structured corpus contains partial labels;
+field is rejected. Thus the historical broad structured corpus contains partial labels;
 it must not be described as fully supervised size/position/yaw for every object.
 
 Known room/support evidence is preserved, and missing evidence remains unknown.
@@ -79,7 +85,31 @@ Its [execution manual](../../docs/fastfill-v2-runbook.md) gives Linux/macOS
 checksum, environment, smoke, training, evaluation and runtime commands.
 The repository rebuild commands below require the original frozen `.release`
 inputs; the portable bundle uses the supplied data and the execution manual.
-Final local tests: **659 passed + 114 subtests**, v2 coverage **87.68%**.
+Historical review3 local tests: **659 passed + 114 subtests**, v2 coverage **87.68%**.
+
+## Current minimal-input bbox path
+
+Read the [direct bbox guide](../../docs/fastfill-v2-direct-bbox.md) for the exact
+request and downstream boundary. The new XY derivative has 9,601/539/624 scenes,
+33,545 objects, all complete geometry labels. It is qualified from SpatialLM,
+inherits parent splits, omits source height from condition, and supervises
+pi-periodic **bbox axes** (not semantic front). Correspondence is fixed; no
+exchangeable groups were reconstructed. Maximum scene size is 26 objects.
+The old 16-family snapshots and richer-condition pilot remain separate evidence.
+
+```bash
+python -m fastfill.v2.predict \
+  --checkpoint "$FASTFILL_MODEL" \
+  --request fastfill/v2/configs/direct_request.json \
+  --output outputs/bbox-prediction-new.json \
+  --export-dir outputs/bbox-handoff-new --device cuda
+```
+
+This writes geometry JSON, RoomGenBench SceneSpec/registry, GLB, SVG and proxy
+diagnostics without a catalog or Host. Unknown height/support stays unknown;
+the original RoomGenBench fixed scene/site/render harness needs separate scene
+registration and height/metadata handling. Export success is not model quality.
+Commands below describe the preserved broader-condition and optional asset paths.
 
 The [training pipeline walkthrough](../../docs/fastfill-v2-training-pipeline.md) explains data, each optimizer step, deployment artifacts, and the RoomGenBench task boundary. review2 withdraws unsupported source-derived `faces` while retaining UID/splits/targets/masks; it adds below-floor diagnostics without rewriting labels. The older bundle remains a historical snapshot.
 
@@ -243,7 +273,8 @@ checkpoints contain backbone adapter/full weights where needed and decoder/heads
 
 ## Geometry and exact losses
 
-- Right-handed Z-up meters. Local +X is canonical front. `(w,d,h)` are full
+- Right-handed Z-up meters. Local +X is the canonical bbox axis; the current
+  geometric-yaw dataset does not certify semantic front. `(w,d,h)` are full
   X/Y/Z lengths, invariant under yaw. Positions are bbox bottom-center.
 - Position normalization uses input room origin and XY extent; missing height
   uses fixed 3m. Trusted floor-support z and requested fixed size dimensions are
@@ -359,7 +390,8 @@ requests mesh evidence and blocks offline commit while that evidence is unknown.
    using its own existing entry point. It has richer size information; label that
    difference rather than reporting it as the same hidden-size task.
 2. Train v2 text SFT and its controlled structured counterpart on the same
-   complete-label cohort, condition information, asset library and repair budget.
+   minimal XY dataset, condition information and documented sample exposure.
+   For optional asset-loop experiments, additionally fix asset/repair budgets.
 3. Train structured fixed correspondence with `configs/structured_fixed.json`.
 4. Train structured exchangeable-group Hungarian with `configs/structured.json`.
 5. If useful, compare `configs/structured_bev_box.json` at equal training budget.
@@ -398,6 +430,6 @@ output equivalence, together with geometry/model/runtime checks. Final suite and
 coverage totals are recorded by the final verification run; historical coverage
 artifacts do not describe the entire repository.
 
-Production training is intentionally deferred until the training-machine and
-checkpoint configuration are chosen. No quality gain or actual persistent-world
-success has been measured.
+The server and Qwen3-8B checkpoint have been chosen and the historical pilot ran.
+Full training exposure/budget and quality comparisons remain unvalidated.
+No quality gain or actual persistent-world success has been measured.

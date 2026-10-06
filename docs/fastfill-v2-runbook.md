@@ -1,6 +1,8 @@
 # FastFill v2 执行手册
 
-日期：2026-10-06。本文对应冻结设计及本次审计后的可上传训练包。本版为 review3，修复启用目标资格与空累积窗口更新；沿用 review2 数据，旧包与旧 hash 保留为历史快照。代码与离线测试验证了实现路径；正式 Qwen 训练、模型质量收益、真实资产闭环和服务器资源需求仍需实际运行确认。
+**当前最小输入任务请先看 [直接 bbox 交付手册](fastfill-v2-direct-bbox.md) 和 [数据使用手册](fastfill-v2-dataset-release.md)。** 输入是房型＋XY房间尺寸＋家具列表，输出布局/bbox，FastFill 不检索资产。下面保留 review3 丰富条件冻结包的执行记录；其中 selected-v3.2、complete-label-cohort 和 catalog 命令不是新 XY 数据任务的默认路径。历史测试与 pilot 不能充当新任务的训练结果。
+
+日期：2026-10-06。本文对应冻结设计及本次审计后的可上传训练包。本版为 review3，修复启用目标资格与空累积窗口更新；沿用 review2 数据，旧包与旧 hash 保留为历史快照。真实 Qwen3-8B 已完成单卡 BF16 的 20 更新步 pilot、保存和重新加载评测；Linux 套件为 653 tests + 114 subtests passed、6 个 Metal 跳过，v2 statement coverage 87.65%。全库正式训练、模型质量收益和真实资产闭环仍未验证；六个 pilot 测试场景均未通过严格目标几何验收。实测证据及原因见 [服务器启动手册](fastfill-v2-server-start.md)。冻结压缩包内文档保留冻结时状态，当前手册记录后续实测。
 
 ## 1. 上传包和目录
 

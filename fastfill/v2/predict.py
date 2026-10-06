@@ -1,4 +1,4 @@
-"""Condition-only checkpoint inference, optionally followed by the asset loop."""
+"""Direct bbox checkpoint inference; the legacy asset loop is explicitly optional."""
 from __future__ import annotations
 
 import argparse
@@ -18,10 +18,13 @@ from fastfill.v2.schema import validate_condition, validate_layout
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--checkpoint", type=Path, required=True)
-    p.add_argument("--condition", type=Path, required=True)
+    inputs = p.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--condition", type=Path)
+    inputs.add_argument("--request", type=Path, help="room_type + room_size_m + furniture_list; no assets")
     p.add_argument("--output", type=Path, required=True, help="New JSON file, never overwrite input")
     p.add_argument("--baseline", choices=["structured", "text"], default="structured")
     p.add_argument("--catalog", type=Path)
+    p.add_argument("--export-dir", type=Path, help="New bbox JSON/GLB/SVG handoff directory; no assets")
     p.add_argument("--device", default="cpu")
     p.add_argument("--max-length", type=int, default=4096)
     p.add_argument("--max-new-tokens", type=int, default=2048)
@@ -32,7 +35,19 @@ def main(argv=None):
     p.add_argument("--commit-in-memory", action="store_true")
     args = p.parse_args(argv)
     output = safe_output(args.output)
-    condition = json.loads(args.condition.read_text())
+    if args.request and args.catalog:
+        raise ValueError("direct furniture requests export bbox geometry and do not resolve assets")
+    if args.export_dir and args.catalog:
+        raise ValueError("bbox handoff exports raw predictions; omit --catalog")
+    if args.export_dir:
+        handoff = safe_output(args.export_dir)
+        if output == handoff or output.is_relative_to(handoff) or handoff.is_relative_to(output):
+            raise ValueError("--output and --export-dir must not overlap or contain each other")
+    if args.request:
+        from fastfill.v2.direct_layout import request_to_condition
+        condition = request_to_condition(json.loads(args.request.read_text()))
+    else:
+        condition = json.loads(args.condition.read_text())
     validate_condition(condition)
     if args.commit_in_memory and args.catalog is None:
         raise ValueError("commit requires an actual asset catalog")
@@ -66,8 +81,15 @@ def main(argv=None):
     with output.open("x") as stream:
         json.dump(result, stream, indent=2, allow_nan=False)
         stream.write("\n")
-    print(json.dumps({"output": str(output), "requested_objects": len(condition["objects"]), "fastfill_latency_ms": inference_ms}))
+    if args.export_dir:
+        from fastfill.v2.direct_layout import export_handoff
+        export_handoff(args.export_dir, condition, layout)
+    print(json.dumps({"output": str(output), "requested_objects": len(condition["objects"]),
+                      "fastfill_latency_ms": inference_ms,
+                      "runtime_ok": result["ok"] if args.catalog else None,
+                      "committed": result.get("committed") if args.catalog else None}))
+    return 0 if args.catalog is None or result["ok"] else 2
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

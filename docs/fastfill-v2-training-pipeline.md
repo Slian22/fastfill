@@ -1,115 +1,103 @@
-# FastFill v2：从训练数据到完整房间
+# FastFill v2：从最小条件训练到 bbox 布局
 
-日期：2026-10-06。本文说明当前代码实际完成的路径、训练产物和仍需实验确认的部分。模型接口采用 2026-10-05 设计；本次修复不把未运行的 Qwen 训练或真实资产验收写成结果。
+日期：2026-10-06。当前交付边界已按用户明确要求改为 **room type + room size + furniture list → layout + bbox → 下游**。不需要 FastFill 检索资产。旧丰富条件、Asset Resolver 和 Host 实现作为可选历史路径保留。
 
-## 1. 最终要得到什么
-
-目标是输入房间、指定对象清单和约束，得到一间可用、可显示、可提交的完整房间。FastFill 学习的是其中的**目标尺寸与布局**；家具 mesh、贴图、能力和真实支撑面来自后续资产系统。
+## 1. 训练和推理 pipeline
 
 ```mermaid
 flowchart LR
-    A[房间 + 对象请求 + 约束] --> B[训练后的 FastFill v2]
-    B --> C[每个 ID 的目标局部尺寸 / 底面中心 / yaw]
-    C --> D[真实资产解析]
-    D --> E[实际几何对齐与校验]
-    E --> F[有限重选或修复]
-    F --> G[原子提交]
-    G --> H[GLB / Viewer / Solver]
+    A[房型 + XY房间尺寸 + 家具清单] --> B[Qwen3-8B 条件 hidden states]
+    B --> C[绑定请求的 N 个 slots]
+    C --> D[双向对象 decoder + cross-attention]
+    D --> E[局部全尺寸 / 底面中心 / yaw]
+    E --> F[bbox scene JSON + GLB + SVG]
+    F --> G[RoomGenBench 或其他下游 mesh 生成器]
 ```
 
-RoomGenBench 的 `Input layout` 是已经给定的参考位置、尺寸和旋转，其 benchmark 主要比较这些框如何变成 mesh。`sage_gt` 还直接使用数据集自身的原始资产。它的普通 assembler 会沿三个轴缩放 mesh 到给定框；这不能用于证明我们要求的真实尺寸匹配率或功能保持。
+FastFill 学习 A→E。F 是确定性几何转换和序列化，不参与训练反向传播。G 可以按描述生成 mesh、装配或运行其他任务；本模型不生成 mesh/贴图。截图 `REFERENCE / Input layout` 是 RoomGenBench 的 `layout_boxes`：直接显示给定框。我们要训练模型预测这些框，再交给下游；不能把参考 GT 的彩色盒子当作模型生成效果。
 
-我们要学习图中 B→C，再把它与 D→H 接起来。可以参考 RoomGenBench 的 GLB、共享 mesh 和可视化方式；不能把参考布局直接喂给模型，随后称模型生成了布局。具体只读代码审查见本次 `audit/review2/roomgenbench-comparison.md`，当前仓库证据在 `outputs/fastfill_v2/review-20261006/`。
+上游不提供房高时保持未知，协议用固定 3 米作为竖直归一化尺度；不以目标对象高度填充输入。只知道三个字段时不假造门窗、支撑面、语义朝向或能力约束。接口、轴转换和下游兼容边界见 [直接 bbox 交付手册](fastfill-v2-direct-bbox.md)。
 
-## 2. 数据来自哪里，为什么要新建版本
+### 与 OptiScene 的区别
 
-继续使用我们筛选的 **16 个数据集家族**，没有另换一套训练库。读取冻结 `.release/v3.2` IR、原划分和审计证据，转换为新的 v2 数据。原始 `/Volumes/harddisk/3D_Room_Collections`、旧 release 和旧上传包保持不变。
-
-| 数据范围 | train / validation / test 场景 | 用途 |
+| 环节 | OptiScene 原任务 | 当前 FastFill v2 |
 |---|---|---|
-| 主数据 | 124,589 / 8,137 / 8,615 | 对可信 position、size、yaw 分别进行掩码监督 |
-| 全对象完整标签子集 | 57 / 2 / 6 | 四项 loss 的小样本检查，以及同条件 text/structured 对照 |
+| 模型输入 | 房间、对象描述/数量、已检索资产 bbox | 房型、房间 XY 尺寸、家具清单；不输入对象真实 bbox |
+| 模型输出 | 位置和旋转 | 目标局部全尺寸、底面中心、yaw |
+| 训练 bbox | 作为生成位姿的条件 | 可靠 local size 放在 target，参与几何监督 |
+| 后续 | 渲染既定资产 | 直接输出 bbox 场景；mesh 生成交给下游 |
 
-主数据共 141,341 场景、1,787,052 个目标对象。可信完整 position 为 1,732,321，size 为 1,224,670，yaw 为 581。**训练集可信 yaw 仅 523 个对象、集中于 58 个场景**，约占训练对象的 0.033%。主数据规模大，不代表朝向标签覆盖大；默认均匀抽样、1,000 步不能成为充分训练 yaw 的证据。完整子集只有两个验证场景，也不足以支持广泛泛化结论。
+[OptiScene §3.1、§3.3](https://arxiv.org/html/2506.07570v1#S3.SS1) 和固定数据 revision 的 [gprompt.py](https://huggingface.co/datasets/B3rrYang/3D-SynthPlace_indoor_scenes_dataset/blob/f481ff81bc2cb3e664f38ce0c25c4ad4b21d52e1/gprompt.py) 表明其 bbox 在 input，output 为 coordinates/rotate。将 bbox 移到预测端改变了任务和监督，不只是移动 JSON 字段。
 
-每条样本包含四部分：
+最小文本改法是移除输入 bbox，在目标 JSON 增加 size；v2 文本 SFT 是这个对照。结构化主模型还更换输出架构和训练方式，不是原 OptiScene SFT/DPO 的原样复现，也没有自动 DPO 阶段。原 3D-SynthPlace 的 Y-up、bbox=[h,w,d] 与 degree 字段需要已审计的适配，不能直接作为 Z-up、局部尺寸、bottom-center/radian 标签。
 
-1. `condition`：测试时确实能获得的房间、对象需求和约束。对象 ID 是样本内标识，不包含未来资产 ID 或其实际尺寸。
-2. `target`：米制、右手 Z-up、局部全尺寸、bbox 底面中心和弧度 yaw。
-3. `validity`：逐字段可信度；缺失标签不是零。局部 size 不随 yaw 改变，world AABB 不当作局部 size。
-4. `provenance`：原 UID、来源、变换、原 split、证据和修订记录。
+[OptiScene 论文 §4.1](https://arxiv.org/html/2506.07570v1#S4.SS1) 使用 Qwen3-8B，[官方 README](https://github.com/PolySummit/OptiScene#training-pipeline) 示例则是 Qwen2.5-7B-Instruct；本实验按用户选择固定 Qwen3-8B。官方环境列 vLLM，但其 SFT/DPO 和 model.generate 推理代码未调用；当前结构化路径也不需要它，来源见 [服务器手册](fastfill-v2-server-start.md)。
 
-新 review2 数据只撤销**旧参考布局派生、但主体 GT yaw 无效或来源证据含 `front_unknown_reason` 的 `faces`**。原约束连同理由保存在 provenance；用户明确提出的面向要求不按这个策略删除。UID、split、对象数、身份、target 和 validity 保留，不生成假 yaw、不重分测试集。完整子集从新主数据重新选取并保留逐行相同内容。
+## 2. 数据如何构造
 
-另记录已知地板下方 bbox 的诊断，不 clamp 高度、不删除对象、不把已知地板改成 unknown。抽查的 3RScan/ScanNet 原地板 mesh 位于 z=0，负高度已存在于原始 bbox；SceneSmith 个别毫米级误差来自原始 physics-settled 位姿。这说明标签和严格 bbox 验收可能冲突，不能单凭 bbox 推断 mesh 穿透，也不能将协议检查通过解释为全部场景物理合法。若需要严格地板一致的训练 cohort，应单独定义整场景资格规则并报告覆盖变化。
+原筛选的 16 个数据集家族和 review3 的 141,341 场景语料保留；它包含部分标签、丰富条件和大量未知边界。原完整 65 场景 cohort 全来自 MultiScan，不能直接冒充新的矩形 XY 房间任务。
 
-## 3. 一次 forward 如何联合预测
+新 `direct-bbox-20261006` 从同一已审计父语料派生，当前严格符合最小条件及可核验框标签的来源为 SpatialLM。不是重新下载原始库，也没有把其他来源缺失 yaw 补成零。资格为：已知房型/地板/矩形边界、完整局部 full size 和 bottom-center、源 ID 对应的 upright geometric yaw，以及全部目标 OBB 在已知房界内（1 mm 容差）。碰撞、支撑、mesh、physics 未认证。
 
-本次正式骨干由用户确定为 **Qwen3-8B**，与已有 FastFill README/训练入口的选择一致。论文参考用于说明训练机制，不能替代本实验固定 checkpoint 与 revision。此前文档中的 Qwen2.5-0.5B 只是可选链路模板，未作为正式模型训练。
+| 数据 | train / validation / test | 对象总量 |
+|---|---:|---:|
+| 当前最小 XY 条件数据 | 9,601 / 539 / 624 | 33,545 |
+| 保留的历史 review3 主数据 | 124,589 / 8,137 / 8,615 | 1,787,052 |
+| 保留的历史完整标签 cohort | 57 / 2 / 6 | 572 |
 
-[OptiScene 论文 §4.1](https://arxiv.org/html/2506.07570v1#S4.SS1) 使用 Qwen3-8B，而 [官方 README 训练示例](https://github.com/PolySummit/OptiScene#training-pipeline) 使用 Qwen2.5-7B-Instruct。此处明确记录差异，不把示例代码配置与论文配置混写。
+继承底层 UID/房屋组/split，不重新随机划分。固定源 IR SHA256，逐个源 ID 对照局部尺寸、位置和 yaw；本次实际派生行的目标数值未改变。输入只保留房型、XY 尺寸、category 家具清单；没有固定物体、约束或支撑。源真实房高只作为 provenance/资格证据，不进入模型 condition。
 
-Qwen 读取完整 `condition`，提取全部条件 token 的 hidden states，不读取本样本目标几何，也不 teacher-force 几何答案。当前结构化路径采用确定性 condition 文本，调用 `AutoModel` 而非自回归文本采样；不生成 thinking 文本。
+每条数据仍有 condition、target、validity、provenance。模型只读 condition；实际资产 ID、目标几何和 source H 不从 provenance 注入输入。当前完整几何 masks 全有效，几何 yaw 是矩形局部轴，使用 π 周期 symmetry_order=2；不证明椅背或屏幕语义前向。当前固定对应，未重建可交换组，Hungarian=false 是明确的第一版选择。
 
-每个请求对象的 token 区间用于构造其 slot 特征，并加入 slot seed。pooling 的前缀累加至少用 float32，避免 bf16 下长上下文中小区间失真。外部对象解码器在所有有效 slots 间进行**双向 self-attention**，同时 cross-attend Qwen 条件记忆；padding 在注意力、匹配和 loss 中屏蔽。
+新数据最多 26 个对象，尚不覆盖截图 32–122 对象的密集布局，也没有丰富描述标签。源审计和 hash 正确不能证明模型将会生成有效房间。私有下载与版本见 [数据手册](fastfill-v2-dataset-release.md)。
 
-每个请求 ID 恰好输出一组：
+## 3. 一次 forward 联合预测什么
 
-| head | 输出及使用 |
+Qwen3-8B 使用 AutoModel 读取完整 condition、输出全部 token hidden states，不读取目标答案，也不生成 thinking 文本。每个对象 token 区间 pooling 构造 request-bound slot，并加入 slot seed；pooling 至少使用 float32 累加。外部 decoder 在所有有效 slots 间双向 self-attention，并 cross-attend 条件记忆；padding 在 attention、matching 和 loss 中屏蔽。
+
+| head | 输出 |
 |---|---|
-| position | 归一化 XYZ 底面中心；用仅由输入确定的房间原点/尺度反归一化 |
-| size | `s_ref * exp(clamped_u)`；固定正 reference，指数以 float32 计算，保护策略记入配置 |
-| yaw classification | K 个 bin logits；初始配置 K=12 |
-| yaw residual | 每个 bin 的 residual；默认 tanh，训练取 GT bin，推理取 argmax bin |
+| position | normalized XYZ bottom-center，用输入房间原点/尺度反归一化 |
+| size | 正值 s_ref × exp(clamped_u)，指数 float32 计算，数值策略固定在配置 |
+| yaw classification | 12 个 bin logits，初始宽度 30 度 |
+| yaw residual | 每个 bin 的归一化 residual；默认 tanh |
 
-可信的固定尺寸和地面支撑高度可直接从条件采用，相应预测监督屏蔽。范围要求仍需检查。对象类别、数量和不可交换身份从请求继承；没有 objectness、检测分类或 NMS。
+每个请求 ID 恰好一个有效输出，不再预测类别/数量，没有 objectness、检测分类或 NMS。当前最小请求没有可信 support_parent，所以不按家具类别强制 z=0，XYZ 均接受监督。更丰富协议中直接采用的固定坐标有独立预测 mask，但不能混进当前新任务。
 
-“一次预测”指一次网络 forward 同时输出所有 slots，并不保证它已经满足全部约束。运行时的资产重选和有限修复属于后续步骤。
+一次 forward 同时生成全部对象，不保证结果可行。推理之后只做确定性 bbox 转换、诊断与导出；不自动删除、缩小或挪动预测。
 
-## 4. 一个训练 step 实际做什么
+## 4. 每个训练 step 怎么执行
 
-1. **取 batch**：完整样本先经过 schema、token/object 预算与实际启用 objective 的监督资格检查。超预算记录整场景拒绝；不截断对象和支撑引用。训练当前载入内存并 shuffle，没有已实现的稀有标签平衡 sampler。
-2. **forward 与对应**：网络输出连续张量；固定身份直接对应。只有明确可独立交换的组，在 `no_grad` 的 position/log-size cost 上 Hungarian 配对。同类但不同角色不能交换。
-3. **四项 loss**：归一化位置 SmoothL1、log-size ratio SmoothL1、yaw-bin CE、GT-bin residual SmoothL1。使用原始可微预测张量；先过滤无效目标，再算术。完整向量按固定三坐标分母平均，各 head 用自己的全局有效实例数。
-4. **更新**：反向传播到几何 heads、对象解码器及所选 LoRA/骨干参数；梯度累积、clip、AdamW step。记录更新前的训练 loss 与同步、clip 后的梯度；训练 loss/count 当前来自累积窗口最后一个 microbatch，不是整个窗口汇总。validation 在 optimizer 更新后执行，对应保存的 step 权重。跨 rank 日志标量统一 float32，训练张量保留原精度与梯度。
-5. **保存与评测**：保存模型、tokenizer、配置、输入 hash、拒绝清单与日志；测试时按全部请求统计失败，分别报告原始预测、实际资产解析后和修复后结果。
+1. **取完整 batch**：schema、实际启用 loss、token/object 预算预检；超预算拒绝整场景，不截断。当前 DataLoader 内存载入、shuffle，无稀有标签平衡 sampler。
+2. **forward 和对应**：当前数据固定请求身份。一般实现支持合法独立交换组内 detached position/log-size Hungarian；本数据没有这些 groups，不能声称启用集合匹配。
+3. **四项 loss**：normalized position SmoothL1、log-size ratio SmoothL1、yaw-bin CE、GT-bin residual SmoothL1。先过滤无效标签再算术；loss 使用原可微张量。位置/尺寸完整向量按固定三坐标分母平均，各 head 使用自己的全局有效实例数。π 等价 yaw 候选按同一个候选的 CE+residual 联合代价选择。
+4. **更新**：backward → LoRA/decoder/heads → 累积 → clip → AdamW。所有 rank 整个累积窗口没有有效 objective 时跳过更新；有监督但 loss=0 仍正常更新。日志 collective 输入统一 float32，训练张量保留梯度；validation 在 optimizer 更新后执行。
+5. **保存和评测**：保存权重、tokenizer、配置、数据 hash、拒绝清单、每步 loss/计数/梯度。测试以全部请求为分母保留失败；原始预测与任何另行后处理结果分开。
 
-review3 在全部 rank 的整个累积窗口都无有效启用目标时跳过 AdamW、不递增更新步数；有监督但 loss 为零时仍正常更新。窗口有效数单独记录，不只看最后 microbatch。
+训练日志 loss/count 来自累积窗口最后 microbatch，并非窗口均值；window 有效数另记录。累积为 microbatch 均值的累积，不等于不同标签密度的全对象平均。validation batch-objective 均值是诊断，完整参考指标由 evaluate 得到。
 
-梯度累积采用 microbatch 均值的累积，不声称等于把所有不同标签密度 microbatch 合成单个全局对象均值。validation 当前记录 batch objective 的均值，是诊断；完整参考指标和资产/系统指标通过独立 evaluate 得到。
+基础配置 box/collision/boundary 权重均为零；可选 box 为 BEV oriented convex-hull GIoU，不是 3D GIoU，bin argmax 不给 logits 普通梯度。collision/boundary 与 prediction-vs-GT overlap 分开。没有自动阶段切换。
 
-可选 box loss 是 **BEV oriented GIoU**，enclosing region 为两个矩形角点的 convex hull；不等同 3D GIoU。collision 比较对象间、boundary 比较房间，它们与 prediction-vs-GT box 不混用，默认权重均为零。bin argmax 不向 yaw logits 提供普通 box 梯度，分类 CE 保留。代码不自动执行“基础阶段→增强阶段”的 schedule。
+文本 SFT 是同样最小条件/完整目标上的独立 assistant-token CE baseline。字符串解析后的几何误差不自动回传到 token。主方案无需文本模型预训练或 DPO。结构化按 shuffled epoch、文本每步有放回抽样，相同步数不自动等于相同样本曝光，应在正式对照冻结。
 
-结构化入口按 shuffled DataLoader 遍历 epoch；文本入口每 step 有放回抽样。同 cohort、同 step 数不自动保证相同样本曝光预算，正式对照需要明确该差异。
-
-文本 SFT 是独立 baseline：同一个完整标签 cohort，condition + teacher-forced JSON，只有 assistant token CE。解析数字后的普通距离不会自动回传到离散 token。主结构化训练不以文本 SFT 为前置，也没有默认 DPO 阶段。OptiScene 的 bbox-conditioned pose + SFT/DPO 流程是相关参考，不能将其训练结果当作本架构的证据。
-
-## 5. 训练结束得到什么文件
+## 5. 最后得到什么
 
 | 工件 | 用途 |
 |---|---|
-| `model/model_config.json`、`geometry_model.pt` | 结构化解码器和连续 head；tiny 时也保存 tiny 骨干 |
-| `model/backbone/` | 选择 LoRA 或完整骨干训练时保存 adapter/骨干；LoRA 部署仍需要训练所用的同一基础 Qwen；冻结骨干模式也不随该目录保存 base，完整骨干训练才保存完整权重 |
-| `tokenizer/` | 与训练一致的 tokenization |
-| `run_manifest.json`、`training_log.json` | 数据 hash、配置、有效样本与拒绝清单；日志含逐 step 有效计数、loss、梯度及时间，完整字段覆盖另见数据审核报告 |
-| `state-step-*` | Accelerate 状态工件；当前训练 CLI 没有自动 optimizer resume 入口 |
+| model/model_config.json、geometry_model.pt | decoder、连续 heads 和配置 |
+| model/backbone/ | LoRA adapter 或选定的完整骨干；LoRA/冻结骨干部署仍需同一基础 Qwen |
+| tokenizer/ | 同训练的 tokenization |
+| run_manifest.json、training_log.json | 数据/配置/环境/有效样本和优化证据 |
+| state-step-* | 可选 Accelerate 状态；现 CLI 没有自动 optimizer resume |
 
-这些是“布局模型”部署包，不是 mesh 生成模型，也不包含可交互家具库。模型参数不经过 Asset Resolver、离散重试或 Host 提交反向传播。
+部署模型生成 target_size_local_m、bottom_center_m、yaw_rad；export_handoff 再生成 bbox corners/center、RoomGenBench SceneSpec/registry、彩色 GLB、SVG 和 proxy diagnostics。不需要资产库即可显示用户截图那类框。真正家具 mesh、材质和物理可用性由下游负责，不能由 bbox 输出成功推断。
 
-真实资产阶段需要提供 actual local size、规范化变换、语义前向、能力和有证据的支撑面。始终保存 target 和 actual 两份几何；资产不合适时有限重选或局部修复，不能静默缩小/删除对象。实际 Validator 独立检查地板下界、天花板、支撑、能力、边界等；未知硬要求阻止提交。
+旧 catalog Resolver、actual geometry reconciliation、Validator/有限修复和 in-memory Host 未删除。它们是另一条可选系统实验，不能继续写成当前任务必须经过的阶段。
 
-当前交付含参考 catalog、bbox Validator、有限重试/平移修复与 in-memory 原子 Host。**真实 WorldEdge Host、mesh/physics/Solver 和最终 GLB 展示适配仍需具体资产/宿主接入**；现有离线测试不证明这些环节已完成。
+## 6. 当前训练状态与执行入口
 
-## 6. GPU 服务器上的执行顺序
+独立 Conda、官方固定 revision Qwen3-8B 和 CUDA 已在 ssh yxd-dev 的 /home/jovyan/shanliantian 准备。基础模型路径为 models/Qwen3-8B；revision b968826d9c46dd6066d109eabc6255188de91218。用户允许 GPU 1–7，其他进程和 GPU0 保留。
 
-当前用户已提供 8×H20Z、2.8 TiB 主机 RAM，并允许使用 GPU 1–7。服务器 alias 为 `yxd-dev`，本次环境、运行配置与输出放在 `/home/jovyan/shanliantian/FastFill_v2_20261006_server`；SSH shell 先执行 `myconda`，自动化使用 `zsh -lic`。独立环境为该目录下的 `env` prefix，保留已有任务和环境。基础模型按用户要求重新下载到 `/home/jovyan/shanliantian/models/Qwen3-8B`。
+历史 richer-condition MultiScan pilot：20 更新步、两个 train/两个 validation，所有 LoRA/decoder/四 head 每步收到梯度，保存加载后六个测试 schema/ID/正尺寸均通过；验证 objective 未改善，严格几何0/6主要含未知硬检查。这证明历史运行路径，不证明当前 XY 数据已训练或泛化，更不能当作密集房间生成效果。
 
-本次先在物理 GPU 1 做 **Qwen3-8B、BF16、batch 1、20 更新步、两个完整训练场景、全部两个完整验证场景**的单卡 pilot。基础 revision 为 `b968826d9c46dd6066d109eabc6255188de91218`；基础权重、运行配置和输出均置于冻结 review3 包之外，包内默认配置保持历史快照。正式 batch/context、预算和稀有标签采样仍需实测后冻结。服务器命令见 [启动手册](fastfill-v2-server-start.md)。
-
-1. 上传冻结 review3 包，校验 hash，在服务器独立环境安装与 GPU/驱动相容的 PyTorch，保存环境版本。此次代码修订继承 review2 数据，未改变九个数据文件。
-2. 隐藏 GPU 跑 CPU/Gloo 离线套件，再进行单卡 CUDA/BF16 检查和真实 Qwen3 tokenizer 预检；通过后跑 8B 有界 pilot，确认 LoRA、四项梯度、保存/载入和显存。离线测试不证明 NCCL 或真实 8B 训练通过。
-3. 用同一完整标签 cohort 跑 structured/text 受控实验；若进行全库掩码训练，另报数据范围并固定稀有 yaw 的训练策略。现有均匀 sampler 不能假称平衡采样。
-4. 冻结测试参数，评估全部请求的 schema/身份/有效尺寸和 eligible 几何误差；用真实资产另报覆盖、target-actual 差异、初次通过、修复和提交。
-5. 接入资产与 Host/GLB Viewer，展示原始布局、解析后、修复后房间，并保留失败。完整房间截图与可靠可提交性分别验收。
-
-具体命令见 [服务器启动手册](fastfill-v2-server-start.md)。截至本次文档更新，传输和独立环境准备正在进行，尚未记录真实 Qwen3-8B pilot 或正式训练成功；完成情况以服务器实际日志、运行 manifest、输入 hash 和评测结果为准。本地 tiny smoke、单元/集成测试和论文复核只支持实现正确性范围，不能宣称模型效果改进。
+当前最小输入的执行步骤见 [直接交付手册](fastfill-v2-direct-bbox.md) 和 [数据手册](fastfill-v2-dataset-release.md)：新数据 tokenizer 预检 → 独立 tiny smoke → 同一 Qwen3-8B 有界 pilot → 冻结曝光/预算/固定对应与合法交换组对照 → 全请求评测和下游展示。新的运行必须保存新数据 hash，输出写入新目录，不覆盖历史 review3 或旧 pilot。

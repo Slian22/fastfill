@@ -26,8 +26,8 @@
 
 ## 服务器与放行范围
 
-用户提供 8 张 H20Z、driver 570.124.06、2.8 TiB 主机 RAM；允许使用 GPU 1–7。先选择 GPU 1 做单卡真实 Qwen pilot，保留原任务。使用 PyTorch 2.13.0/cu126，服务器实际回归和 CUDA pilot 尚未执行。
+用户提供 8 张 H20Z、driver 570.124.06、2.8 TiB 主机 RAM；允许使用 GPU 1–7。冻结 review3 时尚未执行服务器回归；随后在独立 Conda 环境使用物理 GPU 1、PyTorch 2.13.0+cu126，完成 Linux 回归和真实 Qwen3-8B BF16 的 20 步 pilot，保留原任务。具体结果见 [服务器启动手册](fastfill-v2-server-start.md)。
 
-v2 代码当前仍在本地，未 commit/push、未上传服务器/HF。包内包含数据与代码；服务器需安装 CUDA PyTorch/依赖并准备基础 Qwen。完整步骤见 [新服务器启动手册](fastfill-v2-server-start.md)。
+review3 冻结当时，v2 尚未 commit/push 或上传服务器/HF。随后实现已同步至私有 GitHub `Slian22/fastfill`（`071fc3486329ce87fb41d29985b96c9931fbde4c`），数据发布至私有 HF [liantian/fastfill-v2](https://huggingface.co/datasets/liantian/fastfill-v2)，服务器已核验冻结包与 Qwen3-8B 权重。训练实际状态见 [服务器启动手册](fastfill-v2-server-start.md)，不以发布或完整性校验替代模型验证。
 
-新增 **19** 项回归通过；完整套件 **659 tests + 114 subtests passed**，v2 覆盖率 **87.68%**。父数据 hash 和新归档核验的确切结果记录在包内 `RUNBOOK.json` 与 `audit/objective-review/`。这次修复仍不证明稀有 yaw 足够、主语料全部物理合法或真实资产/Host/GLB 已验收。正式训练仍需冻结采样、预算和实际模型；先跑有界 pilot。
+新增 **19** 项回归通过；Mac 完整套件 **659 tests + 114 subtests passed**，v2 覆盖率 **87.68%**。随后 Linux 服务器为 **653 tests + 114 subtests passed**、6 个 Metal 专用测试跳过，statement coverage **87.65%**。父数据 hash 和新归档核验的确切结果记录在包内 `RUNBOOK.json` 与 `audit/objective-review/`，服务器测试后 279 个冻结文件仍全匹配。20 步真实 pilot 已验证训练与保存/载入链路，六个测试场景的严格目标几何验收为 0/6。这些结果不证明稀有 yaw 足够、主语料全部物理合法或真实资产/Host/GLB 已验收。正式训练仍需冻结采样与预算。

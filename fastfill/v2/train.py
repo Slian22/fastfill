@@ -16,6 +16,7 @@ from fastfill.v2.io import ensure_disjoint, fingerprint, read_samples, run_metad
 from fastfill.v2.losses import GeometryCriterion, LossConfig
 from fastfill.v2.model import ModelConfig, build_model, model_inputs
 from fastfill.v2.objective import ObjectiveWindow, local_objective_count
+from fastfill.v2.size_range import size_target_conflicts
 
 
 def _preflight(samples, tokenizer, model_config, training, loss_config=LossConfig()):
@@ -29,6 +30,11 @@ def _preflight(samples, tokenizer, model_config, training, loss_config=LossConfi
             continue
         # Fail loudly on malformed geometry/conditions rather than filtering an unexplained error.
         b = collate_samples([sample], tokenizer, max_length=training["max_length"], max_objects=model_config.max_objects)
+        conflicts = size_target_conflicts(b, model_config, loss_config)
+        if conflicts:
+            rejected.append({"row": index, "reason": "size_target_outside_model_range",
+                             "coordinates": conflicts, "provenance": sample["provenance"]})
+            continue
         if not local_objective_count(b, loss_config):
             rejected.append({"row": index, "reason": "no_active_objective", "provenance": sample["provenance"]})
             continue
@@ -45,6 +51,23 @@ def _gradients(model):
             for name in names}
 
 
+@torch.no_grad()
+def _rescale_flushed_window_gradients(model, configured_steps, microbatches):
+    """Undo Accelerate's fixed-K divisor for an incomplete epoch-tail window.
+
+    Backward and DDP synchronization have completed. Gradients may still be AMP
+    scaled; multiplying before Accelerate unscale/clip preserves that scaling.
+    Empty-label microbatches belong to the declared microbatch-mean denominator.
+    """
+    if not 1 <= microbatches <= configured_steps:
+        raise RuntimeError("invalid synchronized accumulation-window length")
+    if microbatches != configured_steps:
+        factor = configured_steps / microbatches
+        for parameter in model.parameters():
+            if parameter.grad is not None:
+                parameter.grad.mul_(factor)
+
+
 def _record(result, model, step, elapsed, accelerator):
     # Every rank participates: local numerators divided by global count are
     # correct for gradients; their mean yields the global diagnostic value.
@@ -56,6 +79,7 @@ def _record(result, model, step, elapsed, accelerator):
                            ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")},
             "counts_global": result["counts"], "gradient_norms": _gradients(model),
             "active_objective_count": result.get("active_objective_count"),
+            "accumulation_microbatches": result.get("accumulation_microbatches"),
             "active_objective_scope": "global accumulated window"}
 
 
@@ -164,7 +188,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     accelerator.wait_for_everyone()
     model.train()
     logs, start, step = [], time.perf_counter(), 0
-    window, skipped_windows = ObjectiveWindow(), 0
+    window, skipped_windows, window_microbatches = ObjectiveWindow(), 0, 0
     steps = 1 if dry_run else training["steps"]
     while step < steps:
         epoch_start_step = step
@@ -176,13 +200,18 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                     raise RuntimeError("nonfinite structured loss")
                 accelerator.backward(result["loss"])
                 window = window.add(result["active_objective_count_local"])
+                window_microbatches += 1
                 if accelerator.sync_gradients:
                     count = window.global_count(accelerator)
                     window = ObjectiveWindow()
+                    actual_microbatches = window_microbatches
+                    window_microbatches = 0
                     if count:
+                        _rescale_flushed_window_gradients(model, training["gradient_accumulation_steps"], actual_microbatches)
                         accelerator.clip_grad_norm_(model.parameters(), training["clip_grad_norm"])
                         step += 1
-                        record = _record({**result, "active_objective_count": count}, model, step,
+                        record = _record({**result, "active_objective_count": count,
+                                          "accumulation_microbatches": actual_microbatches}, model, step,
                                          time.perf_counter() - start, accelerator)
                         optimizer.step()
                     else:
@@ -216,7 +245,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
             "supervised_samples": len(samples), "skipped_no_objective_windows": skipped_windows, "rejected": rejected, "validation_rejected": validation_rejected,
             "subset_limit": max_samples, "world_size": accelerator.num_processes,
             "optimizer_step_policy": "update iff global accumulated-window eligible objective count is positive; zero numeric loss is eligible",
-            "reduction": "complete-field valid instances; fixed coordinate sum divided by 3; global valid count per microbatch; accumulated microbatch means",
+            "reduction": "complete-field valid instances; fixed coordinate sum divided by 3; global valid count per microbatch; mean over actual flushed-window microbatches",
             "elapsed_s": time.perf_counter() - start, "trainable_parameters": sum(p.numel() for p in unwrapped.parameters() if p.requires_grad)}
         (target / "run_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         (target / "training_log.json").write_text(json.dumps(logs, indent=2) + "\n")

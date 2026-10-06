@@ -1,6 +1,13 @@
 # FastFill
 
-FastFill generates an object-conditioned room layout in one model call. Given a floor polygon, optional room type and ceiling height, fixed obstacles, all objects to place and optional spatial relations, it predicts each object's position, yaw and top-surface support parent.
+FastFill v2 predicts one local bbox size, bottom-center position and yaw for each
+requested object from **room type + room size + furniture list**. It exports bbox
+scene JSON, a RoomGenBench handoff and colored GLB/SVG without retrieving assets.
+See the [direct bbox guide](docs/fastfill-v2-direct-bbox.md).
+
+The preserved FastFill v1 path takes a floor polygon, optional room type/height,
+fixed obstacles, objects with known geometry and optional relations, and predicts
+position, yaw and support parent. The v1 commands below retain that protocol.
 
 This is the current implementation for [Slian22/fastfill](https://github.com/Slian22/fastfill). The repository uses `main` as its development branch. Its Python package is `fastfill`; commands run from the repository root. The earlier `src/fastfill_train` Floor/Surface implementation remains in Git history and is a different protocol.
 
@@ -8,7 +15,8 @@ This is the current implementation for [Slian22/fastfill](https://github.com/Sli
 
 | Item | Version and purpose |
 |---|---|
-| Current implementation | The verified v3.2 data-pipeline, SFT, evaluation and service implementation, with clarified repository documentation |
+| Current v2 experiment | Qwen3-8B + bidirectional object decoder; minimal-condition joint bbox prediction and downstream export |
+| Preserved v1 implementation | v3.2 data-pipeline, text SFT, evaluation and service |
 | Main constraint-supervision experiment | Paired **v3 / v3.1** datasets; keep the same evaluation inputs and training configuration |
 | v3.2 dataset | Separately rebuilt constrained dataset with source geometry corrections and recovered rooms |
 | Model text protocol | FastFill v1: `placements`, `pos`, integer-degree training targets for `yaw`, optional `on` |
@@ -20,10 +28,14 @@ Dataset version numbers are not model architecture or training-stage numbers. v3
 Data is maintained separately at [liantian/fastfill-v3](https://huggingface.co/datasets/liantian/fastfill-v3). Repository access and upstream dataset terms continue to apply.
 
 FastFill v2 uses the separate **private** dataset
-[liantian/fastfill-v2](https://huggingface.co/datasets/liantian/fastfill-v2), snapshot
+[liantian/fastfill-v2](https://huggingface.co/datasets/liantian/fastfill-v2), historical snapshot
 `review3-20261006`, fixed commit `96f4946624b46bf8dc99bf94311b5d31290ea09a`.
-Its main train/validation/test splits contain 124,589/8,137/8,615 scenes with
-field-validity masks; the complete-geometry pilot cohort contains 57/2/6 scenes.
+The historical review3 splits contain 124,589/8,137/8,615 scenes with
+field-validity masks; the historical complete-geometry cohort contains 57/2/6 scenes.
+The new minimal XY-condition `direct-bbox-20261006` derivative contains
+9,601/539/624 scenes and 33,545 objects, currently qualified from SpatialLM.
+Its yaw is pi-periodic bbox-axis orientation, not certified semantic front.
+The new private snapshot is fixed at `35f5272330d37771eea2d11925c42aeec9d917d4`.
 See the [dataset download and usage guide](docs/fastfill-v2-dataset-release.md).
 The v1 dataset table below remains historical and is not the v2 training input.
 
@@ -37,7 +49,7 @@ The dataset repository also preserves `code/` for v3/v3.1 and `code_v3.2/` for v
 
 ## Install and verify
 
-Install a PyTorch build suitable for your CPU/CUDA environment first. Use one compatible environment for training, merging and serving.
+The commands below are for FastFill v1. Install a PyTorch build suitable for your CPU/CUDA environment first. FastFill v2 has its own [server environment and training guide](docs/fastfill-v2-server-start.md).
 
 ```bash
 pip install -r requirements.txt
@@ -45,7 +57,7 @@ pip install -r requirements-dev.txt
 python -B -m pytest -q -p no:cacheprovider fastfill/tests
 ```
 
-The offline regression suite covers geometry conversion, build transactions, QA, runtime validation, and a tiny real CPU LoRA merge. It does not replace GPU training, model-quality evaluation, deployment testing or mesh-level validation. vLLM is optional for evaluation and required by the provided service.
+The offline regression suite covers geometry conversion, build transactions, QA, runtime validation, and a tiny real CPU LoRA merge. It does not replace GPU training, model-quality evaluation, deployment testing or mesh-level validation. vLLM is optional for **v1 text evaluation** and required by the **v1 text service**. The v2 structured training and evaluation entry points do not use vLLM.
 
 The optional `fastfill.tools.visualize` utility also requires `pip install matplotlib`.
 
@@ -95,5 +107,8 @@ and [execution manual](docs/fastfill-v2-runbook.md) describe the reviewed upload
 optimizer steps and deployment artifacts. The [server setup guide](docs/fastfill-v2-server-start.md)
 gives the upload, CUDA environment and **Qwen3-8B** BF16 pilot commands. The
 selected model is separate from the historical 0.5B development template;
-`fastfill/v2/configs/qwen3_8b_pilot.json` records the 20-step pilot settings.
+`fastfill/v2/configs/qwen3_8b_pilot.json` records the historical pilot settings;
+`qwen3_8b_bbox_pilot.json` is the separate 20-step minimal-input template.
+The new data reaches at most 26 objects per scene; RoomGenBench's dense 32–122
+object examples require separate training coverage and evaluation.
 Existing FastFill v1 entry points and v3-series datasets are preserved.

@@ -8,14 +8,23 @@ import torch
 from scipy.optimize import linear_sum_assignment
 
 
-def _rename(value, mapping):
-    if isinstance(value, dict):
-        return {mapping.get(k, k): _rename(v, mapping) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_rename(v, mapping) for v in value]
-    if isinstance(value, str):
-        return mapping.get(value, value)
-    return value
+def _rename_references(row, mapping, scalar_fields, list_fields=()):
+    """Copy a schema row, renaming only its explicit object-reference fields.
+
+    IDs share string representations with ordinary descriptions and attributes;
+    those values, dictionary keys, group labels and asset-local surface IDs are
+    independent namespaces. Nested metadata must never be interpreted as refs.
+    ``object_ids`` is the existing top-level constraint reference-list extension.
+    """
+    renamed = {}
+    for key, value in row.items():
+        if key in scalar_fields and isinstance(value, str):
+            renamed[key] = mapping.get(value, value)
+        elif key in list_fields and isinstance(value, list):
+            renamed[key] = [mapping.get(ref, ref) if isinstance(ref, str) else ref for ref in value]
+        else:
+            renamed[key] = value
+    return renamed
 
 
 def certify_group(objects, constraints, indices):
@@ -29,7 +38,10 @@ def certify_group(objects, constraints, indices):
     object_graph = canonical(objects)
     for i in indices[1:]:
         mapping = {objects[indices[0]]["id"]: objects[i]["id"], objects[i]["id"]: objects[indices[0]]["id"]}
-        if canonical(_rename(constraints, mapping)) != original or canonical(_rename(objects, mapping)) != object_graph:
+        renamed_constraints = [_rename_references(c, mapping, ("object_id", "target_id", "parent_id"),
+                                                   ("target_ids", "object_ids")) for c in constraints]
+        renamed_objects = [_rename_references(o, mapping, ("id", "support_parent")) for o in objects]
+        if canonical(renamed_constraints) != original or canonical(renamed_objects) != object_graph:
             raise ValueError("exchange would change a constraint or support role; use fixed identities")
 
 

@@ -1,5 +1,57 @@
 # FastFill v2 私有数据发布与训练用法
 
+## 当前任务：最小 XY 输入 → bbox 布局
+
+当前主任务使用 **direct-bbox-20261006**，由我们的冻结已筛选语料派生，原 16 家族数据保留。新输入只有 room type、XY room size、furniture list，FastFill 不检索资产。符合当前完整框/矩形房界资格的来源是 SpatialLM：train/validation/test 为 **9,601 / 539 / 624** 场景，共 **33,545** 对象。yaw 是 π 周期框轴，不认证语义前向；固定对应，无重建的可交换组。模型条件 H=null，源房高仅用于资格/provenance。
+
+同一 **private** 仓库的新固定 revision：**35f5272330d37771eea2d11925c42aeec9d917d4**。20 个新上传文件的远端 size/SHA256 全匹配，匿名读取 HTTP 401，16 个历史 review3 快照文件不变。本地最终目录是 outputs/fastfill_v2/direct-bbox-20261006/data-xy-final；服务器在 /home/jovyan/shanliantian/FastFill_v2_direct_bbox_20261006 新建独立目录。规则、监督和下游兼容边界见 [直接 bbox 手册](fastfill-v2-direct-bbox.md)。
+
+```bash
+hf auth login
+export FASTFILL_DATASET_ROOT=/home/jovyan/shanliantian/data/fastfill-v2
+hf download liantian/fastfill-v2 --repo-type dataset \
+  --revision 35f5272330d37771eea2d11925c42aeec9d917d4 \
+  --include 'direct-bbox-20261006/*' --local-dir "$FASTFILL_DATASET_ROOT"
+cd "$FASTFILL_DATASET_ROOT/direct-bbox-20261006"
+sha256sum -c SHA256SUMS
+export FASTFILL_BBOX_DATA="$FASTFILL_DATASET_ROOT/direct-bbox-20261006/data"
+```
+
+从当前代码仓库根目录运行，每次输出选不存在的新目录。服务器已传入同一数据时改 FASTFILL_BBOX_DATA 指向已校验 data，避免重复下载。凭证不要写入脚本或日志。
+
+```bash
+# 离线 smoke：新 XY 数据、不下载基础权重。
+python -m fastfill.v2.train \
+  --config fastfill/v2/configs/smoke.json \
+  --data "$FASTFILL_BBOX_DATA/train.jsonl" \
+  --validation "$FASTFILL_BBOX_DATA/validation.jsonl" \
+  --output outputs/bbox-tiny-new --max-samples 2 --steps 1 --dry-run
+
+# 真实 20 步 pilot：32 个训练前缀、完整 validation。
+# --max-samples 是前缀，不是随机科研子集或正式训练。
+CUDA_VISIBLE_DEVICES=1 python -m fastfill.v2.train \
+  --config fastfill/v2/configs/qwen3_8b_bbox_pilot.json \
+  --backbone /home/jovyan/shanliantian/models/Qwen3-8B \
+  --data "$FASTFILL_BBOX_DATA/train.jsonl" \
+  --validation "$FASTFILL_BBOX_DATA/validation.jsonl" \
+  --output outputs/bbox-qwen-pilot-new --max-samples 32
+
+CUDA_VISIBLE_DEVICES=1 python -m fastfill.v2.evaluate \
+  --checkpoint outputs/bbox-qwen-pilot-new/model \
+  --data "$FASTFILL_BBOX_DATA/test.jsonl" \
+  --output outputs/bbox-qwen-eval-new --device cuda --max-length 4096
+
+CUDA_VISIBLE_DEVICES=1 python -m fastfill.v2.predict \
+  --checkpoint outputs/bbox-qwen-pilot-new/model \
+  --request fastfill/v2/configs/direct_request.json \
+  --output outputs/bbox-prediction-new.json \
+  --export-dir outputs/bbox-handoff-new --device cuda --max-length 4096
+```
+
+正式全数据训练须移除 --max-samples，另存曝光/步数/batch/验证预算明确的配置；20 步只是链路检查。structured/text 对照用同一新数据，不能混成历史 65 场景 cohort。文本 baseline 为 token CE，没有 π 等价文本目标的 marginal loss；文本目标采用来源规范 yaw，bbox 指标按合法对称性评测。当前多为稀疏住宅布局：平均 3.12 对象、最多 26，只有 135 场景达到 10 对象，restaurant 没有合格样本；截图密集布局须补来源审计和评测。OBB 房界资格不认证支撑/collision/mesh/physics。
+
+## 历史 review3：丰富条件和部分字段监督
+
 发布日期：2026-10-06。数据仓库：[liantian/fastfill-v2](https://huggingface.co/datasets/liantian/fastfill-v2)，**private**。固定 commit：`96f4946624b46bf8dc99bf94311b5d31290ea09a`，快照子目录：`review3-20261006`。
 
 这里同步的是我们已经生成并审核的 v2 派生数据，不是重下载一套新原始库。review3 的九个数据文件与 review2 字节一致；review3 修复启用目标及梯度累积窗口的训练判定，没有再次修改数据。当前源代码与服务器启动文档可以更新，历史冻结包保留自己的版本说明。

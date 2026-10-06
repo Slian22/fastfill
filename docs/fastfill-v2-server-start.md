@@ -1,12 +1,63 @@
 # FastFill v2：Qwen3-8B 服务器启动
 
+**当前三字段输入、直接 bbox 输出的执行入口见 [交付手册](fastfill-v2-direct-bbox.md) 和 [数据手册](fastfill-v2-dataset-release.md)。** 本页记录历史 review3 包的服务器准备与 richer-condition pilot；基础环境和模型可复用，冻结包/旧运行不改。新 XY 数据与代码必须放在新的目录，不能把下面两个 MultiScan 场景的结果称为当前最小输入模型已经训练成功。FastFill 当前交付不需要资产检索或 vLLM。
+
 日期：2026-10-06。用户已指定正式骨干为 **Qwen/Qwen3-8B**，服务器通过 SSH alias `yxd-dev` 访问，工作目录为 `/home/jovyan/shanliantian/FastFill_v2_20261006_server`。此前 Qwen2.5-0.5B 只是未执行的可选链路模板，不是本次正式模型。
 
 本次依赖审计要求 `anyio>=4.14.2`、`fsspec>=2026.6.0`；在独立环境安装补丁版本，不修改用户的 base 环境。旧冻结包的 requirements 不包含这两个新增下限，以下安装命令明确补齐。
 
 [OptiScene 论文 §4.1 Training Setup](https://arxiv.org/html/2506.07570v1#S4.SS1) 写明使用 Qwen3-8B 进行 SFT/DPO。[官方 README 训练示例](https://github.com/PolySummit/OptiScene#training-pipeline) 使用 Qwen2.5-7B-Instruct；两处并不完全一致，本次按用户选择固定 Qwen3-8B，不将 README 示例模型当作论文同一配置。
 
-本手册使用冻结 review3 包。包内代码、数据和清单保持不变；独立环境、运行配置与训练输出放在包目录之外，基础模型按用户要求重新下载到 `/home/jovyan/shanliantian/models/Qwen3-8B`。**截至本手册更新，服务器准备正在进行；本文不声明 Qwen3-8B pilot、正式训练或模型效果已经通过。** 当前 v2 修改未 commit/push，不能通过 `git pull` 获取这些未提交实现。
+本手册使用冻结 review3 包。包内代码、数据和清单保持不变；独立环境、运行配置与训练输出放在包目录之外，基础模型按用户要求重新下载到 `/home/jovyan/shanliantian/models/Qwen3-8B`。**服务器包的 279 文件校验、模型五个官方 SHA256、真实 Qwen3-8B 的 20 更新步及保存后重新加载评测已通过。** 这只确认运行链路；六个测试场景均未通过严格目标几何验收。v2 实现已同步至私有 GitHub `Slian22/fastfill`，实现提交为 `071fc3486329ce87fb41d29985b96c9931fbde4c`。私有数据下载及固定版本见 [数据使用手册](fastfill-v2-dataset-release.md)。
+
+## 当前 XY 任务：服务器状态和全数据实验入口
+
+新工作根目录 `/home/jovyan/shanliantian/FastFill_v2_direct_bbox_20261006`。新train/validation/test **9601/539/624** 行通过真实Qwen3 tokenizer全量预检，最大 **716/490/526 tokens**；100,635个尺寸轴都在head范围。独立env和固定revision模型已安装，无需vLLM或MinkowskiEngine。
+
+新协议20步pilot实际完成：seed42随机32train/16validation/16test，保存加载及无资产五对象导出通过，全部模块每步有梯度；测试schema/ID/正尺寸16/16，bbox代理无失败仅1/16。全数据正式训练尚未启动，效果不能验收。pilot是修复C1/C3/C4之前的独立快照，K=1/fixed/no-catalog不触发反例；修复及最终hash见 [全量审计处置](fastfill-v2-full-review-followup.md)。
+
+全数据配置 qwen3_8b_bbox_full_fixed.json 是**当前合格XY数据的首个固定对应baseline**：单卡batch4、累积4、BF16、上下文1024、四项loss权重1。恰好9601个入训场景下，ceil(ceil(9601/4)/4)=601次更新/epoch，1803次更新覆盖3完整epoch；每epoch完整validation，只保存最终部署模型，不自动选最佳epoch或恢复optimizer。预算是明确实验起点，不是已验证最优配置；数据资格或卡数变化需重新计算曝光。
+
+```bash
+myconda
+conda activate /home/jovyan/shanliantian/FastFill_v2_20261006_server/env
+export FASTFILL_BBOX_WORK=/home/jovyan/shanliantian/FastFill_v2_direct_bbox_20261006
+cd "$FASTFILL_BBOX_WORK/project-final"
+CUDA_VISIBLE_DEVICES=1 python -m fastfill.v2.train \
+  --config fastfill/v2/configs/qwen3_8b_bbox_full_fixed.json \
+  --backbone /home/jovyan/shanliantian/models/Qwen3-8B \
+  --data "$FASTFILL_BBOX_WORK/data/train.jsonl" \
+  --validation "$FASTFILL_BBOX_WORK/data/validation.jsonl" \
+  --output "$FASTFILL_BBOX_WORK/outputs/qwen3-8b-xy-full-fixed-3epochs-new"
+```
+
+输出每次选新路径，结束后对全部624test请求评测。readiness仅针对该资格集的数值监督实验，不扩成历史16源全部合格、密集32–122对象场景有效或mesh/physics通过。3epoch wall time未实测；pilot训练主体6.67秒、含加载/评测/导出46.23秒，不能线性视为全量保证。保留GPU上其他任务。
+
+## 历史 review3 环境准备和 pilot 记录
+
+## 本次服务器实测
+
+| 检查 | 2026-10-06 实际结果 |
+|---|---|
+| 独立 Conda / CUDA | Python 3.12.14；torch 2.13.0+cu126；Transformers 5.14.1；PEFT 0.21.0；Accelerate 1.15.0；物理 GPU 1 的 H20Z/BF16 检查通过 |
+| 完整离线测试 | 653 tests + 114 subtests passed；6 个 Metal 专用测试在 Linux 跳过；v2 statement coverage 87.65%，不含 branch coverage |
+| 真实骨干 pilot | 两个 train 场景、两个 validation 场景；20 个 optimizer 更新步；8,741,790 个可训练参数；每步 LoRA、decoder 和四个 head 的梯度范数均大于零；无空目标窗口 |
+| 保存后评测 | 全部 6 个 test 场景成功生成；schema、ID 完整性、正尺寸均为 6/6；严格目标几何通过为 0/6；未接入资产、Host 或 Solver |
+| 完整性与依赖 | 测试后冻结包仍为 279 文件 hash 全匹配；`pip check` 无冲突；68 个实际依赖的已知漏洞查询为 0，查询跳过为 0 |
+
+训练 loss 首步为 3.68819，末步为 0.99809；两个 step 的 batch 分别包含 7 和 6 个对象，仅说明这次小样本优化运行。两个验证场景的 batch objective 均值在 step 5/10/15/20 为 3.04668/3.09148/3.09480/3.16789，没有显示验证收益。测试的 37 个有效对象平均 bottom-center 误差为 2.46728 米、log-size 误差为 0.59863、yaw 误差为 1.43627 弧度、BEV IoU 为 0.01368。
+
+六个测试场景均缺少可信地板边界、房间边界、房高和支撑证据；未知硬检查阻止通过。此外一个场景出现 collision 失败。因此 `0/6` 不能解释为六个场景均已确认发生几何穿插，也不能把 schema 通过写成可提交场景。没有执行资产解析、持久 Host 提交、mesh/physics/Solver 或 GLB 展示。本次不是全库正式训练。
+
+服务器证据在工作目录 `outputs/`：`pytest-server.log`、`coverage-server.json`、`cuda-preflight.json`、`model-integrity.json`、`pilot-eligibility.json`、`qwen3-8b-pilot-20steps/{run_manifest,training_log}.json`、`qwen3-8b-pilot-eval/{report.json,outcomes.jsonl}`、`bundle-integrity-after-validation.json`。独立解包运行没有 `.git`，训练 manifest 的 `code_commit` 为 null；版本依据冻结包 hash 和逐生产文件 hash，不伪造 commit。
+
+依赖查询依据实际 `pip freeze`；仅将已安装 `torch==2.13.0+cu126` 映射到公告数据库的公开版本 `2.13.0`，将 Conda 的 packaging 本地构建 URL 映射到运行时确认的 `packaging==26.3`。原始环境记录保留，查询结果不等于对 CUDA 二进制进行安全证明。此次查询使用补丁版本 AnyIO 4.15.1 和 fsspec 2026.9.0。
+
+## 为什么无需安装 vLLM
+
+OptiScene 官方 [environment.yml](https://github.com/PolySummit/OptiScene/blob/409f1317e1a8afe852f4cdc99dfefaed30aeb425/environment.yml#L11) 包含 vLLM，但同一 commit 的 [SFT](https://github.com/PolySummit/OptiScene/blob/409f1317e1a8afe852f4cdc99dfefaed30aeb425/scripts/sft_train.py)、[DPO](https://github.com/PolySummit/OptiScene/blob/409f1317e1a8afe852f4cdc99dfefaed30aeb425/scripts/dpo_train.py) 及 [推理](https://github.com/PolySummit/OptiScene/blob/409f1317e1a8afe852f4cdc99dfefaed30aeb425/scripts/inference.py#L34) 代码均没有调用 vLLM；推理使用 `model.generate()`。环境文件列包不能单独证明运行入口依赖该包。
+
+本仓库 v1 的文本服务调用 vLLM，v1 文本评测可选 vLLM。v2 结构化路径是 `AutoModel` hidden states → 对象 decoder → 连续 heads，使用 PyTorch/PEFT/Accelerate 反向传播，没有文本 rollout 或 vLLM 适配。这次环境不安装 vLLM；如后续使用 v1 服务或另行实现文本 rollout，单独准备对应环境与兼容性验证。
 
 ## 1. 登录并初始化用户 Conda
 
