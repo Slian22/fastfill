@@ -2,6 +2,7 @@
 import argparse
 import copy
 import json
+from pathlib import Path
 import sys
 
 import pytest
@@ -83,7 +84,10 @@ def test_build_writes_complete_manifest_and_does_not_mutate_input(tmp_path, monk
     manifest = json.loads((out / "MANIFEST.json").read_text())
     assert sum(manifest["files"][f"{s}.jsonl"]["lines"] for s in ["train", "dev", "test"]) == 1
     assert set(manifest["ir_sha256"]) == {"Fixture.jsonl"}
-    assert not any("review" in p or "tests/" in p for p in manifest["code_sha256"])
+    # Audit/test directories are excluded. A production module such as
+    # v2/review_data.py is code and must remain fingerprinted.
+    assert not any(part.startswith("review") or part == "tests"
+                   for p in manifest["code_sha256"] for part in Path(p).parts[:-1])
     assert (ir / "Fixture.jsonl").read_bytes() == before
 
 

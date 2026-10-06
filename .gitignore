@@ -34,3 +34,4 @@ checkpoints/
 /.benchmarks/
 /.code-review-graph/
 /.claude/
+/graphify-out/

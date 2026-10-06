@@ -1,0 +1,8 @@
+{
+  "model": {"backbone": "tiny", "decoder_dim": 32, "decoder_heads": 4,
+            "decoder_layers": 1, "yaw_bins": 12, "max_objects": 128,
+            "tiny_hidden_size": 32, "lora_rank": 0},
+  "loss": {"hungarian": true},
+  "training": {"steps": 1, "batch_size": 1, "max_length": 32768,
+               "cpu": true, "cpu_threads": 2, "checkpoint_every": 0, "validate_every": 0}
+}

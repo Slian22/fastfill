@@ -19,6 +19,14 @@ Dataset version numbers are not model architecture or training-stage numbers. v3
 
 Data is maintained separately at [liantian/fastfill-v3](https://huggingface.co/datasets/liantian/fastfill-v3). Repository access and upstream dataset terms continue to apply.
 
+FastFill v2 uses the separate **private** dataset
+[liantian/fastfill-v2](https://huggingface.co/datasets/liantian/fastfill-v2), snapshot
+`review3-20261006`, fixed commit `96f4946624b46bf8dc99bf94311b5d31290ea09a`.
+Its main train/validation/test splits contain 124,589/8,137/8,615 scenes with
+field-validity masks; the complete-geometry pilot cohort contains 57/2/6 scenes.
+See the [dataset download and usage guide](docs/fastfill-v2-dataset-release.md).
+The v1 dataset table below remains historical and is not the v2 training input.
+
 | Directory | Train | Dev | Test | Purpose |
 |---|---:|---:|---:|---|
 | `v3/` | 144,140 | 8,167 | 8,647 | No training constraints |
@@ -76,3 +84,16 @@ Select memory, batch size and training budget using the actual tokenizer profile
 | `fastfill/tools/`, `fastfill/tests/` | Data QA, ablation checks and regressions |
 
 See the [technical documentation](fastfill/README.md) and [v3.2 release notes](fastfill/RELEASE_v3.2.md). The implementation follows the object-conditioned layout-learning approach of [OptiScene](https://github.com/PolySummit/OptiScene). Its original `main.py` / DPO scripts and schema are not entry points for this package; preference training requires data in a consistent FastFill protocol.
+
+## FastFill v2 implementation
+
+The separate experimental [FastFill v2 package](fastfill/v2/README.md) jointly
+predicts target local size, bottom-center position and yaw for a specified object
+inventory. See the [selected-corpus review](docs/fastfill-v2-review-20261005.md) before
+retraining. The [training pipeline walkthrough](docs/fastfill-v2-training-pipeline.md)
+and [execution manual](docs/fastfill-v2-runbook.md) describe the reviewed upload bundle,
+optimizer steps and deployment artifacts. The [server setup guide](docs/fastfill-v2-server-start.md)
+gives the upload, CUDA environment and **Qwen3-8B** BF16 pilot commands. The
+selected model is separate from the historical 0.5B development template;
+`fastfill/v2/configs/qwen3_8b_pilot.json` records the 20-step pilot settings.
+Existing FastFill v1 entry points and v3-series datasets are preserved.
