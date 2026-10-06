@@ -1,5 +1,11 @@
 # FastFill v2 raw-source inventory audit — 2026-10-05
 
+Historical raw-source inventory. Current full-condition multi-source derivatives,
+qualification changes and server evidence are documented in
+[the completed multi-source record](fastfill-v2-multisource-20261006.md).
+The audit-only decisions below belong to the initial raw adapter, not a claim
+that the current main uses only MultiScan.
+
 This document records the initial **raw-source inventory**, not a replacement
 for OUR retained dataset selection. The primary implementation now migrates the
 frozen `.release/v3.2` corpus through `fastfill.v2.data --source selected-v3.2`.

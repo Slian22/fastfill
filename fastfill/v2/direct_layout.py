@@ -41,27 +41,34 @@ def _request_objects(entries, max_objects):
     return objects
 
 
-def request_to_condition(request, *, max_objects=128):
-    """Strict meters-only rectangular-room adapter; never invent support labels.
+def request_to_condition(request, *, max_objects=128, room_size_semantics="rectangular"):
+    """Meters-only room adapter with an explicit interpretation of room size.
 
     room_size_m is [X length, Y length] or [X length, Y length, height].
     The room origin is its lower XY corner and its nominal floor is Z=0.
     Missing height stays unknown; no mesh, assets, doors or windows are assumed.
+    rectangular declares a known rectangle and floor. reference_extent uses
+    the same coordinates for normalization without declaring a physical room
+    boundary or a measured floor. The profile is configuration, not a fourth
+    request field.
     """
     _keys(request, {"room_type", "room_size_m", "furniture_list"},
           {"room_type", "room_size_m", "furniture_list"}, "direct request")
     room_type = _id(request["room_type"], "room type")
     if isinstance(max_objects, bool) or not isinstance(max_objects, int) or max_objects < 1:
         raise ValueError("max_objects must be a positive integer")
+    if room_size_semantics not in ("rectangular", "reference_extent"):
+        raise ValueError("room_size_semantics must be rectangular or reference_extent")
     dimensions = request["room_size_m"]
     if not isinstance(dimensions, (list, tuple)) or len(dimensions) not in (2, 3):
         raise ValueError("room_size_m must contain two or three full lengths in meters")
     dimensions = vector(dimensions, len(dimensions), "room size", positive=True)
     w, d = dimensions[:2]
+    known_rectangle = room_size_semantics == "rectangular"
     room = {"frame": "right_handed_z_up", "room_type": room_type,
             "floor_polygon_xy_m": [[0., 0.], [w, 0.], [w, d], [0., d]],
-            "floor_z_m": 0., "floor_known": True, "boundary_known": True,
-            "boundary_quality": "explicit_rectangular_request",
+            "floor_z_m": 0., "floor_known": known_rectangle, "boundary_known": known_rectangle,
+            "boundary_quality": "explicit_rectangular_request" if known_rectangle else "source_reference_extent",
             "height_m": dimensions[2] if len(dimensions) == 3 else None}
     condition = {"schema_version": "fastfill.v2", "room": room,
                  "objects": _request_objects(request["furniture_list"], max_objects), "constraints": []}
@@ -98,15 +105,18 @@ def layout_to_scene(condition, layout):
 
 
 def layout_to_roomgenbench(condition, layout):
-    """Geometry-only SceneSpec adapter: SAGE local +Y axis, full sizes, degree yaw.
+    """SceneSpec adapter: SAGE local +Y axis, full sizes, degree yaw.
 
     Swapping the two local horizontal lengths and subtracting pi/2 preserves
     world corners and maps FastFill's canonical +X axis to SAGE's +Y axis.
     Geometric bbox-axis yaw does not certify an asset's semantic front. No
-    asset IDs or support evidence are fabricated. This is usable by layout_boxes,
-    not sage_gt.
+    asset IDs or verified support surfaces are fabricated. Explicit request
+    support and hard on constraints are preserved; absent support stays unknown.
+    Fixed geometry and constraints remain metadata, not generated asset claims.
     """
     scene = layout_to_scene(condition, layout)
+    from .validation import effective_support_requests
+    requests = {obj["id"]: obj for obj in effective_support_requests(condition)}
     room = scene["room"]
     points = room["floor_polygon_xy_m"]
     low = [min(p[q] for p in points) for q in (0, 1)]
@@ -114,7 +124,8 @@ def layout_to_roomgenbench(condition, layout):
     dimensions = {"width": high[0] - low[0], "length": high[1] - low[1], "height": room.get("height_m")}
     objects = [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
                 "asset_key": "bbox_" + hashlib.sha256(json.dumps(
-                    [obj["category"], obj["description"], obj["target_size_local_m"]],
+                    [obj["category"], obj["description"], obj["target_size_local_m"],
+                     _placement(requests[obj["id"]].get("support_parent"))],
                     ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()[:24],
                 "asset_key_kind": "downstream_generation_key_only",
                 "position": dict(zip(("x", "y", "z"), obj["bottom_center_m"])),
@@ -122,13 +133,30 @@ def layout_to_roomgenbench(condition, layout):
                 "dimensions": {"width": obj["target_size_local_m"][1],
                                "length": obj["target_size_local_m"][0],
                                "height": obj["target_size_local_m"][2]},
-                "place_id": None, "support_status": "unknown"} for obj in scene["objects"]]
+                "place_id": requests[obj["id"]].get("support_parent"),
+                "support_surface_id": requests[obj["id"]].get("support_surface_id"),
+                "support_status": "declared" if requests[obj["id"]].get("support_parent") else "unknown"}
+               for obj in scene["objects"]]
     scene_key = "fastfill_" + hashlib.sha256(json.dumps(scene, sort_keys=True, separators=(",", ":"),
                                                       ensure_ascii=False).encode()).hexdigest()[:16]
-    return {"scene_key": scene_key, "room_type": room.get("room_type"),
+    downstream = {"scene_key": scene_key, "room_type": room.get("room_type"),
             "geometry_only": True, "objects": objects,
+            "fixed_objects": deepcopy(room.get("fixed_objects", [])),
+            "constraints": deepcopy(condition["constraints"]),
             "room": {"dimensions": dimensions, "position": {"x": low[0], "y": low[1], "z": room.get("floor_z_m")},
                      "ceiling_height": room.get("height_m"), "walls": [], "doors": [], "windows": []}}
+    if room.get("boundary_quality") == "source_reference_extent":
+        return {**downstream, "room_size_semantics": "reference_extent",
+                "room_interpretation": "XY reference range and nominal Z origin; physical boundary and floor unknown",
+                "room": {**downstream["room"], "boundary_known": room["boundary_known"],
+                         "floor_known": room["floor_known"], "boundary_quality": room["boundary_quality"]}}
+    return downstream
+
+
+def _placement(parent):
+    if parent is None:
+        return "unknown"
+    return parent if parent in {"floor", "wall"} else "on_object"
 
 
 def bbox_diagnostics(scene, *, tolerance_m=1e-3):
@@ -148,7 +176,7 @@ def bbox_diagnostics(scene, *, tolerance_m=1e-3):
             "pass" if p[2] >= floor - tolerance_m else "fail")
         checks = checks + [{"code": "floor_lower_bound", "object_ids": [ident], "status": floor_status}]
         height = room.get("height_m")
-        ceiling_status = "unknown" if height is None or floor is None else (
+        ceiling_status = "unknown" if height is None or floor is None or not room.get("floor_known", True) else (
             "pass" if p[2] + size[2] <= floor + height + tolerance_m else "fail")
         checks = checks + [{"code": "ceiling", "object_ids": [ident], "status": ceiling_status}]
     for i, first in enumerate(objects):
@@ -159,10 +187,14 @@ def bbox_diagnostics(scene, *, tolerance_m=1e-3):
             if high - low > tolerance_m and footprints[first["id"]].intersection(footprints[second["id"]]).area > 1e-8:
                 checks = checks + [{"code": "obb_overlap", "object_ids": [first["id"], second["id"]],
                                     "status": "fail", "interpretation": "proxy overlap; support/contact semantics unknown"}]
-    return {"scope": "target_bbox_proxy", "tolerance_m": tolerance_m, "checks": checks,
+    report = {"scope": "target_bbox_proxy", "tolerance_m": tolerance_m, "checks": checks,
             "counts": dict(Counter(c["status"] for c in checks)),
             "asset_retrieval": "not_attempted", "mesh": "not_checked", "support": "unknown",
             "physics": "not_checked", "commit": "not_attempted"}
+    if room.get("boundary_quality") == "source_reference_extent":
+        return {**report, "room_size_semantics": "reference_extent",
+                "room_interpretation": "XY reference range and nominal Z origin; physical boundary and floor unknown"}
+    return report
 
 
 def write_bbox_glb(path, scene):
@@ -185,10 +217,13 @@ def export_handoff(directory, condition, layout):
         previous = registry.get(obj["asset_key"], {})
         registry = {**registry, obj["asset_key"]: {"asset_key": obj["asset_key"], "type": obj["type"],
                     "description": obj["description"], "dimensions": deepcopy(obj["dimensions"]),
-                    "place": "unknown", "support_status": "unknown", "scenes": [downstream["scene_key"]],
+                    "place": _placement(obj["place_id"]), "support_status": obj["support_status"],
+                    "placement_eligible": obj["place_id"] is not None, "scenes": [downstream["scene_key"]],
                     "n_instances": previous.get("n_instances", 0) + 1,
                     "asset_key_kind": "downstream_generation_key_only"}}
-    payloads = {"scene.json": json.dumps(scene, indent=2, allow_nan=False) + "\n",
+    payloads = {"condition.json": json.dumps(condition, indent=2, allow_nan=False) + "\n",
+                "layout.json": json.dumps(layout, indent=2, allow_nan=False) + "\n",
+                "scene.json": json.dumps(scene, indent=2, allow_nan=False) + "\n",
                 "roomgenbench_scene.json": json.dumps(downstream, indent=2, allow_nan=False) + "\n",
                 "assets.jsonl": "".join(json.dumps(registry[key], allow_nan=False) + "\n" for key in sorted(registry)),
                 "diagnostics.json": json.dumps(bbox_diagnostics(scene), indent=2, allow_nan=False) + "\n",

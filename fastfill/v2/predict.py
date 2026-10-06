@@ -21,6 +21,8 @@ def main(argv=None):
     inputs = p.add_mutually_exclusive_group(required=True)
     inputs.add_argument("--condition", type=Path)
     inputs.add_argument("--request", type=Path, help="room_type + room_size_m + furniture_list; no assets")
+    p.add_argument("--room-size-semantics", choices=["rectangular", "reference_extent"], default="rectangular",
+                   help="For --request: known rectangular room, or a source XY reference range with unknown physical boundary/floor")
     p.add_argument("--output", type=Path, required=True, help="New JSON file, never overwrite input")
     p.add_argument("--baseline", choices=["structured", "text"], default="structured")
     p.add_argument("--catalog", type=Path)
@@ -34,6 +36,8 @@ def main(argv=None):
     p.add_argument("--max-seconds", type=float, default=10.)
     p.add_argument("--commit-in-memory", action="store_true")
     args = p.parse_args(argv)
+    if args.condition and args.room_size_semantics != "rectangular":
+        raise ValueError("--room-size-semantics applies only to --request; --condition declares its own room semantics")
     output = safe_output(args.output)
     if args.request and args.catalog:
         raise ValueError("direct furniture requests export bbox geometry and do not resolve assets")
@@ -45,7 +49,8 @@ def main(argv=None):
             raise ValueError("--output and --export-dir must not overlap or contain each other")
     if args.request:
         from fastfill.v2.direct_layout import request_to_condition
-        condition = request_to_condition(json.loads(args.request.read_text()))
+        condition = request_to_condition(json.loads(args.request.read_text()),
+                                         room_size_semantics=args.room_size_semantics)
     else:
         condition = json.loads(args.condition.read_text())
     validate_condition(condition)

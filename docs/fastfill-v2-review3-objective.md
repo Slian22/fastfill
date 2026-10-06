@@ -1,5 +1,7 @@
 # FastFill v2 review3：启用目标与累积窗口
 
+**历史专项记录。** 本页只解释 C2 与 review3 的当时运行；C1/C3/C4、当前多源 D1/D2 资格与最新服务器证据见 [后续处置](fastfill-v2-full-review-followup.md) 和 [多源完成记录](fastfill-v2-multisource-20261006.md)。本文的历史代码／数据数量和测试数保留原范围。
+
 日期：2026-10-06。本次只处理 review2 独立复审确认的非默认配置 P2，完善新服务器执行步骤。review2 的包身份、640 tests 与数据修订记录保留为历史事实；本版不覆盖旧包。
 
 ## 复审判断

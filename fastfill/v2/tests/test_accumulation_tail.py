@@ -128,6 +128,18 @@ def test_actual_tail_rescale_precedes_clipping_and_amp_unscale(tmp_path, monkeyp
     assert observed == pytest.approx([.75, .75], rel=2e-6)
 
 
+def test_amp_overflow_does_not_count_as_completed_optimizer_step(tmp_path, monkeypatch):
+    # The first finite scalar loss has an overflowing *scaled* derivative, so
+    # GradScaler skips its optimizer update. The following window is finite and
+    # must become completed step 1; an attempted overflow is not a training step.
+    observed, logs, manifest = _run_scalar(
+        tmp_path, monkeypatch, [1e38, 1.], accumulation=1, scaled=True, steps=1)
+    assert observed == pytest.approx([1.])
+    assert [record["step"] for record in logs] == [1]
+    assert manifest["steps_completed"] == 1
+    assert manifest["skipped_gradient_overflow_windows"] == 1
+
+
 def test_actual_partial_window_is_flushed_each_epoch(tmp_path, monkeypatch):
     observed, logs, _ = _run_scalar(tmp_path, monkeypatch, [1., 1., 3.], steps=4)
     # Each epoch ends with its own one-microbatch mean. No tail is combined

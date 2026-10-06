@@ -1,9 +1,27 @@
 # FastFill
 
 FastFill v2 predicts one local bbox size, bottom-center position and yaw for each
-requested object from **room type + room size + furniture list**. It exports bbox
-scene JSON, a RoomGenBench handoff and colored GLB/SVG without retrieving assets.
-See the [direct bbox guide](docs/fastfill-v2-direct-bbox.md).
+requested object from **room geometry + object requests + fixed objects +
+available support and relation constraints**. The main data protocol keeps the
+original selected multi-source collection, full conditions and partial
+field-validity masks. Continuous heads supply structural geometry supervision;
+Hungarian matching is restricted to legal exchangeable groups. Runtime then
+reconciles predictions with real assets and validates the whole scene before an
+atomic Host commit. The implemented memory Host and bbox checks do not certify
+real mesh, physics, Solver or WorldEdge Host operation. Concrete checkers and a
+persistent WorldEdge Host adapter remain integration work; the current Validator
+reports those geometry levels unknown and blocks when they are required.
+See the [training pipeline](docs/fastfill-v2-training-pipeline.md). The separate
+[direct bbox guide](docs/fastfill-v2-direct-bbox.md) describes a simplified-input
+ablation that exports geometry without assets.
+
+The downstream mesh interface is **RoomGenBench**. Reference repositories are
+pinned Git submodules; initialize their source checkouts with
+`git submodule update --init V-DETR MinkowskiEngine RoomGenBench`.
+Their cloned source and papers are reference material, not proof that the old
+point-cloud detector has been built in the FastFill CUDA environment. Read the
+[design corrections](docs/fastfill-v2-design-audit-20261006.md) and
+[reference source audit](docs/fastfill-v2-reference-code-audit-20261006.md).
 
 The preserved FastFill v1 path takes a floor polygon, optional room type/height,
 fixed obstacles, objects with known geometry and optional relations, and predicts
@@ -15,9 +33,10 @@ This is the current implementation for [Slian22/fastfill](https://github.com/Sli
 
 | Item | Version and purpose |
 |---|---|
-| Current v2 experiment | Qwen3-8B + bidirectional object decoder; minimal-condition joint bbox prediction and downstream export |
+| Current v2 main experiment | Qwen3-8B + bidirectional object decoder; full-condition multi-source joint geometry prediction and asset-runtime validation |
+| v2 simplified-input ablation | Three request fields with explicit reference extents; independent bbox export and downstream comparison |
 | Preserved v1 implementation | v3.2 data-pipeline, text SFT, evaluation and service |
-| Main constraint-supervision experiment | Paired **v3 / v3.1** datasets; keep the same evaluation inputs and training configuration |
+| Preserved v1 constraint-supervision experiment | Paired **v3 / v3.1** datasets; keep the same evaluation inputs and training configuration |
 | v3.2 dataset | Separately rebuilt constrained dataset with source geometry corrections and recovered rooms |
 | Model text protocol | FastFill v1: `placements`, `pos`, integer-degree training targets for `yaw`, optional `on` |
 
@@ -32,10 +51,42 @@ FastFill v2 uses the separate **private** dataset
 `review3-20261006`, fixed commit `96f4946624b46bf8dc99bf94311b5d31290ea09a`.
 The historical review3 splits contain 124,589/8,137/8,615 scenes with
 field-validity masks; the historical complete-geometry cohort contains 57/2/6 scenes.
-The new minimal XY-condition `direct-bbox-20261006` derivative contains
-9,601/539/624 scenes and 33,545 objects, currently qualified from SpatialLM.
-Its yaw is pi-periodic bbox-axis orientation, not certified semantic front.
-The new private snapshot is fixed at `35f5272330d37771eea2d11925c42aeec9d917d4`.
+The historical single-source `direct-bbox-20261006` pilot contains
+9,601/539/624 scenes and 33,545 objects from SpatialLM. Its builder applied a
+source whitelist; these counts do not establish that other sources are
+ineligible. Its yaw is pi-periodic bbox-axis orientation, not certified semantic
+front. That private pilot snapshot is fixed at
+`35f5272330d37771eea2d11925c42aeec9d917d4`.
+
+The main `multisource-20261006` derivative retains the original **16-family
+selection**: 11 families expand to 16 training source tags, two families remain
+evaluation-only (SceneSmith and SpatialGen), and three provide auxiliary inputs.
+It preserves the full parent condition (room geometry, fixed objects, object
+requests, support metadata and constraints) and partial supervision instead of
+requiring every source to have complete position, size and yaw labels. Target
+numbers stay unchanged; conservative Scan2CAD qualification and 13 whole-size
+masks address the audited D1/D2 issues. Main yaw remains the 581 inherited valid
+semantic-yaw targets, with no SpatialLM geometric-yaw promotion.
+If a D1/D2 mask change leaves any exchangeable-group member without complete
+position/size supervision, all members lose that group's exchangeable tag and
+fall back to fixed identity. Each changed member is logged; IDs, request order,
+support, relations and target numbers remain intact.
+The protocol and conservative Scan2CAD/size-range policies are documented in
+the [training pipeline](docs/fastfill-v2-training-pipeline.md). The completed
+build locations are `outputs/fastfill_v2/multisource-20261006/data`,
+`/Volumes/harddisk/FastFill_v2_multisource_20261006`, and the server copy
+`/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`. Final build hashes,
+split counts and actual Qwen tokenizer eligibility must come from the new
+manifests and preflight; no new multi-source private release is claimed here.
+The independent three-field `reference_extent` ablation is built under
+`outputs/fastfill_v2/multisource-20261006/data-minimal-reference`; its XY coordinate
+translation, unknown physical boundary/floor flags and geometric-axis yaw policy
+must not be substituted for the main task. The inherited main validation/test
+lack explicit relations. A separate held-out reference-derived NEAR view is now
+built and independently checked; its own tokenizer/model evaluation remains
+pending. Rare semantic-yaw exposure has been counted for the candidate three-epoch
+run, which has not been launched. See the [completed data/server record](docs/fastfill-v2-multisource-20261006.md)
+and [design audit](docs/fastfill-v2-design-audit-20261006.md).
 See the [dataset download and usage guide](docs/fastfill-v2-dataset-release.md).
 The v1 dataset table below remains historical and is not the v2 training input.
 
@@ -108,7 +159,11 @@ optimizer steps and deployment artifacts. The [server setup guide](docs/fastfill
 gives the upload, CUDA environment and **Qwen3-8B** BF16 pilot commands. The
 selected model is separate from the historical 0.5B development template;
 `fastfill/v2/configs/qwen3_8b_pilot.json` records the historical pilot settings;
-`qwen3_8b_bbox_pilot.json` is the separate 20-step minimal-input template.
-The new data reaches at most 26 objects per scene; RoomGenBench's dense 32–122
-object examples require separate training coverage and evaluation.
+`qwen3_8b_bbox_pilot.json` is the separate 20-step historical minimal-input template.
+`qwen3_8b_main_world7.json` freezes the reviewed Qwen3-8B seven-rank B1/K16
+three-epoch candidate (3,333 updates). It contains the server model path and
+must be passed explicitly; the generic development default is not this run.
+The SpatialLM pilot reaches at most 26 objects per scene. That limit does not
+describe the multi-source main corpus; its actual object/context eligibility,
+rare-yaw exposure and dense-layout evaluation must be frozen with the new run.
 Existing FastFill v1 entry points and v3-series datasets are preserved.

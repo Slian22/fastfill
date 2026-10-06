@@ -1,8 +1,14 @@
 # FastFill v2 私有数据发布与训练用法
 
-## 当前任务：最小 XY 输入 → bbox 布局
+## 当前主数据：多来源完整条件
 
-当前主任务使用 **direct-bbox-20261006**，由我们的冻结已筛选语料派生，原 16 家族数据保留。新输入只有 room type、XY room size、furniture list，FastFill 不检索资产。符合当前完整框/矩形房界资格的来源是 SpatialLM：train/validation/test 为 **9,601 / 539 / 624** 场景，共 **33,545** 对象。yaw 是 π 周期框轴，不认证语义前向；固定对应，无重建的可交换组。模型条件 H=null，源房高仅用于资格/provenance。
+当前主数据是 `multisource-20261006/data`，124,589 / 8,137 / 8,615 场景，1,787,052 个请求对象。真实 Qwen tokenizer 资格视图为 124,375 / 8,125 / 8,602，位于服务器 `preflight-main/eligible` 和本地 `eligible-local`。新主版本保留完整条件，处理 D1/D2 资格，保留 581 个有效语义 yaw；来源、精确 hash 与完成证据见 [多源记录](fastfill-v2-multisource-20261006.md)。
+
+本页下列两个固定 HF revision 描述历史 review3 与 SpatialLM pilot；它们不是新主数据下载入口。当前发布将主数据、实际资格视图、简化输入消融和 heldout NEAR 评测视图放入同一 `multisource-20261006` 版本。NEAR 和简化视图各自的真实 tokenizer 预检／模型评测尚未完成。
+
+## 历史 SpatialLM pilot：最小 XY 输入 → bbox 布局
+
+历史 **direct-bbox-20261006** 从冻结语料按 SpatialLM 白名单派生，输入只有 room type、XY room size、furniture list。其 train/validation/test 为 **9,601 / 539 / 624** 场景，共 **33,545** 对象。yaw 是 π 周期框轴，不认证语义前向；固定对应，无重建的可交换组。模型条件 H=null，源房高仅用于资格/provenance。来源白名单不等于其他数据集均未通过几何资格。
 
 同一 **private** 仓库的新固定 revision：**35f5272330d37771eea2d11925c42aeec9d917d4**。20 个新上传文件的远端 size/SHA256 全匹配，匿名读取 HTTP 401，16 个历史 review3 快照文件不变。本地最终目录是 outputs/fastfill_v2/direct-bbox-20261006/data-xy-final；服务器在 /home/jovyan/shanliantian/FastFill_v2_direct_bbox_20261006 新建独立目录。规则、监督和下游兼容边界见 [直接 bbox 手册](fastfill-v2-direct-bbox.md)。
 

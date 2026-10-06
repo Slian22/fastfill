@@ -1,5 +1,7 @@
 # FastFill v2 review2：修复与重新冻结
 
+**历史快照记录。** 以下“当前／本次”均指 review2 冻结时。后来独立全审的 C1–C4、D1–D2 及当前处置见 [后续处置](fastfill-v2-full-review-followup.md)；当前服务器与数据见 [多源完成记录](fastfill-v2-multisource-20261006.md)。旧测试、hash 和未执行状态不改写为本轮结果。
+
 日期：2026-10-06。对象为当前独立 `fastfill/v2` 实现及新派生数据。旧训练包 SHA256 `4b643eb5f593cafbe6c45b962a91d35630882b868bcca87acd4d9832fa6e929a` 对应历史快照，保持不变；不要将它与本版修复结论混用。
 
 ## 1. 用户审核是否正确

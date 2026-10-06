@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from fastfill.v2.evaluate import evaluate_layout, run_evaluation, summarize
+from fastfill.v2.evaluate import evaluate_layout, reference_metrics, run_evaluation, summarize
 from fastfill.v2.runtime import Asset, CatalogResolver
 from fastfill.v2.tests.test_runtime import condition, layout
 
@@ -96,6 +96,25 @@ class EvaluationRuntimeTests(unittest.TestCase):
         self.assertEqual(outcome["model"]["reference"]["matching_scope"], "fixed_incomplete_labels")
         self.assertEqual(outcome["model"]["reference"]["log_size_error"]["valid_objects"], 1)
         self.assertTrue(outcome["runtime"]["committed"])
+
+    def test_incomplete_group_does_not_disable_matching_for_other_complete_group(self):
+        objects, targets, predictions = [], [], []
+        for ident, group, x in (("a", "complete", 1.), ("b", "complete", 3.),
+                                ("c", "incomplete", 1.), ("d", "incomplete", 3.)):
+            objects.append({"id": ident, "category": "desk", "description": "desk",
+                            "support_parent": "floor", "exchangeable_group": group})
+            targets.append({"id": ident, "target_size_local_m": [1., 1., 1.] if ident != "d" else [None] * 3,
+                            "bottom_center_m": [x, 2., 0.], "yaw_rad": 0.})
+            predictions.append({"id": ident, "target_size_local_m": [1., 1., 1.],
+                                "bottom_center_m": [4. - x if group == "complete" else x, 2., 0.],
+                                "yaw_rad": 0.})
+        row = {**sample(), "condition": condition(objects), "target": layout(targets),
+               "validity": {"position": [[True] * 3] * 4,
+                            "size": [[True] * 3] * 3 + [[False] * 3], "yaw": [False] * 4}}
+        metrics = reference_metrics(layout(predictions), row, include_iou=False)
+        self.assertEqual(metrics["bottom_center_error_m"]["mean"], 0.)
+        self.assertEqual(metrics["matching_scope"], "exchangeable_complete_groups_fixed_incomplete_groups")
+        self.assertEqual(metrics["incomplete_groups"], ["incomplete"])
 
     def test_required_mesh_validation_is_consistent_in_evaluation(self):
         outcome = evaluate_layout(layout(), sample(), resolver=CatalogResolver((Asset("desk", "desk", (1, 1, .75)),)),

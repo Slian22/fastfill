@@ -188,10 +188,11 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     accelerator.wait_for_everyone()
     model.train()
     logs, start, step = [], time.perf_counter(), 0
-    window, skipped_windows, window_microbatches = ObjectiveWindow(), 0, 0
+    window, skipped_windows, skipped_gradient_overflow_windows, window_microbatches = ObjectiveWindow(), 0, 0, 0
     steps = 1 if dry_run else training["steps"]
     while step < steps:
         epoch_start_step = step
+        epoch_start_overflows = skipped_gradient_overflow_windows
         for batch in loader:
             record = None
             with accelerator.accumulate(model):
@@ -209,11 +210,17 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                     if count:
                         _rescale_flushed_window_gradients(model, training["gradient_accumulation_steps"], actual_microbatches)
                         accelerator.clip_grad_norm_(model.parameters(), training["clip_grad_norm"])
-                        step += 1
-                        record = _record({**result, "active_objective_count": count,
-                                          "accumulation_microbatches": actual_microbatches}, model, step,
-                                         time.perf_counter() - start, accelerator)
                         optimizer.step()
+                        if accelerator.optimizer_step_was_skipped:
+                            # GradScaler found nonfinite gradients and deliberately
+                            # suppressed the optimizer update. Do not advance the
+                            # completed-update schedule, validate or checkpoint it.
+                            skipped_gradient_overflow_windows += 1
+                        else:
+                            step += 1
+                            record = _record({**result, "active_objective_count": count,
+                                              "accumulation_microbatches": actual_microbatches}, model, step,
+                                             time.perf_counter() - start, accelerator)
                     else:
                         skipped_windows += 1
                     # Clear both completed and skipped windows. Non-sync
@@ -233,6 +240,8 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
             if step >= steps:
                 break
         if step == epoch_start_step:
+            if skipped_gradient_overflow_windows > epoch_start_overflows:
+                raise RuntimeError("epoch contains active objectives but every attempted optimizer update was skipped after gradient overflow")
             raise RuntimeError("epoch contains no active objective; no supervised optimizer update is possible")
     accelerator.wait_for_everyone()
     _verify_input_fingerprints(metadata, accelerator)
@@ -242,7 +251,9 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
         tokenizer.save_pretrained(target / "tokenizer")
         manifest = {**metadata, "model": asdict(model_config), "loss": asdict(loss_config), "training": training,
             "offline_smoke": model_config.backbone == "tiny", "dry_run": dry_run, "steps_completed": step,
-            "supervised_samples": len(samples), "skipped_no_objective_windows": skipped_windows, "rejected": rejected, "validation_rejected": validation_rejected,
+            "supervised_samples": len(samples), "skipped_no_objective_windows": skipped_windows,
+            "skipped_gradient_overflow_windows": skipped_gradient_overflow_windows,
+            "rejected": rejected, "validation_rejected": validation_rejected,
             "subset_limit": max_samples, "world_size": accelerator.num_processes,
             "optimizer_step_policy": "update iff global accumulated-window eligible objective count is positive; zero numeric loss is eligible",
             "reduction": "complete-field valid instances; fixed coordinate sum divided by 3; global valid count per microbatch; mean over actual flushed-window microbatches",

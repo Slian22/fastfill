@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-06",
+  "scope": "portable selected audit receipts; upstream source duplicates/paper text/binaries/images/raw assets/model weights excluded; full original evidence retained in outputs",
+  "files": [
+    {
+      "path": "fastfill-current-read-coverage.json",
+      "bytes": 6912,
+      "sha256": "731ea8e187909ba57e8107995e46f43c5a420cf42b94c3ba5e8c8d4714642ced"
+    },
+    {
+      "path": "fastfill-training/README.md",
+      "bytes": 9248,
+      "sha256": "c43ac4070f947566cd8d354ccb2f42ea333f53e1edcbbc5bc0be9beec850b8ef"
+    },
+    {
+      "path": "fastfill-training/scope-manifest.json",
+      "bytes": 3514,
+      "sha256": "9d5c9f8fb0f6fad1b7b56a9eab4316acd1e62f93b7c40b798a020a7b764d893a"
+    },
+    {
+      "path": "reference-minkowski-native/mechanism_repros.py",
+      "bytes": 6724,
+      "sha256": "4261693c704514238f63571bb888b20c323e93ea36da6b3fcb0c1622113cc1fb"
+    },
+    {
+      "path": "reference-minkowski-native/mechanism_results.json",
+      "bytes": 4862,
+      "sha256": "b6958110a789d9282c8598e6c9dc7c59e3421d5ca37e51e812252e96cd0da7a9"
+    },
+    {
+      "path": "reference-minkowski-native/native-coverage.json",
+      "bytes": 33221,
+      "sha256": "f4d78d122338013ed84355b90d0afa59a17a6b3b10ae6f2bdb482d90045200df"
+    },
+    {
+      "path": "reference-minkowski-native/native-integrity-result.json",
+      "bytes": 226,
+      "sha256": "ca531cb585475cb35f18db7f6f7d9a91818cc35b73cc8c36bade7fa9f8ce5f1a"
+    },
+    {
+      "path": "reference-minkowski-native/report.md",
+      "bytes": 16023,
+      "sha256": "55f5be04979c540cca31c3ebc31c43388d094d6cb7e6b196b83b09a8f7aa111b"
+    },
+    {
+      "path": "reference-minkowski-native/vendor/REPORT.md",
+      "bytes": 13247,
+      "sha256": "b862bace925f9e01cb969b9e835c3840c698a69fb43a4f19395f62c3a7ee72b4"
+    },
+    {
+      "path": "reference-minkowski-native/vendor/endpoint-verification.json",
+      "bytes": 2374,
+      "sha256": "4e6f9bff80555d81bd7f5e4cf67d07dfde4564d529df2697185804f4dc49e1c1"
+    },
+    {
+      "path": "reference-minkowski-native/vendor/full-read-inventory.json",
+      "bytes": 9654,
+      "sha256": "8c51a2eaf98062bbc4a0884b4420493bc6dfbfc5d2ca131c0ef2c549839e8d8c"
+    },
+    {
+      "path": "reference-minkowski-python/READING_CHECKLIST.md",
+      "bytes": 16588,
+      "sha256": "6edc477613b5093509e26b8eafc0bea301885679a992bfde1a56249da6278b59"
+    },
+    {
+      "path": "reference-minkowski-python/REPORT.md",
+      "bytes": 16714,
+      "sha256": "a50f5a66cd92819db2bb13e8820a56c93693085a22d2302f585eefe5b0439621"
+    },
+    {
+      "path": "reference-minkowski-python/environment_presence.json",
+      "bytes": 2401,
+      "sha256": "3a953337d761f0b97b8d11dd63a64763a33c8ea008371a5b05100dcee6b44555"
+    },
+    {
+      "path": "reference-minkowski-python/final_receipt.json",
+      "bytes": 228,
+      "sha256": "49d0f0afd8e6193b28932bf1ac94c216e326bd5d10cd5fa6848d0df56dc7b8cf"
+    },
+    {
+      "path": "reference-minkowski-python/paper/receipt.json",
+      "bytes": 2366,
+      "sha256": "7084a762d0eb82cc9af180b0d11055ef9f2738e7f2ab7538a4a0bd9d231dbdf9"
+    },
+    {
+      "path": "reference-minkowski-python/python_api_repro_results.json",
+      "bytes": 7025,
+      "sha256": "4e90984876a5ebab5d0008651e0b7515151c93b0dc1fc130e3f5c4737460af5a"
+    },
+    {
+      "path": "reference-minkowski-python/python_api_repros.py",
+      "bytes": 11663,
+      "sha256": "b35799efce1b5fefb0d51c145ea870b02e6e4cc6679e886cb9edd416bca89ebd"
+    },
+    {
+      "path": "reference-minkowski-python/quantize_stride_receipt.json",
+      "bytes": 621,
+      "sha256": "f1a5082c2915c0b60a10c59affc02a3e385be262aea70fe2290523c8994cead1"
+    },
+    {
+      "path": "reference-minkowski-python/reading_inventory.json",
+      "bytes": 69106,
+      "sha256": "9bc83d94766185f24eb50eaed1c21688c63af2f9db3b5f9b5aa574aaddb5ea9e"
+    },
+    {
+      "path": "reference-vdetr/audit.md",
+      "bytes": 19134,
+      "sha256": "697b2e9d8db5d3c9313c688382a419d89e924b954906343986070bac140a1416"
+    },
+    {
+      "path": "reference-vdetr/native-geometry/audit.md",
+      "bytes": 15514,
+      "sha256": "81c1e24c51bfa28a41efa7aa24d2e9bc27abdf2e25ea50b5ca804d6ff6133159"
+    },
+    {
+      "path": "reference-vdetr/native-geometry/native-coverage.json",
+      "bytes": 23215,
+      "sha256": "8a34630f03c59b00dc6a9a645b1c350e4d78ff0adcd29eed7ce39ba3f6179ba2"
+    },
+    {
+      "path": "reference-vdetr/native-geometry/reproduce.py",
+      "bytes": 13033,
+      "sha256": "58a88c89a55c0f0987ce03f0872435a7fee91effede707105ec20a21b68f964e"
+    },
+    {
+      "path": "reference-vdetr/native-geometry/reproduction-results.json",
+      "bytes": 9622,
+      "sha256": "213a3a1e5a66b0544fab97693173ed43e85cce41bebbc9a1876fb5f1b2c4a776"
+    },
+    {
+      "path": "reference-vdetr/paper-manifest.json",
+      "bytes": 848,
+      "sha256": "971ecb397bd4c62af8c0bc31ada818bfbe4a11064b95f6c85cd08d8ab2f1bf5c"
+    },
+    {
+      "path": "reference-vdetr/python_repros.json",
+      "bytes": 3916,
+      "sha256": "79efefad7f31509abdc82575de5e543ee8d59dea7e48f82910b29d5b8741bacd"
+    },
+    {
+      "path": "reference-vdetr/python_repros.py",
+      "bytes": 11770,
+      "sha256": "edabfa7266bd59218e6eefc4c89d4b660d44b05696bdbedbcd6347795ce0db57"
+    },
+    {
+      "path": "reference-vdetr/source-inventory-before.json",
+      "bytes": 9139,
+      "sha256": "d503e1330ba44ad4da0f95990e288ff775874f51739dc17f46782cba20dbfdea"
+    },
+    {
+      "path": "reference-vdetr/source-read-coverage.json",
+      "bytes": 28895,
+      "sha256": "4a4a20e7a04dcb5e540be1c21bb2e849e86953886d80a3c3b7c4cfe7059160ad"
+    },
+    {
+      "path": "reference-vdetr/tiny-superpoint-fixture/scans/scene0000_00/scene0000_00_vh_clean_2.0.010000.segs.json",
+      "bytes": 28,
+      "sha256": "2c5a1aff4beb416b4757bc3173694cf40a9f457cbc2c95290cf87fbb481a9a3f"
+    },
+    {
+      "path": "reference-vdetr/verify_audit.py",
+      "bytes": 4771,
+      "sha256": "9a0f76e092248a85099c6f567e1b258e2599bfcd424674f3834b3b7fce910462"
+    },
+    {
+      "path": "roomgenbench-dynamic/report.json",
+      "bytes": 1813,
+      "sha256": "310654bd81908d9e916281d4c9ceb047527cc8cf2e3858e017d65e9762827994"
+    },
+    {
+      "path": "roomgenbench-dynamic/smoke.py",
+      "bytes": 3878,
+      "sha256": "128272942711de5044ac79cdb935c650d468e3fa3464e04fb137c17140d80c01"
+    },
+    {
+      "path": "security-pip-audit-current.json",
+      "bytes": 2970,
+      "sha256": "a0e5807217cfd4ecf89a5768f679e4f2f191cfbae296e70afdda1661625d2010"
+    },
+    {
+      "path": "security-server-current-pins.txt",
+      "bytes": 871,
+      "sha256": "4d3eb841f22a27eb70ba25a28fe4590b49813524cde6a2a63a8a8cf434be4577"
+    },
+    {
+      "path": "test-security-receipt.json",
+      "bytes": 1121,
+      "sha256": "fa071f3db600a9301c0aee71cf52560abb075a3d645ed0ce2e3e7ba988f472aa"
+    }
+  ]
+}

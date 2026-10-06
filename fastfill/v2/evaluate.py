@@ -68,8 +68,14 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
             groups.setdefault(obj["exchangeable_group"], []).append(i)
     incomplete = [name for name, indices in groups.items() if len(indices) > 1 and any(
                   not batch["validity"][field][0, indices].all() for field in ("position", "size"))]
-    use_hungarian = hungarian and not incomplete
-    assignment = match_batch(predictions, batch, enabled=use_hungarian)[0]
+    # Matching eligibility is group-local. Remove only incomplete groups from the
+    # candidate graph; complete groups still pass match_batch's schema/constraint
+    # certification before detached Hungarian assignment.
+    matching_objects = [{key: value for key, value in obj.items()
+                         if not (key == "exchangeable_group" and value in incomplete)}
+                        for obj in batch["objects"][0]]
+    matching_batch = {**batch, "objects": [matching_objects]}
+    assignment = match_batch(predictions, matching_batch, enabled=hungarian)[0]
     values = {"bottom_center_error_m": [], "log_size_error": [], "yaw_error_rad": [], "bev_iou": []}
     target = batch["targets"]
     valid = batch["validity"]
@@ -87,9 +93,13 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
         if include_iou and pv and sv and yv:
             values["bev_iou"].append(float(bev_iou(positions[0, i], predictions["size"][0, i], yaw[0, i],
                           gt_position, target["size"][0, j], target["yaw"][0, j])))
+    complete_groups = [name for name, indices in groups.items() if len(indices) > 1 and name not in incomplete]
+    matching_scope = ("exchangeable_complete_groups_fixed_incomplete_groups"
+                      if hungarian and incomplete and complete_groups else
+                      "fixed_incomplete_labels" if hungarian and incomplete else
+                      "exchangeable_groups" if hungarian else "fixed")
     return {**{key: {"mean": float(np.mean(v)) if v else None, "valid_objects": len(v)} for key, v in values.items()},
-            "matching_scope": "fixed_incomplete_labels" if hungarian and incomplete else
-                              ("exchangeable_groups" if hungarian else "fixed"),
+            "matching_scope": matching_scope,
             "incomplete_groups": incomplete}
 
 

@@ -1,19 +1,41 @@
 # FastFill v2 — experimental joint geometry generator
 
-Current task: **room type + room XY size + furniture list** predicts one target
-local full size, bottom-center and yaw per requested ID, then exports bbox scene
-JSON and colored GLB/SVG directly to downstream systems. No asset retrieval is
-required. The richer condition/asset-loop path remains optional.
+Main task: **room geometry + object requests + fixed objects + available support
+and relation constraints** predicts one target local full size, bottom-center and
+yaw per stable requested ID. Continuous heads provide structural supervision;
+Hungarian matching is restricted to legal exchangeable groups. Deployment design
+then resolves actual assets, reconciles actual geometry and validates the whole
+scene before atomic Host commit. Current code implements the offline reference
+contracts; real mesh/physics/Solver checkers and a persistent WorldEdge Host
+adapter remain integration work.
+The separate three-field `reference_extent` view is a simplified-input ablation
+that exports bbox JSON and GLB/SVG without an asset library. It does not replace
+the main full-condition task or its deployment acceptance requirements.
 Qwen encodes condition tokens only. An external bidirectional object decoder
 cross-attends to all condition hidden states and produces continuous geometry.
 Text SFT is an independent token-CE comparison. Neither requires MinkowskiEngine.
 
-The architecture implements the 2026-10-05 design; the direct minimal-input
-boundary follows the user's 2026-10-06 clarification. It is **not a validated method**.
+The architecture follows the 2026-10-05 design. The direct minimal-input boundary
+is an independent ablation. It is **not a validated method**.
 No production Qwen training, quality improvement, real Host deployment, mesh or
 physical simulation success is claimed. Existing `fastfill/train.py`,
 `evaluate.py`, `serve.py`, and v3/v3.1/v3.2 dataset/experiment lineage are retained.
 Model version v2 is separate from the older dataset's v3-series numbering.
+
+The final mesh consumer is **RoomGenBench**. `predict --export-dir` now saves
+canonical `condition.json` / `layout.json` alongside SceneSpec, asset registry,
+GLB/SVG and diagnostics. `python -m fastfill.v2.roomgenbench` accepts any such
+handoff and an independent output directory, optionally consuming generated
+GLB/JSON sidecars. It preserves declared support, constraints and fixed bbox
+proxies, counts failed/fallback/missing assets, and records native/fitted sizes.
+See the [downstream contract and commands](../../docs/fastfill-v2-roomgenbench-interface-20261006.md).
+This mesh-fit adapter does not run learned generation or certify physics/Host.
+
+The reviewed seven-rank main candidate is
+`configs/qwen3_8b_main_world7.json` (Qwen3-8B B1/K16, 3,333 updates).
+Pass it explicitly with the current qualified dataset; generic defaults remain
+development configurations. Latest audit, source pins and publication state are
+in the [design audit](../../docs/fastfill-v2-design-audit-20261006.md).
 
 ## What is implemented
 
@@ -24,14 +46,34 @@ Model version v2 is separate from the older dataset's v3-series numbering.
 | `matching.py`, `losses.py` | Fixed identity or explicitly certified within-group Hungarian, detached assignment, differentiable original tensors, complete-field masks, symmetry-aware paired yaw loss, global counts |
 | `boxes.py`, `regularizers.py` | Optional BEV oriented convex-hull GIoU, normalized collision-volume and convex-room boundary losses; no implicit 3D GIoU |
 | `audit.py`, `adapters.py`, `data.py`, `legacy_build.py`, `legacy_bridge.py`, `legacy_evidence.py` | Source inventory, immutable migration of the selected v3.2 corpus with inherited splits and evidence-based field masks; explicit raw MultiScan audit/smoke adapter |
+| `qualified_data.py` | New full-condition main derivative with pinned parent/source hashes, D1/D2 qualification changes, fixed-identity fallback for groups losing complete geometry, per-member change records and unchanged target numbers |
 | `train.py`, `text_sft.py`, `evaluate.py` | Joint optimizer, assistant-only text CE, checkpoint inference, all-request failures, legal matching reference metrics and separated asset/system metrics |
-| `direct_layout.py`, `bbox_visualization.py`, `minimal_data.py` | Strict three-field request, source-audited XY dataset projection, canonical/RoomGenBench JSON, generation registry, no-asset bbox GLB/SVG and proxy diagnostics |
-| `predict.py` | `--request` minimal-input inference/export; richer `--condition` and legacy catalog path retained |
+| `direct_layout.py`, `bbox_visualization.py`, `minimal_data.py`, `multisource_data.py` | Independent three-field ablation, explicit reference-extent semantics, source-audited partial-mask projection, canonical/RoomGenBench JSON, no-asset bbox GLB/SVG and proxy diagnostics |
+| `predict.py` | Main `--condition` checkpoint inference; separate `--request` ablation and optional offline catalog execution |
 | `runtime.py`, `validation.py`, `serve.py` | Catalog resolver contract, target/actual separation, pivot-to-canonical transforms, verified support propagation, bounded reselect/translation repair, atomic in-memory Host reference |
 
 The latest [objective update](../../docs/fastfill-v2-review3-objective.md) adds enabled-loss preflight and a globally counted accumulation-window optimizer guard. See the [server setup guide](../../docs/fastfill-v2-server-start.md) for the supplied H20Z host. The historical [review2 audit](../../docs/fastfill-v2-review-20261006.md) separates repaired defects, data provenance and remaining training limits.
 
-## Preserved rich-condition data and release history
+## Main full-condition data and preserved release history
+
+The new main derivative is `outputs/fastfill_v2/multisource-20261006/data`, with
+portable package `/Volumes/harddisk/FastFill_v2_multisource_20261006` and server
+copy `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`. Final build
+counts, hashes and actual tokenizer eligibility belong to its new manifests and
+preflight, not to a historical smoke or single-source pilot.
+
+The original selected 16-family system remains: 11 training-room families expand
+to 16 training source tags, SceneSmith and SpatialGen remain evaluation-only,
+and three families supply auxiliary inputs. The new main preserves full parent
+room/fixed/support/relation conditions and all target numbers. Scan2CAD's
+estimated floor is marked unknown and its whole position vectors are masked;
+13 targets outside the default size head range receive whole-size masks.
+If any member loses complete position/size labels, all members of that
+exchangeable group lose its tag, with logged fixed-identity fallback. IDs,
+order, support, relations and targets remain unchanged. Main yaw keeps the 581
+inherited valid semantic labels, with no SpatialLM geometric-yaw promotion.
+The independent simplified-input view is `data-minimal-reference`; its XY
+translation and geometric-axis yaw policy are separate experimental protocols.
 
 The local source audit is in [docs/fastfill-v2-data-audit.md](../../docs/fastfill-v2-data-audit.md).
 The historical broad training source is **our selected, frozen `.release/v3.2` corpus**,
@@ -87,20 +129,25 @@ The repository rebuild commands below require the original frozen `.release`
 inputs; the portable bundle uses the supplied data and the execution manual.
 Historical review3 local tests: **659 passed + 114 subtests**, v2 coverage **87.68%**.
 
-## Current minimal-input bbox path
+## Simplified-input bbox ablations and historical SpatialLM pilot
 
 Read the [direct bbox guide](../../docs/fastfill-v2-direct-bbox.md) for the exact
-request and downstream boundary. The new XY derivative has 9,601/539/624 scenes,
+request and downstream boundary. The historical XY derivative has 9,601/539/624 scenes,
 33,545 objects, all complete geometry labels. It is qualified from SpatialLM,
 inherits parent splits, omits source height from condition, and supervises
 pi-periodic **bbox axes** (not semantic front). Correspondence is fixed; no
 exchangeable groups were reconstructed. Maximum scene size is 26 objects.
-The old 16-family snapshots and richer-condition pilot remain separate evidence.
+The source whitelist was applied before other geometry checks; these counts do
+not prove other sources ineligible. This historical pilot is separate from the
+new full-condition multi-source main. The new `data-minimal-reference` ablation
+retains partial masks from multiple sources rather than demanding complete yaw
+from every source, and explicitly keeps physical boundary/floor unknown.
 
 ```bash
 python -m fastfill.v2.predict \
   --checkpoint "$FASTFILL_MODEL" \
   --request fastfill/v2/configs/direct_request.json \
+  --room-size-semantics reference_extent \
   --output outputs/bbox-prediction-new.json \
   --export-dir outputs/bbox-handoff-new --device cuda
 ```
@@ -109,7 +156,8 @@ This writes geometry JSON, RoomGenBench SceneSpec/registry, GLB, SVG and proxy
 diagnostics without a catalog or Host. Unknown height/support stays unknown;
 the original RoomGenBench fixed scene/site/render harness needs separate scene
 registration and height/metadata handling. Export success is not model quality.
-Commands below describe the preserved broader-condition and optional asset paths.
+Main inference uses `--condition` and its original qualification fields. Commands
+below exercise the full-condition trainer and the offline asset-runtime contract.
 
 The [training pipeline walkthrough](../../docs/fastfill-v2-training-pipeline.md) explains data, each optimizer step, deployment artifacts, and the RoomGenBench task boundary. review2 withdraws unsupported source-derived `faces` while retaining UID/splits/targets/masks; it adds below-floor diagnostics without rewriting labels. The older bundle remains a historical snapshot.
 
@@ -273,8 +321,9 @@ checkpoints contain backbone adapter/full weights where needed and decoder/heads
 
 ## Geometry and exact losses
 
-- Right-handed Z-up meters. Local +X is the canonical bbox axis; the current
-  geometric-yaw dataset does not certify semantic front. `(w,d,h)` are full
+- Right-handed Z-up meters. Local +X is the canonical semantic front for the main
+  protocol; sources without front evidence have yaw masked. The separate
+  geometric-yaw ablation does not certify semantic front. `(w,d,h)` are full
   X/Y/Z lengths, invariant under yaw. Positions are bbox bottom-center.
 - Position normalization uses input room origin and XY extent; missing height
   uses fixed 3m. Trusted floor-support z and requested fixed size dimensions are
@@ -363,7 +412,9 @@ capabilities are rechecked after asset filtering. Conservative OBBs can reject
 valid contents of hollow furniture or shelves; this initial validator does not
 infer cavity geometry or bypass penetration checks by furniture category.
 Mesh/physics/Solver are explicitly
-unavailable; requiring these validation levels also blocks commit. Time budgets
+unavailable: the current Validator unconditionally emits unknown for each, with
+no connected checker or external evidence-ingestion interface. Requiring these
+validation levels therefore blocks commit. Time budgets
 are checked between callbacks; external callbacks must enforce their own I/O
 timeouts. `AtomicMemoryHost` demonstrates all-or-fail versioned/idempotent commit.
 **Real WorldEdge persistent Host integration requires a concrete atomic adapter**;
@@ -390,8 +441,11 @@ requests mesh evidence and blocks offline commit while that evidence is unknown.
    using its own existing entry point. It has richer size information; label that
    difference rather than reporting it as the same hidden-size task.
 2. Train v2 text SFT and its controlled structured counterpart on the same
-   minimal XY dataset, condition information and documented sample exposure.
-   For optional asset-loop experiments, additionally fix asset/repair budgets.
+   full-condition complete-label view, condition information and documented
+   sample exposure. Current text SFT explicitly rejects incomplete labels;
+   do not silently erase the main corpus's partial masks. Simplified-input
+   comparisons use separate manifests. Freeze asset/repair budgets for the
+   main downstream runtime evaluation.
 3. Train structured fixed correspondence with `configs/structured_fixed.json`.
 4. Train structured exchangeable-group Hungarian with `configs/structured.json`.
 5. If useful, compare `configs/structured_bev_box.json` at equal training budget.

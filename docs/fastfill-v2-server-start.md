@@ -1,6 +1,8 @@
 # FastFill v2：Qwen3-8B 服务器启动
 
-**当前三字段输入、直接 bbox 输出的执行入口见 [交付手册](fastfill-v2-direct-bbox.md) 和 [数据手册](fastfill-v2-dataset-release.md)。** 本页记录历史 review3 包的服务器准备与 richer-condition pilot；基础环境和模型可复用，冻结包/旧运行不改。新 XY 数据与代码必须放在新的目录，不能把下面两个 MultiScan 场景的结果称为当前最小输入模型已经训练成功。FastFill 当前交付不需要资产检索或 vLLM。
+**当前服务器主入口是 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。** 完整条件主集为 124,589 / 8,137 / 8,615 场景；真实 Qwen tokenizer／对象预算资格为 124,375 / 8,125 / 8,602。环境、Qwen 权重、七卡 NCCL 和有界生产 pilot 已验收，完整三轮训练尚未启动。实际配置与命令见 [多源完成记录](fastfill-v2-multisource-20261006.md)。最终下游是 RoomGenBench；本训练入口不依赖 vLLM 或 MinkowskiEngine。
+
+本页其余内容保留历史 review3 与 SpatialLM XY pilot 的准备和运行记录。它们的旧目录、数量和 checkpoint 均有各自版本，不能作为当前主任务的全量训练结果。服务器整理后的实际路径以最新发布／清理收据为准。
 
 日期：2026-10-06。用户已指定正式骨干为 **Qwen/Qwen3-8B**，服务器通过 SSH alias `yxd-dev` 访问，工作目录为 `/home/jovyan/shanliantian/FastFill_v2_20261006_server`。此前 Qwen2.5-0.5B 只是未执行的可选链路模板，不是本次正式模型。
 
@@ -10,7 +12,7 @@
 
 本手册使用冻结 review3 包。包内代码、数据和清单保持不变；独立环境、运行配置与训练输出放在包目录之外，基础模型按用户要求重新下载到 `/home/jovyan/shanliantian/models/Qwen3-8B`。**服务器包的 279 文件校验、模型五个官方 SHA256、真实 Qwen3-8B 的 20 更新步及保存后重新加载评测已通过。** 这只确认运行链路；六个测试场景均未通过严格目标几何验收。v2 实现已同步至私有 GitHub `Slian22/fastfill`，实现提交为 `071fc3486329ce87fb41d29985b96c9931fbde4c`。私有数据下载及固定版本见 [数据使用手册](fastfill-v2-dataset-release.md)。
 
-## 当前 XY 任务：服务器状态和全数据实验入口
+## 历史 SpatialLM XY pilot：服务器状态和实验入口
 
 新工作根目录 `/home/jovyan/shanliantian/FastFill_v2_direct_bbox_20261006`。新train/validation/test **9601/539/624** 行通过真实Qwen3 tokenizer全量预检，最大 **716/490/526 tokens**；100,635个尺寸轴都在head范围。独立env和固定revision模型已安装，无需vLLM或MinkowskiEngine。
 

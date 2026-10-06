@@ -1,6 +1,8 @@
-# FastFill v2：最小输入与 RoomGenBench bbox 交付
+# FastFill v2：简化输入消融与 RoomGenBench bbox 交付
 
-2026-10-06 当前任务：**room type + room size + furniture list → 每个对象的局部尺寸、底面中心和 yaw → bbox 场景交给下游**。FastFill 不检索资产；原资产解析、修复和 Host 参考实现保留为可选历史路径，不是本任务的训练或部署前置条件。
+2026-10-06。本文记录 **简化输入消融及历史 SpatialLM pilot**：room type + room size + furniture list → 局部尺寸、底面中心和 yaw → bbox 下游输入。当前主任务保留房间、固定对象、支撑与空间约束，见 [主流水线](fastfill-v2-training-pipeline.md)。最终下游 RoomGenBench 按 text+bbox 生成／装配 mesh；仅导出 bbox 不能宣称实际 mesh 场景已验收。
+
+当前多源简化视图为 `multisource-20261006/data-minimal-reference`，它使用显式 `reference_extent`，保留未知物理边界／地板及部分标签。以下 9,601 / 539 / 624 数量属于历史 `direct-bbox-20261006` 严格矩形 pilot，不是当前多源训练集。
 
 ## 1. 上游只提供三个字段
 
@@ -59,7 +61,7 @@ python -m fastfill.v2.predict \
 
 ## 4. 训练数据如何变化
 
-原来筛选的 16 个家族和 review3 快照保留。针对新的三字段输入，另建 `direct-bbox-20261006` 派生版本：从审计后的父语料筛选房型/地板/矩形边界可信、完整局部框和 upright yaw 可核验的场景，再将 condition 投影为同一个公开 request adapter。当前符合全部规则的是 **SpatialLM**，不是把全部 16 源无标签 yaw 改成有效。
+原来筛选的 16 个家族和 review3 谱系保留。历史 `direct-bbox-20261006` builder **先限定 SpatialLM 来源**，再筛选房型／地板／矩形边界、完整局部框和 upright 几何 yaw，将 condition 投影为公开 request adapter。因此它不能证明其他来源不合格。当前多源主集不提升缺少证据的语义 yaw。
 
 | split | 场景 | 对象 |
 |---|---:|---:|

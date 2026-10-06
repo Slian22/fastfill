@@ -1,0 +1,553 @@
+"""Independent, streaming verification of the multi-source minimal derivative.
+
+No producer or adapter functions are imported. Expected conditions, numeric
+translations and mask changes are recomputed from the immutable parent rows;
+SpatialLM yaw qualification additionally uses the hash-pinned source IR.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from copy import deepcopy
+import hashlib
+from itertools import zip_longest
+import json
+import math
+from pathlib import Path
+
+SPLITS = ("train", "validation", "test")
+UNKNOWN = {"", "misc", "other", "other room", "unknown", "undefined", "none"}
+SEALED_IR_SHA256 = {
+    "HSSD200.jsonl": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
+    "IL3D_3dfront.jsonl": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
+    "IL3D_synthetic.jsonl": "2f021ea40220b96ea69a29b9bba42151866938832ff1bd807a6f660a29e70df2",
+    "InteriorGS.jsonl": "612c3afb3b80ae2fbee01b8930d05e7cec89831538d88d0308d0dbafda5c7b73",
+    "InternScenes_3rscan.jsonl": "bae023a964ec08795feb25b8a36ea6da0fc826ab44ccaa508da369d57a67a992",
+    "InternScenes_arkit.jsonl": "f90f2ccc4870fdf8f5c11df34d21f78a63b9917885371c0bcf3b17391b563c29",
+    "InternScenes_gen.jsonl": "75387e2527997ed051c71fad75c3e472a5efe7a128bae18dd3efe5d7ba4dd772",
+    "InternScenes_mp3d.jsonl": "3685a34f5406a7dd3c93de3c4d2ff8f5d051a5ef5a4183038ece4d54e7b6a84b",
+    "InternScenes_scannet.jsonl": "994b9edbba489599940323947dd42e5fba8da0157346e48940e45c5ab095aa3a",
+    "MansionWorld.jsonl": "3b91f38162f1b2f19e6580d3437dc853b590802291bbd008727319f7274bd40c",
+    "MultiScan.jsonl": "3fcd69d2a9363453cbeeb8b9aa6f681b1e7c3b622774ccad8d7d791c370124ca",
+    "OptiScene_holodeck.jsonl": "6b50155b6c71838f8f8267c20e17cc67f49f37746ed6b92d950602d84fb31b2a",
+    "SAGE-10k.jsonl": "8a1e03dddc5baa770752ae14e77298b0d3b42aab77113c119008d6ee978d06b6",
+    "Scan2CAD.jsonl": "8dd7b1b766ee884b7ee7d3f8657c42a18fa7af4bd3671d87ab0380c6a18eea36",
+    "SceneSmith.jsonl": "0d58aae78ff6061bf41f7d0abc2f508028940a087e10b0c04a779f5e8d92d432",
+    "SpatialGen.jsonl": "5390fd84350a3d6070842bc3c49b75fa88031f645e4c06312c7c1fe57e4096d8",
+    "SpatialLM.jsonl": "f582b46d45b38e59b7b593d045f946f889d08942c10147bf4f077b7f33ef4410",
+    "Structured3D.jsonl": "c4b66c25ea6385de7a738311f8ee92866c12e23706e439389248bdfbaef386a4",
+}
+PARENT_SHA256 = {
+    "train.jsonl": "ad885654907242e9cb7b222653c9da5f9a5237c5586215e7ced94ed74c830c92",
+    "validation.jsonl": "5a0a45d6b2d82f8fcbf3a1f2d7f908ce9531e484efdac870b869dd9164a5b773",
+    "test.jsonl": "efc393bd36f1110ca3e037d89ddc70c60e7b6cd676bdc1c47b2f7f81e9648ea9",
+    "manifest.json": "7135a59f097e665ec6bb0973aae0233f323be447556e4ef903b868afbe779652",
+    "rejections.jsonl": "02925d15b20a613807ada2f8741c851c24c1b036720feaa8b1c0fadc8317f95a",
+}
+
+
+def _finite(value):
+    return type(value) in (int, float) and math.isfinite(value)
+
+
+def _equal(a, b):
+    if type(a) is bool or type(b) is bool or a is None or b is None:
+        return type(a) is type(b) and a == b
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_equal(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def _require(value, expected, label):
+    if not _equal(value, expected):
+        raise ValueError(label + " mismatch")
+
+
+def _validate_parent(parent):
+    targets, masks = parent["target"]["objects"], parent["validity"]
+    n = len(targets)
+    for field, label in (("position", "bottom_center_m"), ("size", "target_size_local_m")):
+        if len(masks.get(field, [])) != n:
+            raise ValueError("parent validity " + field + " length")
+        for mask, obj in zip(masks[field], targets):
+            values = obj.get(label, [])
+            if len(mask) != 3 or len(values) != 3 or any(type(flag) is not bool for flag in mask):
+                raise ValueError("parent validity " + field + " shape/type")
+            if any(value is not None and not _finite(value) for value in values):
+                raise ValueError("parent target " + field + " nonfinite/type")
+            if any(flag and (not _finite(value) or field == "size" and value <= 0) for flag, value in zip(mask, values)):
+                raise ValueError("parent validity " + field + " invalid active target")
+    if len(masks.get("yaw", [])) != n or any(type(flag) is not bool for flag in masks["yaw"]):
+        raise ValueError("parent validity yaw length/type")
+    for flag, obj in zip(masks["yaw"], targets):
+        value = obj.get("yaw_rad")
+        if value is not None and not _finite(value) or flag and not _finite(value):
+            raise ValueError("parent validity yaw invalid target")
+    _require([o["id"] for o in parent["condition"]["objects"]], [o["id"] for o in targets], "parent request ID order")
+
+
+def _sha256(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _pairs(items):
+    result = dict(items)
+    if len(result) != len(items):
+        raise ValueError("duplicate JSON key")
+    return result
+
+
+def _loads(text):
+    def invalid(value):
+        raise ValueError("nonfinite JSON literal: " + value)
+    def number(value):
+        result = float(value)
+        return result if math.isfinite(result) else invalid(value)
+    return json.loads(text, object_pairs_hook=_pairs, parse_constant=invalid, parse_float=number)
+
+
+def _rows(path):
+    with Path(path).open() as stream:
+        for line in stream:
+            if line.strip():
+                yield _loads(line)
+
+
+def _expected_condition(parent):
+    room = parent["condition"]["room"]
+    points = room["floor_polygon_xy_m"]
+    if not points or any(len(p) != 2 or not all(_finite(v) for v in p) for p in points):
+        raise ValueError("parent reference extent invalid")
+    low = [min(p[q] for p in points) for q in (0, 1)]
+    dimensions = [max(p[q] for p in points) - low[q] for q in (0, 1)]
+    if min(dimensions) <= 0:
+        raise ValueError("parent reference extent degenerate")
+    room_type = room.get("room_type")
+    room_type = "unknown" if not isinstance(room_type, str) or room_type.strip().lower() in UNKNOWN else room_type
+    objects = [{"id": obj["id"], "category": obj["category"], "description": obj["category"]}
+               for obj in parent["condition"]["objects"]]
+    w, d = dimensions
+    condition = {"schema_version": "fastfill.v2", "room": {
+        "frame": "right_handed_z_up", "room_type": room_type, "floor_z_m": 0.,
+        "floor_known": False, "boundary_known": False, "boundary_quality": "source_reference_extent",
+        "height_m": None, "floor_polygon_xy_m": [[0., 0.], [w, 0.], [w, d], [0., d]]},
+        "objects": objects, "constraints": []}
+    request = {"room_type": room_type, "room_size_m": dimensions,
+               "furniture_list": [{**obj, "count": 1} for obj in objects]}
+    floor = room.get("floor_z_m")
+    return condition, request, [*low, floor if _finite(floor) else 0.]
+
+
+def _check_source(parent, source_room):
+    p, room = parent["provenance"], parent["condition"]["room"]
+    if source_room is None:
+        raise ValueError("source_geometry missing source room")
+    for key, value in (("uid", p["scene_id"]), ("source", p["source"]), ("group", p["group"]),
+                       ("boundary", room["floor_polygon_xy_m"]), ("room_type", room.get("room_type"))):
+        _require(source_room.get(key), value, "source_geometry " + key)
+    _require(source_room["group"], p["house_id"], "source_geometry house_id")
+    dz = 0.
+    if p["source"] == "MultiScan":
+        meta = source_room["meta"]
+        if meta.get("n_floor_objects_outside_structure", 0) or not all(_finite(meta.get(k)) for k in ("floor_z", "floor_height")):
+            raise ValueError("source_geometry MultiScan floor reference missing/target expanded")
+        dz = float(meta["floor_z"]) - float(meta["floor_height"])
+    _require(p.get("vertical_reframe_m", 0.), dz, "source_geometry vertical_reframe_m")
+    objects = source_room["objects"]
+    index = {o["id"]: o for o in objects}
+    if len(index) != len(objects):
+        raise ValueError("source_geometry duplicate source ID")
+    for obj, source_id, fields in zip(parent["target"]["objects"], p["target_source_ids"], p["field_evidence"]):
+        raw = index.get(source_id)
+        if raw is None:
+            raise ValueError("source_geometry source ID absent")
+        pos, yaw = raw["pos"], raw.get("yaw")
+        _require([*pos[:2], pos[2] + dz if pos[2] is not None else None], obj["bottom_center_m"], "source_geometry position")
+        _require(raw["size"], obj["target_size_local_m"], "source_geometry size")
+        _require((yaw + math.pi) % (2 * math.pi) - math.pi if _finite(yaw) else None, obj["yaw_rad"], "source_geometry yaw")
+        _require(bool(raw.get("tilted")), fields["tilted"], "source_geometry tilted")
+
+
+def _spatiallm_qualification(parent, source_room):
+    p = parent["provenance"]
+    if source_room is None:
+        raise ValueError("source_geometry missing SpatialLM room")
+    for key, expected in (("uid", p["scene_id"]), ("source", "SpatialLM"), ("group", p["group"])):
+        _require(source_room.get(key), expected, "source_geometry " + key)
+    source_objects = source_room["objects"]
+    index = {o["id"]: o for o in source_objects}
+    if len(index) != len(source_objects):
+        raise ValueError("source_geometry duplicate source ID")
+    qualified = []
+    for i, obj in enumerate(parent["target"]["objects"]):
+        raw = index.get(p["target_source_ids"][i])
+        if raw is None:
+            raise ValueError("source_geometry source ID absent")
+        fields = p["field_evidence"][i]
+        eligible = (raw.get("tilted") is False and fields.get("tilted") is False
+                    and fields.get("size_semantics") == "canonical_source_IR" and _finite(raw.get("yaw"))
+                    and all(_finite(v) and v > 0 for v in raw["size"]) and all(_finite(v) for v in raw["pos"]))
+        if eligible:
+            yaw = (raw["yaw"] + math.pi) % (2 * math.pi) - math.pi
+            _require(raw.get("pos"), obj.get("bottom_center_m"), "source_geometry position")
+            _require(raw.get("size"), obj.get("target_size_local_m"), "source_geometry size")
+            _require(yaw, obj.get("yaw_rad"), "source_geometry yaw")
+        qualified.append(eligible)
+    return qualified
+
+
+def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1., 1., 1.), size_log_limit=10.):
+    """Fail loudly for one row; preserve invalid/null numbers and all identities."""
+    provenance, actual = parent["provenance"], derived["provenance"]
+    _validate_parent(parent)
+    _require(parent["schema_version"], "fastfill.v2", "parent schema")
+    _require(derived["schema_version"], "fastfill.v2", "derived schema")
+    _require(provenance["split"], split, "parent split")
+    for key, value in provenance.items():
+        _require(actual.get(key), value, "provenance " + key)
+    if provenance["source"] in {"SceneSmith", "SpatialGen"} and split != "test":
+        raise ValueError("evaluation_only source in training")
+    condition, request, origin = _expected_condition(parent)
+    _require(derived["condition"], condition, "condition")
+    _require(actual.get("minimal_request"), request, "minimal_request")
+    _require(actual.get("parent_condition"), parent["condition"], "parent_condition")
+    _require(actual.get("parent_validity"), parent["validity"], "parent_validity")
+    _require(actual.get("frame_translation_m"), [-v for v in origin], "frame_translation_m")
+    expected_target = deepcopy(parent["target"])
+    for obj in expected_target["objects"]:
+        obj["bottom_center_m"] = [value - offset if _finite(value) else value
+                                  for value, offset in zip(obj["bottom_center_m"], origin)]
+    _require(derived["target"], expected_target, "target")
+    n = len(expected_target["objects"])
+    if len(provenance["target_source_ids"]) != n or len(set(provenance["target_source_ids"])) != n:
+        raise ValueError("target_source_ids missing or duplicate")
+    _require([o["id"] for o in condition["objects"]], [o["id"] for o in expected_target["objects"]], "request ID order")
+    if len(provenance.get("field_evidence", [])) != n:
+        raise ValueError("source_geometry evidence length mismatch")
+    if source_room is not None:
+        _check_source(parent, source_room)
+    masks = deepcopy(parent["validity"])
+    qualifications = _spatiallm_qualification(parent, source_room) if provenance["source"] == "SpatialLM" else [False] * n
+    if provenance["source"] == "Scan2CAD":
+        masks["position"] = [[False] * 3 for _ in range(n)]
+    for i, obj in enumerate(parent["target"]["objects"]):
+        if any(flag and (not _finite(v) or not ref * math.exp(-size_log_limit) <= v <= ref * math.exp(size_log_limit))
+                for flag, v, ref in zip(masks["size"][i], obj["target_size_local_m"], size_reference)):
+            masks["size"][i] = [False] * 3
+        if qualifications[i]:
+            masks["yaw"][i] = True
+    masks["yaw_symmetry_order"] = [2] * n
+    _require(derived["validity"], masks, "validity")
+    _require(actual.get("geometric_yaw_qualified"), qualifications, "geometric_yaw_qualified")
+    floor = parent["condition"]["room"].get("floor_z_m")
+    estimated = provenance["source"] == "Scan2CAD"
+    _require(actual.get("source_floor_evidence"), {
+        "floor_source": "estimated" if estimated else "unknown" if floor is None else "source_canonical_reference",
+        "parent_floor_known": parent["condition"]["room"].get("floor_known"), "parent_floor_z_m": floor,
+        "upstream_z_snap_possible": estimated,
+        "per_object_pre_snap_z": "unavailable_in_frozen_IR" if estimated else "not_inferred"}, "source_floor_evidence")
+    changes = []
+    # The recorded protocol qualifies all D1/D2 masks before geometric yaw.
+    # Recompute both passes independently while preserving their exact order.
+    for i, obj in enumerate(parent["target"]["objects"]):
+        base = {"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i]}
+        for field, reason in (("position", "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"),
+                ("size", "outside_configured_size_head_range")):
+            old, new = parent["validity"][field][i], masks[field][i]
+            if not _equal(old, new):
+                change = {**base, "field": field, "before": old, "after": new, "reason": reason}
+                changes.append({**change, "value_m": obj["target_size_local_m"]} if field == "size" else change)
+    for i, obj in enumerate(parent["target"]["objects"]):
+        old, new = parent["validity"]["yaw"][i], masks["yaw"][i]
+        if not _equal(old, new):
+            changes.append({"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i],
+                "field": "yaw", "before": old, "after": new,
+                "reason": "pinned_SpatialLM_full_local_extents_and_geometric_yaw"})
+    if any(origin):
+        changes.append({"field": "bottom_center_m", "operation": "common_input_reference_translation",
+            "offset_m": [-v for v in origin], "reason": "structural_input_extent_and_explicit_floor_reference"})
+    _require(actual.get("qualification_changes"), changes, "qualification_changes")
+    for key, expected in (("condition_projection", "room_type_reference_extent_furniture_only-v1"),
+            ("room_dimension_mode", "xy"), ("room_size_semantics", "reference_extent"),
+            ("yaw_label_semantics", "local_bbox_axes_mod_pi_not_certified_semantic_front"),
+            ("correspondence", "fixed_request_identity")):
+        _require(actual.get(key), expected, key)
+    return {"objects": n, "target_object_fields_checked": sum(len(o) for o in expected_target["objects"]),
+            "target_numeric_coordinates_checked": 7 * n,
+            "position_masks_demoted": sum(all(a) and not all(b) for a, b in zip(parent["validity"]["position"], masks["position"])),
+            "position_mask_rows_changed": sum(a != b for a, b in zip(parent["validity"]["position"], masks["position"])),
+            "size_masks_demoted": sum(all(a) and not all(b) for a, b in zip(parent["validity"]["size"], masks["size"])),
+            "size_mask_rows_changed": sum(a != b for a, b in zip(parent["validity"]["size"], masks["size"])),
+            "yaw_masks_promoted": sum(not a and b for a, b in zip(parent["validity"]["yaw"], masks["yaw"])),
+            "valid_position_objects": sum(all(x) for x in masks["position"]),
+            "valid_size_objects": sum(all(x) for x in masks["size"]), "valid_yaw_objects": sum(masks["yaw"]),
+            "removed_fixed_objects": len(parent["condition"]["room"].get("fixed_objects", [])),
+            "removed_constraints": len(parent["condition"].get("constraints", []))}
+
+
+def _source_offsets(ir, names):
+    index, counts = {}, Counter()
+    for name in names:
+        with (ir / name).open("rb") as stream:
+            while True:
+                offset, line = stream.tell(), stream.readline()
+                if not line:
+                    break
+                if not line.strip():
+                    continue
+                row = _loads(line)
+                if row.get("source") + ".jsonl" != name or row["uid"] in index:
+                    raise ValueError("source IR identity/duplicate UID")
+                index[row["uid"]] = (name, offset)
+                counts[name[:-6]] += 1
+    return index, dict(counts)
+
+
+def _source_row(ir, index, uid):
+    if uid not in index:
+        raise ValueError("source_geometry parent UID absent from pinned IR")
+    name, offset = index[uid]
+    with (ir / name).open("rb") as stream:
+        stream.seek(offset)
+        return _loads(stream.readline())
+
+
+def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), size_log_limit=10.):
+    """Verify the primary full-condition view; only D1/D2 qualification may change."""
+    p, actual = parent["provenance"], derived["provenance"]
+    _validate_parent(parent)
+    _require(parent["schema_version"], "fastfill.v2", "parent schema")
+    _require(derived["schema_version"], "fastfill.v2", "derived schema")
+    _require(p["split"], split, "parent split")
+    for key, value in p.items():
+        _require(actual.get(key), value, "provenance " + key)
+    if p["source"] in {"SceneSmith", "SpatialGen"} and split != "test":
+        raise ValueError("evaluation_only source in training")
+    condition, masks, changes = deepcopy(parent["condition"]), deepcopy(parent["validity"]), []
+    targets = parent["target"]["objects"]
+    n = len(targets)
+    if len(p["target_source_ids"]) != n or len(set(p["target_source_ids"])) != n:
+        raise ValueError("target_source_ids missing or duplicate")
+    if p["source"] == "Scan2CAD":
+        condition["room"]["floor_known"] = False
+        changes.append({"field": "room.floor_known", "before": parent["condition"]["room"].get("floor_known"),
+            "after": False, "reason": "Scan2CAD_floor_is_estimated_not_independent_physical_measurement"})
+    for i, obj in enumerate(targets):
+        if p["source"] == "Scan2CAD":
+            masks["position"][i] = [False] * 3
+        if any(flag and not ref * math.exp(-size_log_limit) <= value <= ref * math.exp(size_log_limit)
+                for flag, value, ref in zip(masks["size"][i], obj["target_size_local_m"], size_reference)):
+            masks["size"][i] = [False] * 3
+        for field, reason in (("position", "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"),
+                             ("size", "outside_configured_size_head_range")):
+            old, new = parent["validity"][field][i], masks[field][i]
+            if not _equal(old, new):
+                change = {"object_id": obj["id"], "target_source_id": p["target_source_ids"][i],
+                    "field": field, "before": old, "after": new, "reason": reason}
+                changes.append({**change, "value_m": obj["target_size_local_m"]} if field == "size" else change)
+    bad_groups = {request.get("exchangeable_group") for i, request in enumerate(parent["condition"]["objects"])
+                  if request.get("exchangeable_group") and (not all(masks["position"][i]) or not all(masks["size"][i]))}
+    members_removed = 0
+    for i, request in enumerate(parent["condition"]["objects"]):
+        group = request.get("exchangeable_group")
+        if group in bad_groups:
+            condition["objects"][i].pop("exchangeable_group")
+            changes.append({"object_id": request["id"], "target_source_id": p["target_source_ids"][i],
+                "field": "exchangeable_group", "before": group, "after": None,
+                "reason": "mask_review_removed_complete_geometry_exchangeability"})
+            members_removed += 1
+    _require(derived["condition"], condition, "condition")
+    _require(derived["target"], parent["target"], "target")
+    _require(derived["validity"], masks, "validity")
+    _require(actual.get("dataset_qualification_policy"), "full-condition-mask-review-v1", "dataset_qualification_policy")
+    _require(actual.get("qualification_changes"), changes, "qualification_changes")
+    added = {"dataset_qualification_policy", "qualification_changes"}
+    if p["source"] == "Scan2CAD":
+        added.add("estimated_floor_provenance")
+        meta = p.get("source_meta", {})
+        _require(actual.get("estimated_floor_provenance"), {
+            "floor_source": "estimated", "parent_floor_known": parent["condition"]["room"].get("floor_known"),
+            "parent_floor_z_m": parent["condition"]["room"].get("floor_z_m"),
+            "source_meta_floor_z": meta.get("floor_z"), "source_meta_n_floor_snapped": meta.get("n_floor_snapped"),
+            "per_object_pre_snap_z": "unavailable_in_frozen_IR",
+            "per_object_snap_membership": "unknown_do_not_infer_from_zero_z"}, "estimated_floor_provenance")
+    _require(sorted(actual), sorted(set(p) | added), "provenance keys")
+    return {"objects": n, "target_object_fields_checked": sum(len(o) for o in targets),
+        "target_numeric_coordinates_checked": 7 * n,
+        "position_masks_demoted": sum(all(a) and not all(b) for a, b in zip(parent["validity"]["position"], masks["position"])),
+        "position_mask_rows_changed": sum(a != b for a, b in zip(parent["validity"]["position"], masks["position"])),
+        "size_masks_demoted": sum(all(a) and not all(b) for a, b in zip(parent["validity"]["size"], masks["size"])),
+        "size_mask_rows_changed": sum(a != b for a, b in zip(parent["validity"]["size"], masks["size"])),
+        "exchangeable_groups_demoted": len(bad_groups), "exchangeable_members_demoted": members_removed,
+        "yaw_masks_promoted": 0, "valid_position_objects": sum(all(x) for x in masks["position"]),
+        "valid_size_objects": sum(all(x) for x in masks["size"]), "valid_yaw_objects": sum(masks["yaw"]),
+        "removed_fixed_objects": 0, "removed_constraints": 0}
+
+
+def _output_path(output, roots):
+    target = Path(output).resolve()
+    if target.exists():
+        raise FileExistsError("verification output already exists: " + str(target))
+    for root in (*roots, Path("/Volumes/harddisk/3D_Room_Collections")):
+        root = root.resolve()
+        if target == root or root in target.parents or target in root.parents:
+            raise ValueError("verification output must stay outside source/data roots and ancestors")
+    return target
+
+
+def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_sha256=None, full_condition=False):
+    """Verify every inherited row and file hash, returning a machine-readable report."""
+    parent, data, ir = [Path(p).resolve() for p in (parent_root, data_root, ir_root)]
+    destination = _output_path(output, (parent, data, ir)) if output is not None else None
+    seals = SEALED_IR_SHA256 if expected_ir_sha256 is None else expected_ir_sha256
+    manifest = _loads((data / "manifest.json").read_text())
+    if full_condition:
+        _require(manifest.get("dataset_qualification_policy"), "full-condition-mask-review-v1", "manifest full-condition policy")
+        if expected_ir_sha256 is None:
+            _require(manifest.get("task_role"), "full_condition_multisource_main", "manifest task_role")
+            _require(manifest.get("yaw_policy"), "inherit strict parent semantic-front validity; no geometric promotion", "manifest yaw_policy")
+    paths = [parent / (s + ".jsonl") for s in SPLITS] + [parent / "manifest.json", data / "manifest.json"]
+    if expected_ir_sha256 is None or (parent / "rejections.jsonl").exists():
+        paths.append(parent / "rejections.jsonl")
+    paths += [data / name for name in manifest["output_sha256"]] + [ir / name for name in seals]
+    paths += [Path(name) for name in manifest.get("input_sha256", {}) if Path(name) not in paths]
+    implementation = manifest.get("implementation_sha256", {})
+    implementation = implementation if isinstance(implementation, dict) else {str(Path(__file__).with_name("multisource_data.py")): implementation}
+    paths += [Path(name) for name in implementation if Path(name) not in paths]
+    paths.append(Path(__file__).resolve())
+    before = {str(path): _sha256(path) for path in paths}
+    errors, examples, counts, split_counts, source_counts = Counter(), [], Counter(), {}, {}
+
+    def fail(kind, where, detail):
+        errors[kind] += 1
+        if len(examples) < 100:
+            examples.append({"kind": kind, "where": where, "detail": str(detail)})
+
+    for kind, root, hashes in (("ir_hash", ir, seals), ("output_hash", data, manifest["output_sha256"])):
+        for name, expected in hashes.items():
+            if before[str(root / name)] != expected:
+                fail(kind, name, "SHA256 differs")
+    if expected_ir_sha256 is None:
+        for name, expected in PARENT_SHA256.items():
+            if before[str(parent / name)] != expected:
+                fail("parent_frozen_hash", name, "parent differs from audited review3")
+    for name, expected in manifest.get("input_sha256", {}).items():
+        if before[name] != expected:
+            fail("input_hash", name, "declared input hash differs")
+    for name, expected in implementation.items():
+        if before[name] != expected:
+            fail("implementation_hash", name, "producer code differs from recorded release")
+    if full_condition and (data / "rejections.jsonl").exists() and before[str(data / "rejections.jsonl")] != before[str(parent / "rejections.jsonl")]:
+        fail("parent_rejections", "rejections.jsonl", "historical exclusions were rewritten")
+    recorded_paths = paths[:4] if full_condition else [*paths[:4], *[ir / name for name in seals]]
+    for path in recorded_paths:
+        recorded = manifest.get("input_sha256", {}).get(str(path))
+        if recorded != before[str(path)]:
+            fail("input_hash", str(path), "manifest input hash differs/missing")
+    source_index, source_rows = ({}, {}) if full_condition else _source_offsets(ir, seals)
+    if not full_condition and manifest.get("source_IR_rows") != source_rows:
+        fail("manifest_ir_rows", "manifest", "IR row counts differ")
+    policy = manifest.get("size_output_policy", {})
+    reference, limit = policy.get("size_reference", (1., 1., 1.)), policy.get("size_log_limit", 10.)
+    identities = {"parent": set(), "derived": set()}
+    groups = {"parent": {}, "derived": {}}
+    summaries = {name: Counter() for name in ("qualification_change_counts", "constraint_counts",
+                 "fixed_objects_by_split", "supervised_yaw_scenes_by_split")}
+    journal = _rows(data / "changes.jsonl") if "changes.jsonl" in manifest["output_sha256"] else None
+    journal_checked = 0
+    if journal is None and expected_ir_sha256 is None:
+        fail("missing_journal", "changes.jsonl", "required per-record audit trail missing")
+    for split in SPLITS:
+        stats = Counter()
+        for number, rows in enumerate(zip_longest(_rows(parent / (split + ".jsonl")), _rows(data / (split + ".jsonl"))), 1):
+            old, new = rows
+            where = f"{split}:{number}"
+            if old is None or new is None:
+                fail("missing_row", where, "parent/derived row counts differ")
+                continue
+            for label, row in (("parent", old), ("derived", new)):
+                p = row["provenance"]
+                uid = p.get("scene_id")
+                if not uid or uid in identities[label]:
+                    fail("duplicate_uid", where, label + ": " + str(uid))
+                identities[label].add(uid)
+                for group in {p.get("house_id"), p.get("group")}:
+                    if not group or group in groups[label] and groups[label][group] != split:
+                        fail("group_cross_split", where, label + ": " + str(group))
+                    groups[label][group] = split
+            try:
+                checked = verify_full_pair(old, new, split, size_reference=reference, size_log_limit=limit) if full_condition else (
+                    verify_pair(old, new, split, _source_row(ir, source_index, old["provenance"]["scene_id"]),
+                                size_reference=reference, size_log_limit=limit))
+                stats.update(checked)
+                stats["samples"] += 1
+                key = old["provenance"]["source"] + ":" + split
+                source_counts[key] = source_counts.get(key, Counter()) + Counter({**checked, "samples": 1})
+                if full_condition:
+                    summaries["fixed_objects_by_split"][split] += len(new["condition"]["room"].get("fixed_objects", []))
+                    summaries["supervised_yaw_scenes_by_split"][split] += any(new["validity"]["yaw"])
+                    for constraint in new["condition"].get("constraints", []):
+                        summaries["constraint_counts"][constraint["type"] + ":" + split] += 1
+                    for change in new["provenance"]["qualification_changes"]:
+                        summaries["qualification_change_counts"][change["field"]] += 1
+                if journal is not None:
+                    for change in new["provenance"]["qualification_changes"]:
+                        _require(next(journal, None), {"uid": old["provenance"]["scene_id"],
+                            "source": old["provenance"]["source"], "split": split, "parent_line": number, **change}, "changes journal")
+                        journal_checked += 1
+            except (ValueError, KeyError, TypeError, IndexError) as error:
+                fail("row_mismatch", where, error)
+        split_counts[split] = dict(stats)
+        counts.update(stats)
+    if journal is not None and next(journal, None) is not None:
+        fail("changes_journal", "changes.jsonl", "unexpected additional entries")
+    unchanged = all(_sha256(path) == before[str(path)] for path in paths)
+    if not unchanged:
+        fail("input_changed", "files", "inputs changed during verification")
+    for key, expected in (("split_samples", {s: v.get("samples", 0) for s, v in split_counts.items()}),
+            ("split_objects", {s: v.get("objects", 0) for s, v in split_counts.items()})):
+        if manifest.get(key) != expected:
+            fail("manifest_counts", key, "recomputed counts differ")
+    if full_condition:
+        expected_stats = {key: dict(value) for key, value in summaries.items()}
+        expected_stats.update({"source_split_samples": {s: v.get("samples", 0) for s, v in source_counts.items()},
+            "source_split_objects": {s: v.get("objects", 0) for s, v in source_counts.items()},
+            "validity_counts": {f: counts.get("valid_" + f + "_objects", 0) for f in ("position", "size", "yaw")},
+            "source_split_validity": {s + ":" + f: v.get("valid_" + f + "_objects", 0)
+                for s, v in source_counts.items() for f in ("position", "size", "yaw")}})
+        for key, expected in expected_stats.items():
+            if (expected_ir_sha256 is None or key in manifest) and manifest.get(key) != expected:
+                fail("manifest_counts", key, "independently recomputed total differs")
+    report = {"ok": not errors, "verifier": "independent-multisource-full-condition-v1" if full_condition else "independent-multisource-reference-extent-v1",
+        "counts": dict(counts), "split_counts": split_counts,
+        "source_split_counts": {k: dict(v) for k, v in sorted(source_counts.items())},
+        "error_counts": dict(errors), "errors_first_100": examples, "files_sha256": before,
+        "input_hashes_unchanged": unchanged, "sealed_ir_files_checked": len(seals), "journal_entries_checked": journal_checked,
+        "scope": "all parent-derived identities, conditions, target numbers, mask/change policy and file/code hashes; no mesh/physics certification"}
+    if destination is not None:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("x") as stream:
+            json.dump(report, stream, indent=2, allow_nan=False)
+            stream.write("\n")
+    return report
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ("parent-root", "data-root", "ir-root", "output"):
+        parser.add_argument("--" + name, required=True)
+    parser.add_argument("--full-condition", action="store_true", help="verify primary full-condition D1/D2 qualification only")
+    args = parser.parse_args(argv)
+    report = verify_dataset(args.parent_root, args.data_root, args.ir_root, output=args.output, full_condition=args.full_condition)
+    print(json.dumps({"ok": report["ok"], "counts": report["counts"], "error_counts": report["error_counts"], "output": args.output}))
+    return 0 if report["ok"] else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
