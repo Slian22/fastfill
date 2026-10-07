@@ -24,12 +24,26 @@ SWAP_SOURCES = frozenset({"InternScenes_arkit", "InternScenes_3rscan", "InternSc
 SWAP_CATEGORIES = {"HSSD200": lambda c: "chair" in c or c == "seat", "MultiScan": lambda c: c == "bed"}
 # K3: a source floor anchor within this distance of the known floor is declared and its target z snapped; farther is floating.
 FLOOR_SNAP_M = .02
+# K2: a target top above room height + this (+1e-6 float slack) is flagged; labels and the height stay.
+HEIGHT_TOLERANCE_M = .05
 
 
 def size_axis_swap_allowed(source, category):
     """Data policy for ``validity.size_axis_swap_allowed`` from the source and normalized category."""
     rule = SWAP_CATEGORIES.get(source)
     return source in SWAP_SOURCES or (rule is not None and rule(category))
+
+
+def height_conflict(height, targets, position_valid, size_valid):
+    """K2 ``provenance.height_conflict`` value ``{objects, max_excess_m}``, or None without a conflict.
+
+    Only targets with complete position and size masks count. 1e-6: float32-rounded source sizes
+    (2.6500000953674316 in a 2.6 m room) are not a conflict.
+    """
+    tops = {t["id"]: t["bottom_center_m"][2] + t["target_size_local_m"][2]
+            for t, position, size in zip(targets, position_valid, size_valid) if all(position) and all(size)}
+    over = [] if height is None else [ident for ident, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
+    return {"objects": over, "max_excess_m": max(tops[ident] for ident in over) - height} if over else None
 
 
 def _key(seed, uid, ident):
@@ -120,6 +134,9 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
     with a known floor declares ``support_parent: floor`` and snaps a target z within
     ``FLOOR_SNAP_M`` of the floor (``field_evidence.legacy_z_snap_applied_to_target``);
     a farther target keeps a free z and no declaration.
+    Room height is the source height (MultiScan: only when ``height_reliable``), never
+    dropped because a target exceeds it: the frozen prep's target-dependent drop is kept
+    only as ``provenance.legacy_height_dropped`` and a K2 exceedance as ``provenance.height_conflict``.
     """
     if front_policy not in FRONT_POLICIES:
         raise ValueError("unknown front policy")
@@ -131,8 +148,6 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
     ids = {o["id"]: f"obj_{i:04d}" for i, o in enumerate(selected)}
     ids = {**ids, **{o["id"]: f"fixed_{i:04d}" for i, o in enumerate(fixed_selected)}}
     room, dz = _frame(raw)
-    if prepared.get("meta", {}).get("height_dropped"):
-        room = {**room, "height_m": None}
     fixed = []
     for item in fixed_selected:
         o = raw_objects.get(item["id"], item)
@@ -193,6 +208,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
     validity["exchangeable_group"] = group_labels(requests, constraints, validity["position"])  # request order == target order
     condition = {"schema_version": "fastfill.v2", "room": room, "objects": requests, "constraints": constraints}
     validate_condition(condition)
+    conflict = height_conflict(room["height_m"], targets, validity["position"], validity["size"])
     result = {"schema_version": "fastfill.v2", "condition": condition,
             "target": {"schema_version": "fastfill.v2", "objects": targets}, "validity": validity,
             "provenance": {"source": raw["source"], "scene_id": raw["uid"], "legacy_uid": raw["uid"],
@@ -201,6 +217,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
                            "target_source_ids": source_ids, "field_evidence": evidence,
                            "source_meta": deepcopy(raw.get("meta", {})), "vertical_reframe_m": dz,
                            "legacy_height_dropped": bool(prepared.get("meta", {}).get("height_dropped")),
+                           **({"height_conflict": conflict} if conflict else {}),
                            "omitted_legacy_constraints": omitted_constraints,
                            "constraint_source": "frozen_sparse_legacy_request", "request_order": "SHA256(seed,uid,source_id)",
                            "descriptions": "source_desc_or_category"}}

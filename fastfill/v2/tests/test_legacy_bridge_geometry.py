@@ -178,11 +178,15 @@ def test_bbox_inferred_parent_does_not_become_known_condition_support():
     assert all("support_parent" not in o for o in result["condition"]["objects"])
 
 
-def test_legacy_contradictory_room_height_is_not_reintroduced():
+def test_legacy_height_drop_keeps_source_height_and_flags_conflict():
     raw = room("SpatialLM", [obj("tall", size=[0.5, 0.6, 3.4])])
     prepared = {**deepcopy(raw), "height": None, "fixed": [],
                 "meta": {**raw["meta"], "height_dropped": True}}
-    assert convert(raw, prepared=prepared)["condition"]["room"]["height_m"] is None
+    result = convert(raw, prepared=prepared)
+    assert result["condition"]["room"]["height_m"] == 3.0  # the input never depends on the answer
+    assert result["provenance"]["legacy_height_dropped"] is True
+    assert result["provenance"]["height_conflict"] == {"objects": ["obj_0000"], "max_excess_m": pytest.approx(.4)}
+    assert result["target"]["objects"][0]["target_size_local_m"] == [0.5, 0.6, 3.4]
 
 
 def test_legacy_inferred_support_is_recorded_separately_from_raw_source_support():

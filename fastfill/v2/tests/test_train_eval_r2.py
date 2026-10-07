@@ -71,6 +71,8 @@ def test_every_export_is_bound_and_validation_reports_both_projections(tmp_path)
         result = record["validation"]
         assert result["minimal"]["batches"] == result["batches"] == 2 and result["minimal"]["counts"]["position"] == 2
         assert result["collapse"]["objects"] == result["minimal"]["collapse"]["objects"] == 2
+        # Every label is complete here, so the matched column counts the same objects.
+        assert result["collapse_matched"] == result["collapse"] and result["minimal"]["collapse_matched"] == result["minimal"]["collapse"]
         assert result["selection_metric"] == result["minimal"]["geometry_objective_mean_of_batches"]
         assert result["minimal"]["collapse"]["score"] == evaluate.collapse_score(result["minimal"]["collapse"])
     best = min((r["validation"]["selection_metric"], r["step"]) for r in logs)

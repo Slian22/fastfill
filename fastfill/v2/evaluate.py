@@ -2,8 +2,9 @@
 
 Besides the reference errors the report carries label-only baselines (room centre,
 per-category mean position, per-category median size, uniform yaw), mode-collapse
-diagnostics compared with the ground truth on the same objects, symmetry-aware yaw
-error counts per order, and a per-source breakdown of all of the above.
+diagnostics (every predicted object, the label-complete ground truth, and the predicted
+objects matched to it, each with the out-of-room fraction), symmetry-aware yaw error counts per order, and a per-source
+breakdown of all of the above.
 
 ``--projection full minimal`` also evaluates the three-field projection
 (``project_minimal``: ``batch.render_minimal_condition`` with the training
@@ -45,10 +46,13 @@ BASELINE_METRICS = (("room_center_position", "bottom_center_error_m"), ("categor
                     ("category_median_size", "log_size_error"), ("uniform_yaw", "yaw_error_rad"))
 REFERENCE_METRICS = ("bottom_center_error_m", "log_size_error", "yaw_error_rad", "bev_iou",
                      "log_size_error_plain_convention", "yaw_error_rad_plain_convention")
-COLLAPSE_SCOPE = ("request slots whose labels form a trustworthy upright box (complete position and size, finite yaw); "
-                  "prediction and ground truth use the identical object set")
+COLLAPSE_SCOPE = ("predicted: every requested object (a legal exchange of IDs cannot change it); ground truth: request "
+                  "slots whose labels form a trustworthy upright box (complete position and size, finite yaw); "
+                  "predicted_matched: the predicted objects the reference matching assigns to those slots, the same "
+                  "objects as ground truth, so compare predicted_matched with ground_truth")
 COLLAPSE_KEYS = ("objects", "pairs", "bev_overlap_pairs", "same_category_pairs", "stacked_same_category_pairs",
-                 "nearest_wall_distance_sum_m", "central_quarter_objects")
+                 "nearest_wall_distance_sum_m", "central_quarter_objects", "out_of_room_objects")
+OUT_OF_ROOM_M = .05  # bottom centre this far outside the floor polygon counts as out of the room
 PROJECTIONS = ("full", "minimal")
 # augment_sample with only the minimal form enabled is the K5 projection of a row: shared condition
 # renderer, floor declarations dropped (z learned), exchangeable groups recomputed by the build rule.
@@ -66,27 +70,35 @@ def project_minimal(sample):
 
 
 def collapse_score(counts):
-    """Checkpoint-selection score: BEV overlap rate (IoU > 0.3) + central-quarter fraction; lower is better.
+    """Collapse score: BEV overlap rate (IoU > 0.3) + central-quarter fraction; lower is better.
 
     No objects -> None; objects without pairs contribute only the central fraction.
+    It cannot see a layout pushed against or outside the walls (such a layout scores 0):
+    read it only together with ``out_of_room_fraction`` and the reference errors.
     """
     if not counts["objects"]:
         return None
     return (counts["bev_overlap_pairs"] / counts["pairs"] if counts["pairs"] else 0.) + counts["central_quarter_objects"] / counts["objects"]
 
 
-def batch_collapse_counts(predictions, batch):
-    """Summed predicted ``_collapse_counts`` of a collated batch, over the slots ``collapse_metrics`` keeps.
+def batch_collapse_counts(predictions, batch, assignment=None):
+    """Summed ``_collapse_counts`` of a collated batch, as the matching ``collapse_metrics`` column.
 
-    Labels can be scored the same way by passing their yaw in radians as ``predictions["yaw"]``.
+    Model outputs (yaw logits) are the predicted column: every request slot; with
+    ``assignment`` (prediction slot -> label slot, e.g. the criterion's) only the slots
+    assigned to label-complete ones, the predicted_matched column. Labels passed with
+    their yaw in radians as ``predictions["yaw"]`` are the ground-truth column: only the
+    label-complete slots.
     """
     origin, scale = batch["origin"].detach().float().cpu(), batch["scale"].detach().float().cpu()
     position = (predictions["position_normalized"].detach().float().cpu() * scale[:, None] + origin[:, None]).tolist()
     size = predictions["size"].detach().float().cpu().tolist()
-    yaw = (predictions["yaw"].detach().float() if "yaw" in predictions else decode_yaw(
+    labels = "yaw" in predictions
+    yaw = (predictions["yaw"].detach().float() if labels else decode_yaw(
         predictions["yaw_logits"].detach().float(), predictions["yaw_residuals"].detach().float())).cpu().tolist()
-    keep = (batch["slot_mask"] & batch["validity"]["position"].all(-1) & batch["validity"]["size"].all(-1)
-            & torch.isfinite(batch["targets"]["yaw"])).cpu()
+    complete = (batch["slot_mask"] & batch["validity"]["position"].all(-1) & batch["validity"]["size"].all(-1)
+                & torch.isfinite(batch["targets"]["yaw"])).cpu()
+    keep = complete if labels else batch["slot_mask"].cpu() if assignment is None else complete.gather(1, assignment.cpu())
     totals = dict.fromkeys(COLLAPSE_KEYS, 0)
     for b, objects in enumerate(batch["objects"]):
         slots = keep[b].nonzero().flatten().tolist()
@@ -281,6 +293,13 @@ def _box_equivalent_errors(p, t, size_valid, yaw_valid):
     return best
 
 
+def _matched(layout, sample, hungarian):
+    """The one-request batch and its legal assignment (prediction slot -> label slot)."""
+    from fastfill.v2.batch import TinyTokenizer
+    batch = collate_samples([sample], TinyTokenizer(), max_length=10**8, max_objects=10**6)
+    return batch, match_batch(_layout_tensors(layout, batch), batch, enabled=hungarian)[0].tolist()
+
+
 def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
     """Reference errors follow only legal correspondence; no GT used for inference.
 
@@ -293,10 +312,8 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
     written (yaw modulo its symmetry order; modulo pi for swap objects, whose order 4
     only stands for the swap) for every object.
     """
-    from fastfill.v2.batch import TinyTokenizer
-    batch = collate_samples([sample], TinyTokenizer(), max_length=10**8, max_objects=10**6)
+    batch, assignment = _matched(layout, sample, hungarian)
     objects = batch["objects"][0]
-    assignment = match_batch(_layout_tensors(layout, batch), batch, enabled=hungarian)[0].tolist()
     predicted = {o["id"]: o for o in layout["objects"]}
     labels = {o["id"]: o for o in sample["target"]["objects"]}
     valid = batch["validity"]
@@ -350,11 +367,13 @@ def _label_rows(sample):
 def _collapse_counts(boxes, categories, room, origin, scale):
     """Pairwise/room statistics of upright boxes given as (bottom_center_m, size, yaw)."""
     polygons = [footprint({"_pos": p, "_size": s, "_yaw": y}) for p, s, y in boxes]
-    wall = Polygon(room["floor_polygon_xy_m"]).exterior
+    floor = Polygon(room["floor_polygon_xy_m"])
     counts = {"objects": len(boxes), "pairs": 0, "bev_overlap_pairs": 0, "same_category_pairs": 0,
-              "stacked_same_category_pairs": 0, "nearest_wall_distance_sum_m": 0., "central_quarter_objects": 0}
+              "stacked_same_category_pairs": 0, "nearest_wall_distance_sum_m": 0., "central_quarter_objects": 0,
+              "out_of_room_objects": 0}
     for i, (p, _, _) in enumerate(boxes):
-        counts["nearest_wall_distance_sum_m"] += float(wall.distance(Point(p[:2])))
+        counts["nearest_wall_distance_sum_m"] += float(floor.exterior.distance(Point(p[:2])))
+        counts["out_of_room_objects"] += int(floor.distance(Point(p[:2])) > OUT_OF_ROOM_M)  # 0 inside the polygon
         counts["central_quarter_objects"] += all(.25 <= (p[q] - origin[q]) / scale[q] <= .75 for q in (0, 1))
         for j in range(i + 1, len(boxes)):
             counts["pairs"] += 1
@@ -367,24 +386,34 @@ def _collapse_counts(boxes, categories, room, origin, scale):
     return counts
 
 
-def collapse_metrics(layout, sample):
-    """Mode-collapse diagnostics for the prediction and, on the same objects, the ground truth.
+def collapse_metrics(layout, sample, *, hungarian=True):
+    """Mode-collapse diagnostics: the prediction (every requested object), the ground truth
+    (label-complete objects) and predicted_matched (the predicted objects that the reference
+    matching assigns to the label-complete slots: the ground truth's objects, predicted).
 
-    Stacking uses horizontal bottom-centre distance; the central quarter is the
-    middle half of each normalized room axis; wall distance is to the floor polygon.
+    The predicted column never depends on which slots carry labels, so a legal exchange
+    of IDs leaves it unchanged; predicted_matched follows the legal assignment, so it is
+    unchanged too except inside groups the matching keeps at fixed identity. Compare
+    predicted_matched, not predicted, with the ground truth: sources with masked labels
+    (e.g. size-masked MansionWorld) are in predicted only. Stacking uses horizontal
+    bottom-centre distance; the central quarter is the middle half of each normalized room
+    axis; wall distance is to the floor polygon; an object is out of the room when its
+    bottom centre lies more than ``OUT_OF_ROOM_M`` outside the floor polygon.
     """
     objects, rows, origin, scale = _label_rows(sample)
     labels = {o["id"]: o for o in sample["target"]["objects"]}
     predicted = {o["id"]: o for o in layout["objects"]}
     keep = [i for i in range(len(objects)) if all(rows["position_valid"][i]) and all(rows["size_valid"][i])
             and math.isfinite(rows["yaw"][i])]
-    categories = [objects[i]["category"] for i in keep]
+    complete = set(keep)
+    matched = [i for i, j in enumerate(_matched(layout, sample, hungarian)[1][:len(objects)]) if j in complete]
     room = sample["condition"]["room"]
     columns = {}
-    for name, source in (("predicted", predicted), ("ground_truth", labels)):
+    for name, source, indices in (("predicted", predicted, range(len(objects))), ("predicted_matched", predicted, matched),
+                                  ("ground_truth", labels, keep)):
         boxes = [(source[objects[i]["id"]]["bottom_center_m"], source[objects[i]["id"]]["target_size_local_m"],
-                  source[objects[i]["id"]]["yaw_rad"]) for i in keep]
-        columns[name] = _collapse_counts(boxes, categories, room, origin, scale)
+                  source[objects[i]["id"]]["yaw_rad"]) for i in indices]
+        columns[name] = _collapse_counts(boxes, [objects[i]["category"] for i in indices], room, origin, scale)
     return columns
 
 
@@ -473,7 +502,7 @@ def evaluate_layout(layout, sample, *, resolver=None, commit_in_memory=False, hu
               "actual_resolved": None, "final_output": None}
     try:
         result["model"]["reference"] = reference_metrics(layout, sample, hungarian=hungarian)
-        result["collapse"] = collapse_metrics(layout, sample)
+        result["collapse"] = collapse_metrics(layout, sample, hungarian=hungarian)
     except (ValueError, KeyError, TypeError, RuntimeError) as exc:
         # Reference-label eligibility is independent of model schema and runtime.
         result["reference_error"] = {"type": type(exc).__name__, "message": str(exc)}
@@ -529,8 +558,9 @@ def _collapse_summary(outcomes):
                 "duplicate_stacking_rate_lt_0.10m": ratio("stacked_same_category_pairs", "same_category_pairs"),
                 "mean_nearest_wall_distance_m": ratio("nearest_wall_distance_sum_m", "objects"),
                 "central_quarter_fraction": ratio("central_quarter_objects", "objects"), "collapse_score": collapse_score(c),
+                "out_of_room_fraction": ratio("out_of_room_objects", "objects"),
                 "objects": c["objects"], "pairs": c["pairs"], "same_category_pairs": c["same_category_pairs"]}
-    return {"predicted": rates("predicted"), "ground_truth": rates("ground_truth"), "requests": len(rows), "scope": COLLAPSE_SCOPE}
+    return {**{column: rates(column) for column in rows[0]}, "requests": len(rows), "scope": COLLAPSE_SCOPE}
 
 
 def _check_counts(outcomes):

@@ -7,8 +7,16 @@ skipped-window counters, earlier log records, and the data order (epoch,
 consumed batches, shuffle generator; augmentation is seeded per
 (seed, epoch, row) so replayed samples are identical). Required unchanged:
 every config section except ``training.resume``, ``--max-samples`` and the
-training data hash. Not restored: wall-clock ``elapsed_s`` and the earlier
-process's ``train.log``.
+training data hash. Also required unchanged, unless ``--allow-resume-change``
+accepts the change and both manifests record it as ``resumed_with_changes``
+({field: {saved, current}}): the world size (it changes the global batch and
+the rank-local data position) and the validation data hash (an accepted change
+restarts ``selection_metric.best`` at the resumed step, since earlier scores were
+taken on other data; states carry that step on, so later plain resumes keep it,
+and the final manifest records it as ``selection_metric.best_after_step``). States
+saved before that check lack both fields and resume with a warning; both
+manifests list the unchecked fields in ``resume_unverified``. Not restored:
+wall-clock ``elapsed_s`` and the earlier process's ``train.log``.
 
 Run binding: ``run_manifest_start.json`` is written before the first update
 (config, data/validation/implementation sha256, backbone path + HF snapshot
@@ -21,9 +29,13 @@ read through ``io.load_checkpoint_config``. ``--expect-data-sha256`` /
 
 Validation reports the full condition and its three-field projection
 (``evaluate.project_minimal``, boundary-known rectangular rooms only); the
-projection's predicted collapse score is the manifest's ``selection_metric``
-(lower is better). The labels' own score on the same projection is recorded at
-launch as ``selection_metric.ground_truth`` (both manifests): a predicted score
+projection's weighted geometry objective is the manifest's ``selection_metric``
+(``SELECTION_METRIC``, lower is better). Collapse is logged beside it, over
+every request (``collapse``) and over the predictions matched to label-complete
+labels (``collapse_matched``); the labels' own collapse score on the same
+projection is recorded at launch as ``selection_metric.ground_truth`` (both
+manifests). Compare ``collapse_matched`` with it, which covers the same objects
+(size-masked sources are only in ``collapse``): a ``collapse_matched`` score
 below it means a layout more spread out than the data, not a more accurate one.
 Validation and checkpointing also run at the final update.
 Window and validation logs carry every term the criterion reports in
@@ -63,8 +75,9 @@ TERMS = ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary
 KEEP_STATES = 2  # ponytail: state-step-* holds the frozen backbone (~29 GB); keep the newest two, model-step-* (~0.1 GB) all
 SELECTION_METRIC = {"name": "validation.minimal.geometry_objective", "lower_is_better": True,
                     "definition": "weighted geometry objective on the minimal (three-field) projection of the validation rows; "
-                                  "collapse (BEV overlap rate + central-quarter fraction) is reported beside it and anchored by "
-                                  "ground_truth, never minimised on its own (a degenerate wall-hugging layout scores 0)"}
+                                  "collapse (BEV overlap rate + central-quarter fraction) is reported beside it; ground_truth "
+                                  "anchors collapse_matched (the same objects), never minimised on its own (a degenerate "
+                                  "wall-hugging layout scores 0)"}
 
 
 def _target_predictions(batch):
@@ -364,19 +377,23 @@ class _Tee:
 
 @torch.no_grad()
 def _validation(model, loader, criterion, accelerator):
-    """Count-weighted geometry terms plus the global predicted collapse counts and score of one projection."""
+    """Count-weighted geometry terms plus the global predicted collapse counts and score of one projection:
+    ``collapse`` over every request slot, ``collapse_matched`` over the slots the criterion's matching assigns to
+    label-complete labels (the objects ``_label_collapse`` counts)."""
     model.eval()
-    window, collapse = _Window(), dict.fromkeys(COLLAPSE_KEYS, 0.)
+    window, collapse, matched = _Window(), dict.fromkeys(COLLAPSE_KEYS, 0.), dict.fromkeys(COLLAPSE_KEYS, 0.)
     for batch in loader:
         predictions = model(**model_inputs(batch))
-        window.add(criterion(predictions, batch))
-        for key, value in batch_collapse_counts(predictions, batch).items():
-            collapse[key] += value
+        result = criterion(predictions, batch)
+        window.add(result)
+        for counts, assignment in ((collapse, None), (matched, result["assignment"])):
+            for key, value in batch_collapse_counts(predictions, batch, assignment).items():
+                counts[key] += value
     model.train()
     summary = window.summary(accelerator)
     return {"geometry_objective_mean_of_batches": summary["loss"], "batches": summary["microbatches"],
             "unweighted": summary["unweighted"], "counts": summary["counts"],
-            "collapse": _reduce_collapse(collapse, accelerator),
+            "collapse": _reduce_collapse(collapse, accelerator), "collapse_matched": _reduce_collapse(matched, accelerator),
             "selection_scope": "geometry diagnostic; asset/runtime evaluation is separate"}
 
 
@@ -456,7 +473,7 @@ def _export(model, directory, binding):
 
 
 def run_training(config, data, output, *, validation=None, dry_run=False, max_samples=None,
-                 expect_data_sha256=None, expect_validation_sha256=None):
+                 expect_data_sha256=None, expect_validation_sha256=None, allow_resume_change=False):
     from accelerate import Accelerator
     from accelerate.utils import set_seed
     unknown = set(config) - set(CONFIG_SECTIONS)
@@ -525,12 +542,27 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     # The labels' score anchors the selection score from launch on. Every rank joins the reduction, before a
     # resume restores the RNG state (iterating a DataLoader draws a seed from the global generator).
     label_collapse = _label_collapse(minimal_loader, accelerator) if minimal_loader is not None else None
+    bound = {"world_size": accelerator.num_processes, "validation_data_sha256": metadata["validation_data_sha256"]}
+    resumed_with_changes, resume_unverified, selection_after = {}, [], 0
     if resume is not None:
         accelerator.load_state(str(resume))
         saved = state.values
         if saved.get("config_sha256") != config_digest or saved.get("data_sha256") != metadata["data_sha256"]:
             raise ValueError("resume requires the same config (except training.resume), --max-samples and training data")
+        resume_unverified = [key for key in bound if key not in saved]
+        if resume_unverified and accelerator.is_main_process:
+            print(f"warning: {resume} predates the resume check of {resume_unverified}; resuming without verifying them",
+                  file=sys.stderr, flush=True)
+        resumed_with_changes = {key: {"saved": saved[key], "current": value} for key, value in bound.items()
+                                if key in saved and saved[key] != value}
+        if resumed_with_changes and not allow_resume_change:
+            raise ValueError(f"resume changes {resumed_with_changes}; a new world size changes the global batch and the "
+                             "rank-local data position, new validation data mixes old and new validation logs; "
+                             "pass --allow-resume-change to accept and record it")
         step, epoch, skip_batches = saved["step"], saved["epoch"], saved["batches_done"]
+        # Scores on validation data the run no longer uses are not comparable: a changed hash restarts selection,
+        # and the restart travels with the states (absent before round 3: every score counts).
+        selection_after = step if "validation_data_sha256" in resumed_with_changes else saved.get("selection_after_step", 0)
         generator.set_state(saved["generator_state"])
         skipped_windows, skipped_gradient_overflow_windows, skipped_nonfinite_windows = (
             saved["skipped_no_objective_windows"], saved["skipped_gradient_overflow_windows"], saved["skipped_nonfinite_windows"])
@@ -553,6 +585,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                  "supervised_samples": len(samples), "rejected_samples": len(rejected),
                  "validation_samples": len(validation_samples), "validation_minimal_samples": len(minimal_samples),
                  "resumed_from": str(resume) if resume is not None else None, "resumed_at_step": step,
+                 "resumed_with_changes": resumed_with_changes, "resume_unverified": resume_unverified,
                  "selection_metric": {**SELECTION_METRIC, "ground_truth": label_collapse}}, indent=2, default=str) + "\n")
             stack.enter_context(contextlib.redirect_stdout(_Tee(sys.stdout, stack.enter_context((target / "train.log").open("x")))))
             if resume is not None:
@@ -634,7 +667,8 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                                         "skipped_no_objective_windows": skipped_windows,
                                         "skipped_gradient_overflow_windows": skipped_gradient_overflow_windows,
                                         "skipped_nonfinite_windows": skipped_nonfinite_windows, "logs": logs,
-                                        "config_sha256": config_digest, "data_sha256": metadata["data_sha256"]}
+                                        "config_sha256": config_digest, "data_sha256": metadata["data_sha256"], **bound,
+                                        "selection_after_step": selection_after}
                         accelerator.save_state(str(target / f"state-step-{step}"))
                         accelerator.wait_for_everyone()
                         if accelerator.is_main_process:
@@ -655,7 +689,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
             unwrapped = accelerator.unwrap_model(model)
             _export(unwrapped, target / "model", {**binding, "step": step})
             scored = [(r["validation"]["selection_metric"], r["step"]) for r in logs
-                      if (r.get("validation") or {}).get("selection_metric") is not None]
+                      if (r.get("validation") or {}).get("selection_metric") is not None and r["step"] > selection_after]
             best = min(scored) if scored else None
             manifest = {**metadata, **provenance, "config": config, "config_sha256": config_digest, "model": asdict(model_config),
                 "loss": asdict(loss_config), "training": {**training, "resume": str(resume) if resume is not None else None},
@@ -664,9 +698,10 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                 "parameter_groups": "backbone (LoRA/full) at learning_rate; projection/slots/decoder/heads at decoder_lr",
                 "baselines": baseline, "offline_smoke": model_config.backbone == "tiny", "dry_run": dry_run,
                 "steps_completed": step, "resumed_from": str(resume) if resume is not None else None, "resumed_at_step": resumed_at,
+                "resumed_with_changes": resumed_with_changes, "resume_unverified": resume_unverified,
                 "supervised_samples": len(samples), "validation_samples": len(validation_samples),
                 "validation_minimal_samples": len(minimal_samples),
-                "selection_metric": {**SELECTION_METRIC, "ground_truth": label_collapse,
+                "selection_metric": {**SELECTION_METRIC, "ground_truth": label_collapse, "best_after_step": selection_after,
                                      "best": {"value": best[0], "step": best[1]} if best else None},
                 "validation_excluded_flagged": validation_excluded, "augmentation_fallbacks": rows.fallbacks,
                 "skipped_no_objective_windows": skipped_windows,
@@ -694,6 +729,8 @@ def main(argv=None):
     parser.add_argument("--max-length", type=int)
     parser.add_argument("--max-samples", type=int)
     parser.add_argument("--resume", type=Path, help="state-step-<n> directory of an earlier run; output must be a new directory")
+    parser.add_argument("--allow-resume-change", action="store_true",
+                        help="accept a resume under a different world size or validation file; both manifests record it")
     parser.add_argument("--cpu", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--expect-data-sha256", help="abort unless --data has exactly this sha256")
@@ -711,7 +748,8 @@ def main(argv=None):
     if args.cpu:
         config["training"]["cpu"] = True
     run_training(config, args.data, args.output, validation=args.validation, dry_run=args.dry_run, max_samples=args.max_samples,
-                 expect_data_sha256=args.expect_data_sha256, expect_validation_sha256=args.expect_validation_sha256)
+                 expect_data_sha256=args.expect_data_sha256, expect_validation_sha256=args.expect_validation_sha256,
+                 allow_resume_change=args.allow_resume_change)
 
 
 if __name__ == "__main__":

@@ -113,10 +113,10 @@ def test_collapse_metrics_separate_a_mean_predictor_from_the_labels():
     assert (truth["bev_overlap_pairs"], truth["stacked_same_category_pairs"], truth["central_quarter_objects"]) == (0, 0, 0)
     assert predicted["nearest_wall_distance_sum_m"] == pytest.approx(8.)
     assert truth["nearest_wall_distance_sum_m"] == pytest.approx(2.)
-    # Only slots with trustworthy labels enter either column.
+    # Only slots with trustworthy labels enter the ground truth; the prediction keeps every requested object.
     sample["validity"]["size"][3] = [False] * 3
     partial = collapse_metrics(collapsed, sample)
-    assert partial["predicted"]["objects"] == partial["ground_truth"]["objects"] == 3
+    assert (partial["predicted"]["objects"], partial["ground_truth"]["objects"]) == (4, 3)
 
 
 def test_baselines_fit_leave_one_out_by_default_and_from_a_fit_file_when_given(tmp_path):

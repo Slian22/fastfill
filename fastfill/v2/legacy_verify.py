@@ -18,7 +18,7 @@ import tempfile
 from typing import Any
 
 from .batch import _geometry_rows, room_normalization
-from .legacy_bridge import FLOOR_SNAP_M, YAW_POLICY, size_axis_swap_allowed
+from .legacy_bridge import FLOOR_SNAP_M, HEIGHT_TOLERANCE_M, YAW_POLICY, size_axis_swap_allowed
 from .schema import validate_condition
 
 SPLITS = ("train", "validation", "test")
@@ -242,6 +242,43 @@ def _geometry(row: dict) -> dict:
     return geometry
 
 
+def _check_unreferenced_groups(row: dict) -> None:
+    """Both halves of the ``matching.group_labels`` rule, on swap certification: a set of position-complete
+    requests with identical non-id fields shares one group label when its whole exchange certifies; otherwise
+    its members that no constraint reference or support_parent names (always exchangeable) do."""
+    from .matching import certify_group
+    requests, validity, targets = row["condition"]["objects"], row["validity"], row["target"]["objects"]
+    constraints = row["condition"]["constraints"]
+    referenced = {o.get("support_parent") for o in requests}
+    for c in constraints:
+        referenced.update(c.get(k) for k in ("object_id", "target_id", "parent_id"))
+        referenced.update(ref for k in ("target_ids", "object_ids") for ref in c.get(k) or ())
+    label = {t["id"]: g for t, g in zip(targets, validity["exchangeable_group"])}
+    position = {t["id"]: all(m) for t, m in zip(targets, validity["position"])}
+    sets = {}
+    for i, o in enumerate(requests):
+        if position[o["id"]]:
+            sets.setdefault(json.dumps({k: v for k, v in o.items() if k != "id"}, sort_keys=True), []).append(i)
+    for indices in sets.values():
+        try:
+            certify_group(requests, constraints, indices)
+        except ValueError:
+            indices = [i for i in indices if requests[i]["id"] not in referenced]
+        labels = [label[requests[i]["id"]] for i in indices]
+        if len(labels) > 1 and (None in labels or len(set(labels)) > 1):
+            raise ValueError("identical position-complete requests (the whole set when its exchange certifies, "
+                             "else its unreferenced members) must share one exchangeable group")
+
+
+def _height_conflict(row: dict) -> dict | None:
+    """K2 recomputed: complete position+size targets whose top exceeds the kept source room height."""
+    height, validity = row["condition"]["room"].get("height_m"), row["validity"]
+    tops = {t["id"]: t["bottom_center_m"][2] + t["target_size_local_m"][2]
+            for t, p, s in zip(row["target"]["objects"], validity["position"], validity["size"]) if all(p) and all(s)}
+    over = [] if height is None else [i for i, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
+    return {"objects": over, "max_excess_m": max(tops[i] for i in over) - height} if over else None
+
+
 def _row_counts(geometry: dict) -> dict[str, int]:
     position, size, yaw = [all(mask) for mask in geometry["position_valid"]], [all(mask) for mask in geometry["size_valid"]], geometry["yaw_valid"]
     complete = [p and s and y for p, s, y in zip(position, size, yaw)]
@@ -383,6 +420,12 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                 geometry = _geometry(row)
                 if provenance.get("descriptions") != "source_desc_or_category":
                     audit.fail(context, "provenance.descriptions must be source_desc_or_category")
+                if provenance.get("height_conflict") != _height_conflict(row):
+                    audit.fail(context, "provenance.height_conflict differs from the K2 recomputation on the kept room height")
+                # The frozen prep dropped a source height because of a target; the bridge keeps it (MultiScan: if reliable).
+                if (provenance.get("legacy_height_dropped") and row["condition"]["room"].get("height_m") is None
+                        and (source != "MultiScan" or (provenance.get("source_meta") or {}).get("height_reliable"))):
+                    audit.fail(context, "room.height_m is null where the frozen prep dropped it for a target; the bridge keeps the source height")
                 details[f"{source}:yaw_valid"] += sum(geometry["yaw_valid"])
                 for order in row["validity"]["yaw_symmetry_order"]:
                     details[f"{source}:{order}"] += 1
@@ -400,6 +443,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                     audit.fail(context, "no learnable geometry supervision")
                 _evidence_counts(row, kept_types, omitted_types, omitted_reasons, corrections)
                 _floor_declarations(row, floors)
+                _check_unreferenced_groups(row)
             except (ValueError, TypeError, KeyError, IndexError) as exc:
                 audit.fail(context, str(exc))
     for context, row in _json_lines(data / "rejections.jsonl", audit, hashes):

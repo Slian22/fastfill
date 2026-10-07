@@ -15,13 +15,13 @@ import shutil
 import tempfile
 
 from .io import fingerprint, safe_output
+from .legacy_bridge import HEIGHT_TOLERANCE_M, height_conflict
 from .multisource_data import (DEGENERATE_AXIS_M, HOLDOUT_REASON, ROOMGENBENCH_HOLDOUT_GROUPS, SPLITS, SOURCES,
                               _frozen_ir_guard, _holdout, _input_hashes, _loads, _parent_rows, _size_policy,
                               _split_integrity, _write, qualify_parent_masks)
 from .schema import migrate_legacy_row, validate_condition
 
 POLICY = "full-condition-mask-review-v1"
-HEIGHT_TOLERANCE_M = .05
 YAW_POLICY = "inherit parent yaw validity and yaw_symmetry_order; no geometric promotion"
 PARENT_HASHES = {
     "manifest.json": "7135a59f097e665ec6bb0973aae0233f323be447556e4ef903b868afbe779652",
@@ -62,17 +62,17 @@ def qualify_sample(parent, *, model_config=None, holdout_groups=()):
             "source_meta_floor_z": meta.get("floor_z"), "source_meta_n_floor_snapped": meta.get("n_floor_snapped"),
             "per_object_pre_snap_z": "unavailable_in_frozen_IR",
             "per_object_snap_membership": "unknown_do_not_infer_from_zero_z"}
-    height = row["condition"]["room"].get("height_m")
-    # Flag only: labels and the declared height stay. 1e-6: float32-rounded source sizes
-    # (2.6500000953674316 in a 2.6 m room) are not a conflict.
-    tops = {obj["id"]: obj["bottom_center_m"][2] + obj["target_size_local_m"][2]
-            for i, obj in enumerate(parent["target"]["objects"]) if all(masks["size"][i]) and all(masks["position"][i])}
-    over = [] if height is None else [ident for ident, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
-    if over:
-        added["height_conflict"] = {"objects": over, "max_excess_m": max(tops[ident] for ident in over) - height}
+    # K2 flag only: labels and the declared height stay. The flag follows the qualified masks; a
+    # differing parent (bridge) flag is replaced or removed and journaled with its value as ``before``.
+    before = parent["provenance"].get("height_conflict")
+    conflict = height_conflict(row["condition"]["room"].get("height_m"), parent["target"]["objects"],
+                               masks["position"], masks["size"])
+    if conflict:
+        added["height_conflict"] = conflict
+    if conflict != before:
         added["qualification_changes"] = [*added["qualification_changes"], {
-            "field": "provenance.height_conflict", "before": None, "after": deepcopy(added["height_conflict"]),
-            "reason": "target_exceeds_declared_height_flag_only"}]
+            "field": "provenance.height_conflict", "before": deepcopy(before), "after": deepcopy(conflict),
+            "reason": "target_exceeds_declared_height_flag_only" if before is None else "height_conflict_follows_qualified_masks"}]
     # Position demotion can invalidate a previously legal exchangeable group.
     # The protocol falls back to fixed identities; object count/roles stay intact.
     groups = row["validity"].get("exchangeable_group", [])
@@ -87,6 +87,8 @@ def qualify_sample(parent, *, model_config=None, holdout_groups=()):
     if moved:
         added["qualification_changes"] = [*added["qualification_changes"], moved]
     row["provenance"] = {**provenance, **added}
+    if not conflict:
+        row["provenance"].pop("height_conflict", None)
     validate_condition(row["condition"])
     return row
 
@@ -105,8 +107,9 @@ def build_dataset(parent_root, output, *, expected_hashes=None, ir_root=None, fr
     parent, target = Path(parent_root).resolve(), safe_output(output)
     holdout_groups = tuple(holdout_groups)
     _protected(parent, target, ir_root)
-    implementation_before = {str(path): fingerprint(path) for path in
-                             (Path(__file__).resolve(), Path(__file__).with_name("multisource_data.py").resolve())}
+    implementation_before = {str(path): fingerprint(path) for path in  # legacy_bridge: the shared K2 height_conflict
+                             (Path(__file__).resolve(), *(Path(__file__).with_name(name).resolve()
+                                                          for name in ("multisource_data.py", "legacy_bridge.py")))}
     pins = PARENT_HASHES if expected_hashes is None else expected_hashes
     parent_inputs = {str(path): fingerprint(path) for path in [parent / (s + ".jsonl") for s in SPLITS]
                      + [parent / "manifest.json", parent / "rejections.jsonl"]}

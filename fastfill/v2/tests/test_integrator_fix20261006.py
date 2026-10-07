@@ -57,7 +57,8 @@ def test_verifier_recomputes_group_yaw_and_symmetry_manifest_keys(tmp_path):
     path = output / "manifest.json"
     manifest = json.loads(path.read_text())
 
-    def drop_group(row):
+    def drop_group(row):  # a constraint on one member leaves no unreferenced pair, so no group is legal
+        row["condition"]["constraints"].append({"type": "against_wall", "object_id": row["condition"]["objects"][0]["id"]})
         row["validity"]["exchangeable_group"] = [None, None]
     mutate_sample(output, "test", drop_group)
     assert "exchangeable_group_counts differs from independent streaming counts" in errors(verify_selected_dataset(output))

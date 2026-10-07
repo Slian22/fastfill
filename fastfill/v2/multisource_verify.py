@@ -385,7 +385,8 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
     _require(p["split"], split, "parent split")
     expected_provenance, moved = _holdout(p, split, holdout_groups)
     for key, value in expected_provenance.items():
-        _require(actual.get(key), value, "provenance " + key)
+        if key != "height_conflict":  # recomputed on the qualified masks below
+            _require(actual.get(key), value, "provenance " + key)
     if p["source"] in {"SceneSmith", "SpatialGen"} and split != "test":
         raise ValueError("evaluation_only source in training")
     condition = deepcopy(parent["condition"])
@@ -398,14 +399,15 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
         condition["room"]["floor_known"] = False
         changes.insert(0, {"field": "room.floor_known", "before": parent["condition"]["room"].get("floor_known"),
             "after": False, "reason": "Scan2CAD_floor_is_estimated_not_independent_physical_measurement"})
-    height, conflict = condition["room"].get("height_m"), None
+    height, conflict, before = condition["room"].get("height_m"), None, p.get("height_conflict")
     tops = {obj["id"]: obj["bottom_center_m"][2] + obj["target_size_local_m"][2]
             for i, obj in enumerate(targets) if all(masks["size"][i]) and all(masks["position"][i])}
     over = [] if height is None else [ident for ident, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
     if over:
         conflict = {"objects": over, "max_excess_m": max(tops[ident] for ident in over) - height}
-        changes.append({"field": "provenance.height_conflict", "before": None, "after": conflict,
-                        "reason": "target_exceeds_declared_height_flag_only"})
+    if not _equal(conflict, before):  # a parent (bridge) flag is replaced/removed when the qualified masks differ
+        changes.append({"field": "provenance.height_conflict", "before": before, "after": conflict,
+                        "reason": "target_exceeds_declared_height_flag_only" if before is None else "height_conflict_follows_qualified_masks"})
     groups = masks.get("exchangeable_group", [])
     bad_groups = {g for i, g in enumerate(groups) if g is not None and not all(masks["position"][i])}
     members_removed = 0
@@ -423,9 +425,9 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
     _require(actual.get("dataset_qualification_policy"), FULL_CONDITION_POLICY, "dataset_qualification_policy")
     _require(actual.get("qualification_changes"), changes, "qualification_changes")
     added = {"dataset_qualification_policy", "qualification_changes"} | ({"holdout_reason"} if moved else set())
+    _require(actual.get("height_conflict"), conflict, "height_conflict")
     if conflict is not None:
         added.add("height_conflict")
-        _require(actual.get("height_conflict"), conflict, "height_conflict")
     if p["source"] == "Scan2CAD":
         added.add("estimated_floor_provenance")
         meta = p.get("source_meta", {})
@@ -435,7 +437,7 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
             "source_meta_floor_z": meta.get("floor_z"), "source_meta_n_floor_snapped": meta.get("n_floor_snapped"),
             "per_object_pre_snap_z": "unavailable_in_frozen_IR",
             "per_object_snap_membership": "unknown_do_not_infer_from_zero_z"}, "estimated_floor_provenance")
-    _require(sorted(actual), sorted(set(p) | added), "provenance keys")
+    _require(sorted(actual), sorted(set(p) - {"height_conflict"} | added), "provenance keys")
     return {"objects": n, "target_object_fields_checked": sum(len(o) for o in targets),
         "target_numeric_coordinates_checked": 7 * n,
         "position_masks_demoted": sum(all(a) and not all(b) for a, b in zip(parent["validity"]["position"], masks["position"])),

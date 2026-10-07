@@ -11,7 +11,7 @@ def _report(size, yaw, pos, central=.17, wall=.66, overlap=.01, out=0.):
                                     "bottom_center_error_m": {"mean": pos}}},
             "baselines": {"category_median_size": {"log_size_error": {"mean": .4}}, "uniform_yaw": {"yaw_error_rad": {"mean": .7}},
                           "room_center_position": {"bottom_center_error_m": {"mean": 2.5}}},
-            "collapse": {"predicted": collapse(central, wall, overlap, out), "ground_truth": collapse(.17, .66, .01, 0.)}}
+            "collapse": {"predicted_matched": collapse(central, wall, overlap, out), "ground_truth": collapse(.17, .66, .01, 0.)}}
 
 
 def test_score_prefers_accurate_layouts_and_punishes_collapse_or_leaving_the_room():

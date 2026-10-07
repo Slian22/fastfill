@@ -43,10 +43,11 @@ def score(report):
     size: log-size error / per-category median size; yaw: yaw error / constant yaw; position: bottom-centre
     error / room-centre placement; |central-quarter fraction - GT|; |mean wall distance - GT| / GT;
     overlap above GT + 1 point and objects outside the room above GT count fivefold; the share of requests
-    without a layout counts tenfold.
+    without a layout counts tenfold. The distribution terms use ``predicted_matched`` (the predictions matched
+    to the label-complete objects the ground-truth column counts), so the labels themselves score 0 there.
     """
     ref, base = report["model"]["reference"], report["baselines"]
-    pred, gt = report["collapse"]["predicted"], report["collapse"]["ground_truth"]
+    pred, gt = report["collapse"]["predicted_matched"], report["collapse"]["ground_truth"]
     ratio = lambda a, b: a / b if a is not None and b else 1.
     s = (ratio(ref["log_size_error"]["mean"], base["category_median_size"]["log_size_error"]["mean"])
          + ratio(ref["yaw_error_rad"].get("mean"), base["uniform_yaw"]["yaw_error_rad"].get("mean"))
@@ -214,7 +215,8 @@ class Autopilot:
                 out = self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}"
                 if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations of the same inputs
                     old = json.loads((out / "report.json").read_text())
-                    if old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve()):
+                    if (old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve())
+                            and "predicted_matched" in (old.get("collapse") or {})):  # older reports cannot be scored
                         jobs.append((checkpoint, out, None))
                         continue
                     out.rename(out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}"))
@@ -308,7 +310,7 @@ class Autopilot:
         """SUMMARY.md: selection, the best model on validation and test, and the model next to the LLM baselines."""
         def metrics(path):
             r = json.loads(Path(path).read_text())
-            ref, pred, gt, base = r["model"]["reference"], r["collapse"]["predicted"], r["collapse"]["ground_truth"], r["baselines"]
+            ref, pred, gt, base = r["model"]["reference"], r["collapse"]["predicted_matched"], r["collapse"]["ground_truth"], r["baselines"]
             def get(d, *keys):
                 for key in keys:
                     d = (d or {}).get(key)

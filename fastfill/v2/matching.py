@@ -46,22 +46,34 @@ def certify_group(objects, constraints, indices):
 
 
 def group_labels(objects, constraints, position_valid):
-    """C5 exchangeable labels per request: identical non-id fields, complete position labels, certified swap."""
+    """C5 exchangeable labels per request: identical non-id fields, complete position labels, certified swap.
+
+    A signature set (identical request fields except ``id``) whose whole swap fails certification
+    falls back to its members that no constraint reference field (the ones ``certify_group`` renames)
+    and no ``support_parent`` names; that remainder always certifies and is grouped under the set's
+    label when it has at least two members.
+    """
     candidates = {}
     for i, obj in enumerate(objects):
         if all(position_valid[i]):
             signature = json.dumps({k: v for k, v in obj.items() if k != "id"}, sort_keys=True)
             candidates.setdefault(signature, []).append(i)
+    referenced = {o.get("support_parent") for o in objects}
+    for c in constraints:
+        referenced.update(c.get(k) for k in ("object_id", "target_id", "parent_id"))
+        referenced.update(ref for k in ("target_ids", "object_ids") for ref in c.get(k) or ())
     labels = [None] * len(objects)
     for number, indices in enumerate(candidates.values()):
-        if len(indices) < 2:
-            continue
-        try:
-            certify_group(objects, constraints, indices)
-        except ValueError:
-            continue
-        for i in indices:
-            labels[i] = f"anonymous_{number}"
+        for members in (indices, [i for i in indices if objects[i]["id"] not in referenced]):
+            if len(members) < 2:
+                break
+            try:
+                certify_group(objects, constraints, members)
+            except ValueError:
+                continue
+            for i in members:
+                labels[i] = f"anonymous_{number}"
+            break
     return labels
 
 
@@ -80,8 +92,9 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
     request slot), never from the rendered condition objects. A group needs
     complete position labels on every member; otherwise it keeps fixed identity.
     Size enters the cost only when every member also has a complete size label;
-    when any member is box-symmetric (``batch["size_axis_swap_allowed"]``) each
-    pair's log-size cost is the minimum over the (sx, sy) and (sy, sx) orders.
+    a pair whose target object is box-symmetric (its own
+    ``batch["size_axis_swap_allowed"]``) costs the minimum log-size error over the
+    target's (sx, sy) and (sy, sx) orders, every other pair the written order.
     """
     validate_matching_options(enabled, alpha_position, alpha_size)
     if enabled and "exchangeable_group" not in batch:
@@ -118,8 +131,9 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
                 if not torch.isfinite(size).all() or not torch.isfinite(gt_size).all() or (size <= 0).any() or (gt_size <= 0).any():
                     raise ValueError("nonfinite or nonpositive size geometry in matching group")
                 size_cost = (size.log()[:, None] - gt_size.log()[None]).abs().sum(-1)
-                if "size_axis_swap_allowed" in batch and batch["size_axis_swap_allowed"][b, group].any():
-                    size_cost = torch.minimum(size_cost, (size.log()[:, None] - gt_size.log()[None, :, [1, 0, 2]]).abs().sum(-1))
+                if "size_axis_swap_allowed" in batch:  # columns are targets: each pair follows its target's flag
+                    swapped = (size.log()[:, None] - gt_size.log()[None, :, [1, 0, 2]]).abs().sum(-1)
+                    size_cost = torch.where(batch["size_axis_swap_allowed"][b, group][None], torch.minimum(size_cost, swapped), size_cost)
                 cost = cost + alpha_size * size_cost
             if not torch.isfinite(cost).all():
                 raise ValueError("matching cost is not finite")

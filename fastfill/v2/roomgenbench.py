@@ -138,6 +138,8 @@ def _shell_parts(module, room):
     which pushes some walls of a non-convex polygon into the room. Walls trace
     the floor polygon in order, so its signed area fixes the interior side;
     each wall is built alone with a stand-in centre placed on that side.
+    build_shell names every door panel of a wall ``<wall>_door``; the second and later
+    panels of one wall get a running suffix (``_1``, ``_2``, ...) so no scene node is overwritten.
     """
     parts, walls = module.build_shell({**room, "walls": [], "doors": []})  # floor slab only
     points = [(w["start_point"]["x"], w["start_point"]["y"]) for w in room["walls"]]
@@ -150,7 +152,12 @@ def _shell_parts(module, room):
         single = {"dimensions": {"width": 2., "length": 2.}, "position": {"x": cx - 1., "y": cy - 1.},
                   "walls": [wall], "doors": [d for d in room["doors"] if d["wall_id"] == wall["id"]]}
         wall_parts, meta = module.build_shell(single)
-        parts += [(name.replace("shell_wall_0", f"shell_wall_{index}", 1), part) for name, part in wall_parts if name != "shell_floor"]
+        seen = Counter()
+        for name, part in wall_parts:
+            if name != "shell_floor":
+                name = name.replace("shell_wall_0", f"shell_wall_{index}", 1)
+                seen[name] += 1
+                parts.append((name if seen[name] == 1 else f"{name}_{seen[name] - 1}", part))
         walls += [{**meta[0], "name": f"shell_wall_{index}"}]
     return parts, walls
 
