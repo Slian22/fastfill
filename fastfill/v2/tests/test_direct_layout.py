@@ -258,7 +258,7 @@ def test_roomgenbench_converts_canonical_axis_and_preserves_world_bbox(yaw):
         # No support was declared: only the object resting on the known floor is placed, and marked inferred.
         on_floor = predicted["bottom_center_m"][2] == 0.
         assert actual["place_id"] == ("floor" if on_floor else None)
-        assert actual["support_status"] == ("inferred_floor_contact" if on_floor else "unknown")
+        assert actual["support_status"] == ("inferred" if on_floor else "unknown")
         w, d, h = predicted["target_size_local_m"]
         assert actual["dimensions"] == {"width": d, "length": w, "height": h}
         position = [actual["position"][axis] for axis in "xyz"]
@@ -428,7 +428,7 @@ def test_generation_registry_follows_benchmark_type_description_key_with_first_i
     by_key = {entry["asset_key"]: entry for entry in registry}
     oak = by_key[objects[0]["asset_key"]]
     assert oak["n_instances"] == 3 and oak["dimensions"] == {"width": .7, "length": 1., "height": .9}
-    assert oak["place"] == "floor" and oak["support_status"] == "inferred_floor_contact"  # first instance, z=0
+    assert oak["place"] == "floor" and oak["support_status"] == "inferred"  # first instance, z=0
     assert by_key[objects[3]["asset_key"]]["place"] == "unknown"
     assert {obj["id"] for obj in objects} == {obj["id"] for obj in prediction["objects"]}
     assert len(objects) == 4

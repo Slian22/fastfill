@@ -129,7 +129,7 @@ class ExistingRelationTests(unittest.TestCase):
                 report = validate_scene(req, [obj])
                 self.assertEqual(report["ok"], expected)
                 check = next(check for check in report["checks"] if check.get("constraint_type") == "against_wall")
-                self.assertEqual(check["status"], "pass" if expected else "fail")
+                self.assertEqual(check["status"], "pass" if expected else "violation")
 
     def test_against_wall_does_not_accept_only_nearby_corners(self):
         import math
@@ -137,7 +137,7 @@ class ExistingRelationTests(unittest.TestCase):
         obj = {**layout()["objects"][0], "bottom_center_m": [.71, .71, 0], "yaw_rad": math.pi/4}
         report = validate_scene(req, [obj])
         check = next(check for check in report["checks"] if check.get("constraint_type") == "against_wall")
-        self.assertEqual(check["status"], "fail")
+        self.assertEqual(check["status"], "violation")
 
     def test_against_wall_unknown_boundary_is_not_evidence(self):
         req = condition(constraints=[{"type": "against_wall", "object_id": "desk"}])
@@ -158,7 +158,7 @@ class ExistingRelationTests(unittest.TestCase):
                 report = validate_scene(req, objects)
                 self.assertEqual(report["ok"], expected)
                 check = next(check for check in report["checks"] if check.get("constraint_type") == "between")
-                self.assertEqual(check["status"], "pass" if expected else "fail")
+                self.assertEqual(check["status"], "pass" if expected else "violation")
 
     def test_between_missing_references_cannot_pass(self):
         req = condition(constraints=[{"type": "between", "object_id": "desk", "target_ids": ["missing", "desk"]}])

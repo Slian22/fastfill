@@ -58,3 +58,15 @@ FastFill local [w,d,h] 对应 RoomGenBench [length,width,height]，yaw_export = 
 这些修复与历史 C1–C4 的修复分别记录。四项基础 loss 方向、GT-bin 选择、DDP 有效计数和不足额尾窗重标未发现新的确证公式缺陷。这里没有声称“不存在其他 bug”。完整审查见 [训练审查证据](evidence/fastfill-v2-audit-20261006/fastfill-training/README.md)。
 
 最新服务器安装 metadata 的依赖 advisory 检查已执行，公开版本解析的 `pip-audit` 没有已知漏洞；这不是源码安全证明或 native 编译验收。当前修改另由独立代理检查输入、输出路径、状态码与秘密，发布时保存实际结果。
+
+## 7. 2026-10-07 第二轮修正
+
+第二轮在提交 7ea1a0d 之上实现了 K1–K10 契约（改动未提交）。其中三项修正了本审核及第一轮的结论：
+
+| 项目 | 第一轮做法 | 第二轮修正 |
+|---|---|---|
+| 目标高于声明房高（K2） | 把 `room.height_m` 置为 null（原 C7(b)） | 撤销。标签和 condition 都不改；只在 `provenance.height_conflict = {objects, max_excess_m}` 记录，并在 changes.jsonl 写一条 `provenance.height_conflict`，原因 `target_exceeds_declared_height_flag_only`。容差仍是 0.05 m＋1e-6。评测中这类行的 ceiling 检查单独计为 `ceiling_on_height_conflict_rows`，不算模型违规。 |
+| 盒对称层级（K1） | 局部轴配对不确定的对象也按写出的轴序监督尺寸，yaw 按 π 周期（order 2，Scan2CAD 标注的对象除外） | 新增逐对象 `validity.size_axis_swap_allowed`：InternScenes arkit／3rscan／mp3d／scannet、InteriorGS 全部对象，HSSD200 类别含 chair、MultiScan 类别含 bed 的对象为 true，其 `yaw_symmetry_order` 为 4。loss 在四个候选（yaw＋kπ/2，奇数 k 交换 xy 尺寸）中按联合代价取最小；匹配和评测用同一组候选，评测另报写出轴序下的误差。这只表示盒子本身对称，不认证语义正面。 |
+| 三字段输入契约（K5） | 直接请求和训练行各自生成条件，边界标志和多边形写法可能不同 | `batch.render_minimal_condition` 是唯一的三字段投影（房型、外包矩形、物品清单，`boundary_known=true`，不含约束和支撑）。默认 rectangular 请求经 `direct_layout.request_to_condition` 得到的条件文本与之逐字节相同；`boundary_quality` 从不渲染。训练以 `minimal_form_p` 概率在边界已知的矩形房间上使用该投影（hull／`reference_extent` 矩形不投影），验证与评测同时报告完整条件和三字段投影，选模用三字段投影上的 collapse score。`reference_extent` 消融保留自己的 `boundary_known=false` 设定和独立数据。 |
+
+同轮其余变化：地面支撑只取源标注（K3，2 cm 内吸附 target z，更远的不声明）；交付时 `place`／`support_status` 为 declared／inferred／unknown 三态（K6）；新增可选 grid_residual 位置头（K7）；训练启动即写 `run_manifest_start.json`，evaluate／predict 按 checkpoint 绑定 max_length（K8）；正式配置改为 4 卡回归和 3 卡 grid 两组、全局 batch 96、3,887 次更新（K9）；校验状态 fail 改名为 violation，并统计 pass／violation／unknown 三态（K10）。MansionWorld 的 IR 没有区分标注尺寸与 footprint 代理的字段，尺寸继续整源无效（K4），是否以 `anchor` 间接区分有待决定。细节和本地验证记录见 [v2 README 的 round 2 一节](../fastfill/v2/README.md#2026-10-07-round-2)。这些是代码与数据契约修正，不是模型质量结论。

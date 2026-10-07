@@ -1,4 +1,4 @@
-# FastFill v2 私有数据发布与训练用法
+# FastFill v2 数据发布与训练用法
 
 ## 当前主数据：多来源完整条件
 
@@ -18,7 +18,9 @@ sha256sum -c multisource-20261006/SHA256SUMS
 export FASTFILL_MAIN_DATA="$FASTFILL_DATASET_ROOT/multisource-20261006/eligible"
 ```
 
-私有访问使用已有 HF 登录。服务器已保存相同主数据与资格文件时直接使用其已验 SHA 路径，无需重复下载。
+访问方式（2026-10-07 更新）：按用户决定，`liantian/fastfill-v2` 改为 **public + gated（gated=manual，人工审批）**。仓库页面公开可见；下载前需在 HF 页面申请，经人工批准后用已登录的 HF 账号下载，命令不变。本文件其余各处的 private 字样是对应发布当时的状态。本轮（2026-10-07）未访问 HF，以上设置没有在本文件内做远端核验。原数据来源许可和访问限制仍然有效，gated 公开不额外授予再分发或商业使用权。服务器已保存相同主数据与资格文件时直接使用其已验 SHA 路径，无需重复下载。
+
+第二轮（2026-10-07）的数据契约变更（K1 盒对称 `size_axis_swap_allowed`、K2 房高冲突只标记、K3 地面支撑只取源标注）需要本地重建后才进入训练数据；重建数据尚未发布到 HF。旧行仍可读取（`size_axis_swap_allowed` 迁移为全 false）。重建与正式训练命令见 [v2 README 的 2026-10-07 round 2 一节](../fastfill/v2/README.md#2026-10-07-round-2)。
 
 ## 历史 SpatialLM pilot：最小 XY 输入 → bbox 布局
 

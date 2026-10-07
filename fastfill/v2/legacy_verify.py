@@ -18,7 +18,7 @@ import tempfile
 from typing import Any
 
 from .batch import _geometry_rows, room_normalization
-from .legacy_bridge import YAW_POLICY
+from .legacy_bridge import FLOOR_SNAP_M, YAW_POLICY, size_axis_swap_allowed
 from .schema import validate_condition
 
 SPLITS = ("train", "validation", "test")
@@ -215,11 +215,15 @@ def _geometry(row: dict) -> dict:
     validity = row.get("validity")
     if not isinstance(validity, dict):
         raise ValueError("validity must be an object")
-    for field in ("position", "size", "yaw", "yaw_symmetry_order", "exchangeable_group"):
+    for field in ("position", "size", "yaw", "yaw_symmetry_order", "exchangeable_group", "size_axis_swap_allowed"):
         if not isinstance(validity.get(field), list) or len(validity[field]) != len(targets):
             raise ValueError(f"validity {field} must have exactly one entry per target")
     if any(isinstance(v, bool) or v not in (1, 2, 4) for v in validity["yaw_symmetry_order"]):
         raise ValueError("yaw_symmetry_order entries must be 1, 2 or 4")
+    if any(not isinstance(v, bool) for v in validity["size_axis_swap_allowed"]):
+        raise ValueError("size_axis_swap_allowed entries must be booleans")
+    if any(swap and order != 4 for swap, order in zip(validity["size_axis_swap_allowed"], validity["yaw_symmetry_order"])):
+        raise ValueError("size_axis_swap_allowed objects must carry yaw_symmetry_order 4")
     geometry = _geometry_rows(row, *room_normalization(condition["room"]))
     for value, valid in zip(geometry["yaw"], geometry["yaw_valid"]):
         if valid and not -math.pi <= value < math.pi:
@@ -246,6 +250,29 @@ def _row_counts(geometry: dict) -> dict[str, int]:
             "full_geometry": sum(complete), "full_geometry_scenes": int(all(complete)),
             "text_eligible_scenes": int(all(complete)), "learnable_scenes": int(learnable),
             "zero_supervision_scenes": int(not learnable)}
+
+
+def _floor_declarations(row: dict, floors: Counter):
+    """Floor support comes only from a source floor anchor on a known floor: declared targets sit exactly on
+    the floor (snapped when within FLOOR_SNAP_M), anchored targets farther away stay undeclared with free z."""
+    room = row["condition"]["room"]
+    floor_known, floor = room.get("floor_known") is True, room.get("floor_z_m")
+    requests = {o["id"]: o for o in row["condition"]["objects"]}
+    for target, evidence in zip(row["target"]["objects"], row["provenance"]["field_evidence"]):
+        request, z = requests[target["id"]], target["bottom_center_m"][2]
+        declared, snapped = request.get("support_parent") == "floor", evidence.get("legacy_z_snap_applied_to_target")
+        if not isinstance(snapped, bool):
+            raise ValueError("legacy_z_snap_applied_to_target must be a boolean")
+        anchored = evidence.get("raw_anchor") == "floor" and floor_known and not evidence.get("source_support_inferred")
+        if declared and (not anchored or z != floor):
+            raise ValueError("floor support declared without a source floor anchor and an on-floor target")
+        if snapped and not declared:
+            raise ValueError("target z snapped to the floor without a floor declaration")
+        if anchored and request.get("support_parent") is None and abs(z - floor) <= FLOOR_SNAP_M:
+            raise ValueError("source floor anchor within the snap tolerance was not declared")
+        floors["floor_declarations_written"] += declared
+        floors["floor_declaration_z_snapped"] += snapped
+        floors["floor_declaration_skipped_floating"] += anchored and request.get("support_parent") is None
 
 
 def _evidence_counts(row: dict, kept: Counter, omitted: Counter, reasons: Counter, corrections: Counter):
@@ -346,7 +373,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     hashes = {"manifest.json": _hash_file(data / "manifest.json")["sha256"]}
     counts = {split: Counter({key: 0 for key in COUNT_FIELDS}) for split in SPLITS}
     sources, seen, houses, kept_rows, rejected_rows = {}, set(), {}, Counter(), Counter()
-    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons, details = (Counter() for _ in range(6))
+    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons, details, swaps, floors = (Counter() for _ in range(8))
     for split in SPLITS:
         for context, row in _json_lines(data / f"{split}.jsonl", audit, hashes):
             try:
@@ -359,6 +386,11 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                 details[f"{source}:yaw_valid"] += sum(geometry["yaw_valid"])
                 for order in row["validity"]["yaw_symmetry_order"]:
                     details[f"{source}:{order}"] += 1
+                swaps[source] += sum(row["validity"]["size_axis_swap_allowed"])
+                categories = {o["id"]: o["category"] for o in row["condition"]["objects"]}
+                if row["validity"]["size_axis_swap_allowed"] != [manifest.get("front_policy") == "axis" and size_axis_swap_allowed(
+                        source, categories[o["id"]]) for o in row["target"]["objects"]]:
+                    audit.fail(context, "size_axis_swap_allowed differs from the source/category axis policy")
                 details["exchangeable_groups"] += geometry["exchangeable_groups"]
                 details["exchangeable_members"] += geometry["exchangeable_members"]
                 measured = _row_counts(geometry)
@@ -367,6 +399,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                 if measured["zero_supervision_scenes"]:
                     audit.fail(context, "no learnable geometry supervision")
                 _evidence_counts(row, kept_types, omitted_types, omitted_reasons, corrections)
+                _floor_declarations(row, floors)
             except (ValueError, TypeError, KeyError, IndexError) as exc:
                 audit.fail(context, str(exc))
     for context, row in _json_lines(data / "rejections.jsonl", audit, hashes):
@@ -393,6 +426,10 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     _same_counts({k.split(":")[0]: v for k, v in details.items() if k.endswith(":yaw_valid")}, manifest.get("source_yaw_valid_objects"), "source_yaw_valid_objects", audit)
     _same_counts({k: v for k, v in details.items() if ":" in k and not k.endswith(":yaw_valid")}, manifest.get("source_yaw_symmetry_order_counts"), "source_yaw_symmetry_order_counts", audit)
     _same_counts({k: details[k] for k in ("exchangeable_groups", "exchangeable_members")}, manifest.get("exchangeable_group_counts"), "exchangeable_group_counts", audit)
+    _same_counts(dict(swaps), manifest.get("source_size_axis_swap_allowed_objects"), "source_size_axis_swap_allowed_objects", audit)
+    for key in ("floor_declarations_written", "floor_declaration_z_snapped", "floor_declaration_skipped_floating"):
+        if isinstance(manifest.get(key), bool) or manifest.get(key) != floors[key]:
+            audit.fail("manifest.json", f"{key} differs from independent streaming counts")
     if manifest.get("yaw_policy") != YAW_POLICY.get(manifest.get("front_policy")):
         audit.fail("manifest.json", "yaw_policy differs from legacy_bridge.YAW_POLICY[front_policy]")
     if manifest.get("descriptions") != "source_desc_or_category":

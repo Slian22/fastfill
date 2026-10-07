@@ -44,6 +44,10 @@ def add_detail_counts(manifest, sample, sign):
     groups = [g for g in validity["exchangeable_group"] if g is not None]
     manifest["exchangeable_group_counts"]["exchangeable_groups"] += sign * len(set(groups))
     manifest["exchangeable_group_counts"]["exchangeable_members"] += sign * len(groups)
+    if any(validity["size_axis_swap_allowed"]):
+        manifest["source_size_axis_swap_allowed_objects"][source] += sign * sum(validity["size_axis_swap_allowed"])
+    manifest["floor_declarations_written"] += sign * sum(o.get("support_parent") == "floor" for o in sample["condition"]["objects"])
+    manifest["floor_declaration_z_snapped"] += sign * sum(e["legacy_z_snap_applied_to_target"] for e in sample["provenance"]["field_evidence"])
 
 
 def test_complete_corpus_counts_and_saved_filter_are_recomputed(tmp_path):

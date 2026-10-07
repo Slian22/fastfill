@@ -72,6 +72,67 @@ def fingerprint(path):
     return digest.hexdigest()
 
 
+def fingerprint_tree(directory):
+    """One digest over every file of a directory (sorted relative path + content hash); e.g. a saved tokenizer."""
+    directory = Path(directory)
+    files = sorted(path for path in directory.rglob("*") if path.is_file())
+    listing = [(str(path.relative_to(directory)), fingerprint(path)) for path in files]
+    return hashlib.sha256(json.dumps(listing).encode()).hexdigest()
+
+
+def backbone_provenance(backbone, *, local_files_only=True):
+    """Backbone identity for run manifests: resolved directory, HF snapshot revision (hub id) and config.json sha256.
+
+    A hub id resolves inside the HF cache to ``.../snapshots/<revision>/config.json``;
+    a local directory has no revision, so its config.json digest identifies it
+    (that digest does not pin the weights).
+    """
+    if backbone == "tiny":
+        return {"path": "tiny", "revision": None, "config_sha256": None}
+    from transformers.utils import cached_file
+    config_path = Path(cached_file(backbone, "config.json", local_files_only=local_files_only))
+    # Resolve the directory, not config.json: a relative path or a symlink to a snapshot becomes the absolute
+    # snapshots/<revision> directory, while its files (symlinks into blobs/) would lose the revision.
+    snapshot = config_path.parent.resolve()
+    return {"path": str(snapshot), "revision": snapshot.name if snapshot.parent.name == "snapshots" else None,
+            "config_sha256": fingerprint(config_path)}
+
+
+CHECKPOINT_MANIFEST = "checkpoint_manifest.json"
+CHECKPOINT_KEYS = ("step", "max_length", "data_sha256", "validation_data_sha256", "config_sha256", "implementation_sha256")
+
+
+def load_checkpoint_config(model_dir):
+    """Settings bound to an exported checkpoint, so evaluation and prediction never guess them.
+
+    Structured exports hold ``model_config.json`` (position head, grid, size
+    reference, yaw bins, ...; ``model.load_model`` applies it) and the
+    ``checkpoint_manifest.json`` train.py writes beside it (``CHECKPOINT_KEYS``
+    plus backbone and tokenizer identity). Exports older than that manifest read
+    max_length and hashes from the run's ``run_manifest.json`` one directory up.
+    Text SFT exports (``text_config.json``) carry their own max_length and run
+    metadata. Values that no file records are None; ``source`` names the file used.
+    """
+    model_dir = Path(model_dir)
+    text = model_dir / "text_config.json"
+    if text.exists():
+        config = json.loads(text.read_text())
+        values = {**config.get("run_metadata", {}), "step": config.get("steps"), "max_length": config.get("max_length")}
+        return {"model": None, **{key: values.get(key) for key in CHECKPOINT_KEYS}, "source": str(text)}
+    model = json.loads((model_dir / "model_config.json").read_text()) if (model_dir / "model_config.json").exists() else None
+    values, source = {}, None
+    if (model_dir / CHECKPOINT_MANIFEST).exists():
+        source = model_dir / CHECKPOINT_MANIFEST
+        values = json.loads(source.read_text())
+    elif (model_dir.parent / "run_manifest.json").exists():
+        source = model_dir.parent / "run_manifest.json"
+        manifest = json.loads(source.read_text())
+        # A run directory holds several exports; only the run-wide settings bind here, not the step.
+        values = {**manifest, "step": None, "max_length": manifest.get("training", {}).get("max_length")}
+    return {"model": model, **{key: values.get(key) for key in CHECKPOINT_KEYS},
+            "source": str(source) if source else None}
+
+
 def run_metadata(data_path):
     import importlib.metadata
     packages = {}

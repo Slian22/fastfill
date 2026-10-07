@@ -77,7 +77,7 @@ Qwen3-8B 使用 AutoModel 读取完整 condition、输出全部 token hidden sta
 
 | head | 输出 |
 |---|---|
-| position | normalized XYZ bottom-center，用输入房间原点/尺度反归一化 |
+| position | normalized XYZ bottom-center，用输入房间原点/尺度反归一化；`model.position_head=grid_residual` 时 XY 为 16×16 格 logits＋每格 tanh 残差（取 argmax 格＋该格残差解码），z 仍回归 |
 | size | 正值 s_ref × exp(clamped_u)，指数 float32 计算，数值策略固定在配置 |
 | yaw classification | 12 个 bin logits，初始宽度 30 度 |
 | yaw residual | 每个 bin 的归一化 residual；默认 tanh |
@@ -107,7 +107,9 @@ Qwen3-8B 使用 AutoModel 读取完整 condition、输出全部 token hidden sta
 | model/model_config.json、geometry_model.pt | decoder、连续 heads 和配置 |
 | model/backbone/ | LoRA adapter 或选定的完整骨干；LoRA/冻结骨干部署仍需同一基础 Qwen |
 | tokenizer/ | 同训练的 tokenization |
-| run_manifest.json、training_log.json | 数据/配置/环境/有效样本和优化证据 |
+| run_manifest_start.json | 第一次更新前写出：config、数据／验证／实现 sha256、骨干路径＋HF snapshot revision＋config.json sha256、tokenizer sha256、增广、world size、实际入训／验证／minimal 投影样本数、选模指标 |
+| run_manifest.json、training_log.json | 数据/配置/环境/有效样本和优化证据；`selection_metric.best` 给出最佳验证 step |
+| model*/checkpoint_manifest.json | 每个导出绑定的 step、max_length、数据／配置／实现 hash；evaluate／predict 据此读取 max_length |
 | state-step-* / model-step-* | 每个 checkpoint 的 Accelerate 恢复状态与可部署导出；`--resume <state-step-n>` 在新输出目录继续 |
 
 部署模型生成 target_size_local_m、bottom_center_m、yaw_rad；export_handoff 再生成 bbox corners/center、RoomGenBench SceneSpec/registry、彩色 GLB、SVG 和 proxy diagnostics。不需要资产库即可显示用户截图那类框。真正家具 mesh、材质和物理可用性由下游负责，不能由 bbox 输出成功推断。
@@ -129,3 +131,23 @@ catalog Resolver、actual geometry reconciliation、Validator／有限修复和 
 父 validation/test 没有显式关系约束；新的 13,969 场景 heldout NEAR 正例视图已冻结且独立全量验证，是参考布局派生的独立评测视图，尚未执行真实 tokenizer 资格或模型评测，也不覆盖所有关系类型。train semantic yaw 仍仅 523 对象 / 58 场景；均匀三轮只是有限标签曝光基线，需要记录实际有效窗口并按 yaw 子集单报指标。普通均匀采样不自动保证朝向学会。完成证据和具体下游兼容缺口分别见 [多源记录](fastfill-v2-multisource-20261006.md) 与 [RoomGenBench 接口审核](fastfill-v2-roomgenbench-interface-20261006.md)。
 
 新的主运行保存新 full-condition 数据 hash，通过 `--condition` 使用原条件；三字段消融另用 `reference_extent` profile 和自己的 manifest／checkpoint。历史 rich-condition MultiScan 和 SpatialLM-only pilot 记录保留，不将它们改称新多源主实验。完整标签 cohort、bbox proxy 和下游彩色框展示均不能代替真实资产／物理／Host 的最后验收。
+
+## 7. 2026-10-07 第二轮：正式运行与选模
+
+正式运行改为两组并行，替代上面的七卡 B1/K16 候选：
+
+| 配置 | 进程 × batch × 累积 | 位置头 | 更新数 | warmup | 验证／保存 |
+|---|---|---|---|---|---|
+| `qwen3_8b_main_4gpu_regression.json` | 4 × 1 × 24 | regression | 3,887 | 117 | 每 500 步 |
+| `qwen3_8b_main_3gpu_grid.json` | 3 × 1 × 32 | grid_residual | 3,887 | 117 | 每 500 步 |
+
+两者全局 batch 都是 96，3,887 = ⌈3 × 124,375 / 96⌉，即 124,375 个入训场景上的 3 轮；其余设置与 `qwen3_8b_main_world7.json` 逐键相同（max_length 8192，yaw_reg 封顶 2.0，grid 权重 position_cell 0.04／position_residual 0.4，minimal_form_p 0.5）。`--nproc_per_node` 必须分别为 4 和 3，否则全局 batch 不是 96。训练器自己的 preflight 现在按 8192 token 过滤，启动后先看 `run_manifest_start.json` 的 `supervised_samples`；不等于 124,375 时，按 `steps=⌈3N/96⌉`、`warmup=round(0.03·steps)` 另写配置。启动命令和数据重建顺序见 [v2 README 的 round 2 一节](../fastfill/v2/README.md#2026-10-07-round-2) 与 [服务器启动](fastfill-v2-server-start.md)。
+
+本轮训练侧变化：
+
+- **盒对称（K1）**：`validity.size_axis_swap_allowed` 为真的对象，标注框也可以写成 (sy, sx, yaw+π/2)。loss 在 k∈{0,1,2,3}（yaw+kπ/2，奇数 k 交换 xy 尺寸）中按 size＋yaw CE＋yaw 残差的 detached 联合最小选择候选；匹配的 log-size 代价取两种轴序的较小值；评测对这些对象报告盒等价误差，并另报 `*_plain_convention`。
+- **三字段输入（K5）**：增广 `minimal_form_p`（默认 0.5）只对 1 cm 内的轴对齐矩形且 `boundary_known` 不为 false 的房间生效（`batch.minimal_form_eligible`；hull 和 `reference_extent` 矩形不会被改写成已知边界），把条件换成 `batch.render_minimal_condition`（房型、外包矩形、物品清单），重新分组，该样本的地面固定 z 改为学习。默认 rectangular 请求经 `direct_layout.request_to_condition` 渲染出的文本与之逐字节相同。
+- **grid 位置头（K7）**：格 CE＋GT 格残差 L1＋z 的回归份额；`predictions["position_normalized"]` 总是解码给出，匹配、正则、评测和交付不受位置头类型影响。窗口日志另含 `position_cell`／`position_residual`／`position_z`。
+- **周期验证与选模**：每次验证同时跑完整条件和边界已知的矩形房间上的三字段投影（`evaluate.project_minimal`）；最后一次更新也一定验证并保存（间隔为 0 时除外）。选模指标 `validation.minimal.collapse.score` = minimal 投影上预测框的 BEV 重叠率（IoU>0.3）＋ 落在中心四分之一的比例，越低越好。该分数没有精度项，GT 标签在同一投影上的分数记在 `selection_metric.ground_truth`，预测分数低于它只说明比数据更分散，应结合 `validation.minimal.unweighted` 的位置误差阅读；`run_manifest.json` 的 `selection_metric.best.step` 指向对应的 `model-step-<n>`（正式配置的验证与保存间隔相同）。不得用 test 选模。
+- **启动绑定（K8）**：`run_manifest_start.json` 在第一次更新前写出；`--expect-data-sha256`／`--expect-validation-sha256` 不匹配时在产生任何输出前中止。evaluate／predict 默认从 checkpoint 读取 max_length 和模型设置，显式参数优先；`evaluate --projection full minimal` 同时报告两种投影。
+- **校验三态（K10）**：`validate_scene` 每项检查为 pass／violation／unknown（原 fail 改为 violation），另给 counts；ok 的语义不变。evaluate 按检查项统计三态；带 `provenance.height_conflict` 的行，其 ceiling 检查单独计为 `ceiling_on_height_conflict_rows`。

@@ -1,7 +1,10 @@
 """Conservative upright-OBB checks for the v2 protocol, independent of v1.
 
-Unknown required geometry is never a pass. This module only verifies boxes;
-mesh, physics and Solver checks require separate evidence from external tools.
+Every check reports one of ``CHECK_STATUSES``: ``pass``, ``violation`` (the
+geometry contradicts the requirement) or ``unknown`` (the requirement cannot be
+verified from boxes, e.g. undeclared support). Unknown required geometry is never
+a pass. This module only verifies boxes; mesh, physics and Solver checks require
+separate evidence from external tools.
 """
 from copy import deepcopy
 import math
@@ -10,6 +13,7 @@ from shapely.geometry import LineString, Polygon
 
 
 SUPPORT_BBOX_TOLERANCE_M = 1e-6
+CHECK_STATUSES = ("pass", "violation", "unknown")
 
 
 def validate_required_levels(required_levels):
@@ -156,7 +160,7 @@ def _floor_checks(room, objects, tolerance_m):
     if floor is None or room.get("floor_known") is False:
         return (_check("floor_boundary_unknown", "unknown", reason="coordinate reference is not a verified floor"),)
     floor = _vector((floor,), 1)[0]
-    return tuple(_check("floor_lower_bound", "pass" if obj["_pos"][2] >= floor-tolerance_m else "fail",
+    return tuple(_check("floor_lower_bound", "pass" if obj["_pos"][2] >= floor-tolerance_m else "violation",
                         (obj["id"],), bottom_z_m=obj["_pos"][2], floor_z_m=floor, tolerance_m=tolerance_m)
                  for obj in objects)
 
@@ -169,7 +173,7 @@ def _capability_checks(request, obj, stage, *, fixed=False):
     available = obj.get("capabilities")
     if available is not None:
         available = _capability_names(available)
-    status = "unknown" if available is None else ("pass" if set(required).issubset(available) else "fail")
+    status = "unknown" if available is None else ("pass" if set(required).issubset(available) else "violation")
     return (_check("capabilities", status, (obj["id"],), required=list(required),
                    available=list(available) if available is not None else None,
                    geometry_role="fixed" if fixed else "requested"),)
@@ -181,12 +185,12 @@ def _bounds_checks(request, obj, tol):
     fixed = request.get("fixed_size_local_m")
     if fixed is not None:
         checks += (_check("fixed_size", "pass" if all(b is None or abs(a-b) <= tol for a, b in
-                   zip(size, fixed)) else "fail", (obj["id"],)),)
+                   zip(size, fixed)) else "violation", (obj["id"],)),)
     bounds = request.get("size_bounds_local_m")
     if bounds is not None:
         lower, upper = _vector(bounds["min"], 3, positive=True), _vector(bounds["max"], 3, positive=True)
         checks += (_check("size_bounds", "pass" if all(lo-tol <= x <= hi+tol for x, lo, hi in
-                   zip(size, lower, upper)) else "fail", (obj["id"],)),)
+                   zip(size, lower, upper)) else "violation", (obj["id"],)),)
     return checks
 
 
@@ -199,9 +203,9 @@ def _support(request, obj, index, room, stage, tol):
         z = room.get("floor_z_m")
         if room.get("floor_known") is False or z is None:
             return _check("floor_unknown", "unknown", ids)
-        return _check("floor_support", "pass" if abs(obj["_pos"][2] - z) <= tol else "fail", ids)
+        return _check("floor_support", "pass" if abs(obj["_pos"][2] - z) <= tol else "violation", ids)
     if parent not in index:
-        return _check("support_parent_missing", "fail", ids, parent_id=parent)
+        return _check("support_parent_missing", "violation", ids, parent_id=parent)
     ids = (obj["id"], parent)
     parent_obj = index[parent]
     surfaces = parent_obj.get("support_surfaces", ())
@@ -216,7 +220,7 @@ def _support(request, obj, index, room, stage, tol):
         world_z = parent_obj["_pos"][2] + surface["local_z_m"]
         if abs(obj["_pos"][2] - world_z) <= tol and polygon.buffer(tol).covers(footprint(obj)):
             return _check("support", "pass", ids, parent_id=parent, surface_id=surface["surface_id"])
-    return _check("support", "fail", ids, parent_id=parent)
+    return _check("support", "violation", ids, parent_id=parent)
 
 
 def _face_angle(obj, stage):
@@ -238,14 +242,14 @@ def _constraint(c, index, room, stage, tol):
     ident = c.get("object_id")
     ids = (ident,) if ident else ()
     if kind in ("faces_direction", "faces", "near", "clearance", "on", "against_wall", "between") and ident not in index:
-        return _check("constraint_reference", "fail", ids, hard=hard, constraint_type=kind)
+        return _check("constraint_reference", "violation", ids, hard=hard, constraint_type=kind)
     if ident is not None and ident not in index:
-        return _check("constraint_reference", "fail", ids, hard=hard)
+        return _check("constraint_reference", "violation", ids, hard=hard)
     obj = index.get(ident)
     target_id = c.get("target_id", c.get("parent_id"))
     target = index.get(target_id)
     if target_id is not None and target is None and target_id != "floor":
-        return _check("constraint_reference", "fail", ids, hard=hard, target_id=target_id)
+        return _check("constraint_reference", "violation", ids, hard=hard, target_id=target_id)
     if kind in ("faces_direction", "faces"):
         angle = _face_angle(obj, stage)
         if angle is None:
@@ -257,19 +261,19 @@ def _constraint(c, index, room, stage, tol):
             return _check("direction_undefined", "unknown", ids, hard=hard)
         error = abs((angle - math.atan2(dy, dx) + math.pi) % (2 * math.pi) - math.pi)
         holds = error <= c.get("tolerance_rad", math.pi / 6) + tol
-        return _check("constraint", "pass" if holds else "fail", ids, hard=hard,
+        return _check("constraint", "pass" if holds else "violation", ids, hard=hard,
                       constraint_type=kind, yaw_error_rad=error)
     if kind in ("near", "clearance"):
         distance = footprint(obj).distance(footprint(target))
         holds = (distance <= c["max_distance_m"] + tol if kind == "near" else
                  distance + tol >= c["min_distance_m"])
-        return _check("constraint", "pass" if holds else "fail", (ident, target_id), hard=hard,
+        return _check("constraint", "pass" if holds else "violation", (ident, target_id), hard=hard,
                       constraint_type=kind, distance_m=distance)
     if kind == "keepout":
         poly = _polygon(c["polygon_xy_m"])
         checked = (obj,) if obj is not None else tuple(index.values())
         failed = tuple(x["id"] for x in checked if footprint(x).intersection(poly).area > tol * tol)
-        return _check("constraint", "fail" if failed else "pass", failed, hard=hard, constraint_type=kind)
+        return _check("constraint", "violation" if failed else "pass", failed, hard=hard, constraint_type=kind)
     if kind == "on":
         request = {"support_parent": target_id,
                    **({"support_surface_id": c["surface_id"]} if "surface_id" in c else {})}
@@ -284,26 +288,26 @@ def _constraint(c, index, room, stage, tol):
         zone = _polygon(room["floor_polygon_xy_m"]).exterior.buffer(tolerance+1e-9)
         corners = tuple(footprint(obj).exterior.coords)
         holds = any(zone.contains(LineString((a, b))) for a, b in zip(corners, corners[1:]))
-        return _check("constraint", "pass" if holds else "fail", ids, hard=hard,
+        return _check("constraint", "pass" if holds else "violation", ids, hard=hard,
                       constraint_type=kind, tolerance_m=tolerance)
     if kind == "between":
         targets = c.get("target_ids")
         if not isinstance(targets, (list, tuple)) or len(targets) != 2 or any(
                 not isinstance(target, str) or target not in index for target in targets):
-            return _check("constraint_reference", "fail", ids, hard=hard, constraint_type=kind)
+            return _check("constraint_reference", "violation", ids, hard=hard, constraint_type=kind)
         ends = tuple(index[target]["_pos"][:2] for target in targets)
         if ends[0] == ends[1]:
             return _check("between_segment_undefined", "unknown", ids, hard=hard, constraint_type=kind)
         segment, polygon = LineString(ends), footprint(obj)
         holds = segment.intersects(polygon) and not segment.touches(polygon)
-        return _check("constraint", "pass" if holds else "fail", (ident, *targets), hard=hard, constraint_type=kind)
+        return _check("constraint", "pass" if holds else "violation", (ident, *targets), hard=hard, constraint_type=kind)
     return _check("constraint_unknown", "unknown", ids, hard=hard, constraint_type=kind)
 
 
 def _collision_checks(objects, fixed, tol):
     pairs = tuple((a, b, "collision") for i, a in enumerate(objects) for b in objects[i+1:])
     pairs += tuple((a, b, "fixed_collision") for a in objects for b in fixed)
-    return tuple(_check(code, "fail", (a["id"], b["id"]), overlap_area_m2=footprint(a).intersection(footprint(b)).area)
+    return tuple(_check(code, "violation", (a["id"], b["id"]), overlap_area_m2=footprint(a).intersection(footprint(b)).area)
                  for a, b, code in pairs
                  if min(a["_pos"][2]+a["_size"][2], b["_pos"][2]+b["_size"][2]) -
                  max(a["_pos"][2], b["_pos"][2]) > tol and
@@ -342,7 +346,7 @@ def validate_scene(condition, objects, *, stage="target", tolerance_m=1e-4, requ
         else:
             boundary = _polygon(polygon)
             checks += tuple(_check("boundary", "pass" if boundary.buffer(tolerance_m).covers(footprint(obj))
-                                   else "fail", (obj["id"],)) for obj in normalized)
+                                   else "violation", (obj["id"],)) for obj in normalized)
         h = room.get("height_m")
         floor_z = room.get("floor_z_m")
         if h is None or floor_z is None or room.get("floor_known") is False:
@@ -351,7 +355,7 @@ def validate_scene(condition, objects, *, stage="target", tolerance_m=1e-4, requ
             if not math.isfinite(h) or h <= 0 or not math.isfinite(floor_z):
                 raise ValueError("invalid room height or floor")
             checks += tuple(_check("ceiling", "pass" if obj["_pos"][2]+obj["_size"][2] <=
-                                   floor_z+h+tolerance_m else "fail", (obj["id"],)) for obj in normalized)
+                                   floor_z+h+tolerance_m else "violation", (obj["id"],)) for obj in normalized)
         for obj in normalized:
             checks += _bounds_checks(requested[obj["id"]], obj, tolerance_m)
             checks += (_support(requested[obj["id"]], obj, index, room, stage, tolerance_m),)
@@ -372,9 +376,10 @@ def validate_scene(condition, objects, *, stage="target", tolerance_m=1e-4, requ
             checks += (_check("openings_unchecked", "unknown", reason="opening clearance conversion/validator evidence required"),)
         checks += tuple(_constraint(c, index, room, stage, tolerance_m) for c in condition.get("constraints", ()))
     except (ValueError, TypeError, KeyError, IndexError) as exc:
-        checks = (_check("invalid_geometry", "fail", message=str(exc)),)
+        checks = (_check("invalid_geometry", "violation", message=str(exc)),)
     checks += tuple(_check(f"{level}_unchecked", "unknown", hard=level in required_levels)
                     for level in ("mesh", "physics", "solver"))
     return {"ok": not any(c["hard"] and c["status"] != "pass" for c in checks),
             "stage": stage, "geometry_level": "bbox", "checks": list(checks),
+            "counts": {status: sum(c["status"] == status for c in checks) for status in CHECK_STATUSES},
             "unknown_checks": [c["code"] for c in checks if c["status"] == "unknown"]}

@@ -13,10 +13,23 @@ from fastfill.v2.schema import validate_condition
 FRONT_POLICIES = ("axis", "strict", "legacy-convention")
 YAW_POLICY = {
     "axis": "upright finite yaw with source front_known; yaw_symmetry_order 1 for MultiScan semantic fronts, 2 (axis mod pi) elsewhere; "
-            "Scan2CAD sym __SYM_ROTATE_UP_4 -> 4, __SYM_ROTATE_UP_INF -> yaw unsupervised",
+            "Scan2CAD sym __SYM_ROTATE_UP_4 -> 4, __SYM_ROTATE_UP_INF -> yaw unsupervised; "
+            "box-symmetry tier size_axis_swap_allowed (uncertain local axis pairing) -> 4",
     "strict": "only MultiScan documented semantic fronts; yaw_symmetry_order 1",
     "legacy-convention": "legacy source front convention treated as semantic front; yaw_symmetry_order 1 (lower-evidence ablation)",
 }
+# K1 box-symmetry tier: the labelled box may equally be (sx, sy, yaw) or (sy, sx, yaw + pi/2).
+SWAP_SOURCES = frozenset({"InternScenes_arkit", "InternScenes_3rscan", "InternScenes_mp3d", "InternScenes_scannet", "InteriorGS"})
+# HSSD's generic chair template is categorised "seat"; MultiScan beds face a long side (and "bed net" is not a bed).
+SWAP_CATEGORIES = {"HSSD200": lambda c: "chair" in c or c == "seat", "MultiScan": lambda c: c == "bed"}
+# K3: a source floor anchor within this distance of the known floor is declared and its target z snapped; farther is floating.
+FLOOR_SNAP_M = .02
+
+
+def size_axis_swap_allowed(source, category):
+    """Data policy for ``validity.size_axis_swap_allowed`` from the source and normalized category."""
+    rule = SWAP_CATEGORIES.get(source)
+    return source in SWAP_SOURCES or (rule is not None and rule(category))
 
 
 def _key(seed, uid, ident):
@@ -66,7 +79,7 @@ def _frame(raw):
     return room, dz
 
 
-def _validity(obj, raw, front_policy):
+def _validity(obj, raw, front_policy, category):
     numeric = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
     upright = not obj.get("tilted", False)
     size = upright and all(numeric(v) and v > 0 for v in obj["size"])
@@ -77,9 +90,12 @@ def _validity(obj, raw, front_policy):
     sym = obj.get("sym")  # Scan2CAD rotational symmetry: __SYM_NONE / __SYM_ROTATE_UP_2 / _4 / _INF
     yaw = upright and front and numeric(obj.get("yaw")) and sym != "__SYM_ROTATE_UP_INF"
     symmetry = (4 if sym == "__SYM_ROTATE_UP_4" else 2) if front_policy == "axis" and raw["source"] != "MultiScan" else 1
+    swap = front_policy == "axis" and size_axis_swap_allowed(raw["source"], category)
+    if swap:
+        symmetry = 4
     if raw["source"] in {"OptiScene_holodeck", "MansionWorld"}:
         size = False  # Padded boxes and annotation footprints cannot certify local asset extents.
-    return [position] * 3, [size] * 3, yaw, symmetry
+    return [position] * 3, [size] * 3, yaw, symmetry, swap
 
 
 def _description(obj, category):
@@ -93,10 +109,17 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
     axis (default) admits every upright finite source yaw with front_known and
     records yaw_symmetry_order 2 (axis mod pi) except MultiScan semantic fronts (1);
     Scan2CAD rotational symmetry raises the order to 4 or leaves yaw unsupervised.
+    ``validity.size_axis_swap_allowed`` marks the box-symmetry tier (``SWAP_SOURCES``,
+    HSSD200 chairs, MultiScan beds): the labelled box may equally be (sx, sy, yaw)
+    or (sy, sx, yaw + pi/2), so those objects carry order 4 under the axis policy.
     strict yaw only admits independently documented MultiScan semantic fronts.
     legacy-convention is an explicit lower-evidence ablation, never a claim of
     per-asset semantic-front verification. Descriptions are the source desc or
     the category; exchangeable groups live in validity. No targets enter the condition.
+    Floor support comes from the source annotation only: anchor floor (not inferred)
+    with a known floor declares ``support_parent: floor`` and snaps a target z within
+    ``FLOOR_SNAP_M`` of the floor (``field_evidence.legacy_z_snap_applied_to_target``);
+    a farther target keeps a free z and no declaration.
     """
     if front_policy not in FRONT_POLICIES:
         raise ValueError("unknown front policy")
@@ -126,22 +149,26 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
                       "yaw_rad": (o["yaw"] + math.pi) % (2 * math.pi) - math.pi})
     if fixed:
         room["fixed_objects"] = fixed
-    validity = {"position": [], "size": [], "yaw": [], "yaw_symmetry_order": []}
+    validity = {"position": [], "size": [], "yaw": [], "yaw_symmetry_order": [], "size_axis_swap_allowed": []}
     requests, targets, source_ids, evidence = [], [], [], []
     for obj in selected:
         category = norm_cat(obj["category"]) or "object"
         request = {"id": ids[obj["id"]], "category": category, "description": _description(obj, category)}
+        z, snapped = obj["pos"][2] + dz, False
         # Preserve explicit source support, never promote bbox-inferred support.
-        if obj.get("anchor") == "floor" and not obj.get("anchor_inferred") and room["floor_known"] and abs(obj["pos"][2]) <= 1e-5:
-            request = {**request, "support_parent": "floor"}
         if obj.get("parent") in ids and not obj.get("anchor_inferred"):
             request = {**request, "support_parent": ids[obj["parent"]]}
+        elif (obj.get("anchor") == "floor" and not obj.get("anchor_inferred") and room["floor_known"]
+                and abs(z - room["floor_z_m"]) <= FLOOR_SNAP_M):
+            request = {**request, "support_parent": "floor"}
+            snapped, z = z != room["floor_z_m"], room["floor_z_m"]
         requests.append(request)
-        pv, sv, yv, order = _validity(obj, raw, front_policy)
-        for key, value in (("position", pv), ("size", sv), ("yaw", yv), ("yaw_symmetry_order", order)):
+        pv, sv, yv, order, swap = _validity(obj, raw, front_policy, category)
+        for key, value in (("position", pv), ("size", sv), ("yaw", yv), ("yaw_symmetry_order", order),
+                           ("size_axis_swap_allowed", swap)):
             validity[key].append(value)
         targets.append({"id": ids[obj["id"]], "target_size_local_m": list(obj["size"]),
-                        "bottom_center_m": [*obj["pos"][:2], obj["pos"][2] + dz],
+                        "bottom_center_m": [*obj["pos"][:2], z],
                         "yaw_rad": (obj["yaw"] + math.pi) % (2 * math.pi) - math.pi})
         source_ids.append(obj["id"])
         evidence.append({"tilted": bool(obj.get("tilted")), "front_policy": front_policy,
@@ -150,7 +177,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
                                                 raw["source"], "canonical_source_IR"),
                          "source_support_inferred": bool(obj.get("anchor_inferred")),
                          "legacy_support_inferred": bool(prepared_objects[obj["id"]].get("anchor_inferred")),
-                         "raw_anchor": obj.get("anchor"), "legacy_z_snap_applied_to_target": False,
+                         "raw_anchor": obj.get("anchor"), "legacy_z_snap_applied_to_target": snapped,
                          "recorded_source_evidence": deepcopy(obj.get("v2_evidence", {}))})
     old_user = json.loads(row["messages"][1]["content"])
     constraints, omitted_constraints = [], []

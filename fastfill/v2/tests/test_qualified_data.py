@@ -19,7 +19,7 @@ def sample(source="SpatialLM", split="train"):
         "constraints": [{"type": "faces_direction", "object_id": "desk", "direction_xy": [1., 0.]}]},
         "target": {"schema_version": "fastfill.v2", "objects": [{"id": "desk",
             "target_size_local_m": [1.4, .7, .75], "bottom_center_m": [2., 1., 0.], "yaw_rad": .3}]},
-        "validity": {"position": [[True] * 3], "size": [[True] * 3], "yaw": [False]},
+        "validity": {"position": [[True] * 3], "size": [[True] * 3], "yaw": [False], "size_axis_swap_allowed": [False]},
         "provenance": {"source": source, "scene_id": source + "::" + split,
             "split": split, "group": source + ":" + split, "house_id": source + ":" + split,
             "target_source_ids": ["raw0"], "source_meta": {"floor_z": -.2, "n_floor_snapped": 1}}}
@@ -44,7 +44,7 @@ def test_scan2cad_demotes_whole_position_but_retains_xy_size_and_rich_input():
     expected["room"]["floor_known"] = False
     assert row["condition"] == expected
     assert row["target"] == parent["target"]
-    assert row["validity"] == {"position": [[False]*3], "size": [[True]*3], "yaw": [False]}
+    assert row["validity"] == {"position": [[False]*3], "size": [[True]*3], "yaw": [False], "size_axis_swap_allowed": [False]}
     assert row["provenance"]["estimated_floor_provenance"]["per_object_snap_membership"].startswith("unknown")
 
 
@@ -113,7 +113,7 @@ def test_mask_review_reverts_entire_exchange_group_to_fixed_identity():
     parent["condition"]["objects"].append({**obj, "id": "desk2"})
     parent["target"]["objects"].append({**deepcopy(parent["target"]["objects"][0]), "id": "desk2"})
     parent["provenance"]["target_source_ids"].append("raw1")
-    for key in ("position", "size", "yaw"):
+    for key in ("position", "size", "yaw", "size_axis_swap_allowed"):
         parent["validity"][key].append(deepcopy(parent["validity"][key][0]))
     parent["validity"]["exchangeable_group"] = ["identical-desks"] * 2
     row = qualify_sample(parent)

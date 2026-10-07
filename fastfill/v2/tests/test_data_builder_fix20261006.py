@@ -144,18 +144,25 @@ def test_degenerate_axis_masks_whole_size_with_its_own_reason():
     assert qualify_sample(parent)["validity"]["size"] == [[True] * 3]
 
 
-def test_target_above_declared_height_drops_room_height_only():
+def test_target_above_declared_height_is_flagged_never_dropped():
     parent = qualified_parent()
     parent["target"]["objects"][0]["target_size_local_m"][2] = 2.84  # bottom 0 + 2.84 <= 2.8 + 0.05
-    assert qualify_sample(parent)["condition"]["room"]["height_m"] == 2.8
+    assert "height_conflict" not in qualify_sample(parent)["provenance"]
     parent["target"]["objects"][0]["target_size_local_m"][2] = 2.86
     row = qualify_sample(parent)
-    assert row["condition"]["room"]["height_m"] is None
+    assert row["condition"] == parent["condition"]  # K2: height_m stays 2.8
     assert row["target"] == parent["target"] and row["validity"]["size"] == [[True] * 3]
-    assert {"field": "room.height_m", "before": 2.8, "after": None,
-            "reason": "target_exceeds_declared_height"} in row["provenance"]["qualification_changes"]
-    parent["validity"]["size"] = [[False] * 3]  # an unverified size never retracts the room height
-    assert qualify_sample(parent)["condition"]["room"]["height_m"] == 2.8
+    conflict = {"objects": ["desk"], "max_excess_m": pytest.approx(.06)}
+    assert row["provenance"]["height_conflict"] == conflict
+    assert {"field": "provenance.height_conflict", "before": None, "after": conflict,
+            "reason": "target_exceeds_declared_height_flag_only"} in row["provenance"]["qualification_changes"]
+    assert verify_full_pair(parent, row, "train")["objects"] == 1
+    dropped = deepcopy(row)
+    dropped["condition"]["room"]["height_m"] = None  # the round-1 behaviour is now a verification failure
+    with pytest.raises(ValueError, match="condition"):
+        verify_full_pair(parent, dropped, "train")
+    parent["validity"]["size"] = [[False] * 3]  # an unverified size never flags the room height
+    assert "height_conflict" not in qualify_sample(parent)["provenance"]
 
 
 def test_roomgenbench_rooms_leave_train_for_test_with_reason():

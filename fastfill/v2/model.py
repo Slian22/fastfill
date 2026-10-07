@@ -1,5 +1,13 @@
 """Qwen condition memory, bidirectional request slots, continuous geometry heads.
 
+``position_head`` selects the XY parameterization: ``regression`` emits
+normalized (x, y, z) directly; ``grid_residual`` emits logits over
+``position_grid`` x ``position_grid`` cells plus a tanh XY residual per cell in
+half-cell units (the yaw bin+residual scheme) and regresses z. Both decode to
+``position_normalized``, so matching, regularizers, evaluation and the hand-off
+never see the head type; the grid head additionally returns
+``position_cell_logits`` / ``position_cell_residuals`` for the criterion.
+
 The explicit ``tiny`` backend is a causal GRU for offline correctness checks.
 It is not a Qwen model and must not be used as evidence of model quality.
 """
@@ -15,6 +23,8 @@ from typing import Any
 
 import torch
 from torch import nn
+
+from fastfill.v2.geometry import decode_grid_position
 
 
 MODEL_INPUT_KEYS = (
@@ -40,6 +50,8 @@ class ModelConfig:
     size_reference: tuple[float, float, float] = (1., 1., 1.)
     size_log_limit: float = 10.0
     residual_mode: str = "tanh"
+    position_head: str = "regression"
+    position_grid: int = 16
     train_backbone: bool = False
     lora_rank: int = 8
     lora_alpha: int = 16
@@ -54,7 +66,7 @@ class ModelConfig:
         if not isinstance(self.backbone, str) or not self.backbone.strip():
             raise ValueError("backbone must be a nonempty checkpoint identifier or path")
         positive_integers = ("decoder_dim", "decoder_heads", "decoder_layers", "decoder_ffn_multiplier",
-                             "yaw_bins", "max_objects", "tiny_hidden_size", "tiny_layers", "lora_alpha")
+                             "yaw_bins", "max_objects", "tiny_hidden_size", "tiny_layers", "lora_alpha", "position_grid")
         for key in positive_integers:
             value = getattr(self, key)
             if isinstance(value, bool) or not isinstance(value, int) or value < 1:
@@ -87,6 +99,8 @@ class ModelConfig:
             raise ValueError("size reference and exponent bounds must preserve positive finite float32 sizes")
         if self.residual_mode not in {"tanh", "unbounded"}:
             raise ValueError("residual mode must be tanh or unbounded")
+        if self.position_head not in {"regression", "grid_residual"}:
+            raise ValueError("position head must be regression or grid_residual")
         if self.backbone_dtype not in {"float32", "float16", "bfloat16"}:
             raise ValueError("unsupported backbone dtype")
         if self.train_backbone and self.lora_rank:
@@ -137,7 +151,10 @@ class StructuredFastFillModel(nn.Module):
             dim_feedforward=config.decoder_dim * config.decoder_ffn_multiplier,
             dropout=config.dropout, batch_first=True, norm_first=True)
         self.decoder = nn.TransformerDecoder(layer, config.decoder_layers, norm=nn.LayerNorm(config.decoder_dim))
-        self.position_head = nn.Linear(config.decoder_dim, 3)
+        # grid_residual: one Linear (so trainer gradient logging by name is unchanged) holding
+        # G*G cell logits | G*G tanh XY residual pairs in half-cell units | one regressed z.
+        cells = config.position_grid ** 2 if config.position_head == "grid_residual" else 0
+        self.position_head = nn.Linear(config.decoder_dim, 3 * cells + 1 if cells else 3)
         self.size_head = nn.Linear(config.decoder_dim, 3)
         self.yaw_logits_head = nn.Linear(config.decoder_dim, config.yaw_bins)
         self.yaw_residual_head = nn.Linear(config.decoder_dim, config.yaw_bins)
@@ -182,6 +199,14 @@ class StructuredFastFillModel(nn.Module):
                                  memory_key_padding_mask=~attention_mask.bool())
         active = slot_mask.unsqueeze(-1)
         raw_position = self.position_head(slots)
+        grid = {}
+        if self.config.position_head == "grid_residual":
+            g = self.config.position_grid
+            cell_logits = raw_position[..., :g * g]
+            cell_residuals = raw_position[..., g * g:3 * g * g].reshape(*raw_position.shape[:-1], g * g, 2).tanh()
+            xy = decode_grid_position(cell_logits, cell_residuals, g)
+            raw_position = torch.cat((xy, raw_position[..., -1:].to(xy.dtype)), -1)
+            grid = {"position_cell_logits": cell_logits * active, "position_cell_residuals": cell_residuals * active.unsqueeze(-1)}
         # Exponentiation always uses float32, even under fp16 autocast; positive
         # numerical bounds validated above remain valid in mixed precision.
         raw_size = self.size_reference.float() * self.size_head(slots).float().clamp(
@@ -199,7 +224,7 @@ class StructuredFastFillModel(nn.Module):
         return {"position_normalized": position * active, "size": size * active,
                 "yaw_logits": self.yaw_logits_head(slots) * active, "yaw_residuals": residual * active,
                 "slot_mask": slot_mask, "unconstrained_position_normalized": raw_position * active,
-                "unconstrained_size": raw_size * active}
+                "unconstrained_size": raw_size * active, **grid}
 
     def save_pretrained(self, directory: str | Path) -> None:
         directory = Path(directory)

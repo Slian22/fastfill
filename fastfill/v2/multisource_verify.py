@@ -24,6 +24,7 @@ ROOMGENBENCH_HOLDOUT_GROUPS = ("sage:layout_61ebde9f", "sage:layout_6b049b06", "
 HOLDOUT_REASON = "roomgenbench_benchmark_room"
 DEGENERATE_AXIS_M = .003
 HEIGHT_TOLERANCE_M = .05
+FLOOR_SNAP_M = .02
 SEALED_IR_SHA256 = {
     "HSSD200.jsonl": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
     "IL3D_3dfront.jsonl": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
@@ -98,12 +99,18 @@ def _validate_parent(parent):
     if "exchangeable_group" in masks and (len(masks["exchangeable_group"]) != n
             or any(v is not None and (type(v) is not str or not v) for v in masks["exchangeable_group"])):
         raise ValueError("parent validity exchangeable_group length/type")
+    if "size_axis_swap_allowed" in masks and (len(masks["size_axis_swap_allowed"]) != n
+            or any(type(v) is not bool for v in masks["size_axis_swap_allowed"])):
+        raise ValueError("parent validity size_axis_swap_allowed length/type")
     _require([o["id"] for o in parent["condition"]["objects"]], [o["id"] for o in targets], "parent request ID order")
 
 
 def _migrated(parent):
-    """Pre-C1 parents carried exchangeable_group inside condition objects; read it as validity."""
+    """Pre-C1 parents carried exchangeable_group inside condition objects; read it as validity.
+    Pre-K1 parents lack size_axis_swap_allowed; read it as all false."""
     objects = parent["condition"]["objects"]
+    if "size_axis_swap_allowed" not in parent["validity"]:
+        parent = {**parent, "validity": {**parent["validity"], "size_axis_swap_allowed": [False] * len(parent["target"]["objects"])}}
     if not any("exchangeable_group" in o for o in objects):
         return parent
     if "exchangeable_group" in parent["validity"]:
@@ -217,12 +224,21 @@ def _check_source(parent, source_room):
     index = {o["id"]: o for o in objects}
     if len(index) != len(objects):
         raise ValueError("source_geometry duplicate source ID")
+    requests = {o["id"]: o for o in parent["condition"]["objects"]}
     for obj, source_id, fields in zip(parent["target"]["objects"], p["target_source_ids"], p["field_evidence"]):
         raw = index.get(source_id)
         if raw is None:
             raise ValueError("source_geometry source ID absent")
         pos, yaw = raw["pos"], raw.get("yaw")
-        _require([*pos[:2], pos[2] + dz if pos[2] is not None else None], obj["bottom_center_m"], "source_geometry position")
+        expected = [*pos[:2], pos[2] + dz if pos[2] is not None else None]
+        if fields.get("legacy_z_snap_applied_to_target") is True:
+            # Bridge K3: a declared floor anchor within FLOOR_SNAP_M of the known floor has its target z snapped.
+            floor = room.get("floor_z_m")
+            if (requests[obj["id"]].get("support_parent") != "floor" or not _finite(floor) or not _finite(expected[2])
+                    or abs(expected[2] - floor) > FLOOR_SNAP_M):
+                raise ValueError("source_geometry floor snap without declaration or beyond tolerance")
+            expected[2] = floor
+        _require(expected, obj["bottom_center_m"], "source_geometry position")
         _require(raw["size"], obj["target_size_local_m"], "source_geometry size")
         _require((yaw + math.pi) % (2 * math.pi) - math.pi if _finite(yaw) else None, obj["yaw_rad"], "source_geometry yaw")
         _require(bool(raw.get("tilted")), fields["tilted"], "source_geometry tilted")
@@ -298,7 +314,7 @@ def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1.,
             changes.append({"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i],
                 "field": "yaw", "before": False, "after": True,
                 "reason": "pinned_SpatialLM_full_local_extents_and_geometric_yaw"})
-    masks["yaw_symmetry_order"] = [2] * n
+    masks["yaw_symmetry_order"] = [4 if swap else 2 for swap in masks["size_axis_swap_allowed"]]
     _require(derived["validity"], masks, "validity")
     _require(actual.get("geometric_yaw_qualified"), qualifications, "geometric_yaw_qualified")
     floor = parent["condition"]["room"].get("floor_z_m")
@@ -382,12 +398,14 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
         condition["room"]["floor_known"] = False
         changes.insert(0, {"field": "room.floor_known", "before": parent["condition"]["room"].get("floor_known"),
             "after": False, "reason": "Scan2CAD_floor_is_estimated_not_independent_physical_measurement"})
-    height = condition["room"].get("height_m")
-    if height is not None and any(all(masks["size"][i]) and all(masks["position"][i])
-                                  and obj["bottom_center_m"][2] + obj["target_size_local_m"][2] > height + HEIGHT_TOLERANCE_M + 1e-6
-                                  for i, obj in enumerate(targets)):
-        condition["room"]["height_m"] = None
-        changes.append({"field": "room.height_m", "before": height, "after": None, "reason": "target_exceeds_declared_height"})
+    height, conflict = condition["room"].get("height_m"), None
+    tops = {obj["id"]: obj["bottom_center_m"][2] + obj["target_size_local_m"][2]
+            for i, obj in enumerate(targets) if all(masks["size"][i]) and all(masks["position"][i])}
+    over = [] if height is None else [ident for ident, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
+    if over:
+        conflict = {"objects": over, "max_excess_m": max(tops[ident] for ident in over) - height}
+        changes.append({"field": "provenance.height_conflict", "before": None, "after": conflict,
+                        "reason": "target_exceeds_declared_height_flag_only"})
     groups = masks.get("exchangeable_group", [])
     bad_groups = {g for i, g in enumerate(groups) if g is not None and not all(masks["position"][i])}
     members_removed = 0
@@ -405,6 +423,9 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
     _require(actual.get("dataset_qualification_policy"), FULL_CONDITION_POLICY, "dataset_qualification_policy")
     _require(actual.get("qualification_changes"), changes, "qualification_changes")
     added = {"dataset_qualification_policy", "qualification_changes"} | ({"holdout_reason"} if moved else set())
+    if conflict is not None:
+        added.add("height_conflict")
+        _require(actual.get("height_conflict"), conflict, "height_conflict")
     if p["source"] == "Scan2CAD":
         added.add("estimated_floor_provenance")
         meta = p.get("source_meta", {})
@@ -527,7 +548,7 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
     groups = {"parent": {}, "derived": {}}
     summaries = {name: Counter() for name in ("qualification_change_counts", "constraint_counts",
                  "fixed_objects_by_split", "supervised_yaw_scenes_by_split", "source_yaw_symmetry_order_counts",
-                 "holdout_samples_by_parent_split")}
+                 "source_size_axis_swap_allowed_objects", "holdout_samples_by_parent_split")}
     journal = _rows(data / "changes.jsonl") if "changes.jsonl" in manifest["output_sha256"] else None
     journal_checked = 0
     if journal is None and expected_ir_sha256 is None:
@@ -561,6 +582,8 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
                 summaries["holdout_samples_by_parent_split"][parent_split] += split != parent_split
                 for order in new["validity"].get("yaw_symmetry_order", []):
                     summaries["source_yaw_symmetry_order_counts"][old["provenance"]["source"] + ":" + str(order)] += 1
+                summaries["source_size_axis_swap_allowed_objects"][old["provenance"]["source"]] += sum(
+                    new["validity"].get("size_axis_swap_allowed", []))
                 for constraint in new["condition"].get("constraints", []):
                     summaries["constraint_counts"][constraint["type"] + ":" + split] += 1
                 for change in new["provenance"]["qualification_changes"]:

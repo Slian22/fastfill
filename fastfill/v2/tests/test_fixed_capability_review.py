@@ -21,7 +21,7 @@ def with_fixed_screen(capabilities="missing", *, require=True):
 
 
 @pytest.mark.parametrize("stage", ["target", "actual"])
-@pytest.mark.parametrize("capabilities,status", [([], "fail"), (["audio"], "fail"),
+@pytest.mark.parametrize("capabilities,status", [([], "violation"), (["audio"], "violation"),
                                                 ("missing", "unknown"), (None, "unknown"),
                                                 (["display_video"], "pass")])
 def test_fixed_capability_requirement_is_checked_in_each_geometry_stage(stage, capabilities, status):

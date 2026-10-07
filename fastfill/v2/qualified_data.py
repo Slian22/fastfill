@@ -62,14 +62,17 @@ def qualify_sample(parent, *, model_config=None, holdout_groups=()):
             "source_meta_floor_z": meta.get("floor_z"), "source_meta_n_floor_snapped": meta.get("n_floor_snapped"),
             "per_object_pre_snap_z": "unavailable_in_frozen_IR",
             "per_object_snap_membership": "unknown_do_not_infer_from_zero_z"}
-    room, height = row["condition"]["room"], row["condition"]["room"].get("height_m")
-    # 1e-6: float32-rounded source sizes (2.6500000953674316 in a 2.6 m room) must not void a real height.
-    if height is not None and any(all(masks["size"][i]) and all(masks["position"][i])
-                                  and obj["bottom_center_m"][2] + obj["target_size_local_m"][2] > height + HEIGHT_TOLERANCE_M + 1e-6
-                                  for i, obj in enumerate(parent["target"]["objects"])):
-        room["height_m"] = None
+    height = row["condition"]["room"].get("height_m")
+    # Flag only: labels and the declared height stay. 1e-6: float32-rounded source sizes
+    # (2.6500000953674316 in a 2.6 m room) are not a conflict.
+    tops = {obj["id"]: obj["bottom_center_m"][2] + obj["target_size_local_m"][2]
+            for i, obj in enumerate(parent["target"]["objects"]) if all(masks["size"][i]) and all(masks["position"][i])}
+    over = [] if height is None else [ident for ident, top in tops.items() if top > height + HEIGHT_TOLERANCE_M + 1e-6]
+    if over:
+        added["height_conflict"] = {"objects": over, "max_excess_m": max(tops[ident] for ident in over) - height}
         added["qualification_changes"] = [*added["qualification_changes"], {
-            "field": "room.height_m", "before": height, "after": None, "reason": "target_exceeds_declared_height"}]
+            "field": "provenance.height_conflict", "before": None, "after": deepcopy(added["height_conflict"]),
+            "reason": "target_exceeds_declared_height_flag_only"}]
     # Position demotion can invalidate a previously legal exchangeable group.
     # The protocol falls back to fixed identities; object count/roles stay intact.
     groups = row["validity"].get("exchangeable_group", [])
@@ -123,7 +126,7 @@ def build_dataset(parent_root, output, *, expected_hashes=None, ir_root=None, fr
     counters = {key: Counter() for key in ("split_samples", "split_objects", "source_split_samples",
                 "source_split_objects", "validity_counts", "constraint_counts", "qualification_change_counts",
                 "fixed_objects_by_split", "source_split_validity", "supervised_yaw_scenes_by_split",
-                "source_yaw_symmetry_order_counts", "holdout_samples_by_parent_split")}
+                "source_yaw_symmetry_order_counts", "source_size_axis_swap_allowed_objects", "holdout_samples_by_parent_split")}
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".qualified-build-", dir=target.parent) as temp:
         stage = Path(temp)
@@ -147,6 +150,7 @@ def build_dataset(parent_root, output, *, expected_hashes=None, ir_root=None, fr
                 counters["supervised_yaw_scenes_by_split"][split] += any(row["validity"]["yaw"])
                 for order in row["validity"].get("yaw_symmetry_order", []):
                     counters["source_yaw_symmetry_order_counts"][f"{source}:{order}"] += 1
+                counters["source_size_axis_swap_allowed_objects"][source] += sum(row["validity"]["size_axis_swap_allowed"])
                 for constraint in row["condition"].get("constraints", []):
                     counters["constraint_counts"][constraint["type"] + ":" + split] += 1
                 for change in row["provenance"]["qualification_changes"]:
@@ -169,7 +173,8 @@ def build_dataset(parent_root, output, *, expected_hashes=None, ir_root=None, fr
             "size_output_policy": _size_policy(model_config), "yaw_policy": YAW_POLICY,
             "parent_front_policy": parent_manifest.get("front_policy"), "parent_yaw_policy": parent_manifest.get("yaw_policy"),
             "condition_policy": "preserve full parent conditions; qualify Scan2CAD estimated floor, mask degenerate (<3mm axis) sizes, "
-                                "drop declared room height exceeded by a valid target, revert groups losing complete position to fixed identity",
+                                "flag (never drop) a declared room height exceeded by a valid target in provenance.height_conflict, "
+                                "revert groups losing complete position to fixed identity",
             "degenerate_axis_m": DEGENERATE_AXIS_M, "height_tolerance_m": HEIGHT_TOLERANCE_M,
             "roomgenbench_holdout_groups": sorted(holdout_groups), "holdout_reason": HOLDOUT_REASON,
             "target_geometry_modified": False, "source_data_modified": False, "parent_data_modified": False,

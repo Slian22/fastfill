@@ -216,7 +216,7 @@ class BoundedTranslationRepair:
 
     def __call__(self, condition, objects, report):
         index = {obj["id"]: obj for obj in objects}
-        failure = next((check for check in report["checks"] if check["status"] == "fail" and
+        failure = next((check for check in report["checks"] if check["status"] == "violation" and
                         check["code"] in ("boundary", "collision", "fixed_collision")), None)
         if failure is None:
             return deepcopy(objects)

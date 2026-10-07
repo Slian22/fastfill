@@ -60,7 +60,7 @@ def test_logged_validation_matches_saved_step_parameters(tmp_path, monkeypatch):
     monkeypatch.setattr(train, "build_model", build)
     monkeypatch.setattr(train, "_validation", validate)
     train.run_training(_config(), data, tmp_path / "run", validation=validation)
-    assert validation_hashes == [_hash(models[0])]
+    assert validation_hashes == [_hash(models[0])] * 2  # full condition and its minimal projection
 
 
 @pytest.mark.parametrize("which", ["train", "validation"])
@@ -143,6 +143,9 @@ def _logging_worker(rank, rendezvous, result_directory, mode):
                 objects = b["objects"][0] if rank else b["objects"][0][:1]
                 b = {**b, "objects": [objects], "slot_mask": torch.tensor([[True, bool(rank)]]),
                      "conditions": [{"objects": objects, "constraints": [], "room": {}}]}
+            if mode == "validation":  # _validation also scores collapse, which reads the room polygon
+                b = {**b, "conditions": [{**c, "room": {"floor_polygon_xy_m": [[0, 0], [1, 0], [1, 1], [0, 1]]}}
+                                         for c in b["conditions"]]}
             p = prediction(b)
             p = {**p, "position_normalized": b["targets"]["position_normalized"].clone().requires_grad_()}
             criterion = GeometryCriterion(LossConfig(hungarian=False,

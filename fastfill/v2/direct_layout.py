@@ -1,7 +1,9 @@
 """Room type + room dimensions + furniture inventory -> a bbox handoff.
 
-This boundary never resolves assets, infers support, or commits a world. The
-geometric outputs remain predictions even when their proxy diagnostics fail.
+This boundary never resolves assets, certifies support, or commits a world. The
+geometric outputs remain predictions even when their proxy diagnostics fail;
+hand-off placement is either the request's declaration or an inferred geometric
+candidate (``infer_support``), never a verified contact.
 """
 from __future__ import annotations
 
@@ -12,6 +14,7 @@ import json
 import math
 from pathlib import Path
 
+from .batch import render_minimal_condition
 from .geometry import wrap_yaw
 from .io import safe_output
 from .schema import _id, _keys, validate_condition, validate_layout, vector
@@ -20,6 +23,7 @@ from .schema import _id, _keys, validate_condition, validate_layout, vector
 WALL_THICKNESS_M = .1
 DEFAULT_WALL_HEIGHT_M = 2.7
 FLOOR_CONTACT_M = .02
+ON_OBJECT_CONTACT_M = .03
 
 
 def asset_key(category, description):
@@ -77,12 +81,15 @@ def request_to_condition(request, *, max_objects=128, room_size_semantics="recta
     w, d = dimensions[:2]
     known_rectangle = room_size_semantics == "rectangular"
     room = {"frame": "right_handed_z_up", "room_type": room_type,
-            "floor_polygon_xy_m": [[0., 0.], [w, 0.], [w, d], [0., d]],
-            "floor_z_m": 0., "floor_known": known_rectangle, "boundary_known": known_rectangle,
-            "boundary_quality": "explicit_rectangular_request" if known_rectangle else "source_reference_extent",
+            "floor_polygon_xy_m": [[0., 0.], [w, 0.], [w, d], [0., d]], "floor_z_m": 0., "floor_known": known_rectangle,
             "height_m": dimensions[2] if len(dimensions) == 3 else None}
-    condition = {"schema_version": "fastfill.v2", "room": room,
-                 "objects": _request_objects(request["furniture_list"], max_objects), "constraints": []}
+    # The rendered text is the shared three-field projection (batch.render_minimal_condition), byte for
+    # byte what a rectangular training row becomes under minimal_form_p; on top come only the unrendered
+    # quality tag and the reference_extent profile's unknown boundary.
+    condition = render_minimal_condition({"schema_version": "fastfill.v2", "room": room,
+                 "objects": _request_objects(request["furniture_list"], max_objects), "constraints": []})
+    condition["room"].update(boundary_known=known_rectangle,
+            boundary_quality="explicit_rectangular_request" if known_rectangle else "source_reference_extent")
     validate_condition(condition)
     return condition
 
@@ -152,6 +159,43 @@ def _shell(room):
     return {"walls": walls, **openings}
 
 
+def _footprint_contains(box, xy):
+    """Is the XY point inside the box's rotated footprint (closed test)?"""
+    c, s = math.cos(box["yaw_rad"]), math.sin(box["yaw_rad"])
+    dx, dy = xy[0] - box["bottom_center_m"][0], xy[1] - box["bottom_center_m"][1]
+    w, d, _ = box["target_size_local_m"]
+    return abs(c * dx + s * dy) <= w / 2 and abs(-s * dx + c * dy) <= d / 2
+
+
+def infer_support(obj, declared, boxes, floor):
+    """K6 hand-off placement: (support_parent, status), status in {declared, inferred, unknown}.
+
+    A declared parent (request support_parent or hard on) is reported as is.
+    Otherwise a bottom within FLOOR_CONTACT_M of the floor height is a floor
+    candidate; else the highest other predicted box that starts strictly below
+    this object, whose top is within ON_OBJECT_CONTACT_M of this bottom and
+    whose footprint contains this footprint centre, is an on_object candidate
+    (strictly lower parents keep inferred chains acyclic); anything else is
+    unknown. Wall support is never inferred.
+    """
+    if declared is not None:
+        return declared, "declared"
+    z = obj["bottom_center_m"][2]
+    if floor is not None and abs(z - floor) <= FLOOR_CONTACT_M:
+        return "floor", "inferred"
+    top = lambda box: box["bottom_center_m"][2] + box["target_size_local_m"][2]
+    below = [box for box in boxes if box["bottom_center_m"][2] < z and abs(z - top(box)) <= ON_OBJECT_CONTACT_M
+             and _footprint_contains(box, obj["bottom_center_m"][:2])]
+    return (max(below, key=top)["id"], "inferred") if below else (None, "unknown")
+
+
+def place_of(parent):
+    """RoomGenBench `place` vocabulary for a support parent (declared or inferred)."""
+    if parent is None:
+        return "unknown"
+    return parent if parent in {"floor", "wall"} else "on_object"
+
+
 def layout_to_roomgenbench(condition, layout):
     """SceneSpec adapter: SAGE local +Y axis, full sizes, degree yaw.
 
@@ -159,11 +203,13 @@ def layout_to_roomgenbench(condition, layout):
     world corners and maps FastFill's canonical +X axis to SAGE's +Y axis.
     Geometric bbox-axis yaw does not certify an asset's semantic front. No
     asset IDs or verified support surfaces are fabricated. Explicit request
-    support and hard on constraints are preserved; without a declaration a
-    bottom within FLOOR_CONTACT_M of a known floor is placed on the floor and
-    marked inferred, anything else stays unknown. asset_key follows the
-    benchmark convention (shared by identical type+description; per-instance
-    dimensions stay on the scene object). The room shell is built by _shell.
+    support and hard on constraints are preserved (`support_status` declared);
+    otherwise `infer_support` proposes floor / on_object candidates from the
+    predicted boxes (inferred; floor only when `floor_known` is not false) or
+    leaves the object unknown. `place` is the
+    RoomGenBench vocabulary of `place_id`. asset_key follows the benchmark
+    convention (shared by identical type+description; per-instance dimensions
+    stay on the scene object). The room shell is built by _shell.
     """
     scene = layout_to_scene(condition, layout)
     from .validation import effective_support_requests
@@ -174,12 +220,11 @@ def layout_to_roomgenbench(condition, layout):
     high = [max(p[q] for p in points) for q in (0, 1)]
     dimensions = {"width": high[0] - low[0], "length": high[1] - low[1], "height": room.get("height_m")}
     floor = room.get("floor_z_m")
+    # A declared-unknown floor (reference_extent: floor_z_m 0, floor_known false) is no floor-contact evidence.
+    contact_floor = None if room.get("floor_known") is False else floor
     objects = []
     for obj in scene["objects"]:
-        parent, status = requests[obj["id"]].get("support_parent"), "declared"
-        if parent is None:
-            on_floor = floor is not None and abs(obj["bottom_center_m"][2] - floor) <= FLOOR_CONTACT_M
-            parent, status = ("floor", "inferred_floor_contact") if on_floor else (None, "unknown")
+        parent, status = infer_support(obj, requests[obj["id"]].get("support_parent"), scene["objects"], contact_floor)
         objects = objects + [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
                 "asset_key": asset_key(obj["category"], obj["description"]),
                 "asset_key_kind": "downstream_generation_key_only",
@@ -188,7 +233,8 @@ def layout_to_roomgenbench(condition, layout):
                 "dimensions": {"width": obj["target_size_local_m"][1],
                                "length": obj["target_size_local_m"][0],
                                "height": obj["target_size_local_m"][2]},
-                "place_id": parent, "support_surface_id": requests[obj["id"]].get("support_surface_id"),
+                "place_id": parent, "place": place_of(parent),
+                "support_surface_id": requests[obj["id"]].get("support_surface_id"),
                 "support_status": status}]
     scene_key = "fastfill_" + hashlib.sha256(json.dumps(scene, sort_keys=True, separators=(",", ":"),
                                                       ensure_ascii=False).encode()).hexdigest()[:16]
@@ -204,12 +250,6 @@ def layout_to_roomgenbench(condition, layout):
                 "room": {**downstream["room"], "boundary_known": room["boundary_known"],
                          "floor_known": room["floor_known"], "boundary_quality": room["boundary_quality"]}}
     return downstream
-
-
-def _placement(parent):
-    if parent is None:
-        return "unknown"
-    return parent if parent in {"floor", "wall"} else "on_object"
 
 
 def bbox_diagnostics(scene, *, tolerance_m=1e-3):
@@ -270,7 +310,7 @@ def export_handoff(directory, condition, layout):
         # Benchmark convention: the first instance's dimensions and place are the generation input.
         entry = registry.get(obj["asset_key"]) or {"asset_key": obj["asset_key"], "type": obj["type"],
                     "description": obj["description"], "dimensions": deepcopy(obj["dimensions"]),
-                    "place": _placement(obj["place_id"]), "support_status": obj["support_status"],
+                    "place": obj["place"], "support_status": obj["support_status"],
                     "placement_eligible": obj["place_id"] is not None, "scenes": [downstream["scene_key"]],
                     "n_instances": 0, "asset_key_kind": "downstream_generation_key_only"}
         registry = {**registry, obj["asset_key"]: {**entry, "n_instances": entry["n_instances"] + 1}}

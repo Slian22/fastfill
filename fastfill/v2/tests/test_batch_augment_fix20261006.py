@@ -16,7 +16,7 @@ from fastfill.v2.validation import _geometry, footprint
 
 REAL_ROWS = Path("/Volumes/harddisk/FastFill_v2_multisource_20261006/eligible-local/validation.jsonl")
 NO_AUGMENT = {"rotate90": False, "mirror": False, "shuffle_objects": False,
-              "drop_constraints_p": 0., "drop_support_p": 0., "category_only_description_p": 0.}
+              "drop_constraints_p": 0., "drop_support_p": 0., "category_only_description_p": 0., "minimal_form_p": 0.}
 L_SHAPE = [[0, 0], [6, 0], [6, 3], [3, 3], [3, 5], [0, 5]]
 
 
@@ -46,6 +46,7 @@ def sample():
                                 "yaw_rad": targets[o["id"]][1]} for o in objects]},
         "validity": {"position": [[True] * 3 for _ in objects], "size": [[True] * 3 for _ in objects],
                      "yaw": [True for _ in objects], "yaw_symmetry_order": [2, 2, 2, 1, 2],
+                     "size_axis_swap_allowed": [False] * len(objects),
                      "exchangeable_group": ["anonymous_0", "anonymous_0", None, None, None]},
         "provenance": {"source": "offline_test", "house_id": "h", "split": "train", "legacy_flags": {}}}
 

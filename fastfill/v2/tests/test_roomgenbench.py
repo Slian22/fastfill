@@ -78,11 +78,12 @@ def test_handoff_preserves_all_canonical_condition_and_declared_support(tmp_path
 def test_hard_on_constraint_maps_support_but_soft_on_does_not():
     condition, layout = fixture()
     objects = [{key: value for key, value in o.items() if key != "support_parent"} for o in condition["objects"]]
-    for hard, expected in [(True, "fixed_shelf"), (False, None)]:
+    # A soft on is no declaration: the cup falls back to the geometric candidate (it rests on the desk top).
+    for hard, expected in [(True, ("fixed_shelf", "declared")), (False, ("desk", "inferred"))]:
         source = {**condition, "objects": objects, "constraints": [
             {"type": "on", "object_id": "cup", "target_id": "fixed_shelf", "hard": hard}]}
         downstream = layout_to_roomgenbench(source, layout)
-        assert downstream["objects"][1]["place_id"] == expected
+        assert (downstream["objects"][1]["place_id"], downstream["objects"][1]["support_status"]) == expected
 
 
 def test_registry_shares_asset_key_by_type_and_description_and_keeps_first_instance(tmp_path):
@@ -180,13 +181,17 @@ def test_unknown_placement_is_explicit_and_required_policy_rejects_before_output
     condition, layout = fixture()
     condition["objects"] = [{key: value for key, value in o.items() if key != "support_parent"} for o in condition["objects"]]
     handoff = export_handoff(tmp_path / "handoff", condition, layout)
-    registry = [json.loads(line) for line in (handoff / "assets.jsonl").read_text().splitlines()]
-    assert all(o["place"] == "unknown" and not o["placement_eligible"] for o in registry)
+    registry = {o["type"]: o for o in map(json.loads, (handoff / "assets.jsonl").read_text().splitlines())}
+    # The desk floats 0.3 m above the floor: unknown. The cup rests on the desk top: an inferred candidate.
+    assert registry["desk"]["place"] == "unknown" and not registry["desk"]["placement_eligible"]
+    assert (registry["cup"]["place"], registry["cup"]["support_status"]) == ("on_object", "inferred")
     with pytest.raises(ValueError, match="placement"):
         assemble_handoff(handoff, tmp_path / "invalid", require_placement=True, roomgenbench_root=REFERENCE)
     assert not (tmp_path / "invalid").exists()
     receipt = assemble_handoff(handoff, tmp_path / "display", roomgenbench_root=REFERENCE)
-    assert all(o["place"] == "unknown" and o["support_parent"] is None for o in receipt["objects"])
+    by_id = {o["id"]: o for o in receipt["objects"]}
+    assert by_id["desk"]["place"] == "unknown" and by_id["desk"]["support_parent"] is None and by_id["desk"]["support_status"] == "unknown"
+    assert by_id["cup"]["place"] == "on_object" and by_id["cup"]["support_parent"] == "desk" and by_id["cup"]["support_status"] == "inferred"
 
 
 @pytest.mark.parametrize("method,assets", [("../bad", None), ("sage_gt", None), ("test_mesh", None)])

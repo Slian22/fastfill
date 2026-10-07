@@ -183,7 +183,7 @@ def test_minimal_request_floor_standing_objects_export_place_floor_for_threshold
     handoff = export_handoff(tmp_path / "handoff", condition, layout)
     registry = [json.loads(line) for line in (handoff / "assets.jsonl").read_text().splitlines()]
     assert [threshold[row["place"]] for row in registry] == [31, 31, 31]
-    assert {row["support_status"] for row in registry} == {"inferred_floor_contact"}
+    assert {row["support_status"] for row in registry} == {"inferred"}
     scene = json.loads((handoff / "roomgenbench_scene.json").read_text())
     assert all(o["place_id"] == "floor" for o in scene["objects"])
     assert [o["asset_key"] for o in scene["objects"]][1:3] == [asset_key("chair", "chair")] * 2
@@ -197,6 +197,6 @@ def test_floor_contact_needs_a_known_floor_and_declared_support_wins():
     layout["objects"][2]["bottom_center_m"][2] = .021
     objects = layout_to_roomgenbench(condition, layout)["objects"]
     assert [o["place_id"] for o in objects] == ["floor", "obj_0000", None, "floor"]
-    assert [o["support_status"] for o in objects] == ["inferred_floor_contact", "declared", "unknown", "inferred_floor_contact"]
+    assert [o["support_status"] for o in objects] == ["inferred", "declared", "unknown", "inferred"]
     condition["room"].update({"floor_z_m": None, "floor_known": False})
     assert [o["place_id"] for o in layout_to_roomgenbench(condition, layout)["objects"]] == [None, "obj_0000", None, None]

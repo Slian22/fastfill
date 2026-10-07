@@ -60,22 +60,28 @@ OBJECT_FIELDS = {"id", "category", "description", "support_parent", "support_sur
 
 
 def migrate_legacy_row(row):
-    """Move pre-C1 ``condition.objects[i].exchangeable_group`` into ``validity.exchangeable_group``.
+    """Move pre-C1 ``condition.objects[i].exchangeable_group`` into ``validity.exchangeable_group``
+    and give pre-K1 rows an all-false ``validity.size_axis_swap_allowed``.
 
     The returned row never renders groups into the condition. Labels follow
     target order (like validity.position); rows without targets keep request order.
     """
     objects = row.get("condition", {}).get("objects", [])
-    if not isinstance(objects, list) or not any(isinstance(o, Mapping) and "exchangeable_group" in o for o in objects):
+    if not isinstance(objects, list):
         return row
-    validity = row.get("validity", {})
-    if "exchangeable_group" in validity:
-        raise ValueError("exchangeable_group declared in both condition objects and validity")
-    groups = {o.get("id"): o.get("exchangeable_group") for o in objects}
     order = row.get("target", {}).get("objects") or objects
-    condition = {**row["condition"], "objects": [{k: v for k, v in o.items() if k != "exchangeable_group"} for o in objects]}
-    return {**row, "condition": condition,
-            "validity": {**validity, "exchangeable_group": [groups.get(o.get("id")) for o in order]}}
+    if any(isinstance(o, Mapping) and "exchangeable_group" in o for o in objects):
+        validity = row.get("validity", {})
+        if "exchangeable_group" in validity:
+            raise ValueError("exchangeable_group declared in both condition objects and validity")
+        groups = {o.get("id"): o.get("exchangeable_group") for o in objects}
+        condition = {**row["condition"], "objects": [{k: v for k, v in o.items() if k != "exchangeable_group"} for o in objects]}
+        row = {**row, "condition": condition,
+               "validity": {**validity, "exchangeable_group": [groups.get(o.get("id")) for o in order]}}
+    validity = row.get("validity")
+    if isinstance(validity, Mapping) and "size_axis_swap_allowed" not in validity:
+        row = {**row, "validity": {**validity, "size_axis_swap_allowed": [False] * len(order)}}
+    return row
 
 
 def _metadata(value, label, depth=0):

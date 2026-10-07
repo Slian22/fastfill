@@ -8,6 +8,10 @@ Exchangeable-group bookkeeping lives in ``validity.exchangeable_group`` (target
 order) and is exposed per request slot as ``batch["exchangeable_group"]``; it is
 never rendered into the condition text. Training-only augmentation is applied by
 ``collate_samples(..., augment=...)``; the default path never augments.
+
+``render_minimal_condition`` is the single three-field projection (room type /
+bounding rectangle / inventory) shared by the direct request adapter, the
+``minimal_form_p`` augmentation and minimal-projection evaluation.
 """
 
 from __future__ import annotations
@@ -99,6 +103,59 @@ def condition_segments(condition: dict[str, Any]) -> list[tuple[str, int | None]
     return segments + [("}\nAssistant:\n", None)]
 
 
+RECTANGLE_TOLERANCE_M = .01
+
+
+def _bounds(points: list) -> tuple[list[float], list[float]]:
+    return [min(float(p[q]) for p in points) for q in range(2)], [max(float(p[q]) for p in points) for q in range(2)]
+
+
+def is_axis_aligned_rectangle(points: list, tolerance_m: float = RECTANGLE_TOLERANCE_M) -> bool:
+    """Four vertices, one within ``tolerance_m`` of each corner of their bounding box.
+
+    A 1e-9 m float margin keeps a deviation of exactly ``tolerance_m`` stable under
+    the snapped rigid motions of ``augment_sample`` (2.7 - 2.69 rounds either side of 0.01).
+    """
+    if len(points) != 4:
+        return False
+    low, high = _bounds(points)
+    corners = {(p[0] > (low[0] + high[0]) / 2, p[1] > (low[1] + high[1]) / 2) for p in points}
+    return len(corners) == 4 and all(min(abs(p[q] - low[q]), abs(p[q] - high[q])) <= tolerance_m + 1e-9
+                                     for p in points for q in range(2))
+
+
+def minimal_form_eligible(room: dict[str, Any]) -> bool:
+    """Rooms whose three-field projection is truthful: an axis-aligned rectangle not declared boundary-unknown.
+
+    ``render_minimal_condition`` writes ``boundary_known: true``, so hull rectangles
+    and reference-extent rooms (``boundary_known: false``) keep their own text.
+    A missing flag counts as known, as in ``validation.validate_scene``.
+    """
+    return room.get("boundary_known") is not False and is_axis_aligned_rectangle(room["floor_polygon_xy_m"])
+
+
+def render_minimal_condition(condition: dict[str, Any]) -> dict[str, Any]:
+    """Three-field projection: room type, bounding rectangle, inventory; nothing else.
+
+    Keeps ``schema_version``; ``room`` becomes exactly frame, the 4-point
+    axis-aligned bounding rectangle, floor_z_m, floor_known, boundary_known=true,
+    height_m and room_type (the last two as given, null when absent); constraints
+    are empty and each object keeps only id/category/description (no
+    support_parent). Numbers are floats, so the rendered text equals
+    ``direct_layout.request_to_condition`` byte for byte for the same room type,
+    size and inventory; fixed objects, openings and boundary_quality are gone.
+    """
+    room = condition["room"]
+    (x0, y0), (x1, y1) = _bounds(room["floor_polygon_xy_m"])
+    number = lambda value: None if value is None else float(value)
+    floor = number(room.get("floor_z_m"))
+    minimal = {"frame": room["frame"], "floor_polygon_xy_m": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+               "floor_z_m": floor, "floor_known": room.get("floor_known", floor is not None), "boundary_known": True,
+               "height_m": number(room.get("height_m")), "room_type": room.get("room_type")}
+    return {"schema_version": condition["schema_version"], "room": minimal, "constraints": [],
+            "objects": [{key: obj[key] for key in ("id", "category", "description")} for obj in condition["objects"]]}
+
+
 def tokenize_condition(condition: dict[str, Any], tokenizer: Any) -> tuple[list[int], list[tuple[int, int]]]:
     tokens: list[int] = []
     spans: list[tuple[int, int]] = []
@@ -158,7 +215,7 @@ def _geometry_rows(sample: dict, origin: list, scale: list) -> dict:
     objects = effective_support_requests(sample["condition"])
     validity = sample.get("validity", {})
     rows = {key: [] for key in ("position", "size", "yaw", "position_valid", "size_valid", "yaw_valid",
-                                "fixed_position", "fixed_position_mask", "fixed_size", "fixed_size_mask", "symmetry", "group")}
+                                "fixed_position", "fixed_position_mask", "fixed_size", "fixed_size_mask", "symmetry", "swap", "group")}
     room = sample["condition"].get("room", {})
     source_targets = sample.get("target", {}).get("objects", [])
     target_indices = {obj["id"]: index for index, obj in enumerate(source_targets)}
@@ -209,6 +266,12 @@ def _geometry_rows(sample: dict, origin: list, scale: list) -> dict:
         if not isinstance(symmetry, int) or isinstance(symmetry, bool) or symmetry < 1:
             raise ValueError("yaw symmetry order must be a positive integer")
         rows["symmetry"].append(symmetry)
+        # K1 box-symmetry tier; rows built before the field default to the plain convention.
+        swaps = validity.get("size_axis_swap_allowed", [])
+        swap = swaps[label_index] if label_index is not None and label_index < len(swaps) else False
+        if not isinstance(swap, bool):
+            raise ValueError("size_axis_swap_allowed entries must be booleans")
+        rows["swap"].append(swap)
         groups = validity.get("exchangeable_group", [])
         group = groups[label_index] if label_index is not None and label_index < len(groups) else None
         if group is not None and (not isinstance(group, str) or not group):
@@ -218,7 +281,8 @@ def _geometry_rows(sample: dict, origin: list, scale: list) -> dict:
 
 
 AUGMENT_DEFAULTS = {"rotate90": True, "mirror": False, "shuffle_objects": True,
-                    "drop_constraints_p": .3, "drop_support_p": .2, "category_only_description_p": .5}
+                    "drop_constraints_p": .3, "drop_support_p": .2, "category_only_description_p": .5,
+                    "minimal_form_p": .5}
 
 
 def _augment_options(augment: dict) -> dict:
@@ -322,7 +386,13 @@ def _regroup(condition: dict, target: dict, validity: dict) -> None:
 
 
 def augment_sample(sample: dict, augment: dict, generator: torch.Generator | None = None) -> dict:
-    """Training-only augmentation; deterministic given ``generator``. Returns a new sample."""
+    """Training-only augmentation; deterministic given ``generator``. Returns a new sample.
+
+    ``minimal_form_p`` replaces the condition by ``render_minimal_condition`` when
+    ``minimal_form_eligible`` (a boundary-known axis-aligned rectangle): fixed objects, constraints and
+    support declarations leave the text, so floor-declared z is learned for that
+    sample, and exchangeable groups are recomputed like after a drop.
+    """
     options = _augment_options(augment)
     draw = lambda: float(torch.rand(1, generator=generator))
     sample = migrate_legacy_row(sample)
@@ -342,7 +412,10 @@ def augment_sample(sample: dict, augment: dict, generator: torch.Generator | Non
             obj.pop("support_parent", None)
         if drops[2]:
             obj["description"] = obj["category"]
-    if any(drops):
+    minimal = draw() < options["minimal_form_p"] and minimal_form_eligible(condition["room"])
+    if minimal:
+        condition = render_minimal_condition(condition)
+    if any(drops) or minimal:
         _regroup(condition, target, validity)
     return {**sample, "condition": condition, "target": target, "validity": validity}
 
@@ -386,7 +459,8 @@ def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 40
         tensors[key] = torch.zeros((b, n, 3))
     for key in ("position_valid", "size_valid", "fixed_position_mask", "fixed_size_mask"):
         tensors[key] = torch.zeros((b, n, 3), dtype=torch.bool)
-    tensors["yaw_valid"] = torch.zeros((b, n), dtype=torch.bool)
+    for key in ("yaw_valid", "swap"):
+        tensors[key] = torch.zeros((b, n), dtype=torch.bool)
     for row, (tokens, object_span, geom) in enumerate(zip(encoded, spans, geometry)):
         count = len(object_span)
         ids[row, :len(tokens)] = torch.tensor(tokens)
@@ -403,7 +477,7 @@ def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 40
         "validity": {"position": tensors["position_valid"], "size": tensors["size_valid"], "yaw": tensors["yaw_valid"]},
         "fixed_position_normalized": tensors["fixed_position"], "fixed_position_mask": tensors["fixed_position_mask"],
         "fixed_size": tensors["fixed_size"], "fixed_size_mask": tensors["fixed_size_mask"],
-        "yaw_symmetry_order": tensors["symmetry"], "exchangeable_group": groups,
+        "yaw_symmetry_order": tensors["symmetry"], "size_axis_swap_allowed": tensors["swap"], "exchangeable_group": groups,
         "objects": [s["condition"]["objects"] for s in samples], "conditions": [s["condition"] for s in samples],
         "provenance": [s.get("provenance", {}) for s in samples],
     }

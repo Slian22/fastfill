@@ -25,6 +25,7 @@ import torch
 from .batch import TinyTokenizer, _geometry_rows, room_normalization, tokenize_condition
 from .direct_layout import request_to_condition
 from .io import HOLDOUT_REASON, ROOMGENBENCH_HOLDOUT_GROUPS, fingerprint, safe_output  # noqa: F401 (re-exported)
+from .legacy_bridge import FLOOR_SNAP_M
 from .minimal_data import SPATIALLM_IR_SHA256
 from .schema import migrate_legacy_row, validate_condition
 
@@ -180,13 +181,20 @@ def _source_geometry(sample, raw):
     targets, ids, fields = sample["target"]["objects"], p.get("target_source_ids", []), p.get("field_evidence", [])
     if len(ids) != len(targets) or len(set(ids)) != len(ids) or len(fields) != len(targets):
         raise ValueError("source_identity_missing_or_duplicate")
-    joined = []
+    joined, requests = [], {obj["id"]: obj for obj in sample["condition"]["objects"]}
     for target, ident, evidence in zip(targets, ids, fields):
         obj = raw_objects.get(ident)
         if obj is None:
             raise ValueError("source_identity_missing_object")
         pos = _normalized_vector(obj.get("pos"))
         expected_pos = [*pos[:2], pos[2] + dz if pos[2] is not None else None]
+        if evidence.get("legacy_z_snap_applied_to_target") is True:
+            # legacy_bridge K3: a declared source floor anchor within FLOOR_SNAP_M of the known floor is snapped.
+            floor = room.get("floor_z_m")
+            if (requests[target["id"]].get("support_parent") != "floor" or not _finite(floor)
+                    or not _finite(expected_pos[2]) or abs(expected_pos[2] - floor) > FLOOR_SNAP_M):
+                raise ValueError("source_floor_snap_mismatch")
+            expected_pos[2] = floor
         yaw = obj.get("yaw")
         expected_yaw = (yaw + math.pi) % (2 * math.pi) - math.pi if _finite(yaw) else None
         if (expected_pos != target.get("bottom_center_m") or obj.get("size") != target.get("target_size_local_m")
@@ -233,7 +241,8 @@ def _parent_validity(sample):
         if yaw is not None and not _finite(yaw) or mask and not _finite(yaw):
             raise ValueError("valid yaw target must be finite")
     for key, ok in (("yaw_symmetry_order", lambda v: type(v) is int and v >= 1),
-                    ("exchangeable_group", lambda v: v is None or isinstance(v, str) and v)):
+                    ("exchangeable_group", lambda v: v is None or isinstance(v, str) and v),
+                    ("size_axis_swap_allowed", lambda v: type(v) is bool)):
         if key in result and (len(result[key]) != len(targets) or not all(ok(v) for v in result[key])):
             raise ValueError(f"invalid parent {key} row")
     return result
@@ -276,7 +285,8 @@ def _masks(sample, joined, policy):
             changes.append({**base, "field": "yaw", "before": False, "after": True,
                             "reason": "pinned_SpatialLM_full_local_extents_and_geometric_yaw"})
             masks["yaw"][i] = True
-    return {**masks, "yaw_symmetry_order": [2] * len(joined)}, changes, geometric
+    # Bbox-axis yaw is mod pi; the box-symmetry tier (size_axis_swap_allowed) stays order 4.
+    return {**masks, "yaw_symmetry_order": [4 if swap else 2 for swap in masks["size_axis_swap_allowed"]]}, changes, geometric
 
 
 def _floor_evidence(sample):

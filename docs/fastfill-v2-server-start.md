@@ -2,6 +2,31 @@
 
 **当前服务器主入口是 `/home/jovyan/shanliantian/FastFill_v2_multisource_20261006`。** 完整条件主集为 124,589 / 8,137 / 8,615 场景；真实 Qwen tokenizer／对象预算资格为 124,375 / 8,125 / 8,602。环境、Qwen 权重、七卡 NCCL 和有界生产 pilot 已验收，完整三轮训练尚未启动。实际配置与命令见 [多源完成记录](fastfill-v2-multisource-20261006.md)。最终下游是 RoomGenBench；本训练入口不依赖 vLLM 或 MinkowskiEngine。当前实现提交 `435d4e6532bdbc24d130df5edc11c5aa002a0460` 的权威代码目录为该主入口下的 `project-current-audit-20261006`，旧 `project/` 保留为 pilot 快照。
 
+## 2026-10-07 第二轮正式运行：4 卡回归 ＋ 3 卡 grid
+
+第二轮代码（K1–K10，基于 7ea1a0d 的未提交改动）和按其重建的 main 数据都还没有同步到服务器；下面两项是启动前提，本轮均未执行。数据重建命令见 [v2 README 的 round 2 一节](../fastfill/v2/README.md#2026-10-07-round-2)。两组运行同时占用用户允许的 GPU 1–7，GPU0 保留：
+
+```bash
+cd <服务器上的第二轮代码目录>
+export PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=1
+PY=/home/jovyan/shanliantian/FastFill_v2_20261006_server/env/bin/python
+MAIN=<服务器上重建后的 main 目录>
+D=$(sha256sum $MAIN/train.jsonl | cut -d' ' -f1); V=$(sha256sum $MAIN/validation.jsonl | cut -d' ' -f1)
+CUDA_VISIBLE_DEVICES=1,2,3,4 $PY -m torch.distributed.run --standalone --nproc_per_node=4 --module fastfill.v2.train \
+  --config fastfill/v2/configs/qwen3_8b_main_4gpu_regression.json \
+  --data $MAIN/train.jsonl --validation $MAIN/validation.jsonl \
+  --expect-data-sha256 $D --expect-validation-sha256 $V --output ../run-main-4gpu-regression
+CUDA_VISIBLE_DEVICES=5,6,7 $PY -m torch.distributed.run --standalone --nproc_per_node=3 --module fastfill.v2.train \
+  --config fastfill/v2/configs/qwen3_8b_main_3gpu_grid.json \
+  --data $MAIN/train.jsonl --validation $MAIN/validation.jsonl \
+  --expect-data-sha256 $D --expect-validation-sha256 $V --output ../run-main-3gpu-grid
+```
+
+- 两份配置的全局 batch 都是 96（4×1×24、3×1×32），3,887 次更新 = 124,375 个场景上的 3 轮，warmup 117，每 500 步验证并保存 `state-step-<n>/` 和 `model-step-<n>/`。`--nproc_per_node` 与配置不符会改变全局 batch。
+- 启动后立即检查各自输出目录的 `run_manifest_start.json`：`world_size` 为 4／3，`backbone.revision` 为 Qwen3-8B 的 snapshot revision（本地目录则只有 `config_sha256`），`supervised_samples` 是训练器按 8192 token 预检后实际入训的场景数。不是 124,375 时停止，按 `steps=⌈3N/96⌉`、`warmup=round(0.03·steps)` 另写配置再启动。
+- `--expect-*-sha256` 不匹配时，在创建输出目录之前报错退出。中断后用 `--resume ../run-…/state-step-<n>` 继续，输出必须是新目录，配置和数据必须一致。
+- 选模：结束后读 `run_manifest.json` 的 `selection_metric.best.step`（minimal 投影 collapse score，越低越好；它没有精度项，先对照 `selection_metric.ground_truth` 和该步 `validation.minimal.unweighted.position`，最后一步 3887 也有验证和 `model-step-3887`），评测该 `model-step-<n>`：`$PY -m fastfill.v2.evaluate --checkpoint ../run-…/model-step-<n> --data $MAIN/test.jsonl --projection full minimal --device cuda --output <新目录>`。不传 `--max-length` 时自动使用 checkpoint 记录的 8192。
+
 本页其余内容保留历史 review3 与 SpatialLM XY pilot 的准备和运行记录。它们的旧目录、数量和 checkpoint 均有各自版本，不能作为当前主任务的全量训练结果。服务器整理后的实际路径以最新发布／清理收据为准。
 
 日期：2026-10-06。用户已指定正式骨干为 **Qwen/Qwen3-8B**，服务器通过 SSH alias `yxd-dev` 访问，工作目录为 `/home/jovyan/shanliantian/FastFill_v2_20261006_server`。此前 Qwen2.5-0.5B 只是未执行的可选链路模板，不是本次正式模型。

@@ -11,6 +11,7 @@ from collections import Counter
 from copy import deepcopy
 import importlib.util
 import json
+import sys
 from pathlib import Path
 import re
 
@@ -33,7 +34,11 @@ def _reference(root):
         raise FileNotFoundError(f"RoomGenBench assembler not found: {source}")
     spec = importlib.util.spec_from_file_location("_fastfill_roomgenbench_geometry", source)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    previous, sys.dont_write_bytecode = sys.dont_write_bytecode, True  # never write into the downstream checkout
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.dont_write_bytecode = previous
     return module, {"source": str(source), "sha256": fingerprint(source)}
 
 
@@ -46,10 +51,6 @@ def _handoff(path, require_placement):
     if require_placement and any(o["place_id"] is None for o in scene["objects"]):
         raise ValueError("this downstream policy requires explicit placement for every requested object")
     return condition, scene
-
-
-def _place(parent):
-    return "unknown" if parent is None else parent if parent in {"floor", "wall"} else "on_object"
 
 
 def _extents(parts):
@@ -124,7 +125,7 @@ def _objects(module, scene, method, assets_dir, output):
             output.add_geometry(part, node_name=name, geom_name=name,
                                 transform=module.SAGE_WORLD_TO_GLTF @ module.place_matrix(obj))
         logs = logs + [{"id": obj["id"], "asset_key": obj["asset_key"], "type": obj["type"],
-                       "place": _place(obj["place_id"]), "support_parent": obj["place_id"],
+                       "place": obj["place"], "support_parent": obj["place_id"],
                        "support_status": obj["support_status"], "geometry_kind": kind,
                        "node": node, **fit_log}]
     return logs

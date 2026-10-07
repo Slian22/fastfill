@@ -39,7 +39,7 @@ def test_floor_lower_bound_applies_to_new_objects_without_rejecting_existing_str
     report = validate_scene(request, [child], stage=stage)
     assert not report["ok"]
     failed = {tuple(check["object_ids"]) for check in report["checks"]
-              if check["code"] == "floor_lower_bound" and check["status"] == "fail"}
+              if check["code"] == "floor_lower_bound" and check["status"] == "violation"}
     assert failed == {("lamp",)}
     assert (request, child) == before
 

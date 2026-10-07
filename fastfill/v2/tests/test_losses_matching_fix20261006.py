@@ -106,8 +106,10 @@ def test_term_sums_and_counts_cover_every_term():
     p = prediction(b)
     result = GeometryCriterion(LossConfig(box=1., collision=1., boundary=1.))(p, b)
     keys = {"position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary"}
-    assert set(result["term_sums"]) == keys and set(result["term_counts"]) == keys
-    assert result["term_counts"] == {"position": 2, "size": 2, "yaw_cls": 2, "yaw_reg": 2, "box": 2, "collision": 1, "boundary": 2}
+    grid_terms = {"position_cell", "position_residual", "position_z"}  # regression head: present, zero count
+    assert set(result["term_sums"]) == keys | grid_terms and set(result["term_counts"]) == keys | grid_terms
+    assert result["term_counts"] == {"position": 2, "size": 2, "yaw_cls": 2, "yaw_reg": 2, "box": 2, "collision": 1, "boundary": 2,
+                                     "position_cell": 0, "position_residual": 0, "position_z": 0}
     for key in keys:
         total = result["term_sums"][key]
         assert not total.requires_grad and total.dtype == torch.float32

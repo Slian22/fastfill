@@ -72,7 +72,7 @@ class ValidationTests(unittest.TestCase):
     def test_actual_capability_requirements_are_rechecked(self):
         req = condition([{"id": "desk", "category": "desk", "support_parent": "floor", "required_capabilities": ["work_surface"]}])
         obj = {**layout()["objects"][0], "actual_size_local_m": [1, 1, .75]}
-        for capabilities, status in ((None, "unknown"), ([], "fail"), (["work_surface"], "pass")):
+        for capabilities, status in ((None, "unknown"), ([], "violation"), (["work_surface"], "pass")):
             with self.subTest(capabilities=capabilities):
                 report = validate_scene(req, [{**obj, "capabilities": capabilities}], stage="actual")
                 check = next(check for check in report["checks"] if check["code"] == "capabilities")

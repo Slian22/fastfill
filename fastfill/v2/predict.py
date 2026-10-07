@@ -1,4 +1,11 @@
-"""Direct bbox checkpoint inference; the legacy asset loop is explicitly optional."""
+"""Direct bbox checkpoint inference; the legacy asset loop is explicitly optional.
+
+The checkpoint binds its own settings: ``load_model`` applies ``model_config.json``
+(position head and grid, size reference, yaw bins, ...) and ``--max-length``
+defaults to the training ``max_length`` recorded beside the export
+(``io.load_checkpoint_config``); only a model directory with no run record falls
+back to 4096. An explicit ``--max-length`` always wins.
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,8 +16,8 @@ import time
 import torch
 
 from fastfill.v2.batch import load_tokenizer
-from fastfill.v2.evaluate import predict_layout
-from fastfill.v2.io import safe_output
+from fastfill.v2.evaluate import DEFAULT_MAX_LENGTH, predict_layout
+from fastfill.v2.io import load_checkpoint_config, safe_output
 from fastfill.v2.model import load_model
 from fastfill.v2.schema import validate_condition, validate_layout
 
@@ -28,7 +35,7 @@ def main(argv=None):
     p.add_argument("--catalog", type=Path)
     p.add_argument("--export-dir", type=Path, help="New bbox JSON/GLB/SVG handoff directory; no assets")
     p.add_argument("--device", default="cpu")
-    p.add_argument("--max-length", type=int, default=4096)
+    p.add_argument("--max-length", type=int, help="default: the checkpoint's training max_length")
     p.add_argument("--max-new-tokens", type=int, default=2048)
     p.add_argument("--max-asset-retries", type=int, default=2)
     p.add_argument("--max-repair-calls", type=int, default=0)
@@ -56,6 +63,8 @@ def main(argv=None):
     validate_condition(condition)
     if args.commit_in_memory and args.catalog is None:
         raise ValueError("commit requires an actual asset catalog")
+    if args.max_length is None:
+        args.max_length = load_checkpoint_config(args.checkpoint)["max_length"] or DEFAULT_MAX_LENGTH
     torch.set_num_threads(2)
     start = time.perf_counter()
     if args.baseline == "structured":

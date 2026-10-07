@@ -4,6 +4,18 @@ Besides the reference errors the report carries label-only baselines (room centr
 per-category mean position, per-category median size, uniform yaw), mode-collapse
 diagnostics compared with the ground truth on the same objects, symmetry-aware yaw
 error counts per order, and a per-source breakdown of all of the above.
+
+``--projection full minimal`` also evaluates the three-field projection
+(``project_minimal``: ``batch.render_minimal_condition`` with the training
+augmentation's regrouping) over boundary-known axis-aligned rectangular rooms; the report's top
+level is the first projection and ``projections`` holds the others. Objects whose
+``validity.size_axis_swap_allowed`` is true score size and yaw under the
+box-equivalent minimum over (sx, sy, yaw + k pi/2 with sx/sy swapped for odd k),
+with the plain-convention errors reported beside them. Target validation is
+counted per check code as pass / violation / unknown. ``max_length`` comes from the
+checkpoint (``io.load_checkpoint_config``) unless given explicitly; model settings
+come from its ``model_config.json``. Reports record the checkpoint, its binding,
+and the data and code sha256.
 """
 from __future__ import annotations
 
@@ -18,19 +30,70 @@ import numpy as np
 from shapely.geometry import Point, Polygon
 import torch
 
-from fastfill.v2.batch import _geometry_rows, collate_samples, load_tokenizer, room_normalization
+from fastfill.v2.batch import (AUGMENT_DEFAULTS, _geometry_rows, augment_sample, collate_samples, minimal_form_eligible,
+                               load_tokenizer, room_normalization)
 from fastfill.v2.boxes import bev_iou
 from fastfill.v2.geometry import decode_yaw, wrap_yaw
-from fastfill.v2.io import read_samples, safe_output, to_device
+from fastfill.v2.io import fingerprint, load_checkpoint_config, read_samples, run_metadata, safe_output, to_device
 from fastfill.v2.matching import match_batch
 from fastfill.v2.model import load_model, model_inputs
 from fastfill.v2.schema import migrate_legacy_row, validate_condition, validate_layout
-from fastfill.v2.validation import footprint, validate_scene, validate_required_levels
+from fastfill.v2.validation import CHECK_STATUSES, footprint, validate_scene, validate_required_levels
 
 BASELINE_METRICS = (("room_center_position", "bottom_center_error_m"), ("category_mean_position", "bottom_center_error_m"),
                     ("category_median_size", "log_size_error"), ("uniform_yaw", "yaw_error_rad"))
+REFERENCE_METRICS = ("bottom_center_error_m", "log_size_error", "yaw_error_rad", "bev_iou",
+                     "log_size_error_plain_convention", "yaw_error_rad_plain_convention")
 COLLAPSE_SCOPE = ("request slots whose labels form a trustworthy upright box (complete position and size, finite yaw); "
                   "prediction and ground truth use the identical object set")
+COLLAPSE_KEYS = ("objects", "pairs", "bev_overlap_pairs", "same_category_pairs", "stacked_same_category_pairs",
+                 "nearest_wall_distance_sum_m", "central_quarter_objects")
+PROJECTIONS = ("full", "minimal")
+# augment_sample with only the minimal form enabled is the K5 projection of a row: shared condition
+# renderer, floor declarations dropped (z learned), exchangeable groups recomputed by the build rule.
+MINIMAL_PROJECTION = {key: (1. if key == "minimal_form_p" else 0. if key.endswith("_p") else False) for key in AUGMENT_DEFAULTS}
+DEFAULT_MAX_LENGTH = 4096
+
+
+def project_minimal(sample):
+    """The three-field projection of an evaluation row, or None unless ``batch.minimal_form_eligible``
+    (a boundary-known axis-aligned rectangle; such rows count as ``skipped_non_rectangular_rooms``)."""
+    sample = migrate_legacy_row(sample)
+    if not minimal_form_eligible(sample["condition"]["room"]):
+        return None
+    return augment_sample(sample, MINIMAL_PROJECTION, torch.Generator().manual_seed(0))
+
+
+def collapse_score(counts):
+    """Checkpoint-selection score: BEV overlap rate (IoU > 0.3) + central-quarter fraction; lower is better.
+
+    No objects -> None; objects without pairs contribute only the central fraction.
+    """
+    if not counts["objects"]:
+        return None
+    return (counts["bev_overlap_pairs"] / counts["pairs"] if counts["pairs"] else 0.) + counts["central_quarter_objects"] / counts["objects"]
+
+
+def batch_collapse_counts(predictions, batch):
+    """Summed predicted ``_collapse_counts`` of a collated batch, over the slots ``collapse_metrics`` keeps.
+
+    Labels can be scored the same way by passing their yaw in radians as ``predictions["yaw"]``.
+    """
+    origin, scale = batch["origin"].detach().float().cpu(), batch["scale"].detach().float().cpu()
+    position = (predictions["position_normalized"].detach().float().cpu() * scale[:, None] + origin[:, None]).tolist()
+    size = predictions["size"].detach().float().cpu().tolist()
+    yaw = (predictions["yaw"].detach().float() if "yaw" in predictions else decode_yaw(
+        predictions["yaw_logits"].detach().float(), predictions["yaw_residuals"].detach().float())).cpu().tolist()
+    keep = (batch["slot_mask"] & batch["validity"]["position"].all(-1) & batch["validity"]["size"].all(-1)
+            & torch.isfinite(batch["targets"]["yaw"])).cpu()
+    totals = dict.fromkeys(COLLAPSE_KEYS, 0)
+    for b, objects in enumerate(batch["objects"]):
+        slots = keep[b].nonzero().flatten().tolist()
+        counts = _collapse_counts([(position[b][i], size[b][i], yaw[b][i]) for i in slots], [objects[i]["category"] for i in slots],
+                                  batch["conditions"][b]["room"], origin[b].tolist(), scale[b].tolist())
+        for key in totals:
+            totals[key] += counts[key]
+    return totals
 
 
 def serialize_predictions(predictions, batch):
@@ -82,6 +145,23 @@ def _yaw_error(predicted, label, order):
     return abs((predicted - label + period / 2) % period - period / 2)
 
 
+def _log_size_error(predicted, label):
+    return float(np.abs(np.log(predicted) - np.log(label)).mean())
+
+
+def _box_equivalent_errors(p, t, size_valid, yaw_valid):
+    """(size, yaw) errors of the label rewriting (sx, sy, sz, yaw + k pi/2), sy/sx swapped for odd k, k = 0..3,
+    whose summed valid errors are smallest; the same candidate set as the training loss. None for invalid fields."""
+    best = None
+    for k in range(4):
+        sx, sy, sz = t["target_size_local_m"] if size_valid else (1., 1., 1.)
+        size = _log_size_error(p["target_size_local_m"], (sy, sx, sz) if k % 2 else (sx, sy, sz)) if size_valid else None
+        yaw = _yaw_error(p["yaw_rad"], t["yaw_rad"] + k * math.pi / 2, 1) if yaw_valid else None
+        if best is None or (size or 0.) + (yaw or 0.) < (best[0] or 0.) + (best[1] or 0.):
+            best = (size, yaw)
+    return best
+
+
 def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
     """Reference errors follow only legal correspondence; no GT used for inference.
 
@@ -89,6 +169,10 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
     exact imitation of the labels scores exactly zero. Groups come from collate's
     ``batch["exchangeable_group"]``; match_batch keeps position-incomplete groups at
     fixed identity and matches size-incomplete groups on position alone.
+    ``log_size_error`` / ``yaw_error_rad`` use the box-equivalent minimum for objects
+    with ``size_axis_swap_allowed``; the ``*_plain_convention`` keys keep the label as
+    written (yaw modulo its symmetry order; modulo pi for swap objects, whose order 4
+    only stands for the swap) for every object.
     """
     from fastfill.v2.batch import TinyTokenizer
     batch = collate_samples([sample], TinyTokenizer(), max_length=10**8, max_objects=10**6)
@@ -97,20 +181,27 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
     predicted = {o["id"]: o for o in layout["objects"]}
     labels = {o["id"]: o for o in sample["target"]["objects"]}
     valid = batch["validity"]
-    values = {"bottom_center_error_m": [], "log_size_error": [], "yaw_error_rad": [], "bev_iou": []}
-    by_order = {}
+    values = {key: [] for key in REFERENCE_METRICS}
+    by_order, box_equivalent = {}, 0
     for i, j in enumerate(assignment[:len(objects)]):
         p, t = predicted[objects[i]["id"]], labels.get(objects[j]["id"], {})
         pv, sv, yv = bool(valid["position"][0, j].all()), bool(valid["size"][0, j].all()), bool(valid["yaw"][0, j])
         if pv:
             values["bottom_center_error_m"].append(float(np.linalg.norm(np.subtract(p["bottom_center_m"], t["bottom_center_m"]))))
+        order, swap = int(batch["yaw_symmetry_order"][0, j]), bool(batch["size_axis_swap_allowed"][0, j])
+        size_error = _log_size_error(p["target_size_local_m"], t["target_size_local_m"]) if sv else None
+        # A swap object's order 4 encodes the axis swap; as written, its box only repeats every pi.
+        yaw_error = _yaw_error(p["yaw_rad"], t["yaw_rad"], 2 if swap else order) if yv else None
+        values["log_size_error_plain_convention"] += [size_error] if sv else []
+        values["yaw_error_rad_plain_convention"] += [yaw_error] if yv else []
+        if (sv or yv) and swap:
+            size_error, yaw_error = _box_equivalent_errors(p, t, sv, yv)
+            box_equivalent += 1
         if sv:
-            values["log_size_error"].append(float(np.abs(np.log(p["target_size_local_m"]) - np.log(t["target_size_local_m"])).mean()))
+            values["log_size_error"].append(size_error)
         if yv:
-            order = int(batch["yaw_symmetry_order"][0, j])
-            error = _yaw_error(p["yaw_rad"], t["yaw_rad"], order)
-            values["yaw_error_rad"].append(error)
-            by_order.setdefault(order, []).append(error)
+            values["yaw_error_rad"].append(yaw_error)
+            by_order.setdefault(order, []).append(yaw_error)
         if include_iou and pv and sv and yv:
             values["bev_iou"].append(float(bev_iou(*(torch.tensor(v, dtype=torch.float64) for v in (
                 p["bottom_center_m"], p["target_size_local_m"], p["yaw_rad"],
@@ -128,7 +219,7 @@ def reference_metrics(layout, sample, *, hungarian=True, include_iou=True):
                       "exchangeable_groups" if hungarian else "fixed")
     return {**{key: _stat(v) for key, v in values.items()},
             "yaw_error_rad_by_symmetry_order": {str(order): _stat(v) for order, v in sorted(by_order.items())},
-            "matching_scope": matching_scope, "incomplete_groups": incomplete, "position_only_groups": position_only}
+            "box_equivalent_objects": box_equivalent, "matching_scope": matching_scope, "incomplete_groups": incomplete, "position_only_groups": position_only}
 
 
 def _label_rows(sample):
@@ -218,6 +309,7 @@ def baseline_metrics(sample, fit, *, exclude_row=None):
     object's own label would let its siblings stand in for it.
     Room centre predicts the floor-level centre of the room's XY bounds. Uniform yaw is
     the analytic expectation pi / (2 * symmetry order) of a uniformly random yaw.
+    Median size scores swap-allowed objects box-equivalently, like the model.
     """
     objects, geometry, origin, scale = _label_rows(sample)
     labels = {o["id"]: o for o in sample["target"]["objects"]}
@@ -238,7 +330,11 @@ def baseline_metrics(sample, fit, *, exclude_row=None):
             estimate, fallback = _estimate(fit, "size", obj["category"], own, np.median)
             if estimate is not None:
                 fallbacks += fallback
-                values["category_median_size"].append(float(np.abs(np.log(estimate) - np.log(target["target_size_local_m"])).mean()))
+                label = target["target_size_local_m"]
+                error = _log_size_error(estimate, label)
+                if geometry["swap"][i]:
+                    error = min(error, _log_size_error(estimate, (label[1], label[0], label[2])))
+                values["category_median_size"].append(error)
         if geometry["yaw_valid"][i]:
             values["uniform_yaw"].append(math.pi / (2 * geometry["symmetry"][i]))
     return {**{name: {metric: _stat(values[name])} for name, metric in BASELINE_METRICS},
@@ -284,7 +380,8 @@ def _model_summary(outcomes):
     references = [o["model"]["reference"] for o in outcomes if o.get("model", {}).get("reference")]
     reference = {key: {**_pool([r[key] for r in references]),
                        "scope": "parsed predictions with valid labels; schema failures included in success denominator"}
-                 for key in ("bottom_center_error_m", "log_size_error", "yaw_error_rad", "bev_iou")}
+                 for key in REFERENCE_METRICS}
+    reference["box_equivalent_objects"] = sum(r["box_equivalent_objects"] for r in references)
     orders = sorted({order for r in references for order in r["yaw_error_rad_by_symmetry_order"]})
     reference["yaw_error_rad_by_symmetry_order"] = {
         order: _pool([r["yaw_error_rad_by_symmetry_order"][order] for r in references if order in r["yaw_error_rad_by_symmetry_order"]])
@@ -312,9 +409,24 @@ def _collapse_summary(outcomes):
         return {"bev_overlap_rate_iou_gt_0.3": ratio("bev_overlap_pairs", "pairs"),
                 "duplicate_stacking_rate_lt_0.10m": ratio("stacked_same_category_pairs", "same_category_pairs"),
                 "mean_nearest_wall_distance_m": ratio("nearest_wall_distance_sum_m", "objects"),
-                "central_quarter_fraction": ratio("central_quarter_objects", "objects"),
+                "central_quarter_fraction": ratio("central_quarter_objects", "objects"), "collapse_score": collapse_score(c),
                 "objects": c["objects"], "pairs": c["pairs"], "same_category_pairs": c["same_category_pairs"]}
     return {"predicted": rates("predicted"), "ground_truth": rates("ground_truth"), "requests": len(rows), "scope": COLLAPSE_SCOPE}
+
+
+def _check_counts(outcomes):
+    """Per check code: how many target-validation checks passed, were violated or stayed unknown.
+
+    Rows whose own labels exceed the declared height (``provenance.height_conflict``)
+    count their ceiling checks separately, so a known data conflict is not read as a model violation.
+    """
+    table = {}
+    for outcome in outcomes:
+        conflict = bool(outcome.get("provenance", {}).get("height_conflict"))
+        for check in (outcome.get("target_validation") or {}).get("checks", ()):
+            code = check["code"] + ("_on_height_conflict_rows" if conflict and check["code"] == "ceiling" else "")
+            table.setdefault(code, dict.fromkeys(CHECK_STATUSES, 0))[check["status"]] += 1
+    return dict(sorted(table.items()))
 
 
 def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_requested=False, baseline_fit_source=None):
@@ -345,6 +457,8 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
     report = {"requests": n, "failed_requests": sum((not o.get("runtime", {}).get("ok", False))
               if asset_evaluated else ("error" in o or not o.get("model", {}).get("target_geometry_valid", False)) for o in outcomes),
               "inference_failed_requests": inference_failures, "system_failed_requests": system_failures,
+              "target_validation_checks": _check_counts(outcomes),
+              "target_validation_not_run": sum(not o.get("target_validation") for o in outcomes),
               "stage_denominator": n, "stage_failures": {
                   "model_schema": sum(not o.get("model", {}).get("schema_success", False) for o in outcomes),
                   "target_geometry": sum(not o.get("model", {}).get("target_geometry_valid", False) for o in outcomes),
@@ -381,12 +495,19 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
 
 
 def run_evaluation(data, output, *, checkpoint=None, baseline="structured", predictions=None,
-                   catalog=None, device="cpu", max_length=4096, max_samples=None,
+                   catalog=None, device="cpu", max_length=None, max_samples=None,
                    commit_in_memory=False, hungarian=True, asset_retries=2, repair_calls=0, repair_step_m=.25,
-                   max_seconds=10., max_new_tokens=2048, required_levels=("bbox",), baseline_fit=None):
+                   max_seconds=10., max_new_tokens=2048, required_levels=("bbox",), baseline_fit=None,
+                   projections=("full",)):
+    """Evaluate every request once per projection; ``max_length=None`` binds to the checkpoint."""
     validate_required_levels(required_levels)
     if (checkpoint is None) == (predictions is None):
         raise ValueError("provide exactly one checkpoint or prediction JSONL")
+    projections = tuple(projections)
+    if not projections or len(set(projections)) != len(projections) or set(projections) - set(PROJECTIONS):
+        raise ValueError(f"projections must be distinct names from {PROJECTIONS}")
+    if predictions is not None and projections != ("full",):
+        raise ValueError("supplied predictions answer the full condition; evaluate other projections from a checkpoint")
     target = safe_output(output)
     samples = read_samples(data, max_samples=max_samples)
     if baseline_fit:
@@ -395,8 +516,12 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
         fit_source = f"baseline_fit_file:{baseline_fit}"
     else:
         fit, fit_source = fit_baselines(samples), "evaluation_set_leave_one_out"
-    model = tokenizer = None
+    model = tokenizer = binding = None
+    max_length_source = "argument" if max_length is not None else None
     if checkpoint:
+        binding = load_checkpoint_config(checkpoint)
+        if max_length is None and binding["max_length"] is not None:
+            max_length, max_length_source = binding["max_length"], binding["source"]
         if baseline == "structured":
             model = load_model(checkpoint, device=device)
             tokenizer_path = Path(checkpoint).parent / "tokenizer"
@@ -404,6 +529,8 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
         else:
             from fastfill.v2.text_sft import load_text_model
             model, tokenizer = load_text_model(checkpoint, device=device)
+    if max_length is None:
+        max_length, max_length_source = DEFAULT_MAX_LENGTH, "default"
     supplied = None
     if predictions:
         with Path(predictions).open() as stream:
@@ -416,9 +543,9 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
         resolver = load_catalog(catalog)
     if commit_in_memory and resolver is None:
         raise ValueError("commit evaluation requires an asset catalog")
-    outcomes = []
     torch.set_num_threads(2)
-    for i, sample in enumerate(samples):
+
+    def evaluate_row(i, sample):
         start = time.perf_counter()
         raw, fastfill_latency = None, None
         try:
@@ -448,19 +575,34 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                       fastfill_latency_ms=fastfill_latency,
                       fastfill_latency_status=("failure" if "error" in result else "success") if checkpoint else "unobserved",
                       baselines=baseline_metrics(sample, fit, exclude_row=None if baseline_fit else i))
-        outcomes.append(result)
-    report = summarize(outcomes, asset_evaluation_requested=resolver is not None,
-                       commit_evaluation_requested=commit_in_memory, baseline_fit_source=fit_source)
+        return result
+
+    reports, outcomes = {}, {}
+    for projection in projections:
+        rows = list(enumerate(samples)) if projection == "full" else [
+            (i, projected) for i, projected in enumerate(map(project_minimal, samples)) if projected is not None]
+        outcomes[projection] = [evaluate_row(i, sample) for i, sample in rows]
+        reports[projection] = summarize(outcomes[projection], asset_evaluation_requested=resolver is not None,
+                                        commit_evaluation_requested=commit_in_memory,
+                                        baseline_fit_source=fit_source) if rows else {"requests": 0}
+        reports[projection].update(projection=projection, skipped_non_rectangular_rooms=len(samples) - len(rows))
+    report = {**reports[projections[0]], "projections": {name: reports[name] for name in projections[1:]}}
+    metadata = run_metadata(data)
     report.update(baseline=baseline if checkpoint else "supplied_predictions", subset_limit=max_samples,
                   evaluation_matching="exchangeable_groups" if hungarian else "fixed", commit_scope="in_memory" if commit_in_memory else "not_attempted",
                   runtime_budget={"asset_retries": asset_retries, "repair_calls": repair_calls,
                                   "repair_step_m": repair_step_m, "max_seconds": max_seconds}, required_levels=list(required_levels),
-                  geometry_level="upright_obb_bev_iou", source_root_modified=False)
+                  geometry_level="upright_obb_bev_iou", source_root_modified=False,
+                  checkpoint=str(Path(checkpoint).resolve()) if checkpoint else None, checkpoint_binding=binding,
+                  max_length=max_length if checkpoint else None, max_length_source=max_length_source if checkpoint else None,
+                  predictions_sha256=fingerprint(predictions) if predictions else None,
+                  **{key: metadata[key] for key in ("data_path", "data_sha256", "implementation_sha256", "code_commit", "code_dirty")})
     target.mkdir(parents=True, exist_ok=False)
     (target / "report.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
-    with (target / "outcomes.jsonl").open("x") as stream:
-        for outcome in outcomes:
-            stream.write(json.dumps(outcome, allow_nan=False) + "\n")
+    for index, projection in enumerate(projections):
+        with (target / ("outcomes.jsonl" if not index else f"outcomes-{projection}.jsonl")).open("x") as stream:
+            for outcome in outcomes[projection]:
+                stream.write(json.dumps(outcome, allow_nan=False) + "\n")
     return report
 
 
@@ -473,7 +615,7 @@ def main(argv=None):
     p.add_argument("--baseline", choices=["structured", "text"], default="structured")
     p.add_argument("--catalog", type=Path)
     p.add_argument("--device", default="cpu")
-    p.add_argument("--max-length", type=int, default=4096)
+    p.add_argument("--max-length", type=int, help="default: the checkpoint's training max_length")
     p.add_argument("--max-new-tokens", type=int, default=2048)
     p.add_argument("--max-samples", type=int)
     p.add_argument("--fixed-correspondence", action="store_true")
@@ -484,6 +626,8 @@ def main(argv=None):
     p.add_argument("--required-levels", nargs="+", choices=("bbox", "mesh", "physics", "solver"), default=["bbox"])
     p.add_argument("--max-seconds", type=float, default=10.)
     p.add_argument("--baseline-fit", type=Path, help="JSONL rows for the category baselines; default: evaluation set, leave-one-out")
+    p.add_argument("--projection", nargs="+", choices=PROJECTIONS, default=["full"], dest="projections",
+                   help="full condition and/or its three-field projection (rectangular rooms); the first is the report's top level")
     args = vars(p.parse_args(argv))
     args["hungarian"] = not args.pop("fixed_correspondence")
     print(json.dumps(run_evaluation(**args), indent=2))

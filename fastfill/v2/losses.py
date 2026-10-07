@@ -1,4 +1,22 @@
-"""Continuous geometry supervision with field filtering and global counts."""
+"""Continuous geometry supervision with field filtering and global counts.
+
+Position head (chosen by the predictions, not the config): a ``grid_residual``
+model also returns ``position_cell_logits`` / ``position_cell_residuals``; its
+``position`` term is then ``position_cell * CE(GT cell) + position_residual *
+L(GT-cell XY residual, half-cell units, mean of 2) + L(z)/3`` (z keeps exactly
+its regression share). ``term_sums["position"]`` stays the decoded-position
+error (identical definition for both heads, so runs compare); the grid parts
+are logged as ``position_cell`` / ``position_residual`` / ``position_z``
+(zero sums and counts under the regression head).
+
+Box symmetry (``batch["size_axis_swap_allowed"]``): an object whose local axis
+pairing is uncertain may be written as (sx, sy, yaw) or (sy, sx, yaw + pi/2).
+Its candidates are k in {0,1,2,3}: yaw + k*pi/2 with (sx, sy, sz) for even k and
+(sy, sx, sz) for odd k; the detached joint minimum of the weighted size, yaw CE
+and yaw residual losses picks one. Without a valid yaw only the two size
+orders compete. Requests that fix a size coordinate pin the axis convention:
+size keeps the written order and yaw only the box's own pi symmetry (order 2).
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,11 +27,13 @@ from torch import nn
 from torch.nn import functional as F
 
 from fastfill.v2.boxes import bev_giou
-from fastfill.v2.geometry import decode_yaw, encode_yaw
+from fastfill.v2.geometry import decode_yaw, encode_grid_position, encode_yaw
 from fastfill.v2.matching import match_batch, validate_matching_options
 from fastfill.v2.objective import local_objective_count, supervision_masks
 
 ELEMENTWISE_TYPES = {"l1", "smooth_l1"}
+GRID_KEYS = ("position_cell_logits", "position_cell_residuals")
+GRID_TERMS = ("position_cell", "position_residual", "position_z")
 
 
 @dataclass(frozen=True)
@@ -32,9 +52,13 @@ class LossConfig:
     position_type: str = "l1"
     size_type: str = "l1"
     smooth_l1_beta: float = 1.
+    # Relative weights of the grid cell CE / residual inside ``position`` (grid_residual head only).
+    position_cell: float = 1.
+    position_residual: float = 1.
 
     def __post_init__(self):
-        weights = [getattr(self, key) for key in ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")]
+        weights = [getattr(self, key) for key in ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary",
+                                                  "position_cell", "position_residual")]
         if any(type(value) not in {int, float} or not math.isfinite(value) or value < 0 for value in weights):
             raise ValueError("loss weights must be native finite nonnegative numbers")
         if self.position_type not in ELEMENTWISE_TYPES or self.size_type not in ELEMENTWISE_TYPES:
@@ -70,7 +94,23 @@ def _gather(tensor, assignment):
 
 def _safe_zero(predictions, valid):
     return sum((value[valid] * 0).sum() for name, value in predictions.items()
-               if name in {"position_normalized", "size", "yaw_logits", "yaw_residuals"})
+               if name in {"position_normalized", "size", "yaw_logits", "yaw_residuals", *GRID_KEYS})
+
+
+def _grid_position(predictions, gt, valid, coordinate_mask, cfg):
+    """Per valid slot: cell CE and GT-cell residual loss (XY learned), z loss / 3 (z learned)."""
+    logits, residuals = predictions["position_cell_logits"][valid], predictions["position_cell_residuals"][valid]
+    grid = math.isqrt(logits.shape[-1])
+    if grid * grid != logits.shape[-1] or residuals.shape != (*logits.shape, 2):
+        raise ValueError("grid position logits must hold grid*grid cells with one XY residual pair per cell")
+    xy = coordinate_mask[:, 0] & coordinate_mask[:, 1]
+    cells, target = encode_grid_position(gt[xy, :2], grid)
+    cell = F.cross_entropy(logits[xy], cells, reduction="none")
+    selected = residuals[xy].gather(1, cells[:, None, None].expand(-1, 1, 2)).squeeze(1)
+    residual = _elementwise(selected - target, cfg.position_type, cfg.smooth_l1_beta).mean(-1)
+    z = coordinate_mask[:, 2]
+    height = _elementwise(predictions["position_normalized"][valid][z, 2] - gt[z, 2], cfg.position_type, cfg.smooth_l1_beta) / 3
+    return {"position_cell": cell, "position_residual": residual, "position_z": height}
 
 
 class GeometryCriterion(nn.Module):
@@ -82,7 +122,8 @@ class GeometryCriterion(nn.Module):
 
     def forward(self, predictions, batch):
         mask = batch["slot_mask"]
-        for key in ("position_normalized", "size", "yaw_logits", "yaw_residuals"):
+        grid = GRID_KEYS[0] in predictions
+        for key in ("position_normalized", "size", "yaw_logits", "yaw_residuals", *(GRID_KEYS if grid else ())):
             if not torch.isfinite(predictions[key][mask]).all():
                 raise ValueError(f"nonfinite valid prediction: {key}")
         if (predictions["size"][mask] <= 0).any():
@@ -97,19 +138,42 @@ class GeometryCriterion(nn.Module):
         # losses: per-term global means (gradient path). term_sums/term_counts: local
         # unweighted sums and valid counts, for window-level logging by the trainer.
         losses, counts, term_sums, term_counts = {}, {}, {}, {}
+        per_slot = {}
         for key, pred_key, target_key in (("position", "position_normalized", "position_normalized"), ("size", "size", "size")):
             learn = ~batch.get(f"fixed_{key}_mask", torch.zeros_like(validity[key]))
             valid = masks[key]
             pred, gt = predictions[pred_key][valid], targets[target_key][valid]
             if not torch.isfinite(gt).all() or (key == "size" and (gt <= 0).any()):
                 raise ValueError(f"invalid {key} target marked valid")
-            # Select learning coordinates before arithmetic. Fixed coords contribute zero /3.
+            # Fixed coords contribute zero /3 (masked before reduction; valid predictions are finite and positive).
             coordinate_mask = learn[valid]
-            p, t = pred[coordinate_mask], gt[coordinate_mask]
-            error = p.log() - t.log() if key == "size" else p - t
-            total = _elementwise(error, getattr(cfg, f"{key}_type"), cfg.smooth_l1_beta).sum() / 3
-            losses[key], counts[key] = _mean(total + zero, int(valid.sum()))
+            kind = getattr(cfg, f"{key}_type")
+            error_of = lambda target: torch.where(coordinate_mask, _elementwise(
+                pred.log() - target.log() if key == "size" else pred - target, kind, cfg.smooth_l1_beta), 0.).sum(-1) / 3
+            per_slot[key] = error_of(gt)
+            if key == "size":  # (sy, sx, sz) for box-symmetric slots; resolved jointly with yaw below
+                per_slot["size_swapped"] = error_of(gt[:, [1, 0, 2]])
+                continue
+            total = per_slot[key].sum()
             term_sums[key], term_counts[key] = total.detach().float(), int(valid.sum())
+            for name in GRID_TERMS:
+                term_sums[name], term_counts[name] = torch.zeros((), device=zero.device), 0
+            if grid:
+                parts = _grid_position(predictions, gt, valid, coordinate_mask, cfg)
+                for name, values in parts.items():
+                    term_sums[name], term_counts[name] = values.detach().float().sum(), len(values)
+                total = (cfg.position_cell * parts["position_cell"].sum() + cfg.position_residual *
+                         parts["position_residual"].sum() + parts["position_z"].sum())
+            losses[key], counts[key] = _mean(total + zero, int(valid.sum()))
+        size_valid = masks["size"]
+        swap = (_gather(batch["size_axis_swap_allowed"], assignment) if "size_axis_swap_allowed" in batch
+                else torch.zeros_like(mask)) & mask
+        pinned = swap & batch.get("fixed_size_mask", torch.zeros_like(validity["size"])).any(-1)
+        swap = swap & ~pinned
+        size_row = torch.full(mask.shape, -1, dtype=torch.long, device=mask.device)
+        size_row[size_valid] = torch.arange(int(size_valid.sum()), device=mask.device)
+        plain, swapped = per_slot["size"], per_slot["size_swapped"]
+        odd = swap[size_valid] & (swapped.detach() < plain.detach())  # size-only choice without a valid yaw
         angle_valid = masks["yaw"]
         logits, residuals = predictions["yaw_logits"][angle_valid], predictions["yaw_residuals"][angle_valid]
         yaw = targets["yaw"][angle_valid]
@@ -118,17 +182,27 @@ class GeometryCriterion(nn.Module):
         orders = batch.get("yaw_symmetry_order", torch.ones_like(mask, dtype=torch.long))
         orders = _gather(orders, assignment)[angle_valid]
         cls_terms, reg_terms = [], []
-        for a, r, y, order in zip(logits, residuals, yaw, orders):
+        for a, r, y, order, box_symmetric, pin, row in zip(logits, residuals, yaw, orders, swap[angle_valid],
+                                                           pinned[angle_valid], size_row[angle_valid]):
             n = int(order)
             if n < 1 or n > 36:
                 raise ValueError("yaw symmetry order must be 1..36 with source justification")
+            n = 4 if box_symmetric else 2 if pin else n  # a pinned swap object's order 4 stood only for the swap
             candidates = y + torch.arange(n, device=y.device, dtype=y.dtype) * (2 * math.pi / n)
             bins, gt_residual = encode_yaw(candidates, a.shape[-1])
             cls = F.cross_entropy(a.expand(n, -1), bins, reduction="none")
             reg = F.smooth_l1_loss(r[bins], gt_residual, reduction="none", beta=1.)
-            choice = (cfg.yaw_cls * cls + cfg.yaw_reg * reg).detach().argmin()
+            cost = cfg.yaw_cls * cls + cfg.yaw_reg * reg
+            if box_symmetric and row >= 0:
+                cost = cost + cfg.size * torch.stack((plain[row], swapped[row])).repeat(2)
+            choice = cost.detach().argmin()
+            if box_symmetric and row >= 0:
+                odd[row] = bool(choice % 2)
             cls_terms.append(cls[choice])
             reg_terms.append(reg[choice])
+        total = torch.where(odd, swapped, plain).sum()
+        losses["size"], counts["size"] = _mean(total + zero, int(size_valid.sum()))
+        term_sums["size"], term_counts["size"] = total.detach().float(), int(size_valid.sum())
         losses["yaw_cls"], counts["yaw"] = _mean(sum(cls_terms, zero), int(angle_valid.sum()))
         losses["yaw_reg"], _ = _mean(sum(reg_terms, zero), int(angle_valid.sum()))
         for key, terms in (("yaw_cls", cls_terms), ("yaw_reg", reg_terms)):

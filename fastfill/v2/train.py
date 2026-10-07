@@ -9,6 +9,25 @@ consumed batches, shuffle generator; augmentation is seeded per
 every config section except ``training.resume``, ``--max-samples`` and the
 training data hash. Not restored: wall-clock ``elapsed_s`` and the earlier
 process's ``train.log``.
+
+Run binding: ``run_manifest_start.json`` is written before the first update
+(config, data/validation/implementation sha256, backbone path + HF snapshot
+revision + config.json sha256, tokenizer sha256, augmentation, world size,
+admitted train/validation/minimal-projection counts) and
+``run_manifest.json`` when the run finishes. Every exported model directory gets
+``checkpoint_manifest.json`` (``io.CHECKPOINT_KEYS``), which evaluate/predict
+read through ``io.load_checkpoint_config``. ``--expect-data-sha256`` /
+``--expect-validation-sha256`` abort before any output on a mismatch.
+
+Validation reports the full condition and its three-field projection
+(``evaluate.project_minimal``, boundary-known rectangular rooms only); the
+projection's predicted collapse score is the manifest's ``selection_metric``
+(lower is better). The labels' own score on the same projection is recorded at
+launch as ``selection_metric.ground_truth`` (both manifests): a predicted score
+below it means a layout more spread out than the data, not a more accurate one.
+Validation and checkpointing also run at the final update.
+Window and validation logs carry every term the criterion reports in
+``term_sums``, e.g. position_cell / position_residual / position_z of the grid head.
 """
 from __future__ import annotations
 
@@ -18,6 +37,7 @@ from dataclasses import asdict
 from functools import partial
 import hashlib
 import json
+import shutil
 import math
 from pathlib import Path
 import statistics
@@ -29,7 +49,9 @@ from torch.utils.data import DataLoader
 
 from fastfill.v2.batch import AUGMENT_DEFAULTS, augment_sample, collate_samples, load_tokenizer, tokenize_condition
 from fastfill.v2.data import filter_rows_by_flags
-from fastfill.v2.io import ensure_disjoint, fingerprint, read_samples, run_metadata, safe_output
+from fastfill.v2.evaluate import COLLAPSE_KEYS, batch_collapse_counts, collapse_score, project_minimal
+from fastfill.v2.io import (CHECKPOINT_MANIFEST, backbone_provenance, ensure_disjoint, fingerprint, fingerprint_tree,
+                            read_samples, run_metadata, safe_output)
 from fastfill.v2.losses import GeometryCriterion, LossConfig
 from fastfill.v2.matching import match_batch
 from fastfill.v2.model import ModelConfig, build_model, model_inputs
@@ -37,7 +59,12 @@ from fastfill.v2.objective import ObjectiveWindow, local_objective_count
 from fastfill.v2.size_range import size_target_conflicts
 
 
-TERMS = ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")
+TERMS = ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")  # base criterion terms; windows log any key
+KEEP_STATES = 2  # ponytail: state-step-* holds the frozen backbone (~29 GB); keep the newest two, model-step-* (~0.1 GB) all
+SELECTION_METRIC = {"name": "validation.minimal.geometry_objective", "lower_is_better": True,
+                    "definition": "weighted geometry objective on the minimal (three-field) projection of the validation rows; "
+                                  "collapse (BEV overlap rate + central-quarter fraction) is reported beside it and anchored by "
+                                  "ground_truth, never minimised on its own (a degenerate wall-hugging layout scores 0)"}
 
 
 def _target_predictions(batch):
@@ -111,35 +138,36 @@ def _rescale_flushed_window_gradients(model, configured_steps, microbatches):
 class _Window:
     """Local per-term unweighted sums and valid counts over every microbatch of a window.
 
-    The criterion exposes local ``term_sums``/``term_counts``; one summed
-    collective at summary time gives the global count-weighted window means.
-    ``loss`` keeps the microbatch mean of the weighted objective (local
-    numerators over global counts, so its rank mean is the global value).
+    The criterion exposes local ``term_sums``/``term_counts``; every key it
+    reports is logged, in its order. One config gives every rank the same keys,
+    so one summed collective at summary time gives the global count-weighted
+    window means. ``loss`` keeps the microbatch mean of the weighted objective
+    (local numerators over global counts, so its rank mean is the global value).
     """
 
     def __init__(self):
-        self.loss, self.microbatches, self.rows = 0., 0, []
-        self.sums, self.counts = dict.fromkeys(TERMS, 0.), dict.fromkeys(TERMS, 0)
+        self.loss, self.microbatches, self.rows, self.sums, self.counts = 0., 0, [], {}, {}
 
     def add(self, result, batch=None):
         self.loss += float(result["loss"].detach().float())
         self.microbatches += 1
-        for key in TERMS:
-            self.sums[key] += float(result["term_sums"][key])
-            self.counts[key] += int(result["term_counts"][key])
+        for key, value in result["term_sums"].items():
+            self.sums[key] = self.sums.get(key, 0.) + float(value)
+            self.counts[key] = self.counts.get(key, 0) + int(result["term_counts"][key])
         if batch is not None:
             self.rows.extend(p.get("scene_id") for p in batch["provenance"])
         return self
 
     def summary(self, accelerator):
         # Every rank enters this collective with one dtype/shape, including ranks without valid terms.
-        local = torch.tensor([self.loss, *(self.sums[key] for key in TERMS), *(float(self.counts[key]) for key in TERMS)],
+        keys = list(self.sums)
+        local = torch.tensor([self.loss, *(self.sums[key] for key in keys), *(float(self.counts[key]) for key in keys)],
                              dtype=torch.float64, device=accelerator.device)
         values = accelerator.reduce(local, reduction="sum").tolist()
-        sums, counts = values[1:1 + len(TERMS)], values[1 + len(TERMS):]
+        sums, counts = values[1:1 + len(keys)], values[1 + len(keys):]
         return {"loss": values[0] / accelerator.num_processes / max(1, self.microbatches),
-                "unweighted": {key: total / count if count else None for key, total, count in zip(TERMS, sums, counts)},
-                "counts": {key: int(count) for key, count in zip(TERMS, counts)}, "microbatches": self.microbatches}
+                "unweighted": {key: total / count if count else None for key, total, count in zip(keys, sums, counts)},
+                "counts": {key: int(count) for key, count in zip(keys, counts)}, "microbatches": self.microbatches}
 
 
 def _record(window, model, optimizer, step, elapsed, count, accelerator):
@@ -241,13 +269,12 @@ def _optimizer_config(config, training):
 
 def _augmentation_config(config):
     cfg = _section(config.get("augmentation", {}), "augmentation", DEFAULT_AUGMENTATION)
-    for key in ("rotate90", "mirror", "shuffle_objects"):
-        if not isinstance(cfg[key], bool):
+    for key, value in cfg.items():
+        if key.endswith("_p"):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+                raise ValueError(f"augmentation.{key} must be a probability in [0,1]")
+        elif not isinstance(value, bool):
             raise ValueError(f"augmentation.{key} must be a boolean")
-    for key in ("drop_constraints_p", "drop_support_p", "category_only_description_p"):
-        value = cfg[key]
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
-            raise ValueError(f"augmentation.{key} must be a probability in [0,1]")
     return cfg
 
 
@@ -290,8 +317,7 @@ class _Rows(torch.utils.data.Dataset):
     def __init__(self, rows, augmentation, seed, tokenizer=None, max_length=None):
         self.rows, self.augmentation, self.seed, self.epoch = rows, augmentation, seed, 0
         self.tokenizer, self.max_length, self.fallbacks = tokenizer, max_length, 0
-        self.active = (any(augmentation[key] for key in ("rotate90", "mirror", "shuffle_objects")) or
-                       any(augmentation[key] > 0 for key in ("drop_constraints_p", "drop_support_p", "category_only_description_p")))
+        self.active = any(value > 0 if key.endswith("_p") else value for key, value in augmentation.items())
 
     def __len__(self):
         return len(self.rows)
@@ -338,15 +364,39 @@ class _Tee:
 
 @torch.no_grad()
 def _validation(model, loader, criterion, accelerator):
+    """Count-weighted geometry terms plus the global predicted collapse counts and score of one projection."""
     model.eval()
-    window = _Window()
+    window, collapse = _Window(), dict.fromkeys(COLLAPSE_KEYS, 0.)
     for batch in loader:
-        window.add(criterion(model(**model_inputs(batch)), batch))
+        predictions = model(**model_inputs(batch))
+        window.add(criterion(predictions, batch))
+        for key, value in batch_collapse_counts(predictions, batch).items():
+            collapse[key] += value
     model.train()
     summary = window.summary(accelerator)
     return {"geometry_objective_mean_of_batches": summary["loss"], "batches": summary["microbatches"],
             "unweighted": summary["unweighted"], "counts": summary["counts"],
+            "collapse": _reduce_collapse(collapse, accelerator),
             "selection_scope": "geometry diagnostic; asset/runtime evaluation is separate"}
+
+
+def _reduce_collapse(collapse, accelerator):
+    totals = accelerator.reduce(torch.tensor(list(collapse.values()), dtype=torch.float64, device=accelerator.device),
+                                reduction="sum").tolist()
+    collapse = {key: value if key.endswith("_m") else int(value) for key, value in zip(collapse, totals)}
+    return {**collapse, "score": collapse_score(collapse)}
+
+
+@torch.no_grad()
+def _label_collapse(loader, accelerator):
+    """Global collapse counts and score of the labels themselves over one projection (the selection score's anchor)."""
+    collapse = dict.fromkeys(COLLAPSE_KEYS, 0.)
+    for batch in loader:
+        labels = {"position_normalized": batch["targets"]["position_normalized"], "size": batch["targets"]["size"],
+                  "yaw": batch["targets"]["yaw"]}
+        for key, value in batch_collapse_counts(labels, batch).items():
+            collapse[key] += value
+    return _reduce_collapse(collapse, accelerator)
 
 
 def _category_median_sizes(rows):
@@ -391,7 +441,22 @@ def _due(step, every):
     return bool(every) and step % every == 0
 
 
-def run_training(config, data, output, *, validation=None, dry_run=False, max_samples=None):
+def _verify_expected_hashes(metadata, expect_data_sha256, expect_validation_sha256):
+    """Abort before any output when an input is not the exact file the operator pinned."""
+    for label, expected, actual in (("training data", expect_data_sha256, metadata["data_sha256"]),
+                                    ("validation data", expect_validation_sha256, metadata["validation_data_sha256"])):
+        if expected is not None and expected != actual:
+            raise ValueError(f"{label} sha256 {actual} does not match the expected {expected}")
+
+
+def _export(model, directory, binding):
+    """Deployable model plus the settings evaluate/predict bind to (``io.load_checkpoint_config``)."""
+    model.save_pretrained(directory)
+    (directory / CHECKPOINT_MANIFEST).write_text(json.dumps(binding, indent=2) + "\n")
+
+
+def run_training(config, data, output, *, validation=None, dry_run=False, max_samples=None,
+                 expect_data_sha256=None, expect_validation_sha256=None):
     from accelerate import Accelerator
     from accelerate.utils import set_seed
     unknown = set(config) - set(CONFIG_SECTIONS)
@@ -414,6 +479,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     metadata = {**run_metadata(data),
                 "validation_data_path": str(Path(validation).resolve()) if validation else None,
                 "validation_data_sha256": fingerprint(validation) if validation else None}
+    _verify_expected_hashes(metadata, expect_data_sha256, expect_validation_sha256)
     samples = read_samples(data, training=True, max_samples=max_samples)
     heldout = read_samples(validation) if validation else []
     _verify_input_fingerprints(metadata)
@@ -438,6 +504,8 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     generator = torch.Generator().manual_seed(training["seed"])
     loader = DataLoader(rows, batch_size=training["batch_size"], shuffle=True, collate_fn=collate, generator=generator)
     val_loader = DataLoader(validation_samples, batch_size=training["batch_size"], collate_fn=collate) if heldout else None
+    minimal_samples = [row for row in map(project_minimal, validation_samples) if row is not None]
+    minimal_loader = DataLoader(minimal_samples, batch_size=training["batch_size"], collate_fn=collate) if minimal_samples else None
     baseline_loader = DataLoader(validation_samples[:2000], batch_size=training["batch_size"], collate_fn=collate) if heldout else None
     steps = 1 if dry_run else training["steps"]
     model, criterion = build_model(model_config), GeometryCriterion(loss_config)
@@ -448,10 +516,15 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     model, optimizer, loader, scheduler = accelerator.prepare(model, optimizer, loader, scheduler)
     if val_loader is not None:
         val_loader, baseline_loader = accelerator.prepare(val_loader, baseline_loader)
+    if minimal_loader is not None:
+        minimal_loader = accelerator.prepare(minimal_loader)
     state = _TrainerState()
     accelerator.register_for_checkpointing(state)
     logs, step, epoch, skip_batches = [], 0, 0, 0
     skipped_windows, skipped_gradient_overflow_windows, skipped_nonfinite_windows = 0, 0, 0
+    # The labels' score anchors the selection score from launch on. Every rank joins the reduction, before a
+    # resume restores the RNG state (iterating a DataLoader draws a seed from the global generator).
+    label_collapse = _label_collapse(minimal_loader, accelerator) if minimal_loader is not None else None
     if resume is not None:
         accelerator.load_state(str(resume))
         saved = state.values
@@ -463,10 +536,24 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
             saved["skipped_no_objective_windows"], saved["skipped_gradient_overflow_windows"], saved["skipped_nonfinite_windows"])
         logs = list(saved["logs"])
     resumed_at = step
+    binding = None  # main process: what every exported model directory is bound to
     with contextlib.ExitStack() as stack:
         if accelerator.is_main_process:
             target.mkdir(parents=True, exist_ok=False)
             tokenizer.save_pretrained(target / "tokenizer")
+            provenance = {"backbone": backbone_provenance(model_config.backbone, local_files_only=model_config.local_files_only),
+                          "tokenizer_sha256": fingerprint_tree(target / "tokenizer")}
+            binding = {"max_length": training["max_length"], "data_sha256": metadata["data_sha256"],
+                       "validation_data_sha256": metadata["validation_data_sha256"], "config_sha256": config_digest,
+                       "implementation_sha256": metadata["implementation_sha256"], **provenance}
+            (target / "run_manifest_start.json").write_text(json.dumps(
+                {**metadata, **provenance, "config": config, "config_sha256": config_digest, "resolved_config": resolved,
+                 "augmentation": augmentation, "world_size": accelerator.num_processes,
+                 # Admitted counts, so the step budget (e.g. 3 epochs of 124,375 scenes) can be checked at launch.
+                 "supervised_samples": len(samples), "rejected_samples": len(rejected),
+                 "validation_samples": len(validation_samples), "validation_minimal_samples": len(minimal_samples),
+                 "resumed_from": str(resume) if resume is not None else None, "resumed_at_step": step,
+                 "selection_metric": {**SELECTION_METRIC, "ground_truth": label_collapse}}, indent=2, default=str) + "\n")
             stack.enter_context(contextlib.redirect_stdout(_Tee(sys.stdout, stack.enter_context((target / "train.log").open("x")))))
             if resume is not None:
                 print(json.dumps({"resumed_from": str(resume), "step": step, "epoch": epoch, "batches_done": skip_batches}), flush=True)
@@ -527,9 +614,16 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                     # Capture training gradients before step/zero, then evaluate the
                     # updated model outside accumulation so step-k validation and
                     # state-step-k describe the same weights on every rank.
-                    checkpoint = _due(step, training["checkpoint_every"])
-                    if val_loader is not None and (checkpoint or _due(step, training["validate_every"])):
-                        record = {**record, "validation": _validation(model, val_loader, criterion, accelerator)}
+                    # The final update is validated and checkpointed too (unless that interval is 0), so
+                    # selection can pick the last weights when steps is not a multiple of the interval.
+                    final = step >= steps
+                    checkpoint = _due(step, training["checkpoint_every"]) or (final and bool(training["checkpoint_every"]))
+                    validate = checkpoint or _due(step, training["validate_every"]) or (final and bool(training["validate_every"]))
+                    if val_loader is not None and validate:
+                        full = _validation(model, val_loader, criterion, accelerator)
+                        minimal = _validation(model, minimal_loader, criterion, accelerator) if minimal_loader is not None else None
+                        record = {**record, "validation": {**full, "minimal": minimal,
+                                                           "selection_metric": minimal["geometry_objective_mean_of_batches"] if minimal else None}}
                     logs.append(record)
                     if accelerator.is_main_process:
                         print(json.dumps(record), flush=True)
@@ -542,8 +636,12 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                                         "skipped_nonfinite_windows": skipped_nonfinite_windows, "logs": logs,
                                         "config_sha256": config_digest, "data_sha256": metadata["data_sha256"]}
                         accelerator.save_state(str(target / f"state-step-{step}"))
+                        accelerator.wait_for_everyone()
+                        if accelerator.is_main_process:
+                            for old in sorted(target.glob("state-step-*"), key=lambda p: int(p.name.rsplit("-", 1)[1]))[:-KEEP_STATES]:
+                                shutil.rmtree(old)
                         if training["export_model_every_checkpoint"] and accelerator.is_main_process:
-                            accelerator.unwrap_model(model).save_pretrained(target / f"model-step-{step}")
+                            _export(accelerator.unwrap_model(model), target / f"model-step-{step}", {**binding, "step": step})
                 if step >= steps:
                     break
             epoch += 1
@@ -555,8 +653,11 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
         _verify_input_fingerprints(metadata, accelerator)
         if accelerator.is_main_process:
             unwrapped = accelerator.unwrap_model(model)
-            unwrapped.save_pretrained(target / "model")
-            manifest = {**metadata, "config": config, "config_sha256": config_digest, "model": asdict(model_config),
+            _export(unwrapped, target / "model", {**binding, "step": step})
+            scored = [(r["validation"]["selection_metric"], r["step"]) for r in logs
+                      if (r.get("validation") or {}).get("selection_metric") is not None]
+            best = min(scored) if scored else None
+            manifest = {**metadata, **provenance, "config": config, "config_sha256": config_digest, "model": asdict(model_config),
                 "loss": asdict(loss_config), "training": {**training, "resume": str(resume) if resume is not None else None},
                 "optimizer": optimizer_config, "augmentation": augmentation, "validation": validation_config,
                 "lr_schedule": "linear warmup over warmup_steps updates, then cosine from lr to 10% of lr at the final update; constant keeps lr",
@@ -564,6 +665,9 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                 "baselines": baseline, "offline_smoke": model_config.backbone == "tiny", "dry_run": dry_run,
                 "steps_completed": step, "resumed_from": str(resume) if resume is not None else None, "resumed_at_step": resumed_at,
                 "supervised_samples": len(samples), "validation_samples": len(validation_samples),
+                "validation_minimal_samples": len(minimal_samples),
+                "selection_metric": {**SELECTION_METRIC, "ground_truth": label_collapse,
+                                     "best": {"value": best[0], "step": best[1]} if best else None},
                 "validation_excluded_flagged": validation_excluded, "augmentation_fallbacks": rows.fallbacks,
                 "skipped_no_objective_windows": skipped_windows,
                 "skipped_gradient_overflow_windows": skipped_gradient_overflow_windows,
@@ -592,6 +696,8 @@ def main(argv=None):
     parser.add_argument("--resume", type=Path, help="state-step-<n> directory of an earlier run; output must be a new directory")
     parser.add_argument("--cpu", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--expect-data-sha256", help="abort unless --data has exactly this sha256")
+    parser.add_argument("--expect-validation-sha256", help="abort unless --validation has exactly this sha256")
     args = parser.parse_args(argv)
     config = json.loads(args.config.read_text())
     config = {**config, "model": {**config.get("model", {})}, "training": {**config.get("training", {})}}
@@ -604,7 +710,8 @@ def main(argv=None):
         config["training"]["resume"] = str(args.resume)
     if args.cpu:
         config["training"]["cpu"] = True
-    run_training(config, args.data, args.output, validation=args.validation, dry_run=args.dry_run, max_samples=args.max_samples)
+    run_training(config, args.data, args.output, validation=args.validation, dry_run=args.dry_run, max_samples=args.max_samples,
+                 expect_data_sha256=args.expect_data_sha256, expect_validation_sha256=args.expect_validation_sha256)
 
 
 if __name__ == "__main__":

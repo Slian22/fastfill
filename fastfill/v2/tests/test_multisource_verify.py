@@ -45,7 +45,7 @@ def pair(source="HSSD200", split="train", uid="room", floor=0.):
         "target": {"schema_version": "fastfill.v2", "objects": [
             {"id": "obj_0000", "bottom_center_m": [11., 21., .5 + floor],
              "target_size_local_m": [1., .5, 1.], "yaw_rad": 0.}]},
-        "validity": {"position": [[True] * 3], "size": [[True] * 3], "yaw": [False]},
+        "validity": {"position": [[True] * 3], "size": [[True] * 3], "yaw": [False], "size_axis_swap_allowed": [False]},
         "provenance": {"source": source, "scene_id": uid, "legacy_uid": uid,
             "house_id": "house_" + uid, "group": "house_" + uid, "split": split,
             "target_source_ids": ["raw_0"], "field_evidence": [
@@ -287,7 +287,7 @@ def test_full_condition_partial_geometry_removes_entire_exchange_group():
     parent["condition"]["objects"][0]["exchangeable_group"] = "chairs"
     parent["condition"]["objects"].append({**deepcopy(parent["condition"]["objects"][0]), "id": "obj_0001"})
     parent["target"]["objects"].append({**deepcopy(parent["target"]["objects"][0]), "id": "obj_0001"})
-    for field in ("position", "size", "yaw"):
+    for field in ("position", "size", "yaw", "size_axis_swap_allowed"):
         parent["validity"][field].append(deepcopy(parent["validity"][field][0]))
     parent["provenance"]["target_source_ids"].append("raw_1")
     derived = deepcopy(parent)
@@ -322,7 +322,7 @@ def test_minimal_journal_orders_all_demotions_before_geometric_yaw():
     parent, derived, ir = pair(source="SpatialLM")
     parent["condition"]["objects"].append({**deepcopy(parent["condition"]["objects"][0]), "id": "obj_0001"})
     parent["target"]["objects"].append({**deepcopy(parent["target"]["objects"][0]), "id": "obj_0001", "target_size_local_m": [1., .5, 1e-9]})
-    for field in ("position", "size", "yaw"):
+    for field in ("position", "size", "yaw", "size_axis_swap_allowed"):
         parent["validity"][field].append(deepcopy(parent["validity"][field][0]))
     parent["provenance"]["target_source_ids"].append("raw_1")
     parent["provenance"]["field_evidence"].append(deepcopy(parent["provenance"]["field_evidence"][0]))
@@ -330,7 +330,7 @@ def test_minimal_journal_orders_all_demotions_before_geometric_yaw():
     derived["condition"]["objects"].append({**deepcopy(derived["condition"]["objects"][0]), "id": "obj_0001"})
     derived["target"]["objects"].append({**deepcopy(derived["target"]["objects"][0]), "id": "obj_0001", "target_size_local_m": [1., .5, 1e-9]})
     derived["validity"] = {"position": [[True] * 3] * 2, "size": [[True] * 3, [False] * 3],
-                           "yaw": [True, True], "yaw_symmetry_order": [2, 2]}
+                           "yaw": [True, True], "yaw_symmetry_order": [2, 2], "size_axis_swap_allowed": [False, False]}
     derived["provenance"].update(deepcopy(parent["provenance"]))
     derived["provenance"]["parent_condition"] = deepcopy(parent["condition"])
     derived["provenance"]["parent_validity"] = deepcopy(parent["validity"])

@@ -131,11 +131,11 @@ def test_declared_height_survives_a_float32_rounded_size_at_the_tolerance_edge()
     parent["target"]["objects"][0]["target_size_local_m"][2] = 2.6500000953674316  # float32(2.65) in a 2.6 m room
     row = qualify_sample(parent)
     assert row["condition"]["room"]["height_m"] == 2.6
-    assert not any(c["field"] == "room.height_m" for c in row["provenance"]["qualification_changes"])
+    assert "height_conflict" not in row["provenance"]
     multisource_verify.verify_full_pair(parent, row, "train")
     parent["target"]["objects"][0]["target_size_local_m"][2] = 2.66
     row = qualify_sample(parent)
-    assert row["condition"]["room"]["height_m"] is None
+    assert row["condition"]["room"]["height_m"] == 2.6 and "height_conflict" in row["provenance"]  # K2: flag only
     multisource_verify.verify_full_pair(parent, row, "train")
 
 

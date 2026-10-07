@@ -79,7 +79,9 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
     """Groups come from collate's ``batch["exchangeable_group"]`` (per sample, per
     request slot), never from the rendered condition objects. A group needs
     complete position labels on every member; otherwise it keeps fixed identity.
-    Size enters the cost only when every member also has a complete size label.
+    Size enters the cost only when every member also has a complete size label;
+    when any member is box-symmetric (``batch["size_axis_swap_allowed"]``) each
+    pair's log-size cost is the minimum over the (sx, sy) and (sy, sx) orders.
     """
     validate_matching_options(enabled, alpha_position, alpha_size)
     if enabled and "exchangeable_group" not in batch:
@@ -115,7 +117,10 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
                 size, gt_size = predictions["size"][b, group], batch["targets"]["size"][b, group]
                 if not torch.isfinite(size).all() or not torch.isfinite(gt_size).all() or (size <= 0).any() or (gt_size <= 0).any():
                     raise ValueError("nonfinite or nonpositive size geometry in matching group")
-                cost = cost + alpha_size * (size.log()[:, None] - gt_size.log()[None]).abs().sum(-1)
+                size_cost = (size.log()[:, None] - gt_size.log()[None]).abs().sum(-1)
+                if "size_axis_swap_allowed" in batch and batch["size_axis_swap_allowed"][b, group].any():
+                    size_cost = torch.minimum(size_cost, (size.log()[:, None] - gt_size.log()[None, :, [1, 0, 2]]).abs().sum(-1))
+                cost = cost + alpha_size * size_cost
             if not torch.isfinite(cost).all():
                 raise ValueError("matching cost is not finite")
             # SciPy deterministic ordered input; exact ties use its row/column order.

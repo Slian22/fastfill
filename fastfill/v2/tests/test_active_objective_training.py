@@ -22,7 +22,7 @@ def _yaw_config():
 
 
 NO_AUGMENTATION = {"rotate90": False, "mirror": False, "shuffle_objects": False,
-                   "drop_constraints_p": 0., "drop_support_p": 0., "category_only_description_p": 0.}
+                   "drop_constraints_p": 0., "drop_support_p": 0., "category_only_description_p": 0., "minimal_form_p": 0.}
 
 
 def _row(identity, yaw=True):
