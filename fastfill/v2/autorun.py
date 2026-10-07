@@ -42,7 +42,8 @@ def score(report):
 
     size: log-size error / per-category median size; yaw: yaw error / constant yaw; position: bottom-centre
     error / room-centre placement; |central-quarter fraction - GT|; |mean wall distance - GT| / GT;
-    overlap above GT + 1 point and objects outside the room above GT count fivefold.
+    overlap above GT + 1 point and objects outside the room above GT count fivefold; the share of requests
+    without a layout counts tenfold.
     """
     ref, base = report["model"]["reference"], report["baselines"]
     pred, gt = report["collapse"]["predicted"], report["collapse"]["ground_truth"]
@@ -55,7 +56,8 @@ def score(report):
          + 5 * max(0., pred["bev_overlap_rate_iou_gt_0.3"] - gt["bev_overlap_rate_iou_gt_0.3"] - .01))
     if "out_of_room_fraction" in pred:
         s += 5 * max(0., pred["out_of_room_fraction"] - gt.get("out_of_room_fraction", 0.))
-    return s
+    # requests without a layout count tenfold: surviving-only means must not hide failures
+    return s + 10 * (report.get("inference_failed_requests") or 0) / max(1, report.get("requests") or 0)
 
 
 def next_config(config, *, world_size, train_rows, epochs, global_batch=96):
@@ -80,6 +82,19 @@ def complete_states(outputs):
     states = [p for o in outputs for p in glob.glob(f"{o}/state-step-*")
               if Path(p).with_name(f"model-step-{step_of(p)}").is_dir()]
     return sorted(states, key=step_of)
+
+
+def training_alive(output):
+    """Any fastfill.v2.train process whose command line names this output directory (relative or absolute)."""
+    name = Path(output).name
+    for cmdline in glob.glob("/proc/[0-9]*/cmdline"):
+        try:
+            args = Path(cmdline).read_bytes().split(b"\0")
+        except OSError:
+            continue
+        if b"fastfill.v2.train" in args and any(a.rstrip(b"/").endswith(name.encode()) for a in args):
+            return True
+    return False
 
 
 def sha256(path):
@@ -142,8 +157,10 @@ class Autopilot:
             for name, job in jobs.items():
                 done = (Path(job["output"]) / "run_manifest.json").is_file()
                 alive = job["process"] is not None and job["process"].poll() is None
-                if job["process"] is None and not done:  # adopted from an earlier launcher: watch its log
-                    alive = time.time() - Path(f"{job['output']}.log").stat().st_mtime < 1800
+                if job["process"] is None and not done:  # adopted from an earlier launcher: find its trainer processes
+                    alive = training_alive(job["output"])
+                    if alive and time.time() - Path(f"{job['output']}.log").stat().st_mtime > 3600:
+                        self.log(f"{name} alive but silent for over an hour", log=f"{job['output']}.log")
                 if done or alive:
                     pending += not done
                     continue
@@ -294,7 +311,7 @@ class Autopilot:
                     f"{get(base, 'room_center_position', 'bottom_center_error_m', 'mean')} / "
                     f"{get(base, 'category_median_size', 'log_size_error', 'mean')} / {get(base, 'uniform_yaw', 'yaw_error_rad', 'mean')}"]
         head = ("| | requests / no layout | objects inside walls | position err (m) | log-size err | yaw err (rad) | overlap | central | wall dist (m) "
-                "| out of room | ground truth overlap / central / wall | baselines centre / median size / const yaw |\n|" + "---|" * 12)
+                "| out of room | ground truth overlap / central / wall | baselines room centre / category median size (eval-set LOO) / uniform-random yaw |\n|" + "---|" * 12)
         def table(rows):
             lines = [head]
             for name, path in rows:
@@ -308,7 +325,9 @@ class Autopilot:
                 "## Best model", "", table([("validation sample (three-field)", best["report"]),
                                              ("test (three-field, then full condition in projections)", test_dir / "report.json")]), ""]
         if rows_report is not None:
-            text += ["## Same rooms: trained model vs LLM", "", table([("FastFill best", rows_report)] + sorted(self.llm_reports.items())), ""]
+            text += ["## Same rooms: trained model vs LLM", "", "FastFill best uses collision-aware spread decoding (post-processing); "
+                     "the raw argmax row is the model alone.", "",
+                     table([("FastFill best, spread decoding", rows_report)] + sorted(self.llm_reports.items())), ""]
         for tag in ("select1", "select2"):
             path = self.dir / f"{tag}-selection.json"
             if path.is_file():
@@ -339,16 +358,23 @@ class Autopilot:
         config = next_config(config, world_size=7, train_rows=rows, epochs=self.a.epochs)
         name = f"main7-cell{config['loss']['position_cell']:g}-{Path(self.data).name}-e{self.a.epochs}".replace(".", "")
         config_path = self.dir / f"{name}.json"
-        config_path.write_text(json.dumps(config, indent=2) + "\n")
+        if not config_path.is_file():
+            config_path.write_text(json.dumps(config, indent=2) + "\n")
         self.phase("E-train", run=name, config=str(config_path), data=self.data, steps=config["training"]["steps"])
         job = {"config": str(config_path), "data": self.data, "gpus": "1,2,3,4,5,6,7", "output": self.out(name),
-               "outputs": [self.out(name)]}
-        job["process"] = self.launch(job["config"], self.data, job["output"], job["gpus"])
+               "outputs": [self.out(name)], "process": None}
+        if Path(job["output"]).exists():  # a restarted autopilot adopts its own earlier launch
+            job["outputs"] += sorted(glob.glob(f"{job['output']}-resume*"))
+            job["output"] = job["outputs"][-1]
+            self.log("adopting existing training output", output=job["output"])
+        else:
+            config_path.write_text(json.dumps(config, indent=2) + "\n")
+            job["process"] = self.launch(job["config"], self.data, job["output"], job["gpus"])
         self.supervise({name: job})
         self.phase("F-evaluate-final")
         best = self.evaluate_candidates([job["outputs"]], "select2", newest=4)
         self.upload(best["checkpoint"], name)  # before the ~7 h single-GPU test evaluation, which may fail
-        self.roomgenbench(best["checkpoint"], f"best-{name}")
+        export = self.roomgenbench(best["checkpoint"], f"best-{name}")
         llm.join(timeout=4 * 3600)
         rows_report, rows = None, self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
         if rows.is_file():  # the trained model on exactly the rooms the LLM baselines answered
@@ -357,12 +383,21 @@ class Autopilot:
             rows_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
                                 "--projection", "full", "--device", "cuda", "--grid-decode", "spread", "--output", rows_out],
                                gpus="2", log=f"{rows_out}.log", wait=False)
+            raw_out = self.runs / f"llmrows-{name}-argmax"
+            shutil.rmtree(raw_out, ignore_errors=True)
+            raw_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
+                               "--projection", "full", "--device", "cuda", "--grid-decode", "argmax", "--output", raw_out],
+                              gpus="3", log=f"{raw_out}.log", wait=False)
         out = self.runs / f"test-{name}"
         self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
                  "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
                 gpus="1", log=f"{out}.log")
         if rows.is_file() and rows_job.wait() == 0:
             rows_report = rows_out / "report.json"
+        rooms = sorted(glob.glob(str(self.runs / "roomgenbench" / f"best-{name}" / "*.layout_boxes" / "receipt.json")))
+        self.log("final RoomGenBench export", returncode=export.wait(), rooms_with_receipt=len(rooms))
+        if rows.is_file() and raw_job.wait() == 0:
+            self.llm_reports["FastFill best, raw argmax (no post-processing)"] = raw_out / "report.json"
         self.summary(best, out, rows_report)
         self.phase("done", best=best, test_report=str(out / "report.json"), summary=str(self.dir / "SUMMARY.md"))
 

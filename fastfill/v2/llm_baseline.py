@@ -132,7 +132,8 @@ class RateLimiter:
 
 
 def chat(env, model, messages, *, limiter=None, timeout=300., attempts=6):
-    body = json.dumps({"model": model, "temperature": 0, "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
+    # no temperature / reasoning parameters: reasoning models reject them, and their defaults are wanted
+    body = json.dumps({"model": model, "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
     for attempt in range(attempts):
         if limiter is not None:
             limiter.wait()
