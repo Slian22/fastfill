@@ -7,11 +7,13 @@ Phases (state in <runs>/autorun/STATUS.json, log in <runs>/autorun/autorun.log):
      projection, collision-aware spread decoding), one GPU each
   C  select the winner (``score``), export its RoomGenBench hand-off for the five benchmark rooms (CPU)
   D  wait for <data root>/NEXT_DATA.json (written after a rebuild is uploaded to Hugging Face) at most
-     ``--data-wait-h`` hours; download and verify it and pull the matching code, else keep the current data
+     ``--data-wait-h`` hours; download and verify it and pull the matching code, else stop (phase failed)
   E  train the winner's configuration on all GPUs for ``--epochs`` epochs (same global batch), with the
      same crash-resume rule as A
-  F  evaluate its newest checkpoints, select, evaluate the best on the test set, export RoomGenBench,
-     upload the best model directory to a private Hugging Face model repository
+  F  evaluate its newest checkpoints on the whole validation set, select, upload the best model directory to
+     a private Hugging Face model repository (an upload error is a recorded failure), evaluate the best on the
+     test set with spread and raw argmax decoding, export RoomGenBench; accepted (phase ``done``) only when
+     every check passes, else ``done-with-failures``. Requests over the model capacity are reported, not failed
   LLM (background from C) once the API env file exists: prompt-only and harness LLM baselines on the
      first ``--llm-rows`` three-field rows of the validation sample, scored by evaluate --predictions; in F
      the best model is scored on the same rows. ``done`` writes <runs>/autorun/SUMMARY.md.
@@ -96,6 +98,11 @@ def training_alive(output):
         if b"fastfill.v2.train" in args and any(a.rstrip(b"/").endswith(name.encode()) for a in args):
             return True
     return False
+
+
+def any_training_alive():
+    """Any fastfill.v2.train process on this machine: GPU jobs must never start beside one."""
+    return training_alive("")
 
 
 def sha256(path):
@@ -190,21 +197,22 @@ class Autopilot:
             time.sleep(120)
 
     # -- evaluation -------------------------------------------------------------------------------
-    def eval_data(self):
-        """A seeded random sample of --eval-rows validation rows: the file is grouped by source, so its head
-        (what --max-samples reads) leaves whole sources out."""
+    def eval_data(self, rows=None):
+        """A seeded random sample of --eval-rows (or `rows`; "all" = the whole file) validation rows: the file is
+        grouped by source, so its head (what --max-samples reads) leaves whole sources out."""
+        rows = rows or self.a.eval_rows
         source = f"{self.data}/validation.jsonl"
-        path = self.dir / f"validation-{sha256(source)[:12]}-{self.a.eval_rows}.jsonl"  # bound to the file's content
+        path = self.dir / f"validation-{sha256(source)[:12]}-{rows}.jsonl"  # bound to the file's content
         if not path.is_file():
             with open(source) as stream:
                 lines = [line.rstrip("\n") + "\n" for line in stream if line.strip()]
             random.Random(0).shuffle(lines)
-            path.write_text("".join(lines[:int(self.a.eval_rows)]))
+            path.write_text("".join(lines if rows == "all" else lines[:int(rows)]))
         return path
 
-    def evaluate_candidates(self, runs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7")):
+    def evaluate_candidates(self, runs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7"), data=None):
         """runs: one list of output directories (the run and its resumes) per run; its newest checkpoints compete."""
-        candidates, data = [], self.eval_data()
+        candidates, data = [], data or self.eval_data()
         for outputs in runs:
             candidates += sorted((p for o in outputs for p in glob.glob(f"{o}/model-step-*")), key=step_of)[-newest:]
         results = []
@@ -221,6 +229,8 @@ class Autopilot:
                         continue
                     out.rename(out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}"))
                     self.log("stale evaluation set aside", output=str(out))
+                if any_training_alive():  # e.g. a restarted autopilot whose cached evaluation went missing
+                    raise RuntimeError(f"{tag}: {checkpoint} needs a GPU evaluation while a fastfill.v2.train process runs")
                 jobs.append((checkpoint, out, self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", checkpoint,
                     "--data", data, "--projection", "minimal",
                     "--device", "cuda", "--grid-decode", "spread", "--output", out], gpus=gpu, log=f"{out}.log", wait=False)))
@@ -242,6 +252,13 @@ class Autopilot:
         return results[0]
 
     def roomgenbench(self, checkpoint, tag):
+        out, bound = self.runs / "roomgenbench" / tag, self.runs / "roomgenbench" / tag / "checkpoint.txt"
+        if (len(glob.glob(str(out / "*.layout_boxes" / "receipt.json"))) == 5 and bound.is_file()
+                and bound.read_text().strip() == str(checkpoint)):
+            self.log("RoomGenBench hand-off already complete", tag=tag)  # a restarted autopilot
+            return subprocess.Popen(["true"])
+        out.mkdir(parents=True, exist_ok=True)
+        bound.write_text(f"{checkpoint}\n")
         return self.sh(["bash", "runs/roomgenbench/run_checkpoint.sh", checkpoint, tag],
                        log=self.runs / "roomgenbench" / f"{tag}.log", wait=False)
 
@@ -250,9 +267,8 @@ class Autopilot:
         marker, deadline = Path(self.a.data_root) / "NEXT_DATA.json", time.time() + 3600 * self.a.data_wait_h
         while not marker.is_file() and time.time() < deadline:
             time.sleep(120)
-        if not marker.is_file():
-            self.log("no new data before the deadline; keeping the current data", data=self.data)
-            return
+        if not marker.is_file():  # never train the formal run on data that was meant to be replaced
+            raise RuntimeError(f"no {marker} within {self.a.data_wait_h} h; publish the rebuilt data and restart the autopilot")
         spec = json.loads(marker.read_text())
         missing = {"train.jsonl", "validation.jsonl", "test.jsonl"} - set(spec["sha256"])
         if missing:  # phase F reads test.jsonl only ~10 h later
@@ -306,7 +322,7 @@ class Autopilot:
             except Exception as error:
                 self.log(f"LLM {mode} baseline failed", error=f"{type(error).__name__}: {error}")
 
-    def summary(self, best, test_dir, rows_report, failures=()):
+    def summary(self, best, test_dir, rows_report, failures=(), raw_test=None):
         """SUMMARY.md: selection, the best model on validation and test, and the model next to the LLM baselines."""
         def metrics(path):
             r = json.loads(Path(path).read_text())
@@ -317,7 +333,9 @@ class Autopilot:
                 return f"{d:.3f}" if isinstance(d, float) else "-"
             walls = (r.get("target_validation_checks") or {}).get("boundary") or {}
             inside = walls.get("pass", 0) / max(1, walls.get("pass", 0) + walls.get("violation", 0))
-            return [f"{r.get('requests', '-')} / {r.get('inference_failed_requests', '-')}", f"{inside:.3f}",
+            failed = f"{r.get('inference_failed_requests', '-')}" + (f" ({r['over_capacity_requests']} over capacity)"
+                                                                       if r.get("over_capacity_requests") else "")
+            return [f"{r.get('requests', '-')} / {failed}", f"{inside:.3f}",
                     get(ref, "bottom_center_error_m", "mean"),
                     get(ref, "log_size_error", "mean"), get(ref, "yaw_error_rad", "mean"),
                     get(pred, "bev_overlap_rate_iou_gt_0.3"), get(pred, "central_quarter_fraction"),
@@ -336,12 +354,19 @@ class Autopilot:
                 except Exception as error:
                     lines.append(f"| {name} | unreadable: {type(error).__name__} |")
             return "\n".join(lines)
+        passed = ("PASSED (test report with a layout for every request within the model capacity, raw argmax test report, "
+                  "five RoomGenBench rooms assembled as bbox scenes; their validator/physics are not run)")
         text = [f"# FastFill v2 autopilot summary ({time.strftime('%Y-%m-%d %H:%M')})", "",
                 f"Best model: `{best['checkpoint']}` (selection score {best['score']:.4f}; lower is better)", "",
-                f"Acceptance: {'PASSED (test report, five RoomGenBench rooms, every test request has a layout)' if not failures else 'FAILED: ' + '; '.join(failures)}. "
-                f"The model was uploaded to {self.a.model_repo} before these checks; treat it as accepted only if they passed.", "",
-                "## Best model", "", table([("validation sample (three-field)", best["report"]),
-                                             ("test (three-field, then full condition in projections)", test_dir / "report.json")]), ""]
+                f"Acceptance: {passed if not failures else 'FAILED: ' + '; '.join(failures)}. "
+                + (f"The model was uploaded to {self.a.model_repo} before these checks; treat it as accepted only if they passed."
+                 if not any(f.startswith("upload failed") for f in failures) else "The model upload failed; the checkpoint stays on the server."), "",
+                "Requests over the model capacity (more objects than max_objects) count as no layout and are listed separately; "
+                "'objects inside walls' is the validator's bbox check, 'out of room' only the bottom-centre.", "",
+                "## Best model", "", table([("validation (three-field, select2 cohort)", best["report"]),
+                                             ("test (three-field), spread decoding", test_dir / "report.json")]
+                                            + ([("test (three-field), raw argmax: the model alone", raw_test)] if raw_test else [])), "",
+                "The full-condition test results are in the test report under projections.full.", ""]
         if rows_report is not None:
             text += ["## Same rooms: trained model vs LLM", "", "FastFill best uses collision-aware spread decoding (post-processing); "
                      "the raw argmax row is the model alone.", "",
@@ -349,7 +374,9 @@ class Autopilot:
         for tag in ("select1", "select2"):
             path = self.dir / f"{tag}-selection.json"
             if path.is_file():
-                text += [f"## {tag} ranking", ""] + [f"- {r['score']:.4f} `{r['checkpoint']}`" for r in json.loads(path.read_text())] + [""]
+                ranking = json.loads(path.read_text())
+                text += [f"## {tag} ranking (its own validation cohort; scores of different tags are not comparable)", ""] + \
+                        [f"- {r['score']:.4f} `{r['checkpoint']}`" for r in ranking] + [""]
         (self.dir / "SUMMARY.md").write_text("\n".join(text) + "\n")
         self.log("wrote SUMMARY.md")
 
@@ -385,14 +412,23 @@ class Autopilot:
             self.adopt(job)
         else:
             config_path.write_text(json.dumps(config, indent=2) + "\n")
+            if any_training_alive():
+                raise RuntimeError(f"{name}: would launch beside a running fastfill.v2.train process")
             job["process"] = self.launch(job["config"], self.data, job["output"], job["gpus"])
         self.supervise({name: job})
         self.phase("F-evaluate-final")
-        best = self.evaluate_candidates([job["outputs"]], "select2", newest=4)
-        self.upload(best["checkpoint"], name)  # an UNACCEPTED backup until the checks below pass (see final phase)
+        best = self.evaluate_candidates([job["outputs"]], "select2", newest=4, data=self.eval_data("all"))
+        failures, uploaded = [], True
+        try:
+            self.upload(best["checkpoint"], name)  # an UNACCEPTED backup until the checks below pass (see final phase)
+        except Exception as error:  # the evaluations below still run
+            uploaded = False
+            failures.append(f"upload failed: {type(error).__name__}: {error}")
+            self.log(failures[-1])
         export = self.roomgenbench(best["checkpoint"], f"best-{name}")
         llm.join(timeout=4 * 3600)
-        rows_report, rows = None, self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
+        rows_report, rows_job, raw_job = None, None, None
+        rows = self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
         if rows.is_file():  # the trained model on exactly the rooms the LLM baselines answered
             rows_out = self.runs / f"llmrows-{name}"
             shutil.rmtree(rows_out, ignore_errors=True)
@@ -404,29 +440,36 @@ class Autopilot:
             raw_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
                                "--projection", "full", "--device", "cuda", "--grid-decode", "argmax", "--output", raw_out],
                               gpus="3", log=f"{raw_out}.log", wait=False)
-        out = self.runs / f"test-{name}"
-        self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
-                 "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
-                gpus="1", log=f"{out}.log")
-        if rows.is_file() and rows_job.wait() == 0:
+        out, raw_test = self.runs / f"test-{name}", self.runs / f"test-{name}-argmax"
+        shutil.rmtree(raw_test, ignore_errors=True)
+        raw_test_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data",
+                                f"{self.data}/test.jsonl", "--projection", "minimal", "--device", "cuda", "--grid-decode", "argmax",
+                                "--output", raw_test], gpus="4", log=f"{raw_test}.log", wait=False)  # the model alone
+        shutil.rmtree(out, ignore_errors=True)  # evaluate refuses an existing output; a rerun of F starts over
+        if self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
+                    "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
+                   gpus="1", log=f"{out}.log", wait=False).wait():
+            failures.append("spread test evaluation failed")
+        if rows_job is not None and rows_job.wait() == 0:
             rows_report = rows_out / "report.json"
-        rooms = sorted(glob.glob(str(self.runs / "roomgenbench" / f"best-{name}" / "*.layout_boxes" / "receipt.json")))
         export_code = export.wait()  # wait first, then count the five rooms' receipts
         rooms = sorted(glob.glob(str(self.runs / "roomgenbench" / f"best-{name}" / "*.layout_boxes" / "receipt.json")))
         self.log("final RoomGenBench export", returncode=export_code, rooms_with_receipt=len(rooms))
-        if rows.is_file() and raw_job.wait() == 0:
+        if raw_job is not None and raw_job.wait() == 0:
             self.llm_reports["FastFill best, raw argmax (no post-processing)"] = raw_out / "report.json"
-        failures = [f"RoomGenBench export exit {export_code}"] if export_code else []
+        failures += [f"RoomGenBench export exit {export_code}"] if export_code else []
         failures += [f"RoomGenBench receipts {len(rooms)}/5"] if len(rooms) != 5 else []
+        if raw_test_job.wait():
+            failures.append("raw argmax test evaluation failed")
         if not (out / "report.json").is_file():
             failures.append("test report missing")
         else:
             test = json.loads((out / "report.json").read_text())
-            failures += [f"test: {test['inference_failed_requests']} of {test['requests']} requests without a layout"] \
-                if test.get("inference_failed_requests") else []
-        self.summary(best, out, rows_report, failures)
+            failed = test["inference_failed_requests"] - test.get("over_capacity_requests", 0)  # capacity is reported, not failed
+            failures += [f"test: {failed} of {test['requests']} requests without a layout"] if failed else []
+        self.summary(best, out, rows_report, failures, raw_test / "report.json")
         self.phase("done" if not failures else "done-with-failures", best=best, failures=failures,
-                   uploaded_model=f"{self.a.model_repo}/{name}", accepted=not failures,
+                   uploaded_model=f"{self.a.model_repo}/{name}" if uploaded else None, accepted=not failures,
                    test_report=str(out / "report.json"), summary=str(self.dir / "SUMMARY.md"))
 
 

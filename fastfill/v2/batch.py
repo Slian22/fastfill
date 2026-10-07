@@ -420,6 +420,9 @@ def augment_sample(sample: dict, augment: dict, generator: torch.Generator | Non
     return {**sample, "condition": condition, "target": target, "validity": validity}
 
 
+OBJECT_BUDGET_ERROR = "request exceeds object budget"  # evaluate counts these as over-capacity requests
+
+
 def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 4096, max_objects: int = 128,
                     augment: dict | None = None, generator: torch.Generator | None = None) -> dict:
     """Batch samples; ``augment`` (training loader only) applies ``augment_sample`` to each one first."""
@@ -437,7 +440,7 @@ def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 40
         if len(ids) != len(set(ids)) or any(not isinstance(i, str) or not i for i in ids):
             raise ValueError("request IDs must be unique nonempty strings")
         if len(objects) > max_objects:
-            raise ValueError("request exceeds object budget; rebuild a complete subscene")
+            raise ValueError(f"{OBJECT_BUDGET_ERROR}; rebuild a complete subscene")
         tokens, object_spans = tokenize_condition(condition, tokenizer)
         if len(tokens) > max_length:
             raise ValueError("condition exceeds context budget; no partial truncation is allowed")

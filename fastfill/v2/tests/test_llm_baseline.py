@@ -84,3 +84,15 @@ def test_reasoning_effort_defaults_to_medium_and_is_recorded(tmp_path):
     summary = llm_baseline.run(tmp_path / "rows.jsonl", tmp_path / "o", tmp_path / "api.env", ask=lambda *a: _answer_from_targets(row))
     assert summary["request_parameters"]["reasoning_effort"] == "medium" and summary["endpoint"] == "https://relay/v1/chat/completions"
     assert "secret-test-key" not in json.dumps(summary) + (tmp_path / "o/summary.json").read_text()
+
+
+def test_duplicate_unknown_or_missing_ids_make_the_answer_a_failure(tmp_path):
+    row = [p for p in map(project_minimal, real_rows()) if p is not None][0]
+    good = json.loads(_answer_from_targets(row).strip("`\njson"))
+    for objects in (good["objects"] + good["objects"][:1], good["objects"][1:] + [{**good["objects"][0], "id": "nope"}]):
+        try:
+            llm_baseline.to_layout(json.dumps({"objects": objects}), row["condition"])
+        except ValueError as error:
+            assert "exactly once" in str(error)
+        else:
+            raise AssertionError("an answer with a duplicated or unknown id was accepted")

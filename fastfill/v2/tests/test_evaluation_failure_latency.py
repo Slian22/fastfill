@@ -59,3 +59,16 @@ def test_supplied_predictions_do_not_invent_generation_latency(tmp_path):
     assert all(row["fastfill_latency_status"] == "unobserved" for row in outcomes)
     assert report["latency_ms"]["fastfill_observed_requests"] == 0
     assert report["latency_ms"]["fastfill_p95"] is None
+
+
+def test_requests_over_the_object_budget_are_counted_as_over_capacity(tmp_path, monkeypatch):
+    from fastfill.v2.batch import collate_samples
+    data = tmp_path / "requests.jsonl"
+    dataset(data)
+    monkeypatch.setattr(evaluate, "load_model", lambda *a, **k: SimpleNamespace(config=SimpleNamespace(backbone="tiny")))
+    monkeypatch.setattr(evaluate, "load_tokenizer", lambda *a, **k: object())
+    def generate(model, tokenizer, condition, *args, **kwargs):  # the real budget check, here of a 0-object model
+        collate_samples([{"condition": condition}], tokenizer, max_objects=0)
+    monkeypatch.setattr(evaluate, "predict_layout", generate)
+    report = evaluate.run_evaluation(data, tmp_path / "evaluation", checkpoint=tmp_path / "mock.pt")
+    assert report["inference_failed_requests"] == report["over_capacity_requests"] == 2

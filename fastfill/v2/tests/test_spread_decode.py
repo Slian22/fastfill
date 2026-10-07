@@ -53,3 +53,9 @@ def test_raised_items_without_a_supporting_footprint_go_to_the_floor_and_floor_i
     position = np.array([[0., 0., -.04], [0., 0., .9]])
     xy, _, z = spread_grid_xy(logits, torch.zeros(2, 16, 2), 4, size, np.zeros(2), position, ROOM)
     assert np.allclose(z, [0., 0.]) and np.allclose(xy[1], [3.5, 3.5])
+
+
+def test_footprints_within_the_margin_past_a_wall_slide_back_inside():
+    logits = _logits(0)[None]  # cell 0 centre (0.5, 0.5): a 1.02 m box reaches 1 cm past both walls
+    xy, _, _ = spread_grid_xy(logits, torch.zeros(1, 16, 2), 4, np.array([[1.02, 1.02, 1.]]), np.zeros(1), np.zeros((1, 3)), ROOM)
+    assert np.allclose(xy[0], [.51, .51])

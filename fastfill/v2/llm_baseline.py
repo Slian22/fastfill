@@ -69,6 +69,11 @@ def to_layout(reply, condition):
     """LLM JSON -> fastfill.v2 layout: local +X is the front, so size = [depth, width, height] and yaw = facing."""
     text = re.sub(r"^```(?:json)?|```$", "", reply.strip(), flags=re.MULTILINE).strip()
     text = text[text.find("{"):text.rfind("}") + 1]
+    ids = [str(o["id"]) for o in json.loads(text)["objects"]]
+    requested = [str(o["id"]) for o in condition["objects"]]
+    if sorted(ids) != sorted(requested):  # duplicates, unknown or missing ids make the answer invalid, not cleaned
+        raise ValueError(f"answer must hold each requested id exactly once: duplicated {sorted({i for i in ids if ids.count(i) > 1})}, "
+                         f"unknown {sorted(set(ids) - set(requested))}, missing {sorted(set(requested) - set(ids))}")
     answers = {str(o["id"]): o for o in json.loads(text)["objects"]}
     objects = []
     for request in condition["objects"]:

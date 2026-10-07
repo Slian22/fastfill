@@ -1,5 +1,4 @@
-"""Round 4 (L3): spread decoding honours declared supports (requests, fixed objects, "floor", "wall") and fixed z;
-undeclared objects decode as before round 4."""
+"""Round 4 (L3): spread decoding honours declared supports (requests, fixed objects, "floor", "wall") and fixed z."""
 import numpy as np
 import pytest
 import torch

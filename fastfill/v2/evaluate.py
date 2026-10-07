@@ -32,7 +32,7 @@ import numpy as np
 from shapely.geometry import Point, Polygon
 import torch
 
-from fastfill.v2.batch import (AUGMENT_DEFAULTS, _geometry_rows, augment_sample, collate_samples, minimal_form_eligible,
+from fastfill.v2.batch import (AUGMENT_DEFAULTS, OBJECT_BUDGET_ERROR, _geometry_rows, augment_sample, collate_samples, minimal_form_eligible,
                                load_tokenizer, room_normalization)
 from fastfill.v2.boxes import bev_iou
 from fastfill.v2.geometry import decode_yaw, wrap_yaw
@@ -123,7 +123,8 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     z the condition fixes (``fixed_position_mask[..., 2]``). Without them every object is undeclared.
 
     Objects are placed floor-standing before raised ones, parents before their declared children, largest
-    footprint first; each takes its most probable cell whose footprint stays in the room and overlaps no placed
+    footprint first; each takes its most probable cell whose footprint stays in the room (a footprint at most
+    ``margin`` past a wall slides back inside first) and overlaps no placed
     or fixed object that shares its height interval (overlap / smaller footprint <= max_overlap). Identical
     requests, whose argmax cells coincide, therefore spread over their next most probable cells. If no
     candidate qualifies, the least overlapping one is used (for a declared child: on its parent).
@@ -142,7 +143,7 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     An undeclared raised object (predicted bottom > 0.15 m above the floor) rests on a placed or fixed
     floor-standing object: it takes its most probable cell (at least 10% as likely as its best) whose centre lies inside
     such an object's footprint and sits on the highest such top; with no such cell it goes to the floor at its
-    most probable free cell. Without declarations, fixed objects or fixed z it decodes exactly as before round 4.
+    most probable free cell.
     """
     # ponytail: rotated footprints are compared by their axis-aligned bounds (exact for 90-degree yaws,
     # conservative otherwise); switch to shapely polygons if oblique furniture matters.
@@ -231,7 +232,10 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
             snapped = bin_centres[best] + yaw_residuals[i, best] * np.pi / bins
             cand_yaw = np.where(gaps.min(-1) < near_wall, (snapped + np.pi) % (2 * np.pi) - np.pi, cand_yaw)
         cand_half = halves(cand_yaw, size[i])  # k x 2
-        outside = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1) > margin
+        over = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1)
+        snap = (over > 0) & (over <= margin)  # within the margin past a wall: slide back inside (the validator allows 1e-4)
+        cand = np.where(snap[:, None], np.clip(cand, lo + cand_half, hi - cand_half), cand)
+        outside = over > margin
         if on_object[i]:
             cand_z, supported = np.full(len(cand), top), (np.abs(cand - base) <= base_half).all(-1)
         else:
@@ -670,6 +674,8 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
     report = {"requests": n, "failed_requests": sum((not o.get("runtime", {}).get("ok", False))
               if asset_evaluated else ("error" in o or not o.get("model", {}).get("target_geometry_valid", False)) for o in outcomes),
               "inference_failed_requests": inference_failures, "system_failed_requests": system_failures,
+              # of the inference failures: requests with more objects than the checkpoint's max_objects
+              "over_capacity_requests": sum(OBJECT_BUDGET_ERROR in o.get("error", {}).get("message", "") for o in outcomes),
               "target_validation_checks": _check_counts(outcomes),
               "target_validation_not_run": sum(not o.get("target_validation") for o in outcomes),
               "stage_denominator": n, "stage_failures": {
