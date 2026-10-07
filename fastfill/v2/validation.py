@@ -194,6 +194,13 @@ def _bounds_checks(request, obj, tol):
     return checks
 
 
+def _on_boundary(obj, room, tolerance):
+    """A side of the footprint lies within tolerance of the room boundary."""
+    zone = _polygon(room["floor_polygon_xy_m"]).exterior.buffer(tolerance+1e-9)
+    corners = tuple(footprint(obj).exterior.coords)
+    return any(zone.contains(LineString((a, b))) for a, b in zip(corners, corners[1:]))
+
+
 def _support(request, obj, index, room, stage, tol):
     parent = request.get("support_parent")
     ids = (obj["id"],)
@@ -204,6 +211,10 @@ def _support(request, obj, index, room, stage, tol):
         if room.get("floor_known") is False or z is None:
             return _check("floor_unknown", "unknown", ids)
         return _check("floor_support", "pass" if abs(obj["_pos"][2] - z) <= tol else "violation", ids)
+    if parent == "wall":  # a box shows a footprint side on the room boundary, not the mounting itself
+        if room.get("boundary_known") is False or room.get("floor_polygon_xy_m") is None:
+            return _check("wall_unknown", "unknown", ids)
+        return _check("wall_support", "pass" if _on_boundary(obj, room, tol) else "violation", ids)
     if parent not in index:
         return _check("support_parent_missing", "violation", ids, parent_id=parent)
     ids = (obj["id"], parent)
@@ -248,7 +259,7 @@ def _constraint(c, index, room, stage, tol):
     obj = index.get(ident)
     target_id = c.get("target_id", c.get("parent_id"))
     target = index.get(target_id)
-    if target_id is not None and target is None and target_id != "floor":
+    if target_id is not None and target is None and target_id not in ("floor", "wall"):
         return _check("constraint_reference", "violation", ids, hard=hard, target_id=target_id)
     if kind in ("faces_direction", "faces"):
         angle = _face_angle(obj, stage)
@@ -285,10 +296,7 @@ def _constraint(c, index, room, stage, tol):
         tolerance = _vector((c.get("tolerance_m", .1),), 1)[0]
         if tolerance < 0:
             raise ValueError("wall tolerance must be nonnegative")
-        zone = _polygon(room["floor_polygon_xy_m"]).exterior.buffer(tolerance+1e-9)
-        corners = tuple(footprint(obj).exterior.coords)
-        holds = any(zone.contains(LineString((a, b))) for a, b in zip(corners, corners[1:]))
-        return _check("constraint", "pass" if holds else "violation", ids, hard=hard,
+        return _check("constraint", "pass" if _on_boundary(obj, room, tolerance) else "violation", ids, hard=hard,
                       constraint_type=kind, tolerance_m=tolerance)
     if kind == "between":
         targets = c.get("target_ids")

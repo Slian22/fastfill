@@ -262,7 +262,8 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
     from fastfill.v2.tests.test_evaluate_fix20261006 import real_rows
     from fastfill.v2.tests.test_llm_baseline import _answer_from_targets
     (tmp_path / "fastfill/v2").mkdir(parents=True)
-    shutil.copy(llm_baseline.__file__, tmp_path / "fastfill/v2/llm_baseline.py")  # the code the subprocess would run
+    for code in Path(llm_baseline.__file__).parent.glob("*.py"):  # the code the subprocesses would run
+        shutil.copy(code, tmp_path / "fastfill/v2" / code.name)
     rows = [p for p in map(project_minimal, real_rows()) if p is not None]
     answers = {llm_baseline.prompt(r["condition"]): _answer_from_targets(r) for r in rows}
     sample, env = tmp_path / "sample.jsonl", tmp_path / "api.env"
@@ -286,7 +287,7 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
     calls.clear()
     pilot.llm_baselines(sample)  # a restart with the same inputs
     assert calls == []
-    for change in ("rows", "parameters", "predictions", "old summary", "code"):
+    for change in ("rows", "parameters", "predictions", "evaluator", "old summary", "code"):
         calls.clear()
         if change == "rows":
             sample.write_text("".join(json.dumps(r) + "\n" for r in rows[::-1]))
@@ -295,6 +296,9 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
         elif change == "predictions":  # e.g. an earlier autopilot's scored report next to regenerated predictions
             predictions = pilot.runs / "llm-prompt-300/predictions.jsonl"
             predictions.write_text(predictions.read_text() + "\n")
+        elif change == "evaluator":  # scored by another evaluate implementation (same rows and predictions)
+            report = pilot.runs / "llm-prompt-300-eval/report.json"
+            report.write_text(json.dumps({**json.loads(report.read_text()), "implementation_sha256": "OLD_EVALUATOR"}))
         elif change == "old summary":  # the c750c31 summary: no identity recorded
             summary = pilot.runs / "llm-harness-300/summary.json"
             summary.write_text(json.dumps({k: v for k, v in json.loads(summary.read_text()).items()
@@ -304,7 +308,8 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
             code.write_text(code.read_text() + "\n")
         pilot.llm_baselines(sample)
         both = ["fastfill.v2.llm_baseline", "fastfill.v2.evaluate"]
-        assert calls == {"predictions": ["fastfill.v2.evaluate"], "old summary": both}.get(change, both * 2), change
+        assert calls == {"predictions": ["fastfill.v2.evaluate"], "evaluator": ["fastfill.v2.evaluate"],
+                         "old summary": both}.get(change, both * 2), change
         if change != "code":
             calls.clear()
             pilot.llm_baselines(sample)  # converged: nothing left to redo

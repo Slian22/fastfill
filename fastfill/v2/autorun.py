@@ -344,8 +344,8 @@ class Autopilot:
         """Prompt-only and harness LLM baselines once the API env file exists, each scored by evaluate --predictions.
 
         A restarted autopilot reuses a baseline only when its summary.json records these rows, the llm_baseline.py on disk
-        and the request parameters of the env file's model, and its scored report only when that records these rows and
-        predictions; anything else (interrupted, older or other inputs) is removed and run again."""
+        and the request parameters of the env file's model, and its scored report only when that records these rows,
+        predictions and the evaluate code on disk; anything else (interrupted, older or other inputs) is removed and run again."""
         from fastfill.v2.llm_baseline import load_env, request_parameters
         env = Path(self.a.llm_env)
         while not env.is_file():
@@ -364,7 +364,8 @@ class Autopilot:
                     self.sh([self.python, "-m", "fastfill.v2.llm_baseline", "--data", rows_file, "--env", env, "--mode", mode,
                              "--max-samples", self.a.llm_rows, "--output", out], log=f"{out}.log")
                 if not recorded(scored / "report.json", data_sha256=sha256(out / "rows.jsonl"),
-                                predictions_sha256=sha256(out / "predictions.jsonl")):
+                                predictions_sha256=sha256(out / "predictions.jsonl"),
+                                implementation_sha256=implementation_sha256(self.root)):
                     shutil.rmtree(scored, ignore_errors=True)
                     self.sh([self.python, "-m", "fastfill.v2.evaluate", "--data", out / "rows.jsonl", "--predictions",
                              out / "predictions.jsonl", "--output", scored], log=f"{scored}.log")

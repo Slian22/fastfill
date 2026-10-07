@@ -79,7 +79,7 @@ def regularizer_specs(condition, config):
     return objects, room, tuple(pairs), tuple(fixed_pairs)
 
 
-def scene_regularizers(positions, sizes, yaws, batch, config):
+def scene_regularizers(positions, sizes, yaws, batch, config, global_counts=True):
     from fastfill.v2.losses import _mean
     zero = (positions[batch["slot_mask"]] * 0).sum()
     collision, boundary = [], []
@@ -95,6 +95,6 @@ def scene_regularizers(positions, sizes, yaws, batch, config):
             q, t, z = [positions.new_tensor(fixed[k]) for k in ("bottom_center_m", "size_local_m", "yaw_rad")]
             collision.append(_collision(positions[b, i], sizes[b, i], yaws[b, i], q, t, z))
     terms = {"collision": collision, "boundary": boundary}
-    return {**{key: _mean(sum(values, zero), len(values))[0] for key, values in terms.items()},
+    return {**{key: _mean(sum(values, zero), len(values), global_counts)[0] for key, values in terms.items()},
             "sums": {key: sum((v.detach().float() for v in values), torch.zeros((), device=zero.device)) for key, values in terms.items()},
             "counts": {key: len(values) for key, values in terms.items()}}

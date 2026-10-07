@@ -33,12 +33,13 @@ def asset_key(category, description):
 
 
 def _request_objects(entries, max_objects):
+    """Expanded request objects; an optional ``support_parent`` ("floor", "wall" or another entry's id) is kept."""
     if not isinstance(entries, list) or not entries:
         raise ValueError("furniture_list must be a nonempty list")
     objects = []
     for entry in entries:
         item = {"category": entry} if isinstance(entry, str) else entry
-        _keys(item, {"id", "category", "description", "count"}, {"category"}, "furniture")
+        _keys(item, {"id", "category", "description", "count", "support_parent"}, {"category"}, "furniture")
         category = _id(item["category"], "furniture category")
         description = item.get("description", category)
         if not isinstance(description, str):
@@ -50,9 +51,16 @@ def _request_objects(entries, max_objects):
             raise ValueError("an explicit furniture ID requires count=1")
         if len(objects) + count > max_objects:
             raise ValueError("furniture inventory exceeds max_objects; do not truncate the request")
+        support = {"support_parent": _id(item["support_parent"], "furniture support_parent")} if "support_parent" in item else {}
         expanded = [{"id": _id(item.get("id", f"obj_{len(objects) + index:04d}")),
-                     "category": category, "description": description} for index in range(count)]
+                     "category": category, "description": description, **support} for index in range(count)]
         objects = objects + expanded
+    ids = {obj["id"] for obj in objects}
+    for obj in objects:  # cycles: validate_condition ("support graph contains a cycle")
+        parent = obj.get("support_parent")
+        if parent is not None and (parent == obj["id"] or parent not in ids | {"floor", "wall"}):
+            raise ValueError(f"furniture {obj['id']!r}: support_parent {parent!r} must be "
+                             "\"floor\", \"wall\" or the id of another furniture entry")
     return objects
 
 
@@ -65,7 +73,9 @@ def request_to_condition(request, *, max_objects=128, room_size_semantics="recta
     rectangular declares a known rectangle and floor. reference_extent uses
     the same coordinates for normalization without declaring a physical room
     boundary or a measured floor. The profile is configuration, not a fourth
-    request field.
+    request field. A furniture entry may declare ``support_parent`` ("floor", "wall"
+    or another entry's id); it is copied to the condition object (the full-condition
+    field the shared three-field projection drops), so entries without it are unchanged.
     """
     _keys(request, {"room_type", "room_size_m", "furniture_list"},
           {"room_type", "room_size_m", "furniture_list"}, "direct request")
@@ -86,10 +96,14 @@ def request_to_condition(request, *, max_objects=128, room_size_semantics="recta
     # The rendered text is the shared three-field projection (batch.render_minimal_condition), byte for
     # byte what a rectangular training row becomes under minimal_form_p; on top come only the unrendered
     # quality tag and the reference_extent profile's unknown boundary.
+    objects = _request_objects(request["furniture_list"], max_objects)
     condition = render_minimal_condition({"schema_version": "fastfill.v2", "room": room,
-                 "objects": _request_objects(request["furniture_list"], max_objects), "constraints": []})
+                 "objects": objects, "constraints": []})
     condition["room"].update(boundary_known=known_rectangle,
             boundary_quality="explicit_rectangular_request" if known_rectangle else "source_reference_extent")
+    for rendered, obj in zip(condition["objects"], objects):
+        if "support_parent" in obj:
+            rendered["support_parent"] = obj["support_parent"]
     validate_condition(condition)
     return condition
 

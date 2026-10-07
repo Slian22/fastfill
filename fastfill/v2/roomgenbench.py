@@ -3,6 +3,7 @@
 Only the upstream geometry helpers are imported. Its fixed five-scene CLI,
 global paths, reference GT branch and source files are never changed. Asset
 generation is a separate step; this adapter consumes generated GLB/sidecars.
+``--requests-from`` instead writes the benchmark scenes as FastFill requests (``benchmark_request``).
 """
 from __future__ import annotations
 
@@ -249,16 +250,70 @@ def assemble_handoff(handoff, output_dir, *, method="layout_boxes", assets_dir=N
     return receipt
 
 
+def benchmark_request(scene):
+    """FastFill request for a RoomGenBench scene (bench/inputs/scenes/*.json): every object, wall ones included.
+
+    Entries are named ``obj_%04d`` in scene order, the training id style (``obj_0007`` is
+    ``scene["objects"][7]``): the scene's long ids put the restaurant at 9,362 Qwen3 condition tokens,
+    over the 8,192 training ``max_length`` (6,727 with these). Each declares its ``place_id`` ("floor",
+    "wall" or the supporter, renamed alike) as ``support_parent``; room_size_m is [width, length, height].
+    """
+    dims = scene["room"]["dimensions"]
+    ids = {o["id"]: f"obj_{index:04d}" for index, o in enumerate(scene["objects"])}
+    return {"room_type": scene["room_type"], "room_size_m": [dims["width"], dims["length"], dims["height"]],
+            "furniture_list": [{"id": ids[o["id"]], "category": o["type"], "description": o["description"],
+                                "support_parent": ids.get(o["place_id"], o["place_id"])} for o in scene["objects"]]}
+
+
+def write_benchmark_requests(scenes_dir, output_dir, *, roomgenbench_root=None):
+    """Write ``<scene_key>.json`` per scene into a new directory outside the reference checkout;
+    returns per-scene counts (requested, floor, wall, on_object)."""
+    from .direct_layout import request_to_condition
+    target = safe_output(output_dir)
+    reference = Path(roomgenbench_root or Path(__file__).resolve().parents[2] / "RoomGenBench").resolve()
+    if target == reference or reference in target.parents:
+        raise ValueError("request directory must remain outside the reference repository")
+    scenes = sorted(Path(scenes_dir).glob("*.json"))
+    if not scenes:
+        raise ValueError(f"no RoomGenBench scene JSON in {scenes_dir}")
+    payloads, summary = {}, []
+    for path in scenes:
+        scene = _read_json(path)
+        request = benchmark_request(scene)
+        request_to_condition(request)  # schema check only, with predict --request's default max_objects
+        places = Counter(o["support_parent"] if o["support_parent"] in ("floor", "wall") else "on_object"
+                         for o in request["furniture_list"])
+        payloads[f'{scene["scene_key"]}.json'] = json.dumps(request, indent=2) + "\n"
+        summary.append({"scene_key": scene["scene_key"], "requested": len(request["furniture_list"]),
+                        **{place: places[place] for place in ("floor", "wall", "on_object")}})
+    if len(payloads) != len(scenes):
+        raise ValueError("RoomGenBench scene keys must be unique")
+    target.mkdir(parents=True, exist_ok=False)
+    for name, payload in payloads.items():
+        (target / name).write_text(payload)
+    return summary
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--handoff", required=True, help="directory from predict --export-dir")
-    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--handoff", help="directory from predict --export-dir")
+    parser.add_argument("--output-dir")
     parser.add_argument("--method", default="layout_boxes")
     parser.add_argument("--assets-dir", help="method GLB/JSON sidecar directory")
     parser.add_argument("--roomgenbench-root")
     parser.add_argument("--require-placement", action="store_true")
     parser.add_argument("--display-height-m", type=float, default=3.)
+    parser.add_argument("--requests-from", help="instead of assembling: RoomGenBench scenes directory to turn into requests")
+    parser.add_argument("--requests-out", help="new directory for the <scene_key>.json requests of --requests-from")
     args = parser.parse_args(argv)
+    if args.requests_from is not None or args.requests_out is not None:
+        if args.requests_from is None or args.requests_out is None or args.handoff or args.output_dir:
+            parser.error("--requests-from and --requests-out go together, without --handoff/--output-dir")
+        for row in write_benchmark_requests(args.requests_from, args.requests_out, roomgenbench_root=args.roomgenbench_root):
+            print(json.dumps(row))
+        return 0
+    if args.handoff is None or args.output_dir is None:
+        parser.error("the following arguments are required: --handoff, --output-dir")
     receipt = assemble_handoff(args.handoff, args.output_dir, method=args.method, assets_dir=args.assets_dir,
         roomgenbench_root=args.roomgenbench_root, require_placement=args.require_placement, display_height_m=args.display_height_m)
     print(json.dumps({"output_dir": str(Path(args.output_dir).resolve()), "counts": receipt["counts"],

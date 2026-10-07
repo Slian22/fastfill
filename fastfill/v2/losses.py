@@ -224,7 +224,7 @@ class GeometryCriterion(nn.Module):
         term_counts["box"] = len(box_terms)
         if cfg.collision or cfg.boundary:
             from fastfill.v2.regularizers import scene_regularizers
-            regularizers = scene_regularizers(world_pred, predictions["size"], yaw_pred, batch, cfg)
+            regularizers = scene_regularizers(world_pred, predictions["size"], yaw_pred, batch, cfg, global_counts)
             term_sums.update(regularizers.pop("sums"))
             term_counts.update(regularizers.pop("counts"))
             losses.update(regularizers)

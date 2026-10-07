@@ -114,7 +114,7 @@ PARENT_LATTICE = np.stack(np.meshgrid(*[np.linspace(-1, 1, 5)] * 2, indexing="ij
 
 
 def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, requests=None, fixed_z=None, yaw_logits=None,
-                   yaw_residuals=None, keep_yaw=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3):
+                   yaw_residuals=None, keep_yaw=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3, hang_centre=1.5):
     """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw, z).
 
     ``room`` may list ``fixed_objects`` (condition rows: bottom_center_m, size_local_m, yaw_rad): they never move,
@@ -130,11 +130,20 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     candidate qualifies, the least overlapping one is used (for a declared child: on its parent).
 
     Declarations beat the predicted height: an object whose z is fixed stands at that z, one declared on
-    "floor" stands on the floor, one declared on "wall" keeps its predicted z, and one declared on a request
+    "floor" stands on the floor, one declared on "wall" hangs at its rule height (below), and one declared on a request
     or fixed object stands on the parent's top: at its most probable top_k cell whose centre lies inside the
     parent's (placed) footprint, else at the free point of a 5 x 5 lattice over that footprint (inset by its
     own half extents) nearest its argmax decode, else at the least overlapping of these, so the declared
     support holds even at the cost of a collision.
+
+    No training row hangs anything on a wall, so a "wall" object is placed by rule: each top_k cell is projected
+    onto the wall (side of the room's bounds) nearest that cell, back flush with it and facing into the room
+    (a ``keep_yaw`` slot keeps its yaw), sliding along the wall to stay inside; the first projection free of
+    overlap wins (wall, floor and fixed objects sharing its height interval are obstacles), else the least
+    overlapping one; one wider or deeper than the room is centred along that axis. It keeps its predicted z when
+    that is over 0.15 m above the floor, else (a z near the floor is no evidence here) hangs centred ``hang_centre``
+    above the floor; either is clamped to [floor, ceiling - its height] when ``room`` gives ``height_m`` (else only
+    >= floor), and it is placed with the raised objects when it ends over 0.15 m above the floor.
 
     With yaw logits, a floor-standing object whose candidate footprint ends within ``near_wall`` of a wall
     takes its most probable yaw bin within 45 degrees of facing away from that wall (its back to the wall,
@@ -194,16 +203,19 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     on_object = np.array([p in slots or p in fixed_ids for p in parent], bool)
     on_floor = fixed_z | np.array([p == "floor" for p in parent], bool)
     on_wall = np.array([p == "wall" for p in parent], bool)
-    raised = on_object | (~on_floor & (low - room["floor_z"] > .15))
-    stand = np.where(fixed_z | on_wall, low, float(room["floor_z"]))  # where a floor-standing or wall-hung object stands
+    ceiling = room.get("height_m")
+    hung = np.where(low - room["floor_z"] > .15, low, room["floor_z"] + hang_centre - size[:, 2] / 2)
+    hung = np.maximum(hung if ceiling is None else np.minimum(hung, room["floor_z"] + ceiling - size[:, 2]), room["floor_z"])
+    raised = on_object | (~on_floor & (np.where(on_wall, hung, low) - room["floor_z"] > .15))
+    stand = np.where(fixed_z, low, np.where(on_wall, hung, float(room["floor_z"])))  # floor-standing or wall-hung z
     order = sorted(range(n), key=lambda i: (bool(raised[i]), depth(i), -area[i]))
     ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
     chosen, chosen_yaw, chosen_z = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy(), low.copy()
+    away = np.array([0., np.pi, np.pi / 2, -np.pi / 2])  # from walls x=lo, x=hi, y=lo, y=hi into the room
     if yaw_logits is not None:
         yaw_logits, yaw_residuals = np.asarray(yaw_logits, float), np.asarray(yaw_residuals, float)
         bins = yaw_logits.shape[-1]
         bin_centres = np.arange(bins) * 2 * np.pi / bins
-        away = np.array([0., np.pi, np.pi / 2, -np.pi / 2])  # from walls x=lo, x=hi, y=lo, y=hi into the room
 
     def boxes(js, f=slice(None)):  # placed slots js, then fixed objects f: centre, half extents, bottom, top, footprint area
         js = np.asarray(js, int)
@@ -225,6 +237,14 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
             on_top = base + PARENT_LATTICE * np.maximum(base_half - half[i], 0)  # includes the footprint centre
             on_top = on_top[np.argsort(((on_top - cand[0]) ** 2).sum(-1), kind="stable")]  # nearest the argmax decode first
             cand, cand_yaw = np.vstack((cand, on_top)), np.append(cand_yaw, np.full(len(on_top), yaw[i]))
+        elif on_wall[i]:  # each cell's nearest wall: back flush with it, facing into the room, slid inside along it
+            wall = np.stack((cand[:, 0] - lo[0], hi[0] - cand[:, 0], cand[:, 1] - lo[1], hi[1] - cand[:, 1]), -1).argmin(-1)
+            cand_yaw = np.where(keep_yaw[i], yaw[i], away[wall])
+            wall_half = halves(cand_yaw, size[i])
+            cand = np.clip(cand, lo + wall_half, hi - wall_half)
+            rows, axis = np.arange(len(cand)), wall // 2
+            cand[rows, axis] = np.where(wall % 2, hi[axis] - wall_half[rows, axis], lo[axis] + wall_half[rows, axis])
+            cand = np.where(2 * wall_half > hi - lo, (lo + hi) / 2, cand)  # wider or deeper than the room: centred
         elif yaw_logits is not None and not raised[i] and not keep_yaw[i]:
             gaps = np.stack((cand[:, 0] - half[i, 0] - lo[0], hi[0] - cand[:, 0] - half[i, 0],
                              cand[:, 1] - half[i, 1] - lo[1], hi[1] - cand[:, 1] - half[i, 1]), -1)
@@ -273,7 +293,7 @@ def _room_frame(batch, b):
     floor = room.get("floor_z_m")
     return {"origin": batch["origin"][b].cpu().tolist(), "scale": batch["scale"][b].cpu().tolist(),
             "bounds": (polygon.min(0), polygon.max(0)), "floor_z": float(floor) if floor is not None else float(batch["origin"][b, 2]),
-            "fixed_objects": room.get("fixed_objects", [])}
+            "fixed_objects": room.get("fixed_objects", []), "height_m": room.get("height_m")}
 
 
 def serialize_predictions(predictions, batch, *, grid_decode="spread"):
