@@ -679,3 +679,56 @@ artifacts do not describe the entire repository.
 The server and Qwen3-8B checkpoint have been chosen and the historical pilot ran.
 Full training exposure/budget and quality comparisons remain unvalidated.
 No quality gain or actual persistent-world success has been measured.
+
+## LLM comparison protocol
+
+FastFill and every LLM mode answer the same requests from the same fields and are scored by one scorer.
+
+- **Same rooms.** The first 300 three-field rows of the fixed validation sample: autorun's `validation-<sha12>-3000.jsonl`
+  (validation.jsonl shuffled with `random.Random(0)`, first 3000 lines), of which `llm_baseline --max-samples 300` keeps the
+  first 300 that `evaluate.project_minimal` accepts. Today's run wrote them to `<runs>/llm-prompt-300/rows.jsonl`; every
+  further method reads that file as `--data` (the projection is idempotent). Check: the new run's `rows.jsonl` is byte-identical
+  to `llm-prompt-300/rows.jsonl` and its summary.json `data_sha256` (of `--data`) equals `sha256(llm-prompt-300/rows.jsonl)`. (Today's
+  summaries record the hash of the 3000-line file they read, so the two `data_sha256` values differ by construction.)
+- **Same input fields, nothing else.** Room type, room size (width x length x height, floor polygon, floor z) and the
+  furniture list (id, category, description; `support_parent` only when the request declares one, which three-field rows
+  never do). No sizes, priors, positions or statistics from data. FastFill gets exactly this projection
+  (`batch.render_minimal_condition`). The structured modes' template (`llm_structured.STRUCTURED`: instruction + one fixed
+  train demonstration, recorded as `prompt_sha256`) is identical for every request; only the `[Task ...]` sections change.
+- **Modes.** `llm_baseline` `prompt` and `harness` (today's runs) and the OptiScene-style `llm_structured` `structured` and
+  `structured-harness` (its docstring). The structured-harness checks use only the request and the answer: parse errors,
+  ids not exactly once, non-finite or non-positive numbers, below the floor, above the ceiling, a declared support not met,
+  beyond a wall (5 cm margin), overlapping footprints of objects sharing a height interval (over 15% of the smaller one,
+  as in `harness` and spread decoding) and a raised object with nothing under it. No category size priors.
+- **The checks are not a quality score.** The ground truth itself fails them: on the 300 rows,
+  `llm_structured.structured_problems(row["target"], row["condition"])` finds 482 problems in 100 rows (1.61 per row):
+  448 overlaps in 93 rows (chairs tucked under tables), 32 objects beyond a wall in 20 rows, 1 above the ceiling, 1 below
+  the floor, no floating object. The harness pushes answers towards zero of them, the ground truth does not; quote this
+  reference line next to any `checks_final`.
+- **Repairs <= 2** (`--repairs 2`, recorded as `repairs` in the structured summaries). In every mode an answer that is
+  still no valid layout is asked again from scratch once.
+- **One scorer, failures counted.** `python -m fastfill.v2.evaluate --data <out>/rows.jsonl --predictions
+  <out>/predictions.jsonl --output <dir>`. A row without a layout stays in predictions.jsonl with `layout: null` and counts
+  as no layout; summary.json reports `failed`, `unanswered` and `first_answer_invalid`. The harness diagnostics stay out of
+  the comparison table: `llm_baseline`'s `problems_*` count `problems()` (capped at 40) on valid layouts, `llm_structured`'s
+  `checks_*` count the checks above, uncapped, and for an unreadable first answer its parse or number errors.
+- **Cost.** summary.json reports `api_calls` (chat calls, each with its own HTTP retries; a call that raised counts too)
+  and `mean_latency_s`; the structured summaries add `usage` (summed tokens of the calls whose response reported them, their
+  number in `calls_reported`: a call that raised or a response without usage is not among them).
+- **FastFill raw and spread apart.** The best checkpoint on the same rows.jsonl with `--projection full --grid-decode argmax`
+  (the model alone) and with `--grid-decode spread` (collision-aware post-processing) are two separate rows of the table.
+
+```bash
+python -m fastfill.v2.llm_structured --data <runs>/llm-prompt-300/rows.jsonl --env <api env> --mode structured-harness \
+  --repairs 2 --max-samples 300 --output <runs>/llm-structured-harness-300   # likewise --mode structured
+cmp <runs>/llm-structured-harness-300/rows.jsonl <runs>/llm-prompt-300/rows.jsonl
+python -m fastfill.v2.evaluate --data <runs>/llm-structured-harness-300/rows.jsonl \
+  --predictions <runs>/llm-structured-harness-300/predictions.jsonl --output <runs>/llm-structured-harness-300-eval
+```
+
+The structured modes live in `llm_structured.py` so that `llm_baseline.py` stays byte-identical to 510f1e0
+(`test_llm_structured`): autorun reuses today's `llm-prompt-300` / `llm-harness-300` only while `sha256(llm_baseline.py)`
+matches their summary.json, and otherwise deletes them and pays for new answers, which differ (the reasoning model runs
+without a seed or temperature). Any new `fastfill/v2/*.py`, this module included, changes evaluate's `implementation_sha256`,
+so a restarted autopilot re-scores the `-eval` reports (evaluate only, no API calls). Back up the `llm-*-300` directories
+before any edit of `llm_baseline.py`.
