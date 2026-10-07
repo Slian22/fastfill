@@ -15,7 +15,8 @@ failure) for::
 
     python -m fastfill.v2.evaluate --data <out>/rows.jsonl --predictions <out>/predictions.jsonl --output <new dir>
 
-Credentials come from an env file (OPENAI_BASE_URL, OPENAI_API_KEY, optional OPENAI_MODEL), never argv.
+Credentials come from an env file (OPENAI_BASE_URL, OPENAI_API_KEY, optional OPENAI_MODEL,
+FASTFILL_LLM_RPM, FASTFILL_LLM_REASONING_EFFORT), never argv; summary.json records the parameters sent.
 """
 from __future__ import annotations
 
@@ -131,9 +132,15 @@ class RateLimiter:
         time.sleep(start - now)
 
 
+def request_parameters(env, model):
+    """Everything sent besides the messages: chat-completions ``reasoning_effort`` from FASTFILL_LLM_REASONING_EFFORT
+    (default medium; empty omits it). No temperature: reasoning models reject it."""
+    effort = env.get("FASTFILL_LLM_REASONING_EFFORT", "medium")
+    return {"model": model, **({"reasoning_effort": effort} if effort else {})}
+
+
 def chat(env, model, messages, *, limiter=None, timeout=300., attempts=6):
-    # no temperature / reasoning parameters: reasoning models reject them, and their defaults are wanted
-    body = json.dumps({"model": model, "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
+    body = json.dumps({**request_parameters(env, model), "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
     for attempt in range(attempts):
         if limiter is not None:
             limiter.wait()
@@ -200,7 +207,9 @@ def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers
     with (target / "predictions.jsonl").open("w") as stream:
         stream.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in results)
     ok = [r for r in results if r["layout"] is not None]
-    summary = {"model": model, "mode": mode, "rows": len(rows), "failed": len(results) - len(ok), "api_calls": calls[0],
+    summary = {"model": model, "mode": mode, "request_parameters": request_parameters(env, model),
+               "endpoint": env.get("OPENAI_BASE_URL", "").rstrip("/") + "/chat/completions",
+               "rows": len(rows), "failed": len(results) - len(ok), "api_calls": calls[0],
                "mean_latency_s": sum(r["latency_s"] for r in results) / max(1, len(results)),
                "mean_problems_first": sum(r["problems_first"] for r in ok) / max(1, len(ok)),
                "mean_problems_final": sum(r["problems_final"] for r in ok) / max(1, len(ok)), "data": str(data)}

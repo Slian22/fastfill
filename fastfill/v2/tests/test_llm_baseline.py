@@ -73,3 +73,14 @@ def test_rate_limiter_spaces_requests():
     for _ in range(4):
         limiter.wait()
     assert time.monotonic() - start >= .29
+
+
+def test_reasoning_effort_defaults_to_medium_and_is_recorded(tmp_path):
+    assert llm_baseline.request_parameters({}, "gpt-6.1-sol") == {"model": "gpt-6.1-sol", "reasoning_effort": "medium"}
+    assert llm_baseline.request_parameters({"FASTFILL_LLM_REASONING_EFFORT": ""}, "m") == {"model": "m"}
+    row = [p for p in map(project_minimal, real_rows()) if p is not None][0]
+    (tmp_path / "rows.jsonl").write_text(json.dumps(row) + "\n")
+    (tmp_path / "api.env").write_text("OPENAI_BASE_URL=https://relay/v1\nOPENAI_API_KEY=k\nOPENAI_MODEL=gpt-6.1-sol\n")
+    summary = llm_baseline.run(tmp_path / "rows.jsonl", tmp_path / "o", tmp_path / "api.env", ask=lambda *a: _answer_from_targets(row))
+    assert summary["request_parameters"]["reasoning_effort"] == "medium" and summary["endpoint"] == "https://relay/v1/chat/completions"
+    assert "secret-test-key" not in json.dumps(summary) + (tmp_path / "o/summary.json").read_text()
