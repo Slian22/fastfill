@@ -294,6 +294,83 @@ def write_benchmark_requests(scenes_dir, output_dir, *, roomgenbench_root=None):
     return summary
 
 
+def ground_truth_layout(condition, scene):
+    """FastFill layout of a benchmark scene: the exact inverse of ``layout_to_roomgenbench``.
+
+    Request ``obj_%04d`` is ``scene["objects"][i]`` (``benchmark_request``); size = [length, width,
+    height], bottom centre = position, yaw = radians(rotation.z) + pi/2 wrapped; rotation.x / .y
+    (benchmark tilts) have no FastFill counterpart and are dropped. Misaligned ids, categories or
+    counts raise ValueError.
+    """
+    import math
+    from .geometry import wrap_yaw
+    from .schema import SCHEMA_VERSION, validate_layout
+    requested, truth = condition["objects"], scene["objects"]
+    if len(requested) != len(truth):
+        raise ValueError(f"request has {len(requested)} objects, benchmark scene {len(truth)}")
+    objects = []
+    for index, (request, obj) in enumerate(zip(requested, truth)):
+        if request["id"] != f"obj_{index:04d}" or request["category"] != obj["type"]:
+            raise ValueError(f"request object {index} ({request['id']}, {request['category']}) is not "
+                             f"benchmark object {index} (obj_{index:04d}, {obj['type']})")
+        d = obj["dimensions"]
+        objects.append({"id": request["id"], "target_size_local_m": [d["length"], d["width"], d["height"]],
+                        "bottom_center_m": [obj["position"][k] for k in "xyz"],
+                        "yaw_rad": wrap_yaw(math.radians(obj["rotation"]["z"]) + math.pi / 2)})
+    return validate_layout({"schema_version": SCHEMA_VERSION, "objects": objects}, condition)
+
+
+def reference_check(handoff_dir, scene_path):
+    """Same-rule comparison of a hand-off with its benchmark scene's ground truth.
+
+    validate_scene(hand-off condition) runs on both layouts (per check code: pass / violation /
+    unknown); per-object FastFill-vs-truth errors are pooled over all objects and per ground-truth
+    place: bottom-centre distance, mean |log size ratio| with the (sx, sy) swap minimum, yaw modulo pi,
+    and evaluate's joint box-equivalent (size, yaw). Baselines: room centre (``room_center_position_error_m``,
+    floor-level centre of the room's XY bounds) and uniform yaw (pi / 4 expected modulo pi).
+    """
+    import math
+    import numpy as np
+    from .evaluate import _box_equivalent_errors, _log_size_error, _yaw_error
+    from .direct_layout import place_of
+    from .schema import normalize_room
+    from .validation import CHECK_STATUSES, validate_scene
+    condition, _ = _handoff(handoff_dir, False)
+    layout, scene = _read_json(Path(handoff_dir) / "layout.json"), _read_json(scene_path)
+    truth = ground_truth_layout(condition, scene)
+    checks = {}
+    for name, candidate in (("fastfill", layout), ("ground_truth", truth)):
+        report = validate_scene(condition, candidate["objects"])
+        by_code = {}
+        for check in report["checks"]:
+            by_code.setdefault(check["code"], dict.fromkeys(CHECK_STATUSES, 0))[check["status"]] += 1
+        checks[name] = {"ok": report["ok"], "counts": report["counts"], "by_code": by_code}
+    origin, scale = normalize_room(condition["room"])
+    center = [origin[0] + scale[0] / 2, origin[1] + scale[1] / 2, origin[2]]
+    predicted = {o["id"]: o for o in layout["objects"]}
+    rows = []
+    for t, obj in zip(truth["objects"], scene["objects"]):
+        p, (sx, sy, sz) = predicted[t["id"]], t["target_size_local_m"]
+        box_size, box_yaw = _box_equivalent_errors(p, t, True, True)
+        rows.append({"id": t["id"], "category": obj["type"], "place": place_of(obj["place_id"]),
+                     "position_error_m": math.dist(p["bottom_center_m"], t["bottom_center_m"]),
+                     "room_center_position_error_m": math.dist(center, t["bottom_center_m"]),
+                     "log_size_error": min(_log_size_error(p["target_size_local_m"], s) for s in ((sx, sy, sz), (sy, sx, sz))),
+                     "yaw_error_rad": _yaw_error(p["yaw_rad"], t["yaw_rad"], 2),
+                     "box_equivalent_log_size_error": box_size, "box_equivalent_yaw_error_rad": box_yaw})
+    metrics = [key for key in rows[0] if key not in ("id", "category", "place")] if rows else []
+    pool = lambda group: {"objects": len(group), **{key: float(np.mean([r[key] for r in group])) if group else None
+                                                    for key in metrics}}
+    places = sorted({r["place"] for r in rows})
+    return {"schema_version": "fastfill.roomgenbench-reference-check.v1", "handoff": str(Path(handoff_dir).resolve()),
+            "scene": str(Path(scene_path).resolve()), "scene_key": scene.get("scene_key"), "objects": len(rows),
+            "ground_truth_tilted_objects": sum(max(abs(o["rotation"].get(k, 0)) for k in "xy") > 1.
+                                               for o in scene["objects"]),  # > 1 degree about X or Y; dropped upright
+            "checks": checks, "errors": {"all": pool(rows), **{place: pool([r for r in rows if r["place"] == place])
+                                                               for place in places}},
+            "uniform_yaw_baseline_error_rad": math.pi / 4, "per_object": rows}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--handoff", help="directory from predict --export-dir")
@@ -305,7 +382,21 @@ def main(argv=None):
     parser.add_argument("--display-height-m", type=float, default=3.)
     parser.add_argument("--requests-from", help="instead of assembling: RoomGenBench scenes directory to turn into requests")
     parser.add_argument("--requests-out", help="new directory for the <scene_key>.json requests of --requests-from")
+    parser.add_argument("--reference-check", metavar="HANDOFF", help="instead of assembling: compare HANDOFF with --scene")
+    parser.add_argument("--scene", help="benchmark scene JSON (bench/inputs/scenes/<room>.json) for --reference-check")
+    parser.add_argument("--output", help="new JSON report path for --reference-check")
     args = parser.parse_args(argv)
+    if args.reference_check is not None or args.scene is not None or args.output is not None:
+        if None in (args.reference_check, args.scene, args.output) or args.handoff or args.output_dir or args.requests_from or args.requests_out:
+            parser.error("--reference-check, --scene and --output go together, without other modes")
+        target = safe_output(args.output)
+        report = reference_check(args.reference_check, args.scene)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("x") as stream:
+            stream.write(json.dumps(report, indent=2, allow_nan=False) + "\n")
+        print(json.dumps({"output": str(target), "objects": report["objects"],
+                          **{name: {"ok": c["ok"], **c["counts"]} for name, c in report["checks"].items()}}))
+        return 0
     if args.requests_from is not None or args.requests_out is not None:
         if args.requests_from is None or args.requests_out is None or args.handoff or args.output_dir:
             parser.error("--requests-from and --requests-out go together, without --handoff/--output-dir")
