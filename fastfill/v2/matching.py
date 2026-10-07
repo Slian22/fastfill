@@ -87,10 +87,16 @@ def validate_matching_options(enabled, alpha_position, alpha_size):
 
 
 @torch.no_grad()
-def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=1.):
+def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=1., *, loss_config=None):
     """Groups come from collate's ``batch["exchangeable_group"]`` (per sample, per
     request slot), never from the rendered condition objects. A group needs
     complete position labels on every member; otherwise it keeps fixed identity.
+    Position cost (times ``alpha_position``): the decoded L1 for regression
+    predictions; for grid_residual predictions (``position_cell_logits``) each
+    (prediction slot, target) pair costs exactly the loss's ``position`` terms,
+    ``losses._grid_position`` under ``loss_config`` (default ``LossConfig()``):
+    ``position_cell * CE + position_residual * GT-cell residual + z / 3`` on the
+    prediction slot's learned (not ``fixed_position_mask``) coordinates.
     Size enters the cost only when every member also has a complete size label;
     a pair whose target object is box-symmetric (its own
     ``batch["size_axis_swap_allowed"]``) costs the minimum log-size error over the
@@ -99,6 +105,10 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
     validate_matching_options(enabled, alpha_position, alpha_size)
     if enabled and "exchangeable_group" not in batch:
         raise ValueError("exchangeable matching requires batch exchangeable_group from collate")
+    grid = "position_cell_logits" in predictions
+    if grid:
+        from fastfill.v2.losses import GRID_KEYS, LossConfig, _grid_position  # losses imports this module
+        cfg = LossConfig() if loss_config is None else loss_config
     valid = batch["slot_mask"]
     bsz, slots = valid.shape
     assignments = []
@@ -125,7 +135,20 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
             pos, gt_pos = predictions["position_normalized"][b, group], batch["targets"]["position_normalized"][b, group]
             if not torch.isfinite(pos).all() or not torch.isfinite(gt_pos).all():
                 raise ValueError("nonfinite position geometry in matching group")
-            cost = alpha_position * (pos[:, None] - gt_pos[None]).abs().sum(-1)
+            if grid:  # pair (i, j) at flat i * n + j: prediction slot group[i], target group[j]
+                n = len(group)
+                rows = torch.tensor(group, device=valid.device).repeat_interleave(n)
+                cols = torch.tensor(group, device=valid.device).repeat(n)
+                learn = ~batch.get("fixed_position_mask", torch.zeros_like(batch["validity"]["position"]))[b, rows]
+                parts = _grid_position({k: predictions[k][b, rows] for k in ("position_normalized", *GRID_KEYS)},
+                                       batch["targets"]["position_normalized"][b, cols], torch.ones_like(rows, dtype=torch.bool), learn, cfg)
+                pair = torch.zeros(n * n, dtype=torch.float64, device=valid.device)
+                pair[learn[:, 0] & learn[:, 1]] = (cfg.position_cell * parts["position_cell"].double() +
+                                                   cfg.position_residual * parts["position_residual"].double())
+                pair[learn[:, 2]] += parts["position_z"].double()
+                cost = alpha_position * pair.view(n, n)
+            else:
+                cost = alpha_position * (pos[:, None] - gt_pos[None]).abs().sum(-1)
             if batch["validity"]["size"][b, group].all():
                 size, gt_size = predictions["size"][b, group], batch["targets"]["size"][b, group]
                 if not torch.isfinite(size).all() or not torch.isfinite(gt_size).all() or (size <= 0).any() or (gt_size <= 0).any():

@@ -129,7 +129,7 @@ class GeometryCriterion(nn.Module):
         if (predictions["size"][mask] <= 0).any():
             raise ValueError("predicted valid sizes must be positive")
         cfg = self.config
-        assignment = match_batch(predictions, batch, cfg.hungarian, cfg.alpha_position, cfg.alpha_size)
+        assignment = match_batch(predictions, batch, cfg.hungarian, cfg.alpha_position, cfg.alpha_size, loss_config=cfg)
         targets = {k: _gather(v, assignment) for k, v in batch["targets"].items()}
         validity = {k: _gather(v, assignment) for k, v in batch["validity"].items() if k in {"position", "size", "yaw"}}
         masks = supervision_masks(batch, validity)
