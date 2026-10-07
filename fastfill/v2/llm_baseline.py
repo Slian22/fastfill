@@ -29,6 +29,7 @@ the sha256 of the input rows file and of this module (``data_sha256``, ``impleme
 from __future__ import annotations
 
 import argparse
+import http.client
 from concurrent.futures import ThreadPoolExecutor
 import json
 import math
@@ -169,7 +170,7 @@ def chat(env, model, messages, *, limiter=None, timeout=300., attempts=6):
         except urllib.error.HTTPError as error:
             if error.code not in (408, 409, 425, 429) and error.code < 500 or attempt == attempts - 1:
                 raise
-        except (urllib.error.URLError, TimeoutError, ConnectionError):
+        except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.IncompleteRead):  # relay cut the body short
             if attempt == attempts - 1:
                 raise
         time.sleep(min(120., 5. * 2 ** attempt))

@@ -156,3 +156,19 @@ def test_requests_name_their_own_user_agent(monkeypatch):
     env = {"OPENAI_BASE_URL": "https://relay/v1", "OPENAI_API_KEY": "k"}
     assert llm_baseline.chat(env, "m", [{"role": "user", "content": "hi"}]) == "OK"
     assert seen["User-agent"] == llm_baseline.USER_AGENT  # not urllib's default Python-urllib, which the relay blocks
+
+
+def test_a_truncated_relay_response_is_retried(monkeypatch):
+    import http.client
+    calls = []
+    class Response:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self):
+            if len(calls) == 1:
+                raise http.client.IncompleteRead(b"{}")
+            return json.dumps({"choices": [{"message": {"content": "OK"}}]}).encode()
+    monkeypatch.setattr(llm_baseline.urllib.request, "urlopen", lambda request, timeout: calls.append(1) or Response())
+    monkeypatch.setattr(llm_baseline.time, "sleep", lambda s: None)
+    env = {"OPENAI_BASE_URL": "https://relay/v1", "OPENAI_API_KEY": "k"}
+    assert llm_baseline.chat(env, "m", [{"role": "user", "content": "hi"}]) == "OK" and len(calls) == 2
