@@ -1,10 +1,17 @@
-"""Prompt-engineering baseline: an OpenAI-compatible chat model places the three-field request.
+"""Prompt-engineering and harness baselines: an OpenAI-compatible chat model places the three-field request.
 
 Keeps the evaluation rows whose room is a boundary-known rectangle and projects them to the same
 three-field condition the structured model is selected on (``evaluate.project_minimal``). The LLM sees
 room type, room extent and the furniture list (id, category, description) only, and answers every
-object's width/depth/height, bottom centre and facing angle. Writes ``rows.jsonl`` (the projected rows)
-and ``predictions.jsonl`` (one row each, ``layout`` null on failure) for::
+object's width/depth/height, bottom centre and facing angle.
+
+Modes: ``prompt`` asks once; ``harness`` then checks the answer (objects outside the room, overlapping
+objects that share a height interval, raised objects resting on nothing) and asks for a corrected
+layout with the concrete problems listed, up to ``--repairs`` times. Requests are paced to the env
+file's FASTFILL_LLM_RPM (default 30) and retried with backoff on rate limits and server errors.
+
+Writes ``rows.jsonl`` (the projected rows) and ``predictions.jsonl`` (one row each, ``layout`` null on
+failure) for::
 
     python -m fastfill.v2.evaluate --data <out>/rows.jsonl --predictions <out>/predictions.jsonl --output <new dir>
 
@@ -18,7 +25,9 @@ import json
 import math
 from pathlib import Path
 import re
+import threading
 import time
+import urllib.error
 import urllib.request
 
 from fastfill.v2.evaluate import project_minimal
@@ -73,29 +82,112 @@ def to_layout(reply, condition):
     return layout
 
 
-def chat(env, model, user, *, timeout=300.):
-    body = json.dumps({"model": model, "temperature": 0, "messages": [
-        {"role": "system", "content": SYSTEM}, {"role": "user", "content": user}]}).encode()
-    request = urllib.request.Request(env["OPENAI_BASE_URL"].rstrip("/") + "/chat/completions", data=body, headers={
-        "Content-Type": "application/json", "Authorization": f"Bearer {env['OPENAI_API_KEY']}"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read())["choices"][0]["message"]["content"]
+def problems(layout, condition, *, margin=.05, max_overlap=.15, limit=40):
+    """Concrete, checkable defects the harness reports back: out of room, overlaps, floating items."""
+    # ponytail: rotated footprints by their axis-aligned bounds, the same approximation as spread decoding
+    room = condition["room"]
+    polygon = room["floor_polygon_xy_m"]
+    lo = (min(p[0] for p in polygon), min(p[1] for p in polygon))
+    hi = (max(p[0] for p in polygon), max(p[1] for p in polygon))
+    floor = room.get("floor_z_m") or 0.
+    names = {o["id"]: o["category"] for o in condition["objects"]}
+    boxes = []
+    for o in layout["objects"]:
+        (d, w, h), (x, y, z), yaw = o["target_size_local_m"], o["bottom_center_m"], o["yaw_rad"]
+        c, s = abs(math.cos(yaw)), abs(math.sin(yaw))
+        boxes.append((o["id"], x, y, z, .5 * (c * d + s * w), .5 * (s * d + c * w), h))
+    found = []
+    for i, x, y, z, hx, hy, h in boxes:
+        beyond = max(lo[0] - (x - hx), (x + hx) - hi[0], lo[1] - (y - hy), (y + hy) - hi[1])
+        if beyond > margin:
+            found.append(f"{i} ({names[i]}) extends {beyond:.2f} m beyond a wall")
+        if z - floor > .15 and not any(j != i and abs(z - (zj + hj)) <= margin and abs(x - xj) <= hxj and abs(y - yj) <= hyj
+                                       for j, xj, yj, zj, hxj, hyj, hj in boxes):
+            found.append(f"{i} ({names[i]}) floats at z={z:.2f} m with nothing under it; put it on a surface or the floor")
+    for a in range(len(boxes)):
+        for b in range(a + 1, len(boxes)):
+            i, xi, yi, zi, hxi, hyi, hi_ = boxes[a]
+            j, xj, yj, zj, hxj, hyj, hj = boxes[b]
+            if min(zi + hi_, zj + hj) - max(zi, zj) <= margin:
+                continue
+            ox = min(xi + hxi, xj + hxj) - max(xi - hxi, xj - hxj)
+            oy = min(yi + hyi, yj + hyj) - max(yi - hyi, yj - hyj)
+            if ox > 0 and oy > 0:
+                share = ox * oy / max(1e-9, min(4 * hxi * hyi, 4 * hxj * hyj))
+                if share > max_overlap:
+                    found.append(f"{i} ({names[i]}) and {j} ({names[j]}) overlap ({share:.0%} of the smaller footprint)")
+    return found[:limit]
 
 
-def run(data, output, env_file, *, model=None, workers=8, max_samples=None, retries=1, ask=chat):
+class RateLimiter:
+    def __init__(self, rpm):
+        self.interval, self.lock, self.next = 60. / rpm, threading.Lock(), 0.
+
+    def wait(self):
+        with self.lock:
+            now = time.monotonic()
+            start = max(now, self.next)
+            self.next = start + self.interval
+        time.sleep(start - now)
+
+
+def chat(env, model, messages, *, limiter=None, timeout=300., attempts=6):
+    body = json.dumps({"model": model, "temperature": 0, "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
+    for attempt in range(attempts):
+        if limiter is not None:
+            limiter.wait()
+        request = urllib.request.Request(env["OPENAI_BASE_URL"].rstrip("/") + "/chat/completions", data=body, headers={
+            "Content-Type": "application/json", "Authorization": f"Bearer {env['OPENAI_API_KEY']}"})
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read())["choices"][0]["message"]["content"]
+        except urllib.error.HTTPError as error:
+            if error.code not in (408, 409, 425, 429) and error.code < 500 or attempt == attempts - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            if attempt == attempts - 1:
+                raise
+        time.sleep(min(120., 5. * 2 ** attempt))
+
+
+def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers=4, max_samples=None, retries=1, ask=chat):
+    if mode not in ("prompt", "harness"):
+        raise ValueError("mode must be prompt or harness")
     target = safe_output(output, create=True)
     env = load_env(env_file)
     model = model or env.get("OPENAI_MODEL")
     if not model:
         raise ValueError("pass --model or set OPENAI_MODEL in the env file")
+    limiter = RateLimiter(float(env.get("FASTFILL_LLM_RPM", 30)))
     rows = [p for p in map(project_minimal, read_samples(data)) if p is not None][:max_samples]
+    calls = [0]
+
+    def call(messages):
+        calls[0] += 1
+        return ask(env, model, messages) if ask is not chat else chat(env, model, messages, limiter=limiter)
 
     def one(row):
-        start, error = time.perf_counter(), None
-        for _ in range(retries + 1):
+        start, error, condition = time.perf_counter(), None, row["condition"]
+        for _ in range(retries + 1):  # a malformed first answer is asked again from scratch
             try:
-                layout = to_layout(ask(env, model, prompt(row["condition"])), row["condition"])
-                return {"layout": layout, "error": None, "latency_s": time.perf_counter() - start}
+                messages = [{"role": "user", "content": prompt(condition)}]
+                reply = call(messages)
+                layout = to_layout(reply, condition)
+                found, rounds, first = problems(layout, condition), 0, None
+                first = len(found)
+                while mode == "harness" and found and rounds < repairs:
+                    messages += [{"role": "assistant", "content": reply}, {"role": "user", "content":
+                                 "Your layout has these problems:\n- " + "\n- ".join(found)
+                                 + "\nReturn the complete corrected JSON for every id."}]
+                    reply = call(messages)
+                    try:
+                        candidate = to_layout(reply, condition)
+                    except Exception:  # keep the last valid layout when a repair answer is malformed
+                        break
+                    rounds += 1
+                    layout, found = candidate, problems(candidate, condition)
+                return {"layout": layout, "error": None, "latency_s": time.perf_counter() - start,
+                        "repair_rounds": rounds, "problems_first": first, "problems_final": len(found)}
             except Exception as exc:  # malformed or incomplete answers are failures, never dropped
                 error = f"{type(exc).__name__}: {exc}"[:500]
         return {"layout": None, "error": error, "latency_s": time.perf_counter() - start}
@@ -106,22 +198,28 @@ def run(data, output, env_file, *, model=None, workers=8, max_samples=None, retr
         stream.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
     with (target / "predictions.jsonl").open("w") as stream:
         stream.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in results)
-    summary = {"model": model, "rows": len(rows), "failed": sum(r["layout"] is None for r in results),
-               "mean_latency_s": sum(r["latency_s"] for r in results) / max(1, len(results)), "data": str(data)}
+    ok = [r for r in results if r["layout"] is not None]
+    summary = {"model": model, "mode": mode, "rows": len(rows), "failed": len(results) - len(ok), "api_calls": calls[0],
+               "mean_latency_s": sum(r["latency_s"] for r in results) / max(1, len(results)),
+               "mean_problems_first": sum(r["problems_first"] for r in ok) / max(1, len(ok)),
+               "mean_problems_final": sum(r["problems_final"] for r in ok) / max(1, len(ok)), "data": str(data)}
     (target / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     return summary
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description=__doc__)
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--env", type=Path, required=True, help="file with OPENAI_BASE_URL / OPENAI_API_KEY [/ OPENAI_MODEL]")
+    p.add_argument("--env", type=Path, required=True, help="file with OPENAI_BASE_URL / OPENAI_API_KEY [/ OPENAI_MODEL / FASTFILL_LLM_RPM]")
     p.add_argument("--model")
-    p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--mode", choices=("prompt", "harness"), default="prompt")
+    p.add_argument("--repairs", type=int, default=2)
+    p.add_argument("--workers", type=int, default=4)
     p.add_argument("--max-samples", type=int)
     a = p.parse_args(argv)
-    print(json.dumps(run(a.data, a.output, a.env, model=a.model, workers=a.workers, max_samples=a.max_samples)))
+    print(json.dumps(run(a.data, a.output, a.env, model=a.model, mode=a.mode, repairs=a.repairs, workers=a.workers,
+                         max_samples=a.max_samples)))
 
 
 if __name__ == "__main__":

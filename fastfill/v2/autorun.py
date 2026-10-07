@@ -12,6 +12,9 @@ Phases (state in <runs>/autorun/STATUS.json, log in <runs>/autorun/autorun.log):
      same crash-resume rule as A
   F  evaluate its newest checkpoints, select, evaluate the best on the test set, export RoomGenBench,
      upload the best model directory to a private Hugging Face model repository
+  LLM (background from C) once the API env file exists: prompt-only and harness LLM baselines on the
+     first ``--llm-rows`` three-field rows of the validation sample, scored by evaluate --predictions; in F
+     the best model is scored on the same rows. ``done`` writes <runs>/autorun/SUMMARY.md.
 
 Every decision and command is logged; a failing step stops the autopilot with STATUS phase "failed".
 """
@@ -25,7 +28,9 @@ import math
 import os
 from pathlib import Path
 import random
+import shutil
 import subprocess
+import threading
 import time
 
 ENV = {"PYTHONDONTWRITEBYTECODE": "1", "TOKENIZERS_PARALLELISM": "false", "OMP_NUM_THREADS": "8",
@@ -93,13 +98,15 @@ class Autopilot:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.status = {"phase": "start", "history": []}
         self.python = str(self.root / "env/bin/python")
+        self.lock, self.llm_reports = threading.Lock(), {}
 
     def log(self, message, **fields):
         line = {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "message": message, **fields}
-        with (self.dir / "autorun.log").open("a") as stream:
-            stream.write(json.dumps(line, ensure_ascii=False) + "\n")
-        self.status["history"].append(line)
-        (self.dir / "STATUS.json").write_text(json.dumps(self.status, indent=2, ensure_ascii=False) + "\n")
+        with self.lock:  # the LLM baseline thread logs too
+            with (self.dir / "autorun.log").open("a") as stream:
+                stream.write(json.dumps(line, ensure_ascii=False) + "\n")
+            self.status["history"].append(line)
+            (self.dir / "STATUS.json").write_text(json.dumps(self.status, indent=2, ensure_ascii=False) + "\n")
 
     def phase(self, name, **fields):
         self.status.update(phase=name, **fields)
@@ -242,6 +249,73 @@ class Autopilot:
                           commit_message=f"FastFill v2 {name}")
         self.log("uploaded model", repo=self.a.model_repo, path=name)
 
+    def llm_baselines(self, rows_file):
+        """Prompt-only and harness LLM baselines once the API env file exists, each scored by evaluate --predictions."""
+        env = Path(self.a.llm_env)
+        while not env.is_file():
+            if self.status["phase"] in ("F-evaluate-final", "done", "failed"):
+                self.log("LLM baselines skipped: no API env file", env=str(env))
+                return
+            time.sleep(300)
+        for mode in ("prompt", "harness"):
+            out, scored = self.runs / f"llm-{mode}-{self.a.llm_rows}", self.runs / f"llm-{mode}-{self.a.llm_rows}-eval"
+            try:
+                if not (out / "summary.json").is_file():
+                    shutil.rmtree(out, ignore_errors=True)  # an interrupted earlier attempt of this autopilot
+                    self.sh([self.python, "-m", "fastfill.v2.llm_baseline", "--data", rows_file, "--env", env, "--mode", mode,
+                             "--max-samples", self.a.llm_rows, "--output", out], log=f"{out}.log")
+                if not (scored / "report.json").is_file():
+                    shutil.rmtree(scored, ignore_errors=True)
+                    self.sh([self.python, "-m", "fastfill.v2.evaluate", "--data", out / "rows.jsonl", "--predictions",
+                             out / "predictions.jsonl", "--output", scored], log=f"{scored}.log")
+                self.llm_reports[f"LLM {mode}"] = scored / "report.json"
+                self.log(f"LLM {mode} baseline scored", summary=json.loads((out / "summary.json").read_text()))
+            except Exception as error:
+                self.log(f"LLM {mode} baseline failed", error=f"{type(error).__name__}: {error}")
+
+    def summary(self, best, test_dir, rows_report):
+        """SUMMARY.md: selection, the best model on validation and test, and the model next to the LLM baselines."""
+        def metrics(path):
+            r = json.loads(Path(path).read_text())
+            ref, pred, gt, base = r["model"]["reference"], r["collapse"]["predicted"], r["collapse"]["ground_truth"], r["baselines"]
+            def get(d, *keys):
+                for key in keys:
+                    d = (d or {}).get(key)
+                return f"{d:.3f}" if isinstance(d, float) else "-"
+            walls = (r.get("target_validation_checks") or {}).get("boundary") or {}
+            inside = walls.get("pass", 0) / max(1, walls.get("pass", 0) + walls.get("violation", 0))
+            return [f"{r.get('requests', '-')} / {r.get('inference_failed_requests', '-')}", f"{inside:.3f}",
+                    get(ref, "bottom_center_error_m", "mean"),
+                    get(ref, "log_size_error", "mean"), get(ref, "yaw_error_rad", "mean"),
+                    get(pred, "bev_overlap_rate_iou_gt_0.3"), get(pred, "central_quarter_fraction"),
+                    get(pred, "mean_nearest_wall_distance_m"), get(pred, "out_of_room_fraction"),
+                    f"GT {get(gt, 'bev_overlap_rate_iou_gt_0.3')} / {get(gt, 'central_quarter_fraction')} / "
+                    f"{get(gt, 'mean_nearest_wall_distance_m')}",
+                    f"{get(base, 'room_center_position', 'bottom_center_error_m', 'mean')} / "
+                    f"{get(base, 'category_median_size', 'log_size_error', 'mean')} / {get(base, 'uniform_yaw', 'yaw_error_rad', 'mean')}"]
+        head = ("| | requests / no layout | objects inside walls | position err (m) | log-size err | yaw err (rad) | overlap | central | wall dist (m) "
+                "| out of room | ground truth overlap / central / wall | baselines centre / median size / const yaw |\n|" + "---|" * 12)
+        def table(rows):
+            lines = [head]
+            for name, path in rows:
+                try:
+                    lines.append(f"| {name} | " + " | ".join(metrics(path)) + " |")
+                except Exception as error:
+                    lines.append(f"| {name} | unreadable: {type(error).__name__} |")
+            return "\n".join(lines)
+        text = [f"# FastFill v2 autopilot summary ({time.strftime('%Y-%m-%d %H:%M')})", "",
+                f"Best model: `{best['checkpoint']}` (selection score {best['score']:.4f}; lower is better)", "",
+                "## Best model", "", table([("validation sample (three-field)", best["report"]),
+                                             ("test (three-field, then full condition in projections)", test_dir / "report.json")]), ""]
+        if rows_report is not None:
+            text += ["## Same rooms: trained model vs LLM", "", table([("FastFill best", rows_report)] + sorted(self.llm_reports.items())), ""]
+        for tag in ("select1", "select2"):
+            path = self.dir / f"{tag}-selection.json"
+            if path.is_file():
+                text += [f"## {tag} ranking", ""] + [f"- {r['score']:.4f} `{r['checkpoint']}`" for r in json.loads(path.read_text())] + [""]
+        (self.dir / "SUMMARY.md").write_text("\n".join(text) + "\n")
+        self.log("wrote SUMMARY.md")
+
     def run(self):
         self.extra_resume, self.data = (), str(Path(self.a.current_data).resolve())
         self.phase("A-wait-current-runs")
@@ -252,6 +326,8 @@ class Autopilot:
         self.phase("B-evaluate-current")
         winner = self.evaluate_candidates([job["outputs"] for job in jobs.values()], "select1")
         self.phase("C-selected", winner=winner)
+        llm = threading.Thread(target=self.llm_baselines, args=(self.eval_data(),), daemon=True)
+        llm.start()
         handoff = self.roomgenbench(winner["checkpoint"], "best-round1")
         # its five rooms each start a new process from the repo; finish them before phase D pulls new code
         self.log("round-1 RoomGenBench hand-off finished", returncode=handoff.wait())
@@ -273,11 +349,22 @@ class Autopilot:
         best = self.evaluate_candidates([job["outputs"]], "select2", newest=4)
         self.upload(best["checkpoint"], name)  # before the ~7 h single-GPU test evaluation, which may fail
         self.roomgenbench(best["checkpoint"], f"best-{name}")
+        llm.join(timeout=4 * 3600)
+        rows_report, rows = None, self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
+        if rows.is_file():  # the trained model on exactly the rooms the LLM baselines answered
+            rows_out = self.runs / f"llmrows-{name}"
+            shutil.rmtree(rows_out, ignore_errors=True)
+            rows_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
+                                "--projection", "full", "--device", "cuda", "--grid-decode", "spread", "--output", rows_out],
+                               gpus="2", log=f"{rows_out}.log", wait=False)
         out = self.runs / f"test-{name}"
         self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
                  "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
                 gpus="1", log=f"{out}.log")
-        self.phase("done", best=best, test_report=str(out / "report.json"))
+        if rows.is_file() and rows_job.wait() == 0:
+            rows_report = rows_out / "report.json"
+        self.summary(best, out, rows_report)
+        self.phase("done", best=best, test_report=str(out / "report.json"), summary=str(self.dir / "SUMMARY.md"))
 
 
 def main(argv=None):
@@ -290,6 +377,8 @@ def main(argv=None):
     p.add_argument("--epochs", type=int, default=5)
     p.add_argument("--eval-rows", default="3000")
     p.add_argument("--model-repo", default="liantian/fastfill-v2-models")
+    p.add_argument("--llm-env", default="/home/jovyan/shanliantian/.fastfill_api.env")
+    p.add_argument("--llm-rows", default="300")
     os.environ.setdefault("HF_HOME", ENV["HF_HOME"])  # the in-process Hugging Face upload uses the logged-in home
     pilot = Autopilot(p.parse_args(argv))
     try:
