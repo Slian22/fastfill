@@ -113,6 +113,23 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def implementation_sha256(root):
+    """What an evaluate report records as ``implementation_sha256`` (io.run_metadata) for the fastfill/v2 code on disk
+    under the repository ``root``: the evaluate subprocesses run from there."""
+    root = Path(root).resolve()
+    hashes = {str(path.relative_to(root)): sha256(path) for path in sorted((root / "fastfill/v2").glob("*.py"))}
+    return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
+
+
+def recorded(path, **fields):
+    """``path`` is a readable JSON file recording exactly these field values (not missing, torn or from other inputs)."""
+    try:
+        old = json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return False
+    return all(old.get(key) == value for key, value in fields.items())
+
+
 class Autopilot:
     def __init__(self, args):
         self.a, self.root = args, Path(args.repo)
@@ -211,24 +228,44 @@ class Autopilot:
         return path
 
     def evaluate_candidates(self, runs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7"), data=None):
-        """runs: one list of output directories (the run and its resumes) per run; its newest checkpoints compete."""
+        """runs: one list of output directories (the run and its resumes) per run; its newest checkpoints compete.
+
+        A restarted autopilot reuses a finished report of exactly the command below (same data and checkpoint, minimal
+        projection, spread decoding, scorable). The reports of one selection all carry one ``implementation_sha256``
+        (recorded per entry in <tag>-selection.json): the cached reports' when every candidate is cached under the same
+        one, else that of the code on disk; other reports are set aside and evaluated again (refused beside a training)."""
         candidates, data = [], data or self.eval_data()
         for outputs in runs:
             candidates += sorted((p for o in outputs for p in glob.glob(f"{o}/model-step-*")), key=step_of)[-newest:]
+        outs = {checkpoint: self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}" for checkpoint in candidates}
+
+        def set_aside(out):
+            out.rename(out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}"))
+            self.log("stale evaluation set aside", output=str(out))
+        cached = {}  # checkpoint -> implementation_sha256 of its reusable report
+        for checkpoint, out in outs.items():
+            if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations of the same command
+                old = json.loads((out / "report.json").read_text())
+                if (old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve())
+                        and old.get("projection") == "minimal" and old.get("grid_decode") == "spread" and old.get("implementation_sha256")
+                        and "predicted_matched" in (old.get("collapse") or {})):  # older reports cannot be scored
+                    cached[checkpoint] = old["implementation_sha256"]
+                    continue
+                set_aside(out)
+        found = set(cached.values())
+        implementation = found.pop() if len(found) == 1 and len(cached) == len(candidates) else implementation_sha256(self.root)
+        for checkpoint in [c for c, digest in cached.items() if digest != implementation]:
+            del cached[checkpoint]
+            set_aside(outs[checkpoint])
         results = []
         for start in range(0, len(candidates), len(gpus)):
             batch = candidates[start:start + len(gpus)]
             jobs = []
             for gpu, checkpoint in zip(gpus, batch):
-                out = self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}"
-                if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations of the same inputs
-                    old = json.loads((out / "report.json").read_text())
-                    if (old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve())
-                            and "predicted_matched" in (old.get("collapse") or {})):  # older reports cannot be scored
-                        jobs.append((checkpoint, out, None))
-                        continue
-                    out.rename(out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}"))
-                    self.log("stale evaluation set aside", output=str(out))
+                out = outs[checkpoint]
+                if checkpoint in cached:
+                    jobs.append((checkpoint, out, None))
+                    continue
                 if any_training_alive():  # e.g. a restarted autopilot whose cached evaluation went missing
                     raise RuntimeError(f"{tag}: {checkpoint} needs a GPU evaluation while a fastfill.v2.train process runs")
                 jobs.append((checkpoint, out, self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", checkpoint,
@@ -239,13 +276,18 @@ class Autopilot:
                     self.log("evaluation failed", checkpoint=checkpoint)
                     continue
                 try:
-                    value = score(json.loads((out / "report.json").read_text()))
+                    report = json.loads((out / "report.json").read_text())
+                    value = score(report)
                 except (KeyError, TypeError, ValueError) as error:
                     self.log("evaluation unscorable", checkpoint=checkpoint, error=repr(error))
                     continue
-                results.append({"checkpoint": checkpoint, "report": str(out / "report.json"), "score": value})
+                results.append({"checkpoint": checkpoint, "report": str(out / "report.json"), "score": value,
+                                "implementation_sha256": report.get("implementation_sha256")})
         if not results:
             raise RuntimeError("no checkpoint could be evaluated")
+        mixed = [r["report"] for r in results if r["implementation_sha256"] != implementation]
+        if mixed:  # the code on disk changed during the evaluations; a restart evaluates the reports of other code again
+            raise RuntimeError(f"{tag}: {mixed} were not evaluated by implementation {implementation}")
         results.sort(key=lambda r: r["score"])
         (self.dir / f"{tag}-selection.json").write_text(json.dumps(results, indent=2) + "\n")
         self.log(f"{tag} selection", winner=results[0], ranking=[(r["checkpoint"], round(r["score"], 4)) for r in results])
@@ -299,7 +341,12 @@ class Autopilot:
         self.log("uploaded model", repo=self.a.model_repo, path=name)
 
     def llm_baselines(self, rows_file):
-        """Prompt-only and harness LLM baselines once the API env file exists, each scored by evaluate --predictions."""
+        """Prompt-only and harness LLM baselines once the API env file exists, each scored by evaluate --predictions.
+
+        A restarted autopilot reuses a baseline only when its summary.json records these rows, the llm_baseline.py on disk
+        and the request parameters of the env file's model, and its scored report only when that records these rows and
+        predictions; anything else (interrupted, older or other inputs) is removed and run again."""
+        from fastfill.v2.llm_baseline import load_env, request_parameters
         env = Path(self.a.llm_env)
         while not env.is_file():
             if self.status["phase"] in ("F-evaluate-final", "done", "failed"):
@@ -309,11 +356,15 @@ class Autopilot:
         for mode in ("prompt", "harness"):
             out, scored = self.runs / f"llm-{mode}-{self.a.llm_rows}", self.runs / f"llm-{mode}-{self.a.llm_rows}-eval"
             try:
-                if not (out / "summary.json").is_file():
-                    shutil.rmtree(out, ignore_errors=True)  # an interrupted earlier attempt of this autopilot
+                values = load_env(env)  # holds the API key: never logged
+                if not recorded(out / "summary.json", data_sha256=sha256(rows_file),
+                                implementation_sha256=sha256(self.root / "fastfill/v2/llm_baseline.py"),
+                                request_parameters=request_parameters(values, values.get("OPENAI_MODEL"))):
+                    shutil.rmtree(out, ignore_errors=True)
                     self.sh([self.python, "-m", "fastfill.v2.llm_baseline", "--data", rows_file, "--env", env, "--mode", mode,
                              "--max-samples", self.a.llm_rows, "--output", out], log=f"{out}.log")
-                if not (scored / "report.json").is_file():
+                if not recorded(scored / "report.json", data_sha256=sha256(out / "rows.jsonl"),
+                                predictions_sha256=sha256(out / "predictions.jsonl")):
                     shutil.rmtree(scored, ignore_errors=True)
                     self.sh([self.python, "-m", "fastfill.v2.evaluate", "--data", out / "rows.jsonl", "--predictions",
                              out / "predictions.jsonl", "--output", scored], log=f"{scored}.log")

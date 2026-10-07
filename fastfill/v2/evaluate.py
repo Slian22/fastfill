@@ -114,7 +114,7 @@ PARENT_LATTICE = np.stack(np.meshgrid(*[np.linspace(-1, 1, 5)] * 2, indexing="ij
 
 
 def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, requests=None, fixed_z=None, yaw_logits=None,
-                   yaw_residuals=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3):
+                   yaw_residuals=None, keep_yaw=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3):
     """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw, z).
 
     ``room`` may list ``fixed_objects`` (condition rows: bottom_center_m, size_local_m, yaw_rad): they never move,
@@ -138,7 +138,9 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
 
     With yaw logits, a floor-standing object whose candidate footprint ends within ``near_wall`` of a wall
     takes its most probable yaw bin within 45 degrees of facing away from that wall (its back to the wall,
-    as 97-99% of wall-adjacent training furniture); its footprint is then checked at that yaw.
+    as 97-99% of wall-adjacent training furniture); its footprint is then checked at that yaw. Slots marked
+    in ``keep_yaw`` (one bool per slot; ``serialize_predictions`` marks objects whose orientation the request
+    constrains) never turn: they keep ``yaw`` and their footprints are checked at it.
 
     An undeclared raised object (predicted bottom > 0.15 m above the floor) rests on a placed or fixed
     floor-standing object: it takes its most probable cell (at least 10% as likely as its best) whose centre lies inside
@@ -156,8 +158,9 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     size, yaw, position = np.asarray(size, float).reshape(-1, 3), np.asarray(yaw, float), np.asarray(position, float)
     requests = [{}] * n if requests is None else list(requests)
     fixed_z = np.zeros(n, bool) if fixed_z is None else np.asarray(fixed_z, bool)
-    if len(requests) != n or fixed_z.shape != (n,):
-        raise ValueError("requests and fixed_z need one entry per slot")
+    keep_yaw = np.zeros(n, bool) if keep_yaw is None else np.asarray(keep_yaw, bool)
+    if len(requests) != n or fixed_z.shape != (n,) or keep_yaw.shape != (n,):
+        raise ValueError("requests, fixed_z and keep_yaw need one entry per slot")
 
     def halves(angle, box):
         c, s = np.abs(np.cos(angle)), np.abs(np.sin(angle))
@@ -222,7 +225,7 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
             on_top = base + PARENT_LATTICE * np.maximum(base_half - half[i], 0)  # includes the footprint centre
             on_top = on_top[np.argsort(((on_top - cand[0]) ** 2).sum(-1), kind="stable")]  # nearest the argmax decode first
             cand, cand_yaw = np.vstack((cand, on_top)), np.append(cand_yaw, np.full(len(on_top), yaw[i]))
-        elif yaw_logits is not None and not raised[i]:
+        elif yaw_logits is not None and not raised[i] and not keep_yaw[i]:
             gaps = np.stack((cand[:, 0] - half[i, 0] - lo[0], hi[0] - cand[:, 0] - half[i, 0],
                              cand[:, 1] - half[i, 1] - lo[1], hi[1] - cand[:, 1] - half[i, 1]), -1)
             wall = gaps.argmin(-1)
@@ -275,7 +278,9 @@ def _room_frame(batch, b):
 
 def serialize_predictions(predictions, batch, *, grid_decode="spread"):
     """Validated layouts of a collated batch. ``spread`` (grid head only) re-decodes each scene with
-    ``spread_grid_xy`` under its declared supports, fixed objects and fixed z; ``argmax`` keeps the raw head."""
+    ``spread_grid_xy`` under its declared supports, fixed objects and fixed z, keeping the decoded yaw of every
+    object named as ``object_id`` by a "faces_direction" or "faces" constraint (hard or soft); ``argmax`` keeps
+    the raw head."""
     if grid_decode not in GRID_DECODES:
         raise ValueError(f"grid_decode must be one of {GRID_DECODES}")
     position = predictions["position_normalized"] * batch["scale"][:, None] + batch["origin"][:, None]
@@ -286,6 +291,8 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
         for b, objects in enumerate(batch["objects"]):
             n = len(objects)
             if n:
+                faced = {c.get("object_id") for c in batch["conditions"][b].get("constraints", ())
+                         if c.get("type") in ("faces_direction", "faces")}
                 xy, spread_yaw, spread_z = spread_grid_xy(
                     predictions["position_cell_logits"][b, :n].detach().cpu().float(),
                     predictions["position_cell_residuals"][b, :n].detach().cpu().float(), grid,
@@ -294,7 +301,8 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
                     requests=effective_support_requests(batch["conditions"][b]),
                     fixed_z=batch["fixed_position_mask"][b, :n, 2].cpu().numpy(),
                     yaw_logits=predictions["yaw_logits"][b, :n].detach().cpu().float().numpy(),
-                    yaw_residuals=predictions["yaw_residuals"][b, :n].detach().cpu().float().numpy())
+                    yaw_residuals=predictions["yaw_residuals"][b, :n].detach().cpu().float().numpy(),
+                    keep_yaw=[obj["id"] in faced for obj in objects])
                 position[b, :n, :2] = torch.from_numpy(xy)
                 position[b, :n, 2] = torch.from_numpy(spread_z)
                 yaw[b, :n] = torch.from_numpy(spread_yaw).to(yaw.dtype)

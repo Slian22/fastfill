@@ -40,6 +40,19 @@ below it means a layout more spread out than the data, not a more accurate one.
 Validation and checkpointing also run at the final update.
 Window and validation logs carry every term the criterion reports in
 ``term_sums``, e.g. position_cell / position_residual / position_z of the grid head.
+
+Diagnostics (validation, its minimal projection, the baseline, the labels' collapse) are not prepared by
+Accelerate: each rank reads its unpadded stride shard of the rows (``_diagnostic_loader``), so every row counts
+once; ranks may run different numbers of batches (or none), and the reductions after each loop are the only
+collectives. Their forward uses the unwrapped model and a rank-local criterion, so ``batches`` is the global
+batch count and ``geometry_objective_mean_of_batches`` the mean of each batch's own objective over all of them.
+Each diagnostic loader has its own generator, so diagnostics never draw from the global RNG: a resumed run
+matches the uninterrupted one with dropout too. This changes the RNG stream relative to older runs; resuming
+an older run's state stays exact for dropout 0, the only setting where the stream does not touch training.
+States record this convention (``"diagnostics": DIAGNOSTICS``). A multi-rank state without it (saved before round
+5) logged padded rank batches, so resuming it with validation restarts ``selection_metric.best`` at the resumed
+step and records ``resumed_with_changes["diagnostics"]``; this needs no ``--allow-resume-change``, since training
+itself is unchanged.
 """
 from __future__ import annotations
 
@@ -63,8 +76,8 @@ from fastfill.v2.batch import AUGMENT_DEFAULTS, augment_sample, collate_samples,
 from fastfill.v2.data import filter_rows_by_flags
 from fastfill.v2.evaluate import COLLAPSE_KEYS, batch_collapse_counts, collapse_score, project_minimal
 from fastfill.v2.io import (CHECKPOINT_MANIFEST, backbone_provenance, ensure_disjoint, fingerprint, fingerprint_tree,
-                            read_samples, run_metadata, safe_output)
-from fastfill.v2.losses import GeometryCriterion, LossConfig
+                            read_samples, run_metadata, safe_output, to_device)
+from fastfill.v2.losses import GRID_TERMS, GeometryCriterion, LossConfig
 from fastfill.v2.matching import match_batch
 from fastfill.v2.model import ModelConfig, build_model, model_inputs
 from fastfill.v2.objective import ObjectiveWindow, local_objective_count
@@ -72,6 +85,9 @@ from fastfill.v2.size_range import size_target_conflicts
 
 
 TERMS = ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")  # base criterion terms; windows log any key
+# GeometryCriterion's term_sums keys in its order: diagnostic windows start from them, so an empty shard reduces the same shape.
+DIAGNOSTIC_TERMS = ("position", *GRID_TERMS, "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")
+DIAGNOSTICS = "rank-shards"  # the diagnostics convention states record (round 5: unpadded rank shards, global batches)
 KEEP_STATES = 2  # ponytail: state-step-* holds the frozen backbone (~29 GB); keep the newest two, model-step-* (~0.1 GB) all
 SELECTION_METRIC = {"name": "validation.minimal.geometry_objective", "lower_is_better": True,
                     "definition": "weighted geometry objective on the minimal (three-field) projection of the validation rows; "
@@ -156,10 +172,15 @@ class _Window:
     so one summed collective at summary time gives the global count-weighted
     window means. ``loss`` keeps the microbatch mean of the weighted objective
     (local numerators over global counts, so its rank mean is the global value).
+    ``summary(shards=True)`` (diagnostics: rank-local losses, rank shards of
+    different lengths): ``loss`` is the mean over every rank's microbatches and
+    ``microbatches`` their global count. ``keys`` (diagnostics) are summed even
+    by a rank without batches.
     """
 
-    def __init__(self):
-        self.loss, self.microbatches, self.rows, self.sums, self.counts = 0., 0, [], {}, {}
+    def __init__(self, keys=()):
+        self.loss, self.microbatches, self.rows, self.keys = 0., 0, [], tuple(keys)
+        self.sums, self.counts = dict.fromkeys(self.keys, 0.), dict.fromkeys(self.keys, 0)
 
     def add(self, result, batch=None):
         self.loss += float(result["loss"].detach().float())
@@ -171,16 +192,25 @@ class _Window:
             self.rows.extend(p.get("scene_id") for p in batch["provenance"])
         return self
 
-    def summary(self, accelerator):
-        # Every rank enters this collective with one dtype/shape, including ranks without valid terms.
+    def summary(self, accelerator, shards=False):
+        # Every rank enters this collective with one dtype/shape, including ranks without valid terms (or batches).
         keys = list(self.sums)
-        local = torch.tensor([self.loss, *(self.sums[key] for key in keys), *(float(self.counts[key]) for key in keys)],
-                             dtype=torch.float64, device=accelerator.device)
+        if self.keys and len(keys) != len(self.keys):
+            raise RuntimeError(f"criterion terms {keys} outgrow the declared {list(self.keys)}; a rank without "
+                               "batches would reduce another shape")
+        local = torch.tensor([self.loss, float(self.microbatches), *(self.sums[key] for key in keys),
+                              *(float(self.counts[key]) for key in keys)], dtype=torch.float64, device=_reduce_device(accelerator))
         values = accelerator.reduce(local, reduction="sum").tolist()
-        sums, counts = values[1:1 + len(keys)], values[1 + len(keys):]
-        return {"loss": values[0] / accelerator.num_processes / max(1, self.microbatches),
+        batches, sums, counts = values[1], values[2:2 + len(keys)], values[2 + len(keys):]
+        return {"loss": values[0] / max(1., batches) if shards else values[0] / accelerator.num_processes / max(1, self.microbatches),
                 "unweighted": {key: total / count if count else None for key, total, count in zip(keys, sums, counts)},
-                "counts": {key: int(count) for key, count in zip(keys, counts)}, "microbatches": self.microbatches}
+                "counts": {key: int(count) for key, count in zip(keys, counts)},
+                "microbatches": int(batches) if shards else self.microbatches}
+
+
+def _reduce_device(accelerator):
+    """Metal has no float64: mps runs (single-process under Accelerate, so no collective) reduce on the CPU."""
+    return torch.device("cpu") if accelerator.device.type == "mps" else accelerator.device
 
 
 def _record(window, model, optimizer, step, elapsed, count, accelerator):
@@ -375,22 +405,39 @@ class _Tee:
             stream.flush()
 
 
+def _diagnostic_loader(samples, accelerator, batch_size, collate, seed):
+    """This rank's unpadded stride shard, not prepared: every row counts once globally (``prepare``'s even batches
+    repeat leading rows on later ranks); ranks may hold different numbers of batches, an empty shard too. Its own
+    generator keeps iteration (the loader's base seed draw) off the global RNG."""
+    return DataLoader(samples[accelerator.process_index::accelerator.num_processes], batch_size=batch_size,
+                      collate_fn=collate, generator=torch.Generator().manual_seed(seed))
+
+
+def _rank_local(criterion, predictions, batch):
+    """The criterion on one diagnostic batch with this rank's counts: shards differ in length, so its per-batch count
+    all_reduce (``losses._mean``) would pair different batches or hang."""
+    return criterion(predictions, batch, global_counts=False)
+
+
 @torch.no_grad()
 def _validation(model, loader, criterion, accelerator):
     """Count-weighted geometry terms plus the global predicted collapse counts and score of one projection:
     ``collapse`` over every request slot, ``collapse_matched`` over the slots the criterion's matching assigns to
-    label-complete labels (the objects ``_label_collapse`` counts)."""
+    label-complete labels (the objects ``_label_collapse`` counts). ``loader`` yields this rank's shard
+    (``_diagnostic_loader``); the unwrapped model runs no DDP collective per batch."""
+    model = accelerator.unwrap_model(model)
     model.eval()
-    window, collapse, matched = _Window(), dict.fromkeys(COLLAPSE_KEYS, 0.), dict.fromkeys(COLLAPSE_KEYS, 0.)
+    window, collapse, matched = _Window(DIAGNOSTIC_TERMS), dict.fromkeys(COLLAPSE_KEYS, 0.), dict.fromkeys(COLLAPSE_KEYS, 0.)
     for batch in loader:
+        batch = to_device(batch, accelerator.device)
         predictions = model(**model_inputs(batch))
-        result = criterion(predictions, batch)
+        result = _rank_local(criterion, predictions, batch)
         window.add(result)
         for counts, assignment in ((collapse, None), (matched, result["assignment"])):
             for key, value in batch_collapse_counts(predictions, batch, assignment).items():
                 counts[key] += value
     model.train()
-    summary = window.summary(accelerator)
+    summary = window.summary(accelerator, shards=True)
     return {"geometry_objective_mean_of_batches": summary["loss"], "batches": summary["microbatches"],
             "unweighted": summary["unweighted"], "counts": summary["counts"],
             "collapse": _reduce_collapse(collapse, accelerator), "collapse_matched": _reduce_collapse(matched, accelerator),
@@ -398,7 +445,7 @@ def _validation(model, loader, criterion, accelerator):
 
 
 def _reduce_collapse(collapse, accelerator):
-    totals = accelerator.reduce(torch.tensor(list(collapse.values()), dtype=torch.float64, device=accelerator.device),
+    totals = accelerator.reduce(torch.tensor(list(collapse.values()), dtype=torch.float64, device=_reduce_device(accelerator)),
                                 reduction="sum").tolist()
     collapse = {key: value if key.endswith("_m") else int(value) for key, value in zip(collapse, totals)}
     return {**collapse, "score": collapse_score(collapse)}
@@ -406,7 +453,8 @@ def _reduce_collapse(collapse, accelerator):
 
 @torch.no_grad()
 def _label_collapse(loader, accelerator):
-    """Global collapse counts and score of the labels themselves over one projection (the selection score's anchor)."""
+    """Global collapse counts and score of the labels themselves over one projection (the selection score's anchor).
+    ``loader`` yields this rank's shard; counting runs on the CPU, so batches stay there."""
     collapse = dict.fromkeys(COLLAPSE_KEYS, 0.)
     for batch in loader:
         labels = {"position_normalized": batch["targets"]["position_normalized"], "size": batch["targets"]["size"],
@@ -447,10 +495,12 @@ def _baseline_predictions(batch, medians, yaw_bins):
 
 @torch.no_grad()
 def _baseline(loader, criterion, accelerator, medians, yaw_bins):
-    window = _Window()
+    """``_validation``'s window over this rank's shard (``_diagnostic_loader``) of the baseline rows."""
+    window = _Window(DIAGNOSTIC_TERMS)
     for batch in loader:
-        window.add(criterion(_baseline_predictions(batch, medians, yaw_bins), batch))
-    return {**window.summary(accelerator), "predictor": "room-centre floor position; per-category median size of the first "
+        batch = to_device(batch, accelerator.device)
+        window.add(_rank_local(criterion, _baseline_predictions(batch, medians, yaw_bins), batch))
+    return {**window.summary(accelerator, shards=True), "predictor": "room-centre floor position; per-category median size of the first "
             "20000 training rows (global median for unseen categories); uniform yaw bins with zero residual"}
 
 
@@ -520,10 +570,13 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     rows = _Rows(samples, augmentation, training["seed"], tokenizer, training["max_length"])
     generator = torch.Generator().manual_seed(training["seed"])
     loader = DataLoader(rows, batch_size=training["batch_size"], shuffle=True, collate_fn=collate, generator=generator)
-    val_loader = DataLoader(validation_samples, batch_size=training["batch_size"], collate_fn=collate) if heldout else None
+    shard = partial(_diagnostic_loader, accelerator=accelerator, batch_size=training["batch_size"], collate=collate,
+                    seed=training["seed"])
+    val_loader = shard(validation_samples) if heldout else None
     minimal_samples = [row for row in map(project_minimal, validation_samples) if row is not None]
-    minimal_loader = DataLoader(minimal_samples, batch_size=training["batch_size"], collate_fn=collate) if minimal_samples else None
-    baseline_loader = DataLoader(validation_samples[:2000], batch_size=training["batch_size"], collate_fn=collate) if heldout else None
+    minimal_loader = shard(minimal_samples) if minimal_samples else None
+    baseline_rows = validation_samples[:2000]
+    baseline_loader = shard(baseline_rows) if heldout else None
     steps = 1 if dry_run else training["steps"]
     model, criterion = build_model(model_config), GeometryCriterion(loss_config)
     optimizer = torch.optim.AdamW(_parameter_groups(model, training["learning_rate"], optimizer_config["decoder_lr"]),
@@ -531,16 +584,11 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, partial(_lr_factor, warmup=optimizer_config["warmup_steps"],
                                                                      total=steps, schedule=optimizer_config["schedule"]))
     model, optimizer, loader, scheduler = accelerator.prepare(model, optimizer, loader, scheduler)
-    if val_loader is not None:
-        val_loader, baseline_loader = accelerator.prepare(val_loader, baseline_loader)
-    if minimal_loader is not None:
-        minimal_loader = accelerator.prepare(minimal_loader)
     state = _TrainerState()
     accelerator.register_for_checkpointing(state)
     logs, step, epoch, skip_batches = [], 0, 0, 0
     skipped_windows, skipped_gradient_overflow_windows, skipped_nonfinite_windows = 0, 0, 0
-    # The labels' score anchors the selection score from launch on. Every rank joins the reduction, before a
-    # resume restores the RNG state (iterating a DataLoader draws a seed from the global generator).
+    # The labels' score anchors the selection score from launch on. Every rank joins the reduction.
     label_collapse = _label_collapse(minimal_loader, accelerator) if minimal_loader is not None else None
     bound = {"world_size": accelerator.num_processes, "validation_data_sha256": metadata["validation_data_sha256"]}
     resumed_with_changes, resume_unverified, selection_after = {}, [], 0
@@ -559,10 +607,15 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
             raise ValueError(f"resume changes {resumed_with_changes}; a new world size changes the global batch and the "
                              "rank-local data position, new validation data mixes old and new validation logs; "
                              "pass --allow-resume-change to accept and record it")
+        # Recorded, never refused: a crashed run of older code is resumed by a plain --resume (autorun), and only
+        # its logs change (multi-rank validation counted the padded rank batches before round 5).
+        if heldout and saved.get("diagnostics") != DIAGNOSTICS and saved.get("world_size", accelerator.num_processes) > 1:
+            resumed_with_changes["diagnostics"] = {"saved": saved.get("diagnostics"), "current": DIAGNOSTICS}
         step, epoch, skip_batches = saved["step"], saved["epoch"], saved["batches_done"]
-        # Scores on validation data the run no longer uses are not comparable: a changed hash restarts selection,
-        # and the restart travels with the states (absent before round 3: every score counts).
-        selection_after = step if "validation_data_sha256" in resumed_with_changes else saved.get("selection_after_step", 0)
+        # Scores on validation data the run no longer uses, or under the older diagnostics, are not comparable: either
+        # restarts selection, and the restart travels with the states (absent before round 3: every score counts).
+        selection_after = (step if resumed_with_changes.keys() & {"validation_data_sha256", "diagnostics"}
+                           else saved.get("selection_after_step", 0))
         generator.set_state(saved["generator_state"])
         skipped_windows, skipped_gradient_overflow_windows, skipped_nonfinite_windows = (
             saved["skipped_no_objective_windows"], saved["skipped_gradient_overflow_windows"], saved["skipped_nonfinite_windows"])
@@ -594,7 +647,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
         baseline = None
         if val_loader is not None:
             baseline = _baseline(baseline_loader, criterion, accelerator, _category_median_sizes(samples[:20000]), model_config.yaw_bins)
-            baseline["rows"] = len(baseline_loader.dataset)
+            baseline["rows"] = len(baseline_rows)
             if accelerator.is_main_process:
                 print(json.dumps({"baseline": baseline}), flush=True)
         model.train()
@@ -668,7 +721,7 @@ def run_training(config, data, output, *, validation=None, dry_run=False, max_sa
                                         "skipped_gradient_overflow_windows": skipped_gradient_overflow_windows,
                                         "skipped_nonfinite_windows": skipped_nonfinite_windows, "logs": logs,
                                         "config_sha256": config_digest, "data_sha256": metadata["data_sha256"], **bound,
-                                        "selection_after_step": selection_after}
+                                        "selection_after_step": selection_after, "diagnostics": DIAGNOSTICS}
                         accelerator.save_state(str(target / f"state-step-{step}"))
                         accelerator.wait_for_everyone()
                         if accelerator.is_main_process:

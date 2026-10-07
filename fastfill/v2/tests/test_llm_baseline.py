@@ -96,3 +96,48 @@ def test_duplicate_unknown_or_missing_ids_make_the_answer_a_failure(tmp_path):
             assert "exactly once" in str(error)
         else:
             raise AssertionError("an answer with a duplicated or unknown id was accepted")
+
+
+def test_first_answer_compliance_is_reported_apart_from_the_retried_success(tmp_path):
+    from fastfill.v2.io import fingerprint
+    rows = [p for p in map(project_minimal, real_rows()) if p is not None][:2]
+    data = tmp_path / "rows.jsonl"
+    data.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    (tmp_path / "api.env").write_text("OPENAI_BASE_URL=x\nOPENAI_API_KEY=k\nOPENAI_MODEL=m\n")
+    good = {llm_baseline.prompt(r["condition"]): json.loads(_answer_from_targets(r).strip("`\njson")) for r in rows}
+    duplicated = lambda answer: json.dumps({"objects": answer["objects"] + answer["objects"][:1]})
+    asked = {}
+
+    def ask(env, model, messages):  # row 0: a duplicated id first, then a valid layout; row 1: valid at once
+        text = messages[0]["content"]
+        asked[text] = asked.get(text, 0) + 1
+        return duplicated(good[text]) if text == llm_baseline.prompt(rows[0]["condition"]) and asked[text] == 1 else json.dumps(good[text])
+    summary = llm_baseline.run(data, tmp_path / "a", tmp_path / "api.env", ask=ask)
+    predictions = [json.loads(line) for line in (tmp_path / "a/predictions.jsonl").read_text().splitlines()]
+    assert [p["attempts"] for p in predictions] == [2, 1] and summary["failed"] == 0 and summary["first_answer_invalid"] == 1
+    assert {"layout", "error", "latency_s", "repair_rounds", "problems_first", "problems_final"} <= set(predictions[0])
+    assert summary["data_sha256"] == fingerprint(data) and summary["implementation_sha256"] == fingerprint(llm_baseline.__file__)
+    summary = llm_baseline.run(data, tmp_path / "b", tmp_path / "api.env", ask=lambda env, model, messages: duplicated(good[messages[0]["content"]]))
+    predictions = [json.loads(line) for line in (tmp_path / "b/predictions.jsonl").read_text().splitlines()]
+    assert [p["attempts"] for p in predictions] == [2, 2] and summary["failed"] == 2 and summary["first_answer_invalid"] == 2
+
+
+def test_failed_requests_are_no_invalid_first_answer(tmp_path):
+    """Row 0's first request fails in transport and its first answer is valid; row 1 never gets an answer."""
+    import urllib.error
+    rows = [p for p in map(project_minimal, real_rows()) if p is not None][:2]
+    data = tmp_path / "rows.jsonl"
+    data.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    (tmp_path / "api.env").write_text("OPENAI_BASE_URL=x\nOPENAI_API_KEY=k\nOPENAI_MODEL=m\n")
+    answers, asked = {llm_baseline.prompt(r["condition"]): _answer_from_targets(r) for r in rows}, []
+
+    def ask(env, model, messages):
+        text = messages[0]["content"]
+        asked.append(text)
+        if text == llm_baseline.prompt(rows[1]["condition"]) or asked.count(text) == 1:
+            raise urllib.error.URLError("connection reset")
+        return answers[text]
+    summary = llm_baseline.run(data, tmp_path / "a", tmp_path / "api.env", ask=ask)
+    assert (summary["failed"], summary["first_answer_invalid"]) == (1, 0) and summary["unanswered"] == 1
+    predictions = [json.loads(line) for line in (tmp_path / "a/predictions.jsonl").read_text().splitlines()]
+    assert [(p["attempts"], p["first_answer_valid"]) for p in predictions] == [(2, True), (2, None)]

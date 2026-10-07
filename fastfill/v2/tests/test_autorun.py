@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from fastfill.v2.autorun import next_config, score
 
 
@@ -146,3 +148,165 @@ def test_no_gpu_evaluation_starts_beside_a_running_training(tmp_path, monkeypatc
     monkeypatch.setattr(pilot, "sh", lambda *a, **k: pytest.fail("a GPU job was started"))
     with pytest.raises(RuntimeError, match="while a fastfill.v2.train process runs"):
         pilot.evaluate_candidates([[str(tmp_path / "run")]], "select1", data=tmp_path / "sample.jsonl")
+
+
+def _candidates(tmp_path, monkeypatch, *, alive, implementation=None):
+    """An autopilot over runs a and b (steps 100-400, the newest three compete) whose evaluate writes a scorable
+    spread/minimal report of ``implementation`` (default: the code on disk under its repo)."""
+    import argparse
+    from fastfill.v2 import autorun
+    pilot = autorun.Autopilot(argparse.Namespace(repo=str(tmp_path), eval_rows="3000"))
+    data = tmp_path / "sample.jsonl"
+    data.write_text("{}\n")
+    for run in "ab":
+        for step in (100, 200, 300, 400):
+            (tmp_path / run / f"model-step-{step}").mkdir(parents=True)
+    calls = []
+
+    class Proc:
+        def wait(self): return 0
+
+    def sh(args, **kw):
+        args = list(map(str, args))
+        calls.append(args)
+        out = Path(args[args.index("--output") + 1])
+        report(out, args[args.index("--checkpoint") + 1], projection=args[args.index("--projection") + 1],
+               grid_decode=args[args.index("--grid-decode") + 1], implementation_sha256=implementation or autorun.implementation_sha256(tmp_path))
+        return Proc()
+
+    def report(out, checkpoint, pos=2., **fields):
+        out.mkdir(parents=True)
+        (out / "report.json").write_text(json.dumps({**_report(.3, .6, pos), "requests": 10, "inference_failed_requests": 0,
+                                                     "data_sha256": autorun.sha256(data), "checkpoint": str(Path(checkpoint).resolve()), **fields}))
+    pilot.sh = sh
+    monkeypatch.setattr(autorun, "any_training_alive", lambda: alive)
+    runs = [[str(tmp_path / "a")], [str(tmp_path / "b")]]
+    return pilot, data, runs, calls, report
+
+
+def test_a_restart_beside_the_formal_training_reuses_the_six_select1_reports_without_evaluating(tmp_path, monkeypatch):
+    """The live server's shape: six cached select1 reports of one older implementation, the data sample unchanged."""
+    pilot, data, runs, calls, report = _candidates(tmp_path, monkeypatch, alive=True)  # any evaluation would raise
+    old = "1c97878e" + "0" * 56
+    for i, (run, step) in enumerate((r, s) for r in "ab" for s in (200, 300, 400)):
+        report(pilot.runs / f"select1-{run}-model-step-{step}", tmp_path / run / f"model-step-{step}", pos=2. - i / 10,
+               projection="minimal", grid_decode="spread", implementation_sha256=old)
+    winner = pilot.evaluate_candidates(runs, "select1", data=data)
+    assert calls == [] and winner["checkpoint"] == str(tmp_path / "b/model-step-400")
+    selection = json.loads((pilot.dir / "select1-selection.json").read_text())
+    assert len(selection) == 6 and {r["implementation_sha256"] for r in selection} == {old}
+    assert not list(pilot.runs.glob("*.stale-*"))
+
+
+def test_cached_reports_of_another_command_or_implementation_are_evaluated_again(tmp_path, monkeypatch):
+    import pytest
+    from fastfill.v2 import autorun
+    # the audit's case: a cached argmax / full-projection report of old code is not what this method runs
+    pilot, data, runs, calls, report = _candidates(tmp_path / "decode", monkeypatch, alive=False)
+    report(pilot.runs / "select-a-model-step-400", tmp_path / "decode/a/model-step-400", projection="full", grid_decode="argmax",
+           implementation_sha256="WRONG_OLD_CODE")
+    winner = pilot.evaluate_candidates(runs[:1], "select", newest=1, data=data)
+    assert len(calls) == 1 and calls[0][calls[0].index("--grid-decode") + 1] == "spread" and "minimal" in calls[0]
+    assert json.loads(Path(winner["report"]).read_text())["grid_decode"] == "spread"
+    assert len(list(pilot.runs.glob("select-a-model-step-400.stale-*"))) == 1
+    # one report missing: fresh ones carry the code on disk, so a cached report of other code is evaluated again too
+    pilot, data, runs, calls, report = _candidates(tmp_path / "mixed", monkeypatch, alive=False)
+    report(pilot.runs / "select-a-model-step-400", tmp_path / "mixed/a/model-step-400", projection="minimal", grid_decode="spread",
+           implementation_sha256="1c97878e")
+    pilot.evaluate_candidates(runs[:1], "select", newest=2, data=data)
+    assert len(calls) == 2 and {r["implementation_sha256"] for r in json.loads((pilot.dir / "select-selection.json").read_text())} \
+        == {autorun.implementation_sha256(tmp_path / "mixed")}
+    # cached reports that disagree: only those of other code than the one on disk are evaluated again
+    pilot, data, runs, calls, report = _candidates(tmp_path / "split", monkeypatch, alive=False)
+    for step, implementation in ((300, "1c97878e"), (400, autorun.implementation_sha256(tmp_path / "split"))):
+        report(pilot.runs / f"select-a-model-step-{step}", tmp_path / f"split/a/model-step-{step}", projection="minimal",
+               grid_decode="spread", implementation_sha256=implementation)
+    pilot.evaluate_candidates(runs[:1], "select", newest=2, data=data)
+    assert [c[c.index("--checkpoint") + 1] for c in calls] == [str(tmp_path / "split/a/model-step-300")]
+    # the same beside a running training: refused before any GPU job
+    pilot, data, runs, calls, report = _candidates(tmp_path / "alive", monkeypatch, alive=True)
+    report(pilot.runs / "select-a-model-step-400", tmp_path / "alive/a/model-step-400", projection="minimal", grid_decode="spread",
+           implementation_sha256="1c97878e")
+    with pytest.raises(RuntimeError, match="while a fastfill.v2.train process runs"):
+        pilot.evaluate_candidates(runs[:1], "select", newest=2, data=data)
+    assert calls == []
+    # evaluations that come back from other code than the one on disk never enter one selection
+    pilot, data, runs, calls, report = _candidates(tmp_path / "moved", monkeypatch, alive=False, implementation="changed-meanwhile")
+    with pytest.raises(RuntimeError, match="were not evaluated by implementation"):
+        pilot.evaluate_candidates(runs[:1], "select", newest=1, data=data)
+
+
+@pytest.mark.parametrize("field,value", [(None, None), ("projection", "full"), ("grid_decode", "argmax"),
+                                         ("data_sha256", "0" * 64)])
+def test_a_cached_report_is_evaluated_again_when_any_single_command_field_differs(tmp_path, monkeypatch, field, value):
+    from fastfill.v2 import autorun
+    pilot, data, runs, calls, report = _candidates(tmp_path, monkeypatch, alive=False)
+    fields = {"projection": "minimal", "grid_decode": "spread", "implementation_sha256": autorun.implementation_sha256(tmp_path)}
+    report(pilot.runs / "select-a-model-step-400", tmp_path / "a/model-step-400", **{**fields, **({field: value} if field else {})})
+    pilot.evaluate_candidates(runs[:1], "select", newest=1, data=data)
+    assert len(calls) == len(list(pilot.runs.glob("select-a-model-step-400.stale-*"))) == (field is not None)
+
+
+def test_the_implementation_hash_is_the_one_evaluate_records():
+    from fastfill.v2 import autorun, io
+    repo = Path(autorun.__file__).resolve().parents[2]
+    assert autorun.implementation_sha256(repo) == io.run_metadata(autorun.__file__)["implementation_sha256"]
+
+
+def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(tmp_path):
+    """Real llm_baseline.run / run_evaluation outputs with a stubbed LLM; the API key never reaches the log."""
+    import argparse
+    import shutil
+    from fastfill.v2 import autorun, llm_baseline
+    from fastfill.v2.evaluate import project_minimal, run_evaluation
+    from fastfill.v2.tests.test_evaluate_fix20261006 import real_rows
+    from fastfill.v2.tests.test_llm_baseline import _answer_from_targets
+    (tmp_path / "fastfill/v2").mkdir(parents=True)
+    shutil.copy(llm_baseline.__file__, tmp_path / "fastfill/v2/llm_baseline.py")  # the code the subprocess would run
+    rows = [p for p in map(project_minimal, real_rows()) if p is not None]
+    answers = {llm_baseline.prompt(r["condition"]): _answer_from_targets(r) for r in rows}
+    sample, env = tmp_path / "sample.jsonl", tmp_path / "api.env"
+    sample.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    env.write_text("OPENAI_BASE_URL=x\nOPENAI_API_KEY=secret-test-key\nOPENAI_MODEL=m\n")
+    pilot = autorun.Autopilot(argparse.Namespace(repo=str(tmp_path), llm_env=str(env), llm_rows="300"))
+    calls = []
+
+    def sh(args, **kw):
+        args = list(map(str, args))
+        get = lambda flag: args[args.index(flag) + 1]
+        calls.append(args[2])
+        if args[2] == "fastfill.v2.llm_baseline":
+            llm_baseline.run(get("--data"), get("--output"), get("--env"), mode=get("--mode"), max_samples=int(get("--max-samples")),
+                             ask=lambda env, model, messages: answers[messages[0]["content"]])
+        else:
+            run_evaluation(get("--data"), get("--output"), predictions=get("--predictions"))
+    pilot.sh = sh
+    pilot.llm_baselines(sample)
+    assert calls == ["fastfill.v2.llm_baseline", "fastfill.v2.evaluate"] * 2 and len(pilot.llm_reports) == 2
+    calls.clear()
+    pilot.llm_baselines(sample)  # a restart with the same inputs
+    assert calls == []
+    for change in ("rows", "parameters", "predictions", "old summary", "code"):
+        calls.clear()
+        if change == "rows":
+            sample.write_text("".join(json.dumps(r) + "\n" for r in rows[::-1]))
+        elif change == "parameters":
+            env.write_text(env.read_text() + "FASTFILL_LLM_REASONING_EFFORT=high\n")
+        elif change == "predictions":  # e.g. an earlier autopilot's scored report next to regenerated predictions
+            predictions = pilot.runs / "llm-prompt-300/predictions.jsonl"
+            predictions.write_text(predictions.read_text() + "\n")
+        elif change == "old summary":  # the c750c31 summary: no identity recorded
+            summary = pilot.runs / "llm-harness-300/summary.json"
+            summary.write_text(json.dumps({k: v for k, v in json.loads(summary.read_text()).items()
+                                           if k not in ("data_sha256", "implementation_sha256")}))
+        else:  # llm_baseline.py on disk changed (the stub still records the imported module's hash: no convergence check)
+            code = tmp_path / "fastfill/v2/llm_baseline.py"
+            code.write_text(code.read_text() + "\n")
+        pilot.llm_baselines(sample)
+        both = ["fastfill.v2.llm_baseline", "fastfill.v2.evaluate"]
+        assert calls == {"predictions": ["fastfill.v2.evaluate"], "old summary": both}.get(change, both * 2), change
+        if change != "code":
+            calls.clear()
+            pilot.llm_baselines(sample)  # converged: nothing left to redo
+            assert calls == [], change
+    assert "secret-test-key" not in (pilot.dir / "autorun.log").read_text()

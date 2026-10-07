@@ -96,7 +96,8 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
     (prediction slot, target) pair costs exactly the loss's ``position`` terms,
     ``losses._grid_position`` under ``loss_config`` (default ``LossConfig()``):
     ``position_cell * CE + position_residual * GT-cell residual + z / 3`` on the
-    prediction slot's learned (not ``fixed_position_mask``) coordinates.
+    prediction slot's learned (not ``fixed_position_mask``) coordinates, summed in
+    float64 (on the CPU for Metal, which has none).
     Size enters the cost only when every member also has a complete size label;
     a pair whose target object is box-symmetric (its own
     ``batch["size_axis_swap_allowed"]``) costs the minimum log-size error over the
@@ -142,10 +143,13 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
                 learn = ~batch.get("fixed_position_mask", torch.zeros_like(batch["validity"]["position"]))[b, rows]
                 parts = _grid_position({k: predictions[k][b, rows] for k in ("position_normalized", *GRID_KEYS)},
                                        batch["targets"]["position_normalized"][b, cols], torch.ones_like(rows, dtype=torch.bool), learn, cfg)
-                pair = torch.zeros(n * n, dtype=torch.float64, device=valid.device)
-                pair[learn[:, 0] & learn[:, 1]] = (cfg.position_cell * parts["position_cell"].double() +
-                                                   cfg.position_residual * parts["position_residual"].double())
-                pair[learn[:, 2]] += parts["position_z"].double()
+                # Metal has no float64: its pair cost is built on the CPU; CPU/CUDA keep their device.
+                host = torch.device("cpu") if valid.device.type == "mps" else valid.device
+                part, learn = (lambda name: parts[name].to(host).double()), learn.to(host)
+                pair = torch.zeros(n * n, dtype=torch.float64, device=host)
+                pair[learn[:, 0] & learn[:, 1]] = (cfg.position_cell * part("position_cell") +
+                                                   cfg.position_residual * part("position_residual"))
+                pair[learn[:, 2]] += part("position_z")
                 cost = alpha_position * pair.view(n, n)
             else:
                 cost = alpha_position * (pos[:, None] - gt_pos[None]).abs().sum(-1)
@@ -157,7 +161,7 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
                 if "size_axis_swap_allowed" in batch:  # columns are targets: each pair follows its target's flag
                     swapped = (size.log()[:, None] - gt_size.log()[None, :, [1, 0, 2]]).abs().sum(-1)
                     size_cost = torch.where(batch["size_axis_swap_allowed"][b, group][None], torch.minimum(size_cost, swapped), size_cost)
-                cost = cost + alpha_size * size_cost
+                cost = cost + (alpha_size * size_cost).to(cost.device)  # a no-op except for an mps grid cost
             if not torch.isfinite(cost).all():
                 raise ValueError("matching cost is not finite")
             # SciPy deterministic ordered input; exact ties use its row/column order.

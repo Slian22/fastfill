@@ -75,12 +75,12 @@ def _elementwise(error, kind, beta):
     return F.smooth_l1_loss(error, torch.zeros_like(error), reduction="none", beta=beta)
 
 
-def _mean(total, local_count):
+def _mean(total, local_count, global_counts=True):
     # Every rank must reduce the same dtype, including ranks with no valid
     # float64 box terms. Counts also need no floating-point rounding.
     count = torch.tensor(local_count, dtype=torch.int64, device=total.device)
     world = 1
-    if torch.distributed.is_available() and torch.distributed.is_initialized():
+    if global_counts and torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.all_reduce(count)
         world = torch.distributed.get_world_size()
     # DDP averages gradients, so compensate once for global count.
@@ -120,7 +120,9 @@ class GeometryCriterion(nn.Module):
             raise ValueError("only explicitly named BEV oriented convex-hull GIoU is implemented")
         self.config = config
 
-    def forward(self, predictions, batch):
+    def forward(self, predictions, batch, *, global_counts=True):
+        """``global_counts=False``: normalise by this rank's counts without the per-call all_reduce (diagnostics whose
+        ranks run different numbers of batches)."""
         mask = batch["slot_mask"]
         grid = GRID_KEYS[0] in predictions
         for key in ("position_normalized", "size", "yaw_logits", "yaw_residuals", *(GRID_KEYS if grid else ())):
@@ -164,7 +166,7 @@ class GeometryCriterion(nn.Module):
                     term_sums[name], term_counts[name] = values.detach().float().sum(), len(values)
                 total = (cfg.position_cell * parts["position_cell"].sum() + cfg.position_residual *
                          parts["position_residual"].sum() + parts["position_z"].sum())
-            losses[key], counts[key] = _mean(total + zero, int(valid.sum()))
+            losses[key], counts[key] = _mean(total + zero, int(valid.sum()), global_counts)
         size_valid = masks["size"]
         swap = (_gather(batch["size_axis_swap_allowed"], assignment) if "size_axis_swap_allowed" in batch
                 else torch.zeros_like(mask)) & mask
@@ -201,10 +203,10 @@ class GeometryCriterion(nn.Module):
             cls_terms.append(cls[choice])
             reg_terms.append(reg[choice])
         total = torch.where(odd, swapped, plain).sum()
-        losses["size"], counts["size"] = _mean(total + zero, int(size_valid.sum()))
+        losses["size"], counts["size"] = _mean(total + zero, int(size_valid.sum()), global_counts)
         term_sums["size"], term_counts["size"] = total.detach().float(), int(size_valid.sum())
-        losses["yaw_cls"], counts["yaw"] = _mean(sum(cls_terms, zero), int(angle_valid.sum()))
-        losses["yaw_reg"], _ = _mean(sum(reg_terms, zero), int(angle_valid.sum()))
+        losses["yaw_cls"], counts["yaw"] = _mean(sum(cls_terms, zero), int(angle_valid.sum()), global_counts)
+        losses["yaw_reg"], _ = _mean(sum(reg_terms, zero), int(angle_valid.sum()), global_counts)
         for key, terms in (("yaw_cls", cls_terms), ("yaw_reg", reg_terms)):
             term_sums[key] = sum((t.detach().float() for t in terms), torch.zeros((), device=zero.device))
             term_counts[key] = int(angle_valid.sum())
@@ -217,7 +219,7 @@ class GeometryCriterion(nn.Module):
                 gt_pos = targets["position_normalized"][b, i] * batch["scale"][b] + batch["origin"][b]
                 box_terms.append(1 - bev_giou(world_pred[b, i], predictions["size"][b, i], yaw_pred[b, i],
                                              gt_pos, targets["size"][b, i], targets["yaw"][b, i]))
-        losses["box"], counts["box"] = _mean(sum(box_terms, zero), len(box_terms))
+        losses["box"], counts["box"] = _mean(sum(box_terms, zero), len(box_terms), global_counts)
         term_sums["box"] = sum((t.detach().float() for t in box_terms), torch.zeros((), device=zero.device))
         term_counts["box"] = len(box_terms)
         if cfg.collision or cfg.boundary:

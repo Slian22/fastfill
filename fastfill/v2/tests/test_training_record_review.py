@@ -152,8 +152,10 @@ def _logging_worker(rank, rendezvous, result_directory, mode):
                 box=0. if case == "rank_without_collision" else 1.,
                 collision=1. if case == "rank_without_collision" else 0.))
             result = criterion(p, b)
+            if mode == "validation":  # validation shards differ in length: each batch's objective under its own counts
+                local = criterion(p, b, global_counts=False)
             gathered = [None, None]
-            dist.all_gather_object(gathered, float(result["loss"].detach()))
+            dist.all_gather_object(gathered, float((result if mode == "record" else local)["loss"].detach()))
             expected = sum(gathered) / 2
             model = _PredictionModel(p)
             if mode == "record":

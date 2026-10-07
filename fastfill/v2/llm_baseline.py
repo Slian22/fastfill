@@ -10,13 +10,21 @@ objects that share a height interval, raised objects resting on nothing) and ask
 layout with the concrete problems listed, up to ``--repairs`` times. Requests are paced to the env
 file's FASTFILL_LLM_RPM (default 30) and retried with backoff on rate limits and server errors.
 
+An answer that is no valid layout (unparseable, or ids duplicated/unknown/missing) is asked again once from
+scratch, as is a request that fails (after ``chat``'s own retries): ``attempts`` per row counts the first answers
+asked (those needed for its layout, else all) and ``first_answer_valid`` whether the first answer received was a
+valid layout (null: no request got one). summary.json's ``first_answer_invalid`` counts the rows whose first answer
+was no valid layout (raw id compliance; failed requests never count there), ``unanswered`` the rows no request
+answered, and ``failed`` the rows still without a layout.
+
 Writes ``rows.jsonl`` (the projected rows) and ``predictions.jsonl`` (one row each, ``layout`` null on
 failure) for::
 
     python -m fastfill.v2.evaluate --data <out>/rows.jsonl --predictions <out>/predictions.jsonl --output <new dir>
 
 Credentials come from an env file (OPENAI_BASE_URL, OPENAI_API_KEY, optional OPENAI_MODEL,
-FASTFILL_LLM_RPM, FASTFILL_LLM_REASONING_EFFORT), never argv; summary.json records the parameters sent.
+FASTFILL_LLM_RPM, FASTFILL_LLM_REASONING_EFFORT), never argv; summary.json records the parameters sent and
+the sha256 of the input rows file and of this module (``data_sha256``, ``implementation_sha256``).
 """
 from __future__ import annotations
 
@@ -32,7 +40,7 @@ import urllib.error
 import urllib.request
 
 from fastfill.v2.evaluate import project_minimal
-from fastfill.v2.io import read_samples, safe_output
+from fastfill.v2.io import fingerprint, read_samples, safe_output
 from fastfill.v2.schema import validate_layout
 
 SYSTEM = ("You are an interior layout designer. Place every listed object in the room and answer with JSON only. "
@@ -172,6 +180,7 @@ def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers
     if not model:
         raise ValueError("pass --model or set OPENAI_MODEL in the env file")
     limiter = RateLimiter(float(env.get("FASTFILL_LLM_RPM", 30)))
+    identity = {"data_sha256": fingerprint(data), "implementation_sha256": fingerprint(Path(__file__))}  # what ran, for caches
     rows = [p for p in map(project_minimal, read_samples(data)) if p is not None][:max_samples]
     calls = [0]
 
@@ -180,12 +189,14 @@ def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers
         return ask(env, model, messages) if ask is not chat else chat(env, model, messages, limiter=limiter)
 
     def one(row):
-        start, error, condition = time.perf_counter(), None, row["condition"]
-        for _ in range(retries + 1):  # a malformed first answer is asked again from scratch
+        start, error, condition, valid = time.perf_counter(), None, row["condition"], []  # valid: per answer received
+        for attempt in range(1, retries + 2):  # a malformed first answer is asked again from scratch
             try:
                 messages = [{"role": "user", "content": prompt(condition)}]
                 reply = call(messages)
+                valid.append(False)
                 layout = to_layout(reply, condition)
+                valid[-1] = True
                 found, rounds, first = problems(layout, condition), 0, None
                 first = len(found)
                 while mode == "harness" and found and rounds < repairs:
@@ -199,11 +210,13 @@ def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers
                         break
                     rounds += 1
                     layout, found = candidate, problems(candidate, condition)
-                return {"layout": layout, "error": None, "latency_s": time.perf_counter() - start,
-                        "repair_rounds": rounds, "problems_first": first, "problems_final": len(found)}
+                return {"layout": layout, "error": None, "latency_s": time.perf_counter() - start, "attempts": attempt,
+                        "first_answer_valid": valid[0], "repair_rounds": rounds, "problems_first": first,
+                        "problems_final": len(found)}
             except Exception as exc:  # malformed or incomplete answers are failures, never dropped
                 error = f"{type(exc).__name__}: {exc}"[:500]
-        return {"layout": None, "error": error, "latency_s": time.perf_counter() - start}
+        return {"layout": None, "error": error, "latency_s": time.perf_counter() - start, "attempts": retries + 1,
+                "first_answer_valid": valid[0] if valid else None}
 
     with ThreadPoolExecutor(workers) as pool:
         results = list(pool.map(one, rows))
@@ -215,9 +228,11 @@ def run(data, output, env_file, *, model=None, mode="prompt", repairs=2, workers
     summary = {"model": model, "mode": mode, "request_parameters": request_parameters(env, model),
                "endpoint": env.get("OPENAI_BASE_URL", "").rstrip("/") + "/chat/completions",
                "rows": len(rows), "failed": len(results) - len(ok), "api_calls": calls[0],
+               "first_answer_invalid": sum(r["first_answer_valid"] is False for r in results),
+               "unanswered": sum(r["first_answer_valid"] is None for r in results),
                "mean_latency_s": sum(r["latency_s"] for r in results) / max(1, len(results)),
                "mean_problems_first": sum(r["problems_first"] for r in ok) / max(1, len(ok)),
-               "mean_problems_final": sum(r["problems_final"] for r in ok) / max(1, len(ok)), "data": str(data)}
+               "mean_problems_final": sum(r["problems_final"] for r in ok) / max(1, len(ok)), "data": str(data), **identity}
     (target / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     return summary
 
