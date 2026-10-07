@@ -10,13 +10,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import time
 
 import torch
 
 from fastfill.v2.batch import load_tokenizer
-from fastfill.v2.evaluate import DEFAULT_MAX_LENGTH, predict_layout
+from fastfill.v2.evaluate import DEFAULT_MAX_LENGTH, GRID_DECODES, predict_layout
 from fastfill.v2.io import load_checkpoint_config, safe_output
 from fastfill.v2.model import load_model
 from fastfill.v2.schema import validate_condition, validate_layout
@@ -35,6 +36,8 @@ def main(argv=None):
     p.add_argument("--catalog", type=Path)
     p.add_argument("--export-dir", type=Path, help="New bbox JSON/GLB/SVG handoff directory; no assets")
     p.add_argument("--device", default="cpu")
+    p.add_argument("--grid-decode", choices=GRID_DECODES, default="spread",
+                   help="grid position head: collision-aware spread (default) or plain per-object argmax")
     p.add_argument("--max-length", type=int, help="default: the checkpoint's training max_length")
     p.add_argument("--max-new-tokens", type=int, default=2048)
     p.add_argument("--max-asset-retries", type=int, default=2)
@@ -65,13 +68,14 @@ def main(argv=None):
         raise ValueError("commit requires an actual asset catalog")
     if args.max_length is None:
         args.max_length = load_checkpoint_config(args.checkpoint)["max_length"] or DEFAULT_MAX_LENGTH
-    torch.set_num_threads(2)
+    torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", "2")))  # CPU inference may use more threads
     start = time.perf_counter()
     if args.baseline == "structured":
         model = load_model(args.checkpoint, device=args.device)
         tokenizer = load_tokenizer("tiny" if model.config.backbone == "tiny" else str(args.checkpoint.parent / "tokenizer"), local_files_only=True)
         inference_start = time.perf_counter()
-        layout = predict_layout(model, tokenizer, condition, max_length=args.max_length, device=args.device)
+        layout = predict_layout(model, tokenizer, condition, max_length=args.max_length, device=args.device,
+                                grid_decode=args.grid_decode)
     else:
         from fastfill.v2.text_sft import generate_text, load_text_model
         model, tokenizer = load_text_model(args.checkpoint, device=args.device)

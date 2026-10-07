@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict
 import json
+import os
 import math
 from pathlib import Path
 import time
@@ -96,9 +97,77 @@ def batch_collapse_counts(predictions, batch):
     return totals
 
 
-def serialize_predictions(predictions, batch):
+GRID_DECODES = ("spread", "argmax")
+
+
+def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, top_k=64, max_overlap=.15, margin=.02):
+    """Collision-aware decoding of one scene's grid head (meters in, meters out).
+
+    Objects are placed largest footprint first (floor-standing before raised ones); each takes its most
+    probable cell whose footprint stays in the room and overlaps no already placed object that shares its
+    height interval (overlap / smaller footprint <= max_overlap). Identical requests, whose argmax cells
+    coincide, therefore spread over their next most probable cells. If no top_k cell qualifies, the least
+    overlapping one is used. Unvisited slots keep their argmax.
+    """
+    # ponytail: rotated footprints are compared by their axis-aligned bounds (exact for 90-degree yaws,
+    # conservative otherwise); switch to shapely polygons if oblique furniture matters.
+    n, cells = logits.shape
+    index = torch.arange(cells)
+    centres = torch.stack((torch.div(index, grid, rounding_mode="floor"), index % grid), -1).double()
+    xy_norm = (centres + .5) / grid + residuals.double() / (2 * grid)  # n x cells x 2
+    origin, scale = np.asarray(room["origin"], float), np.asarray(room["scale"], float)
+    xy = xy_norm.numpy() * scale[:2] + origin[:2]
+    size, yaw, position = np.asarray(size, float), np.asarray(yaw, float), np.asarray(position, float)
+    c, s = np.abs(np.cos(yaw)), np.abs(np.sin(yaw))
+    half = .5 * np.stack((c * size[:, 0] + s * size[:, 1], s * size[:, 0] + c * size[:, 1]), -1)
+    area = 4 * half[:, 0] * half[:, 1]
+    low, high = position[:, 2], position[:, 2] + size[:, 2]
+    lo, hi = np.asarray(room["bounds"][0], float), np.asarray(room["bounds"][1], float)
+    raised = low - room["floor_z"] > .15
+    order = sorted(range(n), key=lambda i: (bool(raised[i]), -area[i]))
+    ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
+    chosen = xy[np.arange(n), ranked[:, 0]].copy()
+    placed = []
+    for i in order:
+        cand = xy[i, ranked[i]]  # k x 2
+        outside = (np.maximum(lo + half[i] - cand, 0) + np.maximum(cand + half[i] - hi, 0)).max(-1) > margin
+        worst = np.zeros(len(cand))
+        others = [j for j in placed if min(high[i], high[j]) - max(low[i], low[j]) > margin]
+        if others:
+            o = np.array(others)
+            gap = np.minimum(cand[:, None] + half[i], chosen[o] + half[o]) - np.maximum(cand[:, None] - half[i], chosen[o] - half[o])
+            inter = np.clip(gap, 0, None).prod(-1)
+            worst = (inter / np.minimum(area[i], area[o])).max(-1)
+        ok = np.flatnonzero(~outside & (worst <= max_overlap))
+        pick = ok[0] if len(ok) else int(np.argmin(worst + outside))
+        chosen[i] = cand[pick]
+        placed.append(i)
+    return chosen
+
+
+def _room_frame(batch, b):
+    polygon = np.asarray(batch["conditions"][b]["room"]["floor_polygon_xy_m"], float)
+    floor = batch["conditions"][b]["room"].get("floor_z_m")
+    return {"origin": batch["origin"][b].cpu().tolist(), "scale": batch["scale"][b].cpu().tolist(),
+            "bounds": (polygon.min(0), polygon.max(0)), "floor_z": float(floor) if floor is not None else float(batch["origin"][b, 2])}
+
+
+def serialize_predictions(predictions, batch, *, grid_decode="spread"):
+    if grid_decode not in GRID_DECODES:
+        raise ValueError(f"grid_decode must be one of {GRID_DECODES}")
     position = predictions["position_normalized"] * batch["scale"][:, None] + batch["origin"][:, None]
     yaw = decode_yaw(predictions["yaw_logits"], predictions["yaw_residuals"])
+    if grid_decode == "spread" and "position_cell_logits" in predictions:
+        position = position.detach().cpu().double().clone()
+        grid = int(round(predictions["position_cell_logits"].shape[-1] ** .5))
+        for b, objects in enumerate(batch["objects"]):
+            n = len(objects)
+            if n:
+                position[b, :n, :2] = torch.from_numpy(spread_grid_xy(
+                    predictions["position_cell_logits"][b, :n].detach().cpu().float(),
+                    predictions["position_cell_residuals"][b, :n].detach().cpu().float(), grid,
+                    predictions["size"][b, :n].detach().cpu().double().numpy(), yaw[b, :n].detach().cpu().double().numpy(),
+                    position[b, :n].numpy(), _room_frame(batch, b)))
     result = []
     for b, objects in enumerate(batch["objects"]):
         layout = {"schema_version": "fastfill.v2", "objects": [
@@ -111,12 +180,12 @@ def serialize_predictions(predictions, batch):
 
 
 @torch.no_grad()
-def predict_layout(model, tokenizer, condition, *, max_length=4096, device="cpu"):
+def predict_layout(model, tokenizer, condition, *, max_length=4096, device="cpu", grid_decode="spread"):
     validate_condition(condition)
     batch = to_device(collate_samples([{"condition": condition}], tokenizer,
         max_length=max_length, max_objects=model.config.max_objects), device)
     model.eval()
-    return serialize_predictions(model(**model_inputs(batch)), batch)[0]
+    return serialize_predictions(model(**model_inputs(batch)), batch, grid_decode=grid_decode)[0]
 
 
 def _layout_tensors(layout, batch):
@@ -498,7 +567,7 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                    catalog=None, device="cpu", max_length=None, max_samples=None,
                    commit_in_memory=False, hungarian=True, asset_retries=2, repair_calls=0, repair_step_m=.25,
                    max_seconds=10., max_new_tokens=2048, required_levels=("bbox",), baseline_fit=None,
-                   projections=("full",)):
+                   projections=("full",), grid_decode="spread"):
     """Evaluate every request once per projection; ``max_length=None`` binds to the checkpoint."""
     validate_required_levels(required_levels)
     if (checkpoint is None) == (predictions is None):
@@ -543,7 +612,7 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
         resolver = load_catalog(catalog)
     if commit_in_memory and resolver is None:
         raise ValueError("commit evaluation requires an asset catalog")
-    torch.set_num_threads(2)
+    torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", "2")))  # CPU inference may use more threads
 
     def evaluate_row(i, sample):
         start = time.perf_counter()
@@ -556,7 +625,8 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                 parsed = json.loads(raw, parse_constant=reject_constant)
                 layout = parsed.get("layout", parsed) if isinstance(parsed, dict) else parsed
             elif baseline == "structured":
-                raw = layout = predict_layout(model, tokenizer, sample["condition"], max_length=max_length, device=device)
+                raw = layout = predict_layout(model, tokenizer, sample["condition"], max_length=max_length, device=device,
+                                                    grid_decode=grid_decode)
             else:
                 from fastfill.v2.text_sft import generate_text
                 raw = generate_text(model, tokenizer, sample["condition"], max_length=max_length,
@@ -595,6 +665,7 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                   geometry_level="upright_obb_bev_iou", source_root_modified=False,
                   checkpoint=str(Path(checkpoint).resolve()) if checkpoint else None, checkpoint_binding=binding,
                   max_length=max_length if checkpoint else None, max_length_source=max_length_source if checkpoint else None,
+                  grid_decode=grid_decode if checkpoint else None,
                   predictions_sha256=fingerprint(predictions) if predictions else None,
                   **{key: metadata[key] for key in ("data_path", "data_sha256", "implementation_sha256", "code_commit", "code_dirty")})
     target.mkdir(parents=True, exist_ok=False)
@@ -628,6 +699,8 @@ def main(argv=None):
     p.add_argument("--baseline-fit", type=Path, help="JSONL rows for the category baselines; default: evaluation set, leave-one-out")
     p.add_argument("--projection", nargs="+", choices=PROJECTIONS, default=["full"], dest="projections",
                    help="full condition and/or its three-field projection (rectangular rooms); the first is the report's top level")
+    p.add_argument("--grid-decode", choices=GRID_DECODES, default="spread",
+                   help="grid position head: collision-aware spread (default) or plain per-object argmax")
     args = vars(p.parse_args(argv))
     args["hungarian"] = not args.pop("fixed_correspondence")
     print(json.dumps(run_evaluation(**args), indent=2))
