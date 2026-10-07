@@ -102,7 +102,7 @@ GRID_DECODES = ("spread", "argmax")
 
 def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, yaw_logits=None, yaw_residuals=None,
                    top_k=64, max_overlap=.15, margin=.02, near_wall=.3):
-    """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw).
+    """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw, z).
 
     Objects are placed largest footprint first (floor-standing before raised ones); each takes its most
     probable cell whose footprint stays in the room and overlaps no already placed object that shares its
@@ -113,6 +113,11 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, yaw_lo
     With yaw logits, a floor-standing object whose candidate footprint ends within ``near_wall`` of a wall
     takes its most probable yaw bin within 45 degrees of facing away from that wall (its back to the wall,
     as 97-99% of wall-adjacent training furniture); its footprint is then checked at that yaw.
+
+    A raised object (predicted bottom > 0.15 m above the floor) rests on a placed floor-standing object:
+    it takes its most probable cell (at least 10% as likely as its best) whose centre lies inside such an
+    object's footprint and sits on that object's top; with no such cell it goes to the floor at its most
+    probable free cell.
     """
     # ponytail: rotated footprints are compared by their axis-aligned bounds (exact for 90-degree yaws,
     # conservative otherwise); switch to shapely polygons if oblique furniture matters.
@@ -130,12 +135,12 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, yaw_lo
 
     half = np.stack([halves(yaw[i], i) for i in range(n)]) if n else np.zeros((0, 2))
     area = 4 * half[:, 0] * half[:, 1]
-    low, high = position[:, 2], position[:, 2] + size[:, 2]
+    low = position[:, 2]
     lo, hi = np.asarray(room["bounds"][0], float), np.asarray(room["bounds"][1], float)
     raised = low - room["floor_z"] > .15
     order = sorted(range(n), key=lambda i: (bool(raised[i]), -area[i]))
     ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
-    chosen, chosen_yaw = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy()
+    chosen, chosen_yaw, chosen_z = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy(), low.copy()
     if yaw_logits is not None:
         yaw_logits, yaw_residuals = np.asarray(yaw_logits, float), np.asarray(yaw_residuals, float)
         bins = yaw_logits.shape[-1]
@@ -156,19 +161,33 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, yaw_lo
             cand_yaw = np.where(gaps.min(-1) < near_wall, (snapped + np.pi) % (2 * np.pi) - np.pi, cand_yaw)
         cand_half = halves(cand_yaw, i)  # k x 2
         outside = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1) > margin
+        cand_z = np.full(len(cand), float(room["floor_z"]))  # floor-standing objects stand on the floor
+        supported = np.zeros(len(cand), bool)
+        floors = [j for j in placed if not raised[j]]
+        if raised[i]:
+            if floors:
+                f = np.array(floors)
+                inside = (np.abs(cand[:, None] - chosen[f]) <= half[f]).all(-1)  # k x m centre in footprint
+                top = np.where(inside, chosen_z[f] + size[f, 2], -np.inf).max(-1)
+                supported = np.isfinite(top)
+                cand_z = np.where(supported, top, cand_z)
         worst = np.zeros(len(cand))
-        others = [j for j in placed if min(high[i], high[j]) - max(low[i], low[j]) > margin]
-        if others:
-            o = np.array(others)
+        if placed:
+            o = np.array(placed)
             gap = (np.minimum(cand[:, None] + cand_half[:, None], chosen[o] + half[o])
                    - np.maximum(cand[:, None] - cand_half[:, None], chosen[o] - half[o]))
             inter = np.clip(gap, 0, None).prod(-1)
-            worst = (inter / np.minimum(area[i], area[o])).max(-1)
-        ok = np.flatnonzero(~outside & (worst <= max_overlap))
+            vertical = (np.minimum(cand_z[:, None] + size[i, 2], chosen_z[o] + size[o, 2])
+                        - np.maximum(cand_z[:, None], chosen_z[o])) > margin
+            worst = np.where(vertical, inter / np.minimum(area[i], area[o]), 0).max(-1)
+        free = ~outside & (worst <= max_overlap)
+        plausible = (logits[i, ranked[i]] - logits[i, ranked[i, 0]]).numpy() >= -math.log(10)  # >= 10% of the best cell
+        ok = np.flatnonzero(free & supported & plausible) if raised[i] else np.array([], int)
+        ok = ok if len(ok) else np.flatnonzero(free)
         pick = ok[0] if len(ok) else int(np.argmin(worst + outside))
-        chosen[i], chosen_yaw[i], half[i] = cand[pick], cand_yaw[pick], cand_half[pick]
+        chosen[i], chosen_yaw[i], half[i], chosen_z[i] = cand[pick], cand_yaw[pick], cand_half[pick], cand_z[pick]
         placed.append(i)
-    return chosen, chosen_yaw
+    return chosen, chosen_yaw, chosen_z
 
 
 def _room_frame(batch, b):
@@ -189,7 +208,7 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
         for b, objects in enumerate(batch["objects"]):
             n = len(objects)
             if n:
-                xy, spread_yaw = spread_grid_xy(
+                xy, spread_yaw, spread_z = spread_grid_xy(
                     predictions["position_cell_logits"][b, :n].detach().cpu().float(),
                     predictions["position_cell_residuals"][b, :n].detach().cpu().float(), grid,
                     predictions["size"][b, :n].detach().cpu().double().numpy(), yaw[b, :n].detach().cpu().double().numpy(),
@@ -197,6 +216,7 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
                     yaw_logits=predictions["yaw_logits"][b, :n].detach().cpu().float().numpy(),
                     yaw_residuals=predictions["yaw_residuals"][b, :n].detach().cpu().float().numpy())
                 position[b, :n, :2] = torch.from_numpy(xy)
+                position[b, :n, 2] = torch.from_numpy(spread_z)
                 yaw[b, :n] = torch.from_numpy(spread_yaw).to(yaw.dtype)
     result = []
     for b, objects in enumerate(batch["objects"]):
