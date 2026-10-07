@@ -141,3 +141,18 @@ def test_failed_requests_are_no_invalid_first_answer(tmp_path):
     assert (summary["failed"], summary["first_answer_invalid"]) == (1, 0) and summary["unanswered"] == 1
     predictions = [json.loads(line) for line in (tmp_path / "a/predictions.jsonl").read_text().splitlines()]
     assert [(p["attempts"], p["first_answer_valid"]) for p in predictions] == [(2, True), (2, None)]
+
+
+def test_requests_name_their_own_user_agent(monkeypatch):
+    seen = {}
+    class Response:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self): return json.dumps({"choices": [{"message": {"content": "OK"}}]}).encode()
+    def urlopen(request, timeout):
+        seen.update(request.headers)
+        return Response()
+    monkeypatch.setattr(llm_baseline.urllib.request, "urlopen", urlopen)
+    env = {"OPENAI_BASE_URL": "https://relay/v1", "OPENAI_API_KEY": "k"}
+    assert llm_baseline.chat(env, "m", [{"role": "user", "content": "hi"}]) == "OK"
+    assert seen["User-agent"] == llm_baseline.USER_AGENT  # not urllib's default Python-urllib, which the relay blocks

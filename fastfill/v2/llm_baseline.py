@@ -152,13 +152,17 @@ def request_parameters(env, model):
     return {"model": model, **({"reasoning_effort": effort} if effort else {})}
 
 
+USER_AGENT = "fastfill-llm-baseline/1.0"
+
+
 def chat(env, model, messages, *, limiter=None, timeout=300., attempts=6):
     body = json.dumps({**request_parameters(env, model), "messages": [{"role": "system", "content": SYSTEM}, *messages]}).encode()
     for attempt in range(attempts):
         if limiter is not None:
             limiter.wait()
         request = urllib.request.Request(env["OPENAI_BASE_URL"].rstrip("/") + "/chat/completions", data=body, headers={
-            "Content-Type": "application/json", "Authorization": f"Bearer {env['OPENAI_API_KEY']}"})
+            "Content-Type": "application/json", "Authorization": f"Bearer {env['OPENAI_API_KEY']}",
+            "User-Agent": USER_AGENT})  # Cloudflare-fronted relays answer urllib's default agent with 403
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 return json.loads(response.read())["choices"][0]["message"]["content"]
