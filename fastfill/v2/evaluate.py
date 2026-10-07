@@ -100,14 +100,19 @@ def batch_collapse_counts(predictions, batch):
 GRID_DECODES = ("spread", "argmax")
 
 
-def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, top_k=64, max_overlap=.15, margin=.02):
-    """Collision-aware decoding of one scene's grid head (meters in, meters out).
+def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, yaw_logits=None, yaw_residuals=None,
+                   top_k=64, max_overlap=.15, margin=.02, near_wall=.3):
+    """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw).
 
     Objects are placed largest footprint first (floor-standing before raised ones); each takes its most
     probable cell whose footprint stays in the room and overlaps no already placed object that shares its
     height interval (overlap / smaller footprint <= max_overlap). Identical requests, whose argmax cells
     coincide, therefore spread over their next most probable cells. If no top_k cell qualifies, the least
     overlapping one is used. Unvisited slots keep their argmax.
+
+    With yaw logits, a floor-standing object whose candidate footprint ends within ``near_wall`` of a wall
+    takes its most probable yaw bin within 45 degrees of facing away from that wall (its back to the wall,
+    as 97-99% of wall-adjacent training furniture); its footprint is then checked at that yaw.
     """
     # ponytail: rotated footprints are compared by their axis-aligned bounds (exact for 90-degree yaws,
     # conservative otherwise); switch to shapely polygons if oblique furniture matters.
@@ -118,31 +123,52 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, top_k=
     origin, scale = np.asarray(room["origin"], float), np.asarray(room["scale"], float)
     xy = xy_norm.numpy() * scale[:2] + origin[:2]
     size, yaw, position = np.asarray(size, float), np.asarray(yaw, float), np.asarray(position, float)
-    c, s = np.abs(np.cos(yaw)), np.abs(np.sin(yaw))
-    half = .5 * np.stack((c * size[:, 0] + s * size[:, 1], s * size[:, 0] + c * size[:, 1]), -1)
+
+    def halves(angle, i):
+        c, s = np.abs(np.cos(angle)), np.abs(np.sin(angle))
+        return .5 * np.stack((c * size[i, 0] + s * size[i, 1], s * size[i, 0] + c * size[i, 1]), -1)
+
+    half = np.stack([halves(yaw[i], i) for i in range(n)]) if n else np.zeros((0, 2))
     area = 4 * half[:, 0] * half[:, 1]
     low, high = position[:, 2], position[:, 2] + size[:, 2]
     lo, hi = np.asarray(room["bounds"][0], float), np.asarray(room["bounds"][1], float)
     raised = low - room["floor_z"] > .15
     order = sorted(range(n), key=lambda i: (bool(raised[i]), -area[i]))
     ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
-    chosen = xy[np.arange(n), ranked[:, 0]].copy()
+    chosen, chosen_yaw = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy()
+    if yaw_logits is not None:
+        yaw_logits, yaw_residuals = np.asarray(yaw_logits, float), np.asarray(yaw_residuals, float)
+        bins = yaw_logits.shape[-1]
+        bin_centres = np.arange(bins) * 2 * np.pi / bins
+        away = np.array([0., np.pi, np.pi / 2, -np.pi / 2])  # from walls x=lo, x=hi, y=lo, y=hi into the room
     placed = []
     for i in order:
         cand = xy[i, ranked[i]]  # k x 2
-        outside = (np.maximum(lo + half[i] - cand, 0) + np.maximum(cand + half[i] - hi, 0)).max(-1) > margin
+        cand_yaw = np.full(len(cand), yaw[i])
+        if yaw_logits is not None and not raised[i]:
+            gaps = np.stack((cand[:, 0] - half[i, 0] - lo[0], hi[0] - cand[:, 0] - half[i, 0],
+                             cand[:, 1] - half[i, 1] - lo[1], hi[1] - cand[:, 1] - half[i, 1]), -1)
+            wall = gaps.argmin(-1)
+            facing = (bin_centres[None] - away[wall][:, None] + np.pi) % (2 * np.pi) - np.pi
+            allowed = np.abs(facing) <= np.pi / 4 + 1e-6
+            best = np.where(allowed, yaw_logits[i][None], -np.inf).argmax(-1)
+            snapped = bin_centres[best] + yaw_residuals[i, best] * np.pi / bins
+            cand_yaw = np.where(gaps.min(-1) < near_wall, (snapped + np.pi) % (2 * np.pi) - np.pi, cand_yaw)
+        cand_half = halves(cand_yaw, i)  # k x 2
+        outside = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1) > margin
         worst = np.zeros(len(cand))
         others = [j for j in placed if min(high[i], high[j]) - max(low[i], low[j]) > margin]
         if others:
             o = np.array(others)
-            gap = np.minimum(cand[:, None] + half[i], chosen[o] + half[o]) - np.maximum(cand[:, None] - half[i], chosen[o] - half[o])
+            gap = (np.minimum(cand[:, None] + cand_half[:, None], chosen[o] + half[o])
+                   - np.maximum(cand[:, None] - cand_half[:, None], chosen[o] - half[o]))
             inter = np.clip(gap, 0, None).prod(-1)
             worst = (inter / np.minimum(area[i], area[o])).max(-1)
         ok = np.flatnonzero(~outside & (worst <= max_overlap))
         pick = ok[0] if len(ok) else int(np.argmin(worst + outside))
-        chosen[i] = cand[pick]
+        chosen[i], chosen_yaw[i], half[i] = cand[pick], cand_yaw[pick], cand_half[pick]
         placed.append(i)
-    return chosen
+    return chosen, chosen_yaw
 
 
 def _room_frame(batch, b):
@@ -158,16 +184,20 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
     position = predictions["position_normalized"] * batch["scale"][:, None] + batch["origin"][:, None]
     yaw = decode_yaw(predictions["yaw_logits"], predictions["yaw_residuals"])
     if grid_decode == "spread" and "position_cell_logits" in predictions:
-        position = position.detach().cpu().double().clone()
+        position, yaw = position.detach().cpu().double().clone(), yaw.detach().cpu().double().clone()
         grid = int(round(predictions["position_cell_logits"].shape[-1] ** .5))
         for b, objects in enumerate(batch["objects"]):
             n = len(objects)
             if n:
-                position[b, :n, :2] = torch.from_numpy(spread_grid_xy(
+                xy, spread_yaw = spread_grid_xy(
                     predictions["position_cell_logits"][b, :n].detach().cpu().float(),
                     predictions["position_cell_residuals"][b, :n].detach().cpu().float(), grid,
                     predictions["size"][b, :n].detach().cpu().double().numpy(), yaw[b, :n].detach().cpu().double().numpy(),
-                    position[b, :n].numpy(), _room_frame(batch, b)))
+                    position[b, :n].numpy(), _room_frame(batch, b),
+                    yaw_logits=predictions["yaw_logits"][b, :n].detach().cpu().float().numpy(),
+                    yaw_residuals=predictions["yaw_residuals"][b, :n].detach().cpu().float().numpy())
+                position[b, :n, :2] = torch.from_numpy(xy)
+                yaw[b, :n] = torch.from_numpy(spread_yaw).to(yaw.dtype)
     result = []
     for b, objects in enumerate(batch["objects"]):
         layout = {"schema_version": "fastfill.v2", "objects": [
