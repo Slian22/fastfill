@@ -150,6 +150,15 @@ class Autopilot:
     def out(self, name):
         return str(self.root / "runs" / name)
 
+    def adopt(self, job):
+        """Restore a run's resume chain after an autopilot restart: outputs, the resume count and the newest output."""
+        resumes = sorted((p for p in glob.glob(f"{job['outputs'][0]}-resume*") if Path(p).is_dir()),  # not the .log files
+                         key=lambda p: int(p.rsplit("resume", 1)[1]))
+        job.update(outputs=[job["outputs"][0], *resumes], resumes=len(resumes))
+        job["output"] = job["outputs"][-1]
+        self.log("adopted training output", output=job["output"], resumes=job["resumes"])
+        return job
+
     def supervise(self, jobs):
         """jobs: name -> dict(process|None, config, data, gpus, output). Resume crashed runs twice."""
         while True:
@@ -183,9 +192,10 @@ class Autopilot:
     def eval_data(self):
         """A seeded random sample of --eval-rows validation rows: the file is grouped by source, so its head
         (what --max-samples reads) leaves whole sources out."""
-        path = self.dir / f"validation-{Path(self.data).name}-{self.a.eval_rows}.jsonl"
+        source = f"{self.data}/validation.jsonl"
+        path = self.dir / f"validation-{sha256(source)[:12]}-{self.a.eval_rows}.jsonl"  # bound to the file's content
         if not path.is_file():
-            with open(f"{self.data}/validation.jsonl") as stream:
+            with open(source) as stream:
                 lines = [line.rstrip("\n") + "\n" for line in stream if line.strip()]
             random.Random(0).shuffle(lines)
             path.write_text("".join(lines[:int(self.a.eval_rows)]))
@@ -202,9 +212,13 @@ class Autopilot:
             jobs = []
             for gpu, checkpoint in zip(gpus, batch):
                 out = self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}"
-                if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations
-                    jobs.append((checkpoint, out, None))
-                    continue
+                if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations of the same inputs
+                    old = json.loads((out / "report.json").read_text())
+                    if old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve()):
+                        jobs.append((checkpoint, out, None))
+                        continue
+                    out.rename(out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}"))
+                    self.log("stale evaluation set aside", output=str(out))
                 jobs.append((checkpoint, out, self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", checkpoint,
                     "--data", data, "--projection", "minimal",
                     "--device", "cuda", "--grid-decode", "spread", "--output", out], gpus=gpu, log=f"{out}.log", wait=False)))
@@ -290,7 +304,7 @@ class Autopilot:
             except Exception as error:
                 self.log(f"LLM {mode} baseline failed", error=f"{type(error).__name__}: {error}")
 
-    def summary(self, best, test_dir, rows_report):
+    def summary(self, best, test_dir, rows_report, failures=()):
         """SUMMARY.md: selection, the best model on validation and test, and the model next to the LLM baselines."""
         def metrics(path):
             r = json.loads(Path(path).read_text())
@@ -322,6 +336,8 @@ class Autopilot:
             return "\n".join(lines)
         text = [f"# FastFill v2 autopilot summary ({time.strftime('%Y-%m-%d %H:%M')})", "",
                 f"Best model: `{best['checkpoint']}` (selection score {best['score']:.4f}; lower is better)", "",
+                f"Acceptance: {'PASSED (test report, five RoomGenBench rooms, every test request has a layout)' if not failures else 'FAILED: ' + '; '.join(failures)}. "
+                f"The model was uploaded to {self.a.model_repo} before these checks; treat it as accepted only if they passed.", "",
                 "## Best model", "", table([("validation sample (three-field)", best["report"]),
                                              ("test (three-field, then full condition in projections)", test_dir / "report.json")]), ""]
         if rows_report is not None:
@@ -338,8 +354,8 @@ class Autopilot:
     def run(self):
         self.extra_resume, self.data = (), str(Path(self.a.current_data).resolve())
         self.phase("A-wait-current-runs")
-        jobs = {name: {"process": None, "config": config, "data": self.data, "gpus": gpus, "output": self.out(name),
-                       "outputs": [self.out(name)]} for name, config, gpus in self.a.current}
+        jobs = {name: self.adopt({"process": None, "config": config, "data": self.data, "gpus": gpus, "output": self.out(name),
+                                  "outputs": [self.out(name)]}) for name, config, gpus in self.a.current}
         self.supervise(jobs)
         self.sh(["git", "pull", "--ff-only", "origin", "main"], log=self.dir / "git-pull-a.log")
         self.phase("B-evaluate-current")
@@ -364,16 +380,14 @@ class Autopilot:
         job = {"config": str(config_path), "data": self.data, "gpus": "1,2,3,4,5,6,7", "output": self.out(name),
                "outputs": [self.out(name)], "process": None}
         if Path(job["output"]).exists():  # a restarted autopilot adopts its own earlier launch
-            job["outputs"] += sorted(glob.glob(f"{job['output']}-resume*"))
-            job["output"] = job["outputs"][-1]
-            self.log("adopting existing training output", output=job["output"])
+            self.adopt(job)
         else:
             config_path.write_text(json.dumps(config, indent=2) + "\n")
             job["process"] = self.launch(job["config"], self.data, job["output"], job["gpus"])
         self.supervise({name: job})
         self.phase("F-evaluate-final")
         best = self.evaluate_candidates([job["outputs"]], "select2", newest=4)
-        self.upload(best["checkpoint"], name)  # before the ~7 h single-GPU test evaluation, which may fail
+        self.upload(best["checkpoint"], name)  # an UNACCEPTED backup until the checks below pass (see final phase)
         export = self.roomgenbench(best["checkpoint"], f"best-{name}")
         llm.join(timeout=4 * 3600)
         rows_report, rows = None, self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
@@ -395,11 +409,23 @@ class Autopilot:
         if rows.is_file() and rows_job.wait() == 0:
             rows_report = rows_out / "report.json"
         rooms = sorted(glob.glob(str(self.runs / "roomgenbench" / f"best-{name}" / "*.layout_boxes" / "receipt.json")))
-        self.log("final RoomGenBench export", returncode=export.wait(), rooms_with_receipt=len(rooms))
+        export_code = export.wait()  # wait first, then count the five rooms' receipts
+        rooms = sorted(glob.glob(str(self.runs / "roomgenbench" / f"best-{name}" / "*.layout_boxes" / "receipt.json")))
+        self.log("final RoomGenBench export", returncode=export_code, rooms_with_receipt=len(rooms))
         if rows.is_file() and raw_job.wait() == 0:
             self.llm_reports["FastFill best, raw argmax (no post-processing)"] = raw_out / "report.json"
-        self.summary(best, out, rows_report)
-        self.phase("done", best=best, test_report=str(out / "report.json"), summary=str(self.dir / "SUMMARY.md"))
+        failures = [f"RoomGenBench export exit {export_code}"] if export_code else []
+        failures += [f"RoomGenBench receipts {len(rooms)}/5"] if len(rooms) != 5 else []
+        if not (out / "report.json").is_file():
+            failures.append("test report missing")
+        else:
+            test = json.loads((out / "report.json").read_text())
+            failures += [f"test: {test['inference_failed_requests']} of {test['requests']} requests without a layout"] \
+                if test.get("inference_failed_requests") else []
+        self.summary(best, out, rows_report, failures)
+        self.phase("done" if not failures else "done-with-failures", best=best, failures=failures,
+                   uploaded_model=f"{self.a.model_repo}/{name}", accepted=not failures,
+                   test_report=str(out / "report.json"), summary=str(self.dir / "SUMMARY.md"))
 
 
 def main(argv=None):

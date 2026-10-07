@@ -33,3 +33,15 @@ def test_next_config_keeps_the_model_and_loss_and_rescales_to_seven_gpus():
     assert t["gradient_accumulation_steps"] == 14 and t["batch_size"] == 1 and t["resume"] is None
     assert t["steps"] == -(-5 * 124584 // (7 * 14)) and out["optimizer"]["warmup_steps"] == round(.03 * t["steps"])
     assert json.loads(json.dumps(config))["training"]["steps"] == 3887  # input untouched
+
+
+def test_adopt_restores_the_resume_chain(tmp_path):
+    import argparse
+    from fastfill.v2.autorun import Autopilot
+    pilot = Autopilot(argparse.Namespace(repo=str(tmp_path)))
+    base = tmp_path / "runs" / "job"
+    for suffix in ("", "-resume1", "-resume2"):
+        (tmp_path / "runs" / f"job{suffix}").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "runs" / f"job{suffix}.log").write_text("")
+    job = pilot.adopt({"outputs": [str(base)], "output": str(base)})
+    assert job["resumes"] == 2 and job["output"].endswith("job-resume2") and len(job["outputs"]) == 3
