@@ -3,6 +3,7 @@ from copy import deepcopy
 import itertools
 import json
 import math
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -14,7 +15,8 @@ import trimesh
 from fastfill.v2.direct_layout import export_handoff, layout_to_roomgenbench, request_to_condition
 
 
-REFERENCE = Path(__file__).resolve().parents[3] / "RoomGenBench"
+# A checkout without the submodule can point at one: FASTFILL_ROOMGENBENCH_ROOT=/path/to/RoomGenBench
+REFERENCE = Path(os.environ.get("FASTFILL_ROOMGENBENCH_ROOT") or Path(__file__).resolve().parents[3] / "RoomGenBench")
 
 
 def fixture(*, known=False):
@@ -83,13 +85,16 @@ def test_hard_on_constraint_maps_support_but_soft_on_does_not():
         assert downstream["objects"][1]["place_id"] == expected
 
 
-def test_registry_does_not_merge_same_size_asset_with_different_placement(tmp_path):
+def test_registry_shares_asset_key_by_type_and_description_and_keeps_first_instance(tmp_path):
     condition, layout = fixture()
     condition["objects"][1] = {**condition["objects"][1], "category": "desk", "description": "desk"}
-    layout["objects"][1]["target_size_local_m"] = layout["objects"][0]["target_size_local_m"][:]
     output = export_handoff(tmp_path / "handoff", condition, layout)
     downstream = json.loads((output / "roomgenbench_scene.json").read_text())
-    assert len({o["asset_key"] for o in downstream["objects"]}) == 2
+    assert len({o["asset_key"] for o in downstream["objects"]}) == 1  # benchmark: type+description only
+    assert [o["dimensions"]["width"] for o in downstream["objects"]] == [.7, .08]  # per-instance sizes stay
+    registry = [json.loads(line) for line in (output / "assets.jsonl").read_text().splitlines()]
+    assert len(registry) == 1 and registry[0]["n_instances"] == 2
+    assert registry[0]["dimensions"]["width"] == .7 and registry[0]["place"] == "floor"
 
 
 def test_arbitrary_scene_layout_boxes_preserves_corners_fixed_proxies_and_unknowns(tmp_path):
@@ -104,7 +109,13 @@ def test_arbitrary_scene_layout_boxes_preserves_corners_fixed_proxies_and_unknow
     assert receipt["room"]["height"] == 3.
     assert not receipt["room"]["floor_known"] and not receipt["room"]["boundary_known"]
     assert receipt["room"]["source_height_m"] is None
-    assert receipt["walls"] == [] and receipt["scene"] == receipt["scene_key"]
+    assert [w["name"] for w in receipt["walls"]] == [f"shell_wall_{i}" for i in range(4)]
+    assert receipt["scene"] == receipt["scene_key"]
+    glb = trimesh.load(tmp_path / "assembled" / f'{receipt["scene_key"]}.glb', force="scene", process=False)
+    assert {"shell_floor", "shell_wall_0_s0", "fixed_bbox_000", "obj_000", "obj_001"} <= set(glb.graph.nodes_geometry)
+    # Unknown height: walls rendered at the display reference height, over the floor.
+    wall = points_for_node(tmp_path / "assembled" / f'{receipt["scene_key"]}.glb', "shell_wall_0_s0")
+    assert wall[:, 1].max() == pytest.approx(3.) and wall[:, 1].min() == pytest.approx(0.)
     assert receipt["validator"] == receipt["physics"] == receipt["host_commit"] == "not_attempted"
     assert receipt["condition"] == condition
     for index, obj in enumerate(layout["objects"]):

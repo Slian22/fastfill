@@ -28,11 +28,11 @@
 | 每个对象 ID、type、description | 实例对应及 mesh 生成提示 | 继承请求 ID/类别/描述 |
 | 局部全尺寸 | 给生成 mesh 的目标 bbox | dimensions.width/length/height，单位米 |
 | 底面中心与旋转 | 放置生成 mesh | position XYZ，rotation XYZ 角度制 |
-| asset_key 与注册表 | 生成结果 GLB 的文件名及复用索引 | assets.jsonl；key 是生成索引，不是已检索资产 |
+| asset_key 与注册表 | 生成结果 GLB 的文件名及复用索引 | assets.jsonl；key = `slug(type)[:24]_sha1(description)[:8]`（benchmark 约定），同 type＋description 共用，取首实例尺寸；不是已检索资产 |
 
 FastFill 是右手 Z-up、局部 X/Y/Z 全尺寸、底面中心、弧度 yaw。SAGE/RoomGenBench 的局部约定为 width=X、length=Y、规范轴向 +Y；导出采用 **width=d、length=w、yaw_deg=degrees(wrap(yaw−π/2))**。这同时保留世界 OBB 角点和规范轴映射。当前几何 yaw 标签不认证椅背/屏幕的语义前向，不能把这一轴转换解释为语义朝向已经解决。GLB 世界坐标转为标准 Y-up：`(x,y,z) → (x,z,-y)`。
 
-**兼容范围有边界。** 导出的 SceneSpec 已实际通过原 `layout_boxes` 装配函数：XY 请求、H=null，三个各向异性旋转框的 GLB 世界角点误差最大 2.74e-8 米，未调用任何资产加载，源文件 hash 未变。原 benchmark CLI 和 site 的场景列表固定为五个房间，需要另行注册新 scene_key。原 site 还读取 building_style，原 renderer 对 null 房高没有处理；XY 请求可直接使用本实现的 GLB/SVG，不能声称原 site/render 已原样兼容。缺支撑时 place_id=null，原 assembler 会将其着色/标记为 on_object；这不是支撑证据。本实现预览按类别着色并明确 unknown，不伪造 floor/wall 支撑以获得同色效果。RoomGenBench checkout 保持不变。
+**兼容范围有边界。** 导出的 SceneSpec 已实际通过原 `layout_boxes` 装配函数：XY 请求、H=null，三个各向异性旋转框的 GLB 世界角点误差最大 2.74e-8 米，未调用任何资产加载，源文件 hash 未变。原 benchmark CLI 和 site 的场景列表固定为五个房间，需要另行注册新 scene_key。原 site 还读取 building_style，原 renderer 对 null 房高没有处理；XY 请求可直接使用本实现的 GLB/SVG，不能声称原 site/render 已原样兼容。缺声明支撑时，底面距已知地面 ≤ 0.02 m 的物体记 `place_id="floor"`（`support_status=inferred_floor_contact`），否则 place_id=null，原 assembler 会将其着色/标记为 on_object；这不是支撑证据。本实现预览按类别着色并明确 unknown，不伪造 wall 支撑以获得同色效果。RoomGenBench checkout 保持不变。
 
 ## 3. 一次推理与交付
 

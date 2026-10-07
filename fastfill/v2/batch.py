@@ -3,17 +3,24 @@
 Every JSON segment is encoded without automatic special tokens. Object segment
 boundaries therefore have exact token spans for every tokenizer, including the
 explicit offline byte tokenizer. Entire samples are rejected on overflow.
+
+Exchangeable-group bookkeeping lives in ``validity.exchangeable_group`` (target
+order) and is exposed per request slot as ``batch["exchangeable_group"]``; it is
+never rendered into the condition text. Training-only augmentation is applied by
+``collate_samples(..., augment=...)``; the default path never augments.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 import math
 from typing import Any
 
 import torch
 
-from .schema import normalize_room, validate_condition
+from .geometry import wrap_yaw
+from .schema import migrate_legacy_row, normalize_room, validate_condition
 
 
 class TinyTokenizer:
@@ -53,23 +60,41 @@ def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
+CONDITION_FIELD_ORDER = ("schema_version", "room", "constraints", "objects")
+_UNRENDERED = {"room": {"boundary_quality"}, "objects": {"exchangeable_group"}}
+
+
+def _rendered(value: Any, drop: set = frozenset()) -> Any:
+    """Drop supervision bookkeeping and any "_"-prefixed key from the rendered text."""
+    if isinstance(value, dict):
+        return {k: _rendered(v) for k, v in value.items() if not (isinstance(k, str) and k.startswith("_")) and k not in drop}
+    if isinstance(value, (list, tuple)):
+        return [_rendered(v) for v in value]
+    return value
+
+
 def condition_segments(condition: dict[str, Any]) -> list[tuple[str, int | None]]:
-    """Serialize all condition fields, tagging exact requested-object segments."""
+    """Serialize the condition in fixed order (room first, objects last), tagging exact object segments.
+
+    Causal object tokens therefore always attend to the room and constraints.
+    """
     objects = condition.get("objects", [])
     if not isinstance(objects, list):
         raise ValueError("condition objects must be a list")
+    if set(condition) - set(CONDITION_FIELD_ORDER):
+        raise ValueError(f"condition: unknown fields {sorted(set(condition) - set(CONDITION_FIELD_ORDER))}")
     segments = [("Predict target local size, bottom-center and yaw for every requested ID.\nCondition:\n{", None)]
-    fields = sorted(set(condition) | {"objects"})
+    fields = [key for key in CONDITION_FIELD_ORDER if key in condition or key == "objects"]
     for index, key in enumerate(fields):
         segments.append((("," if index else "") + _json(key) + ":", None))
         if key != "objects":
-            segments.append((_json(condition[key]), None))
+            segments.append((_json(_rendered(condition[key], _UNRENDERED.get(key, frozenset()))), None))
             continue
         segments.append(("[", None))
         for object_index, obj in enumerate(objects):
             if object_index:
                 segments.append((",", None))
-            segments.append((_json(obj), object_index))
+            segments.append((_json(_rendered(obj, _UNRENDERED["objects"])), object_index))
         segments.append(("]", None))
     return segments + [("}\nAssistant:\n", None)]
 
@@ -98,9 +123,9 @@ def room_normalization(room: dict[str, Any]) -> tuple[list[float], list[float]]:
     return normalize_room(room)
 
 
-def _mask_row(validity: dict, field: str, index: int, dimensions: int) -> list[bool]:
+def _mask_row(validity: dict, field: str, index: int | None, dimensions: int) -> list[bool]:
     rows = validity.get(field, [])
-    row = rows[index] if index < len(rows) else False
+    row = rows[index] if index is not None and index < len(rows) else False
     if isinstance(row, bool):
         return [row] * dimensions
     if not isinstance(row, (list, tuple)) or len(row) != dimensions or not all(isinstance(v, bool) for v in row):
@@ -133,15 +158,15 @@ def _geometry_rows(sample: dict, origin: list, scale: list) -> dict:
     objects = effective_support_requests(sample["condition"])
     validity = sample.get("validity", {})
     rows = {key: [] for key in ("position", "size", "yaw", "position_valid", "size_valid", "yaw_valid",
-                                "fixed_position", "fixed_position_mask", "fixed_size", "fixed_size_mask", "symmetry")}
+                                "fixed_position", "fixed_position_mask", "fixed_size", "fixed_size_mask", "symmetry", "group")}
     room = sample["condition"].get("room", {})
     source_targets = sample.get("target", {}).get("objects", [])
     target_indices = {obj["id"]: index for index, obj in enumerate(source_targets)}
     floor = room.get("floor_z_m")
     floor_known = room.get("floor_known", floor is not None) and isinstance(floor, (int, float)) and math.isfinite(floor)
     for i, (obj, target) in enumerate(zip(objects, _target_rows(sample, objects))):
-        # Validity arrays describe target rows, so reorder them by stable target ID.
-        label_index = target_indices.get(obj["id"], len(source_targets))
+        # Validity arrays describe target rows, so reorder them by stable target ID; no target row, no label.
+        label_index = target_indices.get(obj["id"])
         position = _target_vector(target.get("bottom_center_m"))
         size = _target_vector(target.get("target_size_local_m"))
         pos_mask = _mask_row(validity, "position", label_index, 3)
@@ -180,17 +205,157 @@ def _geometry_rows(sample: dict, origin: list, scale: list) -> dict:
         rows["fixed_size"].append(fixed_size_values)
         rows["fixed_size_mask"].append(size_fixed_mask)
         symmetries = validity.get("yaw_symmetry_order", [])
-        symmetry = symmetries[label_index] if label_index < len(symmetries) else 1
+        symmetry = symmetries[label_index] if label_index is not None and label_index < len(symmetries) else 1
         if not isinstance(symmetry, int) or isinstance(symmetry, bool) or symmetry < 1:
             raise ValueError("yaw symmetry order must be a positive integer")
         rows["symmetry"].append(symmetry)
+        groups = validity.get("exchangeable_group", [])
+        group = groups[label_index] if label_index is not None and label_index < len(groups) else None
+        if group is not None and (not isinstance(group, str) or not group):
+            raise ValueError("exchangeable_group labels must be nonempty strings or null")
+        rows["group"].append(group)
     return rows
 
 
-def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 4096, max_objects: int = 128) -> dict:
+AUGMENT_DEFAULTS = {"rotate90": True, "mirror": False, "shuffle_objects": True,
+                    "drop_constraints_p": .3, "drop_support_p": .2, "category_only_description_p": .5}
+
+
+def _augment_options(augment: dict) -> dict:
+    if set(augment) - set(AUGMENT_DEFAULTS):
+        raise ValueError(f"unknown augmentation fields: {sorted(set(augment) - set(AUGMENT_DEFAULTS))}")
+    options = {**AUGMENT_DEFAULTS, **augment}
+    for key, value in options.items():
+        if key.endswith("_p"):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+                raise ValueError(f"augmentation {key} must be a probability in [0, 1]")
+        elif not isinstance(value, bool):
+            raise ValueError(f"augmentation {key} must be a boolean")
+    return options
+
+
+def _shuffle_objects(condition: dict, target: dict, validity: dict, generator) -> None:
+    """Permute requests in place, re-id them obj_%04d in the new order, remap every reference."""
+    from .matching import _rename_references
+    objects, targets = condition["objects"], target.get("objects", [])
+    order = torch.randperm(len(objects), generator=generator).tolist()
+    mapping = {objects[old]["id"]: f"obj_{new:04d}" for new, old in enumerate(order)}
+    reserved = {o["id"] for o in condition["room"].get("fixed_objects", [])} | {"floor", "wall"}
+    if reserved & set(mapping.values()):
+        raise ValueError("shuffled request IDs collide with fixed or reserved IDs")
+    label_index = {t["id"]: i for i, t in enumerate(targets)}
+    if set(label_index) - set(mapping):
+        raise ValueError("target object ID missing from request")
+    target_order = [label_index[objects[old]["id"]] for old in order if objects[old]["id"] in label_index]
+    for key, rows in validity.items():
+        if not isinstance(rows, list) or len(rows) != len(targets):
+            raise ValueError(f"validity {key} must be a list aligned with target objects")
+        validity[key] = [rows[j] for j in target_order]
+    condition["objects"] = [_rename_references(objects[old], mapping, ("id", "support_parent")) for old in order]
+    condition["constraints"] = [_rename_references(c, mapping, ("object_id", "target_id", "parent_id"), ("target_ids", "object_ids"))
+                                for c in condition.get("constraints", [])]
+    target["objects"] = [{**targets[j], "id": mapping[targets[j]["id"]]} for j in target_order]
+
+
+def _snap(value: float) -> float:
+    """Drop float noise from rigid-motion arithmetic (9.48 - 2.2 -> 7.28, not 7.279999999999999).
+
+    Source coordinates mix short decimals with full-precision floats; the latter
+    are kept as they are, so rendered numbers keep the source digit distribution.
+    """
+    rounded = round(value, 6)
+    return rounded if abs(rounded - value) < 1e-9 else value
+
+
+def _rigid_xy(condition: dict, target: dict, validity: dict, quarter_turns: int, mirror: bool) -> None:
+    """Apply x -> -x (if mirror) then k quarter turns about +Z to every XY quantity, in place.
+
+    The result is translated so the floor polygon keeps its original lower XY
+    corner; room normalization is recomputed by the caller. Null target
+    coordinates stay null and their validity flags follow the axis swap.
+    """
+    room = condition["room"]
+    if room.get("openings"):
+        raise ValueError("rotate90/mirror cannot transform free-form room openings")
+    c, s = [(1, 0), (0, 1), (-1, 0), (0, -1)][quarter_turns % 4]
+    sign = -1 if mirror else 1
+    scale = lambda a, v: None if v is None else a * v
+    xy = lambda x, y: (scale(c * sign, x) if c else scale(-s, y), scale(s * sign, x) if s else scale(c, y))
+    yaw_of = lambda yaw: wrap_yaw(quarter_turns * math.pi / 2 + (math.pi - yaw if mirror else yaw))
+    polygon = room["floor_polygon_xy_m"]
+    shift = [min(p[q] for p in polygon) - min(xy(*p)[q] for p in polygon) for q in range(2)]
+    move = lambda x, y: tuple(None if v is None else _snap(v + d) for v, d in zip(xy(x, y), shift))
+    room["floor_polygon_xy_m"] = [list(move(*p)) for p in polygon]
+    for obj in room.get("fixed_objects", []):
+        if mirror and (obj.get("semantic_front_local") is not None or obj.get("support_surfaces")):
+            raise ValueError("mirror cannot transform asset-local fronts or support surfaces")
+        obj["bottom_center_m"] = [*move(*obj["bottom_center_m"][:2]), obj["bottom_center_m"][2]]
+        obj["yaw_rad"] = yaw_of(obj["yaw_rad"])
+    for obj in target.get("objects", []):
+        if obj.get("bottom_center_m") is not None:
+            obj["bottom_center_m"] = [*move(*obj["bottom_center_m"][:2]), obj["bottom_center_m"][2]]
+        if obj.get("yaw_rad") is not None:
+            obj["yaw_rad"] = yaw_of(obj["yaw_rad"])
+    for constraint in condition.get("constraints", []):
+        if "direction_xy" in constraint:
+            constraint["direction_xy"] = list(xy(*constraint["direction_xy"]))
+        if "polygon_xy_m" in constraint:
+            constraint["polygon_xy_m"] = [list(move(*p)) for p in constraint["polygon_xy_m"]]
+    if quarter_turns % 2:
+        validity["position"] = [[m[1], m[0], m[2]] if isinstance(m, list) else m for m in validity.get("position", [])]
+
+
+def _regroup(condition: dict, target: dict, validity: dict) -> None:
+    """Recompute C5 exchangeable groups after a drop made requests identical or removed references.
+
+    Build-time groups stay certifiable (drops only remove references and merge
+    descriptions), so a group whose wider recomputed candidate fails
+    certification keeps its members together under a distinct label.
+    """
+    from .matching import group_labels
+    objects, targets = condition["objects"], target.get("objects", [])
+    index = {t["id"]: i for i, t in enumerate(targets)}
+    position = [_mask_row(validity, "position", index.get(obj["id"]), 3) for obj in objects]
+    fresh = dict(zip((obj["id"] for obj in objects), group_labels(objects, condition.get("constraints", []), position)))
+    old = validity.get("exchangeable_group") or [None] * len(targets)
+    validity["exchangeable_group"] = [fresh.get(t["id"]) or (f"kept_{g}" if g else None) for t, g in zip(targets, old)]
+
+
+def augment_sample(sample: dict, augment: dict, generator: torch.Generator | None = None) -> dict:
+    """Training-only augmentation; deterministic given ``generator``. Returns a new sample."""
+    options = _augment_options(augment)
+    draw = lambda: float(torch.rand(1, generator=generator))
+    sample = migrate_legacy_row(sample)
+    condition, target = deepcopy(sample["condition"]), deepcopy(sample.get("target", {}))
+    validity = deepcopy(sample.get("validity", {}))
+    if options["shuffle_objects"]:
+        _shuffle_objects(condition, target, validity, generator)
+    quarter_turns = int(torch.randint(4, (1,), generator=generator)) if options["rotate90"] else 0
+    mirror = options["mirror"] and draw() < .5
+    if quarter_turns or mirror:
+        _rigid_xy(condition, target, validity, quarter_turns, mirror)
+    drops = [draw() < options[key] for key in ("drop_constraints_p", "drop_support_p", "category_only_description_p")]
+    if drops[0]:
+        condition["constraints"] = []
+    for obj in condition["objects"]:
+        if drops[1]:
+            obj.pop("support_parent", None)
+        if drops[2]:
+            obj["description"] = obj["category"]
+    if any(drops):
+        _regroup(condition, target, validity)
+    return {**sample, "condition": condition, "target": target, "validity": validity}
+
+
+def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 4096, max_objects: int = 128,
+                    augment: dict | None = None, generator: torch.Generator | None = None) -> dict:
+    """Batch samples; ``augment`` (training loader only) applies ``augment_sample`` to each one first."""
     if not samples:
         raise ValueError("cannot batch zero samples")
     encoded, spans, geometry, origins, scales = [], [], [], [], []
+    samples = [migrate_legacy_row(sample) for sample in samples]
+    if augment is not None:
+        samples = [augment_sample(sample, augment, generator) for sample in samples]
     for sample in samples:
         condition = sample["condition"]
         validate_condition(condition)
@@ -209,6 +374,7 @@ def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 40
         geometry.append(_geometry_rows(sample, origin, scale))
         origins.append(origin)
         scales.append(scale)
+    groups = [rows.pop("group") for rows in geometry]
     b, n, t = len(samples), max(len(s) for s in spans), max(len(s) for s in encoded)
     ids = torch.full((b, t), tokenizer.pad_token_id, dtype=torch.long)
     attention = torch.zeros((b, t), dtype=torch.bool)
@@ -237,7 +403,7 @@ def collate_samples(samples: list[dict], tokenizer: Any, *, max_length: int = 40
         "validity": {"position": tensors["position_valid"], "size": tensors["size_valid"], "yaw": tensors["yaw_valid"]},
         "fixed_position_normalized": tensors["fixed_position"], "fixed_position_mask": tensors["fixed_position_mask"],
         "fixed_size": tensors["fixed_size"], "fixed_size_mask": tensors["fixed_size_mask"],
-        "yaw_symmetry_order": tensors["symmetry"], "objects": [s["condition"]["objects"] for s in samples],
-        "conditions": [s["condition"] for s in samples],
+        "yaw_symmetry_order": tensors["symmetry"], "exchangeable_group": groups,
+        "objects": [s["condition"]["objects"] for s in samples], "conditions": [s["condition"] for s in samples],
         "provenance": [s.get("provenance", {}) for s in samples],
     }

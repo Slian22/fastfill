@@ -18,6 +18,7 @@ import tempfile
 from typing import Any
 
 from .batch import _geometry_rows, room_normalization
+from .legacy_bridge import YAW_POLICY
 from .schema import validate_condition
 
 SPLITS = ("train", "validation", "test")
@@ -214,24 +215,26 @@ def _geometry(row: dict) -> dict:
     validity = row.get("validity")
     if not isinstance(validity, dict):
         raise ValueError("validity must be an object")
-    for field in ("position", "size", "yaw"):
+    for field in ("position", "size", "yaw", "yaw_symmetry_order", "exchangeable_group"):
         if not isinstance(validity.get(field), list) or len(validity[field]) != len(targets):
-            raise ValueError(f"validity {field} must have exactly one mask per target")
-    if "yaw_symmetry_order" in validity and len(validity["yaw_symmetry_order"]) != len(targets):
-        raise ValueError("yaw_symmetry_order must have exactly one entry per target")
+            raise ValueError(f"validity {field} must have exactly one entry per target")
+    if any(isinstance(v, bool) or v not in (1, 2, 4) for v in validity["yaw_symmetry_order"]):
+        raise ValueError("yaw_symmetry_order entries must be 1, 2 or 4")
     geometry = _geometry_rows(row, *room_normalization(condition["room"]))
     for value, valid in zip(geometry["yaw"], geometry["yaw_valid"]):
         if valid and not -math.pi <= value < math.pi:
             raise ValueError("valid yaw target must be wrapped to [-pi, pi)")
     from .matching import certify_group
+    slot = {o["id"]: i for i, o in enumerate(requests)}
     groups = {}
-    for i, obj in enumerate(requests):
-        if obj.get("exchangeable_group") is not None:
-            groups.setdefault(obj["exchangeable_group"], []).append(i)
+    for target_obj, label in zip(targets, validity["exchangeable_group"]):
+        if label is not None:
+            groups.setdefault(label, []).append(slot[target_obj["id"]])
     for indices in groups.values():
         certify_group(requests, condition["constraints"], indices)
-        if any(not all(geometry["position_valid"][i]) or not all(geometry["size_valid"][i]) for i in indices):
-            raise ValueError("exchangeable matching requires complete position/size labels")
+        if any(not all(geometry["position_valid"][i]) for i in indices):
+            raise ValueError("exchangeable matching requires complete position labels")
+    geometry["exchangeable_groups"], geometry["exchangeable_members"] = len(groups), sum(map(len, groups.values()))
     return geometry
 
 
@@ -343,7 +346,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     hashes = {"manifest.json": _hash_file(data / "manifest.json")["sha256"]}
     counts = {split: Counter({key: 0 for key in COUNT_FIELDS}) for split in SPLITS}
     sources, seen, houses, kept_rows, rejected_rows = {}, set(), {}, Counter(), Counter()
-    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons = (Counter() for _ in range(5))
+    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons, details = (Counter() for _ in range(6))
     for split in SPLITS:
         for context, row in _json_lines(data / f"{split}.jsonl", audit, hashes):
             try:
@@ -351,6 +354,13 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                 kept_rows[(source, split)] += 1
                 _check_house(provenance, source, split, houses, audit, context)
                 geometry = _geometry(row)
+                if provenance.get("descriptions") != "source_desc_or_category":
+                    audit.fail(context, "provenance.descriptions must be source_desc_or_category")
+                details[f"{source}:yaw_valid"] += sum(geometry["yaw_valid"])
+                for order in row["validity"]["yaw_symmetry_order"]:
+                    details[f"{source}:{order}"] += 1
+                details["exchangeable_groups"] += geometry["exchangeable_groups"]
+                details["exchangeable_members"] += geometry["exchangeable_members"]
                 measured = _row_counts(geometry)
                 counts[split].update(measured)
                 sources.setdefault(source, {}).setdefault(split, Counter({key: 0 for key in COUNT_FIELDS})).update(measured)
@@ -380,6 +390,13 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     _same_counts({f"{source}:{split}": n for (source, split), n in kept_rows.items()}, manifest.get("source_split_samples"), "source_split_samples", audit)
     _same_counts({key: sum(c[key] for c in counts.values()) for key in ("targets", "position", "size", "yaw", "full_geometry")}, manifest.get("valid_label_counts"), "valid_label_counts", audit)
     _same_counts(dict(filtered), manifest.get("legacy_train_filtered_by_source"), "legacy_train_filtered_by_source", audit)
+    _same_counts({k.split(":")[0]: v for k, v in details.items() if k.endswith(":yaw_valid")}, manifest.get("source_yaw_valid_objects"), "source_yaw_valid_objects", audit)
+    _same_counts({k: v for k, v in details.items() if ":" in k and not k.endswith(":yaw_valid")}, manifest.get("source_yaw_symmetry_order_counts"), "source_yaw_symmetry_order_counts", audit)
+    _same_counts({k: details[k] for k in ("exchangeable_groups", "exchangeable_members")}, manifest.get("exchangeable_group_counts"), "exchangeable_group_counts", audit)
+    if manifest.get("yaw_policy") != YAW_POLICY.get(manifest.get("front_policy")):
+        audit.fail("manifest.json", "yaw_policy differs from legacy_bridge.YAW_POLICY[front_policy]")
+    if manifest.get("descriptions") != "source_desc_or_category":
+        audit.fail("manifest.json", "descriptions must be source_desc_or_category")
     _same_counts(dict(rejection_reasons), manifest.get("v2_rejections"), "v2_rejections", audit)
     if (isinstance(manifest.get("samples_written"), bool)
             or manifest.get("samples_written") != sum(c["scenes"] for c in counts.values())):

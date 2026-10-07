@@ -1,25 +1,45 @@
 {
   "model": {
-    "backbone": "Qwen/Qwen3-8B",
+    "backbone": "/home/jovyan/shanliantian/models/Qwen3-8B",
     "decoder_dim": 128,
     "decoder_heads": 4,
     "decoder_layers": 2,
+    "decoder_ffn_multiplier": 4,
+    "dropout": 0.0,
     "yaw_bins": 12,
     "max_objects": 128,
+    "size_reference": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "size_log_limit": 10.0,
+    "residual_mode": "tanh",
+    "train_backbone": false,
     "lora_rank": 8,
     "lora_alpha": 16,
+    "lora_dropout": 0.0,
+    "lora_target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
     "backbone_dtype": "bfloat16",
-    "local_files_only": true
+    "local_files_only": true,
+    "tiny_hidden_size": 64,
+    "tiny_layers": 1
   },
   "loss": {
     "position": 1.0,
-    "size": 1.0,
-    "yaw_cls": 1.0,
-    "yaw_reg": 1.0,
-    "hungarian": false,
+    "size": 0.6,
+    "yaw_cls": 0.08,
+    "yaw_reg": 7.0,
+    "box": 0.0,
+    "box_operator": "bev_oriented_giou_convex_hull",
+    "hungarian": true,
     "alpha_position": 1.0,
     "alpha_size": 1.0,
-    "box": 0.0,
     "collision": 0.0,
     "boundary": 0.0,
     "position_type": "l1",
@@ -27,21 +47,23 @@
     "smooth_l1_beta": 1.0
   },
   "training": {
-    "steps": 20,
-    "batch_size": 1,
+    "steps": 400,
+    "batch_size": 2,
     "learning_rate": 0.0001,
-    "gradient_accumulation_steps": 1,
-    "max_length": 4096,
+    "gradient_accumulation_steps": 8,
+    "max_length": 8192,
     "seed": 42,
+    "clip_grad_norm": 1.0,
     "mixed_precision": "bf16",
-    "checkpoint_every": 0,
-    "validate_every": 20,
     "cpu": false,
+    "cpu_threads": 1,
+    "checkpoint_every": 100,
+    "validate_every": 100,
     "resume": null,
     "export_model_every_checkpoint": true
   },
   "optimizer": {
-    "warmup_steps": 1,
+    "warmup_steps": 12,
     "schedule": "cosine",
     "decoder_lr": 0.0001
   },

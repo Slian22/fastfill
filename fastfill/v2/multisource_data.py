@@ -24,11 +24,12 @@ import torch
 
 from .batch import TinyTokenizer, _geometry_rows, room_normalization, tokenize_condition
 from .direct_layout import request_to_condition
-from .io import fingerprint, safe_output
+from .io import HOLDOUT_REASON, ROOMGENBENCH_HOLDOUT_GROUPS, fingerprint, safe_output  # noqa: F401 (re-exported)
 from .minimal_data import SPATIALLM_IR_SHA256
-from .schema import validate_condition
+from .schema import migrate_legacy_row, validate_condition
 
 SPLITS = ("train", "validation", "test")
+DEGENERATE_AXIS_M = .003
 SOURCES = {
     "HSSD200": "HSSD-200", "IL3D_3dfront": "IL3D", "IL3D_synthetic": "IL3D",
     "InteriorGS": "InteriorGS", "InternScenes_3rscan": "InternScenes",
@@ -72,12 +73,27 @@ def _write(stream, value):
                             separators=(",", ":"), allow_nan=False) + "\n")
 
 
-def _parent_rows(parent):
+def _parent_rows(parent, holdout_groups=()):
+    """Yield (parent split, line, row) in file order; holdout rows leaving train/validation come last."""
+    deferred = []
     for split in SPLITS:
         with (parent / (split + ".jsonl")).open() as stream:
             for number, line in enumerate(stream, 1):
                 if line.strip():
-                    yield split, number, _loads(line)
+                    row = _loads(line)
+                    if split != "test" and row["provenance"].get("group") in holdout_groups:
+                        deferred.append((split, number, row))
+                    else:
+                        yield split, number, row
+    yield from deferred
+
+
+def _holdout(provenance, split, holdout_groups):
+    """Benchmark rooms are written to test; returns (provenance, change-or-None)."""
+    if split == "test" or provenance.get("group") not in holdout_groups:
+        return provenance, None
+    return ({**provenance, "split": "test", "holdout_reason": HOLDOUT_REASON},
+            {"field": "provenance.split", "before": split, "after": "test", "reason": HOLDOUT_REASON})
 
 
 def _source_role(source, split):
@@ -216,6 +232,10 @@ def _parent_validity(sample):
         yaw = target.get("yaw_rad")
         if yaw is not None and not _finite(yaw) or mask and not _finite(yaw):
             raise ValueError("valid yaw target must be finite")
+    for key, ok in (("yaw_symmetry_order", lambda v: type(v) is int and v >= 1),
+                    ("exchangeable_group", lambda v: v is None or isinstance(v, str) and v)):
+        if key in result and (len(result[key]) != len(targets) or not all(ok(v) for v in result[key])):
+            raise ValueError(f"invalid parent {key} row")
     return result
 
 
@@ -235,6 +255,10 @@ def qualify_parent_masks(sample, *, model_config=None):
                 masks["size"][i], size, policy["minimum_size_m"], policy["maximum_size_m"])):
             changes.append({**base, "field": "size", "before": masks["size"][i], "after": [False] * 3,
                             "value_m": deepcopy(size), "reason": "outside_configured_size_head_range"})
+            masks["size"][i] = [False] * 3
+        if any(masks["size"][i]) and any(_finite(value) and value < DEGENERATE_AXIS_M for value in size):
+            changes.append({**base, "field": "size", "before": masks["size"][i], "after": [False] * 3,
+                            "value_m": deepcopy(size), "reason": "degenerate_axis_lt_3mm"})
             masks["size"][i] = [False] * 3
     return masks, changes
 
@@ -264,8 +288,9 @@ def _floor_evidence(sample):
             "per_object_pre_snap_z": "unavailable_in_frozen_IR" if source == "Scan2CAD" else "not_inferred"}
 
 
-def project_sample(sample, source_room, *, split, model_config=None):
+def project_sample(sample, source_room, *, split, model_config=None, holdout_groups=()):
     """Project input only, preserve numeric labels and explicitly qualify masks."""
+    sample = migrate_legacy_row(sample)
     p = sample["provenance"]
     _source_role(p.get("source"), split)
     if p.get("split") != split:
@@ -284,6 +309,8 @@ def project_sample(sample, source_room, *, split, model_config=None):
     if any(v != 0 for v in origin):
         changes.append({"field": "bottom_center_m", "operation": "common_input_reference_translation",
                         "offset_m": [-v for v in origin], "reason": "structural_input_extent_and_explicit_floor_reference"})
+    p, moved = _holdout(p, split, holdout_groups)
+    changes += [moved] if moved else []
     provenance = {**deepcopy(p), "minimal_request": request, "condition_projection": PROJECTION,
                   "room_size_semantics": "reference_extent", "room_dimension_mode": "xy",
                   "frame_translation_m": [-v for v in origin], "parent_condition": deepcopy(sample["condition"]),
@@ -358,7 +385,7 @@ def _removed_dependencies(sample):
     return {"fixed_objects": len(fixed), "constraints": len(condition["constraints"]),
             "support_requests": sum(obj.get("support_parent") is not None for obj in objects),
             "fixed_support_requests": sum(obj.get("support_parent") in fixed_ids for obj in objects),
-            "exchangeable_requests": sum(obj.get("exchangeable_group") is not None for obj in objects),
+            "exchangeable_requests": sum(g is not None for g in sample["validity"].get("exchangeable_group", [])),
             "interpretation": "omitted comparison-condition dependencies retained verbatim in parent_condition; not a complete-room physical task"}
 
 
@@ -386,7 +413,7 @@ def _record_stats(stats, sample, byte_length):
         all(pos) or all(size) or yaw for pos, size, yaw in zip(masks["position"], masks["size"], masks["yaw"]))
 
 
-def _build_rows(parent, stage, connection, model_config, strict_rectangle):
+def _build_rows(parent, stage, connection, model_config, strict_rectangle, holdout_groups):
     names = ("split_samples", "split_objects", "source_split_samples", "source_split_objects", "source_split_validity",
              "object_count_histogram", "utf8_context_histogram", "validity_counts", "diagnostics", "strict_rectangle_samples",
              "removed_dependency_counts")
@@ -397,25 +424,27 @@ def _build_rows(parent, stage, connection, model_config, strict_rectangle):
                  for split in SPLITS} if strict_rectangle else {}
         changes = stack.enter_context((stage / "changes.jsonl").open("x"))
         stack.enter_context((stage / "exclusions.jsonl").open("x"))
-        for split, number, parent_row in _parent_rows(parent):
+        for split, number, parent_row in _parent_rows(parent, holdout_groups):
             p = parent_row["provenance"]
             source = connection.execute("SELECT row FROM raw WHERE uid=? AND source=?", (p["scene_id"], p["source"])).fetchone()
             if source is None:
                 raise ValueError("parent source UID missing from frozen IR")
-            row = project_sample(parent_row, _loads(source[0]), split=split, model_config=model_config)
-            _write(streams[split], row)
+            row = project_sample(parent_row, _loads(source[0]), split=split, model_config=model_config, holdout_groups=holdout_groups)
+            written = row["provenance"]["split"]
+            _write(streams[written], row)
             for change in row["provenance"]["qualification_changes"]:
                 _write(changes, {"uid": p["scene_id"], "source": p["source"], "split": split, "parent_line": number, **change})
             byte_length = len(tokenize_condition(row["condition"], TinyTokenizer())[0])
             _record_stats(stats, row, byte_length)
             if strict_rectangle and _strict_rectangle(row):
-                _write(views[split], row)
-                stats["strict_rectangle_samples"][split] += 1
+                _write(views[written], row)
+                stats["strict_rectangle_samples"][written] += 1
     return {key: dict(value) for key, value in stats.items()}
 
 
 def build_dataset(parent_root, ir_root, output, *, model_config=None, strict_rectangle=False,
-                  expected_spatiallm_sha256=SPATIALLM_IR_SHA256, frozen_manifest=None):
+                  expected_spatiallm_sha256=SPATIALLM_IR_SHA256, frozen_manifest=None,
+                  holdout_groups=ROOMGENBENCH_HOLDOUT_GROUPS):
     """Stream all 18 frozen IR sources through disk index; publish a new view."""
     parent, ir, target = Path(parent_root).resolve(), Path(ir_root).resolve(), safe_output(output)
     if any(target == root or root in target.parents or target in root.parents for root in (parent, ir)):
@@ -438,7 +467,7 @@ def build_dataset(parent_root, ir_root, output, *, model_config=None, strict_rec
         stage.mkdir()
         with sqlite3.connect(Path(work) / "raw.sqlite3") as connection:
             ir_counts = _index_ir(connection, ir)
-            stats = _build_rows(parent, stage, connection, model_config, strict_rectangle)
+            stats = _build_rows(parent, stage, connection, model_config, strict_rectangle, tuple(holdout_groups))
         after = _input_hashes(parent, ir, frozen)
         if before != after:
             raise ValueError("parent/source inputs changed during immutable build")
@@ -457,6 +486,8 @@ def build_dataset(parent_root, ir_root, output, *, model_config=None, strict_rec
                     "task_role": "minimal_reference_extent_comparison_not_full_condition_main",
                     "condition_boundary_quality": "source_reference_extent",
                     "exclusions": {}, "admission_policy": "preserve every parent scene; separate whole-scene tokenizer/object/active-loss preflight",
+                    "roomgenbench_holdout_groups": sorted(holdout_groups), "holdout_reason": HOLDOUT_REASON,
+                    "degenerate_axis_m": DEGENERATE_AXIS_M,
                     "strict_rectangle_view": "metadata-only subset; not physical legality certification" if strict_rectangle else None,
                     "geometry_modified": "common structural-input XY and explicit input-floor reference translation only",
                     "source_data_modified": False, "parent_data_modified": False, **stats}
@@ -478,12 +509,15 @@ def main(argv=None):
     parser.add_argument("--frozen-manifest", required=True, help="canonical sealed v3.2 manifest binding all 18 IR files")
     parser.add_argument("--model-config", help="JSON model config or train config containing model")
     parser.add_argument("--strict-rectangle", action="store_true", help="also emit metadata-qualified rectangle subsets")
+    parser.add_argument("--holdout-group", action="append", dest="holdout_groups",
+                        help="provenance.group written to test (repeatable); default: RoomGenBench benchmark rooms")
     args = parser.parse_args(argv)
     config = _loads(Path(args.model_config).read_text()) if args.model_config else None
     if config and "model" in config:
         config = config["model"]
+    holdout = ROOMGENBENCH_HOLDOUT_GROUPS if args.holdout_groups is None else tuple(args.holdout_groups)
     manifest = build_dataset(args.parent_root, args.ir_root, args.output, model_config=config,
-                             strict_rectangle=args.strict_rectangle, frozen_manifest=args.frozen_manifest)
+                             strict_rectangle=args.strict_rectangle, frozen_manifest=args.frozen_manifest, holdout_groups=holdout)
     print(json.dumps({"output": str(Path(args.output).resolve()), "split_samples": manifest["split_samples"]}))
     return 0
 

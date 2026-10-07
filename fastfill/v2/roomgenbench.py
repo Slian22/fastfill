@@ -130,21 +130,52 @@ def _objects(module, scene, method, assets_dir, output):
     return logs
 
 
-def _display_geometry(module, condition, output, display_height):
-    """Display rectangle/fixed boxes are proxies; the original condition is retained."""
+def _shell_parts(module, room):
+    """Reference build_shell geometry with wall normals from the polygon winding, not the bbox centre.
+
+    build_shell extrudes each wall away from the room's bounding-box centre,
+    which pushes some walls of a non-convex polygon into the room. Walls trace
+    the floor polygon in order, so its signed area fixes the interior side;
+    each wall is built alone with a stand-in centre placed on that side.
+    """
+    parts, walls = module.build_shell({**room, "walls": [], "doors": []})  # floor slab only
+    points = [(w["start_point"]["x"], w["start_point"]["y"]) for w in room["walls"]]
+    ccw = sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(points, points[1:] + points[:1])) > 0
+    for index, wall in enumerate(room["walls"]):
+        a, b = wall["start_point"], wall["end_point"]
+        dx, dy = b["x"] - a["x"], b["y"] - a["y"]
+        inward = (-dy, dx) if ccw else (dy, -dx)
+        cx, cy = (a["x"] + b["x"]) / 2 + inward[0], (a["y"] + b["y"]) / 2 + inward[1]
+        single = {"dimensions": {"width": 2., "length": 2.}, "position": {"x": cx - 1., "y": cy - 1.},
+                  "walls": [wall], "doors": [d for d in room["doors"] if d["wall_id"] == wall["id"]]}
+        wall_parts, meta = module.build_shell(single)
+        parts += [(name.replace("shell_wall_0", f"shell_wall_{index}", 1), part) for name, part in wall_parts if name != "shell_floor"]
+        walls += [{**meta[0], "name": f"shell_wall_{index}"}]
+    return parts, walls
+
+
+def _display_geometry(module, condition, scene, output, display_height):
+    """Reference shell (polygon walls, door cutouts) plus fixed bbox proxies; the condition is retained.
+
+    Unknown room height renders walls at the display reference height. The
+    reference shell puts its floor at Z=0, so it is translated to the floor.
+    Doors are part of the shell; other fixed objects become bbox proxies.
+    """
     import trimesh
-    room = condition["room"]
-    points = room["floor_polygon_xy_m"]
-    low = [min(p[q] for p in points) for q in (0, 1)]
-    high = [max(p[q] for p in points) for q in (0, 1)]
-    floor = room.get("floor_z_m")
+    room, floor = condition["room"], condition["room"].get("floor_z_m")
+    height = room.get("height_m")
     display_floor = 0. if floor is None else floor
-    transform = trimesh.transformations.translation_matrix([
-        (low[0] + high[0]) / 2, (low[1] + high[1]) / 2, display_floor - .025])
-    output.add_geometry(module.colored_box([high[0]-low[0], high[1]-low[1], .05], transform, module.FLOOR_RGBA),
-                        node_name="display_room_extent_proxy", geom_name="display_room_extent_proxy",
-                        transform=module.SAGE_WORLD_TO_GLTF)
+    downstream = scene["room"] if height is not None else {**scene["room"], "walls": [
+        {**wall, "height": display_height} for wall in scene["room"]["walls"]]}
+    shell, walls = _shell_parts(module, downstream)
+    lift = module.SAGE_WORLD_TO_GLTF @ trimesh.transformations.translation_matrix([0., 0., display_floor])
+    for name, part in shell:
+        output.add_geometry(part, node_name=name, geom_name=name, transform=lift)
+    doors = {door["id"] for door in downstream["doors"]}
+    proxies = 0
     for index, fixed in enumerate(room.get("fixed_objects", [])):
+        if fixed["id"] in doors:
+            continue
         w, d, h = fixed["size_local_m"]
         # Same +X -> +Y conversion as the requested-object adapter.
         obj = {"position": dict(zip("xyz", fixed["bottom_center_m"])),
@@ -153,13 +184,13 @@ def _display_geometry(module, condition, output, display_height):
         node = f"fixed_bbox_{index:03d}"
         output.add_geometry(_box_parts(module, obj["dimensions"])[0], node_name=node, geom_name=node,
                             transform=module.SAGE_WORLD_TO_GLTF @ module.place_matrix(obj))
-    height = room.get("height_m")
-    return {"width": high[0] - low[0], "length": high[1] - low[1],
+        proxies += 1
+    return walls, proxies, {**downstream["dimensions"],
             "height": display_height if height is None else height,
             "height_source": "display_reference" if height is None else "condition",
             "source_height_m": height, "floor_known": room.get("floor_known", floor is not None),
             "boundary_known": room.get("boundary_known", True),
-            "shell_geometry_kind": "rectangular_extent_display_proxy",
+            "shell_geometry_kind": "reference_build_shell_polygon_walls", "wall_normal_source": "floor_polygon_winding",
             "display_floor_z_m": display_floor, "source_floor_z_m": floor}
 
 
@@ -187,15 +218,15 @@ def assemble_handoff(handoff, output_dir, *, method="layout_boxes", assets_dir=N
     module, source_info = _reference(reference)
     import trimesh
     output = trimesh.Scene()
-    room = _display_geometry(module, condition, output, height)
+    walls, proxies, room = _display_geometry(module, condition, scene, output, height)
     objects = _objects(module, scene, method, Path(assets_dir).resolve() if assets_dir is not None else None, output)
     counts = dict(Counter(obj["status"] for obj in objects))
     generated_success = method != "layout_boxes" and bool(objects) and counts.get("ok", 0) == len(objects)
     receipt = {"schema_version": "fastfill.roomgenbench-assembly.v1", "scene_key": scene["scene_key"],
-        "scene": scene["scene_key"], "room_type": scene["room_type"], "walls": [],
+        "scene": scene["scene_key"], "room_type": scene["room_type"], "walls": walls,
         "method": method, "assembly_complete": True, "generated_mesh_success": generated_success,
         "requested_objects": len(objects), "counts": counts, "objects": objects, "room": room,
-        "fixed_bbox_proxies": len(condition["room"].get("fixed_objects", [])),
+        "fixed_bbox_proxies": proxies,
         "condition": deepcopy(condition), "fit_policy": FIT_POLICY if method != "layout_boxes" else "target_bbox_proxy",
         "original_asset_geometry_acceptance": "not_checked", "support_verification": "not_checked",
         "validator": "not_attempted", "physics": "not_attempted", "host_commit": "not_attempted",

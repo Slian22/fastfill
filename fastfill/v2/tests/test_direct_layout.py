@@ -4,6 +4,7 @@ GLB tests decode the published binary convention independently of the exporter.
 They intentionally do not use trimesh or treat a proxy box as a furniture mesh.
 """
 from copy import deepcopy
+import hashlib
 import itertools
 import json
 import math
@@ -247,12 +248,17 @@ def test_roomgenbench_converts_canonical_axis_and_preserves_world_bbox(yaw):
     assert downstream["room_type"] == condition["room"]["room_type"]
     assert downstream["room"]["dimensions"] == {"width": 5., "length": 4., "height": 2.8}
     assert downstream["room"]["position"] == {"x": 0., "y": 0., "z": 0.}
-    assert "walls" in downstream["room"] and "doors" in downstream["room"]
-    assert "windows" in downstream["room"]
+    assert downstream["room"]["doors"] == [] and downstream["room"]["windows"] == []
+    assert [(w["id"], w["start_point"], w["end_point"], w["height"], w["thickness"]) for w in downstream["room"]["walls"]] == [
+        (f"wall_{i:02d}", dict(zip("xyz", a + [0.])), dict(zip("xyz", b + [0.])), 2.8, .1)
+        for i, (a, b) in enumerate([([0., 0.], [5., 0.]), ([5., 0.], [5., 4.]), ([5., 4.], [0., 4.]), ([0., 4.], [0., 0.])])]
     for actual, predicted in zip(downstream["objects"], prediction["objects"]):
         assert {"id", "type", "description", "asset_key", "position", "rotation", "dimensions", "place_id"} <= set(actual)
         assert actual["id"] == predicted["id"]
-        assert actual["place_id"] is None  # No support evidence was supplied by the user.
+        # No support was declared: only the object resting on the known floor is placed, and marked inferred.
+        on_floor = predicted["bottom_center_m"][2] == 0.
+        assert actual["place_id"] == ("floor" if on_floor else None)
+        assert actual["support_status"] == ("inferred_floor_contact" if on_floor else "unknown")
         w, d, h = predicted["target_size_local_m"]
         assert actual["dimensions"] == {"width": d, "length": w, "height": h}
         position = [actual["position"][axis] for axis in "xyz"]
@@ -271,7 +277,9 @@ def test_roomgenbench_does_not_invent_unknown_room_height_or_support():
     downstream = layout_to_roomgenbench(condition, layout(condition))
     assert downstream["room"]["dimensions"].get("height") is None
     assert downstream["room"].get("ceiling_height") is None
-    assert all(obj["place_id"] is None for obj in downstream["objects"])
+    assert {w["height"] for w in downstream["room"]["walls"]} == {2.7}  # shell display default, not a claim
+    assert all(obj["place_id"] is None for obj in downstream["objects"] if obj["position"]["z"] > .02)
+    assert all(obj["support_status"] != "declared" for obj in downstream["objects"])
 
 
 @pytest.mark.parametrize("yaw", [0., math.pi / 2, math.radians(97), -math.pi])
@@ -395,7 +403,8 @@ def test_prediction_refuses_output_file_as_ancestor_of_export_directory_before_m
     assert not output.exists() and not handoff.exists()
 
 
-def test_generation_registry_deduplicates_only_matching_semantics_and_local_dimensions(tmp_path):
+def test_generation_registry_follows_benchmark_type_description_key_with_first_instance_dimensions(tmp_path):
+    from fastfill.v2.direct_layout import asset_key
     source = {**request(), "furniture_list": [{"category": "chair", "description": "oak chair", "count": 3},
                                               {"category": "chair", "description": "metal chair"}]}
     condition = request_to_condition(source)
@@ -409,17 +418,21 @@ def test_generation_registry_deduplicates_only_matching_semantics_and_local_dime
     export_handoff(handoff, condition, prediction)
     downstream = json.loads((handoff / "roomgenbench_scene.json").read_text())
     objects = downstream["objects"]
-    assert objects[0]["asset_key"] == objects[1]["asset_key"]
-    assert len({objects[index]["asset_key"] for index in (0, 2, 3)}) == 3
+    # RoomGenBench prepare_inputs: slug(type)[:24] + "_" + sha1(description)[:8], shared across instances.
+    assert objects[0]["asset_key"] == objects[1]["asset_key"] == objects[2]["asset_key"] == asset_key("chair", "oak chair")
+    assert objects[0]["asset_key"] == "chair_" + hashlib.sha1(b"oak chair").hexdigest()[:8]
+    assert objects[3]["asset_key"] != objects[0]["asset_key"]
+    assert objects[2]["dimensions"]["length"] == 1.2  # per-instance dimensions remain on the scene object
     registry = [json.loads(line) for line in (handoff / "assets.jsonl").read_text().splitlines()]
-    assert len(registry) == 3
+    assert len(registry) == 2
     by_key = {entry["asset_key"]: entry for entry in registry}
-    assert by_key[objects[0]["asset_key"]]["n_instances"] == 2
-    assert sorted(entry["n_instances"] for entry in registry) == [1, 1, 2]
+    oak = by_key[objects[0]["asset_key"]]
+    assert oak["n_instances"] == 3 and oak["dimensions"] == {"width": .7, "length": 1., "height": .9}
+    assert oak["place"] == "floor" and oak["support_status"] == "inferred_floor_contact"  # first instance, z=0
+    assert by_key[objects[3]["asset_key"]]["place"] == "unknown"
     assert {obj["id"] for obj in objects} == {obj["id"] for obj in prediction["objects"]}
     assert len(objects) == 4
     assert all(entry["asset_key_kind"] == "downstream_generation_key_only" for entry in registry)
-    assert all(entry["support_status"] == "unknown" and entry["place"] == "unknown" for entry in registry)
 
 
 def test_object_id_equal_to_room_proxy_name_remains_unique_and_selectable_in_glb(tmp_path):

@@ -258,7 +258,7 @@ CUDA_VISIBLE_DEVICES=1 python -m fastfill.v2.evaluate \
 
 进程内 `cuda:0` 对应物理 GPU 1。训练以 BF16 载入基础骨干、使用 BF16 autocast；连续尺寸指数、pooling 累加等保留代码规定的 float32 数值保护。20 步用于检查真实 8B 权重、CUDA、LoRA、四项梯度、validation、保存和重新载入，不作为布局质量证据。
 
-LoRA 产物不包含完整基础模型；评测和部署仍需同一固定 revision 的 Qwen3-8B，并保留训练配置中的基础路径。当前没有 CLI 自动 resume，不将已保存 `state-step-*` 误称为支持自动恢复的正式训练流程。
+LoRA 产物不包含完整基础模型；评测和部署仍需同一固定 revision 的 Qwen3-8B，并保留训练配置中的基础路径。2026-10-06 起 `--resume <state-step-n>`（或 `training.resume`）可在**新**输出目录继续训练：恢复模型、optimizer、LR 调度、GradScaler、RNG、累积计数与数据顺序，要求 config（除 `training.resume`）、`--max-samples` 与训练数据 hash 一致；每个 checkpoint 同时导出 `model-step-<n>/`。
 
 全库正式训练还需冻结 batch/context、对象资格、稀有 yaw 采样、地板诊断策略、训练曝光预算和实测显存。训练集可信 yaw 仅 523 个对象，不能把默认均匀 1,000 步配置直接视作充分的正式方案。真实资产、WorldEdge Host、mesh/physics/Solver 和 GLB 展示另行验收。
 

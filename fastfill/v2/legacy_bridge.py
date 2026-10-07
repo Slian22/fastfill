@@ -7,7 +7,16 @@ import json
 import math
 
 from fastfill.scene import canonical, norm_cat, rot90, target_json
+from fastfill.v2.matching import group_labels
 from fastfill.v2.schema import validate_condition
+
+FRONT_POLICIES = ("axis", "strict", "legacy-convention")
+YAW_POLICY = {
+    "axis": "upright finite yaw with source front_known; yaw_symmetry_order 1 for MultiScan semantic fronts, 2 (axis mod pi) elsewhere; "
+            "Scan2CAD sym __SYM_ROTATE_UP_4 -> 4, __SYM_ROTATE_UP_INF -> yaw unsupervised",
+    "strict": "only MultiScan documented semantic fronts; yaw_symmetry_order 1",
+    "legacy-convention": "legacy source front convention treated as semantic front; yaw_symmetry_order 1 (lower-evidence ablation)",
+}
 
 
 def _key(seed, uid, ident):
@@ -65,39 +74,31 @@ def _validity(obj, raw, front_policy):
     front = obj.get("front_known", raw.get("meta", {}).get("front_known")) is True
     if front_policy == "strict":
         front = front and raw["source"] == "MultiScan"
-    yaw = upright and front and numeric(obj.get("yaw"))
+    sym = obj.get("sym")  # Scan2CAD rotational symmetry: __SYM_NONE / __SYM_ROTATE_UP_2 / _4 / _INF
+    yaw = upright and front and numeric(obj.get("yaw")) and sym != "__SYM_ROTATE_UP_INF"
+    symmetry = (4 if sym == "__SYM_ROTATE_UP_4" else 2) if front_policy == "axis" and raw["source"] != "MultiScan" else 1
     if raw["source"] in {"OptiScene_holodeck", "MansionWorld"}:
         size = False  # Padded boxes and annotation footprints cannot certify local asset extents.
-    return [position] * 3, [size] * 3, yaw
+    return [position] * 3, [size] * 3, yaw, symmetry
 
 
-def _groups(objects, constraints, validity):
-    from fastfill.v2.matching import certify_group
-    candidates = {}
-    for i, obj in enumerate(objects):
-        if all(validity["position"][i]) and all(validity["size"][i]):
-            signature = json.dumps({k: v for k, v in obj.items() if k != "id"}, sort_keys=True)
-            candidates.setdefault(signature, []).append(i)
-    out = [dict(o) for o in objects]
-    for number, indices in enumerate(candidates.values()):
-        if len(indices) < 2:
-            continue
-        try:
-            certify_group(out, constraints, indices)
-        except ValueError:
-            continue
-        out = [{**o, "exchangeable_group": f"anonymous_{number}"} if i in indices else o for i, o in enumerate(out)]
-    return out
+def _description(obj, category):
+    text = obj.get("desc", obj.get("description"))
+    return text.strip() if isinstance(text, str) and text.strip() else category
 
 
-def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="strict"):
+def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="axis"):
     """Selected objects come from legacy prep; labels come from unrounded IR.
 
+    axis (default) admits every upright finite source yaw with front_known and
+    records yaw_symmetry_order 2 (axis mod pi) except MultiScan semantic fronts (1);
+    Scan2CAD rotational symmetry raises the order to 4 or leaves yaw unsupervised.
     strict yaw only admits independently documented MultiScan semantic fronts.
     legacy-convention is an explicit lower-evidence ablation, never a claim of
-    per-asset semantic-front verification. No targets enter descriptions/IDs.
+    per-asset semantic-front verification. Descriptions are the source desc or
+    the category; exchangeable groups live in validity. No targets enter the condition.
     """
-    if front_policy not in {"strict", "legacy-convention"}:
+    if front_policy not in FRONT_POLICIES:
         raise ValueError("unknown front policy")
     raw_objects = {o["id"]: o for o in raw["objects"]}
     prepared_objects = {o["id"]: o for o in prepared["objects"]}
@@ -125,19 +126,19 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="s
                       "yaw_rad": (o["yaw"] + math.pi) % (2 * math.pi) - math.pi})
     if fixed:
         room["fixed_objects"] = fixed
-    validity = {"position": [], "size": [], "yaw": []}
+    validity = {"position": [], "size": [], "yaw": [], "yaw_symmetry_order": []}
     requests, targets, source_ids, evidence = [], [], [], []
     for obj in selected:
         category = norm_cat(obj["category"]) or "object"
-        request = {"id": ids[obj["id"]], "category": category, "description": category}
+        request = {"id": ids[obj["id"]], "category": category, "description": _description(obj, category)}
         # Preserve explicit source support, never promote bbox-inferred support.
         if obj.get("anchor") == "floor" and not obj.get("anchor_inferred") and room["floor_known"] and abs(obj["pos"][2]) <= 1e-5:
             request = {**request, "support_parent": "floor"}
         if obj.get("parent") in ids and not obj.get("anchor_inferred"):
             request = {**request, "support_parent": ids[obj["parent"]]}
         requests.append(request)
-        pv, sv, yv = _validity(obj, raw, front_policy)
-        for key, value in (("position", pv), ("size", sv), ("yaw", yv)):
+        pv, sv, yv, order = _validity(obj, raw, front_policy)
+        for key, value in (("position", pv), ("size", sv), ("yaw", yv), ("yaw_symmetry_order", order)):
             validity[key].append(value)
         targets.append({"id": ids[obj["id"]], "target_size_local_m": list(obj["size"]),
                         "bottom_center_m": [*obj["pos"][:2], obj["pos"][2] + dz],
@@ -162,7 +163,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="s
                 omitted_constraints.append({"legacy_constraint": c, "reason": "bbox_inferred_support_not_verified_source_label"})
             else:
                 constraints.append(_constraint(c, mapping))
-    requests = _groups(requests, constraints, validity)
+    validity["exchangeable_group"] = group_labels(requests, constraints, validity["position"])  # request order == target order
     condition = {"schema_version": "fastfill.v2", "room": room, "objects": requests, "constraints": constraints}
     validate_condition(condition)
     result = {"schema_version": "fastfill.v2", "condition": condition,
@@ -175,7 +176,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="s
                            "legacy_height_dropped": bool(prepared.get("meta", {}).get("height_dropped")),
                            "omitted_legacy_constraints": omitted_constraints,
                            "constraint_source": "frozen_sparse_legacy_request", "request_order": "SHA256(seed,uid,source_id)",
-                           "descriptions": "category_only_no_asset_or_pose_text"}}
+                           "descriptions": "source_desc_or_category"}}
     from fastfill.v2.batch import _geometry_rows, room_normalization
     _geometry_rows(result, *room_normalization(room))
     return result

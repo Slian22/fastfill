@@ -16,7 +16,8 @@ import tempfile
 
 from .batch import _geometry_rows, _mask_row, room_normalization
 from .data import _digest, _output_path
-from .schema import validate_condition, validate_layout
+from .io import ROOMGENBENCH_HOLDOUT_GROUPS
+from .schema import migrate_legacy_row, validate_condition, validate_layout
 
 
 SPLITS = ("train", "validation", "test")
@@ -75,6 +76,7 @@ def _complete(sample):
         masks.extend(_mask_row(validity, field, index, dimensions) for index in range(count))
     if not all(all(row) for row in masks):
         return False
+    sample = migrate_legacy_row(sample)  # pre-C1 parents keep groups in objects; output bytes stay identical
     condition = sample["condition"]
     validate_condition(condition)
     validate_layout(sample["target"], condition)
@@ -103,6 +105,8 @@ def _write_cohort(source, staging):
                         eligible = _complete(sample)
                     except (ValueError, KeyError, TypeError) as exc:
                         raise ValueError(f"Invalid parent row {split}.jsonl:{number}: {exc}") from exc
+                    if split != "test" and sample.get("provenance", {}).get("group") in ROOMGENBENCH_HOLDOUT_GROUPS:
+                        raise ValueError(f"RoomGenBench benchmark room in {split}.jsonl:{number}; build the cohort from qualified data")
                     if not eligible:
                         skipped[split] += 1
                         continue

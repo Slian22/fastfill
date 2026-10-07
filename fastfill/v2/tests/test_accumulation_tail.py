@@ -38,6 +38,8 @@ class _ScalarCriterion:
         active = sum(value != 0. for value in values)
         return {"loss": loss, "yaw_cls": loss, "counts": {"yaw": active},
                 "active_objective_count_local": active,
+                "term_sums": {**dict.fromkeys(train.TERMS, zero.detach()), "yaw_cls": loss.detach()},
+                "term_counts": {**dict.fromkeys(train.TERMS, 0), "yaw_cls": active},
                 **{key: zero for key in ("position", "size", "yaw_reg", "box", "collision", "boundary")}}
 
 

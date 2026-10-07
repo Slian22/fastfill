@@ -94,5 +94,7 @@ def scene_regularizers(positions, sizes, yaws, batch, config):
         for i, fixed in fixed_pairs:
             q, t, z = [positions.new_tensor(fixed[k]) for k in ("bottom_center_m", "size_local_m", "yaw_rad")]
             collision.append(_collision(positions[b, i], sizes[b, i], yaws[b, i], q, t, z))
-    return {"collision": _mean(sum(collision, zero), len(collision))[0],
-            "boundary": _mean(sum(boundary, zero), len(boundary))[0]}
+    terms = {"collision": collision, "boundary": boundary}
+    return {**{key: _mean(sum(values, zero), len(values))[0] for key, values in terms.items()},
+            "sums": {key: sum((v.detach().float() for v in values), torch.zeros((), device=zero.device)) for key, values in terms.items()},
+            "counts": {key: len(values) for key, values in terms.items()}}

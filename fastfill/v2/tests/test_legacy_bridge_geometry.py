@@ -146,7 +146,8 @@ def test_tilted_object_keeps_identity_but_has_no_yaw_only_geometry_supervision()
     result = convert(room("SAGE-10k", [obj("tilted", tilted=True, tilt_deg=14.0)]),
                      policy="legacy-convention")
     assert len(result["condition"]["objects"]) == 1
-    assert result["validity"] == {"position": [[False] * 3], "size": [[False] * 3], "yaw": [False]}
+    assert result["validity"] == {"position": [[False] * 3], "size": [[False] * 3], "yaw": [False],
+                                  "yaw_symmetry_order": [1], "exchangeable_group": [None]}
 
 
 def test_tilted_fixed_proxy_is_not_admitted_as_verified_actual_geometry():

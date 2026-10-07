@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 from fastfill.build import prep
 from fastfill.v2.data import _digest, _output_path
-from fastfill.v2.legacy_bridge import convert_selected_room
+from fastfill.v2.legacy_bridge import FRONT_POLICIES, YAW_POLICY, convert_selected_room
 
 DEFAULT_RELEASE = Path(__file__).resolve().parents[2] / ".release/v3.2"
 DEFAULT_EVIDENCE = Path(__file__).resolve().parents[2] / ".release/audits/2026-09-28/source-check"
@@ -61,7 +61,7 @@ def _selected_jobs(connection, path):
                 yield raw, selected[0], json.loads(selected[1])
 
 
-def _record_result(result, outs, diagnostics, counts, source_counts, validity_counts, rejected):
+def _record_result(result, outs, diagnostics, counts, source_counts, validity_counts, rejected, detail_counts):
     sample, failure = result
     if failure:
         rejected[failure["reason"]] += 1
@@ -71,12 +71,18 @@ def _record_result(result, outs, diagnostics, counts, source_counts, validity_co
     outs[split].write(json.dumps(sample, ensure_ascii=False, allow_nan=False, separators=(",", ":")) + "\n")
     counts[split] += 1
     source_counts[f"{source}:{split}"] += 1
+    validity = sample["validity"]
     validity_counts["targets"] += len(sample["target"]["objects"])
-    for p, s, y in zip(sample["validity"]["position"], sample["validity"]["size"], sample["validity"]["yaw"]):
+    for p, s, y, order, group in zip(validity["position"], validity["size"], validity["yaw"],
+                                     validity["yaw_symmetry_order"], validity["exchangeable_group"]):
         validity_counts["position"] += all(p)
         validity_counts["size"] += all(s)
         validity_counts["yaw"] += bool(y)
         validity_counts["full_geometry"] += all(p) and all(s) and bool(y)
+        detail_counts[f"{source}:yaw_valid"] += bool(y)
+        detail_counts[f"{source}:symmetry_order_{order}"] += 1
+        detail_counts["exchangeable_members"] += group is not None
+    detail_counts["exchangeable_groups"] += len({g for g in validity["exchangeable_group"] if g is not None})
 
 
 def verify_release(release):
@@ -111,7 +117,7 @@ def _index_saved(connection, release, include_flagged):
 
 def _write_migration(connection, release, staging, manifest, evidence, *, seed, max_scenes, front_policy, workers=1):
     args = SimpleNamespace(**manifest["args"])
-    counts, source_counts, validity_counts, rejected = Counter(), Counter(), Counter(), Counter()
+    counts, source_counts, validity_counts, rejected, detail_counts = (Counter() for _ in range(5))
     with ExitStack() as stack:
         outs = {s: stack.enter_context((staging / f"{s}.jsonl").open("x")) for s in ("train", "validation", "test")}
         diagnostics = stack.enter_context((staging / "rejections.jsonl").open("x"))
@@ -124,18 +130,18 @@ def _write_migration(connection, release, staging, manifest, evidence, *, seed, 
                 results = pool.map(_worker_job, batch) if pool else (
                     _convert_job(job, args, evidence, seed, front_policy) for job in batch)
                 for result in results:
-                    _record_result(result, outs, diagnostics, counts, source_counts, validity_counts, rejected)
+                    _record_result(result, outs, diagnostics, counts, source_counts, validity_counts, rejected, detail_counts)
                     if max_scenes is not None and sum(counts.values()) >= max_scenes:
-                        return counts, source_counts, validity_counts, rejected
+                        return counts, source_counts, validity_counts, rejected, detail_counts
             connection.commit()
             print(json.dumps({"source_finished": name, "split_samples": dict(counts)}, ensure_ascii=False), flush=True)
-    return counts, source_counts, validity_counts, rejected
+    return counts, source_counts, validity_counts, rejected, detail_counts
 
 
 def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDENCE, seed=42, max_scenes=None,
-                           front_policy="strict", include_flagged=False, workers=1):
+                           front_policy="axis", include_flagged=False, workers=1):
     release, target = _output_path(release_root, output)
-    if front_policy not in {"strict", "legacy-convention"}:
+    if front_policy not in FRONT_POLICIES:
         raise ValueError("unknown front policy")
     if max_scenes is not None and (isinstance(max_scenes, bool) or not isinstance(max_scenes, int) or max_scenes < 1):
         raise ValueError("max_scenes must be a positive integer")
@@ -153,7 +159,7 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
         staging = Path(temporary)
         with sqlite3.connect(staging / "selection.sqlite") as connection:
             filtered = _index_saved(connection, release, include_flagged)
-            counts, sources, valid, rejected = _write_migration(connection, release, staging, manifest, evidence,
+            counts, sources, valid, rejected, detail_counts = _write_migration(connection, release, staging, manifest, evidence,
                 seed=seed, max_scenes=max_scenes, front_policy=front_policy, workers=workers)
             if max_scenes is None and connection.execute("SELECT COUNT(*) FROM selected WHERE seen!=1").fetchone()[0]:
                 raise ValueError("frozen selected UID missing or repeated in source IR")
@@ -162,8 +168,13 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
             raise ValueError("no selected samples eligible for migration")
         result = {"schema_version": "fastfill.v2", "builder": "selected-v3.2-bridge", "release_root": str(release),
                   "split_rule": "inherit frozen selected UID assignment; dev renamed validation; no re-split", "seed": seed,
-                  "front_policy": front_policy, "workers": workers, "bounded_submission_jobs": 128, "bounded_build": max_scenes is not None, "samples_written": sum(counts.values()),
+                  "front_policy": front_policy, "yaw_policy": YAW_POLICY[front_policy],
+                  "workers": workers, "bounded_submission_jobs": 128, "bounded_build": max_scenes is not None, "samples_written": sum(counts.values()),
                   "split_samples": dict(counts), "source_split_samples": dict(sources), "valid_label_counts": dict(valid),
+                  "source_yaw_valid_objects": {k.split(":")[0]: v for k, v in detail_counts.items() if k.endswith(":yaw_valid")},
+                  "source_yaw_symmetry_order_counts": {k.replace(":symmetry_order_", ":"): v for k, v in detail_counts.items() if ":symmetry_order_" in k},
+                  "exchangeable_group_counts": {k: detail_counts[k] for k in ("exchangeable_groups", "exchangeable_members")},
+                  "descriptions": "source_desc_or_category",
                   "legacy_train_flag_filter": [] if include_flagged else list(DEFAULT_REJECT_FLAGS),
                   "legacy_train_filtered_by_source": dict(filtered), "v2_rejections": dict(rejected),
                   "selected_sources": manifest["args"]["sources"], "source_hashes": inputs,
@@ -185,7 +196,7 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--max-scenes", type=int)
-    parser.add_argument("--front-policy", choices=("strict", "legacy-convention"), default="strict")
+    parser.add_argument("--front-policy", choices=FRONT_POLICIES, default="axis")
     parser.add_argument("--include-flagged", action="store_true")
     parser.add_argument("--workers", type=int, default=1)
     result = build_selected_dataset(**vars(parser.parse_args(argv)))

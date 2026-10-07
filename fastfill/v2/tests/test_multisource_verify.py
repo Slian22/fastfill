@@ -298,15 +298,21 @@ def test_full_condition_partial_geometry_removes_entire_exchange_group():
     for i in (0, 1):
         changes.append({"object_id": f"obj_{i:04d}", "target_source_id": f"raw_{i}", "field": "position",
             "before": [True] * 3, "after": [False] * 3, "reason": "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"})
+    # A pre-C1 parent carries the group inside condition objects; the derived row never does.
     for i in (0, 1):
         derived["condition"]["objects"][i].pop("exchangeable_group")
         changes.append({"object_id": f"obj_{i:04d}", "target_source_id": f"raw_{i}", "field": "exchangeable_group",
-            "before": "chairs", "after": None, "reason": "mask_review_removed_complete_geometry_exchangeability"})
+            "before": "chairs", "after": None, "reason": "mask_review_removed_complete_position_exchangeability"})
+    derived["validity"]["exchangeable_group"] = [None, None]
     derived["provenance"].update(dataset_qualification_policy="full-condition-mask-review-v1", qualification_changes=changes,
         estimated_floor_provenance={"floor_source": "estimated", "parent_floor_known": True, "parent_floor_z_m": 0.,
             "source_meta_floor_z": None, "source_meta_n_floor_snapped": None, "per_object_pre_snap_z": "unavailable_in_frozen_IR",
             "per_object_snap_membership": "unknown_do_not_infer_from_zero_z"})
     assert verify_full_pair(parent, derived, "train")["exchangeable_members_demoted"] == 2
+    derived["validity"]["exchangeable_group"] = [None, "chairs"]
+    with pytest.raises(ValueError, match="validity"):
+        verify_full_pair(parent, derived, "train")
+    derived["validity"]["exchangeable_group"] = [None, None]
     derived["condition"]["objects"][1]["exchangeable_group"] = "chairs"
     with pytest.raises(ValueError, match="condition"):
         verify_full_pair(parent, derived, "train")

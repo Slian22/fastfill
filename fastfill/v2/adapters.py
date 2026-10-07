@@ -123,16 +123,17 @@ def multiscan_sample(region, rows, scan):
         raise ValueError("scene has no eligible requested objects")
     # Requests contain anonymous categories/descriptions only: no relation,
     # support, capability, or size role distinguishes repeated instances.
+    # Groups are supervision bookkeeping (validity, target order), never condition text.
     category_count = Counter(request["category"] for request in requests)
-    requests = [{**request, **({"exchangeable_group": f"anonymous_{request['category']}"}
-                 if category_count[request["category"]] > 1 else {})} for request in requests]
+    groups = [f"anonymous_{request['category']}" if category_count[request["category"]] > 1 else None
+              for request in requests]
     n = len(requests)
     return {"schema_version": "fastfill.v2",
             "condition": {"schema_version": "fastfill.v2", "room": {**room, "fixed_objects": fixed},
                           "objects": requests, "constraints": []},
             "target": {"schema_version": "fastfill.v2", "objects": targets},
             "validity": {"position": [[True] * 3 for _ in range(n)], "size": [[True] * 3 for _ in range(n)],
-                         "yaw": [True] * n, "yaw_symmetry_order": [1] * n},
+                         "yaw": [True] * n, "yaw_symmetry_order": [1] * n, "exchangeable_group": groups},
             "provenance": {"source": "MultiScan", "scene_id": region["scan_id"],
                            "house_id": scan["scene_id"], "source_object_ids": source_ids,
                            "source_frame": "scan_local_Z_up_meters", "geometry_evidence":

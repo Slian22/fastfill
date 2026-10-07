@@ -35,6 +35,17 @@ def assert_failed(report, text):
     assert any(text in error["message"] for error in report["errors"]), report["errors"]
 
 
+def add_detail_counts(manifest, sample, sign):
+    """Add (+1) or remove (-1) one sample's yaw / symmetry / group contributions to the recomputed manifest keys."""
+    source, validity = sample["provenance"]["source"], sample["validity"]
+    manifest["source_yaw_valid_objects"][source] += sign * sum(map(bool, validity["yaw"]))
+    for order in validity["yaw_symmetry_order"]:
+        manifest["source_yaw_symmetry_order_counts"][f"{source}:{order}"] += sign
+    groups = [g for g in validity["exchangeable_group"] if g is not None]
+    manifest["exchangeable_group_counts"]["exchangeable_groups"] += sign * len(set(groups))
+    manifest["exchangeable_group_counts"]["exchangeable_members"] += sign * len(groups)
+
+
 def test_complete_corpus_counts_and_saved_filter_are_recomputed(tmp_path):
     output, _, _ = corpus(tmp_path)
     report = verify_selected_dataset(output)
@@ -148,6 +159,7 @@ def test_explicit_rejection_completes_selected_uid_accounting(tmp_path):
     manifest["source_split_samples"].pop("SpatialLM:test")
     for field in ("targets", "position", "size", "yaw", "full_geometry"):
         manifest["valid_label_counts"][field] -= 2
+    add_detail_counts(manifest, sample, -1)
     manifest["v2_rejections"] = {"fixture audited exclusion": 1}
     path.write_text(json.dumps(manifest))
     report = verify_selected_dataset(output)
@@ -201,19 +213,21 @@ def test_hashes_and_manifest_counts_are_independently_checked(tmp_path, kind):
 
 def test_masked_geometry_counts_text_subset_and_constraint_evidence(tmp_path):
     output, _, _ = corpus(tmp_path)
+    path = output / "manifest.json"
+    manifest = json.loads(path.read_text())
     def change(row):
+        add_detail_counts(manifest, row, -1)
         row["validity"]["yaw"][0] = False
-        row["condition"]["objects"] = [{k: v for k, v in obj.items() if k != "exchangeable_group"}
-                                        for obj in row["condition"]["objects"]]
+        # Groups live in validity; the near constraint below would break their certification.
+        row["validity"]["exchangeable_group"] = [None] * len(row["target"]["objects"])
         row["condition"]["constraints"] = [{"type": "near", "object_id": "obj_0000",
                                                "target_id": "obj_0001", "max_distance_m": 3.}]
         row["provenance"]["omitted_legacy_constraints"] = [
             {"legacy_constraint": ["on", "chair_1", "chair_2"], "reason": "inferred"}]
         row["provenance"]["source_meta"]["v2_evidence"] = {
             "opening_width_corrections": 2, "front_unknown_objects": 1}
+        add_detail_counts(manifest, row, 1)
     mutate_sample(output, "train", change)
-    path = output / "manifest.json"
-    manifest = json.loads(path.read_text())
     manifest["valid_label_counts"]["yaw"] -= 1
     manifest["valid_label_counts"]["full_geometry"] -= 1
     path.write_text(json.dumps(manifest))

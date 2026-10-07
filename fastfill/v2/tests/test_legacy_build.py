@@ -209,7 +209,7 @@ def test_data_cli_defaults_to_frozen_selected_release_not_raw_multiscan(tmp_path
             redirect_stdout(stdout):
         main(["--output", str(output)])
     selected.assert_called_once_with(DEFAULT_RELEASE, output, evidence_root=DEFAULT_EVIDENCE,
-                                     seed=42, max_scenes=None, front_policy="strict", include_flagged=False, workers=1)
+                                     seed=42, max_scenes=None, front_policy="axis", include_flagged=False, workers=1)
     assert json.loads(stdout.getvalue()) == result
 
 

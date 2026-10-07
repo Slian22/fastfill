@@ -8,8 +8,14 @@ import subprocess
 
 import torch
 
+from fastfill.v2.schema import migrate_legacy_row
 
 SOURCE_ROOT = Path("/Volumes/harddisk/3D_Room_Collections")
+# RoomGenBench benchmark rooms (SAGE layouts) never train; qualification writes them to test
+# and every training-data reader refuses them. multisource_verify keeps an independent copy.
+ROOMGENBENCH_HOLDOUT_GROUPS = ("sage:layout_61ebde9f", "sage:layout_6b049b06", "sage:layout_fef15043",
+                               "sage:layout_60ee2ae3", "sage:layout_46cdcce3")
+HOLDOUT_REASON = "roomgenbench_benchmark_room"
 
 
 def safe_output(path, *, create=False):
@@ -25,6 +31,7 @@ def safe_output(path, *, create=False):
 
 
 def read_samples(path, *, training=False, max_samples=None):
+    """Read audited v2 rows; pre-C1 rows get their exchangeable groups migrated into validity once, here."""
     if max_samples is not None and (isinstance(max_samples, bool) or not isinstance(max_samples, int) or max_samples < 1):
         raise ValueError("max_samples must be a positive integer")
     path = Path(path)
@@ -42,7 +49,9 @@ def read_samples(path, *, training=False, max_samples=None):
             raise ValueError("audited v2 sample with provenance is required")
         if training and row["provenance"].get("split") != "train":
             raise ValueError("training accepts only explicitly marked training-split rows")
-    return rows
+        if training and (row["provenance"].get("group") in ROOMGENBENCH_HOLDOUT_GROUPS or row["provenance"].get("holdout_reason")):
+            raise ValueError("RoomGenBench benchmark room in training data; build training data through qualification")
+    return [migrate_legacy_row(row) for row in rows]
 
 
 def ensure_disjoint(train, holdout):

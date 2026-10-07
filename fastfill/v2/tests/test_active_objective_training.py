@@ -17,7 +17,12 @@ def _yaw_config():
         "decoder_layers": 1, "tiny_hidden_size": 16, "lora_rank": 0},
         "loss": {"position": 0., "size": 0., "yaw_cls": 1., "yaw_reg": 1., "hungarian": False},
         "training": {"cpu": True, "steps": 1, "batch_size": 1, "learning_rate": .01,
-            "max_length": 4096, "checkpoint_every": 0, "validate_every": 0, "cpu_threads": 1}}
+            "max_length": 4096, "checkpoint_every": 0, "validate_every": 0, "cpu_threads": 1},
+        "augmentation": NO_AUGMENTATION}
+
+
+NO_AUGMENTATION = {"rotate90": False, "mirror": False, "shuffle_objects": False,
+                   "drop_constraints_p": 0., "drop_support_p": 0., "category_only_description_p": 0.}
 
 
 def _row(identity, yaw=True):

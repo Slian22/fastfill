@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -186,8 +187,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--local-files-only", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="one offline optimizer step; requires explicit tiny backend")
     args = parser.parse_args(argv)
-    if args.steps < 1 or args.batch_size < 1 or args.lr <= 0:
-        parser.error("steps, batch size and learning rate must be positive")
+    if args.steps < 1 or args.batch_size < 1 or not math.isfinite(args.lr) or args.lr <= 0:
+        parser.error("steps, batch size and learning rate must be positive and finite")
     if args.dry_run and args.backbone != "tiny":
         parser.error("offline dry-run requires --backbone tiny")
     output = safe_output(args.output)

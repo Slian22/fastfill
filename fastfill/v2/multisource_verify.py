@@ -17,6 +17,13 @@ from pathlib import Path
 
 SPLITS = ("train", "validation", "test")
 UNKNOWN = {"", "misc", "other", "other room", "unknown", "undefined", "none"}
+FULL_CONDITION_POLICY = "full-condition-mask-review-v1"
+FULL_CONDITION_YAW_POLICY = "inherit parent yaw validity and yaw_symmetry_order; no geometric promotion"
+ROOMGENBENCH_HOLDOUT_GROUPS = ("sage:layout_61ebde9f", "sage:layout_6b049b06", "sage:layout_fef15043",
+                               "sage:layout_60ee2ae3", "sage:layout_46cdcce3")
+HOLDOUT_REASON = "roomgenbench_benchmark_room"
+DEGENERATE_AXIS_M = .003
+HEIGHT_TOLERANCE_M = .05
 SEALED_IR_SHA256 = {
     "HSSD200.jsonl": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
     "IL3D_3dfront.jsonl": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
@@ -85,7 +92,54 @@ def _validate_parent(parent):
         value = obj.get("yaw_rad")
         if value is not None and not _finite(value) or flag and not _finite(value):
             raise ValueError("parent validity yaw invalid target")
+    if "yaw_symmetry_order" in masks and (len(masks["yaw_symmetry_order"]) != n
+            or any(type(v) is not int or v < 1 for v in masks["yaw_symmetry_order"])):
+        raise ValueError("parent validity yaw_symmetry_order length/type")
+    if "exchangeable_group" in masks and (len(masks["exchangeable_group"]) != n
+            or any(v is not None and (type(v) is not str or not v) for v in masks["exchangeable_group"])):
+        raise ValueError("parent validity exchangeable_group length/type")
     _require([o["id"] for o in parent["condition"]["objects"]], [o["id"] for o in targets], "parent request ID order")
+
+
+def _migrated(parent):
+    """Pre-C1 parents carried exchangeable_group inside condition objects; read it as validity."""
+    objects = parent["condition"]["objects"]
+    if not any("exchangeable_group" in o for o in objects):
+        return parent
+    if "exchangeable_group" in parent["validity"]:
+        raise ValueError("parent declares exchangeable_group in both condition objects and validity")
+    groups = {o["id"]: o.get("exchangeable_group") for o in objects}
+    return {**parent, "condition": {**parent["condition"], "objects": [
+                {k: v for k, v in o.items() if k != "exchangeable_group"} for o in objects]},
+            "validity": {**parent["validity"], "exchangeable_group": [groups.get(t["id"]) for t in parent["target"]["objects"]]}}
+
+
+def _holdout(provenance, split, holdout_groups):
+    if split == "test" or provenance.get("group") not in holdout_groups:
+        return provenance, None
+    return ({**provenance, "split": "test", "holdout_reason": HOLDOUT_REASON},
+            {"field": "provenance.split", "before": split, "after": "test", "reason": HOLDOUT_REASON})
+
+
+def _qualified_masks(parent, size_reference, size_log_limit):
+    """Recompute D1/D2 and degenerate-axis mask demotions with their journal entries, in protocol order."""
+    p, masks, changes = parent["provenance"], deepcopy(parent["validity"]), []
+    for i, obj in enumerate(parent["target"]["objects"]):
+        base = {"object_id": obj["id"], "target_source_id": p["target_source_ids"][i]}
+        if p["source"] == "Scan2CAD" and any(masks["position"][i]):
+            changes.append({**base, "field": "position", "before": masks["position"][i], "after": [False] * 3,
+                            "reason": "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"})
+            masks["position"][i] = [False] * 3
+        size = obj["target_size_local_m"]
+        for reason, degenerate in (("outside_configured_size_head_range", any(
+                    flag and not ref * math.exp(-size_log_limit) <= v <= ref * math.exp(size_log_limit)
+                    for flag, v, ref in zip(masks["size"][i], size, size_reference))),
+                ("degenerate_axis_lt_3mm", any(_finite(v) and v < DEGENERATE_AXIS_M for v in size))):
+            if any(masks["size"][i]) and degenerate:
+                changes.append({**base, "field": "size", "before": masks["size"][i], "after": [False] * 3,
+                                "value_m": size, "reason": reason})
+                masks["size"][i] = [False] * 3
+    return masks, changes
 
 
 def _sha256(path):
@@ -130,7 +184,7 @@ def _expected_condition(parent):
         raise ValueError("parent reference extent degenerate")
     room_type = room.get("room_type")
     room_type = "unknown" if not isinstance(room_type, str) or room_type.strip().lower() in UNKNOWN else room_type
-    objects = [{"id": obj["id"], "category": obj["category"], "description": obj["category"]}
+    objects = [{"id": obj["id"], "category": obj["category"], "description": obj["description"]}
                for obj in parent["condition"]["objects"]]
     w, d = dimensions
     condition = {"schema_version": "fastfill.v2", "room": {
@@ -202,14 +256,17 @@ def _spatiallm_qualification(parent, source_room):
     return qualified
 
 
-def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1., 1., 1.), size_log_limit=10.):
+def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1., 1., 1.), size_log_limit=10.,
+                holdout_groups=ROOMGENBENCH_HOLDOUT_GROUPS):
     """Fail loudly for one row; preserve invalid/null numbers and all identities."""
-    provenance, actual = parent["provenance"], derived["provenance"]
     _validate_parent(parent)
+    parent = _migrated(parent)
+    provenance, actual = parent["provenance"], derived["provenance"]
     _require(parent["schema_version"], "fastfill.v2", "parent schema")
     _require(derived["schema_version"], "fastfill.v2", "derived schema")
     _require(provenance["split"], split, "parent split")
-    for key, value in provenance.items():
+    expected_provenance, moved = _holdout(provenance, split, holdout_groups)
+    for key, value in expected_provenance.items():
         _require(actual.get(key), value, "provenance " + key)
     if provenance["source"] in {"SceneSmith", "SpatialGen"} and split != "test":
         raise ValueError("evaluation_only source in training")
@@ -232,16 +289,15 @@ def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1.,
         raise ValueError("source_geometry evidence length mismatch")
     if source_room is not None:
         _check_source(parent, source_room)
-    masks = deepcopy(parent["validity"])
+    masks, changes = _qualified_masks(parent, size_reference, size_log_limit)
     qualifications = _spatiallm_qualification(parent, source_room) if provenance["source"] == "SpatialLM" else [False] * n
-    if provenance["source"] == "Scan2CAD":
-        masks["position"] = [[False] * 3 for _ in range(n)]
+    # The recorded protocol qualifies all D1/D2 masks before geometric yaw; both passes keep their exact order.
     for i, obj in enumerate(parent["target"]["objects"]):
-        if any(flag and (not _finite(v) or not ref * math.exp(-size_log_limit) <= v <= ref * math.exp(size_log_limit))
-                for flag, v, ref in zip(masks["size"][i], obj["target_size_local_m"], size_reference)):
-            masks["size"][i] = [False] * 3
-        if qualifications[i]:
+        if qualifications[i] and not masks["yaw"][i]:
             masks["yaw"][i] = True
+            changes.append({"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i],
+                "field": "yaw", "before": False, "after": True,
+                "reason": "pinned_SpatialLM_full_local_extents_and_geometric_yaw"})
     masks["yaw_symmetry_order"] = [2] * n
     _require(derived["validity"], masks, "validity")
     _require(actual.get("geometric_yaw_qualified"), qualifications, "geometric_yaw_qualified")
@@ -252,26 +308,10 @@ def verify_pair(parent, derived, split, source_room=None, *, size_reference=(1.,
         "parent_floor_known": parent["condition"]["room"].get("floor_known"), "parent_floor_z_m": floor,
         "upstream_z_snap_possible": estimated,
         "per_object_pre_snap_z": "unavailable_in_frozen_IR" if estimated else "not_inferred"}, "source_floor_evidence")
-    changes = []
-    # The recorded protocol qualifies all D1/D2 masks before geometric yaw.
-    # Recompute both passes independently while preserving their exact order.
-    for i, obj in enumerate(parent["target"]["objects"]):
-        base = {"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i]}
-        for field, reason in (("position", "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"),
-                ("size", "outside_configured_size_head_range")):
-            old, new = parent["validity"][field][i], masks[field][i]
-            if not _equal(old, new):
-                change = {**base, "field": field, "before": old, "after": new, "reason": reason}
-                changes.append({**change, "value_m": obj["target_size_local_m"]} if field == "size" else change)
-    for i, obj in enumerate(parent["target"]["objects"]):
-        old, new = parent["validity"]["yaw"][i], masks["yaw"][i]
-        if not _equal(old, new):
-            changes.append({"object_id": obj["id"], "target_source_id": provenance["target_source_ids"][i],
-                "field": "yaw", "before": old, "after": new,
-                "reason": "pinned_SpatialLM_full_local_extents_and_geometric_yaw"})
     if any(origin):
         changes.append({"field": "bottom_center_m", "operation": "common_input_reference_translation",
             "offset_m": [-v for v in origin], "reason": "structural_input_extent_and_explicit_floor_reference"})
+    changes += [moved] if moved else []
     _require(actual.get("qualification_changes"), changes, "qualification_changes")
     for key, expected in (("condition_projection", "room_type_reference_extent_furniture_only-v1"),
             ("room_dimension_mode", "xy"), ("room_size_semantics", "reference_extent"),
@@ -318,56 +358,53 @@ def _source_row(ir, index, uid):
         return _loads(stream.readline())
 
 
-def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), size_log_limit=10.):
-    """Verify the primary full-condition view; only D1/D2 qualification may change."""
-    p, actual = parent["provenance"], derived["provenance"]
+def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), size_log_limit=10.,
+                     holdout_groups=ROOMGENBENCH_HOLDOUT_GROUPS):
+    """Verify the primary full-condition view; only mask/room qualification and the benchmark holdout may change."""
     _validate_parent(parent)
+    parent = _migrated(parent)
+    p, actual = parent["provenance"], derived["provenance"]
     _require(parent["schema_version"], "fastfill.v2", "parent schema")
     _require(derived["schema_version"], "fastfill.v2", "derived schema")
     _require(p["split"], split, "parent split")
-    for key, value in p.items():
+    expected_provenance, moved = _holdout(p, split, holdout_groups)
+    for key, value in expected_provenance.items():
         _require(actual.get(key), value, "provenance " + key)
     if p["source"] in {"SceneSmith", "SpatialGen"} and split != "test":
         raise ValueError("evaluation_only source in training")
-    condition, masks, changes = deepcopy(parent["condition"]), deepcopy(parent["validity"]), []
+    condition = deepcopy(parent["condition"])
     targets = parent["target"]["objects"]
     n = len(targets)
     if len(p["target_source_ids"]) != n or len(set(p["target_source_ids"])) != n:
         raise ValueError("target_source_ids missing or duplicate")
+    masks, changes = _qualified_masks(parent, size_reference, size_log_limit)
     if p["source"] == "Scan2CAD":
         condition["room"]["floor_known"] = False
-        changes.append({"field": "room.floor_known", "before": parent["condition"]["room"].get("floor_known"),
+        changes.insert(0, {"field": "room.floor_known", "before": parent["condition"]["room"].get("floor_known"),
             "after": False, "reason": "Scan2CAD_floor_is_estimated_not_independent_physical_measurement"})
-    for i, obj in enumerate(targets):
-        if p["source"] == "Scan2CAD":
-            masks["position"][i] = [False] * 3
-        if any(flag and not ref * math.exp(-size_log_limit) <= value <= ref * math.exp(size_log_limit)
-                for flag, value, ref in zip(masks["size"][i], obj["target_size_local_m"], size_reference)):
-            masks["size"][i] = [False] * 3
-        for field, reason in (("position", "Scan2CAD_estimated_floor_and_upstream_snap_uncertainty"),
-                             ("size", "outside_configured_size_head_range")):
-            old, new = parent["validity"][field][i], masks[field][i]
-            if not _equal(old, new):
-                change = {"object_id": obj["id"], "target_source_id": p["target_source_ids"][i],
-                    "field": field, "before": old, "after": new, "reason": reason}
-                changes.append({**change, "value_m": obj["target_size_local_m"]} if field == "size" else change)
-    bad_groups = {request.get("exchangeable_group") for i, request in enumerate(parent["condition"]["objects"])
-                  if request.get("exchangeable_group") and (not all(masks["position"][i]) or not all(masks["size"][i]))}
+    height = condition["room"].get("height_m")
+    if height is not None and any(all(masks["size"][i]) and all(masks["position"][i])
+                                  and obj["bottom_center_m"][2] + obj["target_size_local_m"][2] > height + HEIGHT_TOLERANCE_M + 1e-6
+                                  for i, obj in enumerate(targets)):
+        condition["room"]["height_m"] = None
+        changes.append({"field": "room.height_m", "before": height, "after": None, "reason": "target_exceeds_declared_height"})
+    groups = masks.get("exchangeable_group", [])
+    bad_groups = {g for i, g in enumerate(groups) if g is not None and not all(masks["position"][i])}
     members_removed = 0
-    for i, request in enumerate(parent["condition"]["objects"]):
-        group = request.get("exchangeable_group")
+    for i, group in enumerate(groups):
         if group in bad_groups:
-            condition["objects"][i].pop("exchangeable_group")
-            changes.append({"object_id": request["id"], "target_source_id": p["target_source_ids"][i],
+            masks["exchangeable_group"][i] = None
+            changes.append({"object_id": targets[i]["id"], "target_source_id": p["target_source_ids"][i],
                 "field": "exchangeable_group", "before": group, "after": None,
-                "reason": "mask_review_removed_complete_geometry_exchangeability"})
+                "reason": "mask_review_removed_complete_position_exchangeability"})
             members_removed += 1
+    changes += [moved] if moved else []
     _require(derived["condition"], condition, "condition")
     _require(derived["target"], parent["target"], "target")
     _require(derived["validity"], masks, "validity")
-    _require(actual.get("dataset_qualification_policy"), "full-condition-mask-review-v1", "dataset_qualification_policy")
+    _require(actual.get("dataset_qualification_policy"), FULL_CONDITION_POLICY, "dataset_qualification_policy")
     _require(actual.get("qualification_changes"), changes, "qualification_changes")
-    added = {"dataset_qualification_policy", "qualification_changes"}
+    added = {"dataset_qualification_policy", "qualification_changes"} | ({"holdout_reason"} if moved else set())
     if p["source"] == "Scan2CAD":
         added.add("estimated_floor_provenance")
         meta = p.get("source_meta", {})
@@ -401,17 +438,46 @@ def _output_path(output, roots):
     return target
 
 
-def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_sha256=None, full_condition=False):
+def _row_pairs(parent, data, holdout_groups):
+    """Pair parent rows with derived rows per split; holdout rows from train/validation pair with the tail of derived test."""
+    derived = {split: _rows(data / (split + ".jsonl")) for split in SPLITS}
+    deferred, line = [], 0
+    for split in SPLITS:
+        line = 0
+        for line, old in enumerate(_rows(parent / (split + ".jsonl")), 1):
+            if split != "test" and old["provenance"].get("group") in holdout_groups:
+                deferred.append((split, line, old))
+            else:
+                yield split, line, split, old, next(derived[split], None)
+        if split != "test":
+            for new in derived[split]:
+                yield split, line + 1, split, None, new
+    for split, number, old in deferred:
+        yield split, number, "test", old, next(derived["test"], None)
+    for new in derived["test"]:
+        yield "test", line + 1, "test", None, new
+
+
+def parent_pins(parent_manifest):
+    """Parent pins in PARENT_SHA256 shape, from a reviewed parent's manifest.json (its output hashes plus its own hash)."""
+    path = Path(parent_manifest)
+    return {**_loads(path.read_text())["output_sha256"], "manifest.json": _sha256(path)}
+
+
+def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_sha256=None, full_condition=False,
+                   holdout_groups=ROOMGENBENCH_HOLDOUT_GROUPS, expected_parent_sha256=None):
     """Verify every inherited row and file hash, returning a machine-readable report."""
     parent, data, ir = [Path(p).resolve() for p in (parent_root, data_root, ir_root)]
     destination = _output_path(output, (parent, data, ir)) if output is not None else None
     seals = SEALED_IR_SHA256 if expected_ir_sha256 is None else expected_ir_sha256
     manifest = _loads((data / "manifest.json").read_text())
     if full_condition:
-        _require(manifest.get("dataset_qualification_policy"), "full-condition-mask-review-v1", "manifest full-condition policy")
+        _require(manifest.get("dataset_qualification_policy"), FULL_CONDITION_POLICY, "manifest full-condition policy")
         if expected_ir_sha256 is None:
             _require(manifest.get("task_role"), "full_condition_multisource_main", "manifest task_role")
-            _require(manifest.get("yaw_policy"), "inherit strict parent semantic-front validity; no geometric promotion", "manifest yaw_policy")
+            _require(manifest.get("yaw_policy"), FULL_CONDITION_YAW_POLICY, "manifest yaw_policy")
+    if expected_ir_sha256 is None or "roomgenbench_holdout_groups" in manifest:
+        _require(manifest.get("roomgenbench_holdout_groups"), sorted(holdout_groups), "manifest roomgenbench_holdout_groups")
     paths = [parent / (s + ".jsonl") for s in SPLITS] + [parent / "manifest.json", data / "manifest.json"]
     if expected_ir_sha256 is None or (parent / "rejections.jsonl").exists():
         paths.append(parent / "rejections.jsonl")
@@ -422,7 +488,8 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
     paths += [Path(name) for name in implementation if Path(name) not in paths]
     paths.append(Path(__file__).resolve())
     before = {str(path): _sha256(path) for path in paths}
-    errors, examples, counts, split_counts, source_counts = Counter(), [], Counter(), {}, {}
+    errors, examples, counts, source_counts = Counter(), [], Counter(), {}
+    split_counts = {split: Counter() for split in SPLITS}
 
     def fail(kind, where, detail):
         errors[kind] += 1
@@ -434,9 +501,10 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
             if before[str(root / name)] != expected:
                 fail(kind, name, "SHA256 differs")
     if expected_ir_sha256 is None:
-        for name, expected in PARENT_SHA256.items():
+        pins = PARENT_SHA256 if expected_parent_sha256 is None else expected_parent_sha256
+        for name, expected in pins.items():
             if before[str(parent / name)] != expected:
-                fail("parent_frozen_hash", name, "parent differs from audited review3")
+                fail("parent_frozen_hash", name, "parent differs from the pinned reviewed parent")
     for name, expected in manifest.get("input_sha256", {}).items():
         if before[name] != expected:
             fail("input_hash", name, "declared input hash differs")
@@ -458,60 +526,62 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
     identities = {"parent": set(), "derived": set()}
     groups = {"parent": {}, "derived": {}}
     summaries = {name: Counter() for name in ("qualification_change_counts", "constraint_counts",
-                 "fixed_objects_by_split", "supervised_yaw_scenes_by_split")}
+                 "fixed_objects_by_split", "supervised_yaw_scenes_by_split", "source_yaw_symmetry_order_counts",
+                 "holdout_samples_by_parent_split")}
     journal = _rows(data / "changes.jsonl") if "changes.jsonl" in manifest["output_sha256"] else None
     journal_checked = 0
     if journal is None and expected_ir_sha256 is None:
         fail("missing_journal", "changes.jsonl", "required per-record audit trail missing")
-    for split in SPLITS:
-        stats = Counter()
-        for number, rows in enumerate(zip_longest(_rows(parent / (split + ".jsonl")), _rows(data / (split + ".jsonl"))), 1):
-            old, new = rows
-            where = f"{split}:{number}"
-            if old is None or new is None:
-                fail("missing_row", where, "parent/derived row counts differ")
-                continue
-            for label, row in (("parent", old), ("derived", new)):
-                p = row["provenance"]
-                uid = p.get("scene_id")
-                if not uid or uid in identities[label]:
-                    fail("duplicate_uid", where, label + ": " + str(uid))
-                identities[label].add(uid)
-                for group in {p.get("house_id"), p.get("group")}:
-                    if not group or group in groups[label] and groups[label][group] != split:
-                        fail("group_cross_split", where, label + ": " + str(group))
-                    groups[label][group] = split
-            try:
-                checked = verify_full_pair(old, new, split, size_reference=reference, size_log_limit=limit) if full_condition else (
-                    verify_pair(old, new, split, _source_row(ir, source_index, old["provenance"]["scene_id"]),
-                                size_reference=reference, size_log_limit=limit))
-                stats.update(checked)
-                stats["samples"] += 1
-                key = old["provenance"]["source"] + ":" + split
-                source_counts[key] = source_counts.get(key, Counter()) + Counter({**checked, "samples": 1})
-                if full_condition:
-                    summaries["fixed_objects_by_split"][split] += len(new["condition"]["room"].get("fixed_objects", []))
-                    summaries["supervised_yaw_scenes_by_split"][split] += any(new["validity"]["yaw"])
-                    for constraint in new["condition"].get("constraints", []):
-                        summaries["constraint_counts"][constraint["type"] + ":" + split] += 1
-                    for change in new["provenance"]["qualification_changes"]:
-                        summaries["qualification_change_counts"][change["field"]] += 1
-                if journal is not None:
-                    for change in new["provenance"]["qualification_changes"]:
-                        _require(next(journal, None), {"uid": old["provenance"]["scene_id"],
-                            "source": old["provenance"]["source"], "split": split, "parent_line": number, **change}, "changes journal")
-                        journal_checked += 1
-            except (ValueError, KeyError, TypeError, IndexError) as error:
-                fail("row_mismatch", where, error)
-        split_counts[split] = dict(stats)
+    for parent_split, number, split, old, new in _row_pairs(parent, data, holdout_groups):
+        where = f"{parent_split}:{number}"
+        if old is None or new is None:
+            fail("missing_row", where, "parent/derived row counts differ")
+            continue
+        for label, row, row_split in (("parent", old, parent_split), ("derived", new, split)):
+            p = row["provenance"]
+            uid = p.get("scene_id")
+            if not uid or uid in identities[label]:
+                fail("duplicate_uid", where, label + ": " + str(uid))
+            identities[label].add(uid)
+            for group in {p.get("house_id"), p.get("group")}:
+                if not group or group in groups[label] and groups[label][group] != row_split:
+                    fail("group_cross_split", where, label + ": " + str(group))
+                groups[label][group] = row_split
+        try:
+            checked = verify_full_pair(old, new, parent_split, size_reference=reference, size_log_limit=limit, holdout_groups=holdout_groups) if full_condition else (
+                verify_pair(old, new, parent_split, _source_row(ir, source_index, old["provenance"]["scene_id"]),
+                            size_reference=reference, size_log_limit=limit, holdout_groups=holdout_groups))
+            split_counts[split].update(checked)
+            split_counts[split]["samples"] += 1
+            key = old["provenance"]["source"] + ":" + split
+            source_counts[key] = source_counts.get(key, Counter()) + Counter({**checked, "samples": 1})
+            if full_condition:
+                summaries["fixed_objects_by_split"][split] += len(new["condition"]["room"].get("fixed_objects", []))
+                summaries["supervised_yaw_scenes_by_split"][split] += any(new["validity"]["yaw"])
+                summaries["holdout_samples_by_parent_split"][parent_split] += split != parent_split
+                for order in new["validity"].get("yaw_symmetry_order", []):
+                    summaries["source_yaw_symmetry_order_counts"][old["provenance"]["source"] + ":" + str(order)] += 1
+                for constraint in new["condition"].get("constraints", []):
+                    summaries["constraint_counts"][constraint["type"] + ":" + split] += 1
+                for change in new["provenance"]["qualification_changes"]:
+                    summaries["qualification_change_counts"][change["field"]] += 1
+            if journal is not None:
+                for change in new["provenance"]["qualification_changes"]:
+                    _require(next(journal, None), {"uid": old["provenance"]["scene_id"],
+                        "source": old["provenance"]["source"], "split": parent_split, "parent_line": number, **change}, "changes journal")
+                    journal_checked += 1
+        except (ValueError, KeyError, TypeError, IndexError) as error:
+            fail("row_mismatch", where, error)
+    split_counts = {split: dict(stats) for split, stats in split_counts.items()}
+    for stats in split_counts.values():
         counts.update(stats)
     if journal is not None and next(journal, None) is not None:
         fail("changes_journal", "changes.jsonl", "unexpected additional entries")
     unchanged = all(_sha256(path) == before[str(path)] for path in paths)
     if not unchanged:
         fail("input_changed", "files", "inputs changed during verification")
-    for key, expected in (("split_samples", {s: v.get("samples", 0) for s, v in split_counts.items()}),
-            ("split_objects", {s: v.get("objects", 0) for s, v in split_counts.items()})):
+    for key, field in (("split_samples", "samples"), ("split_objects", "objects")):
+        expected = {s: v[field] for s, v in split_counts.items() if v.get(field)}
         if manifest.get(key) != expected:
             fail("manifest_counts", key, "recomputed counts differ")
     if full_condition:
@@ -529,6 +599,7 @@ def verify_dataset(parent_root, data_root, ir_root, *, output=None, expected_ir_
         "source_split_counts": {k: dict(v) for k, v in sorted(source_counts.items())},
         "error_counts": dict(errors), "errors_first_100": examples, "files_sha256": before,
         "input_hashes_unchanged": unchanged, "sealed_ir_files_checked": len(seals), "journal_entries_checked": journal_checked,
+        "roomgenbench_holdout_groups": sorted(holdout_groups),
         "scope": "all parent-derived identities, conditions, target numbers, mask/change policy and file/code hashes; no mesh/physics certification"}
     if destination is not None:
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -543,8 +614,14 @@ def main(argv=None):
     for name in ("parent-root", "data-root", "ir-root", "output"):
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--full-condition", action="store_true", help="verify primary full-condition D1/D2 qualification only")
+    parser.add_argument("--holdout-group", action="append", dest="holdout_groups",
+                        help="provenance.group expected in test (repeatable); default: RoomGenBench benchmark rooms")
+    parser.add_argument("--parent-manifest", help="reviewed parent manifest.json whose output hashes replace PARENT_SHA256 pins")
     args = parser.parse_args(argv)
-    report = verify_dataset(args.parent_root, args.data_root, args.ir_root, output=args.output, full_condition=args.full_condition)
+    holdout = ROOMGENBENCH_HOLDOUT_GROUPS if args.holdout_groups is None else tuple(args.holdout_groups)
+    pins = parent_pins(args.parent_manifest) if args.parent_manifest else None
+    report = verify_dataset(args.parent_root, args.data_root, args.ir_root, output=args.output,
+                            full_condition=args.full_condition, holdout_groups=holdout, expected_parent_sha256=pins)
     print(json.dumps({"ok": report["ok"], "counts": report["counts"], "error_counts": report["error_counts"], "output": args.output}))
     return 0 if report["ok"] else 2
 

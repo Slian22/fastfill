@@ -155,7 +155,8 @@ def _logging_worker(rank, rendezvous, result_directory, mode):
             model = _PredictionModel(p)
             if mode == "record":
                 result["loss"].backward()
-                actual = train._record(result, model, 1, 0., accelerator)["loss"]
+                optimizer = torch.optim.SGD([{"params": [model.anchor], "lr": 0., "name": "decoder"}])
+                actual = train._record(train._Window().add(result), model, optimizer, 1, 0., 1, accelerator)["loss"]
             else:
                 actual = train._validation(model, [b], criterion, accelerator)["geometry_objective_mean_of_batches"]
                 assert model.training

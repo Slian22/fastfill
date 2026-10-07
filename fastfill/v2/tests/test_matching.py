@@ -14,7 +14,7 @@ def condition(first_id="a", *, category="chair", description="chair", **fields):
         "room": {"frame": "right_handed_z_up", "floor_polygon_xy_m":
                  [[0, 0], [5, 0], [5, 4], [0, 4]], "floor_z_m": 0., "height_m": 3.},
         "objects": [{"id": ident, "category": category, "description": description,
-                     "exchangeable_group": "g", **deepcopy(fields)} for ident in [first_id, "b"]],
+                     **deepcopy(fields)} for ident in [first_id, "b"]],
         "constraints": [],
     }
 
@@ -113,7 +113,7 @@ def test_category_equal_to_id_receives_detached_hungarian_swap():
     pos = torch.tensor([[[.2, .3, 0.], [.8, .3, 0.]]])
     predictions = {"position_normalized": pos.flip(1).clone().requires_grad_(),
                    "size": torch.ones(1, 2, 3, requires_grad=True)}
-    batch = {"objects": [req["objects"]], "conditions": [req],
+    batch = {"objects": [req["objects"]], "conditions": [req], "exchangeable_group": [["g", "g"]],
              "slot_mask": torch.tensor([[True, True]]),
              "targets": {"position_normalized": pos, "size": torch.ones(1, 2, 3)},
              "validity": {"position": torch.ones(1, 2, 3, dtype=torch.bool),

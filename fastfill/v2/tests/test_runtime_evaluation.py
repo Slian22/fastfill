@@ -82,39 +82,43 @@ class EvaluationRuntimeTests(unittest.TestCase):
         self.assertEqual(report["latency_ms"]["runtime_p50"], 2)
         self.assertEqual(report["latency_ms"]["evaluation_wall_time_p50"], 1000)
 
-    def test_incomplete_exchange_labels_do_not_change_schema_or_skip_runtime(self):
+    def test_size_incomplete_exchange_labels_match_on_position_and_do_not_skip_runtime(self):
+        # Legacy row form: the group label still sits on the condition objects.
         objects = [{"id": ident, "category": "desk", "description": "desk", "support_parent": "floor",
                     "exchangeable_group": "desks"} for ident in ("desk", "other")]
-        preds = [{**layout()["objects"][0], "id": "desk", "bottom_center_m": [1, 2, 0]},
-                 {**layout()["objects"][0], "id": "other", "bottom_center_m": [3, 2, 0]}]
+        preds = [{**layout()["objects"][0], "id": "desk", "bottom_center_m": [3, 2, 0]},
+                 {**layout()["objects"][0], "id": "other", "bottom_center_m": [1, 2, 0]}]
         row = {**sample(), "condition": condition(objects), "target": layout([
-                preds[0], {**preds[1], "target_size_local_m": [None, None, None]}]),
+                {**preds[1], "id": "desk"}, {**preds[0], "id": "other", "target_size_local_m": [None, None, None]}]),
                "validity": {"position": [[True]*3, [True]*3], "size": [[True]*3, [False]*3], "yaw": [True, True]}}
         outcome = evaluate_layout(layout(preds), row, resolver=CatalogResolver((Asset("desk", "desk", (1, 1, .75)),)),
                                   commit_in_memory=True)
         self.assertTrue(outcome["model"]["schema_success"])
-        self.assertEqual(outcome["model"]["reference"]["matching_scope"], "fixed_incomplete_labels")
+        self.assertEqual(outcome["model"]["reference"]["matching_scope"], "exchangeable_groups")
+        self.assertEqual(outcome["model"]["reference"]["position_only_groups"], ["desks"])
+        self.assertEqual(outcome["model"]["reference"]["bottom_center_error_m"]["mean"], 0.)
         self.assertEqual(outcome["model"]["reference"]["log_size_error"]["valid_objects"], 1)
         self.assertTrue(outcome["runtime"]["committed"])
 
-    def test_incomplete_group_does_not_disable_matching_for_other_complete_group(self):
+    def test_position_incomplete_group_does_not_disable_matching_for_other_complete_group(self):
         objects, targets, predictions = [], [], []
         for ident, group, x in (("a", "complete", 1.), ("b", "complete", 3.),
                                 ("c", "incomplete", 1.), ("d", "incomplete", 3.)):
             objects.append({"id": ident, "category": "desk", "description": "desk",
                             "support_parent": "floor", "exchangeable_group": group})
-            targets.append({"id": ident, "target_size_local_m": [1., 1., 1.] if ident != "d" else [None] * 3,
-                            "bottom_center_m": [x, 2., 0.], "yaw_rad": 0.})
+            targets.append({"id": ident, "target_size_local_m": [1., 1., 1.],
+                            "bottom_center_m": [x, 2., 0.] if ident != "d" else [None] * 3, "yaw_rad": 0.})
             predictions.append({"id": ident, "target_size_local_m": [1., 1., 1.],
                                 "bottom_center_m": [4. - x if group == "complete" else x, 2., 0.],
                                 "yaw_rad": 0.})
         row = {**sample(), "condition": condition(objects), "target": layout(targets),
-               "validity": {"position": [[True] * 3] * 4,
-                            "size": [[True] * 3] * 3 + [[False] * 3], "yaw": [False] * 4}}
+               "validity": {"position": [[True] * 3] * 3 + [[False] * 3],
+                            "size": [[True] * 3] * 4, "yaw": [False] * 4}}
         metrics = reference_metrics(layout(predictions), row, include_iou=False)
-        self.assertEqual(metrics["bottom_center_error_m"]["mean"], 0.)
+        self.assertEqual(metrics["bottom_center_error_m"], {"mean": 0., "valid_objects": 3})
         self.assertEqual(metrics["matching_scope"], "exchangeable_complete_groups_fixed_incomplete_groups")
         self.assertEqual(metrics["incomplete_groups"], ["incomplete"])
+        self.assertEqual(metrics["position_only_groups"], [])
 
     def test_required_mesh_validation_is_consistent_in_evaluation(self):
         outcome = evaluate_layout(layout(), sample(), resolver=CatalogResolver((Asset("desk", "desk", (1, 1, .75)),)),

@@ -43,16 +43,36 @@ in the [design audit](../../docs/fastfill-v2-design-audit-20261006.md).
 |---|---|
 | `schema.py`, `geometry.py`, `batch.py` | Strict finite-number/ID protocol, condition-only normalization/token spans, masks, fixed geometry, complete-sample budget rejection |
 | `model.py` | Qwen-family condition backbone (LoRA/full/frozen), request-bound slots, bidirectional self-attention + cross-attention, positive exponential size, position, yaw logits/residuals, checkpoints |
-| `matching.py`, `losses.py` | Fixed identity or explicitly certified within-group Hungarian, detached assignment, differentiable original tensors, complete-field masks, symmetry-aware paired yaw loss, global counts |
+| `matching.py`, `losses.py` | Fixed identity or explicitly certified within-group Hungarian (groups from `validity.exchangeable_group`), detached assignment, differentiable original tensors, complete-field masks, L1 / smooth-L1 selectable position and size terms, symmetry-aware paired yaw loss, per-term sums and counts for window logging |
 | `boxes.py`, `regularizers.py` | Optional BEV oriented convex-hull GIoU, normalized collision-volume and convex-room boundary losses; no implicit 3D GIoU |
 | `audit.py`, `adapters.py`, `data.py`, `legacy_build.py`, `legacy_bridge.py`, `legacy_evidence.py` | Source inventory, immutable migration of the selected v3.2 corpus with inherited splits and evidence-based field masks; explicit raw MultiScan audit/smoke adapter |
 | `qualified_data.py` | New full-condition main derivative with pinned parent/source hashes, D1/D2 qualification changes, fixed-identity fallback for groups losing complete geometry, per-member change records and unchanged target numbers |
-| `train.py`, `text_sft.py`, `evaluate.py` | Joint optimizer, assistant-only text CE, checkpoint inference, all-request failures, legal matching reference metrics and separated asset/system metrics |
-| `direct_layout.py`, `bbox_visualization.py`, `minimal_data.py`, `multisource_data.py` | Independent three-field ablation, explicit reference-extent semantics, source-audited partial-mask projection, canonical/RoomGenBench JSON, no-asset bbox GLB/SVG and proxy diagnostics |
+| `train.py`, `text_sft.py`, `evaluate.py` | Joint optimizer with warmup/cosine schedule, decoder LR, seeded augmentation, resume and per-checkpoint export; assistant-only text CE; checkpoint inference, all-request failures, legal matching reference metrics, mean-predictor baselines, collapse metrics and separated asset/system metrics |
+| `direct_layout.py`, `bbox_visualization.py`, `minimal_data.py`, `multisource_data.py` | Independent three-field ablation, explicit reference-extent semantics, source-audited partial-mask projection, canonical/RoomGenBench JSON with polygon-wall shell, door/window openings, inferred floor `place` and benchmark-convention shared `asset_key`, no-asset bbox GLB/SVG and proxy diagnostics |
 | `predict.py` | Main `--condition` checkpoint inference; separate `--request` ablation and optional offline catalog execution |
 | `runtime.py`, `validation.py`, `serve.py` | Catalog resolver contract, target/actual separation, pivot-to-canonical transforms, verified support propagation, bounded reselect/translation repair, atomic in-memory Host reference |
 
-The latest [objective update](../../docs/fastfill-v2-review3-objective.md) adds enabled-loss preflight and a globally counted accumulation-window optimizer guard. See the [server setup guide](../../docs/fastfill-v2-server-start.md) for the supplied H20Z host. The historical [review2 audit](../../docs/fastfill-v2-review-20261006.md) separates repaired defects, data provenance and remaining training limits.
+The latest [objective update](../../docs/fastfill-v2-review3-objective.md) adds enabled-loss preflight and a globally counted accumulation-window optimizer guard.
+
+## 2026-10-06 audit fixes
+
+Contract changes from the three-group audit (schema, serialization, yaw policy, matching, losses, trainer, evaluation, RoomGenBench handoff):
+
+- **Row schema.** `condition.objects[i]` carries only `id`, `category`, `description` and optional `support_parent`. Exchangeable groups moved to `validity.exchangeable_group` (`list[str|null]`, target order) and `validity.yaw_symmetry_order` (`list[int]`, 1 = semantic front, 2 = axis mod pi) is always present. `io.read_samples` migrates old rows (`schema.migrate_legacy_row`) once; `validate_condition` rejects `exchangeable_group` in objects.
+- **Condition text.** `batch.condition_segments` renders `schema_version, room, constraints, objects` in that fixed order (objects last, so causal object tokens see the room), drops `room.boundary_quality` and every `_`-prefixed key; object span tagging and the prompt header are unchanged. The direct request path therefore renders the same room fields as a training rectangle.
+- **Yaw policy at build.** Default `--front-policy axis`: yaw valid = upright, finite, `front_known`; `yaw_symmetry_order` 1 for MultiScan, 2 elsewhere. `strict` and `legacy-convention` remain selectable (`legacy_bridge.FRONT_POLICIES`). Descriptions are the source `desc` or the category (`provenance.descriptions = source_desc_or_category`). Groups need complete **position** only; signature = category/description/support_parent.
+- **Qualification.** Any size axis < 3 mm masks the whole size vector (`degenerate_axis_lt_3mm`); a target above `room.height_m + 0.05` drops the declared height (`target_exceeds_declared_height`); the five RoomGenBench SAGE layouts move to the test split with `provenance.holdout_reason = roomgenbench_benchmark_room`. `legacy_verify` / `multisource_verify` recompute `source_yaw_valid_objects`, `source_yaw_symmetry_order_counts`, `exchangeable_group_counts`, `yaw_policy`, `descriptions` and accept the holdout.
+- **Matching and losses.** `match_batch` reads `batch["exchangeable_group"]` (per request slot). Group cost = `alpha_position * L1(position)` always, plus `alpha_size * L1(log size)` only when every member has a complete size label; position-incomplete groups keep fixed identity. `loss.position_type` / `loss.size_type` in {`l1`, `smooth_l1`} (default `l1`), `loss.smooth_l1_beta` (default 1). Main-config weights 1.0 / 0.6 / 0.08 / 7.0 come from the [calibration note](../../docs/fastfill-v2-loss-calibration-20261006.md). The criterion exposes `term_sums` / `term_counts` so window logs are count-weighted means over every microbatch.
+- **Trainer.** New sections `optimizer` (`warmup_steps` default 3 % of steps, `schedule` cosine to 10 % LR, `decoder_lr`), `augmentation` (`rotate90`, `mirror`, `shuffle_objects`, `drop_constraints_p`, `drop_support_p`, `category_only_description_p`; training rows only, seeded per (seed, epoch, row)), `validation.exclude_flags` (default the three training flags), `training.resume`, `training.export_model_every_checkpoint`. Unknown keys raise. `--resume <state-step-n>` continues into a new output directory with identical config/data; each checkpoint writes `state-step-<n>/` and `model-step-<n>/`; `train.log` tees stdout; bf16 windows with nonfinite gradients are skipped and counted; a room-centre / category-median-size / uniform-yaw baseline is logged before training.
+- **Evaluation.** `report.json` adds `baselines` (room centre, category mean position, category median size, uniform yaw; leave-one-out or `--baseline-fit <jsonl>`), `collapse` (predicted vs ground-truth overlap, stacking, wall distance, central fraction), `by_source` and `yaw_error_rad_by_symmetry_order`.
+- **RoomGenBench export.** `room.walls` from the floor polygon (0.1 m thick, height = room height or 2.7), `doors` / `windows` from fixed objects attached to the nearest wall, `place` = `floor` when declared or within 2 cm of a known floor, `on_object` for declared request parents, else `unknown`; `asset_key = slug(type)[:24] + "_" + sha1(description)[:8]` shared by identical type+description (benchmark convention), per-instance dimensions in the scene. Tests need the reference assembler at `RoomGenBench/` or `FASTFILL_ROOMGENBENCH_ROOT`. See the [server setup guide](../../docs/fastfill-v2-server-start.md) for the supplied H20Z host. The historical [review2 audit](../../docs/fastfill-v2-review-20261006.md) separates repaired defects, data provenance and remaining training limits.
+
+Review repairs on top of the above (same day):
+
+- **Augmentation.** `rotate90` / `mirror` snap rigid-motion float noise (`8.8 - 1.1` renders as `7.7`, full-precision source values are kept), and `train._Rows` falls back to the preflighted row when an augmented condition exceeds `max_length` (`run_manifest.augmentation_fallbacks`). After `drop_constraints_p` / `drop_support_p` / `category_only_description_p` fire, exchangeable groups are recomputed with the build rule (`matching.group_labels`): requests made textually identical by a drop are matched by geometry instead of fixed identity; build-time groups whose wider candidate fails certification keep their members under a `kept_<label>` label.
+- **Benchmark rooms.** `io.ROOMGENBENCH_HOLDOUT_GROUPS` is the single producer copy (`multisource_verify` mirrors it independently); `io.read_samples(training=True)` (train.py, text_sft.py) and `cohort` refuse rows whose `provenance.group` is a benchmark room or that carry `holdout_reason`.
+- **RoomGenBench assembly.** `roomgenbench._shell_parts` builds each wall with the reference `build_shell` but takes the outward normal from the floor-polygon winding (the reference uses the bbox centre, which extrudes some walls of non-convex rooms into the room); receipt `room.wall_normal_source = floor_polygon_winding`.
+- **Smaller.** `decode_yaw` computes bin centres in at least float32 under bf16 residuals; evaluation baselines are row-level leave-one-out (every label of the evaluated row is excluded, not only the object's own); the declared-height conflict adds a 1e-6 m epsilon so float32-rounded sizes do not void a real height; `legacy_bridge` reads Scan2CAD `sym` (`__SYM_ROTATE_UP_4` -> `yaw_symmetry_order` 4, `__SYM_ROTATE_UP_INF` -> yaw unsupervised; `legacy_verify` accepts orders 1/2/4).
 
 ## Main full-condition data and preserved release history
 
@@ -68,7 +88,7 @@ and three families supply auxiliary inputs. The new main preserves full parent
 room/fixed/support/relation conditions and all target numbers. Scan2CAD's
 estimated floor is marked unknown and its whole position vectors are masked;
 13 targets outside the default size head range receive whole-size masks.
-If any member loses complete position/size labels, all members of that
+If any member loses complete position labels, all members of that
 exchangeable group lose its tag, with logged fixed-identity fallback. IDs,
 order, support, relations and targets remain unchanged. Main yaw keeps the 581
 inherited valid semantic labels, with no SpatialLM geometric-yaw promotion.
@@ -97,10 +117,10 @@ Field eligibility is explicit. Recorded window-width evidence corrects new
 condition geometry; unresolved oblique-window geometry is rejected. InternScenes
 `k0` vertical-axis/front evidence controls position, size and yaw masks. MansionWorld
 footprint proxies and padded Holodeck boxes do not provide true local-size labels.
-The strict front policy enables semantic yaw supervision only for MultiScan
-objects with documented front evidence; other useful position/size labels remain
-available with yaw masked. Legacy convention yaw is an explicit alternate policy,
-not verified semantic front. Old inferred `on` relations are omitted, rather than
+The default axis front policy admits every upright finite source yaw with front
+evidence and records its symmetry order (1 = MultiScan semantic front, 2 = axis
+mod pi); the strict policy keeps semantic yaw for MultiScan only, masking the rest.
+Legacy convention yaw is an explicit alternate policy, not verified semantic front. Old inferred `on` relations are omitted, rather than
 turning bbox contact into support evidence. Tilted fixed geometry is rejected;
 unsupported requested-object geometry is masked. A scene with no reliable geometry
 field is rejected. Thus the historical broad structured corpus contains partial labels;
@@ -180,7 +200,7 @@ python -m fastfill.v2.data \
   --source selected-v3.2 \
   --release-root .release/v3.2 \
   --evidence-root .release/audits/2026-09-28/source-check \
-  --front-policy strict --workers 4 \
+  --front-policy axis --workers 4 \
   --output data/build/fastfill_v2/selected-v3.2-new
 ```
 
@@ -315,9 +335,10 @@ Structured training records complete-sample context rejection, source hashes,
 implementation hashes, package versions, unweighted losses, effective global
 counts, head/backbone gradient norms and trainable parameter count. Validation
 loss is a mean-of-batches diagnostic; final all-request metrics come from
-`evaluate.py`. Accelerate checkpoint states are diagnostic recovery artifacts;
-automatic optimizer resume is not exposed by the initial CLI. Deployment
-checkpoints contain backbone adapter/full weights where needed and decoder/heads.
+`evaluate.py`. Every checkpoint writes an Accelerate `state-step-<n>/` and a
+deployable `model-step-<n>/`; `--resume <state-step-n>` continues into a new
+output directory (see the audit-fixes section). Deployment checkpoints contain
+backbone adapter/full weights where needed and decoder/heads.
 
 ## Geometry and exact losses
 
@@ -330,14 +351,16 @@ checkpoints contain backbone adapter/full weights where needed and decoder/heads
   used directly. Unconstrained head tensors are retained separately for diagnosis.
 - `size = positive_reference * exp(clamp(u,-10,10))`; reference is fixed `(1,1,1)`
   meters, with no validation/test statistics. Head residuals use `tanh` by default.
-- SmoothL1 beta=1 for normalized bottom-center and log size ratio. Each term uses
+- L1 by default (`loss.position_type` / `loss.size_type`; `smooth_l1` with
+  `loss.smooth_l1_beta` selectable) for normalized bottom-center and log size ratio. Each term uses
   only complete valid field vectors and at least one learned coordinate, then
   sum learned coordinate losses /3 / valid instance count. Missing labels are
   filtered before arithmetic. Fixed dimensions do not reduce the `/3` denominator.
 - Yaw CE + SmoothL1 on **GT-bin** residual in training; argmax predicted bin in
   inference. Explicit justified symmetry orders choose the same equivalent angle
   by the joint weighted CE/residual minimum. Box symmetry never implies semantic
-  front symmetry. Detached group cost uses position L1 + log-size L1; no global
+  front symmetry. Detached group cost uses position L1, plus log-size L1 only when
+  every group member has a complete size label; no global
   matching, detection classification, objectness, NMS or repeated GT.
 
 For DDP, all-reduced valid counts and world-size compensation preserve the

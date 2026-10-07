@@ -20,6 +20,14 @@ def grouped_split(source: str, house_id: str, seed: int = 42) -> str:
     return "train" if fraction < .8 else "validation" if fraction < .9 else "test"
 
 
+def filter_rows_by_flags(rows, flags):
+    """Drop rows whose provenance.legacy_flags report any listed flag (same truthiness rule as the train build)."""
+    if not isinstance(flags, (list, tuple)) or any(not isinstance(flag, str) or not flag for flag in flags):
+        raise ValueError("exclude_flags must be a list of nonempty flag names")
+    return [row for row in rows
+            if not any(row.get("provenance", {}).get("legacy_flags", {}).get(flag) for flag in flags)]
+
+
 def _digest(path):
     digest = hashlib.sha256()
     with Path(path).open("rb") as fh:
@@ -91,13 +99,14 @@ def build_dataset(source_root, output, *, sources=("multiscan",), seed=42, max_s
 
 def main(argv=None):
     from fastfill.v2.legacy_build import DEFAULT_RELEASE, DEFAULT_EVIDENCE
+    from fastfill.v2.legacy_bridge import FRONT_POLICIES
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
     parser.add_argument("--output", type=Path, required=True, help="New immutable output directory")
     parser.add_argument("--source", choices=["selected-v3.2", "multiscan"], default="selected-v3.2")
     parser.add_argument("--release-root", type=Path, default=DEFAULT_RELEASE)
     parser.add_argument("--evidence-root", type=Path, default=DEFAULT_EVIDENCE)
-    parser.add_argument("--front-policy", choices=["strict", "legacy-convention"], default="strict")
+    parser.add_argument("--front-policy", choices=FRONT_POLICIES, default="axis")
     parser.add_argument("--include-flagged", action="store_true")
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--seed", type=int, default=42)

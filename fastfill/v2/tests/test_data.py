@@ -97,8 +97,9 @@ def test_fixed_obstacles_preserved_without_becoming_requested_objects():
 def test_anonymous_identical_requests_are_exchangeable_without_using_target_sizes():
     sample = multiscan_sample(region(), [row(), row("2", obb_half_extents="[0.2,0.6,0.3]")],
                               {"scene_id": "house"})
-    requests = sample["condition"]["objects"]
-    assert requests[0]["exchangeable_group"] == requests[1]["exchangeable_group"]
+    requests, groups = sample["condition"]["objects"], sample["validity"]["exchangeable_group"]
+    assert groups[0] == groups[1] is not None
+    assert all("exchangeable_group" not in request for request in requests)
     assert "support_parent" not in requests[0]
 
 

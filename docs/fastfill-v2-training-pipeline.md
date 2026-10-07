@@ -108,7 +108,7 @@ Qwen3-8B 使用 AutoModel 读取完整 condition、输出全部 token hidden sta
 | model/backbone/ | LoRA adapter 或选定的完整骨干；LoRA/冻结骨干部署仍需同一基础 Qwen |
 | tokenizer/ | 同训练的 tokenization |
 | run_manifest.json、training_log.json | 数据/配置/环境/有效样本和优化证据 |
-| state-step-* | 可选 Accelerate 状态；现 CLI 没有自动 optimizer resume |
+| state-step-* / model-step-* | 每个 checkpoint 的 Accelerate 恢复状态与可部署导出；`--resume <state-step-n>` 在新输出目录继续 |
 
 部署模型生成 target_size_local_m、bottom_center_m、yaw_rad；export_handoff 再生成 bbox corners/center、RoomGenBench SceneSpec/registry、彩色 GLB、SVG 和 proxy diagnostics。不需要资产库即可显示用户截图那类框。真正家具 mesh、材质和物理可用性由下游负责，不能由 bbox 输出成功推断。
 
@@ -124,7 +124,7 @@ catalog Resolver、actual geometry reconciliation、Validator／有限修复和 
 
 当前主执行顺序是：新 full-condition build 与独立逐行追溯 → 真实 Qwen tokenizer 的全量 context/object/loss 资格预检 → 冻结实际入训 manifest、source 分布和有效 yaw 曝光 → 独立 tiny smoke → 同一 Qwen3-8B 有界 pilot → 冻结正式预算、合法交换组和采样策略 → 全请求目标框评测 → 真实资产闭环验收。`max_objects=128` 和实际 context 长度可能排除部分完整场景，排除必须保留明细，不能静默截断或把构建场景数当成实际入训数。服务器环境可用、tiny 路径通过和数据 hash 一致各证明一部分；全量训练启动与模型质量验收需要分别记录。
 
-本轮真实 tokenizer 全量预检、Qwen 单卡四更新、七卡通信与七 rank Qwen 有界更新均已完成。实际七 rank prepared loader 核验后，均匀三轮候选为 3,333 updates；B1/K16 为更保守的显存候选，不能把 B2/K8 的 microbatch 均值权重称为完全相同。七卡完整预算还未启动，当前 CLI 尚无自动 optimizer resume。
+本轮真实 tokenizer 全量预检、Qwen 单卡四更新、七卡通信与七 rank Qwen 有界更新均已完成。实际七 rank prepared loader 核验后，均匀三轮候选为 3,333 updates；B1/K16 为更保守的显存候选，不能把 B2/K8 的 microbatch 均值权重称为完全相同。七卡完整预算还未启动；2026-10-06 起 CLI 支持 `--resume`。
 
 父 validation/test 没有显式关系约束；新的 13,969 场景 heldout NEAR 正例视图已冻结且独立全量验证，是参考布局派生的独立评测视图，尚未执行真实 tokenizer 资格或模型评测，也不覆盖所有关系类型。train semantic yaw 仍仅 523 对象 / 58 场景；均匀三轮只是有限标签曝光基线，需要记录实际有效窗口并按 yaw 子集单报指标。普通均匀采样不自动保证朝向学会。完成证据和具体下游兼容缺口分别见 [多源记录](fastfill-v2-multisource-20261006.md) 与 [RoomGenBench 接口审核](fastfill-v2-roomgenbench-interface-20261006.md)。
 

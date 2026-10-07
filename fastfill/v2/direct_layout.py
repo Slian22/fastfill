@@ -17,6 +17,17 @@ from .io import safe_output
 from .schema import _id, _keys, validate_condition, validate_layout, vector
 
 
+WALL_THICKNESS_M = .1
+DEFAULT_WALL_HEIGHT_M = 2.7
+FLOOR_CONTACT_M = .02
+
+
+def asset_key(category, description):
+    """RoomGenBench bench/prepare_inputs.py convention: slug(type)[:24] + sha1(description)[:8]."""
+    slug = "".join(c if c.isalnum() else "_" for c in category.lower()).strip("_")[:24]
+    return f"{slug}_{hashlib.sha1(description.encode()).hexdigest()[:8]}"
+
+
 def _request_objects(entries, max_objects):
     if not isinstance(entries, list) or not entries:
         raise ValueError("furniture_list must be a nonempty list")
@@ -104,6 +115,43 @@ def layout_to_scene(condition, layout):
             "room": deepcopy(condition["room"]), "objects": objects}
 
 
+def _shell(room):
+    """Walls along the floor polygon edges; doors/windows from fixed objects on the nearest wall.
+
+    The world frame is shared with SAGE (Z-up, same XY), so polygon vertices are
+    wall endpoints directly; only object-local axes differ. Opening width is the
+    footprint's extent projected on the wall direction; windows add sill_height.
+    """
+    points, floor = room["floor_polygon_xy_m"], room.get("floor_z_m") or 0.
+    height = room.get("height_m") or DEFAULT_WALL_HEIGHT_M
+    edges = [(a, b) for a, b in zip(points, points[1:] + points[:1]) if math.dist(a, b) > 1e-9]
+    walls = [{"id": f"wall_{index:02d}", "start_point": {"x": a[0], "y": a[1], "z": floor},
+              "end_point": {"x": b[0], "y": b[1], "z": floor}, "height": height, "thickness": WALL_THICKNESS_M}
+             for index, (a, b) in enumerate(edges)]
+    openings = {"doors": [], "windows": []}
+    for fixed in room.get("fixed_objects", []):
+        category = str(fixed.get("category", "")).lower()
+        kind = "doors" if "door" in category else "windows" if "window" in category else None
+        if kind is None:
+            continue
+        p = fixed["bottom_center_m"]
+        best = None  # ponytail: nearest wall by point-to-segment distance, no cutoff for detached openings
+        for wall, (a, b) in zip(walls, edges):
+            length = math.dist(a, b)
+            u = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+            t = min(max(((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1]) / length, 0.), 1.)
+            distance = math.dist(p[:2], (a[0] + u[0] * t * length, a[1] + u[1] * t * length))
+            if best is None or distance < best[0]:
+                best = (distance, wall["id"], t, u)
+        _, wall_id, t, u = best
+        c, s = math.cos(fixed["yaw_rad"]), math.sin(fixed["yaw_rad"])
+        sx, sy, sz = fixed["size_local_m"]
+        width = abs(sx * (u[0] * c + u[1] * s)) + abs(sy * (u[1] * c - u[0] * s))
+        opening = {"id": fixed["id"], "wall_id": wall_id, "position_on_wall": t, "width": width, "height": sz}
+        openings[kind].append(opening if kind == "doors" else {**opening, "sill_height": p[2] - floor})
+    return {"walls": walls, **openings}
+
+
 def layout_to_roomgenbench(condition, layout):
     """SceneSpec adapter: SAGE local +Y axis, full sizes, degree yaw.
 
@@ -111,8 +159,11 @@ def layout_to_roomgenbench(condition, layout):
     world corners and maps FastFill's canonical +X axis to SAGE's +Y axis.
     Geometric bbox-axis yaw does not certify an asset's semantic front. No
     asset IDs or verified support surfaces are fabricated. Explicit request
-    support and hard on constraints are preserved; absent support stays unknown.
-    Fixed geometry and constraints remain metadata, not generated asset claims.
+    support and hard on constraints are preserved; without a declaration a
+    bottom within FLOOR_CONTACT_M of a known floor is placed on the floor and
+    marked inferred, anything else stays unknown. asset_key follows the
+    benchmark convention (shared by identical type+description; per-instance
+    dimensions stay on the scene object). The room shell is built by _shell.
     """
     scene = layout_to_scene(condition, layout)
     from .validation import effective_support_requests
@@ -122,29 +173,31 @@ def layout_to_roomgenbench(condition, layout):
     low = [min(p[q] for p in points) for q in (0, 1)]
     high = [max(p[q] for p in points) for q in (0, 1)]
     dimensions = {"width": high[0] - low[0], "length": high[1] - low[1], "height": room.get("height_m")}
-    objects = [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
-                "asset_key": "bbox_" + hashlib.sha256(json.dumps(
-                    [obj["category"], obj["description"], obj["target_size_local_m"],
-                     _placement(requests[obj["id"]].get("support_parent"))],
-                    ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()[:24],
+    floor = room.get("floor_z_m")
+    objects = []
+    for obj in scene["objects"]:
+        parent, status = requests[obj["id"]].get("support_parent"), "declared"
+        if parent is None:
+            on_floor = floor is not None and abs(obj["bottom_center_m"][2] - floor) <= FLOOR_CONTACT_M
+            parent, status = ("floor", "inferred_floor_contact") if on_floor else (None, "unknown")
+        objects = objects + [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
+                "asset_key": asset_key(obj["category"], obj["description"]),
                 "asset_key_kind": "downstream_generation_key_only",
                 "position": dict(zip(("x", "y", "z"), obj["bottom_center_m"])),
                 "rotation": {"x": 0., "y": 0., "z": math.degrees(wrap_yaw(obj["yaw_rad"] - math.pi / 2))},
                 "dimensions": {"width": obj["target_size_local_m"][1],
                                "length": obj["target_size_local_m"][0],
                                "height": obj["target_size_local_m"][2]},
-                "place_id": requests[obj["id"]].get("support_parent"),
-                "support_surface_id": requests[obj["id"]].get("support_surface_id"),
-                "support_status": "declared" if requests[obj["id"]].get("support_parent") else "unknown"}
-               for obj in scene["objects"]]
+                "place_id": parent, "support_surface_id": requests[obj["id"]].get("support_surface_id"),
+                "support_status": status}]
     scene_key = "fastfill_" + hashlib.sha256(json.dumps(scene, sort_keys=True, separators=(",", ":"),
                                                       ensure_ascii=False).encode()).hexdigest()[:16]
     downstream = {"scene_key": scene_key, "room_type": room.get("room_type"),
             "geometry_only": True, "objects": objects,
             "fixed_objects": deepcopy(room.get("fixed_objects", [])),
             "constraints": deepcopy(condition["constraints"]),
-            "room": {"dimensions": dimensions, "position": {"x": low[0], "y": low[1], "z": room.get("floor_z_m")},
-                     "ceiling_height": room.get("height_m"), "walls": [], "doors": [], "windows": []}}
+            "room": {"dimensions": dimensions, "position": {"x": low[0], "y": low[1], "z": floor},
+                     "ceiling_height": room.get("height_m"), **_shell(room)}}
     if room.get("boundary_quality") == "source_reference_extent":
         return {**downstream, "room_size_semantics": "reference_extent",
                 "room_interpretation": "XY reference range and nominal Z origin; physical boundary and floor unknown",
@@ -214,13 +267,13 @@ def export_handoff(directory, condition, layout):
     downstream = layout_to_roomgenbench(condition, layout)
     registry = {}
     for obj in downstream["objects"]:
-        previous = registry.get(obj["asset_key"], {})
-        registry = {**registry, obj["asset_key"]: {"asset_key": obj["asset_key"], "type": obj["type"],
+        # Benchmark convention: the first instance's dimensions and place are the generation input.
+        entry = registry.get(obj["asset_key"]) or {"asset_key": obj["asset_key"], "type": obj["type"],
                     "description": obj["description"], "dimensions": deepcopy(obj["dimensions"]),
                     "place": _placement(obj["place_id"]), "support_status": obj["support_status"],
                     "placement_eligible": obj["place_id"] is not None, "scenes": [downstream["scene_key"]],
-                    "n_instances": previous.get("n_instances", 0) + 1,
-                    "asset_key_kind": "downstream_generation_key_only"}}
+                    "n_instances": 0, "asset_key_kind": "downstream_generation_key_only"}
+        registry = {**registry, obj["asset_key"]: {**entry, "n_instances": entry["n_instances"] + 1}}
     payloads = {"condition.json": json.dumps(condition, indent=2, allow_nan=False) + "\n",
                 "layout.json": json.dumps(layout, indent=2, allow_nan=False) + "\n",
                 "scene.json": json.dumps(scene, indent=2, allow_nan=False) + "\n",

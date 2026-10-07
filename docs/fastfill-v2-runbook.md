@@ -168,7 +168,7 @@ python -m fastfill.v2.evaluate \
 
 评测的 `--max-length` 应与选定训练/部署配置一致；上面的 4,096 仅展示现有开发起点。context 或对象数超预算时拒绝完整样本，不能截断对象/关系来制造通过率。数据中的部分字段按 validity mask 参加 loss，原始输出与后处理结果分开记录。
 
-多 GPU 可先配置 Accelerate，再以相同参数运行 `accelerate launch -m fastfill.v2.train ...`，使用另一个全新的输出目录。代码提供 checkpoint 保存；初始 CLI 尚不提供自动 optimizer resume。`state-step-*` 是训练恢复状态工件，部署/评测使用 `model/`。
+多 GPU 可先配置 Accelerate，再以相同参数运行 `accelerate launch -m fastfill.v2.train ...`，使用另一个全新的输出目录。每个 checkpoint 写 `state-step-<n>/`（恢复状态）与 `model-step-<n>/`（可部署）；`--resume <state-step-n>` 在新输出目录继续训练（config/数据须一致）。部署/评测使用 `model/` 或任一 `model-step-<n>/`。`evaluate.py` 的 report.json 另含 `baselines`（房间中心／类别均值位置／类别中位尺寸／均匀 yaw，默认留一法，`--baseline-fit <jsonl>` 改用拟合文件）、`collapse`、`by_source`。
 
 ## 7. 文本 SFT 与受控结构化对照
 

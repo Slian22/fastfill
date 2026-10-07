@@ -15,7 +15,8 @@ def encode_yaw(yaw: torch.Tensor, bins: int):
         raise ValueError("yaw encoding needs finite radians and positive bin count")
     delta = 2 * math.pi / bins
     indices = torch.floor(torch.remainder(yaw + delta / 2, 2 * math.pi) / delta).long() % bins
-    residual = wrap_yaw(yaw - indices * delta) / (delta / 2)
+    # Bin centres in the input dtype: long * python float would round to float32.
+    residual = wrap_yaw(yaw - indices.to(yaw.dtype) * delta) / (delta / 2)
     tolerance = 32 * torch.finfo(yaw.dtype).eps * max(1, bins)
     if ((residual < -1 - tolerance) | (residual > 1 + tolerance)).any():
         raise ValueError("yaw residual outside encoding tolerance")
@@ -28,7 +29,9 @@ def decode_yaw(logits: torch.Tensor, residuals: torch.Tensor):
     k = logits.argmax(-1)
     selected = residuals.gather(-1, k.unsqueeze(-1)).squeeze(-1)
     # No clipping: the trained tanh head constrains residuals, recorded in model config.
-    return wrap_yaw(k * (2 * math.pi / logits.shape[-1]) + selected * (math.pi / logits.shape[-1]))
+    # Bin centres need at least float32: a bf16 residual (autocast) would quantize them to ~0.03 rad.
+    dtype = torch.promote_types(selected.dtype, torch.float32)
+    return wrap_yaw(k.to(dtype) * (2 * math.pi / logits.shape[-1]) + selected.to(dtype) * (math.pi / logits.shape[-1]))
 
 
 def bottom_to_center(position: torch.Tensor, size: torch.Tensor):

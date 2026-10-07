@@ -127,7 +127,9 @@ def _indices(sample):
 
 
 def _trusted_yaw(sample, index):
-    if not _mask(sample, "yaw", index, 1):
+    """Facing needs a semantic front: a valid yaw whose symmetry order is 1 (axis-only mod-pi yaw is not evidence)."""
+    orders = sample["validity"].get("yaw_symmetry_order", [])
+    if not _mask(sample, "yaw", index, 1) or index < len(orders) and orders[index] != 1:
         return False
     angle = sample["target"]["objects"][index].get("yaw_rad")
     if not _finite(angle) or not -math.pi <= angle < math.pi:
@@ -259,7 +261,7 @@ def build_reviewed(parent_root, output):
         result = {"schema_version": "fastfill.v2", "builder": BUILDER, "review_policy": POLICY,
             "parent_root": str(parent), "parent_builder": manifest.get("builder"),
             "parent_front_policy": manifest.get("front_policy"),
-            "front_policy": manifest.get("front_policy"), "parent_sha256": hashes,
+            "front_policy": manifest.get("front_policy"), "yaw_policy": manifest.get("yaw_policy"), "parent_sha256": hashes,
             "split_rule": "inherit every parent UID and split without re-splitting or filtering",
             "labels_modified": False, "source_data_modified": False,
             "implementation_sha256": _digest(__file__), **_write_records(parent, staging),

@@ -45,6 +45,26 @@ def certify_group(objects, constraints, indices):
             raise ValueError("exchange would change a constraint or support role; use fixed identities")
 
 
+def group_labels(objects, constraints, position_valid):
+    """C5 exchangeable labels per request: identical non-id fields, complete position labels, certified swap."""
+    candidates = {}
+    for i, obj in enumerate(objects):
+        if all(position_valid[i]):
+            signature = json.dumps({k: v for k, v in obj.items() if k != "id"}, sort_keys=True)
+            candidates.setdefault(signature, []).append(i)
+    labels = [None] * len(objects)
+    for number, indices in enumerate(candidates.values()):
+        if len(indices) < 2:
+            continue
+        try:
+            certify_group(objects, constraints, indices)
+        except ValueError:
+            continue
+        for i in indices:
+            labels[i] = f"anonymous_{number}"
+    return labels
+
+
 def validate_matching_options(enabled, alpha_position, alpha_size):
     if not isinstance(enabled, bool):
         raise ValueError("matching enabled/hungarian flag must be boolean")
@@ -56,7 +76,14 @@ def validate_matching_options(enabled, alpha_position, alpha_size):
 
 @torch.no_grad()
 def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=1.):
+    """Groups come from collate's ``batch["exchangeable_group"]`` (per sample, per
+    request slot), never from the rendered condition objects. A group needs
+    complete position labels on every member; otherwise it keeps fixed identity.
+    Size enters the cost only when every member also has a complete size label.
+    """
     validate_matching_options(enabled, alpha_position, alpha_size)
+    if enabled and "exchangeable_group" not in batch:
+        raise ValueError("exchangeable matching requires batch exchangeable_group from collate")
     valid = batch["slot_mask"]
     bsz, slots = valid.shape
     assignments = []
@@ -66,26 +93,29 @@ def match_batch(predictions, batch, enabled=True, alpha_position=1., alpha_size=
         if len(objects) != int(valid[b].sum()) or not valid[b, :len(objects)].all():
             raise ValueError("slots must be contiguous and bound to every request")
         groups = {}
-        for i, obj in enumerate(objects):
-            if enabled and obj.get("exchangeable_group"):
-                groups.setdefault(obj["exchangeable_group"], []).append(i)
+        if enabled:
+            labels = batch["exchangeable_group"][b]
+            if len(labels) != len(objects) or any(label is not None and not isinstance(label, str) for label in labels):
+                raise ValueError("exchangeable_group must hold one string-or-null label per request slot")
+            for i, label in enumerate(labels):
+                if label:
+                    groups.setdefault(label, []).append(i)
         if any(len(group) > 1 for group in groups.values()) and "conditions" not in batch:
             raise ValueError("exchangeable matching requires original conditions and constraint graph")
         conditions = batch.get("conditions", [{} for _ in range(bsz)])
         for group in groups.values():
             certify_group(objects, conditions[b].get("constraints", []), group)
-            if len(group) < 2:
+            if len(group) < 2 or not batch["validity"]["position"][b, group].all():
                 continue
-            for field in ("position", "size"):
-                if not batch["validity"][field][b, group].all():
-                    raise ValueError("exchangeable assignment needs complete position and size labels")
-            pos, size = predictions["position_normalized"][b, group], predictions["size"][b, group]
-            gt_pos = batch["targets"]["position_normalized"][b, group]
-            gt_size = batch["targets"]["size"][b, group]
-            if not all(torch.isfinite(t).all() for t in (pos, size, gt_pos, gt_size)) or (size <= 0).any() or (gt_size <= 0).any():
-                raise ValueError("nonfinite or nonpositive geometry in matching group")
+            pos, gt_pos = predictions["position_normalized"][b, group], batch["targets"]["position_normalized"][b, group]
+            if not torch.isfinite(pos).all() or not torch.isfinite(gt_pos).all():
+                raise ValueError("nonfinite position geometry in matching group")
             cost = alpha_position * (pos[:, None] - gt_pos[None]).abs().sum(-1)
-            cost = cost + alpha_size * (size.log()[:, None] - gt_size.log()[None]).abs().sum(-1)
+            if batch["validity"]["size"][b, group].all():
+                size, gt_size = predictions["size"][b, group], batch["targets"]["size"][b, group]
+                if not torch.isfinite(size).all() or not torch.isfinite(gt_size).all() or (size <= 0).any() or (gt_size <= 0).any():
+                    raise ValueError("nonfinite or nonpositive size geometry in matching group")
+                cost = cost + alpha_size * (size.log()[:, None] - gt_size.log()[None]).abs().sum(-1)
             if not torch.isfinite(cost).all():
                 raise ValueError("matching cost is not finite")
             # SciPy deterministic ordered input; exact ties use its row/column order.

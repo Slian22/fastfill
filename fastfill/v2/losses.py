@@ -13,6 +13,8 @@ from fastfill.v2.geometry import decode_yaw, encode_yaw
 from fastfill.v2.matching import match_batch, validate_matching_options
 from fastfill.v2.objective import local_objective_count, supervision_masks
 
+ELEMENTWISE_TYPES = {"l1", "smooth_l1"}
+
 
 @dataclass(frozen=True)
 class LossConfig:
@@ -27,12 +29,26 @@ class LossConfig:
     alpha_size: float = 1.
     collision: float = 0.
     boundary: float = 0.
+    position_type: str = "l1"
+    size_type: str = "l1"
+    smooth_l1_beta: float = 1.
 
     def __post_init__(self):
         weights = [getattr(self, key) for key in ("position", "size", "yaw_cls", "yaw_reg", "box", "collision", "boundary")]
         if any(type(value) not in {int, float} or not math.isfinite(value) or value < 0 for value in weights):
             raise ValueError("loss weights must be native finite nonnegative numbers")
+        if self.position_type not in ELEMENTWISE_TYPES or self.size_type not in ELEMENTWISE_TYPES:
+            raise ValueError(f"position_type/size_type must be one of {sorted(ELEMENTWISE_TYPES)}")
+        beta = self.smooth_l1_beta
+        if type(beta) not in {int, float} or not math.isfinite(beta) or beta <= 0:
+            raise ValueError("smooth_l1_beta must be a native finite positive number")
         validate_matching_options(self.hungarian, self.alpha_position, self.alpha_size)
+
+
+def _elementwise(error, kind, beta):
+    if kind == "l1":
+        return error.abs()
+    return F.smooth_l1_loss(error, torch.zeros_like(error), reduction="none", beta=beta)
 
 
 def _mean(total, local_count):
@@ -78,7 +94,9 @@ class GeometryCriterion(nn.Module):
         masks = supervision_masks(batch, validity)
         active_local = local_objective_count(batch, cfg, validity)
         zero = _safe_zero(predictions, mask)
-        losses, counts = {}, {}
+        # losses: per-term global means (gradient path). term_sums/term_counts: local
+        # unweighted sums and valid counts, for window-level logging by the trainer.
+        losses, counts, term_sums, term_counts = {}, {}, {}, {}
         for key, pred_key, target_key in (("position", "position_normalized", "position_normalized"), ("size", "size", "size")):
             learn = ~batch.get(f"fixed_{key}_mask", torch.zeros_like(validity[key]))
             valid = masks[key]
@@ -89,8 +107,9 @@ class GeometryCriterion(nn.Module):
             coordinate_mask = learn[valid]
             p, t = pred[coordinate_mask], gt[coordinate_mask]
             error = p.log() - t.log() if key == "size" else p - t
-            total = F.smooth_l1_loss(error, torch.zeros_like(error), reduction="sum", beta=1.) / 3
+            total = _elementwise(error, getattr(cfg, f"{key}_type"), cfg.smooth_l1_beta).sum() / 3
             losses[key], counts[key] = _mean(total + zero, int(valid.sum()))
+            term_sums[key], term_counts[key] = total.detach().float(), int(valid.sum())
         angle_valid = masks["yaw"]
         logits, residuals = predictions["yaw_logits"][angle_valid], predictions["yaw_residuals"][angle_valid]
         yaw = targets["yaw"][angle_valid]
@@ -112,6 +131,9 @@ class GeometryCriterion(nn.Module):
             reg_terms.append(reg[choice])
         losses["yaw_cls"], counts["yaw"] = _mean(sum(cls_terms, zero), int(angle_valid.sum()))
         losses["yaw_reg"], _ = _mean(sum(reg_terms, zero), int(angle_valid.sum()))
+        for key, terms in (("yaw_cls", cls_terms), ("yaw_reg", reg_terms)):
+            term_sums[key] = sum((t.detach().float() for t in terms), torch.zeros((), device=zero.device))
+            term_counts[key] = int(angle_valid.sum())
         box_valid = masks["box"]
         box_terms = []
         yaw_pred = decode_yaw(predictions["yaw_logits"], predictions["yaw_residuals"])
@@ -122,12 +144,19 @@ class GeometryCriterion(nn.Module):
                 box_terms.append(1 - bev_giou(world_pred[b, i], predictions["size"][b, i], yaw_pred[b, i],
                                              gt_pos, targets["size"][b, i], targets["yaw"][b, i]))
         losses["box"], counts["box"] = _mean(sum(box_terms, zero), len(box_terms))
+        term_sums["box"] = sum((t.detach().float() for t in box_terms), torch.zeros((), device=zero.device))
+        term_counts["box"] = len(box_terms)
         if cfg.collision or cfg.boundary:
             from fastfill.v2.regularizers import scene_regularizers
             regularizers = scene_regularizers(world_pred, predictions["size"], yaw_pred, batch, cfg)
+            term_sums.update(regularizers.pop("sums"))
+            term_counts.update(regularizers.pop("counts"))
             losses.update(regularizers)
         else:
             losses.update(collision=zero, boundary=zero)
+            term_sums.update(collision=zero.detach().float(), boundary=zero.detach().float())
+            term_counts.update(collision=0, boundary=0)
         loss = sum(getattr(cfg, k) * v for k, v in losses.items())
         return {"loss": loss, **losses, "counts": counts, "assignment": assignment,
-                "active_objective_count_local": active_local}
+                "active_objective_count_local": active_local,
+                "term_sums": term_sums, "term_counts": term_counts}

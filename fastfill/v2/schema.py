@@ -52,10 +52,30 @@ def _polygon(value, label):
 
 ROOM_FIELDS = {"frame", "floor_polygon_xy_m", "floor_z_m", "height_m", "boundary_quality",
                "boundary_known", "floor_known", "fixed_objects", "room_type", "openings", "description"}
+# exchangeable_group is supervision bookkeeping: it lives in validity (target order), never in the condition.
 OBJECT_FIELDS = {"id", "category", "description", "support_parent", "support_surface_id",
                  "size_bounds_local_m", "fixed_size_local_m", "required_capabilities",
-                 "retrieval_tolerance", "retrieval_tolerance_log", "exchangeable_group", "attributes",
+                 "retrieval_tolerance", "retrieval_tolerance_log", "attributes",
                  "constraint_role", "semantic_front_required"}
+
+
+def migrate_legacy_row(row):
+    """Move pre-C1 ``condition.objects[i].exchangeable_group`` into ``validity.exchangeable_group``.
+
+    The returned row never renders groups into the condition. Labels follow
+    target order (like validity.position); rows without targets keep request order.
+    """
+    objects = row.get("condition", {}).get("objects", [])
+    if not isinstance(objects, list) or not any(isinstance(o, Mapping) and "exchangeable_group" in o for o in objects):
+        return row
+    validity = row.get("validity", {})
+    if "exchangeable_group" in validity:
+        raise ValueError("exchangeable_group declared in both condition objects and validity")
+    groups = {o.get("id"): o.get("exchangeable_group") for o in objects}
+    order = row.get("target", {}).get("objects") or objects
+    condition = {**row["condition"], "objects": [{k: v for k, v in o.items() if k != "exchangeable_group"} for o in objects]}
+    return {**row, "condition": condition,
+            "validity": {**validity, "exchangeable_group": [groups.get(o.get("id")) for o in order]}}
 
 
 def _metadata(value, label, depth=0):
@@ -118,7 +138,7 @@ def _object(obj):
     _id(obj["category"], "category")
     if not isinstance(obj["description"], str):
         raise ValueError("description must be a string")
-    for key in ("support_parent", "support_surface_id", "exchangeable_group"):
+    for key in ("support_parent", "support_surface_id"):
         if key in obj and obj[key] is not None:
             _id(obj[key], key)
     if "constraint_role" in obj:

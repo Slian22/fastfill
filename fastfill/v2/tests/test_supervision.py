@@ -14,8 +14,9 @@ def batch():
             "targets": {"position_normalized": pos, "size": torch.ones(1, 2, 3), "yaw": torch.zeros(1, 2)},
             "validity": {"position": torch.ones(1, 2, 3, dtype=torch.bool),
                          "size": torch.ones(1, 2, 3, dtype=torch.bool), "yaw": torch.ones(1, 2, dtype=torch.bool)},
-            "objects": [[{"id": "a", "category": "chair", "description": "chair", "exchangeable_group": "g"},
-                         {"id": "b", "category": "chair", "description": "chair", "exchangeable_group": "g"}]],
+            "objects": [[{"id": "a", "category": "chair", "description": "chair"},
+                         {"id": "b", "category": "chair", "description": "chair"}]],
+            "exchangeable_group": [["g", "g"]],
             "conditions": [{"constraints": []}], "origin": torch.zeros(1, 3), "scale": torch.ones(1, 3)}
 
 
@@ -78,7 +79,8 @@ def test_fixed_z_keeps_divisor_three_and_full_fixed_excluded():
     p = prediction(b)
     p["position_normalized"] = (b["targets"]["position_normalized"] + 1).requires_grad_()
     result = GeometryCriterion(LossConfig(hungarian=False))(p, b)
-    assert result["position"].item() == pytest.approx(1 / 3)
+    # Default L1: two learned coordinates with error 1 each, divided by 3.
+    assert result["position"].item() == pytest.approx(2 / 3)
     assert result["counts"]["position"] == 1
 
 

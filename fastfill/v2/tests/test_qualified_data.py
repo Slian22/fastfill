@@ -110,16 +110,18 @@ def test_refuse_qualified_parent():
 def test_mask_review_reverts_entire_exchange_group_to_fixed_identity():
     parent = sample("Scan2CAD")
     obj = parent["condition"]["objects"][0]
-    obj["exchangeable_group"] = "identical-desks"
-    other = {**obj, "id": "desk2"}
-    parent["condition"]["objects"].append(other)
+    parent["condition"]["objects"].append({**obj, "id": "desk2"})
     parent["target"]["objects"].append({**deepcopy(parent["target"]["objects"][0]), "id": "desk2"})
     parent["provenance"]["target_source_ids"].append("raw1")
     for key in ("position", "size", "yaw"):
         parent["validity"][key].append(deepcopy(parent["validity"][key][0]))
+    parent["validity"]["exchangeable_group"] = ["identical-desks"] * 2
     row = qualify_sample(parent)
+    assert row["validity"]["exchangeable_group"] == [None, None]
     assert all("exchangeable_group" not in request for request in row["condition"]["objects"])
     assert row["target"] == parent["target"]
     assert len([c for c in row["provenance"]["qualification_changes"] if c["field"] == "exchangeable_group"]) == 2
     parent["provenance"]["source"] = "SpatialLM"
-    assert qualify_sample(parent)["condition"] == parent["condition"]
+    kept = qualify_sample(parent)
+    assert kept["condition"] == parent["condition"]
+    assert kept["validity"]["exchangeable_group"] == ["identical-desks"] * 2

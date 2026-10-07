@@ -9,11 +9,13 @@ from fastfill.v2.batch import TinyTokenizer, collate_samples
 from fastfill.v2.direct_layout import request_to_condition
 from fastfill.v2.io import fingerprint
 from fastfill.v2.multisource_data import SOURCES, build_dataset, project_sample
+from fastfill.v2.schema import migrate_legacy_row
 from fastfill.v2.tests.test_minimal_data import pair
 
 
 def source_pair(source="HSSD200", split="train", uid=None):
     sample, raw = pair(uid=uid or source + split, split=split, floor=0.)
+    sample = migrate_legacy_row(sample)  # C1: groups live in validity, never in condition objects
     sample["provenance"]["source"] = raw["source"] = source
     if source == "MultiScan":
         raw["meta"] = {"floor_z": 0., "floor_height": 0., "n_floor_objects_outside_structure": 0}
@@ -58,7 +60,7 @@ def test_unknown_types_nonrectangles_and_negative_z_are_preserved():
 
 def test_size_range_masks_whole_vector_without_fixing_geometry():
     sample, raw = source_pair()
-    size = [1., 1e-9, 1.]
+    size = [1., 1e5, 1.]  # above the default range; a wider head range admits it (sub-3mm axes never do)
     sample["target"]["objects"][0]["target_size_local_m"] = raw["objects"][0]["size"] = size
     result = project_sample(sample, raw, split="train")
     assert result["validity"]["size"] == [[False] * 3]
