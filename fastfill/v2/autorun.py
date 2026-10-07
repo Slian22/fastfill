@@ -24,6 +24,7 @@ import json
 import math
 import os
 from pathlib import Path
+import random
 import subprocess
 import time
 
@@ -62,6 +63,18 @@ def next_config(config, *, world_size, train_rows, epochs, global_batch=96):
                     checkpoint_every=500, validate_every=500)
     config["optimizer"]["warmup_steps"] = round(.03 * steps)
     return config
+
+
+def step_of(path):
+    return int(str(path).rsplit("-", 1)[1])
+
+
+def complete_states(outputs):
+    """Saved states of every output of one run, oldest first. state-step-N counts as complete once model-step-N
+    exists (train.py exports it after save_state and the barrier), so a state torn by a crash is skipped."""
+    states = [p for o in outputs for p in glob.glob(f"{o}/state-step-*")
+              if Path(p).with_name(f"model-step-{step_of(p)}").is_dir()]
+    return sorted(states, key=step_of)
 
 
 def sha256(path):
@@ -127,7 +140,7 @@ class Autopilot:
                 if done or alive:
                     pending += not done
                     continue
-                states = sorted(glob.glob(f"{job['output']}/state-step-*"), key=lambda p: int(p.rsplit("-", 1)[1]))
+                states = complete_states(job["outputs"])
                 if job.get("resumes", 0) >= 2 or not states:
                     raise RuntimeError(f"{name} stopped without a final manifest and cannot be resumed")
                 job["resumes"] = job.get("resumes", 0) + 1
@@ -143,27 +156,44 @@ class Autopilot:
             time.sleep(120)
 
     # -- evaluation -------------------------------------------------------------------------------
-    def evaluate_candidates(self, outputs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7")):
-        candidates = []
-        for output in outputs:
-            steps = sorted(glob.glob(f"{output}/model-step-*"), key=lambda p: int(p.rsplit("-", 1)[1]))
-            candidates += steps[-newest:]
-        candidates = sorted(set(candidates))
+    def eval_data(self):
+        """A seeded random sample of --eval-rows validation rows: the file is grouped by source, so its head
+        (what --max-samples reads) leaves whole sources out."""
+        path = self.dir / f"validation-{Path(self.data).name}-{self.a.eval_rows}.jsonl"
+        if not path.is_file():
+            with open(f"{self.data}/validation.jsonl") as stream:
+                lines = [line.rstrip("\n") + "\n" for line in stream if line.strip()]
+            random.Random(0).shuffle(lines)
+            path.write_text("".join(lines[:int(self.a.eval_rows)]))
+        return path
+
+    def evaluate_candidates(self, runs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7")):
+        """runs: one list of output directories (the run and its resumes) per run; its newest checkpoints compete."""
+        candidates, data = [], self.eval_data()
+        for outputs in runs:
+            candidates += sorted((p for o in outputs for p in glob.glob(f"{o}/model-step-*")), key=step_of)[-newest:]
         results = []
         for start in range(0, len(candidates), len(gpus)):
             batch = candidates[start:start + len(gpus)]
             jobs = []
             for gpu, checkpoint in zip(gpus, batch):
                 out = self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}"
+                if (out / "report.json").is_file():  # a restarted autopilot reuses finished evaluations
+                    jobs.append((checkpoint, out, None))
+                    continue
                 jobs.append((checkpoint, out, self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", checkpoint,
-                    "--data", f"{self.data}/validation.jsonl", "--max-samples", self.a.eval_rows, "--projection", "minimal",
+                    "--data", data, "--projection", "minimal",
                     "--device", "cuda", "--grid-decode", "spread", "--output", out], gpus=gpu, log=f"{out}.log", wait=False)))
             for checkpoint, out, process in jobs:
-                if process.wait():
+                if process is not None and process.wait():
                     self.log("evaluation failed", checkpoint=checkpoint)
                     continue
-                report = json.loads((out / "report.json").read_text())
-                results.append({"checkpoint": checkpoint, "report": str(out / "report.json"), "score": score(report)})
+                try:
+                    value = score(json.loads((out / "report.json").read_text()))
+                except (KeyError, TypeError, ValueError) as error:
+                    self.log("evaluation unscorable", checkpoint=checkpoint, error=repr(error))
+                    continue
+                results.append({"checkpoint": checkpoint, "report": str(out / "report.json"), "score": value})
         if not results:
             raise RuntimeError("no checkpoint could be evaluated")
         results.sort(key=lambda r: r["score"])
@@ -172,8 +202,8 @@ class Autopilot:
         return results[0]
 
     def roomgenbench(self, checkpoint, tag):
-        self.sh(["bash", "runs/roomgenbench/run_checkpoint.sh", checkpoint, tag],
-                log=self.runs / "roomgenbench" / f"{tag}.log", wait=False)
+        return self.sh(["bash", "runs/roomgenbench/run_checkpoint.sh", checkpoint, tag],
+                       log=self.runs / "roomgenbench" / f"{tag}.log", wait=False)
 
     # -- data ---------------------------------------------------------------------------------------
     def next_data(self):
@@ -184,25 +214,31 @@ class Autopilot:
             self.log("no new data before the deadline; keeping the current data", data=self.data)
             return
         spec = json.loads(marker.read_text())
+        missing = {"train.jsonl", "validation.jsonl", "test.jsonl"} - set(spec["sha256"])
+        if missing:  # phase F reads test.jsonl only ~10 h later
+            raise RuntimeError(f"NEXT_DATA.json does not pin {sorted(missing)}")
         target = Path(self.a.data_root) / spec["name"]
         if not target.is_dir():
             staging = Path(self.a.data_root) / f".download-{spec['name']}"
             self.sh([str(self.root / "env/bin/hf"), "download", spec["repo"], "--repo-type", "dataset", "--revision",
-                     spec["revision"], "--include", f"{spec['folder']}/*", "--local-dir", staging])
+                     spec["revision"], "--include", f"{spec['folder']}/*", "--local-dir", staging], log=self.dir / "hf-download.log")
             (staging / spec["folder"]).rename(target)
         for name, digest in spec["sha256"].items():
             if sha256(target / name) != digest:
                 raise RuntimeError(f"{target / name} does not match NEXT_DATA.json")
-        self.sh(["git", "pull", "--ff-only", "origin", "main"])
+        self.sh(["git", "pull", "--ff-only", "origin", "main"], log=self.dir / "git-pull-data.log")
         self.sh(["git", "merge-base", "--is-ancestor", spec["commit"], "HEAD"])
         self.data = str(target)
         self.log("switched to new data", data=self.data, commit=spec["commit"])
 
     def upload(self, checkpoint, name):
+        """<name>/model-step-N plus <name>/tokenizer and the run manifests: the layout predict/evaluate load
+        (they read the tokenizer from the checkpoint's parent)."""
         from huggingface_hub import HfApi
         api = HfApi()
         api.create_repo(self.a.model_repo, repo_type="model", private=True, exist_ok=True)
-        api.upload_folder(folder_path=checkpoint, path_in_repo=name, repo_id=self.a.model_repo, repo_type="model",
+        api.upload_folder(folder_path=Path(checkpoint).parent, path_in_repo=name, repo_id=self.a.model_repo, repo_type="model",
+                          allow_patterns=[f"{Path(checkpoint).name}/*", "tokenizer/*", "run_manifest*.json"],
                           commit_message=f"FastFill v2 {name}")
         self.log("uploaded model", repo=self.a.model_repo, path=name)
 
@@ -212,11 +248,13 @@ class Autopilot:
         jobs = {name: {"process": None, "config": config, "data": self.data, "gpus": gpus, "output": self.out(name),
                        "outputs": [self.out(name)]} for name, config, gpus in self.a.current}
         self.supervise(jobs)
-        self.sh(["git", "pull", "--ff-only", "origin", "main"])
+        self.sh(["git", "pull", "--ff-only", "origin", "main"], log=self.dir / "git-pull-a.log")
         self.phase("B-evaluate-current")
-        winner = self.evaluate_candidates([o for job in jobs.values() for o in job["outputs"]], "select1")
+        winner = self.evaluate_candidates([job["outputs"] for job in jobs.values()], "select1")
         self.phase("C-selected", winner=winner)
-        self.roomgenbench(winner["checkpoint"], "best-round1")
+        handoff = self.roomgenbench(winner["checkpoint"], "best-round1")
+        # its five rooms each start a new process from the repo; finish them before phase D pulls new code
+        self.log("round-1 RoomGenBench hand-off finished", returncode=handoff.wait())
         self.phase("D-wait-data")
         self.next_data()
         run_dir = Path(winner["checkpoint"]).parent
@@ -232,13 +270,13 @@ class Autopilot:
         job["process"] = self.launch(job["config"], self.data, job["output"], job["gpus"])
         self.supervise({name: job})
         self.phase("F-evaluate-final")
-        best = self.evaluate_candidates(job["outputs"], "select2", newest=4)
+        best = self.evaluate_candidates([job["outputs"]], "select2", newest=4)
+        self.upload(best["checkpoint"], name)  # before the ~7 h single-GPU test evaluation, which may fail
+        self.roomgenbench(best["checkpoint"], f"best-{name}")
         out = self.runs / f"test-{name}"
         self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
                  "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
                 gpus="1", log=f"{out}.log")
-        self.roomgenbench(best["checkpoint"], f"best-{name}")
-        self.upload(best["checkpoint"], f"{name}/{Path(best['checkpoint']).name}")
         self.phase("done", best=best, test_report=str(out / "report.json"))
 
 
