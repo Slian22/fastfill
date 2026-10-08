@@ -31,7 +31,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import multiprocessing as mp
 import os
 from pathlib import Path
@@ -123,7 +122,8 @@ def object_baselines(sample, fit, exclude_row):
                     error = min(error, E._log_size_error(estimate, (label[1], label[0], label[2])))
                 b["category_median_size"] = error
         if b["yv"]:
-            b["uniform_yaw"] = math.pi / (2 * geometry["symmetry"][i])
+            b["uniform_yaw"] = E._uniform_yaw_error(geometry["symmetry"][i], geometry["swap"][i],
+                                                    target["target_size_local_m"] if b["sv"] else None)
         for name in BASELINES:
             if name in b:
                 lists[name].append(b[name])

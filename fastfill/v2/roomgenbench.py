@@ -342,7 +342,7 @@ def reference_check(handoff_dir, scene_path):
     import math
     import numpy as np
     from scipy.optimize import linear_sum_assignment
-    from .evaluate import _box_equivalent_errors, _log_size_error, _yaw_error
+    from .evaluate import _box_equivalent_errors, _log_size_error, _uniform_yaw_error, _yaw_error
     from .direct_layout import place_of
     from .matching import group_labels
     from .schema import normalize_room
@@ -377,17 +377,12 @@ def reference_check(handoff_dir, scene_path):
                 "log_size_error_marginal_min": min(_log_size_error(p["target_size_local_m"], s) for s in ((sx, sy, sz), (sy, sx, sz))),
                 "yaw_error_rad_marginal_min": _yaw_error(p["yaw_rad"], t["yaw_rad"], 2)}
 
-    def uniform_yaw(t):  # E[box-equivalent yaw error] of a uniform yaw on the truth's own size: with a = the yaw error
-        # modulo pi (uniform on [0, pi/2]) the quarter turn, error pi/2 - a plus its swap cost c, wins when a > m
-        sx, sy, sz = t["target_size_local_m"]
-        m = min(math.pi / 2, math.pi / 4 + _log_size_error((sx, sy, sz), (sy, sx, sz)) / 2)
-        return (m * m + (math.pi / 2 - m) ** 2) / math.pi  # pi / 8 for a square footprint, pi / 4 once c >= pi / 2
     rows = []
     for t, obj in zip(truth["objects"], scene["objects"]):
         row = errors(predicted[matched[t["id"]]], t)
         rows.append({"id": t["id"], "predicted_id": matched[t["id"]], "category": obj["type"], "place": place_of(obj["place_id"]),
                      **row, "room_center_position_error_m": math.dist(center, t["bottom_center_m"]),
-                     "uniform_yaw_baseline_error_rad": uniform_yaw(t),
+                     "uniform_yaw_baseline_error_rad": _uniform_yaw_error(4, True, t["target_size_local_m"]),
                      "box_equivalent_log_size_error": row["log_size_error"], "box_equivalent_yaw_error_rad": row["yaw_error_rad"],
                      **{f"{key}_by_id": value for key, value in errors(predicted[t["id"]], t).items()}})
     metrics = [key for key in rows[0] if key not in ("id", "predicted_id", "category", "place")] if rows else []

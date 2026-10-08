@@ -20,7 +20,7 @@ the mean per-room difference, see compare.py):
   common: only rooms where every method returned a layout (a failure of any method removes the room for all);
   failures_as_failures: every room; a room without a layout scores its label-only baselines from the same evaluate
     output (position: floor-level room centre; size: per-category median, leave-one-out over these rows; yaw: the
-    uniform-random expectation pi / (2 * symmetry order); BEV IoU 0; clean room 0).
+    uniform-random expectation ``evaluate._uniform_yaw_error``; BEV IoU 0; clean room 0).
 ``--selection-cohort FILE`` (repeatable) counts how many of these rows' scene ids occur in a checkpoint-selection
 cohort file: rows that chose the checkpoint are not held out from it.
 """

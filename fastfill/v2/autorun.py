@@ -46,10 +46,11 @@ def score(report):
 
     The baselines are ``baselines_paired``: scored on the requests the model reference scores (those with a
     layout), so model and baseline errors cover the same objects. size: log-size error / per-category median
-    size; yaw: yaw error / the expected error of a uniformly random yaw, pi / (2 * symmetry order) per object
-    (not a constant yaw); position: bottom-centre error / room-centre placement; |central-quarter fraction - GT|;
-    |mean wall distance - GT| / GT; overlap above GT + 1 point and objects outside the room above GT count
-    fivefold; the share of requests without a layout counts tenfold. The distribution terms use
+    size; yaw: yaw error / the expected error of a uniformly random yaw scored like the model's
+    (``evaluate._uniform_yaw_error``: pi / (2 * symmetry order) per object, box-equivalent with the label's own size
+    for swap-allowed objects; not a constant yaw); position: bottom-centre error / room-centre placement;
+    |central-quarter fraction - GT|; |mean wall distance - GT| / GT; overlap above GT + 1 point and objects outside
+    the room above GT count fivefold; the share of requests without a layout counts tenfold. The distribution terms use
     ``predicted_matched`` (the predictions matched to the label-complete objects the ground-truth column
     counts), so the labels themselves score 0 there.
     """

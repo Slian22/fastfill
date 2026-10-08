@@ -479,6 +479,18 @@ def _box_equivalent_errors(p, t, size_valid, yaw_valid):
     return best
 
 
+def _uniform_yaw_error(order, swap, size=None):
+    """Expected ``reference_metrics`` yaw error of a uniformly random yaw with a perfect size (the label's own;
+    ``size`` None when it is not valid): pi / (2 order) modulo the symmetry order, and for a swap object the yaw of
+    ``_box_equivalent_errors``' joint minimum, in closed form: with a = the yaw error modulo pi (uniform on
+    [0, pi/2]) the quarter turn, error pi/2 - a plus its swap cost c (0 without a valid size), wins when a > m."""
+    if not swap:
+        return math.pi / (2 * order)
+    c = _log_size_error(size, (size[1], size[0], size[2])) if size is not None else 0.
+    m = min(math.pi / 2, math.pi / 4 + c / 2)
+    return (m * m + (math.pi / 2 - m) ** 2) / math.pi  # pi / 8 for a square footprint, pi / 4 once c >= pi / 2
+
+
 def _matched(layout, sample, hungarian):
     """The one-request batch and its legal assignment (prediction slot -> label slot)."""
     from fastfill.v2.batch import TinyTokenizer
@@ -642,7 +654,8 @@ def baseline_metrics(sample, fit, *, exclude_row=None):
     Same-room duplicates often share one asset's exact size, so excluding only the
     object's own label would let its siblings stand in for it.
     Room centre predicts the floor-level centre of the room's XY bounds. Uniform yaw is
-    the analytic expectation pi / (2 * symmetry order) of a uniformly random yaw.
+    the expected error of a uniformly random yaw scored like the model's (``_uniform_yaw_error``: pi / (2 * symmetry
+    order), box-equivalent with the label's own size for swap-allowed objects).
     Median size scores swap-allowed objects box-equivalently, like the model.
     """
     objects, geometry, origin, scale = _label_rows(sample)
@@ -670,7 +683,8 @@ def baseline_metrics(sample, fit, *, exclude_row=None):
                     error = min(error, _log_size_error(estimate, (label[1], label[0], label[2])))
                 values["category_median_size"].append(error)
         if geometry["yaw_valid"][i]:
-            values["uniform_yaw"].append(math.pi / (2 * geometry["symmetry"][i]))
+            values["uniform_yaw"].append(_uniform_yaw_error(geometry["symmetry"][i], geometry["swap"][i],
+                target["target_size_local_m"] if all(geometry["size_valid"][i]) else None))
     return {**{name: {metric: _stat(values[name])} for name, metric in BASELINE_METRICS},
             "category_fallback_objects": fallbacks}
 
