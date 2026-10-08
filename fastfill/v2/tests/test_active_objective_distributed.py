@@ -97,6 +97,7 @@ def _worker(rank, rendezvous, directory, mode):
 @pytest.mark.parametrize("mode", ["peer_empty", "last_empty", "empty_then_valid", "all_empty"])
 def test_actual_two_rank_objective_windows(tmp_path, monkeypatch, mode):
     monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
     torch.multiprocessing.spawn(_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode),
                                nprocs=2, join=True)
     assert all((tmp_path / f"rank-{rank}.json").exists() for rank in range(2))

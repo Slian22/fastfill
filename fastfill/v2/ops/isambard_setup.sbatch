@@ -44,7 +44,7 @@ echo "e02da65e6844630eba506952ee1f059655552a2d14e1af763eb787cc2d0152ea  $R" | sh
 # made once here, so two autopilots exporting at the same time do not race on it
 [ -d runs/roomgenbench/requests ] || env/bin/python -m fastfill.v2.roomgenbench \
   --requests-from RoomGenBench/bench/inputs/scenes --requests-out runs/roomgenbench/requests
-env/bin/python -m pytest fastfill/v2/tests -q -x
+env/bin/python -m pytest fastfill/v2/tests -q  # every failure at once; any failure stops the setup
 
 # smoke on this hardware (96 GB per GPU here, 143 GB on the old server): the final configuration (max_objects 256) on the
 # 8 longest rows training accepts (most tokens within max_length 8192 and 256 objects), each seen at full length (no dropped
