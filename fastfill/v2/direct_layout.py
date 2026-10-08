@@ -182,7 +182,14 @@ def _footprint_contains(box, xy):
     return abs(c * dx + s * dy) <= w / 2 and abs(-s * dx + c * dy) <= d / 2
 
 
-def infer_support(obj, declared, boxes, floor, room=None):
+def _reaches(parents, ident, target):
+    """Does ident's support chain in ``parents`` (id -> parent, acyclic) lead to target?"""
+    while ident in parents and ident != target:
+        ident = parents[ident]
+    return ident == target
+
+
+def infer_support(obj, declared, boxes, floor, room=None, parents=None):
     """K6 hand-off placement: (support_parent, status), status in {declared, inferred, unknown}.
 
     A declared parent (request support_parent or hard on) is reported as is.
@@ -190,7 +197,10 @@ def infer_support(obj, declared, boxes, floor, room=None):
     candidate; else the highest other predicted box that starts strictly below
     this object, whose top is within ON_OBJECT_CONTACT_M of this bottom and
     whose footprint contains this footprint centre, is an on_object candidate
-    (strictly lower parents keep inferred chains acyclic); else, given a ``room``
+    (strictly lower parents keep inferred chains acyclic; a declared parent need
+    not be lower, so a box whose chain in ``parents``, id -> declared or already
+    inferred parent, leads back to this object is skipped: declared A on B with B
+    predicted on A's top would otherwise give A -> B -> A); else, given a ``room``
     with a known boundary and a known floor, a box whose bottom is over RAISED_M above
     the floor, with a footprint side within ``validation.WALL_GAP_M`` of the boundary and
     no other box under its centre (footprint containing it, starting below this bottom:
@@ -204,7 +214,8 @@ def infer_support(obj, declared, boxes, floor, room=None):
         return "floor", "inferred"
     top = lambda box: box["bottom_center_m"][2] + box["target_size_local_m"][2]
     below = [box for box in boxes if box["bottom_center_m"][2] < z and abs(z - top(box)) <= ON_OBJECT_CONTACT_M
-             and _footprint_contains(box, obj["bottom_center_m"][:2])]
+             and _footprint_contains(box, obj["bottom_center_m"][:2])
+             and not _reaches(parents or {}, box["id"], obj["id"])]
     if below:
         return max(below, key=top)["id"], "inferred"
     from .validation import on_wall
@@ -230,7 +241,8 @@ def layout_to_roomgenbench(condition, layout):
     asset IDs or verified support surfaces are fabricated. Explicit request
     support and hard on constraints are preserved (`support_status` declared);
     otherwise `infer_support` proposes floor / on_object / wall candidates from the
-    predicted boxes (inferred; floor only when `floor_known` is not false, wall
+    predicted boxes (inferred, never closing a support cycle with the declared or
+    earlier inferred parents; floor only when `floor_known` is not false, wall
     only when `boundary_known` is not false) or
     leaves the object unknown. `place` is the
     RoomGenBench vocabulary of `place_id`. asset_key follows the benchmark
@@ -248,10 +260,15 @@ def layout_to_roomgenbench(condition, layout):
     floor = room.get("floor_z_m")
     # A declared-unknown floor (reference_extent: floor_z_m 0, floor_known false) is no floor-contact evidence.
     contact_floor = None if room.get("floor_known") is False else floor
+    # Declared support (a fixed object's hard on included), then each inference as made: none closes a cycle.
+    parents = {c["object_id"]: c.get("parent_id", c.get("target_id")) for c in condition["constraints"]
+               if c.get("type") == "on" and c.get("hard", True)}
+    parents = {**parents, **{ident: row.get("support_parent") for ident, row in requests.items()}}
     objects = []
     for obj in scene["objects"]:
         parent, status = infer_support(obj, requests[obj["id"]].get("support_parent"), scene["objects"], contact_floor,
-                                       room if room.get("boundary_known") is not False else None)
+                                       room if room.get("boundary_known") is not False else None, parents)
+        parents = {**parents, obj["id"]: parent}
         objects = objects + [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
                 "asset_key": asset_key(obj["category"], obj["description"]),
                 "asset_key_kind": "downstream_generation_key_only",

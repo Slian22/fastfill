@@ -212,6 +212,20 @@ def test_on_object_candidate_is_the_highest_strictly_lower_box_inside_a_rotated_
     assert infer_support({"id": "x", "bottom_center_m": [0., 0., 3.]}, None, [], None) == (None, "unknown")
 
 
+def test_an_inference_never_closes_a_cycle_with_a_declared_parent():
+    # Audit C4: chair declared on table, table undeclared and predicted on the chair's top; before: table -> chair.
+    chair = ("chair", "chair", [1., 1., 1.], [2., 1.5, 0.], 0.)
+    table = ("table", "table", [1., 1., 1.], [2., 1.5, 1.], 0.)
+    for boxes in ((chair, table), (table, chair)):
+        places = placement(*scene(*boxes, declared={"chair": "table"}))
+        assert places == {"chair": ("on_object", "table", "declared"), "table": ("unknown", None, "unknown")}
+    # The cycle-closing box is skipped, not the rule: the next lower candidate (the table) still supports the cup.
+    desk = ("desk", "desk", [1.6, .8, .75], [2., 1.5, 0.], 0.)
+    tray = ("tray", "tray", [.4, .3, .02], [2., 1.5, .75], 0.)
+    cup = ("cup", "cup", [.08, .08, .1], [2., 1.5, .77], 0.)
+    assert placement(*scene(desk, tray, cup, declared={"tray": "cup"}))["cup"] == ("on_object", "desk", "inferred")
+
+
 def test_place_and_support_status_reach_assets_and_the_real_assembler_receipt(tmp_path):
     shelf = ("shelf", "shelf", [1., .4, 2.], [1., .2, 0.], 0.)
     plant = ("plant", "plant", [.5, .5, 1.2], [3., .3, 0.], 0.)
