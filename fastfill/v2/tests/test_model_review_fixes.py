@@ -102,6 +102,7 @@ def _distributed_uneven_box_worker(rank, rendezvous, result_directory):
                     reason="requires Gloo distributed backend")
 def test_actual_two_process_uneven_and_global_zero_box_counts(tmp_path, monkeypatch):
     monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if __import__("sys").platform == "darwin" else "lo")
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
     rendezvous = "file://" + str(tmp_path / "rendezvous")
     torch.multiprocessing.spawn(_distributed_uneven_box_worker,
         args=(rendezvous, str(tmp_path)), nprocs=2, join=True)
