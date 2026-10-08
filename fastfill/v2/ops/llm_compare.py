@@ -157,7 +157,7 @@ def main(argv=None):
                                    for label, (_, s) in methods.items()},
                        "references": references, "boot": a.boot, "seed": a.seed, "difference": "method minus reference",
                        "fallback": "no layout -> room centre position, category-median size (leave-one-out over these rows), "
-                                   "uniform-random yaw expectation pi/(2*order), BEV IoU 0, clean room 0",
+                                   "uniform-random yaw expectation scored like the method's yaw error (evaluate._uniform_yaw_error), BEV IoU 0, clean room 0",
                        "selection_cohort_note": COHORT_NOTE},
               "checks": {label: c[2]["reproduces_report_exactly"] for label, c in collected.items()},
               "rows": n, "common_rooms": len(common),

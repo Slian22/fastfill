@@ -620,8 +620,8 @@ backbone adapter/full weights where needed and decoder/heads.
   heads; `position_cell` / `position_residual` / `position_z` are logged as well.
 - Box symmetry (round 2): for `validity.size_axis_swap_allowed` objects the loss
   picks the detached joint minimum of size + yaw CE + yaw residual over
-  k in {0..3} (yaw + k pi/2, size xy swapped for odd k); a fixed size coordinate
-  pins the written order and leaves yaw only the box's pi symmetry (order 2); matching uses min(cost(sx,sy), cost(sy,sx)) per pair.
+  k in {0..3} (yaw + k pi/2, size xy swapped for odd k); a fixed sx or sy
+  (a fixed sz alone pins nothing) pins the written order and leaves yaw only the box's pi symmetry (order 2); matching uses min(cost(sx,sy), cost(sy,sx)) per pair.
   `loss.yaw_reg` is capped at 2.0 in the main configs
   ([calibration, round-2 section](../../docs/fastfill-v2-loss-calibration-20261006.md)).
 

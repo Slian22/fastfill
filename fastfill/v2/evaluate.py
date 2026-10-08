@@ -292,7 +292,8 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
             facing = (flipped[i] - away[gaps.argmin(-1)] + np.pi) % (2 * np.pi) - np.pi  # flipped yaw vs facing away
             cand_yaw = np.where((gaps.min(-1) < near_wall) & (np.abs(facing) <= np.pi / 4 + 1e-6), flipped[i], cand_yaw)
         cand_half = halves(cand_yaw, size[i])  # k x 2
-        cand_area = 4 * cand_half[:, 0] * cand_half[:, 1]  # at the candidate's yaw: a wall projection turns the box
+        # a wall projection turns the box; elsewhere the footprint is the decoded one (a flip by pi keeps it: same area)
+        cand_area = 4 * cand_half[:, 0] * cand_half[:, 1] if on_wall[i] else np.full(len(cand), area[i])
         over = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1)
         snap = (over > 0) & (over <= margin)  # within the margin past a wall: slide back inside (the validator allows 1e-4)
         cand = np.where(snap[:, None], np.clip(cand, lo + cand_half, hi - cand_half), cand)
