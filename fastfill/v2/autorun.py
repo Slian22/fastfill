@@ -42,16 +42,13 @@ ENV = {"PYTHONDONTWRITEBYTECODE": "1", "TOKENIZERS_PARALLELISM": "false", "OMP_N
 def score(report):
     """Lower is better. Errors relative to the report's own trivial baselines, plus distribution penalties.
 
-    The baselines are ``baselines_paired``: scored on the requests the model reference scores (those with a
-    layout), so model and baseline errors cover the same objects. size: log-size error / per-category median
-    size; yaw: yaw error / the expected error of a uniformly random yaw, pi / (2 * symmetry order) per object
-    (not a constant yaw); position: bottom-centre error / room-centre placement; |central-quarter fraction - GT|;
-    |mean wall distance - GT| / GT; overlap above GT + 1 point and objects outside the room above GT count
-    fivefold; the share of requests without a layout counts tenfold. The distribution terms use
-    ``predicted_matched`` (the predictions matched to the label-complete objects the ground-truth column
-    counts), so the labels themselves score 0 there.
+    size: log-size error / per-category median size; yaw: yaw error / constant yaw; position: bottom-centre
+    error / room-centre placement; |central-quarter fraction - GT|; |mean wall distance - GT| / GT;
+    overlap above GT + 1 point and objects outside the room above GT count fivefold; the share of requests
+    without a layout counts tenfold. The distribution terms use ``predicted_matched`` (the predictions matched
+    to the label-complete objects the ground-truth column counts), so the labels themselves score 0 there.
     """
-    ref, base = report["model"]["reference"], report["baselines_paired"]
+    ref, base = report["model"]["reference"], report["baselines"]
     pred, gt = report["collapse"]["predicted_matched"], report["collapse"]["ground_truth"]
     ratio = lambda a, b: a / b if a is not None and b else 1.
     s = (ratio(ref["log_size_error"]["mean"], base["category_median_size"]["log_size_error"]["mean"])
@@ -263,7 +260,7 @@ class Autopilot:
                 old = json.loads((out / "report.json").read_text())
                 if (old.get("data_sha256") == sha256(data) and old.get("checkpoint") == str(Path(checkpoint).resolve())
                         and old.get("projection") == "minimal" and old.get("grid_decode") == "spread" and old.get("implementation_sha256")
-                        and "predicted_matched" in (old.get("collapse") or {}) and old.get("baselines_paired")):  # older reports cannot be scored
+                        and "predicted_matched" in (old.get("collapse") or {})):  # older reports cannot be scored
                     cached[checkpoint] = old["implementation_sha256"]
                     continue
                 set_aside(out)
@@ -393,20 +390,11 @@ class Autopilot:
         """SUMMARY.md: selection, the best model on validation and test, and the model next to the LLM baselines."""
         def metrics(path):
             r = json.loads(Path(path).read_text())
-            ref, pred, gt, base = (r["model"]["reference"], r["collapse"]["predicted_matched"], r["collapse"]["ground_truth"],
-                                   r.get("baselines_paired"))
+            ref, pred, gt, base = r["model"]["reference"], r["collapse"]["predicted_matched"], r["collapse"]["ground_truth"], r["baselines"]
             def get(d, *keys):
                 for key in keys:
                     d = (d or {}).get(key)
                 return f"{d:.3f}" if isinstance(d, float) else "-"
-            def checked(v):  # validator collisions and clean rooms of one layout set
-                if not v:
-                    return "-", "-"
-                return (f"{v['rooms_with_collision']}/{v['rooms']} rooms, {v['collision_pairs']} pairs (+{v['fixed_collision_pairs']} fixed)",
-                        f"{v['clean_room_rate']:.3f} ({v['clean_rooms_with_hard_unknown']} with unknown)")
-            validation = r.get("validation") or {}
-            model_collisions, model_clean = checked(validation.get("model"))
-            gt_collisions, gt_clean = checked(validation.get("ground_truth"))
             walls = (r.get("target_validation_checks") or {}).get("boundary") or {}
             inside = walls.get("pass", 0) / max(1, walls.get("pass", 0) + walls.get("violation", 0))
             failed = f"{r.get('inference_failed_requests', '-')}" + (f" ({r['over_capacity_requests']} over capacity)"
@@ -414,20 +402,14 @@ class Autopilot:
             return [f"{r.get('requests', '-')} / {failed}", f"{inside:.3f}",
                     get(ref, "bottom_center_error_m", "mean"),
                     get(ref, "log_size_error", "mean"), get(ref, "yaw_error_rad", "mean"),
-                    f"{get(pred, 'bev_overlap_rate_iou_gt_0.3')} / {get(pred, 'bev_overlap_rate_iou_gt_0.3_room_mean')}",
-                    model_collisions, model_clean,
-                    f"{r.get('hard_violation_requests', '-')} / {r.get('failed_requests_strict', r.get('failed_requests', '-'))}",
-                    get(pred, "central_quarter_fraction"), get(pred, "mean_nearest_wall_distance_m"), get(pred, "out_of_room_fraction"),
-                    f"GT {get(gt, 'bev_overlap_rate_iou_gt_0.3')} / {get(gt, 'bev_overlap_rate_iou_gt_0.3_room_mean')}; "
-                    f"{gt_collisions}; clean {gt_clean}; {get(gt, 'central_quarter_fraction')} / {get(gt, 'mean_nearest_wall_distance_m')}",
+                    get(pred, "bev_overlap_rate_iou_gt_0.3"), get(pred, "central_quarter_fraction"),
+                    get(pred, "mean_nearest_wall_distance_m"), get(pred, "out_of_room_fraction"),
+                    f"GT {get(gt, 'bev_overlap_rate_iou_gt_0.3')} / {get(gt, 'central_quarter_fraction')} / "
+                    f"{get(gt, 'mean_nearest_wall_distance_m')}",
                     f"{get(base, 'room_center_position', 'bottom_center_error_m', 'mean')} / "
                     f"{get(base, 'category_median_size', 'log_size_error', 'mean')} / {get(base, 'uniform_yaw', 'yaw_error_rad', 'mean')}"]
-        head = ("| | requests / no layout | objects inside walls | position err (m) | log-size err | yaw err (rad) "
-                "| overlap pairs / room mean | validator collisions | clean rooms (no hard violation) | hard-violation / strict-failed requests "
-                "| central | wall dist (m) | out of room "
-                "| ground truth overlap pairs / room mean; collisions; clean rooms; central / wall "
-                "| paired baselines (same requests) room centre / category median size (eval-set LOO) / uniform-random yaw |\n|"
-                + "---|" * 16)
+        head = ("| | requests / no layout | objects inside walls | position err (m) | log-size err | yaw err (rad) | overlap | central | wall dist (m) "
+                "| out of room | ground truth overlap / central / wall | baselines room centre / category median size (eval-set LOO) / uniform-random yaw |\n|" + "---|" * 12)
         def table(rows):
             lines = [head]
             for name, path in rows:
@@ -444,13 +426,7 @@ class Autopilot:
                 + (f"The model was uploaded to {self.a.model_repo} before these checks; treat it as accepted only if they passed."
                  if not any(f.startswith("upload failed") for f in failures) else "The model upload failed; the checkpoint stays on the server."), "",
                 "Requests over the model capacity (more objects than max_objects) count as no layout and are listed separately; "
-                "'objects inside walls' is the validator's bbox check, 'out of room' only the bottom-centre. 'overlap' counts "
-                "BEV IoU > 0.3 pairs (pooled over pairs / mean over rooms) and misses smaller overlaps; 'validator collisions' "
-                "are validate_scene's collision checks (any footprint overlap sharing height; rooms with one, requested pairs, "
-                "pairs with fixed objects). A clean room has no hard violation; unknown checks are not violations, and the clean "
-                "rooms with one are counted beside the rate; strict-failed requests also fail on unknown. The ground-truth "
-                "column is the same rooms' labels under the same validator. Baselines are scored on the requests with a "
-                "layout (the model's own objects).", "",
+                "'objects inside walls' is the validator's bbox check, 'out of room' only the bottom-centre.", "",
                 "## Best model", "", table([("validation (three-field, select2 cohort)", best["report"]),
                                              ("test (three-field), spread decoding", test_dir / "report.json")]
                                             + ([("test (three-field), raw argmax: the model alone", raw_test)] if raw_test else [])), "",
