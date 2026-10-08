@@ -1,9 +1,8 @@
 #!/bin/bash
-# Usage: runs/roomgenbench/run_checkpoint.sh <model-step dir> <tag>; CPU inference (GPUs are training).
-# Server copy lives at runs/roomgenbench/run_checkpoint.sh (the autopilot calls it); this is the versioned copy.
+# Usage: fastfill/v2/ops/run_checkpoint.sh <model-step dir> <tag>; CPU inference (GPUs are training). The autopilot calls it.
 set -euo pipefail
-cd /home/jovyan/shanliantian/fastfill
-export PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false HF_HOME=/home/jovyan/shanliantian/.huggingface
+cd "$(dirname "$0")/../../.."
+export PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false HF_HOME=${HF_HOME:-/home/jovyan/shanliantian/.huggingface}
 PY=./env/bin/python; CK=$1; OUT=runs/roomgenbench/$2; mkdir -p $OUT; export OMP_NUM_THREADS=48 CUDA_VISIBLE_DEVICES=
 [ -d runs/roomgenbench/requests ] || $PY -m fastfill.v2.roomgenbench --requests-from RoomGenBench/bench/inputs/scenes --requests-out runs/roomgenbench/requests
 for req in runs/roomgenbench/requests/*.json; do

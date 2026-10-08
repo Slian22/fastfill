@@ -70,7 +70,7 @@ def test_score_prefers_accurate_layouts_and_punishes_collapse_or_leaving_the_roo
     assert score(_report(.3, .6, 2.0, out=.5)) > good + 2                          # pushed out of the room
 
 
-def test_next_config_keeps_the_model_and_loss_and_rescales_to_seven_gpus():
+def test_next_config_keeps_the_model_and_loss_and_rescales_to_seven_or_four_gpus():
     config = {"model": {"position_head": "grid_residual"}, "loss": {"position_cell": .5},
               "training": {"steps": 3887, "batch_size": 1, "gradient_accumulation_steps": 32, "resume": "x",
                            "checkpoint_every": 500, "validate_every": 500},
@@ -81,6 +81,8 @@ def test_next_config_keeps_the_model_and_loss_and_rescales_to_seven_gpus():
     assert t["gradient_accumulation_steps"] == 14 and t["batch_size"] == 1 and t["resume"] is None
     assert t["steps"] == -(-5 * 124584 // (7 * 14)) and out["optimizer"]["warmup_steps"] == round(.03 * t["steps"])
     assert json.loads(json.dumps(config))["training"]["steps"] == 3887  # input untouched
+    four = next_config(config, world_size=4, train_rows=124584, epochs=5)["training"]
+    assert four["gradient_accumulation_steps"] == 24 and four["steps"] == 6489  # global batch 96
 
 
 def test_adopt_restores_the_resume_chain(tmp_path):
@@ -95,7 +97,7 @@ def test_adopt_restores_the_resume_chain(tmp_path):
     assert job["resumes"] == 2 and job["output"].endswith("job-resume2") and len(job["outputs"]) == 3
 
 
-def _phase_f(tmp_path, *, failed=0, over=0, upload_error=False, rows_late=False):
+def _phase_f(tmp_path, *, failed=0, over=0, upload_error=False, rows_late=False, **extra):
     """Autopilot.run end to end with stubbed processes: a finished prior run, data unchanged, phase F checks."""
     import argparse
     from unittest.mock import patch
@@ -120,7 +122,7 @@ def _phase_f(tmp_path, *, failed=0, over=0, upload_error=False, rows_late=False)
         "sha256": {n: autorun.sha256(old / n) for n in ("train.jsonl", "validation.jsonl", "test.jsonl")}}))
     a = argparse.Namespace(repo=str(tmp_path), current_data=str(old), data_root=str(tmp_path / "data"), data_wait_h=0., epochs=5,
                            eval_rows="3000", model_repo="mock/model", llm_env=str(tmp_path / "noenv"), llm_rows="300",
-                           current=[("prior", "c", "1,2,3,4")])
+                           current=[("prior", "c", "1,2,3,4")], **extra)
     pilot = autorun.Autopilot(a)
     checkpoint = tmp_path / "runs/prior/model-step-10"
     checkpoint.mkdir(parents=True, exist_ok=True)
@@ -133,10 +135,11 @@ def _phase_f(tmp_path, *, failed=0, over=0, upload_error=False, rows_late=False)
         pilot.upload = upload
     else:
         pilot.upload = lambda *a: None
-    commands = []
+    commands, pilot.gpus_used = [], set()
     def sh(args, **kw):
         args = list(map(str, args))
         commands.append(args)
+        pilot.gpus_used.add(kw.get("gpus"))
         if args[0] == "bash":
             for i in range(5):
                 room = pilot.runs / "roomgenbench" / args[-1] / f"r{i}.layout_boxes"
@@ -181,6 +184,14 @@ def test_phase_f_can_run_again_after_a_failed_upload(tmp_path):
     pilot, commands = _phase_f(tmp_path)  # e.g. after fixing the credentials
     assert pilot.status["phase"] == "done" and pilot.status["uploaded_model"] == "mock/model/main7-cell05-old-e5"
     assert not any(a[0] == "bash" for a in commands)  # the same checkpoint's five rooms are not exported twice
+
+
+def test_a_start_config_skips_phases_a_to_d_and_uses_the_given_gpus(tmp_path):
+    (tmp_path / "start.json").write_text(json.dumps({"training": {}, "optimizer": {}, "loss": {"position_cell": .5}}))
+    pilot, commands = _phase_f(tmp_path, start_config=str(tmp_path / "start.json"), gpus="0,1,2,3", autorun_dir="autorun-a")
+    assert pilot.status["phase"] == "done" and pilot.status["run"] == "main4-cell05-old-e5"
+    assert not any(a[0] == "git" for a in commands)  # no runs to finish, no data to wait for
+    assert pilot.gpus_used <= {None, "0", "1", "2", "3"} and (tmp_path / "runs/autorun-a/SUMMARY.md").is_file()
 
 
 def test_no_gpu_evaluation_starts_beside_a_running_training(tmp_path, monkeypatch):

@@ -10,7 +10,14 @@ Operations
   handoff until the reports are checked. Stops at the first failing verifier (set -euo pipefail).
 - `start_autorun_retrain.sh`: retrain on new data with logged `--set` overrides (`model.max_objects=256`,
   `loss.yaw_cls=0.5`), `--name-suffix`, LLM step disabled (no paid calls).
-- `run_checkpoint.sh <model-step> <tag>`: five-room RoomGenBench hand-off on CPU with `--require-placement`.
+- `run_checkpoint.sh <model-step> <tag>`: five-room RoomGenBench hand-off on CPU with `--require-placement`
+  (the autopilot calls it; runs from any checkout).
+- Isambard-AI (aarch64 GH200, Slurm): from a checkout under `$PROJECTDIR`, `bash fastfill/v2/ops/isambard_submit.sh`
+  submits `isambard_setup.sbatch` (conda env with the baseline's package versions, pinned data, backbone and LLM rows,
+  tests) and, once it succeeds, two `isambard_autorun.sbatch` jobs (one node each): yaw_cls 0.5 and the 0.08 control,
+  both from `configs/main7-cell05-main-20261007b-e5.json` (the baseline's configuration) with `max_objects` 256.
+  Status in `runs/autorun-yawcls05/` and `runs/autorun-yawcls008/`, job logs in `runs/isambard/`. Resubmitting an
+  autorun job resumes it.
 - `run_structured.sh`, `rescore_llm.sh`: the OptiScene-style LLM modes on the frozen 300 rows and re-scoring of saved
   LLM predictions with the current evaluator (no API calls); `run_reference.sh`: reference check of a 5-room export.
 

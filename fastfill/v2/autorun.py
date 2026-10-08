@@ -17,6 +17,7 @@ Phases (state in <runs>/autorun/STATUS.json, log in <runs>/autorun/autorun.log):
   LLM (background from C) once the API env file exists: prompt-only and harness LLM baselines on the
      first ``--llm-rows`` three-field rows of the validation sample, scored by evaluate --predictions; in F
      the best model is scored on the same rows. ``done`` writes <runs>/autorun/SUMMARY.md.
+  With --start-config (a new machine) A-D are skipped: that configuration trains on --current-data.
 
 Every decision and command is logged; a failing step stops the autopilot with STATUS phase "failed".
 """
@@ -36,7 +37,8 @@ import threading
 import time
 
 ENV = {"PYTHONDONTWRITEBYTECODE": "1", "TOKENIZERS_PARALLELISM": "false", "OMP_NUM_THREADS": "8",
-       "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True", "HF_HOME": "/home/jovyan/shanliantian/.huggingface"}
+       "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True",
+       "HF_HOME": os.environ.get("HF_HOME", "/home/jovyan/shanliantian/.huggingface")}
 
 
 def score(report):
@@ -149,7 +151,8 @@ class Autopilot:
     def __init__(self, args):
         self.a, self.root = args, Path(args.repo)
         self.runs = self.root / "runs"
-        self.dir = self.runs / "autorun"
+        self.dir = self.runs / getattr(args, "autorun_dir", "autorun")  # one per concurrent autopilot
+        self.gpus = getattr(args, "gpus", "1,2,3,4,5,6,7").split(",")
         self.dir.mkdir(parents=True, exist_ok=True)
         self.status = {"phase": "start", "history": []}
         self.python = str(self.root / "env/bin/python")
@@ -242,14 +245,14 @@ class Autopilot:
             path.write_text("".join(lines if rows == "all" else lines[:int(rows)]))
         return path
 
-    def evaluate_candidates(self, runs, tag, *, newest=3, gpus=("1", "2", "3", "4", "5", "6", "7"), data=None):
+    def evaluate_candidates(self, runs, tag, *, newest=3, gpus=None, data=None):
         """runs: one list of output directories (the run and its resumes) per run; its newest checkpoints compete.
 
         A restarted autopilot reuses a finished report of exactly the command below (same data and checkpoint, minimal
         projection, spread decoding, scorable). The reports of one selection all carry one ``implementation_sha256``
         (recorded per entry in <tag>-selection.json): the cached reports' when every candidate is cached under the same
         one, else that of the code on disk; other reports are set aside and evaluated again (refused beside a training)."""
-        candidates, data = [], data or self.eval_data()
+        candidates, data, gpus = [], data or self.eval_data(), gpus or self.gpus
         for outputs in runs:
             candidates += sorted((p for o in outputs for p in glob.glob(f"{o}/model-step-*")), key=step_of)[-newest:]
         outs = {checkpoint: self.runs / f"{tag}-{Path(checkpoint).parent.name}-{Path(checkpoint).name}" for checkpoint in candidates}
@@ -323,7 +326,7 @@ class Autopilot:
             self.log("stale RoomGenBench hand-off set aside", tag=tag, output=str(stale))
         out.mkdir(parents=True)
         bound.write_text(identity + "\n")
-        return self.sh(["bash", "runs/roomgenbench/run_checkpoint.sh", checkpoint, tag],
+        return self.sh(["bash", "fastfill/v2/ops/run_checkpoint.sh", checkpoint, tag],
                        log=self.runs / "roomgenbench" / f"{tag}.log", wait=False)
 
     # -- data ---------------------------------------------------------------------------------------
@@ -477,35 +480,41 @@ class Autopilot:
 
     def run(self):
         self.extra_resume, self.data = (), str(Path(self.a.current_data).resolve())
-        self.phase("A-wait-current-runs")
-        jobs = {name: self.adopt({"process": None, "config": config, "data": self.data, "gpus": gpus, "output": self.out(name),
-                                  "outputs": [self.out(name)]}) for name, config, gpus in self.a.current}
-        self.supervise(jobs)
-        self.sh(["git", "pull", "--ff-only", "origin", "main"], log=self.dir / "git-pull-a.log")
-        self.phase("B-evaluate-current")
-        winner = self.evaluate_candidates([job["outputs"] for job in jobs.values()], "select1")
-        self.phase("C-selected", winner=winner)
-        llm = threading.Thread(target=self.llm_baselines, args=(self.eval_data(),), daemon=True)
-        llm.start()
-        handoff = self.roomgenbench(winner["checkpoint"], "best-round1")
-        # its five rooms each start a new process from the repo; finish them before phase D pulls new code
-        self.log("round-1 RoomGenBench hand-off finished", returncode=handoff.wait())
-        self.phase("D-wait-data")
-        self.next_data()
-        run_dir = Path(winner["checkpoint"]).parent
-        config = json.loads((run_dir / "run_manifest_start.json").read_text())["config"]
-        rows = sum(1 for _ in open(f"{self.data}/train.jsonl"))
-        config = next_config(config, world_size=7, train_rows=rows, epochs=self.a.epochs)
+        if getattr(self.a, "start_config", None):  # a new machine: no earlier runs to finish, the data is in place
+            config = json.loads(Path(self.a.start_config).read_text())
+            self.log("start configuration", config=self.a.start_config, data=self.data)
+            llm = threading.Thread(target=self.llm_baselines, args=(self.eval_data(),), daemon=True)
+            llm.start()
+        else:
+            self.phase("A-wait-current-runs")
+            jobs = {name: self.adopt({"process": None, "config": config, "data": self.data, "gpus": gpus, "output": self.out(name),
+                                      "outputs": [self.out(name)]}) for name, config, gpus in self.a.current}
+            self.supervise(jobs)
+            self.sh(["git", "pull", "--ff-only", "origin", "main"], log=self.dir / "git-pull-a.log")
+            self.phase("B-evaluate-current")
+            winner = self.evaluate_candidates([job["outputs"] for job in jobs.values()], "select1")
+            self.phase("C-selected", winner=winner)
+            llm = threading.Thread(target=self.llm_baselines, args=(self.eval_data(),), daemon=True)
+            llm.start()
+            handoff = self.roomgenbench(winner["checkpoint"], "best-round1")
+            # its five rooms each start a new process from the repo; finish them before phase D pulls new code
+            self.log("round-1 RoomGenBench hand-off finished", returncode=handoff.wait())
+            self.phase("D-wait-data")
+            self.next_data()
+            run_dir = Path(winner["checkpoint"]).parent
+            config = json.loads((run_dir / "run_manifest_start.json").read_text())["config"]
+        rows, world = sum(1 for _ in open(f"{self.data}/train.jsonl")), len(self.gpus)
+        config = next_config(config, world_size=world, train_rows=rows, epochs=self.a.epochs)
         for assignment in getattr(self.a, "set", None) or ():  # explicit, logged departures from the winner's configuration
             override(config, assignment)
             self.log("config override", set=assignment)
-        name = f"main7-cell{config['loss']['position_cell']:g}-{Path(self.data).name}-e{self.a.epochs}".replace(".", "")
+        name = f"main{world}-cell{config['loss']['position_cell']:g}-{Path(self.data).name}-e{self.a.epochs}".replace(".", "")
         name += getattr(self.a, "name_suffix", None) or ""  # distinct output for a run with --set overrides
         config_path = self.dir / f"{name}.json"
         if not config_path.is_file():
             config_path.write_text(json.dumps(config, indent=2) + "\n")
         self.phase("E-train", run=name, config=str(config_path), data=self.data, steps=config["training"]["steps"])
-        job = {"config": str(config_path), "data": self.data, "gpus": "1,2,3,4,5,6,7", "output": self.out(name),
+        job = {"config": str(config_path), "data": self.data, "gpus": ",".join(self.gpus), "output": self.out(name),
                "outputs": [self.out(name)], "process": None}
         if Path(job["output"]).exists():  # a restarted autopilot adopts its own earlier launch
             self.adopt(job)
@@ -517,7 +526,7 @@ class Autopilot:
         self.supervise({name: job})
         self.phase("F-evaluate-final")
         best = self.evaluate_candidates([job["outputs"]], "select2", newest=4, data=self.eval_data("all"))
-        failures, uploaded = [], True
+        failures, uploaded, g = [], True, self.gpus  # F uses four GPUs
         try:
             self.upload(best["checkpoint"], name)  # an UNACCEPTED backup until the checks below pass (see final phase)
         except Exception as error:  # the evaluations below still run
@@ -533,21 +542,21 @@ class Autopilot:
             shutil.rmtree(rows_out, ignore_errors=True)
             rows_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
                                 "--projection", "full", "--device", "cuda", "--grid-decode", "spread", "--output", rows_out],
-                               gpus="2", log=f"{rows_out}.log", wait=False)
+                               gpus=g[1], log=f"{rows_out}.log", wait=False)
             raw_out = self.runs / f"llmrows-{name}-argmax"
             shutil.rmtree(raw_out, ignore_errors=True)
             raw_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", rows,
                                "--projection", "full", "--device", "cuda", "--grid-decode", "argmax", "--output", raw_out],
-                              gpus="3", log=f"{raw_out}.log", wait=False)
+                              gpus=g[2], log=f"{raw_out}.log", wait=False)
         out, raw_test = self.runs / f"test-{name}", self.runs / f"test-{name}-argmax"
         shutil.rmtree(raw_test, ignore_errors=True)
         raw_test_job = self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data",
                                 f"{self.data}/test.jsonl", "--projection", "minimal", "--device", "cuda", "--grid-decode", "argmax",
-                                "--output", raw_test], gpus="4", log=f"{raw_test}.log", wait=False)  # the model alone
+                                "--output", raw_test], gpus=g[3], log=f"{raw_test}.log", wait=False)  # the model alone
         shutil.rmtree(out, ignore_errors=True)  # evaluate refuses an existing output; a rerun of F starts over
         if self.sh([self.python, "-m", "fastfill.v2.evaluate", "--checkpoint", best["checkpoint"], "--data", f"{self.data}/test.jsonl",
                     "--projection", "minimal", "full", "--device", "cuda", "--grid-decode", "spread", "--output", out],
-                   gpus="1", log=f"{out}.log", wait=False).wait():
+                   gpus=g[0], log=f"{out}.log", wait=False).wait():
             failures.append("spread test evaluation failed")
         if rows_job is not None and rows_job.wait() == 0:
             rows_report = rows_out / "report.json"
@@ -575,7 +584,10 @@ class Autopilot:
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--repo", default="/home/jovyan/shanliantian/fastfill")
-    p.add_argument("--current", nargs=3, action="append", metavar=("RUN", "CONFIG", "GPUS"), required=True)
+    p.add_argument("--current", nargs=3, action="append", metavar=("RUN", "CONFIG", "GPUS"))
+    p.add_argument("--start-config", help="skip A-D: train this configuration on --current-data (a new machine)")
+    p.add_argument("--gpus", default="1,2,3,4,5,6,7", help="training uses all, phase F the first four")
+    p.add_argument("--autorun-dir", default="autorun", help="status directory under runs/, one per concurrent autopilot")
     p.add_argument("--current-data", required=True)
     p.add_argument("--data-root", default="/home/jovyan/shanliantian/fastfill/data")
     p.add_argument("--data-wait-h", type=float, default=2.)
@@ -588,7 +600,10 @@ def main(argv=None):
     p.add_argument("--llm-env", default="/home/jovyan/shanliantian/.fastfill_api.env")
     p.add_argument("--llm-rows", default="300")
     os.environ.setdefault("HF_HOME", ENV["HF_HOME"])  # the in-process Hugging Face upload uses the logged-in home
-    pilot = Autopilot(p.parse_args(argv))
+    args = p.parse_args(argv)
+    if not (args.current or args.start_config):
+        p.error("give --current runs to finish or a --start-config")
+    pilot = Autopilot(args)
     try:
         pilot.run()
     except Exception as error:
