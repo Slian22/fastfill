@@ -1,0 +1,16 @@
+#!/bin/bash
+# FastFill v2 final analysis on one Isambard-AI node (4 GH200) once both autopilot arms have finished: final arm (lower
+# select2 score) vs control arm vs the old baseline, the saved LLM answers re-scored, one HTML report:
+# runs/analysis/final/report.html. From the checkout, with the arms' job ids (resubmitted arms: their new ids):
+#   sbatch --dependency=afterok:<yawcls05 job>:<yawcls008 job> fastfill/v2/ops/isambard_analysis.sbatch
+# Steps and outputs: fastfill/v2/ops/run_plan.sh (it refuses unless both STATUS.json phases are done or
+# done-with-failures). Resubmitting resumes: finished steps are kept.
+#SBATCH --job-name=ff-analysis
+#SBATCH --nodes=1
+#SBATCH --gpus=4
+#SBATCH --time=12:00:00
+#SBATCH --output=runs/isambard/%x-%j.out
+set -euo pipefail
+cd "$SLURM_SUBMIT_DIR"
+nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv
+exec bash fastfill/v2/ops/run_plan.sh all

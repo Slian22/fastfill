@@ -1,237 +1,299 @@
 #!/bin/bash
-# FastFill v2 round 15 — run plan after main7-cell05-main-20261008a-e5-yawcls05. NOT RUN YET: start it right after the
-# autopilot's phase F (STATUS.json phase done / done-with-failures) and BEFORE the control run, with the user's go-ahead.
-# Everything writes under runs/analysis/; nothing else is touched. GPU 0 is never used.
+# FastFill v2 final analysis on Isambard-AI (one node, 4 GH200), after both autopilot arms (runs/autorun-yawcls05: yaw_cls
+# 0.5; runs/autorun-yawcls008: the 0.08 control) have finished. Submitted as
+#   sbatch --dependency=afterok:<yawcls05 job>:<yawcls008 job> fastfill/v2/ops/isambard_analysis.sbatch   (runs "all")
+# or by hand from the checkout: bash fastfill/v2/ops/run_plan.sh inputs | gpu | cpu | report | all.
+# Everything is written under runs/analysis (inputs also: runs/.download-*, runs/baseline-hf, runs/llm-*-300,
+# data/main-20261007b). Every step keeps what a previous run of it finished; resubmitting the job resumes.
 #
-#   bash runs/analysis/run_plan.sh gpu      # (1) GPU lanes in parallel on idle cards 1-7 + CPU RoomGenBench   ~35 min
-#   bash runs/analysis/run_plan.sh cpu      # (2) CPU only (may run beside the control run)                      ~50 min
-#   bash runs/analysis/run_plan.sh report   # (3) the HTML report                                                 ~1 min
-#   bash runs/analysis/run_plan.sh all      # (1) (2) (3) in order
-#
-# (1) gpu: one lane per idle card (a card with no compute process; preflight before every step), at most 5 lanes;
-#     with fewer idle cards the lanes queue on them. Every GPU forward pass saves its head outputs; nothing below
-#     reads a GPU-decoded layout except as a cross-check. Estimates scale the logged 2026-10-07 test run (13075
-#     requests, 164k objects: 21.5 min) by object count (new test 214k, new validation 198k; the baseline skips its
-#     > 128-object rooms):
-#       lane 0  heads base-val    baseline, NEW validation, minimal + full ............................ ~23 min
-#       lane 1  heads final-val   final,    NEW validation, minimal + full ............................ ~28 min
-#       lane 2  heads base-test   baseline, NEW test, minimal + full .................................. ~25 min
-#       lane 3  heads final-test  final,    NEW test, minimal + full .................................. ~30 min
-#       lane 4  heads final-llm   final, the 300 LLM rows, full (< 1 min); then diag_ablation on the 500-row
-#               sample: final/new rows, baseline/new rows, baseline/old rows (~5 min each) ............ ~17 min
-#       beside: RoomGenBench, CPU: reference check of phase F's (CPU) export of the final; the baseline exported
-#               again on the CPU exactly like phase F (run_checkpoint.sh's predict) + reference check ... ~8 min
-#     wall ~35 min with >= 5 idle cards (5 parallel lanes); ~120 GPU min in total.
-# (2) cpu (<= 8 processes): every head output decoded twice by the same code (spread, argmax; 10 runs) ~15 min;
-#     cross-check against phase F's own GPU-decoded reports (identical layouts expected) ~2 min; stratify x16 ~15 min
-#     (measured 2026-10-08 on old test: 32 s minimal, 49 s full at 7 workers; x1.3 objects); compare x32 on cached room
-#     records ~16 min (measured: 25 s for 4455 rooms, 37 s for 8620 rooms); llm_compare ~1 min.
+# inputs  (CPU, ~10 min) isambard_inputs.py: refuses unless both arms' STATUS.json phase is done / done-with-failures and
+#         their select2 cohorts are the same bytes; final = the arm with the lower select2 score, control = the other.
+#         Downloads, sha256-pinned: the old baseline (used from a copy whose backbone path is models/Qwen3-8B), the saved
+#         LLM answers (prompt, harness; the structured modes only if runs/llm-structured*-300 exist) and the old data
+#         main-20261007b; rebuilds the baseline's old selection cohorts (Autopilot.eval_data). Then the 500-row ablation
+#         sample (sample_validation.py: the same scenes in new and old validation, eligible for all three checkpoints).
+# gpu     one lane per GPU of the job (round robin; GPU 0 is ours here): every forward pass saves its head outputs:
+#         final, control and baseline on NEW validation and NEW test (minimal + full; the baseline cannot answer rooms
+#         over 128 objects), final on the 300 LLM rows (full); diag_ablation on the sample: final and control (new rows,
+#         new train prior), baseline (new rows and old rows, old train prior). Beside, on the CPU: RoomGenBench reference
+#         checks of both arms' phase F exports and of the baseline exported again like phase F (not fatal).
+# cpu     every head output decoded twice by the same code (spread, argmax); cross-check against phase F's GPU-decoded
+#         reports; stratify x24; compare: final vs baseline (<= 128 objects), final vs control, spread vs argmax per
+#         model; the saved LLM answers re-scored by the evaluator on disk (no API calls) and llm_compare (final vs LLM).
+# report  runs/analysis/final/report.html. Decisions read validation only; the test, LLM, ablation and RoomGenBench
+#         sections are report-only.
 # Wall time per step: runs/analysis/walltime.tsv (step, start, end, seconds, exit code, card).
+# DRYRUN=1 (the CPU dry run, isambard_dryrun.sh, only): no downloads, the baseline/data pins are reported instead of
+# enforced, and DEVICE (cpu) and ABLATION_ROWS may be overridden.
 set -euo pipefail
-R=/home/jovyan/shanliantian/fastfill
-A=$R/runs/analysis
-cd $R
+R=${R:-$PWD}
+cd "$R"
+A=$R/runs/analysis; G=$A/gpu; F=$A/final; CACHE=$A/cache; OPS=$R/fastfill/v2/ops
+mkdir -p $G $F
 export PYTHONPATH=$R PYTHONDONTWRITEBYTECODE=1 TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=8 \
-       HF_HOME=/home/jovyan/shanliantian/.huggingface PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+       PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # HF_HOME: the submitting shell's (sbatch exports it)
 P=$R/env/bin/python
-NAME=main7-cell05-main-20261008a-e5-yawcls05
-BASE=$R/runs/main7-cell05-main-20261007b-e5/model-step-6357
 NEW=$R/data/main-20261008a
 OLD=$R/data/main-20261007b
 LLMROWS=$R/runs/llm-prompt-300/rows.jsonl
-SAMPLE=$A/ablation-sample-500   # drawn on CPU before the final checkpoint existed (sample_validation.py, seed 0)
-COHORT_NEW=$R/runs/autorun/validation-$(sha256sum $NEW/validation.jsonl | cut -c1-12)-all.jsonl  # the final's select2 rows
-COHORT_OLD=$R/runs/autorun/validation-$(sha256sum $OLD/validation.jsonl | cut -c1-12)-all.jsonl  # the baseline's select2 rows
-COHORT_OLD1=${COHORT_OLD%-all.jsonl}-3000.jsonl   # the baseline's select1 rows (select1 of 2026-10-08 02:33 ranked its steps)
-G=$A/gpu; F=$A/final; CACHE=$A/cache; mkdir -p $G $F
+GPUS=${CUDA_VISIBLE_DEVICES:-0,1,2,3}   # the job's GPUs (Slurm sets CUDA_VISIBLE_DEVICES)
+DEVICE=${DEVICE:-cuda}
+ABL=${ABLATION_ROWS:-500}
+if [ "${DRYRUN:-0}" != 1 ] && { [ "$DEVICE" != cuda ] || [ "$ABL" != 500 ]; }; then
+  echo "refused: DEVICE / ABLATION_ROWS overrides are for the dry run (DRYRUN=1) only"; exit 2
+fi
+SAMPLE=$A/ablation-sample-$ABL
+CPUS=$($P -c "import os; print(len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else os.cpu_count())")
+W=$(( CPUS < 32 ? CPUS : 32 ))   # stratify / compare workers and parallel CPU decodes
 
-final_checkpoint() {  # the autopilot's select2 winner; refuses before phase F has finished
-  $P - <<EOF
-import json, sys
-s = json.load(open("$R/runs/autorun/STATUS.json"))
-if s["phase"] not in ("done", "done-with-failures") or "$NAME" not in s.get("best", {}).get("checkpoint", ""):
-    sys.exit(f"refused: autopilot phase {s['phase']}, best {s.get('best', {}).get('checkpoint')}")
-print(s["best"]["checkpoint"])
-EOF
+load_inputs() {  # FINAL CTRL BASE (checkpoints), FINAL_NAME CTRL_NAME (runs), *_DIR, COHORT_*, LLM_MODES
+  [ -f $A/inputs.env ] || { echo "refused: run the inputs step first"; exit 1; }
+  . $A/inputs.env
 }
 
-idle() {  # card $1 is not GPU 0 and runs no compute process (a training rank, someone else's job)
-  [ "$1" != 0 ] || return 1
-  local uuid apps
-  uuid=$(nvidia-smi --id=$1 --query-gpu=uuid --format=csv,noheader) || return 1
-  apps=$(nvidia-smi --query-compute-apps=gpu_uuid --format=csv,noheader) || return 1
-  [[ "$apps" != *"$uuid"* ]]
-}
+label() { case $1 in base) echo 基线 ;; final) echo 最终 ;; ctrl) echo 对照 ;; esac; }
 
 # Functions run by timed (or after ||) run with errexit ignored (bash rule): each propagates failures with || return 1.
 timed() {  # timed STEP CARD LOG CMD...: runs CMD > LOG, appends its wall time to walltime.tsv, returns its exit code
-  local step=$1 card=$2 log=$3 t0 rc=0; shift 3; t0=$(date +%s)
+  local step=$1 card=$2 log=$3 start t0 rc=0; shift 3; start=$(date -u +%FT%TZ); t0=$(date +%s)
   "$@" > "$log" 2>&1 || rc=$?
-  printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$step" "$(date -u -d @$t0 +%FT%TZ)" "$(date -u +%FT%TZ)" $(( $(date +%s) - t0 )) $rc "$card" >> $A/walltime.tsv
+  printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$step" "$start" "$(date -u +%FT%TZ)" $(( $(date +%s) - t0 )) $rc "$card" >> $A/walltime.tsv
   echo "$step (card $card): exit $rc after $(( $(date +%s) - t0 )) s"
   return $rc
 }
 
-gpu_step() {  # gpu_step STEP CARD LOG CMD...: refuses a busy card right before the step
-  idle $2 || { echo "refused: $1 — GPU $2 is GPU 0 or has a compute process"; return 1; }
-  local step=$1 card=$2 log=$3; shift 3
-  timed $step $card $log env CUDA_VISIBLE_DEVICES=$card "$@"
+parallel() {  # parallel N < COMMANDS: each line run by bash, at most N at a time; fails if any fails
+  local n=$1 line fail=0 p pids=()
+  while IFS= read -r line; do
+    bash -c "$line" & pids+=($!)
+    if [ ${#pids[@]} -ge $n ]; then wait ${pids[0]} || fail=1; pids=(${pids[@]+"${pids[@]:1}"}); fi
+  done
+  for p in ${pids[@]+"${pids[@]}"}; do wait $p || fail=1; done
+  return $fail
+}
+
+step_inputs() {
+  local dry=; [ "${DRYRUN:-0}" != 1 ] || dry=--dry-run
+  $P $OPS/isambard_inputs.py --repo $R --out $A $dry
+  load_inputs
+  if [ ! -f $SAMPLE/sample.json ]; then  # drawn on the CPU; eligible for all three checkpoints (min max_objects 128)
+    rm -rf $SAMPLE
+    $P $OPS/sample_validation.py --new $NEW/validation.jsonl --old $OLD/validation.jsonl --checkpoint $FINAL \
+      --checkpoint $CTRL --checkpoint $BASE --rows $ABL --seed 0 --out-dir $SAMPLE
+  fi
+  echo INPUTS-DONE
+}
+
+gpu_step() {  # gpu_step STEP CARD LOG CMD...: CMD on GPU CARD (no GPU in the CPU dry run)
+  local step=$1 card=$2 log=$3 visible=$2; shift 3
+  [ $DEVICE = cuda ] || visible=
+  timed $step $card $log env CUDA_VISIBLE_DEVICES=$visible "$@"
 }
 
 heads() {  # heads NAME CHECKPOINT DATA CARD PROJECTION...: one forward pass per request, head outputs saved
   local name=$1 ckpt=$2 data=$3 card=$4; shift 4
+  if [ -f $G/$name-online/report.json ]; then echo "kept: heads-$name"; return 0; fi
+  rm -rf $G/$name-online $G/$name-heads
   gpu_step heads-$name $card $G/$name-online.log $P -m fastfill.v2.evaluate --checkpoint $ckpt --data $data \
-    --projection "$@" --device cuda --grid-decode spread --output $G/$name-online --save-head-outputs $G/$name-heads
+    --projection "$@" --device $DEVICE --grid-decode spread --output $G/$name-online --save-head-outputs $G/$name-heads
 }
 
-ablation() {  # ablation NAME CHECKPOINT ROWS TRAIN CARD; the sample holds exactly 500 eligible rows in a seeded order
-  gpu_step $1 $5 $G/$1.log $P $A/diag_ablation.py --checkpoint $2 --validation $3 --train $4 --rows 500 --device cuda \
-    --out $G/$1 || return 1
-  $P -c "import json,sys; r=json.load(open('$G/$1/report.json')); sys.exit(0 if r['rows'] == 500 else f'$1 scored {r[\"rows\"]} rows')"
+ablation() {  # ablation NAME CHECKPOINT ROWS TRAIN CARD; the sample holds exactly $ABL eligible rows in a seeded order
+  local check="import json,sys; r=json.load(open('$G/$1/report.json')); sys.exit(0 if r['rows'] == $ABL else f'$1 scored {r[\"rows\"]} rows')"
+  if [ ! -f $G/$1/report.json ]; then
+    rm -rf $G/$1
+    gpu_step $1 $5 $G/$1.log $P $OPS/diag_ablation.py --checkpoint $2 --validation $3 --train $4 --rows $ABL \
+      --device $DEVICE --out $G/$1 || return 1
+  fi
+  $P -c "$check"
 }
 
-lane0() { heads base-val $BASE $NEW/validation.jsonl $1 minimal full; }
-lane1() { heads final-val $FINAL $NEW/validation.jsonl $1 minimal full; }
-lane2() { heads base-test $BASE $NEW/test.jsonl $1 minimal full; }
-lane3() { heads final-test $FINAL $NEW/test.jsonl $1 minimal full; }
-lane4() {
-  local rc=0
-  heads final-llm $FINAL $LLMROWS $1 full || rc=1
-  ablation ablation-final-new $FINAL $SAMPLE/new.jsonl $NEW/train.jsonl $1 || rc=1   # each checkpoint's own train prior
-  ablation ablation-base-new $BASE $SAMPLE/new.jsonl $OLD/train.jsonl $1 || rc=1
-  ablation ablation-base-old $BASE $SAMPLE/old.jsonl $OLD/train.jsonl $1 || rc=1
-  return $rc
+TASKS=(final-test ctrl-test final-val ctrl-val base-val base-test final-llm abl-ctrl-new abl-final-new abl-base-new abl-base-old)
+task() {  # task NAME CARD
+  case $1 in
+    final-test) heads final-test $FINAL $NEW/test.jsonl $2 minimal full ;;
+    ctrl-test) heads ctrl-test $CTRL $NEW/test.jsonl $2 minimal full ;;
+    final-val) heads final-val $FINAL $NEW/validation.jsonl $2 minimal full ;;
+    ctrl-val) heads ctrl-val $CTRL $NEW/validation.jsonl $2 minimal full ;;
+    base-val) heads base-val $BASE $NEW/validation.jsonl $2 minimal full ;;
+    base-test) heads base-test $BASE $NEW/test.jsonl $2 minimal full ;;
+    final-llm) heads final-llm $FINAL $LLMROWS $2 full ;;
+    abl-final-new) ablation ablation-final-new $FINAL $SAMPLE/new.jsonl $NEW/train.jsonl $2 ;;   # each checkpoint's own train prior
+    abl-ctrl-new) ablation ablation-ctrl-new $CTRL $SAMPLE/new.jsonl $NEW/train.jsonl $2 ;;
+    abl-base-new) ablation ablation-base-new $BASE $SAMPLE/new.jsonl $OLD/train.jsonl $2 ;;
+    abl-base-old) ablation ablation-base-old $BASE $SAMPLE/old.jsonl $OLD/train.jsonl $2 ;;
+  esac
 }
 
-rgb_export() {  # the baseline exported on the CPU like phase F's run_checkpoint.sh; both exports reference-checked
-  local key
-  mkdir -p $A/rgb-base $A/reference-final $A/reference-base
+rgb_export() {  # the baseline exported on the CPU like phase F's run_checkpoint.sh; every usable export reference-checked
+  local req key side
+  mkdir -p $A/rgb-base
   for req in $R/runs/roomgenbench/requests/*.json; do
     key=$(basename $req .json)
-    OMP_NUM_THREADS=48 CUDA_VISIBLE_DEVICES= $P -m fastfill.v2.predict --checkpoint $BASE --request $req --device cpu \
-      --output $A/rgb-base/$key.prediction.json --export-dir $A/rgb-base/$key.handoff || return 1
-    for side in final:$EXPORT base:$A/rgb-base; do
-      CUDA_VISIBLE_DEVICES= $P -m fastfill.v2.roomgenbench --reference-check ${side#*:}/$key.handoff \
-        --scene $R/RoomGenBench/bench/inputs/scenes/$key.json --output $A/reference-${side%%:*}/$key.json || return 1
+    if [ ! -f $A/rgb-base/$key.prediction.json ] || [ ! -d $A/rgb-base/$key.handoff ]; then
+      rm -rf $A/rgb-base/$key.prediction.json $A/rgb-base/$key.handoff
+      OMP_NUM_THREADS=48 CUDA_VISIBLE_DEVICES= $P -m fastfill.v2.predict --checkpoint $BASE --request $req --device cpu \
+        --output $A/rgb-base/$key.prediction.json --export-dir $A/rgb-base/$key.handoff || return 1
+    fi
+    for side in $RGB_SIDES base:$A/rgb-base; do
+      mkdir -p $A/reference-${side%%:*}
+      [ -f $A/reference-${side%%:*}/$key.json ] || CUDA_VISIBLE_DEVICES= $P -m fastfill.v2.roomgenbench --reference-check \
+        ${side#*:}/$key.handoff --scene $R/RoomGenBench/bench/inputs/scenes/$key.json --output $A/reference-${side%%:*}/$key.json || return 1
     done
   done
 }
 
-step_rgb() {
-  EXPORT=$R/runs/roomgenbench/best-$NAME   # phase F's CPU export of the final (run_checkpoint.sh)
-  [ "$(find $EXPORT -path '*.layout_boxes/receipt.json' 2>/dev/null | wc -l)" = 5 ] || { echo "refused: $EXPORT lacks 5 receipts"; return 1; }
-  local code
+step_rgb() {  # an arm's phase F export (run_checkpoint.sh) counts only when complete and made by the code on disk
+  local code m ckpt export
   code=$($P -c "from fastfill.v2.autorun import implementation_sha256; print(implementation_sha256('$R'))")
-  [ "$(sed -n 2p $EXPORT/checkpoint.txt)" = "$code" ] || {
-    echo "refused: phase F exported the final with other fastfill/v2 code than is on disk now; the baseline would not be comparable"; return 1; }
+  RGB_SIDES=
+  for m in final ctrl; do
+    if [ $m = final ]; then ckpt=$FINAL; export=$R/runs/roomgenbench/best-$FINAL_NAME; else ckpt=$CTRL; export=$R/runs/roomgenbench/best-$CTRL_NAME; fi
+    if [ $(find $export -path '*.layout_boxes/receipt.json' 2>/dev/null | wc -l) -ne 5 ]; then
+      echo "skipped $m: $export lacks 5 receipts"
+    elif [ "$(sed -n 1p $export/checkpoint.txt)" != "$ckpt" ] || [ "$(sed -n 2p $export/checkpoint.txt)" != "$code" ]; then
+      echo "skipped $m: $export holds another checkpoint or was made by other fastfill/v2 code than is on disk now"
+    else
+      RGB_SIDES="$RGB_SIDES $m:$export"
+    fi
+  done
   timed rgb-export-and-check cpu $A/rgb.log rgb_export
 }
 
 step_gpu() {
-  FINAL=$(final_checkpoint)
-  local cards=() pids=() n k i fail=0
-  for c in 1 2 3 4 5 6 7; do if idle $c; then cards+=($c); fi; done
-  [ ${#cards[@]} -gt 0 ] || { echo "refused: every card 1-7 has a compute process"; exit 1; }
-  n=$(( ${#cards[@]} < 5 ? ${#cards[@]} : 5 ))
-  echo "idle cards: ${cards[*]}; $n lanes"
-  step_rgb > $A/rgb-step.log 2>&1 & pids+=($!)
+  load_inputs
+  local cards pids=() n k i fail=0
+  IFS=, read -r -a cards <<< "$GPUS"
+  n=${#cards[@]}
+  echo "lanes on $DEVICE: ${cards[*]}"
+  step_rgb > $A/rgb-step.log 2>&1 & local rgb=$!
   for k in $(seq 0 $((n - 1))); do
-    ( rc=0; for i in 0 1 2 3 4; do if [ $((i % n)) = $k ]; then lane$i ${cards[k]} || rc=1; fi; done; exit $rc ) &
+    ( rc=0; for i in "${!TASKS[@]}"; do if [ $((i % n)) = $k ]; then task ${TASKS[i]} ${cards[k]} || rc=1; fi; done; exit $rc ) &
     pids+=($!)
   done
-  for pid in "${pids[@]}"; do wait $pid || fail=1; done   # every lane's own exit code
-  [ $fail = 0 ] || { echo "GPU-STEP FAILURE: see $A/walltime.tsv, $A/rgb-step.log and the logs in $G"; exit 1; }
+  for i in "${pids[@]}"; do wait $i || fail=1; done   # every lane's own exit code
+  wait $rgb || echo "RoomGenBench step failed (report-only, not fatal): see $A/rgb-step.log and $A/rgb.log"
+  [ $fail = 0 ] || { echo "GPU-STEP FAILURE: see $A/walltime.tsv and the logs in $G"; exit 1; }
   echo GPU-DONE
 }
 
 crosscheck() {  # identical layouts expected: phase F's GPU-decoded reports and our online runs vs the CPU decodes
-  local pairs=() m o
-  pairs+=(--pair "phase F 测试·三字段·spread=$R/runs/test-$NAME/outcomes.jsonl,$G/final-test-spread/outcomes.jsonl")
-  pairs+=(--pair "phase F 测试·完整条件·spread=$R/runs/test-$NAME/outcomes-full.jsonl,$G/final-test-spread/outcomes-full.jsonl")
-  pairs+=(--pair "phase F 测试·三字段·argmax=$R/runs/test-$NAME-argmax/outcomes.jsonl,$G/final-test-argmax/outcomes.jsonl")
-  pairs+=(--pair "phase F LLM 行·spread=$R/runs/llmrows-$NAME/outcomes.jsonl,$G/final-llm-spread/outcomes.jsonl")
-  pairs+=(--pair "phase F LLM 行·argmax=$R/runs/llmrows-$NAME-argmax/outcomes.jsonl,$G/final-llm-argmax/outcomes.jsonl")
-  for m in base-val final-val base-test final-test final-llm; do for o in outcomes.jsonl outcomes-full.jsonl; do
-    if [ -f $G/$m-online/$o ]; then pairs+=(--pair "本计划在线运行 $m（$o）=$G/$m-online/$o,$G/$m-spread/$o"); fi
+  local pairs=() m n o
+  for m in final ctrl; do
+    if [ $m = final ]; then n=$FINAL_NAME; else n=$CTRL_NAME; fi
+    pairs+=(--pair "phase F $(label $m) 测试·三字段·spread=$R/runs/test-$n/outcomes.jsonl,$G/$m-test-spread/outcomes.jsonl")
+    pairs+=(--pair "phase F $(label $m) 测试·完整条件·spread=$R/runs/test-$n/outcomes-full.jsonl,$G/$m-test-spread/outcomes-full.jsonl")
+    pairs+=(--pair "phase F $(label $m) 测试·三字段·argmax=$R/runs/test-$n-argmax/outcomes.jsonl,$G/$m-test-argmax/outcomes.jsonl")
+  done
+  pairs+=(--pair "phase F 最终 LLM 行·spread=$R/runs/llmrows-$FINAL_NAME/outcomes.jsonl,$G/final-llm-spread/outcomes.jsonl")
+  pairs+=(--pair "phase F 最终 LLM 行·argmax=$R/runs/llmrows-$FINAL_NAME-argmax/outcomes.jsonl,$G/final-llm-argmax/outcomes.jsonl")
+  for m in base-val final-val ctrl-val base-test final-test ctrl-test final-llm; do for o in outcomes.jsonl outcomes-full.jsonl; do
+    if [ -f $G/$m-online/$o ]; then pairs+=(--pair "本计划在线运行 ${m}（${o}）=$G/$m-online/$o,$G/$m-spread/$o"); fi
   done; done
-  $P $A/crosscheck.py "${pairs[@]}" > $F/crosscheck.md
+  $P $OPS/crosscheck.py "${pairs[@]}" > $F/crosscheck.md
+}
+
+S() { $P $OPS/stratify.py --workers $W --cache $CACHE "$@" > /dev/null; }
+C() { $P $OPS/compare.py --workers $W --cache $CACHE "$@" > /dev/null; }
+
+stratify_all() {
+  local m s d
+  for m in base final ctrl; do for s in val test; do for d in spread argmax; do
+    S --eval-dir $G/$m-$s-$d --out $F/$m-$s-minimal-$d.json || return 1
+    S --eval-dir $G/$m-$s-$d --outcomes outcomes-full.jsonl --out $F/$m-$s-full-$d.json || return 1
+  done; done; done
+}
+
+compare_all() {  # final minus baseline on rooms both can answer (<= 128 objects); final minus control; spread minus argmax
+  local s proj o d sel m
+  for s in val test; do for proj in minimal full; do
+    o=outcomes.jsonl; [ $proj = minimal ] || o=outcomes-full.jsonl
+    for d in spread argmax; do
+      for sel in all "old rule=frozen_prep" "new rule=wall_anchor,support_inside_parent,support_on_added_parent"; do
+        set -- $sel
+        C --a $G/final-$s-$d --a-outcomes $o --b $G/base-$s-$d --b-outcomes $o --label-a 最终 --label-b 基线 --max-objects 128 \
+          ${2:+--where $2} --out $F/compare-$s-$proj-$d-$1.json || return 1
+        C --a $G/final-$s-$d --a-outcomes $o --b $G/ctrl-$s-$d --b-outcomes $o --label-a 最终 --label-b 对照 \
+          ${2:+--where $2} --out $F/control-$s-$proj-$d-$1.json || return 1
+      done
+    done
+    for m in final ctrl base; do
+      C --a $G/$m-$s-spread --a-outcomes $o --b $G/$m-$s-argmax --b-outcomes $o --label-a spread --label-b argmax \
+        --out $F/decode-$s-$m-$proj.json || return 1
+    done
+  done; done
+}
+
+llm_all() {  # the saved LLM answers re-scored by the evaluator on disk; FastFill final (CPU decodes; latency from the online run)
+  local methods=() cohorts=() m out
+  mkdir -p $A/llm
+  for m in $LLM_MODES; do
+    out=$A/llm/llm-$m-300-eval
+    if [ ! -f $out/report.json ]; then
+      rm -rf $out
+      $P -m fastfill.v2.evaluate --data $R/runs/llm-$m-300/rows.jsonl --predictions $R/runs/llm-$m-300/predictions.jsonl \
+        --output $out > $out.log 2>&1 || return 1
+    fi
+    methods+=(--method "LLM $m=$out,$R/runs/llm-$m-300/summary.json")
+  done
+  for m in $COHORT_NEW $COHORT_OLD $COHORT_OLD1; do cohorts+=(--selection-cohort $m); done
+  $P $OPS/llm_compare.py --method "FastFill spread=$G/final-llm-spread,$G/final-llm-online" \
+    --method "FastFill argmax=$G/final-llm-argmax,$G/final-llm-online" "${methods[@]}" "${cohorts[@]}" \
+    --out $F/llm-compare.json --workers $W
 }
 
 step_cpu() {
+  load_inputs
   export OMP_NUM_THREADS=1 CUDA_VISIBLE_DEVICES=
-  local name data proj d o s m sel
-  # every saved head output decoded twice by the same code (8 processes at a time)
-  for x in base-val:$NEW/validation.jsonl final-val:$NEW/validation.jsonl base-test:$NEW/test.jsonl \
-           final-test:$NEW/test.jsonl final-llm:$LLMROWS; do
+  local x name data proj d
+  # every saved head output decoded twice by the same code
+  for x in base-val:$NEW/validation.jsonl final-val:$NEW/validation.jsonl ctrl-val:$NEW/validation.jsonl \
+           base-test:$NEW/test.jsonl final-test:$NEW/test.jsonl ctrl-test:$NEW/test.jsonl final-llm:$LLMROWS; do
     name=${x%%:*}; data=${x#*:}; proj="minimal full"; [ $name != final-llm ] || proj=full
     for d in spread argmax; do
-      [ -e $G/$name-$d ] || echo "$P -m fastfill.v2.evaluate --from-head-outputs $G/$name-heads --data $data --projection $proj --grid-decode $d --output $G/$name-$d > $G/$name-$d.log 2>&1"
+      [ -f $G/$name-$d/report.json ] || echo "rm -rf $G/$name-$d && $P -m fastfill.v2.evaluate --from-head-outputs $G/$name-heads --data $data --projection $proj --grid-decode $d --output $G/$name-$d > $G/$name-$d.log 2>&1"
     done
   done > $G/decode-commands.txt
-  timed decode cpu $G/decode.log xargs -d '\n' -P 8 -I CMD bash -c CMD < $G/decode-commands.txt
+  timed decode cpu $G/decode.log parallel $(( W < 14 ? W : 14 )) < $G/decode-commands.txt
   timed crosscheck cpu $F/crosscheck.log crosscheck
-  S() { $P $A/stratify.py --workers 8 --cache $CACHE "$@" > /dev/null; }
-  C() { $P $A/compare.py --workers 8 --cache $CACHE "$@" > /dev/null; }
-  stratify_all() {
-    for m in base final; do for s in val test; do for d in spread argmax; do
-      S --eval-dir $G/$m-$s-$d --out $F/$m-$s-minimal-$d.json || return 1
-      S --eval-dir $G/$m-$s-$d --outcomes outcomes-full.jsonl --out $F/$m-$s-full-$d.json || return 1
-    done; done; done
-  }
-  compare_all() {  # final minus baseline on rooms both can answer (<= 128 objects); spread minus argmax per model
-    for s in val test; do for proj in minimal full; do
-      o=outcomes.jsonl; [ $proj = minimal ] || o=outcomes-full.jsonl
-      for d in spread argmax; do
-        for sel in all "old rule=frozen_prep" "new rule=wall_anchor,support_inside_parent,support_on_added_parent"; do
-          set -- $sel
-          C --a $G/final-$s-$d --a-outcomes $o --b $G/base-$s-$d --b-outcomes $o --label-a 最终 --label-b 基线 --max-objects 128 \
-            ${2:+--where $2} --out $F/compare-$s-$proj-$d-$1.json || return 1
-        done
-      done
-      for m in final base; do
-        C --a $G/$m-$s-spread --a-outcomes $o --b $G/$m-$s-argmax --b-outcomes $o --label-a spread --label-b argmax \
-          --out $F/decode-$s-$m-$proj.json || return 1
-      done
-    done; done
-  }
-  llm_all() {  # FastFill (CPU decodes; latency from the online run) vs the four LLM modes on the frozen 300 rows
-    local M=() COH=()
-    for m in prompt harness structured structured-harness; do
-      M+=(--method "LLM $m=$R/runs/llm-$m-300-eval-4125b82,$R/runs/llm-$m-300/summary.json"); done
-    for f in $COHORT_NEW $COHORT_OLD $COHORT_OLD1; do if [ -f $f ]; then COH+=(--selection-cohort $f); fi; done
-    $P $A/llm_compare.py --method "FastFill spread=$G/final-llm-spread,$G/final-llm-online" \
-      --method "FastFill argmax=$G/final-llm-argmax,$G/final-llm-online" "${M[@]}" "${COH[@]}" --out $F/llm-compare.json --workers 8
-  }
   timed stratify cpu $F/stratify.log stratify_all
   timed compare cpu $F/compare.log compare_all
   timed llm-compare cpu $F/llm-compare.log llm_all
   echo CPU-DONE
 }
 
+pj() { case $1 in minimal) echo 三字段 ;; full) echo 完整条件 ;; esac; }
+sel() { case $1 in all) echo 全部对象 ;; old) echo "旧对象 frozen_prep" ;; new) echo 新对象 ;; esac; }
+
 step_report() {
-  local args=() m s p d n x
-  declare -A M=([base]=基线 [final]=最终) PJ=([minimal]=三字段 [full]=完整条件) SEL=([all]=全部对象 [old]="旧对象 frozen_prep" [new]=新对象)
+  load_inputs
+  local args=() m s p d x side
   for s in val test; do
-    for m in base final; do for p in minimal full; do for d in spread argmax; do
-      args+=(--$s-run "${M[$m]}·${PJ[$p]}·$d=$F/$m-$s-$p-$d.json"); done; done; done
+    for m in final ctrl base; do for p in minimal full; do for d in spread argmax; do
+      args+=(--$s-run "$(label $m)·$(pj $p)·$d=$F/$m-$s-$p-$d.json"); done; done; done
     for p in minimal full; do for d in spread argmax; do for x in all old new; do
-      args+=(--$s-compare "最终 vs 基线·${PJ[$p]}·$d·${SEL[$x]}（≤128 物体）=$F/compare-$s-$p-$d-$x.json"); done; done
-      for m in final base; do args+=(--$s-decode "${M[$m]}·${PJ[$p]}：spread vs argmax=$F/decode-$s-$m-$p.json"); done; done
+      args+=(--$s-compare "最终 vs 基线·$(pj $p)·${d}·$(sel $x)（≤128 物体）=$F/compare-$s-$p-$d-$x.json")
+      args+=(--$s-control "最终 vs 对照·$(pj $p)·${d}·$(sel $x)=$F/control-$s-$p-$d-$x.json"); done; done
+      for m in final ctrl base; do args+=(--$s-decode "$(label $m)·$(pj $p)：spread vs argmax=$F/decode-$s-$m-$p.json"); done; done
   done
-  if [ -f $COHORT_NEW ]; then args+=(--selection-cohort "最终（select2，新验证集全集）=$COHORT_NEW"); fi
-  if [ -f $COHORT_OLD ]; then args+=(--selection-cohort "基线（select2，旧验证集全集）=$COHORT_OLD"); fi
-  if [ -f $COHORT_OLD1 ]; then args+=(--selection-cohort "基线（select1，旧验证集 3000 行）=$COHORT_OLD1"); fi
-  $P $A/report.py --out $F/report.html --title "FastFill v2 评测报告：基线 vs $NAME" --summary $R/runs/autorun/SUMMARY.md \
+  for side in final:"最终（phase F 的 CPU 导出）" ctrl:"对照（phase F 的 CPU 导出）" base:"基线（当前代码 CPU 重新导出）"; do
+    if [ $(ls $A/reference-${side%%:*}/*.json 2>/dev/null | wc -l) -gt 0 ]; then args+=(--reference "${side#*:}=$A/reference-${side%%:*}"); fi
+  done
+  $P $OPS/report.py --out $F/report.html --inputs $A/inputs.json \
+    --title "FastFill v2 评测报告（Isambard）：最终 $FINAL_NAME vs 对照 $CTRL_NAME vs 基线" \
+    --summary "最终臂 $FINAL_DIR=$R/runs/$FINAL_DIR/SUMMARY.md" --summary "对照臂 $CTRL_DIR=$R/runs/$CTRL_DIR/SUMMARY.md" \
     "${args[@]}" --llm $F/llm-compare.json \
-    --ablation "最终·新行（500 分层样本）=$G/ablation-final-new/report.json" \
+    --selection-cohort "最终（select2，新验证集全集；对照的相同）=$COHORT_NEW" \
+    --selection-cohort "基线（select2，旧验证集全集）=$COHORT_OLD" --selection-cohort "基线（select1，旧验证集 3000 行）=$COHORT_OLD1" \
+    --ablation "最终·新行（$ABL 行分层样本）=$G/ablation-final-new/report.json" \
+    --ablation "对照·新行（同一样本）=$G/ablation-ctrl-new/report.json" \
     --ablation "基线·新行（同一样本，相同输入）=$G/ablation-base-new/report.json" \
     --ablation "基线·旧行（同一批场景）=$G/ablation-base-old/report.json" --ablation-sample $SAMPLE/sample.json \
-    --reference "最终（phase F 的 CPU 导出）=$A/reference-final" --reference "基线（当前代码 CPU 重新导出）=$A/reference-base" \
     --walltime $A/walltime.tsv --notes $F/crosscheck.md
 }
 
 case "${1:-}" in
-  gpu) step_gpu ;; cpu) step_cpu ;; report) step_report ;;
-  all) step_gpu; step_cpu; step_report ;;
-  *) sed -n '2,10p' "$0"; exit 2 ;;
+  inputs) step_inputs ;; gpu) step_gpu ;; cpu) step_cpu ;; report) step_report ;;
+  all) step_inputs; step_gpu; step_cpu; step_report ;;
+  *) sed -n '2,27p' "$0"; exit 2 ;;
 esac
