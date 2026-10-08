@@ -237,12 +237,14 @@ def test_five_benchmark_rooms_hand_off_every_object_with_its_declared_placement(
             (x, y, z), (depth, _, h) = box["bottom_center_m"], box["target_size_local_m"]
             if obj["place"] == "floor":
                 assert z == 0.
-            elif obj["place"] == "on_object":
+            elif obj["place"] == "on_object":  # on the parent's top, or (round 10) inside it more than 5 cm below the top
                 parent = boxes[obj["place_id"]]
-                assert z == pytest.approx(parent["bottom_center_m"][2] + parent["target_size_local_m"][2])
-            else:
-                gap = min(x - depth / 2 * abs(math.cos(box["yaw_rad"])), width - x - depth / 2 * abs(math.cos(box["yaw_rad"])),
-                          y - depth / 2 * abs(math.sin(box["yaw_rad"])), length - y - depth / 2 * abs(math.sin(box["yaw_rad"])))
+                top = parent["bottom_center_m"][2] + parent["target_size_local_m"][2]
+                assert z == pytest.approx(top) or parent["bottom_center_m"][2] <= z < top - .05
+            else:  # round 10: the axis across the wall may be local Y (a box predicted in the swapped form)
+                c, s, side = abs(math.cos(box["yaw_rad"])), abs(math.sin(box["yaw_rad"])), box["target_size_local_m"][1]
+                hx, hy = (c * depth + s * side) / 2, (s * depth + c * side) / 2
+                gap = min(x - hx, width - x - hx, y - hy, length - y - hy)
                 assert abs(gap) < 1e-6 and -1e-9 <= z <= height - h + 1e-9
         seen += len(downstream["objects"])
         if path.stem == "bathroom":  # the downstream explicit-placement policy accepts the handoff

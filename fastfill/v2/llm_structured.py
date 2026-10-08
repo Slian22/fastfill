@@ -13,7 +13,7 @@ OptiScene gives retrieved asset sizes; this request has none, so the LLM predict
 keeps the last valid layout (a later unreadable answer or failed request keeps it). The problems use only the request
 and the answer: an unreadable answer, ids not exactly once, non-finite or non-positive numbers, below the floor, above
 the ceiling, a declared support not met, then llm_baseline ``problems`` (beyond a wall, overlapping footprints, a raised
-object with nothing under it). In both modes an answer that is still no valid layout is asked again from scratch once.
+object with nothing under it unless it hangs on a wall). In both modes an answer that is still no valid layout is asked again from scratch once.
 
 Each prediction row records ``checks_first`` / ``checks_final`` (problems of the first / kept answer; for an unreadable
 first answer the parse or number errors) and ``usage``; summary.json ``mean_checks_*``, ``prompt_sha256``, ``repairs``
@@ -37,6 +37,7 @@ import urllib.request
 from fastfill.v2.evaluate import project_minimal
 from fastfill.v2.io import fingerprint, read_samples, safe_output
 from fastfill.v2.llm_baseline import SYSTEM, USER_AGENT, RateLimiter, load_env, problems, request_parameters, to_layout
+from fastfill.v2.validation import on_wall
 
 CONVENTIONS = SYSTEM[SYSTEM.index("Coordinates"):SYSTEM.index(" Use realistic")]  # the prompt modes' own wording
 
@@ -81,7 +82,7 @@ The king size bed needs the most space, so it goes first: its headboard rests ag
 STRUCTURED = """You are a skilled room layout designer. Your task is to place every object of [Task Objects] in a room of the given [Task Room Type] and [Task Room Size], choosing each object's size, position and facing. Follow this guidance:
 (1) Place every listed object exactly once, under its own id; objects sharing a category are still separate objects. Do not add or drop objects.
 (2) No sizes are given: choose a realistic width, depth and height for each object from its category and description.
-(3) Avoid overlaps: bounding boxes must not intersect, except an object resting on another (its z is the top of the object under it and it stays within that object's footprint). An object with a support_parent stands on that object, or on the floor when it says floor.
+(3) Avoid overlaps: bounding boxes must not intersect, except an object resting on another (its z is the top of the object under it and it stays within that object's footprint). An object hung on a wall (a painting, mirror, wall shelf or cabinet, wall-mounted TV) has its back against a wall and z is the height of its bottom above the floor. An object with a support_parent stands on that object, on the floor when it says floor, or hangs on a wall when it says wall.
 (4) Place the large furniture first (beds, wardrobes, sofas, tables, cabinets) and prefer the walls and edges of the room, which keeps it spacious.
 (5) Align objects parallel or perpendicular to the walls.
 (6) Keep functional groups together: chairs at their table or desk and facing it, nightstands beside the bed, a sofa facing the TV or coffee table.
@@ -140,11 +141,14 @@ def sections(condition, tag="Task"):
 
 def structured_problems(layout, condition, *, margin=.05):
     """Every problem the request alone shows: the vertical room bounds and declared supports, then ``problems``
-    (uncapped, so a crowded room's overlaps never hide these)."""
+    (uncapped, so a crowded room's overlaps never hide these) except "floats" for an object declared on or hung on
+    a wall (``validation.on_wall``: a footprint side within ``WALL_GAP_M`` of a known boundary), which ``problems``
+    (byte-pinned in llm_baseline) would send to the floor."""
     room, found = condition["room"], []
     floor, height = room.get("floor_z_m") or 0., room.get("height_m")
     names = {o["id"]: o["category"] for o in condition["objects"]}
     placed = {o["id"]: o for o in layout["objects"]}
+    hung = {i for i, o in placed.items() if room.get("boundary_known") is not False and on_wall(o, room)}
     for i, o in placed.items():
         z, top = o["bottom_center_m"][2], o["bottom_center_m"][2] + o["target_size_local_m"][2]
         if z < floor - margin:
@@ -156,12 +160,16 @@ def structured_problems(layout, condition, *, margin=.05):
         x, y, z = placed[i]["bottom_center_m"]
         if parent == "floor" and abs(z - floor) > margin:
             found.append(f"{i} ({names[i]}) must stand on the floor (z = {floor:.2f}), not at z = {z:.2f}")
+        elif parent == "wall" and i not in hung:
+            found.append(f"{i} ({names[i]}) must hang on a wall: one side of its footprint against a wall")
         elif parent in placed:  # its bottom centre on the parent's top, inside the parent's axis-aligned footprint
             (d, w, h), (px, py, pz), yaw = placed[parent]["target_size_local_m"], placed[parent]["bottom_center_m"], placed[parent]["yaw_rad"]
             c, s = abs(math.cos(yaw)), abs(math.sin(yaw))
             if abs(z - (pz + h)) > margin or abs(x - px) > .5 * (c * d + s * w) or abs(y - py) > .5 * (s * d + c * w):
                 found.append(f"{i} ({names[i]}) must rest on {parent} ({names[parent]}): z = {pz + h:.2f} m and inside its footprint")
-    return found + problems(layout, condition, limit=None)
+    walls = hung | {r["id"] for r in condition["objects"] if r.get("support_parent") == "wall"}
+    floats = tuple(f"{i} ({names[i]}) floats " for i in walls)
+    return found + [p for p in problems(layout, condition, limit=None) if not p.startswith(floats)]
 
 
 def design_text(reply):

@@ -14,6 +14,9 @@ from shapely.geometry import LineString, Polygon
 
 SUPPORT_BBOX_TOLERANCE_M = 1e-6
 CHECK_STATUSES = ("pass", "violation", "unknown")
+# A wall-supported box may stand this far off the boundary line (the against_wall default): source wall objects keep
+# a gap (SAGE-10k 8 cm, SceneSmith <= 5 cm, MansionWorld <= 6 cm; the RoomGenBench scenes are SAGE).
+WALL_GAP_M = .1
 
 
 def validate_required_levels(required_levels):
@@ -201,6 +204,12 @@ def _on_boundary(obj, room, tolerance):
     return any(zone.contains(LineString((a, b))) for a, b in zip(corners, corners[1:]))
 
 
+def on_wall(box, room, tolerance=WALL_GAP_M):
+    """Does a target box (bottom_center_m, target_size_local_m, yaw_rad) show a footprint side within ``tolerance``
+    of the room's floor polygon (``wall_support``'s geometry)?"""
+    return _on_boundary(_geometry(box, "target"), room, tolerance)
+
+
 def _support(request, obj, index, room, stage, tol):
     parent = request.get("support_parent")
     ids = (obj["id"],)
@@ -211,10 +220,11 @@ def _support(request, obj, index, room, stage, tol):
         if room.get("floor_known") is False or z is None:
             return _check("floor_unknown", "unknown", ids)
         return _check("floor_support", "pass" if abs(obj["_pos"][2] - z) <= tol else "violation", ids)
-    if parent == "wall":  # a box shows a footprint side on the room boundary, not the mounting itself
+    if parent == "wall":  # a box shows a footprint side within WALL_GAP_M of the room boundary, not the mounting itself
         if room.get("boundary_known") is False or room.get("floor_polygon_xy_m") is None:
             return _check("wall_unknown", "unknown", ids)
-        return _check("wall_support", "pass" if _on_boundary(obj, room, tol) else "violation", ids)
+        gap = max(tol, WALL_GAP_M)
+        return _check("wall_support", "pass" if _on_boundary(obj, room, gap) else "violation", ids, tolerance_m=gap)
     if parent not in index:
         return _check("support_parent_missing", "violation", ids, parent_id=parent)
     ids = (obj["id"], parent)

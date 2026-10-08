@@ -112,13 +112,62 @@ def _validity(obj, raw, front_policy, category):
     return [position] * 3, [size] * 3, yaw, symmetry, swap
 
 
+SELECTION_RULES = ("frozen_prep", "wall_anchor", "support_inside_parent", "support_on_added_parent")
+# Round 10: sources whose adapter wall anchor is an explicit per-object source field (SAGE place_id "wall",
+# MansionWorld wall_objects / mount_type, SceneSmith asset_group wall_mounted). IL3D's per-asset placement flags plus a
+# z gate are not (most of its "wall" boxes stand off the wall); HSSD's objects.csv support column never reached the IR.
+WALL_ANCHOR_SOURCES = frozenset({"SAGE-10k", "MansionWorld", "SceneSmith"})
+SUPPORT_TOL_M = .05
+SELECTION_POLICY = ("frozen prep selection plus round 10: source wall anchors of " + ", ".join(sorted(WALL_ANCHOR_SOURCES))
+                    + " (support_parent wall in a known boundary) and source-declared children whose centre lies on their "
+                    f"selected or added parent's footprint and whose bottom lies within its box (+-{SUPPORT_TOL_M} m)")
+
+
+def selection_extensions(raw, prepared, tol=SUPPORT_TOL_M):
+    """Round 10: raw IDs the frozen prep dropped only by a selection rule, as {id: rule}.
+
+    wall_anchor: a source wall anchor (``WALL_ANCHOR_SOURCES``), which the frozen anchors=[floor, object] exclude.
+    support_inside_parent / support_on_added_parent: a source child (not bbox-inferred) of a frozen-prep or added
+    parent, dropped by the top-surface-only test or with its excluded parent: its centre lies on the parent footprint
+    (+tol) and its bottom within the parent's box (+-tol), e.g. books on the inner shelves of a bookcase. Floating,
+    off-footprint and below-parent children stay dropped (geometry). Structure, soft covers, hanging (ceiling) items,
+    generic labels, front_known false, negative sizes and boxes the frozen prep shows as fixed keep their legacy treatment.
+    """
+    from fastfill.anchors import annotate
+    from fastfill.scene import GENERIC, footprint
+    from shapely.geometry import Point, Polygon
+    source_anchor = {o["id"]: o.get("anchor") for o in raw["objects"]}
+    kept = {o["id"] for o in prepared["objects"]}
+    taken = kept | {o["id"] for o in prepared.get("fixed", [])}
+    eligible = lambda o: (o["id"] not in taken and o.get("front_known") is not False and min(o["size"]) >= 0
+                          and norm_cat(o["category"]) and not GENERIC.match(norm_cat(o["category"])))
+    annotated = annotate(deepcopy(raw))
+    added = {o["id"]: "wall_anchor" for o in annotated if raw["source"] in WALL_ANCHOR_SOURCES
+             and o["anchor"] == "wall" and source_anchor[o["id"]] == "wall" and eligible(o)}
+    present = {o["id"]: o for o in annotated if o["id"] in kept or o["id"] in added}  # unrounded source boxes
+    children = [o for o in annotated if o["anchor"] == "object" and not o.get("anchor_inferred")
+                and source_anchor[o["id"]] == "object" and eligible(o)]
+    grew = True
+    while grew:  # fixed point: a child may sit (<= tol) below its parent's bottom
+        grew = False
+        for o in children:
+            p = present.get(o.get("parent"))
+            if (o["id"] not in present and p is not None and Polygon(footprint(p)).distance(Point(o["pos"][:2])) <= tol
+                    and p["pos"][2] - tol <= o["pos"][2] <= p["pos"][2] + p["size"][2] + tol):
+                added[o["id"]] = "support_on_added_parent" if p["id"] in added else "support_inside_parent"
+                present[o["id"]], grew = o, True
+    return added
+
+
 def _description(obj, category):
     text = obj.get("desc", obj.get("description"))
     return text.strip() if isinstance(text, str) and text.strip() else category
 
 
 def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="axis"):
-    """Selected objects come from legacy prep; labels come from unrounded IR.
+    """Selected objects come from legacy prep plus ``selection_extensions``; labels come from unrounded IR.
+    An added wall anchor declares ``support_parent: wall`` (known boundary only), an added child its source parent;
+    ``field_evidence.selection_rule`` names the rule (``frozen_prep`` for the legacy selection).
 
     axis (default) admits every upright finite source yaw with front_known and
     records yaw_symmetry_order 2 (axis mod pi) except MultiScan semantic fronts (1);
@@ -142,7 +191,8 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
         raise ValueError("unknown front policy")
     raw_objects = {o["id"]: o for o in raw["objects"]}
     prepared_objects = {o["id"]: o for o in prepared["objects"]}
-    selected = [raw_objects[o["id"]] for o in prepared["objects"]]
+    added = selection_extensions(raw, prepared)
+    selected = [raw_objects[o["id"]] for o in prepared["objects"]] + [raw_objects[i] for i in added]
     selected = sorted(selected, key=lambda o: _key(seed, raw["uid"], o["id"]))
     fixed_selected = sorted(prepared.get("fixed", []), key=lambda o: _key(seed, raw["uid"], o["id"]))
     ids = {o["id"]: f"obj_{i:04d}" for i, o in enumerate(selected)}
@@ -171,7 +221,10 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
         request = {"id": ids[obj["id"]], "category": category, "description": _description(obj, category)}
         z, snapped = obj["pos"][2] + dz, False
         # Preserve explicit source support, never promote bbox-inferred support.
-        if obj.get("parent") in ids and not obj.get("anchor_inferred"):
+        if added.get(obj["id"]) == "wall_anchor":
+            if room["boundary_known"]:
+                request = {**request, "support_parent": "wall"}
+        elif obj.get("parent") in ids and not obj.get("anchor_inferred"):
             request = {**request, "support_parent": ids[obj["parent"]]}
         elif (obj.get("anchor") == "floor" and not obj.get("anchor_inferred") and room["floor_known"]
                 and abs(z - room["floor_z_m"]) <= FLOOR_SNAP_M):
@@ -191,7 +244,8 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
                                             "MansionWorld": "annotation_footprint_proxy"}.get(
                                                 raw["source"], "canonical_source_IR"),
                          "source_support_inferred": bool(obj.get("anchor_inferred")),
-                         "legacy_support_inferred": bool(prepared_objects[obj["id"]].get("anchor_inferred")),
+                         "legacy_support_inferred": bool(prepared_objects.get(obj["id"], {}).get("anchor_inferred")),
+                         "selection_rule": added.get(obj["id"], "frozen_prep"),
                          "raw_anchor": obj.get("anchor"), "legacy_z_snap_applied_to_target": snapped,
                          "recorded_source_evidence": deepcopy(obj.get("v2_evidence", {}))})
     old_user = json.loads(row["messages"][1]["content"])

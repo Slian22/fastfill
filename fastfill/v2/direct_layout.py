@@ -24,6 +24,7 @@ WALL_THICKNESS_M = .1
 DEFAULT_WALL_HEIGHT_M = 2.7
 FLOOR_CONTACT_M = .02
 ON_OBJECT_CONTACT_M = .03
+RAISED_M = .15  # a wall candidate is raised, as spread_grid_xy's raised objects
 
 
 def asset_key(category, description):
@@ -181,7 +182,7 @@ def _footprint_contains(box, xy):
     return abs(c * dx + s * dy) <= w / 2 and abs(-s * dx + c * dy) <= d / 2
 
 
-def infer_support(obj, declared, boxes, floor):
+def infer_support(obj, declared, boxes, floor, room=None):
     """K6 hand-off placement: (support_parent, status), status in {declared, inferred, unknown}.
 
     A declared parent (request support_parent or hard on) is reported as is.
@@ -189,8 +190,12 @@ def infer_support(obj, declared, boxes, floor):
     candidate; else the highest other predicted box that starts strictly below
     this object, whose top is within ON_OBJECT_CONTACT_M of this bottom and
     whose footprint contains this footprint centre, is an on_object candidate
-    (strictly lower parents keep inferred chains acyclic); anything else is
-    unknown. Wall support is never inferred.
+    (strictly lower parents keep inferred chains acyclic); else, given a ``room``
+    with a known boundary and a known floor, a box whose bottom is over RAISED_M above
+    the floor, with a footprint side within ``validation.WALL_GAP_M`` of the boundary and
+    no other box under its centre (footprint containing it, starting below this bottom:
+    not a shelf's content, nothing it could stand on) is a wall candidate; anything else
+    is unknown.
     """
     if declared is not None:
         return declared, "declared"
@@ -200,7 +205,13 @@ def infer_support(obj, declared, boxes, floor):
     top = lambda box: box["bottom_center_m"][2] + box["target_size_local_m"][2]
     below = [box for box in boxes if box["bottom_center_m"][2] < z and abs(z - top(box)) <= ON_OBJECT_CONTACT_M
              and _footprint_contains(box, obj["bottom_center_m"][:2])]
-    return (max(below, key=top)["id"], "inferred") if below else (None, "unknown")
+    if below:
+        return max(below, key=top)["id"], "inferred"
+    from .validation import on_wall
+    if (room is not None and floor is not None and z - floor > RAISED_M and on_wall(obj, room) and not any(
+            box["bottom_center_m"][2] < z and _footprint_contains(box, obj["bottom_center_m"][:2]) for box in boxes)):
+        return "wall", "inferred"
+    return None, "unknown"
 
 
 def place_of(parent):
@@ -218,8 +229,9 @@ def layout_to_roomgenbench(condition, layout):
     Geometric bbox-axis yaw does not certify an asset's semantic front. No
     asset IDs or verified support surfaces are fabricated. Explicit request
     support and hard on constraints are preserved (`support_status` declared);
-    otherwise `infer_support` proposes floor / on_object candidates from the
-    predicted boxes (inferred; floor only when `floor_known` is not false) or
+    otherwise `infer_support` proposes floor / on_object / wall candidates from the
+    predicted boxes (inferred; floor only when `floor_known` is not false, wall
+    only when `boundary_known` is not false) or
     leaves the object unknown. `place` is the
     RoomGenBench vocabulary of `place_id`. asset_key follows the benchmark
     convention (shared by identical type+description; per-instance dimensions
@@ -238,7 +250,8 @@ def layout_to_roomgenbench(condition, layout):
     contact_floor = None if room.get("floor_known") is False else floor
     objects = []
     for obj in scene["objects"]:
-        parent, status = infer_support(obj, requests[obj["id"]].get("support_parent"), scene["objects"], contact_floor)
+        parent, status = infer_support(obj, requests[obj["id"]].get("support_parent"), scene["objects"], contact_floor,
+                                       room if room.get("boundary_known") is not False else None)
         objects = objects + [{"id": obj["id"], "type": obj["category"], "description": obj["description"],
                 "asset_key": asset_key(obj["category"], obj["description"]),
                 "asset_key_kind": "downstream_generation_key_only",

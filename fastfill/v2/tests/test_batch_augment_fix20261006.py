@@ -267,7 +267,7 @@ def test_drop_augmentations_follow_probabilities():
     assert kept["condition"] == s["condition"]
 
 
-def test_mirror_refuses_asset_local_metadata_and_openings():
+def test_mirror_refuses_asset_local_metadata_and_rotate90_leaves_openings_unturned():
     s = sample()
     s["condition"]["room"]["fixed_objects"][0]["semantic_front_local"] = [1., 0., 0.]
     with pytest.raises(ValueError, match="mirror cannot transform"):
@@ -275,9 +275,9 @@ def test_mirror_refuses_asset_local_metadata_and_openings():
             augment_sample(s, {**NO_AUGMENT, "mirror": True}, torch.Generator().manual_seed(seed))
     s = sample()
     s["condition"]["room"]["openings"] = [{"kind": "door"}]
-    with pytest.raises(ValueError, match="openings"):
-        for seed in range(8):
-            augment_sample(s, {**NO_AUGMENT, "rotate90": True}, torch.Generator().manual_seed(seed))
+    for seed in range(8):  # round 10 review: left unturned instead of raising inside the DataLoader
+        out = augment_sample(s, {**NO_AUGMENT, "rotate90": True}, torch.Generator().manual_seed(seed))
+        assert out["condition"]["room"] == s["condition"]["room"] and out["target"] == s["target"]
 
 
 # --- C9 loader side ---------------------------------------------------------------

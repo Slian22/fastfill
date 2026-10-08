@@ -114,7 +114,8 @@ PARENT_LATTICE = np.stack(np.meshgrid(*[np.linspace(-1, 1, 5)] * 2, indexing="ij
 
 
 def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, requests=None, fixed_z=None, yaw_logits=None,
-                   yaw_residuals=None, keep_yaw=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3, hang_centre=1.5):
+                   yaw_residuals=None, keep_yaw=None, top_k=64, max_overlap=.15, margin=.02, near_wall=.3, hang_centre=1.5,
+                   inner=.05):
     """Collision-aware decoding of one scene's grid head (meters in, meters out); returns (xy, yaw, z).
 
     ``room`` may list ``fixed_objects`` (condition rows: bottom_center_m, size_local_m, yaw_rad): they never move,
@@ -134,11 +135,15 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     or fixed object stands on the parent's top: at its most probable top_k cell whose centre lies inside the
     parent's (placed) footprint, else at the free point of a 5 x 5 lattice over that footprint (inset by its
     own half extents) nearest its argmax decode, else at the least overlapping of these, so the declared
-    support holds even at the cost of a collision.
+    support holds even at the cost of a collision. A declared child whose predicted bottom lies more than ``inner``
+    below its parent's top (and not below its bottom) stands inside the parent instead, e.g. a book on a bookcase's
+    inner shelf: it keeps that height (at least the parent's bottom) and the parent is no obstacle to it.
 
-    No training row hangs anything on a wall, so a "wall" object is placed by rule: each top_k cell is projected
+    A "wall" object is placed by rule: each top_k cell is projected
     onto the wall (side of the room's bounds) nearest that cell, back flush with it and facing into the room
-    (a ``keep_yaw`` slot keeps its yaw), sliding along the wall to stay inside; the first projection free of
+    (local +X into the room, as every source wall object; a box predicted thinner along local Y with local +X along
+    the wall nearest its argmax cell keeps that axis, turned a quarter; a ``keep_yaw`` slot keeps its yaw),
+    sliding along the wall to stay inside; the first projection free of
     overlap wins (wall, floor and fixed objects sharing its height interval are obstacles), else the least
     overlapping one; one wider or deeper than the room is centred along that axis. It keeps its predicted z when
     that is over 0.15 m above the floor, else (a z near the floor is no evidence here) hangs centred ``hang_centre``
@@ -151,7 +156,11 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     in ``keep_yaw`` (one bool per slot; ``serialize_predictions`` marks objects whose orientation the request
     constrains) never turn: they keep ``yaw`` and their footprints are checked at it.
 
-    An undeclared raised object (predicted bottom > 0.15 m above the floor) rests on a placed or fixed
+    An undeclared raised object (predicted bottom > 0.15 m above the floor) whose argmax cell lies over no placed or
+    fixed floor-standing object holding its predicted bottom (from that object's bottom to 0.15 m over its top), and
+    whose argmax footprint ends within ``near_wall`` of a wall, hangs there: it keeps its predicted z (clamped like a
+    "wall" object's) at its most probable free cell (a painting over a sofa, a mirror on a bare wall; no declaration
+    certifies the wall, so it is not projected onto it). Any other undeclared raised object rests on a
     floor-standing object: it takes its most probable cell (at least 10% as likely as its best) whose centre lies inside
     such an object's footprint and sits on the highest such top; with no such cell it goes to the floor at its
     most probable free cell.
@@ -227,19 +236,31 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     for i in order:
         cand = xy[i, ranked[i]]  # k x 2
         cand_yaw = np.full(len(cand), yaw[i])
+        o_xy, o_half, o_bottom, o_top, o_area = boxes(placed)  # placed slots, then every fixed object
+        inside, hang = None, False  # inside: the declared parent's box column this child stands in
+        if raised[i] and not on_object[i] and not on_wall[i]:  # undeclared: on or in a standing object, else a near wall
+            standing = np.concatenate((~raised[np.asarray(placed, int)], fixed_standing))
+            holds = (standing & (np.abs(cand[0] - o_xy) <= o_half).all(-1)
+                     & (o_bottom - margin <= low[i]) & (low[i] <= o_top + .15))
+            hang = not holds.any() and np.concatenate((cand[0] - half[i] - lo, hi - cand[0] - half[i])).min() <= near_wall
         if on_object[i]:  # the declared parent's footprint and top; a lattice over that top follows the top_k cells
             if parent[i] in slots:
                 j = slots[parent[i]]
-                base, base_half, top = chosen[j], half[j], chosen_z[j] + size[j, 2]
+                base, base_half, top, column = chosen[j], half[j], chosen_z[j] + size[j, 2], placed.index(j)
             else:
                 j = fixed_ids[parent[i]]
-                base, base_half, top = fixed_xy[j], fixed_half[j], fixed_top[j]
+                base, base_half, top, column = fixed_xy[j], fixed_half[j], fixed_top[j], len(placed) + j
+            if o_bottom[column] - margin <= low[i] < top - inner:  # on an inner shelf: keeps its height in the parent
+                inside = column
             on_top = base + PARENT_LATTICE * np.maximum(base_half - half[i], 0)  # includes the footprint centre
             on_top = on_top[np.argsort(((on_top - cand[0]) ** 2).sum(-1), kind="stable")]  # nearest the argmax decode first
             cand, cand_yaw = np.vstack((cand, on_top)), np.append(cand_yaw, np.full(len(on_top), yaw[i]))
         elif on_wall[i]:  # each cell's nearest wall: back flush with it, facing into the room, slid inside along it
             wall = np.stack((cand[:, 0] - lo[0], hi[0] - cand[:, 0], cand[:, 1] - lo[1], hi[1] - cand[:, 1]), -1).argmin(-1)
-            cand_yaw = np.where(keep_yaw[i], yaw[i], away[wall])
+            turn = yaw[i] - away[wall[0]]  # a box predicted with its thin local Y across its argmax wall keeps that axis
+            turn = np.sign(np.sin(turn)) * np.pi / 2 if size[i, 0] > size[i, 1] and abs(np.sin(turn)) > abs(np.cos(turn)) else 0.
+            cand_yaw = np.arctan2(np.sin(away[wall] + turn), np.cos(away[wall] + turn)) if turn else away[wall]
+            cand_yaw = np.where(keep_yaw[i], yaw[i], cand_yaw)
             wall_half = halves(cand_yaw, size[i])
             cand = np.clip(cand, lo + wall_half, hi - wall_half)
             rows, axis = np.arange(len(cand)), wall // 2
@@ -260,21 +281,23 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
         cand = np.where(snap[:, None], np.clip(cand, lo + cand_half, hi - cand_half), cand)
         outside = over > margin
         if on_object[i]:
-            cand_z, supported = np.full(len(cand), top), (np.abs(cand - base) <= base_half).all(-1)
+            z = top if inside is None else max(low[i], o_bottom[inside])
+            cand_z, supported = np.full(len(cand), z), (np.abs(cand - base) <= base_half).all(-1)
         else:
-            cand_z, supported = np.full(len(cand), stand[i]), np.zeros(len(cand), bool)
-        if raised[i] and not on_object[i] and not on_wall[i]:
+            cand_z, supported = np.full(len(cand), hung[i] if hang else stand[i]), np.zeros(len(cand), bool)
+        if raised[i] and not on_object[i] and not on_wall[i] and not hang:
             s_xy, s_half, _, s_top, _ = boxes([j for j in placed if not raised[j]], fixed_standing)
-            inside = (np.abs(cand[:, None] - s_xy) <= s_half).all(-1)  # k x m centre in footprint
-            highest = np.where(inside, s_top, -np.inf).max(-1, initial=-np.inf)
+            over_top = (np.abs(cand[:, None] - s_xy) <= s_half).all(-1)  # k x m centre in footprint
+            highest = np.where(over_top, s_top, -np.inf).max(-1, initial=-np.inf)
             supported = np.isfinite(highest)
             cand_z = np.where(supported, highest, cand_z)
             supported &= (logits[i, ranked[i]] - logits[i, ranked[i, 0]]).numpy() >= -math.log(10)  # >= 10% of the best cell
-        o_xy, o_half, o_bottom, o_top, o_area = boxes(placed)
         gap = (np.minimum(cand[:, None] + cand_half[:, None], o_xy + o_half)
                - np.maximum(cand[:, None] - cand_half[:, None], o_xy - o_half))
         inter = np.clip(gap, 0, None).prod(-1)
         vertical = (np.minimum(cand_z[:, None] + size[i, 2], o_top) - np.maximum(cand_z[:, None], o_bottom)) > margin
+        if inside is not None:  # the parent it stands in is no obstacle
+            vertical[:, inside] = False
         worst = np.where(vertical, inter / np.minimum(area[i], o_area), 0).max(-1, initial=0.)
         free = ~outside & (worst <= max_overlap)
         ok = np.flatnonzero(free & supported if raised[i] else free)

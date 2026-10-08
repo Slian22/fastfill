@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 from fastfill.build import prep
 from fastfill.v2.data import _digest, _output_path
-from fastfill.v2.legacy_bridge import FLOOR_SNAP_M, FRONT_POLICIES, YAW_POLICY, convert_selected_room
+from fastfill.v2.legacy_bridge import FLOOR_SNAP_M, FRONT_POLICIES, SELECTION_POLICY, YAW_POLICY, convert_selected_room
 
 DEFAULT_RELEASE = Path(__file__).resolve().parents[2] / ".release/v3.2"
 DEFAULT_EVIDENCE = Path(__file__).resolve().parents[2] / ".release/audits/2026-09-28/source-check"
@@ -90,6 +90,8 @@ def _record_result(result, outs, diagnostics, counts, source_counts, validity_co
         detail_counts["floor_declaration_z_snapped"] += bool(evidence["legacy_z_snap_applied_to_target"])
         detail_counts["floor_declaration_skipped_floating"] += (evidence["raw_anchor"] == "floor" and floor_known
             and not evidence["source_support_inferred"] and request.get("support_parent") is None)
+        detail_counts["wall_declarations_written"] += request.get("support_parent") == "wall"
+        detail_counts[f"selection_rule:{evidence['selection_rule']}"] += 1
     detail_counts["exchangeable_groups"] += len({g for g in validity["exchangeable_group"] if g is not None})
 
 
@@ -123,10 +125,23 @@ def _index_saved(connection, release, include_flagged):
     return filtered
 
 
+def _included(connection, uids, sources):
+    """Smoke-only extra UIDs per frozen source; each must be an unfiltered frozen selected UID of a migrated source."""
+    by_source = {}
+    for uid in uids:
+        hit = connection.execute("SELECT row FROM selected WHERE uid=?", (uid,)).fetchone()
+        source = None if hit is None else json.loads(hit[0])["source"]
+        if source is None or sources is not None and source not in sources:
+            raise ValueError(f"included UID is not an unfiltered frozen selected UID of a migrated source: {uid}")
+        by_source.setdefault(source, set()).add(uid)
+    return by_source
+
+
 def _write_migration(connection, release, staging, manifest, evidence, *, seed, max_scenes, front_policy, workers=1,
-                     sources=None, max_scenes_per_source=None):
+                     sources=None, max_scenes_per_source=None, include_uids=()):
     args = SimpleNamespace(**manifest["args"])
     counts, source_counts, validity_counts, rejected, detail_counts = (Counter() for _ in range(5))
+    included = _included(connection, include_uids, sources)
     with ExitStack() as stack:
         outs = {s: stack.enter_context((staging / f"{s}.jsonl").open("x")) for s in ("train", "validation", "test")}
         diagnostics = stack.enter_context((staging / "rejections.jsonl").open("x"))
@@ -136,16 +151,22 @@ def _write_migration(connection, release, staging, manifest, evidence, *, seed, 
             if sources is not None and name[:-len(".jsonl")] not in sources:
                 continue
             jobs, start, full = _selected_jobs(connection, release / "ir" / name), sum(counts.values()), False
+            wanted = set(included.get(name[:-len(".jsonl")], ()))  # smoke UIDs taken past the per-source cap
             # Bound submissions; Python 3.12 Executor.map otherwise consumes the entire corpus eagerly.
-            while not full and (batch := tuple(islice(jobs, 128))):
+            while (not full or wanted) and (batch := tuple(islice(jobs, 128))):
+                if full:
+                    batch = tuple(job for job in batch if job[0]["uid"] in wanted)
                 results = pool.map(_worker_job, batch) if pool else (
                     _convert_job(job, args, evidence, seed, front_policy) for job in batch)
-                for result in results:
+                for job, result in zip(batch, results):
+                    if full and job[0]["uid"] not in wanted:
+                        continue
+                    wanted.discard(job[0]["uid"])
                     _record_result(result, outs, diagnostics, counts, source_counts, validity_counts, rejected, detail_counts)
                     if max_scenes is not None and sum(counts.values()) >= max_scenes:
                         return counts, source_counts, validity_counts, rejected, detail_counts
                     full = max_scenes_per_source is not None and sum(counts.values()) - start >= max_scenes_per_source
-                    if full:
+                    if full and not wanted:
                         break
             connection.commit()
             print(json.dumps({"source_finished": name, "split_samples": dict(counts)}, ensure_ascii=False), flush=True)
@@ -153,8 +174,10 @@ def _write_migration(connection, release, staging, manifest, evidence, *, seed, 
 
 
 def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDENCE, seed=42, max_scenes=None,
-                           front_policy="axis", include_flagged=False, workers=1, sources=None, max_scenes_per_source=None):
-    """``sources`` / ``max_scenes_per_source`` bound a smoke build (``bounded_build``); a release build passes neither."""
+                           front_policy="axis", include_flagged=False, workers=1, sources=None, max_scenes_per_source=None,
+                           include_uids=()):
+    """``sources`` / ``max_scenes_per_source`` / ``include_uids`` (taken past the per-source cap) bound a smoke build
+    (``bounded_build``); a release build passes none of them."""
     release, target = _output_path(release_root, output)
     if front_policy not in FRONT_POLICIES:
         raise ValueError("unknown front policy")
@@ -168,7 +191,8 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
         sources = tuple(sources)
         if unknown := set(sources) - {name[:-len(".jsonl")] for name in manifest["ir_sha256"]}:
             raise ValueError(f"unknown source filter: {sorted(unknown)}")
-    bounded = max_scenes is not None or max_scenes_per_source is not None or sources is not None
+    include_uids = tuple(include_uids or ())
+    bounded = max_scenes is not None or max_scenes_per_source is not None or sources is not None or bool(include_uids)
     from fastfill.v2.legacy_evidence import EvidenceIndex
     evidence = EvidenceIndex.from_root(evidence_root, require=True)
     evidence_hashes = {str(Path(evidence_root) / name): _digest(Path(evidence_root) / name)
@@ -182,7 +206,7 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
             filtered = _index_saved(connection, release, include_flagged)
             counts, source_split, valid, rejected, detail_counts = _write_migration(connection, release, staging, manifest, evidence,
                 seed=seed, max_scenes=max_scenes, front_policy=front_policy, workers=workers,
-                sources=sources, max_scenes_per_source=max_scenes_per_source)
+                sources=sources, max_scenes_per_source=max_scenes_per_source, include_uids=include_uids)
             if not bounded and connection.execute("SELECT COUNT(*) FROM selected WHERE seen!=1").fetchone()[0]:
                 raise ValueError("frozen selected UID missing or repeated in source IR")
         (staging / "selection.sqlite").unlink()
@@ -193,6 +217,7 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
                   "front_policy": front_policy, "yaw_policy": YAW_POLICY[front_policy],
                   "workers": workers, "bounded_submission_jobs": 128, "bounded_build": bounded,
                   "source_filter": None if sources is None else list(sources), "max_scenes_per_source": max_scenes_per_source,
+                  "included_uids": list(include_uids),
                   "samples_written": sum(counts.values()),
                   "split_samples": dict(counts), "source_split_samples": dict(source_split), "valid_label_counts": dict(valid),
                   "source_yaw_valid_objects": {k.split(":")[0]: v for k, v in detail_counts.items() if k.endswith(":yaw_valid")},
@@ -201,6 +226,9 @@ def build_selected_dataset(release_root, output, *, evidence_root=DEFAULT_EVIDEN
                   "exchangeable_group_counts": {k: detail_counts[k] for k in ("exchangeable_groups", "exchangeable_members")},
                   **{k: detail_counts[k] for k in ("floor_declarations_written", "floor_declaration_z_snapped", "floor_declaration_skipped_floating")},
                   "floor_declaration_policy": f"source anchor floor only; target z within {FLOOR_SNAP_M} m of the known floor is snapped, farther keeps a free z without declaration",
+                  "wall_declarations_written": detail_counts["wall_declarations_written"],
+                  "selection_rule_counts": {k.split(":", 1)[1]: v for k, v in detail_counts.items() if k.startswith("selection_rule:")},
+                  "selection_extension_policy": SELECTION_POLICY,
                   "descriptions": "source_desc_or_category",
                   "legacy_train_flag_filter": [] if include_flagged else list(DEFAULT_REJECT_FLAGS),
                   "legacy_train_filtered_by_source": dict(filtered), "v2_rejections": dict(rejected),
@@ -226,6 +254,8 @@ def main(argv=None):
     parser.add_argument("--source", action="append", dest="sources", metavar="NAME",
                         help="only migrate this IR source (repeatable); marks the build bounded")
     parser.add_argument("--max-scenes-per-source", type=int, help="stop each source after this many written scenes (bounded smoke)")
+    parser.add_argument("--include-uid", action="append", dest="include_uids", metavar="UID",
+                        help="also migrate this frozen UID past the per-source cap (repeatable); marks the build bounded")
     parser.add_argument("--front-policy", choices=FRONT_POLICIES, default="axis")
     parser.add_argument("--include-flagged", action="store_true")
     parser.add_argument("--workers", type=int, default=1)

@@ -48,6 +48,9 @@ def add_detail_counts(manifest, sample, sign):
         manifest["source_size_axis_swap_allowed_objects"][source] += sign * sum(validity["size_axis_swap_allowed"])
     manifest["floor_declarations_written"] += sign * sum(o.get("support_parent") == "floor" for o in sample["condition"]["objects"])
     manifest["floor_declaration_z_snapped"] += sign * sum(e["legacy_z_snap_applied_to_target"] for e in sample["provenance"]["field_evidence"])
+    manifest["wall_declarations_written"] += sign * sum(o.get("support_parent") == "wall" for o in sample["condition"]["objects"])
+    for e in sample["provenance"]["field_evidence"]:
+        manifest["selection_rule_counts"][e["selection_rule"]] = manifest["selection_rule_counts"].get(e["selection_rule"], 0) + sign
 
 
 def test_complete_corpus_counts_and_saved_filter_are_recomputed(tmp_path):

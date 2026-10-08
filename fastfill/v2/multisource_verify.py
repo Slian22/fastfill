@@ -23,6 +23,7 @@ ROOMGENBENCH_HOLDOUT_GROUPS = ("sage:layout_61ebde9f", "sage:layout_6b049b06", "
                                "sage:layout_60ee2ae3", "sage:layout_46cdcce3")
 HOLDOUT_REASON = "roomgenbench_benchmark_room"
 DEGENERATE_AXIS_M = .003
+WALL_GAP_M = .1  # a wall-declared target's footprint lies within this of the boundary (source gaps: <= 8 cm)
 HEIGHT_TOLERANCE_M = .05
 FLOOR_SNAP_M = .02
 SEALED_IR_SHA256 = {
@@ -374,6 +375,23 @@ def _source_row(ir, index, uid):
         return _loads(stream.readline())
 
 
+def _boundary_gap(box, polygon):
+    """Distance between a target box's footprint outline and the floor polygon's outline (vertex-to-edge both ways)."""
+    (x, y, _), (w, d, _), yaw = box["bottom_center_m"], box["target_size_local_m"], box["yaw_rad"]
+    c, s = math.cos(yaw), math.sin(yaw)
+    corners = [(x + c * u - s * v, y + s * u + c * v) for u, v in ((w / 2, d / 2), (-w / 2, d / 2), (-w / 2, -d / 2), (w / 2, -d / 2))]
+
+    def to_edges(point, ring):
+        best = math.inf
+        for a, b in zip(ring, ring[1:] + ring[:1]):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            t = min(max(((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / (dx * dx + dy * dy or 1.), 0.), 1.)
+            best = min(best, math.hypot(point[0] - a[0] - t * dx, point[1] - a[1] - t * dy))
+        return best
+    ring = [tuple(p) for p in polygon]
+    return min(min(to_edges(p, ring) for p in corners), min(to_edges(p, corners) for p in ring))
+
+
 def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), size_log_limit=10.,
                      holdout_groups=ROOMGENBENCH_HOLDOUT_GROUPS):
     """Verify the primary full-condition view; only mask/room qualification and the benchmark holdout may change."""
@@ -394,6 +412,15 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
     n = len(targets)
     if len(p["target_source_ids"]) != n or len(set(p["target_source_ids"])) != n:
         raise ValueError("target_source_ids missing or duplicate")
+    known = condition["room"].get("boundary_known") is True
+    walls = [obj.get("support_parent") == "wall" for obj in condition["objects"]]
+    for wall, fields, target in zip(walls, p.get("field_evidence", [{}] * n), targets):  # round 10 bridge wall rule
+        if wall != (known and fields.get("selection_rule") == "wall_anchor" and fields.get("raw_anchor") == "wall"):
+            raise ValueError("wall support declared without a selected source wall anchor in a known boundary")
+        if fields.get("selection_rule", "frozen_prep") == "frozen_prep" and fields.get("raw_anchor") in ("wall", "ceiling"):
+            raise ValueError("frozen_prep target with a source wall/ceiling anchor (the frozen prep keeps floor/object)")
+        if wall and _boundary_gap(target, condition["room"]["floor_polygon_xy_m"]) > WALL_GAP_M:
+            raise ValueError("wall-declared target footprint lies over WALL_GAP_M from the room boundary")
     masks, changes = _qualified_masks(parent, size_reference, size_log_limit)
     if p["source"] == "Scan2CAD":
         condition["room"]["floor_known"] = False
@@ -447,7 +474,7 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
         "exchangeable_groups_demoted": len(bad_groups), "exchangeable_members_demoted": members_removed,
         "yaw_masks_promoted": 0, "valid_position_objects": sum(all(x) for x in masks["position"]),
         "valid_size_objects": sum(all(x) for x in masks["size"]), "valid_yaw_objects": sum(masks["yaw"]),
-        "removed_fixed_objects": 0, "removed_constraints": 0}
+        "wall_declared_objects": sum(walls), "removed_fixed_objects": 0, "removed_constraints": 0}
 
 
 def _output_path(output, roots):

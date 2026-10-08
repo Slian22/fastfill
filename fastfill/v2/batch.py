@@ -391,7 +391,8 @@ def augment_sample(sample: dict, augment: dict, generator: torch.Generator | Non
     ``minimal_form_p`` replaces the condition by ``render_minimal_condition`` when
     ``minimal_form_eligible`` (a boundary-known axis-aligned rectangle): fixed objects, constraints and
     support declarations leave the text, so floor-declared z is learned for that
-    sample, and exchangeable groups are recomputed like after a drop.
+    sample, and exchangeable groups are recomputed like after a drop. A room with ``openings`` (free-form
+    metadata ``_rigid_xy`` cannot transform) is never turned or mirrored; the draws are still consumed.
     """
     options = _augment_options(augment)
     draw = lambda: float(torch.rand(1, generator=generator))
@@ -402,7 +403,7 @@ def augment_sample(sample: dict, augment: dict, generator: torch.Generator | Non
         _shuffle_objects(condition, target, validity, generator)
     quarter_turns = int(torch.randint(4, (1,), generator=generator)) if options["rotate90"] else 0
     mirror = options["mirror"] and draw() < .5
-    if quarter_turns or mirror:
+    if (quarter_turns or mirror) and not condition["room"].get("openings"):  # free-form openings cannot turn: kept as is
         _rigid_xy(condition, target, validity, quarter_turns, mirror)
     drops = [draw() < options[key] for key in ("drop_constraints_p", "drop_support_p", "category_only_description_p")]
     if drops[0]:

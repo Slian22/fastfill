@@ -18,9 +18,14 @@ import tempfile
 from typing import Any
 
 from .batch import _geometry_rows, room_normalization
-from .legacy_bridge import FLOOR_SNAP_M, HEIGHT_TOLERANCE_M, YAW_POLICY, size_axis_swap_allowed
+from .legacy_bridge import FLOOR_SNAP_M, HEIGHT_TOLERANCE_M, SELECTION_POLICY, YAW_POLICY, size_axis_swap_allowed
 from .schema import validate_condition
+from .validation import on_wall
 
+# Round 10 selection rule, restated here rather than imported from legacy_bridge: a builder that widens it fails rows.
+SELECTION_RULES = ("frozen_prep", "wall_anchor", "support_inside_parent", "support_on_added_parent")
+WALL_ANCHOR_SOURCES = frozenset({"SAGE-10k", "MansionWorld", "SceneSmith"})
+SUPPORT_TOL_M = .05
 SPLITS = ("train", "validation", "test")
 DEFAULT_REJECT_FLAGS = ("oob_objects", "fixed_collision", "overlapping_furniture")
 TEST_ONLY_SOURCES = frozenset({"SceneSmith", "SpatialGen"})
@@ -138,11 +143,12 @@ def _saved_selection(release: Path, filter_flags: tuple, audit: _Audit):
                 excluded = split == "train" and any(flags.get(key) for key in filter_flags)
                 if uid in expected:
                     raise ValueError("duplicate UID in frozen selected splits")
-                expected[uid] = (split, source, excluded, digest)
+                placements = len(json.loads(row["messages"][-1]["content"])["placements"])  # the frozen target count
+                expected[uid] = (split, source, excluded, digest, placements)
                 counts[(source, split)] += 1
                 if excluded:
                     filtered[source] += 1
-            except ValueError as exc:
+            except (ValueError, KeyError, TypeError, IndexError) as exc:
                 audit.fail(context, str(exc))
     return expected, counts, filtered
 
@@ -312,6 +318,57 @@ def _floor_declarations(row: dict, floors: Counter):
         floors["floor_declaration_skipped_floating"] += anchored and request.get("support_parent") is None
 
 
+def _footprint(box: dict):
+    from shapely.geometry import Polygon
+    (x, y, _), (w, d, _), yaw = box["bottom_center_m"], box["target_size_local_m"], box["yaw_rad"]
+    c, s = math.cos(yaw), math.sin(yaw)
+    return Polygon([(x + c * u - s * v, y + s * u + c * v) for u, v in ((w/2, d/2), (-w/2, d/2), (-w/2, -d/2), (w/2, -d/2))])
+
+
+def _selection_rules(row: dict, source: str, walls: Counter, frozen_targets: int | None):
+    """Round 10, recomputed from the row: exactly ``frozen_targets`` (the frozen v3.2 row's placements) frozen_prep
+    targets, none a source wall or ceiling anchor (the frozen anchors=[floor, object] dropped those); ``support_parent``
+    "wall" exactly on ``wall_anchor`` targets (a source wall anchor of a WALL_ANCHOR_SOURCES source) in a known
+    boundary, each with a footprint side within ``validation.WALL_GAP_M`` of it; an added supported item declares its
+    source (not inferred) parent, whose rule matches (frozen_prep: inside, else on_added), and its target centre lies on
+    that parent's target footprint (+SUPPORT_TOL_M) with its bottom within the parent box (+-SUPPORT_TOL_M, plus
+    FLOOR_SNAP_M for a floor-snapped parent). It cannot see an eligible source object the builder left out."""
+    from shapely.geometry import Point
+    room = row["condition"]["room"]
+    known = room.get("boundary_known") is True
+    requests = {o["id"]: o for o in row["condition"]["objects"]}
+    boxes = {t["id"]: t for t in row["target"]["objects"]}
+    rules = {t["id"]: e.get("selection_rule") for t, e in zip(row["target"]["objects"], row["provenance"]["field_evidence"])}
+    for target, evidence in zip(row["target"]["objects"], row["provenance"]["field_evidence"]):
+        rule, parent = rules[target["id"]], requests[target["id"]].get("support_parent")
+        if rule not in SELECTION_RULES:
+            raise ValueError("unknown field_evidence.selection_rule")
+        if rule == "frozen_prep" and evidence.get("raw_anchor") in ("wall", "ceiling"):
+            raise ValueError("frozen_prep target with a source wall/ceiling anchor (the frozen prep keeps floor/object)")
+        wall = rule == "wall_anchor"
+        if wall and (evidence.get("raw_anchor") != "wall" or source not in WALL_ANCHOR_SOURCES):
+            raise ValueError("wall_anchor target without a source wall anchor of a wall-anchor source")
+        if (parent == "wall") != (wall and known):
+            raise ValueError("support_parent wall must be declared exactly on wall_anchor targets in a known boundary")
+        if parent == "wall" and not on_wall(target, room):
+            raise ValueError("wall-declared target has no footprint side within WALL_GAP_M of the room boundary")
+        if rule.startswith("support_"):
+            box = boxes.get(parent)
+            if box is None or evidence.get("raw_anchor") != "object" or evidence.get("source_support_inferred") is not False:
+                raise ValueError("added supported item must declare its source (not inferred) parent")
+            if (rules[parent] == "frozen_prep") != (rule == "support_inside_parent"):
+                raise ValueError("support selection rule disagrees with its parent's selection rule")
+            x, y, z = target["bottom_center_m"]
+            bottom, slack = box["bottom_center_m"][2], SUPPORT_TOL_M + FLOOR_SNAP_M + 1e-6
+            if (_footprint(box).distance(Point(x, y)) > SUPPORT_TOL_M + 1e-6
+                    or not bottom - slack <= z <= bottom + box["target_size_local_m"][2] + slack):
+                raise ValueError("added supported item is not on its parent's footprint within its box")
+        walls["wall_declarations_written"] += parent == "wall"
+        walls[rule] += 1
+    if frozen_targets is not None and sum(rule == "frozen_prep" for rule in rules.values()) != frozen_targets:
+        raise ValueError("frozen_prep target count differs from the frozen v3.2 row's placements")
+
+
 def _evidence_counts(row: dict, kept: Counter, omitted: Counter, reasons: Counter, corrections: Counter):
     for constraint in row["condition"]["constraints"]:
         kept[constraint["type"]] += 1
@@ -410,7 +467,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     hashes = {"manifest.json": _hash_file(data / "manifest.json")["sha256"]}
     counts = {split: Counter({key: 0 for key in COUNT_FIELDS}) for split in SPLITS}
     sources, seen, houses, kept_rows, rejected_rows = {}, set(), {}, Counter(), Counter()
-    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons, details, swaps, floors = (Counter() for _ in range(8))
+    kept_types, omitted_types, omitted_reasons, corrections, rejection_reasons, details, swaps, floors, walls = (Counter() for _ in range(9))
     for split in SPLITS:
         for context, row in _json_lines(data / f"{split}.jsonl", audit, hashes):
             try:
@@ -443,6 +500,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
                     audit.fail(context, "no learnable geometry supervision")
                 _evidence_counts(row, kept_types, omitted_types, omitted_reasons, corrections)
                 _floor_declarations(row, floors)
+                _selection_rules(row, source, walls, (expected.get(uid) or (None,) * 5)[4])
                 _check_unreferenced_groups(row)
             except (ValueError, TypeError, KeyError, IndexError) as exc:
                 audit.fail(context, str(exc))
@@ -459,7 +517,7 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
             rejection_reasons[_text(row.get("reason"), "rejection reason")] += 1
         except (ValueError, TypeError, KeyError) as exc:
             audit.fail(context, str(exc))
-    missing = sum(not excluded and uid not in seen for uid, (_, _, excluded, _) in expected.items())
+    missing = sum(not excluded and uid not in seen for uid, (_, _, excluded, *_) in expected.items())
     if missing and not bounded:
         audit.fail("selection", f"unaccounted selected UID: {missing} eligible saved scenes missing from kept/rejected output")
     split_counts = {split: dict(values) for split, values in counts.items()}
@@ -474,6 +532,11 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
     for key in ("floor_declarations_written", "floor_declaration_z_snapped", "floor_declaration_skipped_floating"):
         if isinstance(manifest.get(key), bool) or manifest.get(key) != floors[key]:
             audit.fail("manifest.json", f"{key} differs from independent streaming counts")
+    if isinstance(manifest.get("wall_declarations_written"), bool) or manifest.get("wall_declarations_written") != walls["wall_declarations_written"]:
+        audit.fail("manifest.json", "wall_declarations_written differs from independent streaming counts")
+    _same_counts({k: walls[k] for k in SELECTION_RULES}, manifest.get("selection_rule_counts"), "selection_rule_counts", audit)
+    if manifest.get("selection_extension_policy") != SELECTION_POLICY:
+        audit.fail("manifest.json", "selection_extension_policy differs from legacy_bridge.SELECTION_POLICY")
     if manifest.get("yaw_policy") != YAW_POLICY.get(manifest.get("front_policy")):
         audit.fail("manifest.json", "yaw_policy differs from legacy_bridge.YAW_POLICY[front_policy]")
     if manifest.get("descriptions") != "source_desc_or_category":
@@ -519,6 +582,8 @@ def verify_selected_dataset(data_root: Any, output: Any = None) -> dict:
               "source_split_counts": {s: {k: dict(v) for k, v in splits.items()} for s, splits in sources.items()},
               "kept_legacy_constraint_types": dict(kept_types), "omitted_legacy_constraint_types": dict(omitted_types),
               "omitted_legacy_constraint_reasons": dict(omitted_reasons), "source_corrections": dict(corrections),
+              "selection_rule_counts": {k: walls[k] for k in SELECTION_RULES},
+              "wall_declarations_written": walls["wall_declarations_written"],
               "hash_checks": hash_checks, "dataset_sha256": hashes, "frozen_manifest_sha256": frozen_manifest_hash,
               "underlying_house_and_alias_index_entries": len(houses), "errors_total": audit.error_count,
               "errors": audit.errors, "errors_truncated": audit.error_count > len(audit.errors),
