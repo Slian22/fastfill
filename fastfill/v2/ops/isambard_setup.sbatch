@@ -47,8 +47,9 @@ echo "e02da65e6844630eba506952ee1f059655552a2d14e1af763eb787cc2d0152ea  $R" | sh
 env/bin/python -m pytest fastfill/v2/tests -q -x
 
 # smoke on this hardware (96 GB per GPU here, 143 GB on the old server): the final configuration (max_objects 256) on the
-# 8 longest rows training accepts (most tokens within max_length 8192 and 256 objects), unaugmented so each is seen in
-# full; save, resume from the saved state, evaluate
+# 8 longest rows training accepts (most tokens within max_length 8192 and 256 objects), each seen at full length (no dropped
+# constraints/supports, no minimal or category-only form; rotate90 and object shuffling stay on as in training: they do not
+# shorten the input); save, resume from the saved state, evaluate
 S=runs/isambard/smoke; rm -rf $S $S-resume $S-eval
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=8
 env/bin/python - "$PWD" <<'EOF'
