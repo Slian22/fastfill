@@ -292,6 +292,7 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
             facing = (flipped[i] - away[gaps.argmin(-1)] + np.pi) % (2 * np.pi) - np.pi  # flipped yaw vs facing away
             cand_yaw = np.where((gaps.min(-1) < near_wall) & (np.abs(facing) <= np.pi / 4 + 1e-6), flipped[i], cand_yaw)
         cand_half = halves(cand_yaw, size[i])  # k x 2
+        cand_area = 4 * cand_half[:, 0] * cand_half[:, 1]  # at the candidate's yaw: a wall projection turns the box
         over = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1)
         snap = (over > 0) & (over <= margin)  # within the margin past a wall: slide back inside (the validator allows 1e-4)
         cand = np.where(snap[:, None], np.clip(cand, lo + cand_half, hi - cand_half), cand)
@@ -314,14 +315,14 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
         vertical = (np.minimum(cand_z[:, None] + size[i, 2], o_top) - np.maximum(cand_z[:, None], o_bottom)) > margin
         if inside is not None:  # the parent it stands in is no obstacle
             vertical[:, inside] = False
-        worst = np.where(vertical, inter / np.minimum(area[i], o_area), 0).max(-1, initial=0.)
+        worst = np.where(vertical, inter / np.minimum(cand_area[:, None], o_area), 0).max(-1, initial=0.)
         free = ~outside & (worst <= max_overlap)
         ok = np.flatnonzero(free & supported if raised[i] else free)
         if not len(ok) and not on_object[i]:
             ok = np.flatnonzero(free)
         # least overlapping fallback; a declared child only among points on its parent (its lattice always is)
         pick = ok[0] if len(ok) else int(np.argmin(np.where(supported | ~on_object[i], worst + outside, np.inf)))
-        chosen[i], chosen_yaw[i], half[i], chosen_z[i] = cand[pick], cand_yaw[pick], cand_half[pick], cand_z[pick]
+        chosen[i], chosen_yaw[i], half[i], area[i], chosen_z[i] = cand[pick], cand_yaw[pick], cand_half[pick], cand_area[pick], cand_z[pick]
         placed.append(i)
     return chosen, chosen_yaw, chosen_z
 

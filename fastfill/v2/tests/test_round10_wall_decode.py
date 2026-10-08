@@ -63,6 +63,27 @@ def test_a_wall_object_predicted_in_the_swapped_axis_form_keeps_its_thin_side_on
     assert xy == pytest.approx(np.array([[.02, 2.25]])) and yaw == pytest.approx([math.pi / 2])  # before: x .4, yaw 0
 
 
+def test_a_turned_wall_projection_measures_overlap_at_its_own_footprint():
+    # audit C1: a 2 x .2 m box decoded at 45 degrees, turned flush (yaw 0) onto the x = 0 wall, was compared by its
+    # 45-degree bounds (2.42 m^2, not .4): .1 m^2 into a fixed block (25%) read as 4% and beat a free cell
+    block = {"id": "block", "bottom_center_m": [1., 2.55, 0.], "size_local_m": [2., 2., 2.7], "yaw_rad": 0.}
+    logits = torch.full((1, 16), -100.)
+    logits[0, 1], logits[0, 0] = 10., 9.  # cell (0, 1) at (.5, 1.5), then (0, 0)
+    xy, yaw, _ = spread_grid_xy(logits, torch.zeros(1, 16, 2), 4, np.array([[2., .2, .2]]), np.array([math.pi / 4]),
+                                np.array([[.5, 1.5, .6]]), {**ROOM, "fixed_objects": [block]}, top_k=2,
+                                requests=[{"id": "a", "support_parent": "wall"}])
+    assert xy[0] == pytest.approx([1., .5]) and yaw == pytest.approx([0.])  # before: [1, 1.5], in the block
+    # placed, it keeps that footprint as an obstacle: a 1 m box .1 m^2 into it (25% of .4) moves on (before: stayed)
+    logits = torch.full((2, 16), -100.)
+    logits[0, 1], logits[1, 2], logits[1, 3] = 10., 10., 9.
+    residuals = torch.zeros(2, 16, 2)
+    residuals[1, 2, 1] = -1.  # cell (0, 2) shifted to (.5, 2.)
+    xy, _, _ = spread_grid_xy(logits, residuals, 4, np.array([[2., .2, .2], [1., 1., .2]]), np.array([math.pi / 4, 0.]),
+                              np.array([[.5, 1.5, .6], [.5, 2., .6]]), ROOM, top_k=2,
+                              requests=[{"id": "a", "support_parent": "wall"}, {"id": "b", "support_parent": "wall"}])
+    assert xy == pytest.approx(np.array([[1., 1.5], [.5, 3.5]]))
+
+
 def box(ident, position, size, yaw=0.):
     return {"id": ident, "bottom_center_m": position, "target_size_local_m": size, "yaw_rad": yaw}
 
