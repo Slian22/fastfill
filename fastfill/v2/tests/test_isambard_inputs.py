@@ -13,7 +13,7 @@ I = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(I)
 
 
-def make_arm(runs, name, score, phase="done", cohort_text="a\nb\n"):
+def make_arm(runs, name, score, phase="done", cohort_text="a\nb\n", code="c0de"):
     d = runs / name
     run = runs / f"run-{name}"
     (run / "model-step-4").mkdir(parents=True)
@@ -22,8 +22,8 @@ def make_arm(runs, name, score, phase="done", cohort_text="a\nb\n"):
     cohort.write_text(cohort_text)
     report = runs / f"select2-{name}" / "report.json"
     report.parent.mkdir()
-    report.write_text(json.dumps({"data_path": str(cohort.resolve()), "data_sha256": sha256(cohort)}))
-    best = {"checkpoint": str(run / "model-step-4"), "report": str(report), "score": score}
+    report.write_text(json.dumps({"data_path": str(cohort.resolve()), "data_sha256": sha256(cohort), "implementation_sha256": code}))
+    best = {"checkpoint": str(run / "model-step-4"), "report": str(report), "score": score, "implementation_sha256": code}
     config = d / "config.json"
     config.write_text(json.dumps({"loss": {"yaw_cls": .5}, "model": {"max_objects": 256},
                                   "training": {"steps": 10, "gradient_accumulation_steps": 24, "batch_size": 1}}))
@@ -36,7 +36,7 @@ def test_arms_refused_and_chosen(tmp_path):
     make_arm(tmp_path, "a", 2.5)
     make_arm(tmp_path, "b", 2.4)
     a, b = I.arm(tmp_path, "a"), I.arm(tmp_path, "b")
-    assert a["global_batch"] == 96 and a["epochs_supervised"] == 1.
+    assert a["global_batch"] == 96 and a["epochs_supervised"] == 1. and (a["best_step"], a["best_epochs"]) == (4, .4)
     final, control = I.choose([a, b])
     assert (final["dir"], control["dir"]) == ("b", "a")
     with pytest.raises(SystemExit, match="same select2 score"):
@@ -44,6 +44,9 @@ def test_arms_refused_and_chosen(tmp_path):
     make_arm(tmp_path, "c", 2.0, cohort_text="b\na\n")
     with pytest.raises(SystemExit, match="cohorts differ"):
         I.choose([a, I.arm(tmp_path, "c")])
+    make_arm(tmp_path, "e", 2.0, code="other")
+    with pytest.raises(SystemExit, match="different fastfill/v2 code"):
+        I.choose([a, I.arm(tmp_path, "e")])
     make_arm(tmp_path, "d", 1.0, phase="E-train")
     with pytest.raises(SystemExit, match="not done"):
         I.arm(tmp_path, "d")

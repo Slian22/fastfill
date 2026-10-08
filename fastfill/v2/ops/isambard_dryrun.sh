@@ -14,7 +14,8 @@
 # staged as the baseline download. Then DRYRUN=1 DEVICE=cpu ABLATION_ROWS=12 run_plan.sh all.
 set -euo pipefail
 [ $# = 6 ] || { sed -n '2,14p' "$0"; exit 2; }
-WORK=$1; PY=$2; NEWD=$3; OLDD=$4; LLM=$5; RGB=$6
+abs() { case $1 in /*) echo "$1" ;; *) echo "$PWD/$1" ;; esac; }  # the script cds below: every path made absolute
+WORK=$(abs "$1"); PY=$(abs "$(command -v "$2")"); NEWD=$(abs "$3"); OLDD=$(abs "$4"); LLM=$(abs "$5"); RGB=$(abs "$6")
 REPO=$(cd "$(dirname "$0")/../../.." && pwd)
 CK=$WORK/checkout
 [ ! -e $WORK ] || [ -d $CK ] || { echo "refused: $WORK exists and is not an earlier dry run (it is replaced)"; exit 2; }

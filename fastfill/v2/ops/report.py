@@ -439,13 +439,15 @@ def section_arms(inp):
     rows = [["<b>最终</b>" if x["role"] == "final" else "对照", f"<code>{esc(x['dir'])}</code>", f"<code>{esc(x['run'])}</code>",
              num(x["yaw_cls"], 2), str(x["max_objects"]), str(x["global_batch"]), f"{x['steps']}（{num(x['epochs_supervised'])} 轮）",
              esc(x["phase"]), esc("；".join(x["failures"]) or "无"), f"<code>{esc(short_ckpt(x['best_checkpoint']))}</code>",
-             num(x["best_score"], 4), f"<code>{esc(x['select2_cohort_sha256'][:12])}</code>", esc(x.get("uploaded_model") or "—")]
+             f"{x['best_step']}（{num(x['best_epochs'])} 轮）", num(x["best_score"], 4), f"<code>{esc(x['select2_cohort_sha256'][:12])}</code>",
+             f"<code>{esc(x['select2_implementation_sha256'][:12])}</code>", esc(x.get("uploaded_model") or "—")]
             for x in inp["arms"]]
     ranking = "".join(f"<li>{'最终' if x['role'] == 'final' else '对照'}：" + "；".join(f"<code>{esc(short_ckpt(c))}</code> {num(s, 4)}"
                                                                                 for c, s in x["select2_ranking"]) + "</li>" for x in inp["arms"])
     return (out + "<h3>1.1 两臂与最终臂的选择</h3>"
-            + table(["角色", "autopilot 目录", "运行", "yaw_cls", "max_objects", "全局批量", "步数（按有效样本的轮数）", "阶段", "失败项",
-                     "select2 最优检查点", "select2 分数 ↓", "select2 队列 sha256", "上传"], rows)
+            + table(["角色", "autopilot 目录", "运行", "yaw_cls", "max_objects", "全局批量", "整个运行的步数（配置；按有效样本的轮数）", "阶段",
+                     "失败项", "select2 最优检查点", "该检查点的步数（轮数）", "select2 分数 ↓", "select2 队列 sha256",
+                     "select2 评测代码 sha256", "上传"], rows)
             + f"<p><b>规则：</b>{esc(inp['rule'])}</p><details><summary>两臂的 select2 排名（分数越低越好）</summary><ul>{ranking}</ul></details>"
             + "<h3>1.2 数据与模型来源</h3>" + table(["项目", "来源与校验"], [[esc(k), esc(v)] for k, v in inp["provenance"]]))
 
@@ -510,7 +512,8 @@ def main(argv=None):
     bias = "".join(f"<p>{x}</p>" for r in val_rows if (x := bias_note(rows_name(r), scene_ids(r), cohorts)))
     boots = sorted({s["meta"]["boot"] for _, _, s in runs})
     parts.append("<h2 id='s1'>1 设置与协议</h2>" + (section_arms(inp) + "<h3>1.3 各运行</h3>" if inp else "") + run_rows(runs) + f"""
-<ul><li><b>决策只读验证集：</b>“是否以最终替代基线”和“默认解码 spread / argmax”两项决策只读第 3 节的验证集配对比较；第 4–7 节（测试集、LLM、消融、RoomGenBench）仅报告，不参与任何决策。</li>
+<ul><li><b>两种解码：</b>argmax = 模型原始输出（每物体取最高分格子）；spread = 防碰撞后处理解码（每个物体取留在房间内、不与已放物体重叠的最可能格子，并服从支撑声明）。两者用同一次前向的头输出，只差解码；第 3、5、8 节的 spread / argmax 均指此义。</li>
+<li><b>决策只读验证集：</b>“是否以最终替代基线”和“默认解码 spread / argmax”两项决策只读第 3 节的验证集配对比较；第 4–7 节（测试集、LLM、消融、RoomGenBench）仅报告，不参与任何决策。</li>
 <li><b>相同解码代码：</b>{heads_note}compare.py 拒绝解码/评分代码（implementation_sha256）、来源或前向代码不同的两侧；上表“前向代码”“解码/评分代码”两列即这两个哈希。</li>
 <li><b>显著性：</b>主判据为逐房间差值均值的配对房间 bootstrap 95% CI（不含 0 即显著，方向取其符号），<b>按指标逐个判断，未做多重比较校正</b>；
 稳健性列为逐房间差值的精确双侧符号检验（同一比较内跨指标 Holm 校正）。两者不一致时显式标出：不一致可能来自多重比较（主判据未校正、符号检验已校正），

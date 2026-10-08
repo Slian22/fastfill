@@ -2,12 +2,16 @@
 # FastFill v2 final analysis on Isambard-AI (one node, 4 GH200), after both autopilot arms (runs/autorun-yawcls05: yaw_cls
 # 0.5; runs/autorun-yawcls008: the 0.08 control) have finished. Submitted as
 #   sbatch --dependency=afterok:<yawcls05 job>:<yawcls008 job> fastfill/v2/ops/isambard_analysis.sbatch   (runs "all")
-# or by hand from the checkout: bash fastfill/v2/ops/run_plan.sh inputs | gpu | cpu | report | all.
+# or one step by hand inside an allocation (Isambard login nodes have no GPU and forbid heavy work), from the checkout:
+#   srun --nodes=1 --gpus=4 --time=12:00:00 bash fastfill/v2/ops/run_plan.sh inputs | gpu | cpu | report | all
+# (only report is light enough for a login node).
 # Everything is written under runs/analysis (inputs also: runs/.download-*, runs/baseline-hf, runs/llm-*-300,
-# data/main-20261007b). Every step keeps what a previous run of it finished; resubmitting the job resumes.
+# data/main-20261007b). Every step keeps what a previous run of it finished; resubmitting the job resumes. If the
+# chosen checkpoints (FINAL, CTRL, BASE) differ from the previous run's, the inputs step removes the earlier outputs.
 #
 # inputs  (CPU, ~10 min) isambard_inputs.py: refuses unless both arms' STATUS.json phase is done / done-with-failures and
-#         their select2 cohorts are the same bytes; final = the arm with the lower select2 score, control = the other.
+#         their select2 cohorts are the same bytes scored by the same code; final = the arm with the lower select2
+#         score, control = the other.
 #         Downloads, sha256-pinned: the old baseline (used from a copy whose backbone path is models/Qwen3-8B), the saved
 #         LLM answers (prompt, harness; the structured modes only if runs/llm-structured*-300 exist) and the old data
 #         main-20261007b; rebuilds the baseline's old selection cohorts (Autopilot.eval_data). Then the 500-row ablation
@@ -53,6 +57,20 @@ load_inputs() {  # FINAL CTRL BASE (checkpoints), FINAL_NAME CTRL_NAME (runs), *
 
 label() { case $1 in base) echo 基线 ;; final) echo 最终 ;; ctrl) echo 对照 ;; esac; }
 
+finished() {  # finished DIR: a complete evaluate output. evaluate writes report.json before the outcomes files, so the
+              # mark is every outcomes file holding as many complete lines as its projection's requests
+  $P -c 'import json, sys
+from pathlib import Path
+d = Path(sys.argv[1])
+try:
+    r = json.loads((d / "report.json").read_text())
+    parts = [("outcomes.jsonl", r)] + [(f"outcomes-{p}.jsonl", x) for p, x in r["projections"].items()]
+    ok = all(sum(line.endswith(b"\n") for line in open(d / f, "rb")) == x["requests"] for f, x in parts)
+except (OSError, ValueError, KeyError):
+    ok = False
+sys.exit(0 if ok else 1)' "$1"
+}
+
 # Functions run by timed (or after ||) run with errexit ignored (bash rule): each propagates failures with || return 1.
 timed() {  # timed STEP CARD LOG CMD...: runs CMD > LOG, appends its wall time to walltime.tsv, returns its exit code
   local step=$1 card=$2 log=$3 start t0 rc=0; shift 3; start=$(date -u +%FT%TZ); t0=$(date +%s)
@@ -73,9 +91,14 @@ parallel() {  # parallel N < COMMANDS: each line run by bash, at most N at a tim
 }
 
 step_inputs() {
-  local dry=; [ "${DRYRUN:-0}" != 1 ] || dry=--dry-run
+  local dry= before; [ "${DRYRUN:-0}" != 1 ] || dry=--dry-run
+  before=$(grep -E '^(FINAL|CTRL|BASE)=' $A/inputs.env 2>/dev/null || true)
   $P $OPS/isambard_inputs.py --repo $R --out $A $dry
   load_inputs
+  if [ -n "$before" ] && [ "$before" != "$(grep -E '^(FINAL|CTRL|BASE)=' $A/inputs.env)" ]; then
+    echo "the chosen checkpoints changed since the previous run: its outputs are removed"
+    rm -rf $G $F $A/ablation-sample-* $A/reference-final $A/reference-ctrl; mkdir -p $G $F
+  fi
   if [ ! -f $SAMPLE/sample.json ]; then  # drawn on the CPU; eligible for all three checkpoints (min max_objects 128)
     rm -rf $SAMPLE
     $P $OPS/sample_validation.py --new $NEW/validation.jsonl --old $OLD/validation.jsonl --checkpoint $FINAL \
@@ -92,8 +115,8 @@ gpu_step() {  # gpu_step STEP CARD LOG CMD...: CMD on GPU CARD (no GPU in the CP
 
 heads() {  # heads NAME CHECKPOINT DATA CARD PROJECTION...: one forward pass per request, head outputs saved
   local name=$1 ckpt=$2 data=$3 card=$4; shift 4
-  if [ -f $G/$name-online/report.json ]; then echo "kept: heads-$name"; return 0; fi
-  rm -rf $G/$name-online $G/$name-heads
+  if finished $G/$name-online; then echo "kept: heads-$name"; return 0; fi
+  rm -rf $G/$name-online $G/$name-heads $G/$name-spread $G/$name-argmax   # the decodes of the old head outputs too
   gpu_step heads-$name $card $G/$name-online.log $P -m fastfill.v2.evaluate --checkpoint $ckpt --data $data \
     --projection "$@" --device $DEVICE --grid-decode spread --output $G/$name-online --save-head-outputs $G/$name-heads
 }
@@ -229,7 +252,7 @@ llm_all() {  # the saved LLM answers re-scored by the evaluator on disk; FastFil
   mkdir -p $A/llm
   for m in $LLM_MODES; do
     out=$A/llm/llm-$m-300-eval
-    if [ ! -f $out/report.json ]; then
+    if ! finished $out; then
       rm -rf $out
       $P -m fastfill.v2.evaluate --data $R/runs/llm-$m-300/rows.jsonl --predictions $R/runs/llm-$m-300/predictions.jsonl \
         --output $out > $out.log 2>&1 || return 1
@@ -237,8 +260,8 @@ llm_all() {  # the saved LLM answers re-scored by the evaluator on disk; FastFil
     methods+=(--method "LLM $m=$out,$R/runs/llm-$m-300/summary.json")
   done
   for m in $COHORT_NEW $COHORT_OLD $COHORT_OLD1; do cohorts+=(--selection-cohort $m); done
-  $P $OPS/llm_compare.py --method "FastFill spread=$G/final-llm-spread,$G/final-llm-online" \
-    --method "FastFill argmax=$G/final-llm-argmax,$G/final-llm-online" "${methods[@]}" "${cohorts[@]}" \
+  $P $OPS/llm_compare.py --method "FastFill 最终·spread（防碰撞后处理）=$G/final-llm-spread,$G/final-llm-online" \
+    --method "FastFill 最终·argmax（模型原始输出）=$G/final-llm-argmax,$G/final-llm-online" "${methods[@]}" "${cohorts[@]}" \
     --out $F/llm-compare.json --workers $W
 }
 
@@ -251,7 +274,7 @@ step_cpu() {
            base-test:$NEW/test.jsonl final-test:$NEW/test.jsonl ctrl-test:$NEW/test.jsonl final-llm:$LLMROWS; do
     name=${x%%:*}; data=${x#*:}; proj="minimal full"; [ $name != final-llm ] || proj=full
     for d in spread argmax; do
-      [ -f $G/$name-$d/report.json ] || echo "rm -rf $G/$name-$d && $P -m fastfill.v2.evaluate --from-head-outputs $G/$name-heads --data $data --projection $proj --grid-decode $d --output $G/$name-$d > $G/$name-$d.log 2>&1"
+      finished $G/$name-$d || echo "rm -rf $G/$name-$d && $P -m fastfill.v2.evaluate --from-head-outputs $G/$name-heads --data $data --projection $proj --grid-decode $d --output $G/$name-$d > $G/$name-$d.log 2>&1"
     done
   done > $G/decode-commands.txt
   timed decode cpu $G/decode.log parallel $(( W < 14 ? W : 14 )) < $G/decode-commands.txt
@@ -295,5 +318,5 @@ step_report() {
 case "${1:-}" in
   inputs) step_inputs ;; gpu) step_gpu ;; cpu) step_cpu ;; report) step_report ;;
   all) step_inputs; step_gpu; step_cpu; step_report ;;
-  *) sed -n '2,27p' "$0"; exit 2 ;;
+  *) sed -n '2,31p' "$0"; exit 2 ;;
 esac

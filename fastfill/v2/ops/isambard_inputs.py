@@ -5,7 +5,8 @@ OUT/inputs.env (sourced by run_plan.sh).
     python isambard_inputs.py --repo . --out runs/analysis [--dry-run]
 
 Arms (runs/autorun-yawcls05, runs/autorun-yawcls008): refused unless both STATUS.json phases are done or
-done-with-failures and both select2 cohorts (the data of each STATUS best report) hold the same bytes. final = the arm
+done-with-failures, both select2 cohorts (the data of each STATUS best report) hold the same bytes and both select2
+scores were computed by the same fastfill/v2 code (the reports' implementation_sha256). final = the arm
 whose STATUS best.score is lower (select2: the whole new validation set, minimal projection, spread decoding; lower is
 better); control = the other; equal scores are refused.
 Downloads (huggingface_hub with the submitting shell's HF_HOME and login) go to staging directories that are never
@@ -28,7 +29,7 @@ from pathlib import Path
 import shlex
 import shutil
 
-from fastfill.v2.autorun import Autopilot, sha256
+from fastfill.v2.autorun import Autopilot, sha256, step_of
 
 MODEL_REPO, MODEL_REV = "liantian/fastfill-v2-models", "6134404806239db0865ec59ab85a2e1cfa8c63fb"
 DATA_REPO, DATA_REV = "liantian/fastfill-v2", "eb5fbce19060cbecafaf53236e73ac47179e5803"
@@ -61,7 +62,7 @@ OLD_DATA = {"train.jsonl": "609ae3cb46bd897a8942455a9bff251962f14c466fd51a0beb97
 OLD_COHORT_ALL = "06c0bdcc1b909ab69e8f5811da17fcbfdc26bac4942877528a32b0a6dfe30299"  # data_sha256 of the baseline's select2 report
 ARMS = ("autorun-yawcls05", "autorun-yawcls008")
 RULE = ("最终臂 = STATUS.json best.score 更低的一臂（autopilot 的 select2 分数：新验证集全集、三字段投影、spread 解码，"
-        "越低越好）；另一臂为对照。两臂的 select2 队列逐字节相同。下面的配对比较是这一选择的证据，测试集只报告。")
+        "越低越好）；另一臂为对照。两臂的 select2 队列逐字节相同，且由同一评测代码（implementation_sha256）评分。下面的配对比较是这一选择的证据，测试集只报告。")
 
 
 class Pins:
@@ -97,6 +98,8 @@ def arm(runs, name):
         raise SystemExit(f"refused: {name}'s best report scored {cohort}, not its select2 cohort")
     if sha256(cohort) != report["data_sha256"]:
         raise SystemExit(f"refused: {cohort} changed after {name}'s select2 evaluation")
+    if best.get("implementation_sha256") != report["implementation_sha256"]:
+        raise SystemExit(f"refused: {name}: STATUS best implementation_sha256 is not its report's")
     ranking = json.loads((d / "select2-selection.json").read_text())
     if (ranking[0]["checkpoint"], ranking[0]["score"]) != (best["checkpoint"], best["score"]):
         raise SystemExit(f"refused: {name}: STATUS best is not the top of select2-selection.json")
@@ -104,22 +107,27 @@ def arm(runs, name):
     start = json.loads((Path(best["checkpoint"]).parent / "run_manifest_start.json").read_text())
     training = config["training"]
     batch = start["world_size"] * training["gradient_accumulation_steps"] * training["batch_size"]
+    best_step = step_of(best["checkpoint"])
     return {"dir": name, "run": status["run"], "phase": status["phase"], "failures": status.get("failures") or [],
             "accepted": status.get("accepted"), "uploaded_model": status.get("uploaded_model"), "config": status["config"],
             "yaw_cls": config["loss"]["yaw_cls"], "max_objects": config["model"]["max_objects"],
             "steps": training["steps"], "global_batch": batch, "supervised_samples": start["supervised_samples"],
             "rejected_samples": start["rejected_samples"], "epochs_supervised": training["steps"] * batch / start["supervised_samples"],
-            "best_checkpoint": best["checkpoint"], "best_score": best["score"], "best_report": best["report"],
-            "select2_cohort": str(cohort), "select2_cohort_sha256": report["data_sha256"],
+            "best_checkpoint": best["checkpoint"], "best_step": best_step, "best_epochs": best_step * batch / start["supervised_samples"],
+            "best_score": best["score"], "best_report": best["report"], "select2_cohort": str(cohort),
+            "select2_cohort_sha256": report["data_sha256"], "select2_implementation_sha256": report["implementation_sha256"],
             "select2_ranking": [[r["checkpoint"], r["score"]] for r in ranking], "test_report": status.get("test_report"),
             "summary": str(d / "SUMMARY.md")}
 
 
 def choose(arms):
-    """(final, control): the lower select2 score; refused unless both cohorts are the same bytes."""
+    """(final, control): the lower select2 score; refused unless both cohorts are the same bytes, scored by the same code."""
     a, b = arms
     if a["select2_cohort_sha256"] != b["select2_cohort_sha256"]:
         raise SystemExit(f"refused: the arms' select2 cohorts differ ({a['select2_cohort']} vs {b['select2_cohort']})")
+    if a["select2_implementation_sha256"] != b["select2_implementation_sha256"]:
+        raise SystemExit(f"refused: the arms' select2 scores come from different fastfill/v2 code "
+                         f"({a['select2_implementation_sha256'][:12]} vs {b['select2_implementation_sha256'][:12]})")
     if a["best_score"] == b["best_score"]:
         raise SystemExit("refused: both arms have the same select2 score; choose the final arm by hand")
     return (a, b) if a["best_score"] < b["best_score"] else (b, a)
@@ -254,7 +262,8 @@ def main(argv=None):
     for x in (final, control):
         provenance.append([f"{role['final' if x is final else 'control']}臂 {x['dir']}",
                            f"运行 {x['run']}；yaw_cls {x['yaw_cls']}、max_objects {x['max_objects']}、全局批量 {x['global_batch']}；"
-                           f"{x['steps']} 步 × {x['global_batch']} = {x['epochs_supervised']:.3f} 轮（以过滤后 {x['supervised_samples']} 个有效样本计；"
+                           f"整个运行（配置）{x['steps']} 步 × {x['global_batch']} = {x['epochs_supervised']:.3f} 轮；select2 所选检查点 "
+                           f"model-step-{x['best_step']} = {x['best_epochs']:.3f} 轮（均以过滤后 {x['supervised_samples']} 个有效样本计；"
                            f"train.jsonl {train_rows} 行，训练拒收 {x['rejected_samples']}）"])
     record = {"dry_run": a.dry_run, "repo": str(repo), "rule": RULE,
               "arms": [{**final, "role": "final"}, {**control, "role": "control"}],
