@@ -370,3 +370,27 @@ def test_set_overrides_an_existing_config_key_only():
     assert config["model"]["max_objects"] == 256
     with pytest.raises(ValueError, match="no existing config key"):
         override(config, "model.max_object=256")
+
+
+def test_a_roomgenbench_hand_off_is_reused_only_for_the_same_checkpoint_and_code(tmp_path, monkeypatch):
+    import argparse
+    from fastfill.v2 import autorun
+    pilot = autorun.Autopilot(argparse.Namespace(repo=str(tmp_path)))
+    launched = []
+    def sh(args, **kw):
+        launched.append(args)
+        tag = list(map(str, args))[-1]
+        for i in range(5):
+            room = pilot.runs / "roomgenbench" / tag / f"r{i}.layout_boxes"
+            room.mkdir(parents=True, exist_ok=True)
+            (room / "receipt.json").write_text("{}")
+        return autorun.subprocess.Popen(["true"])
+    monkeypatch.setattr(pilot, "sh", sh)
+    monkeypatch.setattr(autorun, "implementation_sha256", lambda root: "code-A")
+    pilot.roomgenbench("/ck/step-1", "best").wait()
+    pilot.roomgenbench("/ck/step-1", "best").wait()
+    assert len(launched) == 1  # same checkpoint, same code: reused
+    monkeypatch.setattr(autorun, "implementation_sha256", lambda root: "code-B")
+    pilot.roomgenbench("/ck/step-1", "best").wait()
+    assert len(launched) == 2  # new code: exported again, the old directory set aside
+    assert any(p.name.startswith("best.stale-") for p in (pilot.runs / "roomgenbench").iterdir())

@@ -309,13 +309,20 @@ class Autopilot:
         return results[0]
 
     def roomgenbench(self, checkpoint, tag):
+        """The five rooms' hand-off of ``checkpoint``; reused only for the same checkpoint and the same fastfill/v2 code
+        (prediction, decoding and export all run from it), else the old directory is set aside and exported again."""
         out, bound = self.runs / "roomgenbench" / tag, self.runs / "roomgenbench" / tag / "checkpoint.txt"
+        identity = f"{checkpoint}\n{implementation_sha256(self.root)}"
         if (len(glob.glob(str(out / "*.layout_boxes" / "receipt.json"))) == 5 and bound.is_file()
-                and bound.read_text().strip() == str(checkpoint)):
+                and bound.read_text().strip() == identity):
             self.log("RoomGenBench hand-off already complete", tag=tag)  # a restarted autopilot
             return subprocess.Popen(["true"])
-        out.mkdir(parents=True, exist_ok=True)
-        bound.write_text(f"{checkpoint}\n")
+        if out.exists():  # predict refuses existing outputs: a different checkpoint or code exports afresh
+            stale = out.with_name(f"{out.name}.stale-{time.strftime('%Y%m%d%H%M%S')}")
+            out.rename(stale)
+            self.log("stale RoomGenBench hand-off set aside", tag=tag, output=str(stale))
+        out.mkdir(parents=True)
+        bound.write_text(identity + "\n")
         return self.sh(["bash", "runs/roomgenbench/run_checkpoint.sh", checkpoint, tag],
                        log=self.runs / "roomgenbench" / f"{tag}.log", wait=False)
 
