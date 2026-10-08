@@ -1,13 +1,14 @@
 #!/bin/bash
 # One-time Isambard-AI setup on a compute node (the login nodes have no GPU): aarch64 env, pinned data, backbone and
-# LLM comparison rows, RoomGenBench requests, then the test suite. Rerunning skips what is already in place.
+# LLM comparison rows, RoomGenBench requests, the test suite, then a training/resume/evaluation smoke. Rerunning skips what is already in place.
 #SBATCH --job-name=ff-setup
 #SBATCH --nodes=1
 #SBATCH --gpus=1
-#SBATCH --time=02:00:00
+#SBATCH --time=03:00:00
 #SBATCH --output=runs/isambard/%x-%j.out
 set -euo pipefail
 cd "$SLURM_SUBMIT_DIR"
+export PIP_NO_CACHE_DIR=1  # keep the ~4 GB of wheels out of the 100 GiB HOME
 uname -m; nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
 git submodule update --init RoomGenBench
 [ -x env/bin/python ] || ~/miniforge3/bin/conda create -y -p "$PWD/env" python=3.12 pip
@@ -44,4 +45,40 @@ echo "e02da65e6844630eba506952ee1f059655552a2d14e1af763eb787cc2d0152ea  $R" | sh
 [ -d runs/roomgenbench/requests ] || env/bin/python -m fastfill.v2.roomgenbench \
   --requests-from RoomGenBench/bench/inputs/scenes --requests-out runs/roomgenbench/requests
 env/bin/python -m pytest fastfill/v2/tests -q -x
+
+# smoke on this hardware (96 GB per GPU here, 143 GB on the old server): the final configuration (max_objects 256) on the
+# 8 longest rows training accepts (most tokens within max_length 8192 and 256 objects), unaugmented so each is seen in
+# full; save, resume from the saved state, evaluate
+S=runs/isambard/smoke; rm -rf $S $S-resume $S-eval
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=8
+env/bin/python - "$PWD" <<'EOF'
+import json, sys
+from fastfill.v2.autorun import next_config
+from fastfill.v2.batch import load_tokenizer, tokenize_condition
+tokenizer, sized = load_tokenizer("models/Qwen3-8B", local_files_only=True), []
+for line in open("data/main-20261008a/train.jsonl"):
+    condition = json.loads(line)["condition"]
+    if len(condition["objects"]) <= 256:
+        tokens = len(tokenize_condition(condition, tokenizer)[0])
+        if tokens <= 8192:
+            sized.append((tokens, len(condition["objects"]), line))
+sized.sort(key=lambda t: t[0])
+open("runs/isambard/longest.jsonl", "w").writelines(line for *_, line in sized[-8:])
+print("smoke rows (tokens, objects):", [t[:2] for t in sized[-8:]], "of", len(sized), "eligible")
+config = next_config(json.load(open("fastfill/v2/configs/main7-cell05-main-20261007b-e5.json")), world_size=1, train_rows=8, epochs=1, global_batch=2)
+config["model"].update(backbone=f"{sys.argv[1]}/models/Qwen3-8B", max_objects=256)
+config["training"].update(steps=4, checkpoint_every=2)  # 4 updates x 2 microbatches = the 8 rows once
+config["augmentation"].update(drop_constraints_p=0, drop_support_p=0, category_only_description_p=0, minimal_form_p=0)
+json.dump(config, open("runs/isambard/smoke.json", "w"), indent=2)
+EOF
+nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits -lms 1000 > $S-memory.csv & monitor=$!
+T="env/bin/python -m torch.distributed.run --standalone --nproc_per_node=1 --module fastfill.v2.train --config runs/isambard/smoke.json --data runs/isambard/longest.jsonl"
+$T --output $S
+$T --output $S-resume --resume $S/state-step-2
+env/bin/python -m fastfill.v2.evaluate --checkpoint $S-resume/model-step-4 --data data/main-20261008a/validation.jsonl \
+  --max-samples 20 --projection minimal --device cuda --grid-decode spread --output $S-eval
+kill $monitor
+grep -h '"step": 4,' $S/train.log $S-resume/train.log | cut -c1-70  # uninterrupted vs resumed step 4: about the same loss
+sort -n $S-memory.csv | tail -1 | awk -F', ' '{print "smoke peak GPU memory", $1, "of", $2, "MiB"}'
+rm -rf $S/state-step-* $S-resume/state-step-*  # ~29 GB each (they hold the frozen backbone)
 echo SETUP OK
