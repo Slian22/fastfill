@@ -244,6 +244,75 @@ Review repairs (same round):
 - **Structured LLM harness lets wall objects hang.** Rule (3) of the instruction describes wall objects and `support_parent: wall`; `structured_problems` drops llm_baseline's "floats ... put it on a surface or the floor" for an object declared on or hung on a wall and reports a declared wall object off the wall. llm_baseline.py (`prompt` / `harness`) stays byte-identical to 510f1e0, so its harness still sends raised wall objects to the floor; both modes still see the three-field projection, which has no support declarations.
 - **rotate90 / mirror skip rooms with `openings`** (free-form metadata `_rigid_xy` cannot turn) instead of raising in the DataLoader; no current row has openings.
 
+## 2026-10-08 round 14 (evaluation math audit)
+
+Evaluation and reporting only: training, data build and `llm_baseline.py` are unchanged. Report fields are only
+added (existing ones keep their values), except the RoomGenBench reference check, whose schema moves to v2 (below).
+Regression tests: `tests/test_round14_eval_math.py`, `tests/test_autorun.py`.
+
+- **Box-preserving wall facing (spread).** The model learns yaw only modulo pi (the yaw loss takes the min over
+  {y, y + pi}), but spread turned a floor-standing object whose footprint ended within `near_wall` of a wall to its most
+  probable yaw bin within 45 degrees of facing away from that wall: on test about 24% of objects turned, mostly by about
+  90 degrees, adding 0.033 rad yaw error. Now the decoded yaw only flips by pi, when the flipped yaw faces away from the
+  nearest wall within 45 degrees, and is kept otherwise; the box and its footprint never change (the yaw logits only switch
+  the rule on). Declared `wall` objects (round 10) and `keep_yaw` slots are unchanged. Oracle check on 2,000 seeded
+  validation rows (validation split only; 16 x 16 one-hot GT cells with exact residuals, GT size and z; the "mod pi"
+  yaw head ties the GT bin and its opposite, as a model that learns yaw modulo pi): three-field projection (1,001 rooms,
+  12,840 objects), old rule -> new rule, objects whose yaw spread changed 3,186 (24.8%) -> 2,296, off their predicted
+  box 875 (579 by about 90 degrees) -> 0, mean yaw error modulo pi 0.098 rad -> 0 (the oracle's own); full condition
+  (2,000 rooms, 25,893 objects) 6,250 -> 4,104 changed, 2,112 -> 0 off-box, 0.110 -> 0 rad. With the GT bin alone
+  (exact head) the old rule moved 992 / 2,510 boxes and the new one none. 98,748 of the 98,769 yaw-valid validation
+  objects have symmetry order 2 or 4, so the half turn costs no yaw error; positions also differ for 1,657 / 3,729
+  objects, since the old turns changed footprints. By design the half turn also turns objects that faced the wall on
+  purpose (a chair facing a desk against it): in that oracle 347 / 12,840 (three-field) and 820 / 25,893 (full) objects
+  left their exact GT facing, invisible to the order >= 2 yaw metrics. Only the nearest wall counts: in a corner, an
+  object facing the second-nearest wall is 90 degrees from the flip window and keeps facing it.
+- **Rotated supports (spread).** A declared child's "centre on the parent" test and its 5 x 5 parent lattice, and an
+  undeclared raised object's "over a floor-standing object" tests, used the parent's axis-aligned bounds; they now work
+  in the parent's own frame (unchanged for yaws that are multiples of 90 degrees). Case: a cup declared on a fixed table
+  turned 45 degrees, argmax cell inside the table's bounds but off its top: support violation -> pass.
+- **Paired baselines.** `baselines_paired` (also per source) is scored only on the requests the model reference scores
+  (those with a layout), so on the model's own objects; over-capacity and failed rows used to count only in the
+  baselines. `baselines` (every row) stays. `autorun.score` and SUMMARY.md use the paired one; a cached candidate
+  report without it is evaluated again.
+- **Validator collisions and clean rooms.** `validation.model` / `validation.ground_truth`: rooms, `rooms_with_collision`,
+  `collision_pairs` (requested pairs), `fixed_collision_pairs`, `clean_rooms` / `clean_room_rate` (no hard violation;
+  unknown checks are not violations) and `clean_rooms_with_hard_unknown` (counted separately), and
+  `clean_room_rate_known_only` over the `rooms_without_hard_unknown` (null when every room has one, as in the
+  three-field projection, whose undeclared supports are all unknown). All rates are over the rooms with a layout, so
+  read them with the no-layout count when two methods differ in it; the ground-truth column is paired. The ground truth is the
+  same rooms' labels as written under the same `validate_scene` (`outcomes[*].ground_truth_validation`).
+  `collapse.<column>.bev_overlap_rate_iou_gt_0.3_room_mean` weighs every room with a pair equally (the pooled rate is
+  dominated by the largest rooms). `failed_requests` keeps its value and is now named for what it is,
+  `failed_requests_strict` (no layout, or a hard check not passed, unknown included); `hard_violation_requests` counts
+  no layout or a violated hard check only. SUMMARY.md shows all of these beside the IoU > 0.3 overlap, which hides
+  collisions of smaller overlap (its table delimiter row has one cell per header cell, as GFM requires to render it).
+- **Reference check v2.** `log_size_error` / `yaw_error_rad` are evaluate's joint box-equivalent errors (the same box
+  written a quarter turned with sx / sy swapped scores 0; `box_equivalent_*` keep their values), here for every object
+  (evaluate uses them only for `size_axis_swap_allowed` objects); the separately minimised ones are
+  `log_size_error_marginal_min` / `yaw_error_rad_marginal_min`. Exchangeable requests, evaluate's groups
+  (`matching.group_labels`: identical request fields but the id, so the same support parent, and a certified swap), are
+  matched to the truth by a Hungarian assignment on bottom-centre distance (`predicted_id`), so a vase is never paired
+  with an identical one on another table; the per-id numbers stay as `*_by_id`. The uniform-yaw baseline follows the
+  primary yaw error: `uniform_yaw_baseline_error_rad` (per object and pooled) is the exact expected box-equivalent yaw
+  error of a uniform yaw on the truth's own box, (m^2 + (pi/2 - m)^2) / pi with m = min(pi/2, pi/4 + c/2) and c the
+  sx/sy swap's log-size cost (pi / 8 for a square footprint up to pi / 4); RoomGenBench rooms 0.416-0.515 rad.
+  `uniform_yaw_baseline_error_rad_marginal_min` is the former pi / 4, the baseline of `yaw_error_rad_marginal_min`.
+- **Square grid.** `serialize_predictions` takes the grid from `math.isqrt` and raises on a non-square cell count.
+- **Saved head outputs.** `evaluate --checkpoint ... --save-head-outputs DIR` writes `DIR/<projection>/row-<row>.npz`
+  (compressed) per request: `position_cell_logits`, `position_cell_residuals`, `position_normalized` (its z is the
+  regressed height), `size`, `yaw_logits`, `yaw_residuals`, `slot_mask`, `ids` and the `condition` JSON; a failure
+  before the forward pass (e.g. over capacity) stores `error_type` / `error_message`. Then
+  `python -m fastfill.v2.evaluate --from-head-outputs DIR --data ROWS --grid-decode {spread,argmax} [--projection ...] --output OUT`
+  re-decodes and scores offline on the CPU with the outcomes of the online path (tested equal for both decodes and
+  both projections, an over-capacity row included). Head outputs of another condition or other ids abort the run.
+  The saving run also writes `DIR/manifest.json` (its checkpoint, binding, max_length, grid_decode, data and code
+  sha256), which the offline report carries as `head_outputs_manifest`. `DIR` and `--output` must be separate
+  directories, neither inside the other (checked before evaluating, so no run is lost to the clash).
+- **Docs.** "Geometry and exact losses" below now states the training normalisation, the final `position_cell` weight
+  (0.5) and the spread default; `autorun.score`'s docstring names its yaw baseline, the uniform-random expectation
+  pi / (2 * order), not a constant yaw.
+
 ## Main full-condition data and preserved release history
 
 The new main derivative is `outputs/fastfill_v2/multisource-20261006/data`, with
@@ -538,9 +607,15 @@ backbone adapter/full weights where needed and decoder/heads.
   `position_grid` x `position_grid` cells (default 16) of normalized XY plus a
   tanh XY residual per cell in half-cell units; training uses CE on the GT cell +
   L1 on the GT cell's residual (`loss.position_cell` / `loss.position_residual`
-  relative weights, formal 0.04 / 0.4) + the regression z share |dz|/3; inference
-  takes the argmax cell + its residual. `predictions["position_normalized"]` is
-  always decoded, so matching, regularizers, evaluation and hand-off are
+  relative weights; the final configuration `configs/qwen3_8b_main_3gpu_grid_cell05.json`,
+  which the autopilot retrains as `main7-cell05-*`, uses **0.5** / 0.4; the first formal
+  grid configs used 0.04 / 0.4, and `position_cell` 0.2 and 1.0 were also compared) + the regression z share |dz|/3.
+  The raw head decodes the argmax cell + its residual (`predictions["position_normalized"]`,
+  `--grid-decode argmax`, "the model alone"); the **default delivery is spread**:
+  `predict`, `evaluate` and the autopilot's selection and test reports use
+  `--grid-decode spread`, the collision-aware re-decode `evaluate.spread_grid_xy`
+  (post-processing of the same head outputs; see round 14 below for its wall-facing rule).
+  `predictions["position_normalized"]` is always decoded, so matching, regularizers, evaluation and hand-off are
   head-agnostic. `term_sums["position"]` is the decoded-position L1/3 under both
   heads; `position_cell` / `position_residual` / `position_z` are logged as well.
 - Box symmetry (round 2): for `validity.size_axis_swap_allowed` objects the loss
@@ -550,10 +625,20 @@ backbone adapter/full weights where needed and decoder/heads.
   `loss.yaw_reg` is capped at 2.0 in the main configs
   ([calibration, round-2 section](../../docs/fastfill-v2-loss-calibration-20261006.md)).
 
-For DDP, all-reduced valid counts and world-size compensation preserve the
-per-global-microbatch objective under averaged gradients. Accumulation averages
-microbatch-normalized losses; it is not a new valid-count reduction across the
-whole accumulation window. Logging averages the corresponding rank contributions.
+**Training normalisation.** Each loss term of one optimizer update is a **global
+per-microbatch mean averaged over the accumulation window**, not a per-object mean
+over the window. Per microbatch, `losses._mean` divides the term's sum by its valid
+count all-reduced over the ranks (times the world size, which DDP's gradient
+averaging divides out again), so the microbatch term is the mean over the valid
+objects of that global microbatch. Accelerate then divides every microbatch loss by
+`gradient_accumulation_steps` K (an epoch-tail window of m < K microbatches is
+rescaled by K / m in `train._rescale_flushed_window_gradients`), so the update follows
+the plain mean of the K microbatch means: an object in a microbatch with few valid
+labels weighs more than one in a dense microbatch, and a microbatch with no valid
+label of a term contributes 0 to that term's average. The update is skipped only
+when the whole window holds no enabled objective on any rank. Window logs
+(`term_sums` / `term_counts`) are count-weighted per-object means, a different
+reduction from the one optimised.
 
 Optional `box_operator=bev_oriented_giou_convex_hull` is piecewise differentiable
 oriented rectangle intersection with convex-hull enclosure of both boxes.

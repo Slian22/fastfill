@@ -7,14 +7,59 @@ import pytest
 from fastfill.v2.autorun import next_config, score
 
 
+def _baselines(room_centre=2.5):
+    return {"category_median_size": {"log_size_error": {"mean": .4}}, "uniform_yaw": {"yaw_error_rad": {"mean": .7}},
+            "room_center_position": {"bottom_center_error_m": {"mean": room_centre}}}
+
+
 def _report(size, yaw, pos, central=.17, wall=.66, overlap=.01, out=0.):
     collapse = lambda c, w, o, r: {"central_quarter_fraction": c, "mean_nearest_wall_distance_m": w,
                                    "bev_overlap_rate_iou_gt_0.3": o, "out_of_room_fraction": r}
     return {"model": {"reference": {"log_size_error": {"mean": size}, "yaw_error_rad": {"mean": yaw},
                                     "bottom_center_error_m": {"mean": pos}}},
-            "baselines": {"category_median_size": {"log_size_error": {"mean": .4}}, "uniform_yaw": {"yaw_error_rad": {"mean": .7}},
-                          "room_center_position": {"bottom_center_error_m": {"mean": 2.5}}},
+            "baselines": _baselines(), "baselines_paired": _baselines(),
             "collapse": {"predicted_matched": collapse(central, wall, overlap, out), "ground_truth": collapse(.17, .66, .01, 0.)}}
+
+
+def test_score_divides_by_the_baselines_of_the_same_requests():
+    # before: the all-row baselines, whose room-centre error includes requests the model never answered
+    report = {**_report(.3, .6, 2.), "baselines": _baselines(room_centre=4.), "baselines_paired": _baselines(room_centre=2.)}
+    assert score(report) == pytest.approx(score(_report(.3, .6, 2.)) + 1. - .8)  # 2 / 2 instead of 2 / 2.5
+    with pytest.raises(KeyError):  # a report without the paired baselines is not scorable (evaluated again)
+        score({key: value for key, value in report.items() if key != "baselines_paired"})
+
+
+def test_summary_shows_validator_collisions_clean_rooms_and_their_ground_truth(tmp_path):
+    import argparse
+    from fastfill.v2.autorun import Autopilot
+    pilot = Autopilot(argparse.Namespace(repo=str(tmp_path), model_repo="mock/model"))
+    checked = lambda rooms, pairs, clean, unknown: {"rooms": 10, "rooms_with_collision": rooms, "collision_pairs": pairs,
+                                                    "fixed_collision_pairs": 1, "clean_rooms": clean, "clean_room_rate": clean / 10,
+                                                    "clean_rooms_with_hard_unknown": unknown}
+    report = {**_report(.3, .6, 2.), "requests": 10, "inference_failed_requests": 0, "hard_violation_requests": 6,
+              "failed_requests_strict": 9, "validation": {"model": checked(5, 12, 4, 3), "ground_truth": checked(2, 3, 8, 6)}}
+    report["collapse"]["predicted_matched"]["bev_overlap_rate_iou_gt_0.3_room_mean"] = .05
+    report["baselines_paired"]["room_center_position"]["bottom_center_error_m"]["mean"] = 1.25
+    (tmp_path / "test").mkdir()
+    (tmp_path / "test" / "report.json").write_text(json.dumps(report))
+    pilot.summary({"checkpoint": "c", "score": 1., "report": str(tmp_path / "test" / "report.json")}, tmp_path / "test", None)
+    text = (pilot.dir / "SUMMARY.md").read_text()
+    # before: only the IoU > 0.3 overlap rate (0.010), which hid these collisions
+    assert "| 0.010 / 0.050 | 5/10 rooms, 12 pairs (+1 fixed) | 0.400 (3 with unknown) | 6 / 9 |" in text
+    assert "2/10 rooms, 3 pairs (+1 fixed); clean 0.800 (6 with unknown)" in text  # the labels under the same validator
+    assert "| 1.250 / 0.400 / 0.700 |" in text  # the paired baselines
+    table = [line for line in text.splitlines() if line.startswith("|")]
+    # before: a 16-cell delimiter row under 15 header cells, which GFM does not render as a table
+    assert len(table) == 4 and {len(line.strip("|").split("|")) for line in table} == {15}
+
+
+def test_a_cached_report_without_paired_baselines_is_evaluated_again(tmp_path, monkeypatch):
+    from fastfill.v2 import autorun
+    pilot, data, runs, calls, report = _candidates(tmp_path, monkeypatch, alive=False)
+    report(pilot.runs / "select-a-model-step-400", tmp_path / "a/model-step-400", projection="minimal", grid_decode="spread",
+           implementation_sha256=autorun.implementation_sha256(tmp_path), baselines_paired=None)
+    pilot.evaluate_candidates(runs[:1], "select", newest=1, data=data)
+    assert len(calls) == len(list(pilot.runs.glob("select-a-model-step-400.stale-*"))) == 1
 
 
 def test_score_prefers_accurate_layouts_and_punishes_collapse_or_leaving_the_room():

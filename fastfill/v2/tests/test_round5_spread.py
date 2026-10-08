@@ -36,7 +36,8 @@ def test_review_hard_faces_direction_keeps_the_raw_yaw_and_an_unconstrained_twin
     sample["condition"]["constraints"] = [{"type": "faces_direction", "object_id": "obj_0000", "direction_xy": [-1, 0], "hard": True}]
     objects, checks = _decode(sample, cells=(2, 1), yaw_bins=(6, 6))
     assert abs(abs(objects[0]["yaw_rad"]) - math.pi) < 1e-6 and objects[0]["bottom_center_m"][:2] == pytest.approx([.5, 2.5])
-    assert objects[1]["yaw_rad"] == pytest.approx(0.)  # the twin: back to the wall
+    # the twin: back to the wall (its float32-decoded pi flipped by pi, so within float32 rounding of 0)
+    assert objects[1]["yaw_rad"] == pytest.approx(0., abs=1e-6)
     assert [c["status"] for c in checks if c["code"] == "constraint"] == ["pass"]
     assert not [c for c in checks if c["status"] == "violation"]
 

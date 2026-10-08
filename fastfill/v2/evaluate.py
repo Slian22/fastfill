@@ -17,6 +17,11 @@ counted per check code as pass / violation / unknown. ``max_length`` comes from 
 checkpoint (``io.load_checkpoint_config``) unless given explicitly; model settings
 come from its ``model_config.json``. Reports record the checkpoint, its binding,
 and the data and code sha256.
+
+``baselines_paired`` scores the baselines on the model reference's own requests (those with a layout);
+``validation`` counts validator collisions and clean rooms (no hard violation) for the layouts and, under the same
+validator, for their labels. ``--save-head-outputs DIR`` keeps every request's head outputs;
+``--from-head-outputs DIR`` re-decodes and scores them on the CPU with the online result.
 """
 from __future__ import annotations
 
@@ -150,11 +155,16 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     above the floor; either is clamped to [floor, ceiling - its height] when ``room`` gives ``height_m`` (else only
     >= floor), and it is placed with the raised objects when it ends over 0.15 m above the floor.
 
-    With yaw logits, a floor-standing object whose candidate footprint ends within ``near_wall`` of a wall
-    takes its most probable yaw bin within 45 degrees of facing away from that wall (its back to the wall,
-    as 97-99% of wall-adjacent training furniture); its footprint is then checked at that yaw. Slots marked
-    in ``keep_yaw`` (one bool per slot; ``serialize_predictions`` marks objects whose orientation the request
-    constrains) never turn: they keep ``yaw`` and their footprints are checked at it.
+    With yaw logits (they only switch the rule on), a floor-standing object whose candidate footprint ends within
+    ``near_wall`` of a wall turns its back to that wall (as 97-99% of wall-adjacent training furniture) only by a
+    half turn: its decoded ``yaw`` flips by pi when the flipped yaw faces away from that wall within 45 degrees, else
+    it is kept. The model learns yaw only modulo pi (training takes the min over {y, y + pi}), so the flip chooses
+    between the two facings of the predicted box and never turns the box: it is never rotated by a quarter turn and its
+    footprint stays the same. By design it also turns an object that faced the wall on purpose (a chair facing a desk
+    against it; symmetric yaw metrics do not see this), and only the nearest wall counts: in a corner, an object facing
+    the second-nearest wall keeps facing it. Slots marked in ``keep_yaw`` (one bool per slot; ``serialize_predictions``
+    marks objects whose orientation the request constrains) never turn: they keep ``yaw`` and their footprints are
+    checked at it.
 
     An undeclared raised object (predicted bottom > 0.15 m above the floor) whose argmax cell lies over no placed or
     fixed floor-standing object holding its predicted bottom (from that object's bottom to 0.15 m over its top), and
@@ -163,10 +173,11 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     certifies the wall, so it is not projected onto it). Any other undeclared raised object rests on a
     floor-standing object: it takes its most probable cell (at least 10% as likely as its best) whose centre lies inside
     such an object's footprint and sits on the highest such top; with no such cell it goes to the floor at its
-    most probable free cell.
+    most probable free cell. "Inside a footprint" (here and for declared parents) is tested in the supporting box's
+    own frame, so a rotated table holds only points over its rotated top, and the parent lattice is laid out in it.
     """
-    # ponytail: rotated footprints are compared by their axis-aligned bounds (exact for 90-degree yaws,
-    # conservative otherwise); switch to shapely polygons if oblique furniture matters.
+    # ponytail: collisions between rotated footprints are compared by their axis-aligned bounds (exact for 90-degree
+    # yaws, conservative otherwise); switch to shapely polygons if oblique furniture matters.
     n, cells = logits.shape
     index = torch.arange(cells)
     centres = torch.stack((torch.div(index, grid, rounding_mode="floor"), index % grid), -1).double()
@@ -184,12 +195,19 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
         c, s = np.abs(np.cos(angle)), np.abs(np.sin(angle))
         return .5 * np.stack((c * box[..., 0] + s * box[..., 1], s * box[..., 0] + c * box[..., 1]), -1)
 
+    def within(points, centres, box, angle):  # k points x m boxes: inside each box's footprint, in the box's own frame
+        d = points[:, None] - centres[None]
+        c, s = np.cos(angle), np.sin(angle)
+        return ((np.abs(c * d[..., 0] + s * d[..., 1]) <= box[:, 0] / 2)
+                & (np.abs(c * d[..., 1] - s * d[..., 0]) <= box[:, 1] / 2))
+
     fixed = room.get("fixed_objects", ())
     fixed_ids = {obj["id"]: j for j, obj in enumerate(fixed)}
     fixed_xy = np.array([obj["bottom_center_m"][:2] for obj in fixed], float).reshape(-1, 2)
     fixed_bottom = np.array([obj["bottom_center_m"][2] for obj in fixed], float)
     fixed_size = np.array([obj["size_local_m"] for obj in fixed], float).reshape(-1, 3)
-    fixed_half = halves(np.array([obj["yaw_rad"] for obj in fixed], float), fixed_size)
+    fixed_yaw = np.array([obj["yaw_rad"] for obj in fixed], float)
+    fixed_half = halves(fixed_yaw, fixed_size)
     fixed_top, fixed_area = fixed_bottom + fixed_size[:, 2], 4 * fixed_half.prod(-1)
     fixed_standing = fixed_bottom - room["floor_z"] <= .15
     slots = {r["id"]: i for i, r in enumerate(requests) if "id" in r}
@@ -221,38 +239,39 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
     chosen, chosen_yaw, chosen_z = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy(), low.copy()
     away = np.array([0., np.pi, np.pi / 2, -np.pi / 2])  # from walls x=lo, x=hi, y=lo, y=hi into the room
-    if yaw_logits is not None:
-        yaw_logits, yaw_residuals = np.asarray(yaw_logits, float), np.asarray(yaw_residuals, float)
-        bins = yaw_logits.shape[-1]
-        bin_centres = np.arange(bins) * 2 * np.pi / bins
+    flipped = (yaw + 2 * np.pi) % (2 * np.pi) - np.pi  # the decoded yaw turned by pi, wrapped: the same box
 
-    def boxes(js, f=slice(None)):  # placed slots js, then fixed objects f: centre, half extents, bottom, top, footprint area
-        js = np.asarray(js, int)
+    def boxes(js, f=slice(None)):  # placed slots js, then fixed objects f: centre, half extents, bottom, top, footprint
+        js = np.asarray(js, int)  # area, local size, yaw
         return (np.concatenate((chosen[js], fixed_xy[f])), np.concatenate((half[js], fixed_half[f])),
                 np.concatenate((chosen_z[js], fixed_bottom[f])), np.concatenate((chosen_z[js] + size[js, 2], fixed_top[f])),
-                np.concatenate((area[js], fixed_area[f])))
+                np.concatenate((area[js], fixed_area[f])), np.concatenate((size[js], fixed_size[f])),
+                np.concatenate((chosen_yaw[js], fixed_yaw[f])))
 
     placed = []
     for i in order:
         cand = xy[i, ranked[i]]  # k x 2
         cand_yaw = np.full(len(cand), yaw[i])
-        o_xy, o_half, o_bottom, o_top, o_area = boxes(placed)  # placed slots, then every fixed object
+        o_xy, o_half, o_bottom, o_top, o_area, o_size, o_yaw = boxes(placed)  # placed slots, then every fixed object
         inside, hang = None, False  # inside: the declared parent's box column this child stands in
         if raised[i] and not on_object[i] and not on_wall[i]:  # undeclared: on or in a standing object, else a near wall
             standing = np.concatenate((~raised[np.asarray(placed, int)], fixed_standing))
-            holds = (standing & (np.abs(cand[0] - o_xy) <= o_half).all(-1)
+            holds = (standing & within(cand[:1], o_xy, o_size, o_yaw)[0]
                      & (o_bottom - margin <= low[i]) & (low[i] <= o_top + .15))
             hang = not holds.any() and np.concatenate((cand[0] - half[i] - lo, hi - cand[0] - half[i])).min() <= near_wall
         if on_object[i]:  # the declared parent's footprint and top; a lattice over that top follows the top_k cells
             if parent[i] in slots:
                 j = slots[parent[i]]
-                base, base_half, top, column = chosen[j], half[j], chosen_z[j] + size[j, 2], placed.index(j)
+                base, base_size, base_yaw, top, column = chosen[j], size[j], chosen_yaw[j], chosen_z[j] + size[j, 2], placed.index(j)
             else:
                 j = fixed_ids[parent[i]]
-                base, base_half, top, column = fixed_xy[j], fixed_half[j], fixed_top[j], len(placed) + j
+                base, base_size, base_yaw, top, column = fixed_xy[j], fixed_size[j], fixed_yaw[j], fixed_top[j], len(placed) + j
             if o_bottom[column] - margin <= low[i] < top - inner:  # on an inner shelf: keeps its height in the parent
                 inside = column
-            on_top = base + PARENT_LATTICE * np.maximum(base_half - half[i], 0)  # includes the footprint centre
+            # the lattice in the parent's frame, inset by the child's half extents in that frame; includes the centre
+            lattice = PARENT_LATTICE * np.maximum(base_size[:2] / 2 - halves(yaw[i] - base_yaw, size[i]), 0)
+            c, s = np.cos(base_yaw), np.sin(base_yaw)
+            on_top = base + np.stack((c * lattice[:, 0] - s * lattice[:, 1], s * lattice[:, 0] + c * lattice[:, 1]), -1)
             on_top = on_top[np.argsort(((on_top - cand[0]) ** 2).sum(-1), kind="stable")]  # nearest the argmax decode first
             cand, cand_yaw = np.vstack((cand, on_top)), np.append(cand_yaw, np.full(len(on_top), yaw[i]))
         elif on_wall[i]:  # each cell's nearest wall: back flush with it, facing into the room, slid inside along it
@@ -269,12 +288,8 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
         elif yaw_logits is not None and not raised[i] and not keep_yaw[i]:
             gaps = np.stack((cand[:, 0] - half[i, 0] - lo[0], hi[0] - cand[:, 0] - half[i, 0],
                              cand[:, 1] - half[i, 1] - lo[1], hi[1] - cand[:, 1] - half[i, 1]), -1)
-            wall = gaps.argmin(-1)
-            facing = (bin_centres[None] - away[wall][:, None] + np.pi) % (2 * np.pi) - np.pi
-            allowed = np.abs(facing) <= np.pi / 4 + 1e-6
-            best = np.where(allowed, yaw_logits[i][None], -np.inf).argmax(-1)
-            snapped = bin_centres[best] + yaw_residuals[i, best] * np.pi / bins
-            cand_yaw = np.where(gaps.min(-1) < near_wall, (snapped + np.pi) % (2 * np.pi) - np.pi, cand_yaw)
+            facing = (flipped[i] - away[gaps.argmin(-1)] + np.pi) % (2 * np.pi) - np.pi  # flipped yaw vs facing away
+            cand_yaw = np.where((gaps.min(-1) < near_wall) & (np.abs(facing) <= np.pi / 4 + 1e-6), flipped[i], cand_yaw)
         cand_half = halves(cand_yaw, size[i])  # k x 2
         over = (np.maximum(lo + cand_half - cand, 0) + np.maximum(cand + cand_half - hi, 0)).max(-1)
         snap = (over > 0) & (over <= margin)  # within the margin past a wall: slide back inside (the validator allows 1e-4)
@@ -282,12 +297,12 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
         outside = over > margin
         if on_object[i]:
             z = top if inside is None else max(low[i], o_bottom[inside])
-            cand_z, supported = np.full(len(cand), z), (np.abs(cand - base) <= base_half).all(-1)
+            cand_z, supported = np.full(len(cand), z), within(cand, base[None], base_size[None], base_yaw)[:, 0]
         else:
             cand_z, supported = np.full(len(cand), hung[i] if hang else stand[i]), np.zeros(len(cand), bool)
         if raised[i] and not on_object[i] and not on_wall[i] and not hang:
-            s_xy, s_half, _, s_top, _ = boxes([j for j in placed if not raised[j]], fixed_standing)
-            over_top = (np.abs(cand[:, None] - s_xy) <= s_half).all(-1)  # k x m centre in footprint
+            s_xy, _, _, s_top, _, s_size, s_yaw = boxes([j for j in placed if not raised[j]], fixed_standing)
+            over_top = within(cand, s_xy, s_size, s_yaw)  # k x m centre in footprint
             highest = np.where(over_top, s_top, -np.inf).max(-1, initial=-np.inf)
             supported = np.isfinite(highest)
             cand_z = np.where(supported, highest, cand_z)
@@ -330,7 +345,10 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
     yaw = decode_yaw(predictions["yaw_logits"], predictions["yaw_residuals"])
     if grid_decode == "spread" and "position_cell_logits" in predictions:
         position, yaw = position.detach().cpu().double().clone(), yaw.detach().cpu().double().clone()
-        grid = int(round(predictions["position_cell_logits"].shape[-1] ** .5))
+        cells = predictions["position_cell_logits"].shape[-1]
+        grid = math.isqrt(cells)
+        if grid * grid != cells:
+            raise ValueError(f"position_cell_logits hold {cells} cells, not a square grid")
         for b, objects in enumerate(batch["objects"]):
             n = len(objects)
             if n:
@@ -361,12 +379,59 @@ def serialize_predictions(predictions, batch, *, grid_decode="spread"):
 
 
 @torch.no_grad()
-def predict_layout(model, tokenizer, condition, *, max_length=4096, device="cpu", grid_decode="spread"):
+def predict_layout(model, tokenizer, condition, *, max_length=4096, device="cpu", grid_decode="spread", head=None):
+    """``head`` (a dict) receives the forward pass's ``head_arrays`` before decoding."""
     validate_condition(condition)
     batch = to_device(collate_samples([{"condition": condition}], tokenizer,
         max_length=max_length, max_objects=model.config.max_objects), device)
     model.eval()
-    return serialize_predictions(model(**model_inputs(batch)), batch, grid_decode=grid_decode)[0]
+    predictions = model(**model_inputs(batch))
+    if head is not None:
+        head.update(head_arrays(predictions, batch))
+    return serialize_predictions(predictions, batch, grid_decode=grid_decode)[0]
+
+
+# What serialize_predictions reads: position_normalized carries the regressed z (and the argmax-decoded XY).
+HEAD_KEYS = ("position_normalized", "size", "yaw_logits", "yaw_residuals", "position_cell_logits", "position_cell_residuals")
+# What --save-head-outputs records in DIR/manifest.json, and --from-head-outputs reports as head_outputs_manifest.
+HEAD_MANIFEST_KEYS = ("checkpoint", "checkpoint_binding", "max_length", "max_length_source", "grid_decode", "data_path",
+                      "data_sha256", "implementation_sha256", "code_commit", "code_dirty")
+
+
+def head_arrays(predictions, batch):
+    """The head outputs of a one-request batch, exact copies of its object slots, plus its slot mask and ids."""
+    n = len(batch["objects"][0])
+    return {**{key: predictions[key][0, :n].detach().cpu().numpy() for key in HEAD_KEYS if key in predictions},
+            "slot_mask": batch["slot_mask"][0, :n].cpu().numpy(), "ids": np.array([o["id"] for o in batch["objects"][0]], dtype=str)}
+
+
+class StoredFailure(Exception):
+    """A request whose saved head outputs record the online failure (no forward pass, e.g. over capacity)."""
+
+    def __init__(self, error):
+        super().__init__(error["message"])
+        self.error = error
+
+
+class HeadOutputMismatch(Exception):
+    """Saved head outputs that do not belong to the evaluated rows: aborts the run, never a request failure."""
+
+
+def decode_head_outputs(path, condition, *, grid_decode="spread"):
+    """Re-decode one request's ``--save-head-outputs`` file on the CPU: the online ``serialize_predictions`` on the
+    same arrays and the same condition, so the layout is identical. A file of another condition aborts the run."""
+    with np.load(path, allow_pickle=False) as stored:
+        stored = dict(stored)
+    if json.dumps(json.loads(str(stored["condition"])), sort_keys=True) != json.dumps(condition, sort_keys=True):
+        raise HeadOutputMismatch(f"{path} holds the head outputs of another condition")
+    if "error_type" in stored:
+        raise StoredFailure({"type": str(stored["error_type"]), "message": str(stored["error_message"])})
+    from fastfill.v2.batch import TinyTokenizer  # the condition-derived fields only: origin, scale, fixed z, objects
+    batch = collate_samples([{"condition": condition}], TinyTokenizer(), max_length=10**8, max_objects=10**6)
+    if [o["id"] for o in batch["objects"][0]] != stored["ids"].tolist():
+        raise HeadOutputMismatch(f"{path} holds the head outputs of other request ids")
+    predictions = {key: torch.from_numpy(stored[key])[None] for key in HEAD_KEYS if key in stored}
+    return serialize_predictions(predictions, batch, grid_decode=grid_decode)[0]
 
 
 def _layout_tensors(layout, batch):
@@ -657,13 +722,43 @@ def _model_summary(outcomes):
     return model
 
 
-def _baseline_summary(outcomes):
-    rows = [o["baselines"] for o in outcomes if o.get("baselines")]
+def _baseline_summary(outcomes, *, paired=False):
+    """Label-only baselines over every row, or (``paired``) over the rows the model's reference pool scores: the
+    requests with a layout, so the same objects as ``model.reference`` (no-layout and over-capacity rows excluded)."""
+    rows = [o["baselines"] for o in outcomes if o.get("baselines") and (not paired or o.get("model", {}).get("reference"))]
     if not rows:
         return None
     return {**{name: {metric: _pool([r[name][metric] for r in rows])} for name, metric in BASELINE_METRICS},
             "category_fallback_objects": sum(r["category_fallback_objects"] for r in rows), "requests": len(rows),
-            "scope": "all evaluation rows with valid labels, independent of model parsing"}
+            "scope": ("requests with a layout scored against the labels: the model reference's own objects" if paired else
+                      "all evaluation rows with valid labels, independent of model parsing")}
+
+
+def _room_validation(validation):
+    """One room's validator outcome: collision pairs (requested / with fixed objects), any hard violation, any hard unknown."""
+    checks = validation["checks"]
+    return {"collision_pairs": sum(c["code"] == "collision" for c in checks),
+            "fixed_collision_pairs": sum(c["code"] == "fixed_collision" for c in checks),
+            "hard_violation": any(c["hard"] and c["status"] == "violation" for c in checks),
+            "hard_unknown": any(c["hard"] and c["status"] == "unknown" for c in checks)}
+
+
+def _validation_summary(rooms):
+    """Collisions and clean rooms over ``_room_validation`` rows. A clean room has no hard violation; unknown checks
+    are not counted as violations, and the clean rooms with one are counted separately. ``clean_room_rate_known_only``
+    leaves the rooms with a hard unknown out of the rate (None when every room has one, as in the three-field projection,
+    whose undeclared supports are all unknown)."""
+    if not rooms:
+        return None
+    clean = [r for r in rooms if not r["hard_violation"]]
+    known = [r for r in rooms if not r["hard_unknown"]]
+    return {"rooms": len(rooms), "rooms_with_collision": sum(r["collision_pairs"] + r["fixed_collision_pairs"] > 0 for r in rooms),
+            "collision_pairs": sum(r["collision_pairs"] for r in rooms),
+            "fixed_collision_pairs": sum(r["fixed_collision_pairs"] for r in rooms),
+            "clean_rooms": len(clean), "clean_room_rate": len(clean) / len(rooms),
+            "clean_rooms_with_hard_unknown": sum(r["hard_unknown"] for r in clean),
+            "rooms_without_hard_unknown": len(known),
+            "clean_room_rate_known_only": sum(not r["hard_violation"] for r in known) / len(known) if known else None}
 
 
 def _collapse_summary(outcomes):
@@ -673,7 +768,10 @@ def _collapse_summary(outcomes):
     def rates(column):
         c = {key: sum(r[column][key] for r in rows) for key in rows[0][column]}
         ratio = lambda a, b: c[a] / c[b] if c[b] else None
+        rooms = [r[column]["bev_overlap_pairs"] / r[column]["pairs"] for r in rows if r[column]["pairs"]]
         return {"bev_overlap_rate_iou_gt_0.3": ratio("bev_overlap_pairs", "pairs"),
+                # every room with a pair weighs the same; the pooled rate above is dominated by the largest rooms
+                "bev_overlap_rate_iou_gt_0.3_room_mean": float(np.mean(rooms)) if rooms else None,
                 "duplicate_stacking_rate_lt_0.10m": ratio("stacked_same_category_pairs", "same_category_pairs"),
                 "mean_nearest_wall_distance_m": ratio("nearest_wall_distance_sum_m", "objects"),
                 "central_quarter_fraction": ratio("central_quarter_objects", "objects"), "collapse_score": collapse_score(c),
@@ -702,15 +800,19 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
     if not n:
         raise ValueError("no evaluation requests")
     model = _model_summary(outcomes)
-    baselines = _baseline_summary(outcomes)
-    if baselines is not None:
-        baselines["fit"] = baseline_fit_source
+    baselines, paired = _baseline_summary(outcomes), _baseline_summary(outcomes, paired=True)
+    for summary in (baselines, paired):
+        if summary is not None:
+            summary["fit"] = baseline_fit_source
     sources = sorted({str(o.get("provenance", {}).get("source")) for o in outcomes})
     by_source = {}
     for source in sources:
         subset = [o for o in outcomes if str(o.get("provenance", {}).get("source")) == source]
         by_source[source] = {"requests": len(subset), "model": _model_summary(subset),
-                             "baselines": _baseline_summary(subset), "collapse": _collapse_summary(subset)}
+                             "baselines": _baseline_summary(subset), "baselines_paired": _baseline_summary(subset, paired=True),
+                             "collapse": _collapse_summary(subset)}
+    validated = [o for o in outcomes if o.get("target_validation")]
+    rooms = [_room_validation(o["target_validation"]) for o in validated]
     latency = [o["fastfill_latency_ms"] for o in outcomes if o.get("fastfill_latency_ms") is not None]
     latency_by_outcome = {}
     for status in ("success", "failure"):
@@ -722,8 +824,18 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
     asset_evaluated = asset_evaluation_requested or any(o.get("asset") is not None for o in outcomes)
     inference_failures = sum("error" in o for o in outcomes)
     system_failures = sum(not o.get("runtime", {}).get("ok", False) for o in outcomes) if asset_evaluated else None
-    report = {"requests": n, "failed_requests": sum((not o.get("runtime", {}).get("ok", False))
-              if asset_evaluated else ("error" in o or not o.get("model", {}).get("target_geometry_valid", False)) for o in outcomes),
+    strict = sum((not o.get("runtime", {}).get("ok", False))
+                 if asset_evaluated else ("error" in o or not o.get("model", {}).get("target_geometry_valid", False)) for o in outcomes)
+    report = {"requests": n, "failed_requests": strict, "failed_requests_strict": strict,
+              "failed_requests_scope": ("strict: no layout, or a hard check not passed, unknown included (with assets: the "
+                                        "runtime did not succeed); hard_violation_requests counts only violated hard checks"),
+              # no layout, or a hard target check violated (unknown checks are not violations)
+              "hard_violation_requests": sum("error" in o or not o.get("target_validation")
+                                             or _room_validation(o["target_validation"])["hard_violation"] for o in outcomes),
+              "validation": {"model": _validation_summary(rooms),
+                             "ground_truth": _validation_summary([o["ground_truth_validation"] for o in validated
+                                                                  if o.get("ground_truth_validation")]),
+                             "scope": "requests with a validated layout; ground_truth: their labels as written, same validator"},
               "inference_failed_requests": inference_failures, "system_failed_requests": system_failures,
               # of the inference failures: requests with more objects than the checkpoint's max_objects
               "over_capacity_requests": sum(OBJECT_BUDGET_ERROR in o.get("error", {}).get("message", "") for o in outcomes),
@@ -735,7 +847,7 @@ def summarize(outcomes, *, asset_evaluation_requested=False, commit_evaluation_r
                   "asset_resolution": sum(not o.get("asset") or o["asset"]["retrieval_coverage"] < 1 for o in outcomes) if asset_evaluated else None,
                   "actual_first_pass": sum(not o.get("asset", {}).get("first_pass_actual_geometry_validation", False)
                      if o.get("asset") else True for o in outcomes) if asset_evaluated else None}, "model": model,
-              "baselines": baselines, "collapse": _collapse_summary(outcomes), "by_source": by_source,
+              "baselines": baselines, "baselines_paired": paired, "collapse": _collapse_summary(outcomes), "by_source": by_source,
               "latency_ms": {"fastfill_p50": float(np.percentile(latency, 50)) if latency else None,
                              "fastfill_p95": float(np.percentile(latency, 95)) if latency else None,
                              "fastfill_observed_requests": len(latency), "fastfill_by_outcome": latency_by_outcome,
@@ -768,17 +880,35 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                    catalog=None, device="cpu", max_length=None, max_samples=None,
                    commit_in_memory=False, hungarian=True, asset_retries=2, repair_calls=0, repair_step_m=.25,
                    max_seconds=10., max_new_tokens=2048, required_levels=("bbox",), baseline_fit=None,
-                   projections=("full",), grid_decode="spread"):
-    """Evaluate every request once per projection; ``max_length=None`` binds to the checkpoint."""
+                   projections=("full",), grid_decode="spread", save_head_outputs=None, head_outputs=None):
+    """Evaluate every request once per projection; ``max_length=None`` binds to the checkpoint.
+
+    ``save_head_outputs`` (structured checkpoint only): a new directory, apart from ``output``, receiving
+    ``<projection>/row-<row>.npz`` per request (``head_arrays``, the condition, or the online failure) and, at the end,
+    ``manifest.json`` (``HEAD_MANIFEST_KEYS`` of this run). ``head_outputs`` replaces the checkpoint with such a directory:
+    every request is re-decoded on the CPU (``decode_head_outputs``) and scored exactly as online; its manifest is
+    reported as ``head_outputs_manifest``."""
     validate_required_levels(required_levels)
-    if (checkpoint is None) == (predictions is None):
-        raise ValueError("provide exactly one checkpoint or prediction JSONL")
+    if sum(source is not None for source in (checkpoint, predictions, head_outputs)) != 1:
+        raise ValueError("provide exactly one checkpoint, prediction JSONL or head-output directory")
+    if save_head_outputs is not None and (checkpoint is None or baseline != "structured"):
+        raise ValueError("head outputs are saved from a structured checkpoint")
     projections = tuple(projections)
     if not projections or len(set(projections)) != len(projections) or set(projections) - set(PROJECTIONS):
         raise ValueError(f"projections must be distinct names from {PROJECTIONS}")
     if predictions is not None and projections != ("full",):
         raise ValueError("supplied predictions answer the full condition; evaluate other projections from a checkpoint")
+    if head_outputs is not None:
+        missing = [p for p in projections if not (Path(head_outputs) / p).is_dir()]
+        if missing:
+            raise ValueError(f"{head_outputs} holds no head outputs of projection(s) {missing}")
     target = safe_output(output)
+    if save_head_outputs is not None:
+        save_head_outputs = safe_output(save_head_outputs)
+        if save_head_outputs == target or target in save_head_outputs.parents or save_head_outputs in target.parents:
+            raise ValueError("--save-head-outputs and --output must be separate directories, neither inside the other")
+        for projection in projections:
+            (save_head_outputs / projection).mkdir(parents=True, exist_ok=False)
     samples = read_samples(data, max_samples=max_samples)
     if baseline_fit:
         with Path(baseline_fit).open() as stream:
@@ -815,9 +945,9 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
         raise ValueError("commit evaluation requires an asset catalog")
     torch.set_num_threads(int(os.environ.get("OMP_NUM_THREADS", "2")))  # CPU inference may use more threads
 
-    def evaluate_row(i, sample):
+    def evaluate_row(i, sample, projection):
         start = time.perf_counter()
-        raw, fastfill_latency = None, None
+        raw, fastfill_latency, head = None, None, {} if save_head_outputs is not None else None
         try:
             if supplied is not None:
                 raw = supplied[i]
@@ -825,9 +955,12 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
                     raise ValueError(f"nonfinite prediction JSON constant {value}")
                 parsed = json.loads(raw, parse_constant=reject_constant)
                 layout = parsed.get("layout", parsed) if isinstance(parsed, dict) else parsed
+            elif head_outputs is not None:
+                raw = layout = decode_head_outputs(Path(head_outputs) / projection / f"row-{i:06d}.npz", sample["condition"],
+                                                   grid_decode=grid_decode)
             elif baseline == "structured":
                 raw = layout = predict_layout(model, tokenizer, sample["condition"], max_length=max_length, device=device,
-                                                    grid_decode=grid_decode)
+                                              grid_decode=grid_decode, head=head)
             else:
                 from fastfill.v2.text_sft import generate_text
                 raw = generate_text(model, tokenizer, sample["condition"], max_length=max_length,
@@ -837,38 +970,52 @@ def run_evaluation(data, output, *, checkpoint=None, baseline="structured", pred
             result = evaluate_layout(layout, sample, resolver=resolver, commit_in_memory=commit_in_memory,
                                     hungarian=hungarian, asset_retries=asset_retries, repair_calls=repair_calls,
                                     repair_step_m=repair_step_m, max_seconds=max_seconds, required_levels=required_levels)
-        except (ValueError, KeyError, TypeError, RuntimeError) as exc:
+        except (ValueError, KeyError, TypeError, RuntimeError, StoredFailure) as exc:
             if checkpoint and fastfill_latency is None:
                 fastfill_latency = (time.perf_counter() - start) * 1000
-            result = {"error": {"type": type(exc).__name__, "message": str(exc)}, "raw_prediction": raw,
+            error = exc.error if isinstance(exc, StoredFailure) else {"type": type(exc).__name__, "message": str(exc)}
+            result = {"error": error, "raw_prediction": raw,
                       "model": {"schema_success": False, "requested_ids_exactly_once": False, "positive_valid_size": False}}
+        if head is not None:  # a failure before the forward pass is stored as that failure
+            np.savez_compressed(save_head_outputs / projection / f"row-{i:06d}.npz", condition=np.array(json.dumps(sample["condition"])),
+                                **(head or {"error_type": np.array(result["error"]["type"]),
+                                            "error_message": np.array(result["error"]["message"])}))
+        labelled = migrate_legacy_row(sample)
         result.update(row=i, provenance=sample["provenance"], evaluation_wall_time_ms=(time.perf_counter() - start) * 1000,
                       fastfill_latency_ms=fastfill_latency,
                       fastfill_latency_status=("failure" if "error" in result else "success") if checkpoint else "unobserved",
-                      baselines=baseline_metrics(sample, fit, exclude_row=None if baseline_fit else i))
+                      baselines=baseline_metrics(sample, fit, exclude_row=None if baseline_fit else i),
+                      ground_truth_validation=_room_validation(validate_scene(  # the labels as written, same validator
+                          labelled["condition"], labelled["target"]["objects"], required_levels=required_levels)))
         return result
 
     reports, outcomes = {}, {}
     for projection in projections:
         rows = list(enumerate(samples)) if projection == "full" else [
             (i, projected) for i, projected in enumerate(map(project_minimal, samples)) if projected is not None]
-        outcomes[projection] = [evaluate_row(i, sample) for i, sample in rows]
+        outcomes[projection] = [evaluate_row(i, sample, projection) for i, sample in rows]
         reports[projection] = summarize(outcomes[projection], asset_evaluation_requested=resolver is not None,
                                         commit_evaluation_requested=commit_in_memory,
                                         baseline_fit_source=fit_source) if rows else {"requests": 0}
         reports[projection].update(projection=projection, skipped_non_rectangular_rooms=len(samples) - len(rows))
     report = {**reports[projections[0]], "projections": {name: reports[name] for name in projections[1:]}}
     metadata = run_metadata(data)
-    report.update(baseline=baseline if checkpoint else "supplied_predictions", subset_limit=max_samples,
+    report.update(baseline=baseline if checkpoint else "supplied_head_outputs" if head_outputs else "supplied_predictions",
+                  head_outputs=str(Path(head_outputs).resolve()) if head_outputs else None,
+                  saved_head_outputs=str(save_head_outputs) if save_head_outputs else None, subset_limit=max_samples,
                   evaluation_matching="exchangeable_groups" if hungarian else "fixed", commit_scope="in_memory" if commit_in_memory else "not_attempted",
                   runtime_budget={"asset_retries": asset_retries, "repair_calls": repair_calls,
                                   "repair_step_m": repair_step_m, "max_seconds": max_seconds}, required_levels=list(required_levels),
                   geometry_level="upright_obb_bev_iou", source_root_modified=False,
                   checkpoint=str(Path(checkpoint).resolve()) if checkpoint else None, checkpoint_binding=binding,
                   max_length=max_length if checkpoint else None, max_length_source=max_length_source if checkpoint else None,
-                  grid_decode=grid_decode if checkpoint else None,
+                  grid_decode=grid_decode if checkpoint or head_outputs else None,
                   predictions_sha256=fingerprint(predictions) if predictions else None,
                   **{key: metadata[key] for key in ("data_path", "data_sha256", "implementation_sha256", "code_commit", "code_dirty")})
+    manifest = Path(head_outputs) / "manifest.json" if head_outputs else None  # the saving run's checkpoint, data, code
+    report["head_outputs_manifest"] = json.loads(manifest.read_text()) if manifest and manifest.is_file() else None
+    if save_head_outputs is not None:
+        (save_head_outputs / "manifest.json").write_text(json.dumps({key: report[key] for key in HEAD_MANIFEST_KEYS}, indent=2) + "\n")
     target.mkdir(parents=True, exist_ok=False)
     (target / "report.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
     for index, projection in enumerate(projections):
@@ -902,6 +1049,10 @@ def main(argv=None):
                    help="full condition and/or its three-field projection (rectangular rooms); the first is the report's top level")
     p.add_argument("--grid-decode", choices=GRID_DECODES, default="spread",
                    help="grid position head: collision-aware spread (default) or plain per-object argmax")
+    p.add_argument("--save-head-outputs", type=Path, metavar="DIR",
+                   help="with --checkpoint: new directory for every request's head outputs (<projection>/row-<n>.npz)")
+    p.add_argument("--from-head-outputs", type=Path, metavar="DIR", dest="head_outputs",
+                   help="instead of --checkpoint: re-decode a --save-head-outputs directory on the CPU and score it")
     args = vars(p.parse_args(argv))
     args["hungarian"] = not args.pop("fixed_correspondence")
     print(json.dumps(run_evaluation(**args), indent=2))

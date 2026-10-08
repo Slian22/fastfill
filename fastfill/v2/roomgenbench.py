@@ -324,15 +324,27 @@ def reference_check(handoff_dir, scene_path):
     """Same-rule comparison of a hand-off with its benchmark scene's ground truth.
 
     validate_scene(hand-off condition) runs on both layouts (per check code: pass / violation /
-    unknown); per-object FastFill-vs-truth errors are pooled over all objects and per ground-truth
-    place: bottom-centre distance, mean |log size ratio| with the (sx, sy) swap minimum, yaw modulo pi,
-    and evaluate's joint box-equivalent (size, yaw). Baselines: room centre (``room_center_position_error_m``,
-    floor-level centre of the room's XY bounds) and uniform yaw (pi / 4 expected modulo pi).
+    unknown). Exchangeable requests (evaluate's groups, ``matching.group_labels``: identical request
+    fields but the id, support parent included, and a certified swap) are matched: within each group
+    predictions are assigned to truth objects by a Hungarian assignment on bottom-centre distance
+    (``predicted_id`` names the one matched to each truth row). Per-object FastFill-vs-truth errors
+    are pooled over all objects and per ground-truth place: bottom-centre distance and, primary, the
+    box-equivalent (size, yaw) of evaluate's ``_box_equivalent_errors`` (one joint minimum over yaw +
+    k pi/2 with sx/sy swapped for odd k: the same box scores 0), here for every object (evaluate uses it
+    only for ``size_axis_swap_allowed`` ones); ``*_marginal_min`` minimise separately (mean |log size
+    ratio| over the (sx, sy) swap, yaw modulo pi), and ``*_by_id`` score the prediction of the same id,
+    without matching. ``box_equivalent_*`` repeat the primary values under their schema-v1 names.
+    Baselines: room centre (``room_center_position_error_m``, floor-level centre of the room's XY bounds)
+    and uniform yaw on the same box-equivalent footing: ``uniform_yaw_baseline_error_rad`` is the exact
+    expected box-equivalent yaw error of a uniformly random yaw with the truth's own size (per object and
+    pooled), ``uniform_yaw_baseline_error_rad_marginal_min`` the pi / 4 of ``yaw_error_rad_marginal_min``.
     """
     import math
     import numpy as np
+    from scipy.optimize import linear_sum_assignment
     from .evaluate import _box_equivalent_errors, _log_size_error, _yaw_error
     from .direct_layout import place_of
+    from .matching import group_labels
     from .schema import normalize_room
     from .validation import CHECK_STATUSES, validate_scene
     condition, _ = _handoff(handoff_dir, False)
@@ -347,28 +359,49 @@ def reference_check(handoff_dir, scene_path):
         checks[name] = {"ok": report["ok"], "counts": report["counts"], "by_code": by_code}
     origin, scale = normalize_room(condition["room"])
     center = [origin[0] + scale[0] / 2, origin[1] + scale[1] / 2, origin[2]]
-    predicted = {o["id"]: o for o in layout["objects"]}
+    predicted, truth_by_id = {o["id"]: o for o in layout["objects"]}, {o["id"]: o for o in truth["objects"]}
+    groups = {}  # evaluate's exchangeable groups (every truth position is known); ungrouped requests match themselves
+    labels = group_labels(condition["objects"], condition.get("constraints", []), [[True] * 3] * len(condition["objects"]))
+    for request, label in zip(condition["objects"], labels):
+        groups.setdefault(label or request["id"], []).append(request["id"])
+    matched = {}  # truth id -> the predicted id assigned to it
+    for ids in groups.values():
+        cost = [[math.dist(predicted[a]["bottom_center_m"], truth_by_id[b]["bottom_center_m"]) for b in ids] for a in ids]
+        for a, b in zip(*linear_sum_assignment(np.asarray(cost))):
+            matched[ids[b]] = ids[a]
+
+    def errors(p, t):
+        (sx, sy, sz), (box_size, box_yaw) = t["target_size_local_m"], _box_equivalent_errors(p, t, True, True)
+        return {"position_error_m": math.dist(p["bottom_center_m"], t["bottom_center_m"]),
+                "log_size_error": box_size, "yaw_error_rad": box_yaw,
+                "log_size_error_marginal_min": min(_log_size_error(p["target_size_local_m"], s) for s in ((sx, sy, sz), (sy, sx, sz))),
+                "yaw_error_rad_marginal_min": _yaw_error(p["yaw_rad"], t["yaw_rad"], 2)}
+
+    def uniform_yaw(t):  # E[box-equivalent yaw error] of a uniform yaw on the truth's own size: with a = the yaw error
+        # modulo pi (uniform on [0, pi/2]) the quarter turn, error pi/2 - a plus its swap cost c, wins when a > m
+        sx, sy, sz = t["target_size_local_m"]
+        m = min(math.pi / 2, math.pi / 4 + _log_size_error((sx, sy, sz), (sy, sx, sz)) / 2)
+        return (m * m + (math.pi / 2 - m) ** 2) / math.pi  # pi / 8 for a square footprint, pi / 4 once c >= pi / 2
     rows = []
     for t, obj in zip(truth["objects"], scene["objects"]):
-        p, (sx, sy, sz) = predicted[t["id"]], t["target_size_local_m"]
-        box_size, box_yaw = _box_equivalent_errors(p, t, True, True)
-        rows.append({"id": t["id"], "category": obj["type"], "place": place_of(obj["place_id"]),
-                     "position_error_m": math.dist(p["bottom_center_m"], t["bottom_center_m"]),
-                     "room_center_position_error_m": math.dist(center, t["bottom_center_m"]),
-                     "log_size_error": min(_log_size_error(p["target_size_local_m"], s) for s in ((sx, sy, sz), (sy, sx, sz))),
-                     "yaw_error_rad": _yaw_error(p["yaw_rad"], t["yaw_rad"], 2),
-                     "box_equivalent_log_size_error": box_size, "box_equivalent_yaw_error_rad": box_yaw})
-    metrics = [key for key in rows[0] if key not in ("id", "category", "place")] if rows else []
+        row = errors(predicted[matched[t["id"]]], t)
+        rows.append({"id": t["id"], "predicted_id": matched[t["id"]], "category": obj["type"], "place": place_of(obj["place_id"]),
+                     **row, "room_center_position_error_m": math.dist(center, t["bottom_center_m"]),
+                     "uniform_yaw_baseline_error_rad": uniform_yaw(t),
+                     "box_equivalent_log_size_error": row["log_size_error"], "box_equivalent_yaw_error_rad": row["yaw_error_rad"],
+                     **{f"{key}_by_id": value for key, value in errors(predicted[t["id"]], t).items()}})
+    metrics = [key for key in rows[0] if key not in ("id", "predicted_id", "category", "place")] if rows else []
     pool = lambda group: {"objects": len(group), **{key: float(np.mean([r[key] for r in group])) if group else None
                                                     for key in metrics}}
     places = sorted({r["place"] for r in rows})
-    return {"schema_version": "fastfill.roomgenbench-reference-check.v1", "handoff": str(Path(handoff_dir).resolve()),
+    return {"schema_version": "fastfill.roomgenbench-reference-check.v2", "handoff": str(Path(handoff_dir).resolve()),
             "scene": str(Path(scene_path).resolve()), "scene_key": scene.get("scene_key"), "objects": len(rows),
             "ground_truth_tilted_objects": sum(max(abs(o["rotation"].get(k, 0)) for k in "xy") > 1.
                                                for o in scene["objects"]),  # > 1 degree about X or Y; dropped upright
             "checks": checks, "errors": {"all": pool(rows), **{place: pool([r for r in rows if r["place"] == place])
                                                                for place in places}},
-            "uniform_yaw_baseline_error_rad": math.pi / 4, "per_object": rows}
+            "uniform_yaw_baseline_error_rad": pool(rows)["uniform_yaw_baseline_error_rad"] if rows else None,
+            "uniform_yaw_baseline_error_rad_marginal_min": math.pi / 4, "per_object": rows}
 
 
 def main(argv=None):
