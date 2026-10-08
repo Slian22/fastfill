@@ -267,3 +267,13 @@ def test_benchmark_rooms_now_carry_every_roomgenbench_object_with_its_place():
         for place in bench.values():
             places[place if place in ("floor", "wall") else "object"] += 1
     assert places == {"floor": 109, "wall": 58, "object": 146}
+
+
+def test_a_wall_anchor_off_the_wall_stays_a_target_without_a_wall_declaration():
+    """A source wall anchor whose footprint shows no side within WALL_GAP_M of the boundary (e.g. in a concave
+    room) is kept as a target, but no wall support is declared: declarations must hold geometrically."""
+    from fastfill.v2.validation import on_wall
+    room = {"floor_polygon_xy_m": [[0, 0], [4, 0], [4, 4], [0, 4]]}
+    touching = {"bottom_center_m": [0.05, 2.0, 1.2], "target_size_local_m": [0.04, 0.8, 0.6], "yaw_rad": 0.0}
+    floating = {"bottom_center_m": [2.0, 2.0, 1.2], "target_size_local_m": [0.04, 0.8, 0.6], "yaw_rad": 0.0}
+    assert on_wall(touching, room) and not on_wall(floating, room)

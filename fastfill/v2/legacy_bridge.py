@@ -9,6 +9,7 @@ import math
 from fastfill.scene import canonical, norm_cat, rot90, target_json
 from fastfill.v2.matching import group_labels
 from fastfill.v2.schema import validate_condition
+from fastfill.v2.validation import on_wall
 
 FRONT_POLICIES = ("axis", "strict", "legacy-convention")
 YAW_POLICY = {
@@ -222,7 +223,9 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
         z, snapped = obj["pos"][2] + dz, False
         # Preserve explicit source support, never promote bbox-inferred support.
         if added.get(obj["id"]) == "wall_anchor":
-            if room["boundary_known"]:
+            box = {"bottom_center_m": [*obj["pos"][:2], z], "target_size_local_m": list(obj["size"]),
+                   "yaw_rad": (obj["yaw"] + math.pi) % (2 * math.pi) - math.pi}
+            if room["boundary_known"] and on_wall(box, room):  # declare only a contact the geometry shows
                 request = {**request, "support_parent": "wall"}
         elif obj.get("parent") in ids and not obj.get("anchor_inferred"):
             request = {**request, "support_parent": ids[obj["parent"]]}

@@ -348,10 +348,12 @@ def _selection_rules(row: dict, source: str, walls: Counter, frozen_targets: int
         wall = rule == "wall_anchor"
         if wall and (evidence.get("raw_anchor") != "wall" or source not in WALL_ANCHOR_SOURCES):
             raise ValueError("wall_anchor target without a source wall anchor of a wall-anchor source")
-        if (parent == "wall") != (wall and known):
+        if parent == "wall" and not (wall and known):
             raise ValueError("support_parent wall must be declared exactly on wall_anchor targets in a known boundary")
         if parent == "wall" and not on_wall(target, room):
             raise ValueError("wall-declared target has no footprint side within WALL_GAP_M of the room boundary")
+        if parent != "wall" and wall and known and on_wall(target, room):  # off-wall anchors stay undeclared
+            raise ValueError("support_parent wall must be declared exactly on wall_anchor targets touching a known boundary")
         if rule.startswith("support_"):
             box = boxes.get(parent)
             if box is None or evidence.get("raw_anchor") != "object" or evidence.get("source_support_inferred") is not False:
