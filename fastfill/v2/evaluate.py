@@ -236,7 +236,8 @@ def spread_grid_xy(logits, residuals, grid, size, yaw, position, room, *, reques
     raised = on_object | (~on_floor & (np.where(on_wall, hung, low) - room["floor_z"] > .15))
     stand = np.where(fixed_z, low, np.where(on_wall, hung, float(room["floor_z"])))  # floor-standing or wall-hung z
     order = sorted(range(n), key=lambda i: (bool(raised[i]), depth(i), -area[i]))
-    ranked = logits.double().argsort(-1, descending=True)[:, :top_k].numpy()
+    # stable: equal logits rank by cell index on every platform (an unstable sort ordered them differently on aarch64)
+    ranked = torch.sort(logits.double(), dim=-1, descending=True, stable=True).indices[:, :top_k].numpy()
     chosen, chosen_yaw, chosen_z = xy[np.arange(n), ranked[:, 0]].copy(), yaw.copy(), low.copy()
     away = np.array([0., np.pi, np.pi / 2, -np.pi / 2])  # from walls x=lo, x=hi, y=lo, y=hi into the room
     flipped = (yaw + 2 * np.pi) % (2 * np.pi) - np.pi  # the decoded yaw turned by pi, wrapped: the same box
