@@ -835,3 +835,20 @@ matches their summary.json, and otherwise deletes them and pays for new answers,
 without a seed or temperature). Any new `fastfill/v2/*.py`, this module included, changes evaluate's `implementation_sha256`,
 so a restarted autopilot re-scores the `-eval` reports (evaluate only, no API calls). Back up the `llm-*-300` directories
 before any edit of `llm_baseline.py`.
+
+## 2026-10-08 status of the final version
+
+- Baseline model: `main7-cell05-main-20261007b-e5/model-step-6357` (HF private `liantian/fastfill-v2-models`), data
+  `main-20261007b`, 7 GPUs × 5 epochs. Test, 4455 three-field rooms: log-size error 0.296 (category median 0.394),
+  yaw error 0.673 raw / 0.700 spread (uniform random 0.783), bottom-centre error 2.643 raw / 2.663 spread m (room
+  centre 2.264 m; single-reference position error is minimised by central placements and cannot rank layouts alone).
+- LLM agents (gpt-6.1-sol, reasoning effort medium; prompt, harness, OptiScene-style structured, structured+harness)
+  were each run once on the same frozen 300 validation rows with the same fields as FastFill and re-scored with the
+  current evaluator (`runs/llm-*-300-eval-4125b82`). On those rows FastFill's size error is about 0.24 vs 0.39–0.41
+  for every LLM mode (≈ category median); LLM yaw is at uniform-random level; position differences between methods
+  were not significant. These 300 rows were part of FastFill's checkpoint-selection cohort (not held out for FastFill).
+- Data `main-20261008a` (round 10, commit 155a123): adds wall-mounted targets with explicit `wall` support where the
+  footprint touches the boundary, and source-declared supported items; training targets 1.58M → 2.00M; both verifiers
+  pass. Final candidate `main7-cell05-main-20261008a-e5-yawcls05` (max_objects 256, yaw_cls 0.5) started 03:49 UTC;
+  a `yaw_cls 0.08` control on the same data follows, so the yaw-weight effect is attributable.
+- Final analysis tooling: `fastfill/v2/ops/` (decisions on validation only; test report-only).
