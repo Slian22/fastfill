@@ -122,6 +122,36 @@ def test_requests_from_refuses_a_scene_over_predicts_default_max_objects(tmp_pat
     assert not (tmp_path / "requests").exists()
 
 
+def test_run_checkpoint_predicts_from_the_requests_of_the_scenes_and_builder_on_disk(tmp_path):
+    # before: an existing runs/roomgenbench/requests was used as is (0 builder calls; the export predicted from OLD, exit 0)
+    import hashlib
+    import shutil
+    import subprocess
+    import sys
+    repo, root = Path(__file__).resolve().parents[3], tmp_path / "checkout"
+    for path in ("fastfill/v2/ops", "env/bin", "RoomGenBench/bench/inputs/scenes", "runs/roomgenbench/requests"):
+        (root / path).mkdir(parents=True)
+    shutil.copy(repo / "fastfill/v2/ops/run_checkpoint.sh", root / "fastfill/v2/ops")
+    shutil.copy(SCENES / "gym.json", root / "RoomGenBench/bench/inputs/scenes")
+    (root / "runs/roomgenbench/requests/gym.json").write_text('{"input_version": "OLD"}\n')  # e.g. an older builder's
+    python = root / "env/bin/python"  # the real request builder; predict and the hand-off assembly are only logged
+    python.write_text(f'#!/bin/bash\nprintf "%s\\n" "$*" >> calls.txt\n[ "$3" != --requests-from ] || exec "{sys.executable}" "$@"\n')
+    python.chmod(0o755)
+    for tag in ("a", "b"):
+        subprocess.run(["bash", str(root / "fastfill/v2/ops/run_checkpoint.sh"), "/ck/step-1", tag], check=True,
+                       env={**os.environ, "PYTHONPATH": str(repo)}, capture_output=True)
+    fresh = json.dumps(benchmark_request(json.loads((SCENES / "gym.json").read_text())), indent=2) + "\n"
+    assert (root / "runs/roomgenbench/requests/gym.json").read_text() == fresh
+    aside = sorted(p.name for p in (root / "runs/roomgenbench").iterdir() if p.name.startswith("requests."))
+    assert len(aside) == 1 and aside[0].startswith("requests.stale-")  # the second run kept the identical directory
+    assert json.loads((root / "runs/roomgenbench" / aside[0] / "gym.json").read_text()) == {"input_version": "OLD"}
+    calls = (root / "calls.txt").read_text().splitlines()
+    assert [sum(f" {module} " in c for c in calls) for module in ("--requests-from", "fastfill.v2.predict")] == [2, 2]
+    for tag in ("a", "b"):  # the hand-off records the request bytes it predicted from
+        assert (root / "runs/roomgenbench" / tag / "requests.sha256").read_text().split() == [
+            hashlib.sha256(fresh.encode()).hexdigest(), "runs/roomgenbench/requests/gym.json"]
+
+
 # ---- 3. spread: declared "wall" objects --------------------------------------------------------------------------
 
 def _wall_spread(cells, z, size=(.1, .8, .6), room=None, **kwargs):

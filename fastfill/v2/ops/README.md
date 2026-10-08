@@ -11,7 +11,8 @@ Operations
 - `start_autorun_retrain.sh`: retrain on new data with logged `--set` overrides (`model.max_objects=256`,
   `loss.yaw_cls=0.5`), `--name-suffix`, LLM step disabled (no paid calls).
 - `run_checkpoint.sh <model-step> <tag>`: five-room RoomGenBench hand-off on CPU with `--require-placement`
-  (the autopilot calls it; runs from any checkout).
+  (the autopilot calls it; runs from any checkout). It rebuilds `runs/roomgenbench/requests` from the scenes and builder
+  on disk each time (a differing old directory is set aside as `requests.stale-*`) and records them in `<tag>/requests.sha256`.
 - Isambard-AI (aarch64 GH200, Slurm): from a checkout under `$PROJECTDIR`, `bash fastfill/v2/ops/isambard_submit.sh`
   submits `isambard_setup.sbatch` (conda env with the baseline's package versions, pinned data, backbone and LLM rows,
   tests) and, once it succeeds, two `isambard_autorun.sbatch` jobs (one node each): yaw_cls 0.5 and the 0.08 control,
