@@ -415,7 +415,10 @@ def verify_full_pair(parent, derived, split, *, size_reference=(1., 1., 1.), siz
     known = condition["room"].get("boundary_known") is True
     walls = [obj.get("support_parent") == "wall" for obj in condition["objects"]]
     for wall, fields, target in zip(walls, p.get("field_evidence", [{}] * n), targets):  # round 10 bridge wall rule
-        if wall != (known and fields.get("selection_rule") == "wall_anchor" and fields.get("raw_anchor") == "wall"):
+        # The bridge declares wall only where a footprint side touches the boundary (fields["wall_contact"], checked
+        # exactly by legacy_verify); here: declared <=> touching wall anchor, and a declared one is near the boundary.
+        if wall != (known and fields.get("selection_rule") == "wall_anchor" and fields.get("raw_anchor") == "wall"
+                    and fields.get("wall_contact") is True):
             raise ValueError("wall support declared without a selected source wall anchor in a known boundary")
         if fields.get("selection_rule", "frozen_prep") == "frozen_prep" and fields.get("raw_anchor") in ("wall", "ceiling"):
             raise ValueError("frozen_prep target with a source wall/ceiling anchor (the frozen prep keeps floor/object)")

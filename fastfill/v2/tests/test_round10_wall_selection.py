@@ -277,3 +277,21 @@ def test_a_wall_anchor_off_the_wall_stays_a_target_without_a_wall_declaration():
     touching = {"bottom_center_m": [0.05, 2.0, 1.2], "target_size_local_m": [0.04, 0.8, 0.6], "yaw_rad": 0.0}
     floating = {"bottom_center_m": [2.0, 2.0, 1.2], "target_size_local_m": [0.04, 0.8, 0.6], "yaw_rad": 0.0}
     assert on_wall(touching, room) and not on_wall(floating, room)
+
+
+def test_an_off_wall_anchor_is_kept_undeclared_and_both_verifiers_agree():
+    """The source says wall, but the footprint stands 0.28 m off the wall: kept as a wall_anchor target with
+    field_evidence.wall_contact False and no wall declaration; legacy_verify and verify_full_pair both accept it."""
+    from collections import Counter
+    from fastfill.v2.legacy_verify import _selection_rules
+    raw = wall_room()
+    painting = next(o for o in raw["objects"] if o["id"] == "painting")
+    painting["pos"] = [3, 4.7, 1.4]  # back face at y = 4.72, the wall at y = 5
+    sample = convert(raw)
+    got = by_source(sample)
+    assert got["painting"][:2] == ("wall_anchor", None) and got["wall_shelf"][:2] == ("wall_anchor", "wall")
+    evidence = {s: e for s, e in zip(sample["provenance"]["target_source_ids"], sample["provenance"]["field_evidence"])}
+    assert evidence["painting"]["wall_contact"] is False and evidence["wall_shelf"]["wall_contact"] is True
+    _selection_rules(sample, "SAGE-10k", Counter(), None)  # raises on any wall-rule inconsistency
+    parent = review_sample(sample)
+    assert verify_full_pair(parent, qualify_sample(parent), "train")["wall_declared_objects"] == 1

@@ -220,12 +220,13 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
     for obj in selected:
         category = norm_cat(obj["category"]) or "object"
         request = {"id": ids[obj["id"]], "category": category, "description": _description(obj, category)}
-        z, snapped = obj["pos"][2] + dz, False
+        z, snapped, contact = obj["pos"][2] + dz, False, None
         # Preserve explicit source support, never promote bbox-inferred support.
         if added.get(obj["id"]) == "wall_anchor":
             box = {"bottom_center_m": [*obj["pos"][:2], z], "target_size_local_m": list(obj["size"]),
                    "yaw_rad": (obj["yaw"] + math.pi) % (2 * math.pi) - math.pi}
-            if room["boundary_known"] and on_wall(box, room):  # declare only a contact the geometry shows
+            contact = on_wall(box, room) if room["boundary_known"] else None  # None: no boundary to touch
+            if contact:  # declare only a contact the geometry shows
                 request = {**request, "support_parent": "wall"}
         elif obj.get("parent") in ids and not obj.get("anchor_inferred"):
             request = {**request, "support_parent": ids[obj["parent"]]}
@@ -249,6 +250,7 @@ def convert_selected_room(raw, prepared, row, split, *, seed=42, front_policy="a
                          "source_support_inferred": bool(obj.get("anchor_inferred")),
                          "legacy_support_inferred": bool(prepared_objects.get(obj["id"], {}).get("anchor_inferred")),
                          "selection_rule": added.get(obj["id"], "frozen_prep"),
+                         **({"wall_contact": contact} if added.get(obj["id"]) == "wall_anchor" else {}),
                          "raw_anchor": obj.get("anchor"), "legacy_z_snap_applied_to_target": snapped,
                          "recorded_source_evidence": deepcopy(obj.get("v2_evidence", {}))})
     old_user = json.loads(row["messages"][1]["content"])
