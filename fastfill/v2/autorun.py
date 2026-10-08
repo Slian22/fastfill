@@ -100,6 +100,18 @@ def training_alive(output):
     return False
 
 
+def override(config, assignment):
+    """config[\"a\"][\"b\"] = json value for 'a.b=value'; the key must already exist (no silent typos)."""
+    key, _, value = assignment.partition("=")
+    *parents, leaf = key.split(".")
+    node = config
+    for name in parents:
+        node = node[name]
+    if not _ or leaf not in node:
+        raise ValueError(f"--set {assignment!r}: no existing config key {key!r}")
+    node[leaf] = json.loads(value)
+
+
 def any_training_alive():
     """Any fastfill.v2.train process on this machine: GPU jobs must never start beside one."""
     return training_alive("")
@@ -453,6 +465,9 @@ class Autopilot:
         config = json.loads((run_dir / "run_manifest_start.json").read_text())["config"]
         rows = sum(1 for _ in open(f"{self.data}/train.jsonl"))
         config = next_config(config, world_size=7, train_rows=rows, epochs=self.a.epochs)
+        for assignment in getattr(self.a, "set", None) or ():  # explicit, logged departures from the winner's configuration
+            override(config, assignment)
+            self.log("config override", set=assignment)
         name = f"main7-cell{config['loss']['position_cell']:g}-{Path(self.data).name}-e{self.a.epochs}".replace(".", "")
         config_path = self.dir / f"{name}.json"
         if not config_path.is_file():
@@ -533,6 +548,8 @@ def main(argv=None):
     p.add_argument("--data-root", default="/home/jovyan/shanliantian/fastfill/data")
     p.add_argument("--data-wait-h", type=float, default=2.)
     p.add_argument("--epochs", type=int, default=5)
+    p.add_argument("--set", action="append", metavar="KEY=JSON",
+                   help="override a key of the next run's config, e.g. model.max_objects=256 (repeatable)")
     p.add_argument("--eval-rows", default="3000")
     p.add_argument("--model-repo", default="liantian/fastfill-v2-models")
     p.add_argument("--llm-env", default="/home/jovyan/shanliantian/.fastfill_api.env")

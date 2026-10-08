@@ -315,3 +315,13 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
             pilot.llm_baselines(sample)  # converged: nothing left to redo
             assert calls == [], change
     assert "secret-test-key" not in (pilot.dir / "autorun.log").read_text()
+
+
+def test_set_overrides_an_existing_config_key_only():
+    import pytest
+    from fastfill.v2.autorun import override
+    config = {"model": {"max_objects": 128}, "training": {"steps": 10}}
+    override(config, "model.max_objects=256")
+    assert config["model"]["max_objects"] == 256
+    with pytest.raises(ValueError, match="no existing config key"):
+        override(config, "model.max_object=256")
