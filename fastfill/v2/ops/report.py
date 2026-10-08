@@ -1,19 +1,21 @@
 """One self-contained HTML report (Simplified Chinese, tables only, no external resources) from the analysis JSONs.
 
-    python report.py --out report.html --summary runs/autorun/SUMMARY.md \
+    python report.py --out report.html [--inputs inputs.json] --summary "最终臂=runs/autorun-X/SUMMARY.md" ... \
         --val-run "基线·三字段·spread=S.json" ... --val-compare "最终 vs 基线·三字段·spread·全部对象=C.json" ... \
-        --val-decode "最终·三字段：spread vs argmax=C.json" ... \
-        [--test-run ... --test-compare ... --test-decode ...] [--llm L.json] \
+        [--val-control "最终 vs 对照·三字段·spread·全部对象=C.json" ...] --val-decode "最终·三字段：spread vs argmax=C.json" ... \
+        [--test-run ... --test-compare ... --test-control ... --test-decode ...] [--llm L.json] \
         [--ablation "最终=ablation/report.json" ... --ablation-sample sample.json] \
         [--selection-cohort "最终（select2）=validation-X-all.jsonl" ...] [--reference "最终=DIR" ...] \
         [--walltime walltime.tsv] [--notes NOTES.md]
 
 Inputs: stratify.py / compare.py / llm_compare.py outputs, diag_ablation.py report.json, roomgenbench --reference-check
-JSONs (one directory per checkpoint), the autopilot SUMMARY.md, run_plan's walltime.tsv. Every number and every
-"all / none" statement shown is read from these files.
+JSONs (one directory per checkpoint), the autopilot SUMMARY.md files (``[LABEL=]PATH``), run_plan's walltime.tsv and
+isambard_inputs.py's inputs.json (the two arms, which one is final and why, data / model provenance, missing LLM modes).
+Every number and every "all / none" statement shown is read from these files.
 
-Decisions come ONLY from the validation comparisons (``--val-compare``: final vs baseline; ``--val-decode``: spread vs
-argmax). Test, LLM, ablation and RoomGenBench sections are labelled report-only and never feed a decision. Significance:
+Decisions come ONLY from the validation comparisons (``--val-compare``: final vs baseline; ``--val-control``: final vs
+control, the evidence for the choice of the final arm; ``--val-decode``: spread vs argmax). Test, LLM, ablation and
+RoomGenBench sections are labelled report-only and never feed a decision. Significance:
 primary = paired room-bootstrap 95% CI of the mean per-room difference (direction from it); robustness = Holm-corrected
 sign test; disagreements are flagged; pooled object-weighted differences are descriptive only. A final-vs-baseline
 comparison whose two sides carry the same checkpoint is flagged as a placeholder (and "differences are 0" when both
@@ -430,6 +432,31 @@ def section_llm(llm):
     return "".join(out)
 
 
+def section_arms(inp):
+    """The two autopilot arms, which one is final and why, and where data and models come from (isambard_inputs.py)."""
+    out = ("<div class='flag'><b>演练（DRYRUN）：</b>未下载；基线、数据与队列文件的固定 sha256 只记录未强制"
+           f"（{len(inp['pins']['mismatches'])} 处不符），本报告的数字不说明任何真实模型。</div>" if inp["dry_run"] else "")
+    rows = [["<b>最终</b>" if x["role"] == "final" else "对照", f"<code>{esc(x['dir'])}</code>", f"<code>{esc(x['run'])}</code>",
+             num(x["yaw_cls"], 2), str(x["max_objects"]), str(x["global_batch"]), f"{x['steps']}（{num(x['epochs_supervised'])} 轮）",
+             esc(x["phase"]), esc("；".join(x["failures"]) or "无"), f"<code>{esc(short_ckpt(x['best_checkpoint']))}</code>",
+             f"{x['best_step']}（{num(x['best_epochs'])} 轮）", num(x["best_score"], 4), f"<code>{esc(x['select2_cohort_sha256'][:12])}</code>",
+             f"<code>{esc(x['select2_implementation_sha256'][:12])}</code>", esc(x.get("uploaded_model") or "—")]
+            for x in inp["arms"]]
+    ranking = "".join(f"<li>{'最终' if x['role'] == 'final' else '对照'}：" + "；".join(f"<code>{esc(short_ckpt(c))}</code> {num(s, 4)}"
+                                                                                for c, s in x["select2_ranking"]) + "</li>" for x in inp["arms"])
+    return (out + "<h3>1.1 两臂与最终臂的选择</h3>"
+            + table(["角色", "autopilot 目录", "运行", "yaw_cls", "max_objects", "全局批量", "整个运行的步数（配置；按有效样本的轮数）", "阶段",
+                     "失败项", "select2 最优检查点", "该检查点的步数（轮数）", "select2 分数 ↓", "select2 队列 sha256",
+                     "select2 评测代码 sha256", "上传"], rows)
+            + f"<p><b>规则：</b>{esc(inp['rule'])}</p><details><summary>两臂的 select2 排名（分数越低越好）</summary><ul>{ranking}</ul></details>"
+            + "<h3>1.2 数据与模型来源</h3>" + table(["项目", "来源与校验"], [[esc(k), esc(v)] for k, v in inp["provenance"]]))
+
+
+def missing_llm(inp):
+    missing = (inp or {}).get("llm", {}).get("missing") or []
+    return "、".join(f"{m}（{MODES.get(m, m)}）" for m in missing)
+
+
 def walltime_table(path):
     rows = [line.rstrip("\n").split("\t") for line in Path(path).read_text().splitlines() if line.strip()]
     return table(["步骤", "卡", "开始 (UTC)", "结束 (UTC)", "墙钟 (min)", "退出码"],
@@ -440,9 +467,10 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", required=True, type=Path)
     p.add_argument("--title", default="FastFill v2 评测报告")
-    p.add_argument("--summary", type=Path)
+    p.add_argument("--summary", action="append", default=[], metavar="[LABEL=]SUMMARY.md")
+    p.add_argument("--inputs", type=Path, help="isambard_inputs.py inputs.json: arms, final-arm rule, provenance")
     for split in ("val", "test"):
-        for kind in ("run", "compare", "decode"):
+        for kind in ("run", "compare", "control", "decode"):
             p.add_argument(f"--{split}-{kind}", action="append", default=[], metavar="LABEL=JSON")
     p.add_argument("--llm")
     p.add_argument("--ablation", action="append", default=[])
@@ -455,6 +483,8 @@ def main(argv=None):
     val_runs, test_runs = [load(x) for x in a.val_run], [load(x) for x in a.test_run]
     val_compare, val_decode = [load(x) for x in a.val_compare], [load(x) for x in a.val_decode]
     test_compare, test_decode = [load(x) for x in a.test_compare], [load(x) for x in a.test_decode]
+    val_control, test_control = [load(x) for x in a.val_control], [load(x) for x in a.test_control]
+    inp = json.loads(a.inputs.read_text()) if a.inputs else None
     ablations, refs = [load(x) for x in a.ablation], [tuple(x.rsplit("=", 1)) for x in a.reference]
     cohorts = [tuple(x.rsplit("=", 1)) for x in a.selection_cohort]
     llm = json.loads(Path(a.llm).read_text()) if a.llm else None
@@ -481,13 +511,14 @@ def main(argv=None):
     rows_name = lambda r: f"验证集行（{Path(r).parent.name}/{Path(r).name}）"
     bias = "".join(f"<p>{x}</p>" for r in val_rows if (x := bias_note(rows_name(r), scene_ids(r), cohorts)))
     boots = sorted({s["meta"]["boot"] for _, _, s in runs})
-    parts.append("<h2 id='s1'>1 设置与协议</h2>" + run_rows(runs) + f"""
-<ul><li><b>决策只读验证集：</b>“是否以最终替代基线”和“默认解码 spread / argmax”两项决策只读第 3 节的验证集配对比较；第 4–7 节（测试集、LLM、消融、RoomGenBench）仅报告，不参与任何决策。</li>
+    parts.append("<h2 id='s1'>1 设置与协议</h2>" + (section_arms(inp) + "<h3>1.3 各运行</h3>" if inp else "") + run_rows(runs) + f"""
+<ul><li><b>两种解码：</b>argmax = 模型原始输出（每物体取最高分格子）；spread = 防碰撞后处理解码（每个物体取留在房间内、不与已放物体重叠的最可能格子，并服从支撑声明）。两者用同一次前向的头输出，只差解码；第 3、5、8 节的 spread / argmax 均指此义。</li>
+<li><b>决策只读验证集：</b>“是否以最终替代基线”和“默认解码 spread / argmax”两项决策只读第 3 节的验证集配对比较；第 4–7 节（测试集、LLM、消融、RoomGenBench）仅报告，不参与任何决策。</li>
 <li><b>相同解码代码：</b>{heads_note}compare.py 拒绝解码/评分代码（implementation_sha256）、来源或前向代码不同的两侧；上表“前向代码”“解码/评分代码”两列即这两个哈希。</li>
 <li><b>显著性：</b>主判据为逐房间差值均值的配对房间 bootstrap 95% CI（不含 0 即显著，方向取其符号），<b>按指标逐个判断，未做多重比较校正</b>；
 稳健性列为逐房间差值的精确双侧符号检验（同一比较内跨指标 Holm 校正）。两者不一致时显式标出：不一致可能来自多重比较（主判据未校正、符号检验已校正），
 也可能来自偏态分布（符号检验只看差值的方向/中位数，主判据看的是均值）。合并（物体加权）差值只作描述。</li>
-<li><b>最终 vs 基线的主比较</b>只在两模型都能回答的房间上（物体数 ≤ 128，基线的 max_objects），配对指标只用两者都给出布局的房间；仅一方有布局的房间数在每张表上方列出。最终模型在全部房间（含 &gt; 128 物体）上的结果单列于 3.3。</li>
+<li><b>最终 vs 基线的主比较</b>只在两模型都能回答的房间上（物体数 ≤ 128，基线的 max_objects），配对指标只用两者都给出布局的房间；仅一方有布局的房间数在每张表上方列出。最终模型在全部房间（含 &gt; 128 物体）上的结果单列于 3.{4 if val_control else 3}。</li>
 <li>误差定义与 <code>evaluate.reference_metrics</code> 相同（合法对应匹配、盒等价尺寸/朝向）；逐物体数值由 stratify.py 用评测自身的函数重算，并逐请求、逐位核对 outcomes 与 report.json（上表“逐位复现”）。
 平凡基线拟合来源：{esc('、'.join(fits))}。分层置信区间：房间为单位的百分位 bootstrap（{esc('/'.join(map(str, boots)))} 次）。</li>
 <li>归属：误差与基线归于标签物体（匹配目标），校验器标记归于检查点名的预测物体；声明位置取完整行的支撑声明（三字段投影不向模型显示）；
@@ -497,8 +528,10 @@ def main(argv=None):
     if cohorts and val_rows:
         parts.append("".join(cohort_flags(rows_name(r), scene_ids(r), cohorts) for r in val_rows)
                      + (f"<div class='flag'><b>选择偏差：</b>{bias}</div>" if bias else ""))
-    if a.summary and a.summary.is_file():
-        parts.append("<details><summary>autopilot SUMMARY.md（原文）</summary>" + markdown(a.summary.read_text()) + "</details>")
+    for label, _, path in (x.rpartition("=") for x in a.summary):
+        if Path(path).is_file():
+            parts.append(f"<details><summary>autopilot SUMMARY.md（原文{'：' + esc(label) if label else ''}）</summary>"
+                         + markdown(Path(path).read_text()) + "</details>")
     if a.walltime and a.walltime.is_file():
         parts.append("<details><summary>GPU / CPU 步骤墙钟时间（run_plan 记录）</summary>" + walltime_table(a.walltime) + "</details>")
 
@@ -516,8 +549,11 @@ def main(argv=None):
         sec += "<p class='muted'>（未提供验证集比较：本报告不作决策）</p>"
     sec += "<h3>3.1 最终 vs 基线（两模型都能回答的房间）</h3>" + ("".join(f"<h3>{esc(l)}</h3>" + compare_table(c, True) for l, c, _ in val_compare) or "<p class='muted'>（未提供）</p>")
     sec += "<h3>3.2 默认解码：spread vs argmax</h3>" + ("".join(f"<h3>{esc(l)}</h3>" + compare_table(c) for l, c, _ in val_decode) or "<p class='muted'>（未提供）</p>")
+    if val_control:
+        sec += ("<h3>3.3 最终 vs 对照（同一数据与配置，只差 yaw_cls；选择最终臂的配对证据）</h3>"
+                + "".join(f"<h3>{esc(l)}</h3>" + compare_table(c) for l, c, _ in val_control))
     if val_runs:
-        sec += ("<h3>3.3 各运行在全部房间上的结果（含 &gt; 128 物体房间；房间集合不同，非配对，仅描述）</h3>" + full_set_table([(l, s) for l, s, _ in val_runs])
+        sec += (f"<h3>3.{4 if val_control else 3} 各运行在全部房间上的结果（含 &gt; 128 物体房间；房间集合不同，非配对，仅描述）</h3>" + full_set_table([(l, s) for l, s, _ in val_runs])
                 + results_table([(l, s) for l, s, _ in val_runs])
                 + "".join(f"<details><summary>分层结果（{esc(l)}）</summary>" + strata_tables(s, STRATA_METRICS) + "</details>" for l, s, _ in val_runs))
     parts.append(sec)
@@ -528,11 +564,16 @@ def main(argv=None):
         sec += (full_set_table([(l, s) for l, s, _ in test_runs]) + results_table([(l, s) for l, s, _ in test_runs])
                 + "".join(f"<details><summary>分层结果（{esc(l)}）</summary>" + strata_tables(s, STRATA_METRICS) + "</details>" for l, s, _ in test_runs))
     sec += "".join(f"<h3>{esc(l)}</h3>" + compare_table(c, True) for l, c, _ in test_compare)
+    sec += "".join(f"<h3>{esc(l)}</h3>" + compare_table(c) for l, c, _ in test_control)
     sec += "".join(f"<h3>{esc(l)}</h3>" + compare_table(c) for l, c, _ in test_decode)
-    parts.append(sec if test_runs or test_compare or test_decode else sec + "<p class='muted'>（未提供）</p>")
+    parts.append(sec if test_runs or test_compare or test_control or test_decode else sec + "<p class='muted'>（未提供）</p>")
 
     # 5 LLM, 6 ablation, 7 RoomGenBench: report only
-    parts.append(f"<h2 id='s5'>5 FastFill vs 四种 LLM 智能体（冻结的 LLM 行）{REPORT_ONLY}</h2>" + (section_llm(llm) if llm else "<p class='muted'>（未提供）</p>"))
+    n_llm = sum(c["kind"] == "llm" for c in llm["cost"]) if llm else 0
+    missing = ("<div class='flag'><b>缺失的 LLM 模式：</b>" + esc(missing_llm(inp)) + "：其答案在无法访问的旧服务器上，本节不含它们。"
+               "其余 LLM 答案是已有的预测，由当前评测器重新评分，未调用任何 API。</div>" if missing_llm(inp) else "")
+    parts.append(f"<h2 id='s5'>5 FastFill vs {n_llm} 种 LLM 智能体（冻结的 LLM 行）{REPORT_ONLY}</h2>" + missing
+                 + (section_llm(llm) if llm else "<p class='muted'>（未提供）</p>"))
     parts.append(f"<h2 id='s6'>6 模型是否使用输入：消融 + 输入无关先验 {REPORT_ONLY}</h2><p>同一批验证房间（三字段投影）上改动一个输入、其余不变，看格子分布与误差是否随之变化；"
                  "再与只看类别（及房间类型）的训练集频率先验比较格子交叉熵。</p>"
                  + (section_ablation(ablations, a.ablation_sample, sample, cohorts) or "<p class='muted'>（未提供）</p>"))
@@ -555,6 +596,8 @@ def main(argv=None):
                        "max_objects），误差只在有布局的房间上计算；接口通过率中计为失败。")
     if any(s["meta"]["projection"] == "minimal" for _, _, s in runs):
         lim.append("三字段投影不向模型显示支撑声明；“声明位置”分层用的是完整行的声明，作为真值位置标签。")
+    if missing_llm(inp):
+        lim.append(f"第 5 节缺少 LLM 模式 {esc(missing_llm(inp))}（答案不可得）：LLM 对比只含已有答案的模式。")
     if llm:
         lim += [f"LLM 行与检查点选择队列 {esc(Path(c['file']).name)} 重叠 {c['rows_in_cohort']}/{c['rows']}：用该队列选出的 FastFill 检查点在这些行上不是留出评测。"
                 for c in llm["selection_cohort"] if c["rows_in_cohort"]]
@@ -580,6 +623,8 @@ def main(argv=None):
                  + (decision_table(val_compare, True) if val_compare else "<p class='muted'>（未提供验证集比较：不作决策）</p>")
                  + "<h3>8.2 默认解码 spread 还是 argmax（spread 以碰撞率换取可能的位置/朝向代价）</h3>"
                  + (decision_table(val_decode, False) if val_decode else "<p class='muted'>（未提供验证集比较：不作决策）</p>")
+                 + ("<h3>8.3 最终臂 vs 对照臂（最终臂按 select2 分数选出；此处为验证集配对证据）</h3>"
+                    + (f"<p>{esc(inp['rule'])}</p>" if inp else "") + decision_table(val_control, False) if val_control else "")
                  + (f"<h3>附注</h3>" + markdown(a.notes.read_text()) if a.notes and a.notes.is_file() else ""))
     nav = "".join(f"<a href='#s{i}'>{i}</a>" for i in range(1, 9))
     page = (f"<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
