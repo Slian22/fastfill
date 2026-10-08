@@ -14,8 +14,9 @@ pairing is uncertain may be written as (sx, sy, yaw) or (sy, sx, yaw + pi/2).
 Its candidates are k in {0,1,2,3}: yaw + k*pi/2 with (sx, sy, sz) for even k and
 (sy, sx, sz) for odd k; the detached joint minimum of the weighted size, yaw CE
 and yaw residual losses picks one. Without a valid yaw only the two size
-orders compete. Requests that fix a size coordinate pin the axis convention:
-size keeps the written order and yaw only the box's own pi symmetry (order 2).
+orders compete. Requests that fix sx or sy pin the axis convention: size keeps
+the written order and yaw only the box's own pi symmetry (order 2). A fixed sz
+alone pins nothing (the swap never moves it).
 """
 from __future__ import annotations
 
@@ -170,7 +171,7 @@ class GeometryCriterion(nn.Module):
         size_valid = masks["size"]
         swap = (_gather(batch["size_axis_swap_allowed"], assignment) if "size_axis_swap_allowed" in batch
                 else torch.zeros_like(mask)) & mask
-        pinned = swap & batch.get("fixed_size_mask", torch.zeros_like(validity["size"])).any(-1)
+        pinned = swap & batch.get("fixed_size_mask", torch.zeros_like(validity["size"]))[..., :2].any(-1)  # sx/sy only
         swap = swap & ~pinned
         size_row = torch.full(mask.shape, -1, dtype=torch.long, device=mask.device)
         size_row[size_valid] = torch.arange(int(size_valid.sum()), device=mask.device)

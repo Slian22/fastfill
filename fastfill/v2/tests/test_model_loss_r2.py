@@ -75,6 +75,14 @@ def test_fixed_size_coordinate_pins_the_axis_order():
     assert result["size"].item() == pytest.approx(math.log(2) / 3, rel=1e-5)  # a 2 x 2 box is not a 2 x 1 box
 
 
+def test_fixed_height_alone_keeps_the_box_equivalence():
+    # Audit C5: (1, 2, 1) at yaw + pi/2 is the label's (2, 1, 1) box; a fixed sz never moves under the swap.
+    b = box_batch(True)
+    b["fixed_size_mask"] = torch.tensor([[[False, False, True]] * 2])
+    result = GeometryCriterion(LossConfig(hungarian=False))(box_prediction(b, [1., 2., 1.]), b)
+    assert result["loss"].item() == pytest.approx(0., abs=1e-6)  # was 50.46 when any fixed axis pinned the swap
+
+
 def test_matching_size_cost_takes_the_swap_minimum():
     b = batch()
     b["targets"]["size"] = torch.tensor([[[2., 1., 1.], [1., 1., 1.]]])

@@ -86,7 +86,7 @@ def per_object(pred, batch, crit, cfg):
     err = lambda t: torch.where(size_learn, _elementwise(sp.log() - t.log(), cfg.size_type, cfg.smooth_l1_beta), 0.).sum(-1) / 3
     plain, swapped = err(sg), err(sg[:, [1, 0, 2]])
     swap = _gather(batch["size_axis_swap_allowed"], A)[0] & batch["slot_mask"][0]
-    pinned = swap & batch["fixed_size_mask"][0].any(-1)
+    pinned = swap & batch["fixed_size_mask"][0][..., :2].any(-1)
     swap = swap & ~pinned
     odd = swap & (swapped < plain)
     orders = _gather(batch["yaw_symmetry_order"], A)[0]
