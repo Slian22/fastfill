@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 from PIL import Image
+import pytest
 
 from fastfill.v2.direct_layout import layout_to_roomgenbench, request_to_condition
 from fastfill.v2.ops import vlm_judge as vj
@@ -15,11 +16,18 @@ def room(n=1):
     return {"condition": condition}
 
 
-def box(yaw, ident="obj_0000", pos=(2.2, 1.3, 0.)):
-    return {"id": ident, "target_size_local_m": [1.2, .6, .8], "bottom_center_m": list(pos), "yaw_rad": yaw}
+def box(yaw, ident="obj_0000", pos=(2.2, 1.3, 0.), size=(1.2, .6, .8)):
+    return {"id": ident, "target_size_local_m": list(size), "bottom_center_m": list(pos), "yaw_rad": yaw}
+
+
+def scene(*objects):  # (row, items) for boxes given as (size, bottom centre, yaw), request order
+    row = room(len(objects))
+    layout = {"schema_version": "fastfill.v2", "objects": [box(t, f"obj_{i:04d}", p, s) for i, (s, p, t) in enumerate(objects)]}
+    return row, vj.items(row, layout)[0]
 
 
 def test_box_lands_where_validation_footprint_says(tmp_path):
+    pytest.importorskip("matplotlib")  # in no fastfill/v2 requirements file
     row, obj = room(), box(.7)
     expected = np.array(footprint(_geometry(obj, "target")).exterior.coords[:4])
     assert np.allclose(vj.corners_xy(obj["target_size_local_m"], obj["bottom_center_m"], obj["yaw_rad"]), expected)
@@ -68,3 +76,62 @@ def test_anchors_are_deterministic_and_valid():
     assert np.isclose(math.cos(mirrored["yaw_rad"]), -math.cos(.3)) and np.isclose(math.sin(mirrored["yaw_rad"]), math.sin(.3))
     for layout in first.values():
         layout_to_roomgenbench(row["condition"], layout)  # every anchor is a valid hand-off layout
+
+
+def test_corner_views_are_unmirrored_whole_and_without_near_walls():
+    # the 4 x 3 x 2.6 m room; V1 looks from beyond (0, 0) towards +x+y, V2 from beyond (4, 3) back
+    row, its = scene(((.6, .6, .5), (.6, .5, 0.), 0.),  # beside V1's own corner
+                     ((1.2, .6, .8), (3.3, .5, 0.), -math.pi))  # beside (4, 0), its front (local +X) towards -x
+    for k, (eye, target) in enumerate(vj.cameras(row)):
+        prims = vj.view_primitives(row, its, eye)
+        walls = [p for p, _ in prims[1:-10]]
+        far = (4., 3.) if k == 0 else (0., 0.)
+        assert len(walls) == 2 and all(np.allclose(w[:, 0], far[0]) or np.allclose(w[:, 1], far[1]) for w in walls)
+        img, ids = vj.rasterize(prims, eye, target)
+        assert (ids == 0).sum() > 1000 and not (ids[[0, -1]] == 0).any() and not (ids[:, [0, -1]] == 0).any()  # whole floor
+        first = len(prims) - 10  # by top height: the 0.5 m box's 5 faces, then the 0.8 m box's
+        y_near, _ = np.nonzero((ids >= first) & (ids < first + 5))
+        _, x_side = np.nonzero(ids >= first + 5)
+        front = ids == first + 6
+        if k == 0:  # (4, 0) to the right of the line of sight, V1's own corner at the bottom; the front seen, darker
+            assert x_side.mean() > vj.VIEW_PX / 2 and y_near.mean() > vj.VIEW_PX / 2 and front.sum() > 100
+            dark = np.round(vj._shade(vj.PLACE_RGB["floor"], (-1, 0, 0), .55) * 255)
+            assert np.abs(np.median(img[front], 0) - dark).max() <= 1
+        else:
+            assert x_side.mean() < vj.VIEW_PX / 2 and y_near.mean() < vj.VIEW_PX / 2 and not front.any()
+
+
+def test_view_labels_and_equal_tops():
+    row, its = scene(((1.4, .9, .75), (2., 1.5, 0.), 0.),  # 1 table
+                     ((.3, .3, .4), (2., 1.5, 0.), 0.),  # 2 inside the table: never seen
+                     ((.25, .2, .05), (2.4, 1.5, .75), 0.),  # 3 on the table
+                     ((.6, 1., 2.2), (2.05, 2.7, 0.), -math.pi / 2))  # 4 wardrobe: a depth tolerance lost its top in V1
+    for eye, target in vj.cameras(row):
+        assert [n for n, _, _ in vj.view(row, its, eye, target)[1]] == [1, 3, 4]
+    # two overlapping tops at one height: the later box's top is whole (as if alone), not speckled by the other's
+    alone, (_, both) = scene(((.8, .8, .5), (2.2, 1.5, 0.), 0.)), scene(((.8, .8, .5), (1.8, 1.5, 0.), 0.),
+                                                                          ((.8, .8, .5), (2.2, 1.5, 0.), 0.))
+    for eye, target in vj.cameras(row):
+        tops = []
+        for its in (alone[1], both):  # the last box's top: the fifth face from the end
+            prims = vj.view_primitives(row, its, eye)
+            tops.append(vj.rasterize(prims, eye, target)[1] == len(prims) - 5)
+        assert tops[0].sum() > 1000 and np.array_equal(*tops)
+
+
+def test_plan_labels_do_not_overlap_and_stay_in_the_plan():
+    pytest.importorskip("matplotlib")
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    row, its = scene(*[((.5, .5, .5), (2., 1.5, 0.), 0.)] * 30 + [((.4, .4, .7), (.3, .3, 0.), 0.)])  # a stack, a corner
+    fig = plt.figure(figsize=(vj.PLAN_PX / vj.DPI,) * 2, dpi=vj.DPI)
+    ax = fig.add_axes((0, 0, 1, 1))
+    vj.draw_plan(ax, row, its)
+    renderer = fig.canvas.get_renderer()
+    boxes = [t.get_window_extent(renderer) for t in ax.texts if t.get_text()]  # labels, "1 m" and V1/V2
+    assert len(boxes) == len(its) + 3
+    plt.close(fig)
+    for i, a in enumerate(boxes):
+        assert 0 <= a.x0 and a.x1 <= vj.PLAN_PX and 0 <= a.y0 and a.y1 <= vj.PLAN_PX
+        assert not any(a.overlaps(b) for b in boxes[i + 1:])

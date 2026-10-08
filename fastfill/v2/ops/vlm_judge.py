@@ -14,7 +14,8 @@ z-buffer, near walls removed, flat shading, front faces darker). The image names
 hash -> (row, method) with the programmatic checks, and keeps each room's numbered legend for the judge prompt.
 anchors: DIR/anchors.jsonl. handoff: DIR/handoff/row<r>-<method>/{export,assembly} and DIR/handoff/results.json
 (export_handoff, then ``fastfill.v2.roomgenbench --method layout_boxes --require-placement``). contact:
-DIR/contact.html, panels by relative path with method names and checks: for the operator, never for the judge.
+DIR/contact.html, panels by relative path with method names and checks. contact.html, handoff/ and manifest.json name
+the methods: for the operator, never for the judge (the judge gets panels/<hash>.png and the legend only).
 
 Conventions (fastfill.v2): target_size_local_m [sx, sy, sz] with local +X the front, bottom_center_m in metres, yaw_rad
 counter-clockwise from world +X; footprints as validation.footprint; place (floor / on_object / wall / unknown) from
@@ -183,7 +184,7 @@ def facing(row, layout):
         c, s = abs(math.cos(t)), abs(math.sin(t))
         hx, hy = .5 * (c * sx + s * sy), .5 * (s * sx + c * sy)
         gaps = {(1, 0): x - hx - lo[0], (-1, 0): hi[0] - x - hx, (0, 1): y - hy - lo[1], (0, -1): hi[1] - y - hy}
-        near = [n for n, g in gaps.items() if abs(g) <= .15]
+        near = [n for n, g in gaps.items() if abs(g) <= .15 + 1e-9]  # rounded coordinates land exactly on 0.15
         if len(near) != 1:
             continue
         dot = math.cos(t) * near[0][0] + math.sin(t) * near[0][1]
@@ -209,14 +210,19 @@ def plan_extent(row):
 
 
 def cameras(row):
-    """[(eye, target)] at two opposite upper corners: 1 m outside the corner along the room diagonal, at room height
-    + 1.2 m, aimed at the room centre at 0.4 * height (height 2.8 m when unknown)."""
+    """[(eye, target)] at two opposite upper corners, aimed at the room centre at 0.4 * height (height 2.8 m when
+    unknown): along the line through the design's eye (1 m outside the corner on the room diagonal, at room height
+    + 1.2 m), backed off as RoomGenBench render.py does until the room's bounding sphere fills the field of view, so
+    the whole floor is in frame (from the design's eye itself, up to 32% of the floor fell outside the view)."""
     _, lo, hi, floor, height = _room(row)
     centre = (lo + hi) / 2
+    target = np.array([*centre, floor + .4 * height])
+    dist = .5 * math.hypot(*(hi - lo), height) / math.sin(math.radians(VIEW_FOV_DEG) / 2)
     out = []
     for corner in (lo, hi):
         d = (corner - centre) / np.linalg.norm(corner - centre)
-        out.append((np.array([*(corner + d), floor + height + 1.2]), np.array([*centre, floor + .4 * height])))
+        ray = np.array([*(corner + d), floor + height + 1.2]) - target
+        out.append((target + ray / np.linalg.norm(ray) * dist, target))
     return out
 
 
@@ -276,13 +282,15 @@ def _fill(img, inv, ids, x, y, iz, rgb, ident):
     w2 = 1 - w0 - w1
     depth = w0 * iz[0] + w1 * iz[1] + w2 * iz[2]
     window = np.s_[y0:y1, x0:x1]
-    win = (w0 >= 0) & (w1 >= 0) & (w2 >= 0) & (depth > inv[window])
+    # at equal depth (coplanar faces, e.g. two overlapping tops of one height) the later face wins, as in the plan,
+    # instead of rounding noise picking pixel by pixel
+    win = (w0 >= 0) & (w1 >= 0) & (w2 >= 0) & (depth >= inv[window] * (1 - 1e-9))
     inv[window][win], img[window][win], ids[window][win] = depth[win], rgb, ident
 
 
 def rasterize(prims, eye, target, size=VIEW_PX):
     """z-buffer of convex polygons (fan triangulated) on white, 1 px dark lines where the visible face changes;
-    returns (uint8 image, 1/depth buffer)."""
+    returns (uint8 image, face id buffer: the index into prims, -1 for background)."""
     img, inv, ids = np.ones((size, size, 3)), np.zeros((size, size)), np.full((size, size), -1)
     for ident, (poly, rgb) in enumerate(prims):
         x, y, d = project(poly, eye, target, size)
@@ -295,7 +303,18 @@ def rasterize(prims, eye, target, size=VIEW_PX):
     edge[:, 1:] |= ids[:, 1:] != ids[:, :-1]
     edge[1:] |= ids[1:] != ids[:-1]
     img[edge] *= .3
-    return (img * 255).round().astype(np.uint8), inv
+    return (img * 255).round().astype(np.uint8), ids
+
+
+def view(row, its, eye, target):
+    """(image, [(n, x, y)]): one corner view and the boxes whose top-face centre shows their own top face."""
+    prims = view_primitives(row, its, eye)
+    img, ids = rasterize(prims, eye, target)
+    first = len(prims) - 5 * len(its)  # after the floor and walls, each box adds its top then its four sides
+    top = {it["n"]: first + 5 * k for k, it in enumerate(by_height(its))}
+    tops = [[*it["pos"][:2], it["pos"][2] + it["size"][2]] for it in its]
+    return img, [(it["n"], x, y) for it, x, y, d in zip(its, *project(tops, eye, target))
+                 if d > NEAR_M and 0 <= x < VIEW_PX and 0 <= y < VIEW_PX and ids[int(y), int(x)] == top[it["n"]]]
 
 
 def draw_plan(ax, row, its):
@@ -320,24 +339,37 @@ def draw_plan(ax, row, its):
         tail, head = front_arrow(it["size"], it["pos"], it["yaw"])
         ax.annotate("", head, tail, zorder=z, arrowprops={"arrowstyle": "-|>", "color": FRONT, "lw": 1.2, "shrinkA": 0,
                     "shrinkB": 0, "mutation_scale": float(np.clip(.25 * it["size"][0] * ppm, 4, 12))})
+    renderer, pad = ax.figure.canvas.get_renderer(), 2 / ppm  # pad: the labels' white halo
+
+    def extent(artist):  # (centre x, centre y, half width, half height) in metres, the text as rendered plus pad
+        b = artist.get_window_extent(renderer).transformed(ax.transData.inverted())
+        return (b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2, b.width / 2 + pad, b.height / 2 + pad
+
+    cx, yb = (lo[0] + hi[0]) / 2, lo[1] - PLAN_MARGIN_M / 2
+    ax.plot([cx - .5, cx + .5], [yb, yb], color="black", lw=4, solid_capstyle="butt")
+    placed = [(cx, yb, .5 + pad, 3 / ppm), extent(ax.text(cx, yb - .06, "1 m", ha="center", va="top", fontsize=10))]
+    centre, half = (lo + hi) / 2, np.linalg.norm(hi - lo) / 2
+    for k, (eye, _) in enumerate(cameras(row), 1):  # 0.45 m outside the room corner the view looks from
+        x, y = centre + (eye[:2] - centre) / np.linalg.norm(eye[:2] - centre) * (half + .45)
+        placed.append(extent(ax.text(x, y, f"V{k}", ha="center", va="center", fontsize=11, weight="bold", color="#555555")))
     halo = [patheffects.withStroke(linewidth=3, foreground="white")]
     numbers_only = len(its) > NUMBERS_ONLY_ABOVE
     size = 7.5 if numbers_only else 8.5
-    line, char = size * 1.4 / ppm, size * .62 / ppm  # metres per text line / character at DPI 100
-    placed = []  # (x, y, half width): a label overlapping an earlier one (stacked items) moves down a line
-    for it in by_height(its):
-        text = str(it["n"]) if numbers_only else f'{it["n"]} {it["category"]}'
-        x, y, half = it["pos"][0], it["pos"][1], len(text) * char / 2
-        while any(abs(x - px) < half + ph and abs(y - py) < .95 * line for px, py, ph in placed):
-            y -= line
-        placed.append((x, y, half))
-        ax.text(x, y, text, fontsize=size, ha="center", va="center", zorder=10_000, path_effects=halo)
-    cx, yb = (lo[0] + hi[0]) / 2, lo[1] - PLAN_MARGIN_M / 2
-    ax.plot([cx - .5, cx + .5], [yb, yb], color="black", lw=4, solid_capstyle="butt")
-    ax.text(cx, yb - .06, "1 m", ha="center", va="top", fontsize=10)
-    for k, (eye, _) in enumerate(cameras(row), 1):  # the corner view's eye, kept inside the plan
-        x, y = np.clip(eye[:2], (x0 + .25, y0 + .25), (x1 - .25, y1 - .25))
-        ax.text(x, y, f"V{k}", ha="center", va="center", fontsize=11, weight="bold", color="#555555")
+    grid = [(i, j) for i in range(-8, 9) for j in range(-30, 31)]
+    for it in by_height(its):  # at its box centre, else the nearest free slot (whole label widths / lines away)
+        x, y = it["pos"][:2]
+        label = ax.text(x, y, str(it["n"]) if numbers_only else f'{it["n"]} {it["category"]}', fontsize=size,
+                        ha="center", va="center", zorder=10_000, path_effects=halo)
+        _, _, w, h = extent(label)
+        for i, j in sorted(grid, key=lambda o: math.hypot(o[0] * w, o[1] * h)):
+            sx, sy = x + 2 * i * w, y + 2 * j * h
+            if (x0 + w <= sx <= x1 - w and y0 + h <= sy <= y1 - h
+                    and not any(abs(sx - px) < w + pw and abs(sy - py) < h + ph for px, py, pw, ph in placed)):
+                break
+        else:  # ponytail: no free slot within 8 widths / 30 lines: overlap at the box
+            sx, sy = x, y
+        label.set_position((sx, sy))
+        placed.append((sx, sy, w, h))
 
 
 def render_panel(path, row, its):
@@ -350,15 +382,13 @@ def render_panel(path, row, its):
     halo = [patheffects.withStroke(linewidth=2.5, foreground="white")]
     for k, (eye, target) in enumerate(cameras(row)):
         ax = fig.add_axes((PLAN_PX / PANEL_W, .5 - .5 * k, VIEW_PX / PANEL_W, VIEW_PX / PANEL_H))
-        img, inv = rasterize(view_primitives(row, its, eye), eye, target)
+        img, labels = view(row, its, eye, target)
         ax.imshow(img, interpolation="nearest", extent=(0, VIEW_PX, VIEW_PX, 0))
         ax.set_xlim(0, VIEW_PX)
         ax.set_ylim(VIEW_PX, 0)
         ax.axis("off")
-        tops = [[*it["pos"][:2], it["pos"][2] + it["size"][2]] for it in its]
-        for it, x, y, d in zip(its, *project(tops, eye, target)):
-            if d > NEAR_M and 0 <= x < VIEW_PX and 0 <= y < VIEW_PX and 1 / d >= inv[int(y), int(x)] * (1 - 1e-3):
-                ax.text(x, y, str(it["n"]), fontsize=7, ha="center", va="center", path_effects=halo)
+        for n, x, y in labels:
+            ax.text(x, y, str(n), fontsize=7, ha="center", va="center", path_effects=halo)
         ax.text(8, 8, f"V{k + 1}", ha="left", va="top", fontsize=11, weight="bold", color="#555555")
     fig.savefig(path, dpi=DPI, metadata={"Software": None})
     plt.close(fig)
