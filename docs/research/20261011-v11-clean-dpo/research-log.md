@@ -1,0 +1,15 @@
+# V1.1 clean DPO research log
+
+Append-only decisions. The preexisting model/test diagnostics below precede this protocol; they are not confirmatory new-run outcomes. Exact launch and protocol-lock timestamps come from the coordinator's Git/deployment receipts.
+
+| Entry | Date | Type | Evidence and decision |
+|---|---|---|---|
+| 1 | 2026-10-11 | bootstrap | User requested careful inspection of the already prepared test sets, training correctness and unattended automation, then explicitly invoked autoresearch. Scope set to the current V1.1 SFT/DPO chain on Isambard; preserve prior runs. |
+| 2 | 2026-10-11 | data audit | Fresh SHA checks match all7 release JSONLs and18 IRs;160964 UID joins complete. UID/group/alias split intersections are zero. Full room counts are8167/8035/8647/8533. Old200 prefixes cover only HSSD/IL3D and omit all409/408 source-heldout rooms. Evidence: local `data-audit.json`. |
+| 3 | 2026-10-11 | protocol reconciliation | V2 frozen300+300 still exist but234/239 room inventories differ from same-UID V1.1 views. Treat current full V1.1 evaluation and V2 Stage0 as different tasks. Warm-start provenance cannot independently certify prior heldout exclusion. |
+| 4 | 2026-10-11 | exploratory diagnosis | Initial actual-pair audit found144 constraint-invalid Stage1 positives. A further size/negative audit was required; the initial144 count was not claimed as the total invalid-pair count. Old training continues to be preserved as diagnostic evidence. |
+| 5 | 2026-10-11 | exploratory diagnosis | Completed train-only sanitizer retained7244/8000 Stage1 pairs;756 unique rows dropped, with overlapping reasons144 constraint failure/475 corrected size failure/215 rejected without verified defect. All12000 Stage2 pairs retained before tokenizer filtering. Exact hashes and policy recorded in `sanitized/audit.json`. |
+| 6 | 2026-10-11 | literature | Verified primary arXiv records for DPO2305.18290, LayoutGPT2305.15393 and InstructScene2402.04717. Saved bounded summaries in `literature/survey.md`; no novelty claim or reproduction of those systems. |
+| 7 | 2026-10-11 | preregistration decision | Fix SFT/cleanDPO1/cleanDPO2 × four complete cohorts. H1/H2 use per-dev-cohort paired acceptance differences,2000 source-group cluster bootstrap draws/seed42. CI labels only; coverage/size deltas descriptive, no new0.01/0.02 guard thresholds. Test descriptive only. No causal cleaning claim without an unclean matched control. |
+| 8 | 2026-10-11 | continuity decision | `/loop` and agent-bound cron tools are unavailable. Use actual bounded Slurm training/evaluation dependencies plus automated synthesis. Cap new work at two6h4GPU training allocations and two6h1GPU allocations per each of three evaluation chains. Preserve partial state if cap is reached; no claim of an indefinitely running chat agent. |
+| 9 | 2026-10-11 | protocol prepared | Five research files drafted in existing docs/research structure. Coordinator must freeze tested code, commit protocol separately before clean runs, submit and verify jobs, and fill receipt/job references. No new clean-run outcome was available to this document author. |

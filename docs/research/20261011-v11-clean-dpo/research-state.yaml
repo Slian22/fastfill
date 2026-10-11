@@ -1,0 +1,170 @@
+project:
+  title: "V1.1 clean preference training stage comparison"
+  question: "Do audited DPO1 and DPO2 improve joint size/position/yaw and constraint-following after existing V1.1 SFT on exact full cohorts?"
+  status: active
+  started: "2026-10-11"
+  phase: protocol_prepared_for_freeze
+  domain: "structured indoor layout generation and preference fine-tuning"
+  novelty_established: false
+  current_quality_result: null
+
+protocol:
+  file: protocol.md
+  version: "20261011-v11-clean-dpo-v1"
+  commit: null
+  lock_evidence: "Coordinator must commit protocol before clean training/new full-cohort outcomes; commit and deployment receipts establish lock."
+  source_snapshot_sha256: null
+  launch_manifest: null
+  methods: [sft, dpo1, final]
+  comparison_scope: "SFT -> audited DPO1 -> audited DPO2; no matched unclean control and no causal cleaning claim."
+  test_policy: "report_only; historical test200 exposure disclosed; no test-driven tuning or next-training decisions"
+
+continuity:
+  strategy: bounded_slurm_dependencies_and_automatic_synthesis
+  chat_agent_loop_available: false
+  cron_agent_turn_available: false
+  persistent_agent_claim: false
+  training_job_ids: []
+  evaluation_job_ids: []
+  reporting_job_ids: []
+  submission_status: not_recorded_yet
+  resume_evidence: "Server manifests, per-request receipts and durable research files; read canonical claude-mem work state on agent resumption."
+  limits:
+    training_allocations_max: 2
+    training_hours_per_allocation: 6
+    training_gpus_per_allocation: 4
+    evaluation_chains: 3
+    evaluation_allocations_max_per_chain: 2
+    evaluation_hours_per_allocation: 6
+    evaluation_gpus_per_allocation: 1
+    total_new_gpu_hour_cap: 84
+  after_cap: "Preserve progress and report incomplete work; no unbounded resubmission."
+  automatic_additional_training: false
+  paid_model_api_calls: false
+  publication: false
+
+literature:
+  survey: literature/survey.md
+  verification_date: "2026-10-11"
+  verification_scope: "Primary arXiv abstract pages opened; compact bootstrap, not exhaustive review."
+  key_papers:
+    - id: rafailov2023dpo
+      title: "Direct Preference Optimization: Your Language Model is Secretly a Reward Model"
+      url: "https://arxiv.org/abs/2305.18290"
+    - id: feng2023layoutgpt
+      title: "LayoutGPT: Compositional Visual Planning and Generation with Large Language Models"
+      url: "https://arxiv.org/abs/2305.15393"
+    - id: lin2024instructscene
+      title: "InstructScene: Instruction-Driven 3D Indoor Scene Synthesis with Semantic Graph Prior"
+      url: "https://arxiv.org/abs/2402.04717"
+  open_problems:
+    - "Does this preference recipe improve full-cohort layout acceptance without reducing coverage or scale quality?"
+    - "Does improvement survive raw-output analysis rather than only postprocessing?"
+  evidence_gaps:
+    - "No matched unclean-control arm in the new full matrix."
+    - "No repeated training seeds or protocol-aligned external-model comparison."
+    - "No physical mesh or calibrated visual quality claim."
+
+hypotheses:
+  - id: H1
+    statement: "Clean DPO1 improves primary acceptance over SFT on ordinary and constrained dev, reported separately."
+    status: pending
+    comparison: "dpo1 - sft"
+    priority: high
+  - id: H2
+    statement: "Clean DPO2 adds improvement over clean DPO1 on ordinary and constrained dev, reported separately."
+    status: pending
+    comparison: "final - dpo1"
+    priority: high
+  - id: H3
+    statement: "All original requests in all 12 cells receive explicit hash-bound outcomes, with tested interruption/restart behavior."
+    status: pending
+    priority: high
+
+inputs:
+  actual_v11_train_sha256: "6ab4c001e566718ce3e89a51de08912edbc9ba2aa740fe4284741e04bd6650a0"
+  source_message_rows: {train: 144150, dev: 8167, test: 8647}
+  eligible_before_tokenizer: {train: 103319, dev: 5893, test: 6251}
+  full_cohorts:
+    - file: dev_rooms.jsonl
+      rows: 8167
+      duplicate_prompts: 9
+      role: validation
+      sha256: "e0c2a6fdb44778e83f91273122fb5f7a4489cdb2c6fcf49ffc118ab15671c97f"
+    - file: dev_constrained_rooms.jsonl
+      rows: 8035
+      duplicate_prompts: 2
+      role: validation
+      sha256: "d54e28c06b4b3714b6e76b544230c6edb45dd592e966dec6b916ce068f16e2e2"
+    - file: test_rooms.jsonl
+      rows: 8647
+      duplicate_prompts: 6
+      role: report_only
+      sha256: "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303"
+    - file: test_constrained_rooms.jsonl
+      rows: 8533
+      duplicate_prompts: 1
+      role: report_only
+      sha256: "0bb4edaab1ceca5ee794ba5ae99ff8ee8aff26b48e46ae723259cc50900c727d"
+  stage1_pairs:
+    input_rows: 8000
+    kept_rows: 7244
+    dropped_unique_rows: 756
+    sha256: "072604820711e5749d11924ef1b3f38be1e662297a4efe80e446f47380447c1f"
+    overlapping_drop_reason_counts:
+      constraint_invalid_chosen: 144
+      corrected_size_invalid_chosen: 475
+      rejected_without_verified_defect: 215
+  stage2_pairs:
+    input_rows: 12000
+    kept_rows: 12000
+    dropped_unique_rows: 0
+    sha256: "bf4c535bb299eb7ac2e20e5be05bc13946c466cab817fb04e74d7d4389ad3165"
+  tokenizer_admitted_pairs: {dpo1: null, dpo2: null}
+  pair_audit: "/tmp/fastfill-v11-automation-20261011/sanitized/audit.json"
+  local_data_audit: "/tmp/fastfill-v11-automation-20261011/data-audit.json"
+  heldout_claim: "Excluded from current training split; exclusion from all warm-start stages unknown."
+  v2_frozen_cohorts_replicated: false
+
+experiments:
+  primary_metric: "all-request mean zero_collision_accepted after fixed repair; failures=0"
+  baseline_value: null
+  best_value: null
+  planned_tasks: 12
+  expected_requests_per_model: 33382
+  expected_requests_total: 100146
+  completed_full_tasks: 0
+  total_clean_training_runs_completed: 0
+  trajectory: []
+  bootstrap:
+    cluster_key: [source, group]
+    paired: true
+    statistic: room_weighted_mean_difference
+    draws: 2000
+    seed: 42
+    interval: percentile_95
+    minimum_clusters: 2
+    multiplicity: "Per-comparison intervals; no familywise support claim."
+  classification:
+    supported: "Complete identity-matched cohort, >=2 clusters, CI lower > 0."
+    regression: "Complete identity-matched cohort, >=2 clusters, CI upper < 0."
+    inconclusive: "Otherwise, including missing/mismatched rows or too few clusters."
+    coverage_and_size_guards: "Descriptive differences/warnings only; no new numeric veto thresholds."
+    automatic_winner: false
+  synthesis: "Final synthesis requires all 12 cells; partial status reports identify missing cells."
+
+outer_loop:
+  cycle: 0
+  last_direction: repair_method_and_measure
+  last_reflection: "Existing prefix checks miss 16 sources; old preferences contain verified semantic errors. Preserve them and run a bounded, preregistered clean-stage comparison before inferring model quality."
+  next_action: "Coordinator source freeze, protocol-only commit, bounded Slurm deployment and receipt verification."
+  future_training_rule: "Only a documented dev-based hypothesis and new frozen protocol; never a test-result-triggered iteration."
+
+workspace:
+  findings: findings.md
+  log: research-log.md
+  literature_dir: literature
+  experiment_protocol: protocol.md
+  local_evidence_dir: "/tmp/fastfill-v11-automation-20261011"
+  server_receipts: null
+  generated_report: null
