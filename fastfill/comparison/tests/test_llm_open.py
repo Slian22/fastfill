@@ -352,6 +352,15 @@ def test_scripts_match_system_table():
         subprocess.run(['bash', '-n', str(here / script)], check=True)
 
 
+def stub_squeue(tmp_path):
+    """squeue stub: prints $SQUEUE_OUT only for the exact open-model query; exits 1 when SQUEUE_FAIL is set."""
+    stub = tmp_path / 'squeue'
+    stub.write_text('#!/bin/sh\ntest -z "$SQUEUE_FAIL" || exit 1\n'
+                    'test "$*" = "-h -u me -n unknownsize-llm-open -o %i" || exit 3\n'
+                    'printf "%s" "$SQUEUE_OUT"\n')
+    stub.chmod(0o755)
+
+
 def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
     """GPU cap: every open-model job is singleton (one at a time) and waits for the AFTER job ids."""
     code = Path(O.__file__).resolve().parents[2]
@@ -363,7 +372,8 @@ def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
     stub = tmp_path / 'sbatch'
     stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
     stub.chmod(0o755)
-    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'USER': 'me'}
     run = subprocess.run(['bash', str(script), str(code), '7383111:7383121', 'O1a', 'O5'],
                          env=env, capture_output=True, text=True, check=True)
     log = (tmp_path / 'log').read_text().splitlines()
@@ -395,7 +405,8 @@ def test_submit_default_order_and_abort_lists_submitted_jobs(tmp_path):
                     'if [ "$n" -eq "$FAIL_ON" ]; then echo "sbatch: error: QOSMaxSubmitJobPerUserLimit" >&2; exit 1; fi\n'
                     'echo "$((100 + n));cluster"\n')
     stub.chmod(0o755)
-    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'FAIL_ON': '0'}
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'FAIL_ON': '0', 'USER': 'me'}
     run = subprocess.run(['bash', str(script), str(code), '-'], env=env, capture_output=True, text=True, check=True)
     assert [line.split()[0] for line in run.stdout.splitlines()] == [
         'O6', 'O5', 'O4', 'O2', 'O3', 'O7', 'O1a', 'O1b', 'status']
@@ -408,3 +419,25 @@ def test_submit_default_order_and_abort_lists_submitted_jobs(tmp_path):
     (tmp_path / 'log').unlink()
     bad = subprocess.run(['bash', str(script), str(code), '-', 'O5', 'O9'], env=env, capture_output=True)
     assert bad.returncode == 2 and not (tmp_path / 'log').exists()  # Systems are checked before any sbatch.
+
+
+def test_submit_refuses_while_an_open_model_chain_is_in_slurm(tmp_path):
+    """An older chain shares the singleton name and output folders; nothing new goes in behind it."""
+    code = Path(O.__file__).resolve().parents[2]
+    helper = (code / 'fastfill/comparison/submit_llm_open.sh').read_text()
+    script = tmp_path / 'submit_llm_open.sh'
+    script.write_text(helper.replace('PYTHON="$PROJECT_ROOT/env/bin/python"\n', f'PYTHON={sys.executable}\n'))
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
+    stub.chmod(0o755)
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'USER': 'me'}
+    run = subprocess.run(['bash', str(script), str(code), '-', 'O5'], env={**env, 'SQUEUE_OUT': '7384533\n7384535\n'},
+                         capture_output=True, text=True)
+    assert run.returncode == 1 and not (tmp_path / 'log').exists() and run.stdout == ''
+    assert 'scancel 7384533 7384535' in run.stderr
+    run = subprocess.run(['bash', str(script), str(code), '-', 'O5'], env={**env, 'SQUEUE_FAIL': '1'},
+                         capture_output=True, text=True)
+    assert run.returncode == 1 and not (tmp_path / 'log').exists()  # Fails closed when Slurm can't be asked.
+    subprocess.run(['bash', str(script), str(code), '-', 'O5'], env=env, check=True, capture_output=True)
+    assert len((tmp_path / 'log').read_text().splitlines()) == 3  # Empty queue: smoke, full, status.

@@ -10,6 +10,7 @@
 # A CPU job (afterany all) then writes runs/unknownsize-20261013/llm-open-status.json.
 # Rerunning resumes existing outputs from receipts (same run identity), it never starts them over.
 # Any failed sbatch (or flag lookup) aborts and lists the job ids already submitted, for scancel.
+# Refuses to submit anything while any unknownsize-llm-open job of this user is still in Slurm.
 set -euo pipefail
 test "$#" -ge 2
 CODE_ROOT="$1"
@@ -42,6 +43,12 @@ if test "${#SYSTEMS[@]}" -eq 0; then SYSTEMS=(O6 O5 O4 O2 O3 O7 O1a O1b); fi
 for SYSTEM in "${SYSTEMS[@]}"; do
   case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5|O6|O7) ;; *) echo "unknown system $SYSTEM" >&2; exit 2 ;; esac
 done
+# An older chain still in Slurm shares the singleton name and output folders and would run first.
+QUEUED=$(squeue -h -u "$USER" -n unknownsize-llm-open -o %i) || { echo "ABORT: squeue failed" >&2; exit 1; }
+if test -n "$QUEUED"; then
+  echo "ABORT: open-model jobs already in Slurm; nothing submitted. cancel with: scancel" $QUEUED >&2
+  exit 1
+fi
 ALL=""
 for SYSTEM in "${SYSTEMS[@]}"; do
   SMOKE_FLAGS=$(flags "$SYSTEM" smoke) || abort "flags for $SYSTEM smoke"
