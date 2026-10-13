@@ -271,7 +271,8 @@ def main() -> None:
     ds = DPOPairDataset(tok, args.pairs, max_len=args.max_len)
     if len(ds) == 0:
         raise ValueError("No valid DPO pairs remain after tokenization; refusing an empty training run")
-    sampler = DistributedSampler(ds, num_replicas=world_size, rank=rank, shuffle=True, seed=args.seed) if is_ddp else None
+    # Also for one process: the epoch order is a function of (seed, epoch), so a resumed epoch replays it.
+    sampler = DistributedSampler(ds, num_replicas=world_size, rank=rank, shuffle=True, seed=args.seed)
     loader = DataLoader(
         ds,
         batch_size=args.bs,

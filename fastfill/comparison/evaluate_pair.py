@@ -120,8 +120,10 @@ def evaluate(data, runs, out, repeats=2000, workers=1):
             with ProcessPoolExecutor(workers) as pool:
                 output_rows[arm] = list(pool.map(_score, tasks, chunksize=16))
     first, second = (receipts[arm] for arm in h.ARMS)
-    if first['base_sha256'] != second['base_sha256']:
+    if first['base_sha256'] != second['base_sha256']:  # Generic Qwen3-8B lineage root, also for merged stages.
         raise ValueError('base checkpoint mismatch between arms')
+    if first.get('stage') != second.get('stage'):  # Amendment 008: SFT (absent), dpo1 or dpo2.
+        raise ValueError('model stage mismatch between arms')
     if first.get('context_plan_sha256') != second.get('context_plan_sha256'):
         raise ValueError('paired context budget plan mismatch')
     if any(first['config'].get(k) != second['config'].get(k) for k in DECODE_KEYS):
