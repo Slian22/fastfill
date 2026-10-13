@@ -8,7 +8,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=96G
-#SBATCH --time=08:00:00
+#SBATCH --time=14:00:00
 #SBATCH --no-requeue
 #SBATCH --output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-dpo-infer-shard-%j.out
 # Amendment 008/009 stage inference shard: CODE_ROOT dpo1|dpo2 ARM SHARD_INDEX SHARD_COUNT INFER_ROOT [--resume]
@@ -59,7 +59,7 @@ r = h.strict_json((p / 'result.json').read_text())
 assert r['status'] == 'CAPACITY_COMPLETE' and r['batch_size'] == 8 and r['cached_tokens'] == 40960
 assert r['peak_allocated_bytes'] < .9 * r['gpu_total_bytes']
 PY
-exec timeout --signal=TERM --kill-after=60s 470m "$PROJECT_ROOT/env/bin/python" -B -u \
+exec timeout --signal=TERM --kill-after=60s 830m "$PROJECT_ROOT/env/bin/python" -B -u \
   -m fastfill.comparison.infer_shard shard --data "$PAIR_RUN_ROOT/eval-data-v1" \
   --base "$PROJECT_ROOT/models/Qwen3-8B" --arm "$PAIR_ARM" --model "$MODEL" --exact-policy --plan "$PAIR_INFER_ROOT/plan" \
   --shard-index "$PAIR_SHARD_INDEX" --shard-count "$PAIR_SHARD_COUNT" \

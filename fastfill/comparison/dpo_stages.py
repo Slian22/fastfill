@@ -240,7 +240,15 @@ def _merge(base, adapter, out, fields):
         'adapter': {'path': str(Path(adapter).resolve()), 'files': h.artifact_manifest(adapter)},
         'model': {'path': str(Path(out).resolve()), 'files': files}, 'model_sha256': i._hash(files),
         'merge': 'fastfill.merge_lora: BF16 PeftModel.merge_and_unload',
-        'merge_diagnostic': merge_diagnostic(base, out), 'code_sha256': _code()})
+        'merge_diagnostic': _safe_diagnostic(base, out), 'code_sha256': _code()})
+
+
+def _safe_diagnostic(parent, merged):
+    """A diagnostic failure must not strand a published merge without its lineage receipt."""
+    try:
+        return merge_diagnostic(parent, merged)
+    except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
+        return {'error': f'{type(exc).__name__}: {exc}'[:500]}
 
 
 def merge_diagnostic(parent, merged):

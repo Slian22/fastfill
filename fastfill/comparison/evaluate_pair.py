@@ -15,7 +15,7 @@ from fastfill.comparison.eval_data import PAPER_STRATA
 from fastfill.scene import norm_room_type
 
 DECODE_KEYS = ('max_new_tokens', 'max_input_tokens', 'context_budget', 'batch_size',
-               'logits_to_keep', 'do_sample', 'num_beams', 'dtype', 'attention')
+               'logits_to_keep', 'do_sample', 'num_beams', 'dtype', 'attention', 'lora')
 
 
 def _verified(root):
