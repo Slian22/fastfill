@@ -309,12 +309,15 @@ class Commands:
         evaluation = root / "eval-data-v1"
         write_json(evaluation / "rooms.jsonl", {"uid": "room-1"})
         seal(evaluation)
-        geometry = root / "geometry-v1"
-        write_json(geometry / "summary.json", {
-            "data_manifest_sha256": sha256(evaluation / "MANIFEST.json")})
-        for arm in ("joint", "placement"):
-            write_json(geometry / f"{arm}-geometry.jsonl", {"uid": "room-1", "arm": arm})
-        seal(geometry)
+        geometry = root / config["geometry_name"]
+        dirs = [(geometry, ("joint", "placement"))]
+        dirs += [(root / name, ("llm_harness",)) for name in config.get("agents", {}).values()]
+        for directory, arms in dirs:
+            write_json(directory / "summary.json", {
+                "data_manifest_sha256": sha256(evaluation / "MANIFEST.json")})
+            for arm in arms:
+                write_json(directory / f"{arm}-geometry.jsonl", {"uid": "room-1", "arm": arm})
+            seal(directory)
         seal(root / "main-data-v1", {})
         write_json(root / "receipts/geometry.json", {"status": "completed"})
         if scenario == "hash_mismatch":
@@ -412,7 +415,7 @@ class Commands:
 
     def prepare(self, argv):
         self.events.append("prepare")
-        assert "prepare" in argv and "--eval-data" in argv
+        assert ("prepare" in argv or "prepare-systems" in argv) and "--eval-data" in argv
         out = Path(argv[argv.index("--out") + 1])
         api = out / "api-bundle"
         write_json(api / "image.json", {"fake": "image bytes"})
@@ -424,7 +427,8 @@ class Commands:
         write_json(out / "api-mapping.json", {arm: {"uid": "room-1", "arm": arm, "stratum": "bedroom", "group": "g"} for arm in ("joint", "placement")})
         write_json(out / "api-failures.json", [])
         write_json(out / "fid-manifest.json", {"cases": []})
-        write_json(out / "preparation.json", {"status": "prepared", "counts": {"frozen": 1, "rendered": 1, "failed": 0, "gpt_selected": 1, "api_cases": 2}})
+        write_json(out / "preparation.json", {"status": "prepared", "counts": {"frozen": 1, "rendered": 1, "failed": 0, "gpt_selected": 1, "api_cases": 2},
+                                              **({"judged": ["J", "P", "L", "O5"]} if "prepare-systems" in argv else {})})
         seal(out)
         return json.dumps({"status": "prepared", "counts": {"frozen": 1, "rendered": 1, "failed": 0, "gpt_selected": 1, "api_cases": 2}}) + "\n"
 
@@ -466,6 +470,51 @@ def test_pipeline_happy_path_order_and_one_remote_launch(overnight, tmp_path, co
     out = Path(config["output_root"])
     assert list(out.rglob("request.result.json")), "individual remote results were not retained"
     assert list(out.rglob("tables.md")), "remote aggregate artifacts were not retained"
+
+
+def test_systems_mode_parameterized_names_render_and_judge_arms(overnight, tmp_path, config, monkeypatch):
+    config = {**config, "geometry_name": "geometry-v2", "agents": {"L": "llm-eval-001", "O5": "open-eval-o5"}}
+    endstate, commands, _ = simulated_run(overnight, tmp_path, config, monkeypatch, "completed")
+    assert endstate["status"] == "completed", endstate
+    downloads = "\n".join(shlex.join(argv) for argv, _, _ in commands.calls
+                          if Path(argv[0]).name == "rsync" and ":" in argv[-2])
+    assert all(name in downloads for name in ("geometry-v2", "llm-eval-001", "open-eval-o5"))
+    assert "geometry-v1" not in downloads
+    inputs = Path(config["output_root"]) / "inputs"
+    prepare = next(argv for argv, _, _ in commands.calls if "fastfill.comparison.visual_pipeline" in argv)
+    assert prepare[prepare.index("fastfill.comparison.visual_pipeline") + 1] == "prepare-systems"
+    assert [prepare[i + 1] for i, arg in enumerate(prepare) if arg == "--system"] == [
+        f"J={inputs / 'geometry-v2'}", f"P={inputs / 'geometry-v2'}",
+        f"L={inputs / 'llm-eval-001'}", f"O5={inputs / 'open-eval-o5'}"]
+    launch = next(shlex.join(argv) for argv, _, _ in commands.calls if "sbatch" in shlex.join(argv))
+    assert "--max-cases 800 --arms J,P,L,O5" in launch
+
+
+@pytest.mark.parametrize("agents", [None, {"L": "llm-eval-001"}])
+def test_final_tables_arguments_follow_geometry_name_and_agents(overnight, tmp_path, config, monkeypatch, agents):
+    extra = {"geometry_name": "geometry-v2", "final_tables": True, **({"agents": agents} if agents else {})}
+    driver = overnight.Driver(load(overnight, tmp_path, {**config, **extra}))
+    calls = []
+    monkeypatch.setattr(driver, "local_module", lambda module, args, timeout: calls.append([str(a) for a in args]))
+    write_json(driver.out / "remote-results/results/summary.json", {})
+    driver.aggregate()
+    inputs = driver.out / "inputs"
+    head = (["--system", f"J={inputs / 'geometry-v2'}", "--system", f"P={inputs / 'geometry-v2'}",
+             "--system", f"L={inputs / 'llm-eval-001'}"] if agents else ["--geometry", str(inputs / "geometry-v2")])
+    assert calls == [[*head, "--fid", str(driver.out / "fid.json"), "--judge",
+                      str(driver.out / "remote-results/results/summary.json"), "--out", str(driver.out / "final-results")]]
+
+
+@pytest.mark.parametrize("change", [{"agents": {"J": "x"}}, {"agents": {"X": "x"}}, {"agents": ["L"]},
+                                    {"agents": {"L": "geometry-v1"}}, {"agents": {"L": "a/b"}},
+                                    {"agents": {"L": "d", "O5": "d"}}, {"geometry_name": "../g"},
+                                    {"geometry_name": "eval-data-v1"}])
+def test_config_rejects_invalid_geometry_name_or_agents(overnight, tmp_path, config, change):
+    from fastfill.comparison import visual_pipeline
+    assert load(overnight, tmp_path, config)["geometry_name"] == "geometry-v1"
+    assert overnight.AGENTS == visual_pipeline.SYSTEMS[2:]
+    with pytest.raises(ValueError):
+        load(overnight, tmp_path, {**config, **change})
 
 
 @pytest.mark.parametrize("scenario", ["terminal_failure", "dependency_never", "timeout", "hash_mismatch"])

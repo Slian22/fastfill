@@ -26,6 +26,12 @@ provenance.json is required, frozen verbatim and included with all bundle file
 hashes in run_identity_sha256. Its geometry lineage is carried in provenance
 and at the summary top level; the final aggregator checks the actual geometry.
 When the visual MANIFEST.json is present, its bundle hashes are also verified.
+
+Systems mode (--arms J,P,L,O5; amendment 005 section 5): mapping arms are those
+labels, the hard cap is 800, the paired table is first-minus-second arm, and
+summary.endpoint holds the per-room mean of functionality/layout/aesthetics
+difference (first minus second) on rooms where both completed, with a
+percentile CI from 2,000 draws (seed 42) resampling rooms within stratum.
 """
 from __future__ import annotations
 
@@ -37,12 +43,16 @@ import json
 import math
 import os
 from pathlib import Path
+import random
+import statistics
 import subprocess
 import sys
 
 CAP = 348
+SYSTEMS_CAP = 800
 METRICS = ('functionality', 'layout', 'aesthetics', 'overall')
 ARMS = ('joint', 'placement')
+DRAWS, SEED = 2000, 42
 LINEAGE_HASHES = ('geometry_manifest_sha256', 'reference_manifest_sha256',
                   'data_manifest_sha256', 'corpus_manifest_sha256')
 
@@ -98,13 +108,24 @@ def _read_json(client, path):
     return client.strict_json(data, 'invalid_bundle_json'), digest(data)
 
 
-def _metadata(mapping):
+def _cap(arms):
+    return CAP if tuple(arms) == ARMS else SYSTEMS_CAP
+
+
+def _check_arms(arms):
+    if (not isinstance(arms, (list, tuple)) or len(arms) < 2 or len(set(arms)) != len(arms)
+            or any(not isinstance(a, str) or not a for a in arms)):
+        raise BatchError('invalid_arms')
+    return tuple(arms)
+
+
+def _metadata(mapping, arms=ARMS):
     if not isinstance(mapping, dict):
         raise BatchError('invalid_mapping')
     rows = []
     for cid, meta in mapping.items():
         if (not isinstance(cid, str) or not cid or not isinstance(meta, dict)
-                or meta.get('arm') not in ARMS
+                or meta.get('arm') not in arms
                 or any(not isinstance(meta.get(k), str) or not meta[k] for k in ('uid', 'stratum'))
                 or 'group' not in meta
                 or (meta['group'] is not None and not isinstance(meta['group'], (str, int)))):
@@ -124,7 +145,7 @@ def _metadata(mapping):
     return rows
 
 
-def _inputs(bundle, mapping, failures, client, max_cases, expected_total):
+def _inputs(bundle, mapping, failures, client, max_cases, expected_total, arms=ARMS):
     root = Path(bundle).resolve()
     if (root / 'api-bundle/manifest.json').is_file():
         root = root / 'api-bundle'
@@ -133,7 +154,7 @@ def _inputs(bundle, mapping, failures, client, max_cases, expected_total):
     fail_path = Path(failures) if failures is not None else root.parent / 'api-failures.json'
     meta, mapping_hash = _read_json(client, meta_path)
     failed, failures_hash = _read_json(client, fail_path)
-    rows = _metadata(meta)
+    rows = _metadata(meta, arms)
     if len(rows) > max_cases or (expected_total is not None and len(rows) != expected_total):
         raise BatchError('selected_count_out_of_bounds')
     if (not isinstance(manifest, dict) or type(manifest.get('schema_version')) is not int
@@ -164,11 +185,11 @@ def _inputs(bundle, mapping, failures, client, max_cases, expected_total):
             raise BatchError('failure_metadata_mismatch')
     provenance = {'bundle_manifest_sha256': manifest_hash, 'mapping_sha256': mapping_hash,
                   'failures_sha256': failures_hash}
-    lineage, raw_lineage = _bundle_lineage(client, root, provenance)
+    lineage, raw_lineage = _bundle_lineage(client, root, provenance, _cap(arms))
     return root, manifest, rows, dict(zip(failure_ids, failed)), {**provenance, **lineage}, raw_lineage
 
 
-def _bundle_inventory(client, root):
+def _bundle_inventory(client, root, cap=CAP):
     files = {}
     for path in sorted(root.rglob('*')):
         if not path.resolve().is_relative_to(root):
@@ -177,14 +198,14 @@ def _bundle_inventory(client, root):
             if path.is_symlink():
                 raise BatchError('bundle_directory_symlink')
             continue
-        if path.suffix not in {'.json', '.txt', '.png'} or len(files) >= CAP * 18 + 2:
+        if path.suffix not in {'.json', '.txt', '.png'} or len(files) >= cap * 18 + 2:
             raise BatchError('unexpected_bundle_file')
         data = client.bounded_read(path, client.MAX_IMAGE_BYTES, 'bundle_file_read_error')
         files[path.relative_to(root).as_posix()] = digest(data)
     return files
 
 
-def _bundle_lineage(client, root, inputs):
+def _bundle_lineage(client, root, inputs, cap=CAP):
     source = root / 'provenance.json'
     if not source.resolve().is_relative_to(root):
         raise BatchError('provenance_outside_bundle')
@@ -195,7 +216,7 @@ def _bundle_lineage(client, root, inputs):
             or any(not client.valid_hash(lineage.get(k)) for k in LINEAGE_HASHES)
             or lineage.get('corpus_link') not in {'verified', 'unverified_without_eval_data'}):
         raise BatchError('invalid_provenance')
-    files = _bundle_inventory(client, root)
+    files = _bundle_inventory(client, root, cap)
     if files.get('manifest.json') != inputs['bundle_manifest_sha256'] or files.get('provenance.json') != digest(data):
         raise BatchError('bundle_changed_during_preflight')
     visual_hash = None
@@ -314,16 +335,56 @@ def _aggregate(rows, arm, stratum):
                for m, values in scores.items()}}
 
 
-def _paired(rows, stratum):
+def _paired(rows, stratum, first='joint', second='placement'):
     uids = sorted({r['uid'] for r in rows})
     indexed = {(r['uid'], r['arm']): r for r in rows}
-    pairs = [(indexed.get((uid, 'joint')), indexed.get((uid, 'placement'))) for uid in uids]
+    pairs = [(indexed.get((uid, first)), indexed.get((uid, second))) for uid in uids]
     shared = [(a, b) for a, b in pairs if a and b and a['status'] == b['status'] == 'completed']
     values = {m: [a['scores'][m + '_score'] - b['scores'][m + '_score'] for a, b in shared
                   if m + '_score' in a['scores'] and m + '_score' in b['scores']] for m in METRICS}
-    return {'stratum': stratum, 'direction': 'joint_minus_placement', 'selected_pairs': len(pairs),
+    return {'stratum': stratum, 'direction': f'{first}_minus_{second}', 'selected_pairs': len(pairs),
             'shared_successful': len(shared), 'missing_pairs': len(pairs) - len(shared),
             **{m: {'count': len(v), 'mean_difference': _mean(v)} for m, v in values.items()}}
+
+
+def _room_mean(record):
+    return math.fsum(record['scores'][m + '_score'] for m in METRICS[:3]) / 3
+
+
+def _endpoint(records, first, second):
+    """Amendment 005 section 5 GPT endpoint; rooms where both arms completed."""
+    indexed = {(r['uid'], r['arm']): r for r in records}
+    strata, selected = {}, 0
+    for uid in sorted({r['uid'] for r in records}):
+        a, b = indexed.get((uid, first)), indexed.get((uid, second))
+        selected += bool(a and b)
+        if a and b and all(r['status'] == 'completed' and all(m + '_score' in r['scores'] for m in METRICS[:3])
+                           for r in (a, b)):
+            strata.setdefault(a['stratum'], []).append(_room_mean(a) - _room_mean(b))
+    groups = [strata[k] for k in sorted(strata)]
+    n = sum(map(len, groups))
+    rng = random.Random(SEED)
+    draws = [math.fsum(rng.choice(g) for g in groups for _ in g) / n for _ in range(DRAWS)] if n else []
+    cuts = statistics.quantiles(draws, n=40, method='inclusive') if n >= 2 else None
+    return {'definition': 'per_room_mean_of_functionality_layout_aesthetics',
+            'direction': f'{first}_minus_{second}', 'selected_pairs': selected, 'both_complete': n,
+            'both_complete_by_stratum': {k: len(strata[k]) for k in sorted(strata)},
+            'mean_difference': math.fsum(d for g in groups for d in g) / n if n else None,
+            'ci95': [cuts[0], cuts[-1]] if cuts else None,
+            'bootstrap': {'draws': DRAWS, 'seed': SEED, 'resample': 'rooms_within_stratum',
+                          'interval': 'percentile'}}
+
+
+def _validate_endpoint(endpoint, arms, cap):
+    n, selected, ci = endpoint['both_complete'], endpoint['selected_pairs'], endpoint['ci95']
+    value = endpoint['mean_difference']
+    if (type(n) is not int or type(selected) is not int or not 0 <= n <= selected <= cap
+            or endpoint['direction'] != f'{arms[0]}_minus_{arms[1]}'
+            or sum(endpoint['both_complete_by_stratum'].values()) != n or (value is None) != (n == 0)
+            or (value is not None and (type(value) not in (int, float) or not math.isfinite(value)))
+            or (ci is None) != (n < 2) or (ci is not None and (len(ci) != 2 or not all(
+                type(v) in (int, float) and math.isfinite(v) for v in ci) or ci[0] > ci[1]))):
+        raise BatchError('inconsistent_endpoint')
 
 
 def _compact(row):
@@ -332,10 +393,10 @@ def _compact(row):
             'score_counts': {m + '_score': row[m]['count'] for m in METRICS}}
 
 
-def _validate_compact(row):
+def _validate_compact(row, cap=CAP):
     requested, success, failed = (row[k] for k in ('requested', 'success', 'failed'))
     if (any(type(v) is not int or v < 0 for v in (requested, success, failed))
-            or not success <= requested <= CAP or failed != requested - success):
+            or not success <= requested <= cap or failed != requested - success):
         raise BatchError('inconsistent_summary_counts')
     for metric in METRICS:
         key = metric + '_score'
@@ -353,26 +414,30 @@ def _validate_compact(row):
 def validate_summary(summary):
     """Validate denominators and reported means before publishing any tables."""
     try:
+        labels = _check_arms(summary.get('arms', ARMS))
+        cap = _cap(labels)
         counts = summary['counts']
         selected, runnable, launched, success, failed = (counts[k] for k in
             ('selected', 'runnable', 'launched', 'success', 'failed'))
         if (any(type(v) is not int or v < 0 for v in (selected, runnable, launched, success, failed))
-                or not success <= launched <= runnable <= selected <= CAP or failed != selected - success):
+                or not success <= launched <= runnable <= selected <= cap or failed != selected - success):
             raise BatchError('inconsistent_summary_counts')
         groups = summary['by_stratum']
         arms = summary['by_arm']
         for group in [arms, *groups.values()]:
-            if set(group) != set(ARMS):
+            if set(group) != set(labels):
                 raise BatchError('invalid_summary_arms')
             for row in group.values():
-                _validate_compact(row)
+                _validate_compact(row, cap)
         for field, total in (('requested', selected), ('success', success), ('failed', failed)):
-            if sum(arms[arm][field] for arm in ARMS) != total:
+            if sum(arms[arm][field] for arm in labels) != total:
                 raise BatchError('inconsistent_summary_totals')
-            for arm in ARMS:
+            for arm in labels:
                 if sum(group[arm][field] for group in groups.values()) != arms[arm][field]:
                     raise BatchError('inconsistent_stratum_totals')
-        for arm in ARMS:
+        if labels != ARMS:
+            _validate_endpoint(summary['endpoint'], labels, cap)
+        for arm in labels:
             for metric in METRICS:
                 key = metric + '_score'
                 count = sum(group[arm]['score_counts'][key] for group in groups.values())
@@ -386,11 +451,13 @@ def validate_summary(summary):
         raise BatchError('invalid_summary_structure') from None
 
 
-def summarize(records, model, runnable):
+def summarize(records, model, runnable, arms=ARMS):
+    arms = _check_arms(arms)
     strata = sorted({r['stratum'] for r in records})
     aggregate = [_aggregate([r for r in records if r['arm'] == arm and (s is None or r['stratum'] == s)], arm, s)
-                 for s in [None, *strata] for arm in ARMS]
-    paired = [_paired([r for r in records if s is None or r['stratum'] == s], s) for s in [None, *strata]]
+                 for s in [None, *strata] for arm in arms]
+    paired = [_paired([r for r in records if s is None or r['stratum'] == s], s, *arms[:2])
+              for s in [None, *strata]]
     success = sum(r['status'] == 'completed' for r in records)
     summary = {'schema_version': 1, 'status': 'completed' if success == len(records) else 'partial',
             'model': model, 'counts': {'selected': len(records), 'runnable': runnable,
@@ -399,6 +466,8 @@ def summarize(records, model, runnable):
             'by_arm': {r['arm']: _compact(r) for r in aggregate if r['stratum'] is None},
             'by_stratum': {s: {r['arm']: _compact(r) for r in aggregate if r['stratum'] == s} for s in strata},
             'overall_policy': 'reported_only_no_imputation', 'replacement': False, 'retry': False}
+    if arms != ARMS:
+        summary = {**summary, 'arms': list(arms), 'endpoint': _endpoint(records, *arms[:2])}
     validate_summary(summary)
     return summary
 
@@ -425,18 +494,27 @@ def _tables(output, summary):
     for r in summary['aggregate']:
         cells = [r['arm'], r['stratum'] if r['stratum'] is not None else 'All', r['selected'], r['success']]
         lines.append('| ' + ' | '.join(map(label, cells + [value(r[m], 'mean') for m in METRICS])) + ' |')
-    lines += ['', 'Paired differences: joint minus placement, shared successful UIDs only.', '',
+    first, second = summary['paired'][0]['direction'].split('_minus_') if summary['paired'] else ARMS
+    lines += ['', f'Paired differences: {first} minus {second}, shared successful UIDs only.', '',
               '| Stratum | Selected pairs | Shared success | Functionality | Layout | Aesthetics | Overall |',
               '|---|---:|---:|---:|---:|---:|---:|']
     for r in summary['paired']:
         cells = [r['stratum'] if r['stratum'] is not None else 'All', r['selected_pairs'], r['shared_successful']]
         lines.append('| ' + ' | '.join(map(label, cells + [value(r[m], 'mean_difference') for m in METRICS])) + ' |')
+    if 'endpoint' in summary:
+        e = summary['endpoint']
+        estimate = 'NA' if e['mean_difference'] is None else f"{e['mean_difference']:.4f}"
+        interval = 'NA' if e['ci95'] is None else f"[{e['ci95'][0]:.4f}, {e['ci95'][1]:.4f}]"
+        lines += ['', f"Endpoint ({e['direction']}, per-room mean of functionality/layout/aesthetics): "
+                  f"{estimate}, 95% CI {interval}, both complete {e['both_complete']}/{e['selected_pairs']} "
+                  f"(stratified bootstrap, {DRAWS} draws, seed {SEED})."]
     (output / 'tables.md').write_text('\n'.join(lines) + '\n')
 
 
 def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=None,
-             expected_total=None, timeout=90):
-    if (type(max_cases) is not int or not 1 <= max_cases <= CAP
+             expected_total=None, timeout=90, arms=ARMS):
+    arms = _check_arms(arms)
+    if (type(max_cases) is not int or not 1 <= max_cases <= _cap(arms)
             or (expected_total is not None and (type(expected_total) is not int or not 0 <= expected_total <= max_cases))
             or type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 600):
         raise BatchError('invalid_bounds')
@@ -450,7 +528,7 @@ def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=No
         raise BatchError('client_changed_during_load')
     try:
         root, manifest, metadata, failed, provenance, raw_lineage = _inputs(
-            bundle, mapping, failures, api, max_cases, expected_total)
+            bundle, mapping, failures, api, max_cases, expected_total, arms)
     except api.JudgeError as exc:
         raise BatchError(str(exc)) from None
     if output.resolve().is_relative_to(root) or root.is_relative_to(output.resolve()):
@@ -492,7 +570,7 @@ def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=No
             stream.write(canonical(record) + b'\n')
             stream.flush()
             os.fsync(stream.fileno())
-    summary = {**summarize(records, manifest['expected_model'], len(frozen)), **provenance,
+    summary = {**summarize(records, manifest['expected_model'], len(frozen), arms), **provenance,
                'client_sha256': digest(client_bytes),
                'snapshot_sha256': digest((output / 'snapshot.json').read_bytes())}
     _write(output / 'summary.json', summary)
@@ -509,6 +587,7 @@ def main(argv=None):
     parser.add_argument('--max-cases', type=int, default=CAP)
     parser.add_argument('--expected-total', type=int)
     parser.add_argument('--timeout', type=float, default=90)
+    parser.add_argument('--arms', type=lambda v: tuple(v.split(',')), default=ARMS)
     args = parser.parse_args(argv)
     try:
         summary = evaluate(**vars(args))

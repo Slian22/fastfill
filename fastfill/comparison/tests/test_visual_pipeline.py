@@ -89,7 +89,7 @@ def fake_blender(calls, *, statuses=None, corrupt=None, timeout=False):
             receipt = dict(uid=case['uid'], status=state)
             if state == 'rendered':
                 images, hashes = {}, {}
-                for arm in ('reference', 'joint', 'placement'):
+                for arm in case['layouts']:
                     images[arm], hashes[arm] = {}, {}
                     for view in ('perspective', 'top'):
                         path = output / case['uid'] / arm / f'{view}.png'
@@ -437,3 +437,66 @@ def test_all_1009_frozen_cases_and_174_selection_accounted_without_render(tmp_pa
     assert len(json.loads((out / 'api-mapping.json').read_text())) == 348
     assert len(json.loads((out / 'api-failures.json').read_text())) == 348
     assert len(json.loads((out / 'fid-manifest.json').read_text())['cases']) == 1009
+
+
+def agent_dir(tmp_path, name, cases, evaluation, fail=(), drop=()):
+    root = tmp_path / name
+    write(root / 'summary.json', {'status': 'LLM_COMPARISON_COMPLETE',
+                                  'data_manifest_sha256': render.file_sha256(evaluation / 'MANIFEST.json')})
+    rows(root / 'llm_harness-geometry.jsonl', [dict(
+        uid=c['uid'], arm='llm_harness', source=c['source'], group='g', complete=c['uid'] not in fail,
+        raw_layout=copy.deepcopy(c['layouts']['reference'])) for c in cases if c['uid'] not in drop])
+    seal(root)
+    return root
+
+
+def test_prepare_systems_renders_every_system_and_keeps_per_system_failures(tmp_path, monkeypatch):
+    ref, geo, evaluation, cases = fixture(tmp_path)
+    llm = agent_dir(tmp_path, 'llm', cases, evaluation, fail={'room-1'}, drop={'room-2'})
+    o5, o1a = (agent_dir(tmp_path, name, cases, evaluation) for name in ('o5', 'o1a'))
+    calls = []
+    monkeypatch.setattr(pipeline.subprocess, 'run', fake_blender(calls))
+    out = tmp_path / 'visual'
+    argv = ['prepare-systems', '--reference-dir', str(ref), '--out', str(out), '--blender-path', '/mock',
+            '--eval-data', str(evaluation)]
+    for label, root in (('J', geo), ('P', geo), ('L', llm), ('O5', o5), ('O1a', o1a)):
+        argv += ['--system', f'{label}={root}']
+    assert pipeline.main(argv) == 0
+    result = json.loads((out / 'preparation.json').read_text())
+    assert result['judged'] == ['J', 'P', 'L', 'O5']
+    assert result['counts']['system_rendered'] == {'J': 4, 'P': 4, 'L': 2, 'O1a': 4, 'O5': 4}
+    assert result['counts']['rendered'] == 4 and result['counts']['failed'] == 0
+    lineage = pipeline.systems_lineage(pipeline._systems({'J': geo, 'P': geo, 'L': llm, 'O1a': o1a, 'O5': o5}))
+    assert result['systems'] == lineage
+    assert (lineage['J']['arm'], lineage['P']['arm'], lineage['L']['arm']) == ('joint', 'placement', 'llm_harness')
+    provenance = json.loads((out / 'api-bundle/provenance.json').read_text())
+    assert provenance['geometry_manifest_sha256'] == render.json_sha256(lineage)
+    data, fid_cases, _ = pipeline.fid._load_manifest(out / 'fid-manifest.json')
+    assert data['systems'] == ['J', 'P', 'L', 'O1a', 'O5']
+    checked, failures = pipeline.fid._inspect_cases(fid_cases, out, pipeline.fid._arms(data))
+    assert [u for u, c in checked.items() if c['candidate']] == ['room-0', 'room-3']
+    assert {(f['uid'], f['arm']) for f in failures} == {('room-1', 'L'), ('room-2', 'L')}
+    mapping = json.loads((out / 'api-mapping.json').read_text())
+    api = json.loads((out / 'api-bundle/manifest.json').read_text())
+    api_failures = json.loads((out / 'api-failures.json').read_text())
+    assert len(mapping) == 16 and len(api['cases']) == 14 and result['counts']['api_cases'] == 14
+    assert {m['arm'] for m in mapping.values()} == {'J', 'P', 'L', 'O5'}
+    assert {(f['uid'], f['arm'], f['failure']['stage']) for f in api_failures} == {
+        ('room-1', 'L', 'attachment'), ('room-2', 'L', 'attachment')}
+    assert all(len(c['images']) == 2 for c in api['cases'])
+
+
+def test_prepare_systems_fails_closed_on_labels_and_mixed_evaluation_data(tmp_path, monkeypatch):
+    ref, geo, evaluation, cases = fixture(tmp_path)
+    monkeypatch.setattr(pipeline.subprocess, 'run', lambda *a, **k: pytest.fail('render launched'))
+    for systems in ({'J': geo}, {'J': geo, 'P': geo, 'X': geo}, {'J': geo, 'P': geo, 'o5': geo}):
+        with pytest.raises(ValueError, match='systems'):
+            pipeline.prepare_systems(ref, systems, tmp_path / 'out', '/mock')
+    llm = agent_dir(tmp_path, 'llm', cases, evaluation)
+    write(llm / 'summary.json', {'data_manifest_sha256': 'f' * 64})
+    seal(llm)
+    with pytest.raises(ValueError, match='evaluation manifest'):
+        pipeline.prepare_systems(ref, {'J': geo, 'P': geo, 'L': llm}, tmp_path / 'out', '/mock')
+    assert not (tmp_path / 'out').exists()
+    assert pipeline.judged_systems(['J', 'P', 'O4', 'O5', 'O1a']) == ['J', 'P', 'O5']
+    assert pipeline.judged_systems(['J', 'P', 'L', 'O4']) == ['J', 'P', 'L', 'O4']

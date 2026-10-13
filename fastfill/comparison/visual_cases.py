@@ -19,6 +19,8 @@ the ledger. geometry.score's complete flag is its schema-completion contract;
 an explicit schema_complete=False always fails. Only raw_layout is consumed.
 All three layouts share reference context/cameras; either arm's failure prevents
 the whole paired case. Separate reference rendering can use the frozen cases.
+attach_systems(reference_cases, {label: (jsonl, arm)}) is the N-system variant:
+same per-system checks, but a system's failure removes only that system's layout.
 
 CLI: python -m fastfill.comparison.visual_cases freeze --export ... --receipt ...
      --assetmap ... --out ...
@@ -39,6 +41,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import tempfile
 from types import FunctionType
 
@@ -298,34 +301,55 @@ def _prediction(row, case, arm):
     return copy.deepcopy(objects)
 
 
-def attach_predictions(reference_cases, joint, placement):
-    """Return paired cases and an all-UID failure ledger; never replace failures."""
-    paths = dict(reference_cases=Path(reference_cases), joint=Path(joint), placement=Path(placement))
+def _attach_layouts(reference_cases, systems, require_all):
+    paths = {'reference_cases': Path(reference_cases), **{k: Path(p) for k, (p, _) in systems.items()}}
     hashes = {key + '_sha256': sha256(path) for key, path in paths.items()}
     refs = _index(_read_rows(paths['reference_cases']))
-    predictions = {arm: _index(_read_rows(paths[arm])) for arm in ('joint', 'placement')}
-    for arm, records in predictions.items():
+    predictions = {name: _index(_read_rows(paths[name])) for name in systems}
+    for name, records in predictions.items():
         if records.keys() - refs.keys():
-            raise ValueError(f'{arm}: foreign prediction UID outside reference cohort')
+            raise ValueError(f'{name}: foreign prediction UID outside reference cohort')
     cases, ledger = [], []
     for uid, case in refs.items():
         errors, layouts = {}, {}
         if case.get('reference_eligible') is not True:
             errors['reference'] = case.get('input_error', 'reference_ineligible')
-        for arm, records in predictions.items():
+        for name, (_, arm) in systems.items():
             try:
-                layouts[arm] = _prediction(records.get(uid), case, arm)
+                layouts[name] = _prediction(predictions[name].get(uid), case, arm)
             except ERRORS as exc:
-                errors[arm] = str(exc)
-        if not errors:
+                errors[name] = str(exc)
+        renderable = not errors if require_all else 'reference' not in errors and bool(layouts)
+        if renderable:
             cases.append({**copy.deepcopy(case), 'layouts': {**copy.deepcopy(case['layouts']), **layouts},
                           'schema_complete': True, 'prediction_provenance': hashes})
-        ledger.append({'uid': uid, 'stratum': case['stratum'], 'status': 'failed' if errors else 'renderable',
-                       'schema_complete': {arm: arm not in errors for arm in predictions}, 'errors': errors})
+        ledger.append({'uid': uid, 'stratum': case['stratum'], 'status': 'renderable' if renderable else 'failed',
+                       'schema_complete': {name: name not in errors for name in systems}, 'errors': errors})
     if any(sha256(path) != hashes[key + '_sha256'] for key, path in paths.items()):
         raise ValueError('input hash changed during attachment')
     return {'cases': cases, 'ledger': ledger, 'provenance': hashes,
             'counts': {'reference_cohort': len(refs), 'renderable': len(cases), 'failed': len(refs)-len(cases)}}
+
+
+def attach_predictions(reference_cases, joint, placement):
+    """Return paired cases and an all-UID failure ledger; never replace failures."""
+    return _attach_layouts(reference_cases, {'joint': (joint, 'joint'), 'placement': (placement, 'placement')}, True)
+
+
+def attach_systems(reference_cases, systems):
+    """N-system attachment; systems maps layout label -> (geometry JSONL, arm).
+
+    Unlike the J/P pair, one system's failure never removes another system's
+    layout: a case keeps the reference plus every successful system and renders
+    when the reference is eligible and any system succeeded. Every per-system
+    error stays in the ledger; consumers choose their cohort (FID: all-system
+    intersection, judge: per system) without dropping failures from denominators.
+    """
+    for label in systems:
+        if (not isinstance(label, str) or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*', label)
+                or label in ('reference', 'reference_cases')):
+            raise ValueError(f'invalid system label: {label}')
+    return _attach_layouts(reference_cases, systems, False)
 
 
 def main():
