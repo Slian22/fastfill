@@ -69,3 +69,11 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - 锁定修订：26a841a3c（已部署对比代码入库）、823cab3e9（修订002：共享长度排序计划、输入派生生成上限、LoRA 合并、分片+续跑+合并、LLM agent 臂、共同主指标、交付规则、GPU 上限200）、780bf7804（修订003：Qwen3-8B 两种模式、Qwen3-VL-32B、Qwen3-VL-235B FP8、条件性 gpt-oss-120b；GPU 上限260）。均在任何测试输出产生之前。
 - 已推送 GitHub main（be521c581，干净检出 722 测试通过）。源修正（Scan2CAD/IL3D 开口/SpatialGen 倾斜）代码与 v3.3 数据在 wf_2c387d07-73e 中对原始数据独立核验，通过后才构建并上传 HF。
 - 服务器：vLLM 冒烟 7382244 因 flashinfer 采样 JIT 编译失败，改 `VLLM_USE_FLASHINFER_SAMPLER=0` 重提 7382555；gpt-oss-120b 下载 7382259 因 `--exclude` 写法错误失败，重提 7382556。
+
+## 2026-10-13 18:01–18:32 UTC — 部署 API agent、开源模型下载、源修正核验结论
+
+- 源修正核验（wf_2c387d07-73e，6 agent）：SpatialGen 修正正确；Scan2CAD 数学正确但范围过大（13,509 个 tilt≤10° 直立物体尺寸被包围盒放大，高度中位 +3.7 cm，地面穿透比例上升），应只改 tilt>10° 的 640 个；IL3D candidate-001 由过期 adapter 生成（328 个窗 yaw 翻转 π），且拱窗回归、湾窗策略待定。HF 发布 NO-GO；候选 002 修正流程 wf_d06f14d0-a6b 运行中。v1_1 包 + merge_lora 原子保存单独提交推送（051726074）。
+- Agency 审计（wf_39f38da6-e7d）：训练正确无需重训；数据无泄漏、无划分污染；指标计算正确。交付规则需尺寸偏差护栏 → 修订 005（8d650094e）。修订 004（926fbcdb9）按 2026-10 主流开源模型重选：Qwen3-8B×2、Qwen3.6-27B、gemma-4-31b-it、gpt-oss-120b、DeepSeek-V4-Flash-0731；Kimi K3 / GLM-5.2 超出单节点不运行。
+- 推理 v2（fc41cc4a3）与 LLM agent（ad3b9ecdf）合并入 main，746 测试通过；快照 main-8d650094e 部署服务器（305 文件哈希一致）。
+- API agent：冒烟 7382896 通过（2/2 首答合法，~20 s/次），全量 7382898（1,454 间，gpt-6.1-sol medium）运行中；cohort uids_sha256 4afccef7…。
+- 模型：gpt-oss-120b 移入 $PROJECTDIR/fastfill/models 并 sha256 校验（61G）；7382840 已下载 Qwen3.6-27B、gemma-4-31b-it，DeepSeek-V4-Flash-0731 下载中；vLLM 0.31 支持全部五种架构。
