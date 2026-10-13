@@ -1,5 +1,5 @@
 #!/bin/bash
-# Amendment 008 chain (SFT -> DPO1 -> DPO2, both arms, then stage evaluations); run by the parent on the
+# Amendment 008/009 chain (SFT -> DPO1 -> DPO2, both arms, then stage evaluations); run by the parent on the
 # Isambard login node:
 #   submit_dpo_stages.sh CODE_ROOT JOINT_SFT_JOB PLACEMENT_SFT_JOB [N=4]
 # Pass '-' for an SFT job that has left Slurm (every step re-verifies TRAINING_COMPLETE itself).
@@ -10,10 +10,10 @@
 #   merge-sft ARM (CPU)   <- plans + ARM's SFT job
 #   generate ARM (1 GPU)  <- positives + merge-sft ARM
 #   stage1-pairs (CPU)    <- both generates           stage2-pairs (CPU) <- positives
-#   train ARM dpo1 (1 GPU) <- stage1-pairs (+ merge-sft ARM through generate)
-#   train ARM dpo2 (1 GPU) <- train ARM dpo1 + stage2-pairs
+#   train ARM dpo1 (4 GPUs) <- stage1-pairs (+ merge-sft ARM through generate)
+#   train ARM dpo2 (4 GPUs) <- train ARM dpo1 + stage2-pairs
 #   per stage (dpo1 -> infer-v2-003, geometry-v3; dpo2 -> infer-v2-004, geometry-v4):
-#     N shards per arm <- train ARM STAGE; merge ARM <- its shards; geometry <- both merges
+#     N exact-policy shards per arm <- train ARM STAGE; merge ARM <- its shards; geometry <- both merges
 # Timed-out GPU steps are resubmitted by hand with the same arguments (shards add --resume).
 set -euo pipefail
 test "$#" -ge 3 -a "$#" -le 4

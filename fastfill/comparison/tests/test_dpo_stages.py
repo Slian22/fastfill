@@ -1,4 +1,4 @@
-"""Amendment 008 DPO stages on CPU: fakes stand in for vLLM, train_dpo, merge_lora and Slurm."""
+"""Amendments 008/009 DPO stages on CPU: fakes stand in for vLLM, train_dpo, merge_lora and Slurm."""
 import copy
 import json
 import math
@@ -370,18 +370,22 @@ def test_schedule_is_seeded_by_uid_only():
 def fake_train(calls):
     from fastfill.v1_1 import train_dpo
 
-    def run(command, check):
-        assert check is True and command[1:3] == ['-m', 'fastfill.v1_1.train_dpo']
-        flags = dict(zip(command[3::2], command[4::2]))
+    def run(command, check, world=None):
+        # torchrun DDP as v1.1: per device 1 x WORLD ranks x grad_accum; DistributedSampler pads the last batch.
+        assert check is True and command[1:7] == ['-m', 'torch.distributed.run', '--standalone',
+                                                  '--nproc_per_node=4', '-m', 'fastfill.v1_1.train_dpo']
+        flags = dict(zip(command[7::2], command[8::2]))
         calls.append(flags)
         out, final = Path(flags['--out']), Path(flags['--out']) / 'final'
         final.mkdir(parents=True)
         for name in ('adapter_config.json', 'tokenizer_config.json', 'tokenizer.json'):
             (final / name).write_text('{}')
         (final / 'adapter_model.safetensors').write_bytes(SAFETENSORS)
+        world = world or int(command[4].split('=')[1])
         count = len(Path(flags['--pairs']).read_text().splitlines())
-        steps = int(flags['--epochs']) * math.ceil(count / int(flags['--grad_accum']))
-        train_dpo.write_dpo_completion(final, out, count, count, 1, int(flags['--epochs']), steps, steps)
+        batches = math.ceil(count / (int(flags['--bs']) * world))
+        steps = int(flags['--epochs']) * math.ceil(batches / int(flags['--grad_accum']))
+        train_dpo.write_dpo_completion(final, out, count, batches, world, int(flags['--epochs']), steps, steps)
     return run
 
 
@@ -392,9 +396,11 @@ def test_train_both_stages_recipe_guard_merge_and_lineage(pipeline, monkeypatch)
         for arm in h.ARMS:
             receipt = d.train(args(dpo_root=root, arm=arm, stage=stage))
             assert receipt['stage'] == stage and receipt['base_sha256'] == ROOT_SHA
-    recipe = {'--beta': '0.1', '--lr': '5e-07', '--epochs': '5', '--bs': '1', '--grad_accum': '16',
-              '--max_len': '8192', '--lora_r': '16', '--lora_alpha': '32', '--save_steps': '50', '--seed': '42'}
+    # Amendment 009: official README values; effective batch 4 = 1 per device x 4 GPUs x accumulation 1.
+    recipe = {'--beta': '0.1', '--lr': '5e-06', '--epochs': '10', '--bs': '1', '--grad_accum': '1',
+              '--max_len': '8192', '--lora_r': '32', '--lora_alpha': '16', '--save_steps': '100', '--seed': '42'}
     assert [{k: v for k, v in c.items() if k in recipe} for c in calls] == [recipe] * 4
+    assert d.WORLD_SIZE * d.RECIPE['bs'] * d.RECIPE['grad_accum'] == d.TRAIN_FIXED['effective_batch'] == 4
     assert [(Path(c['--model']).name, Path(c['--pairs']).parent.name) for c in calls] == [
         ('sft-merged', 'stage1-pairs'), ('sft-merged', 'stage1-pairs'),
         ('dpo1-merged', 'stage2-pairs'), ('dpo1-merged', 'stage2-pairs')]
@@ -402,6 +408,11 @@ def test_train_both_stages_recipe_guard_merge_and_lineage(pipeline, monkeypatch)
     assert all(g_['settings'] == {**d.RECIPE, **d.TRAIN_FIXED} for g_ in guards)
     final = d.verify_merged(root / 'placement/dpo2-merged', 'placement', 'dpo2')
     assert final['parent']['stage'] == 'dpo1' and final['training']['pairs']['count'] == 5
+    assert final['training']['completion']['steps'] == 10 * math.ceil(5 / 4)  # 5 pairs on 4 ranks: 2 batches/epoch.
+    # The fake merge leaves the one tensor unchanged; the real diagnostic compared parent and merged files.
+    assert final['merge_diagnostic'] == {'modules': {'other': {'changed': 0, 'total': 1, 'fraction': 0.0}},
+                                         'dtypes': ['torch.float32'], 'tensors_only_in_parent': 0,
+                                         'tensors_only_in_merged': 0}
     assert d.train(args(dpo_root=root, arm='joint', stage='dpo2'))['stage'] == 'dpo2' and len(calls) == 4  # Done: verify only.
     (root / 'joint/dpo2-merged/model.safetensors').write_bytes(SAFETENSORS[:-1] + b'\1')
     with pytest.raises(ValueError, match='bytes differ'):
@@ -417,7 +428,7 @@ def test_train_refuses_incomplete_completion_and_dropped_pairs(pipeline, monkeyp
     root = pipeline.root
     def short(command, check):
         fake_train([])(command, check)
-        flags = dict(zip(command[3::2], command[4::2]))
+        flags = dict(zip(command[7::2], command[8::2]))
         path = Path(flags['--out']) / 'final/completion.json'
         value = json.loads(path.read_text())
         path.write_text(json.dumps({**value, 'admitted_pairs': value['admitted_pairs'] - 1}))
@@ -425,6 +436,11 @@ def test_train_refuses_incomplete_completion_and_dropped_pairs(pipeline, monkeyp
     with pytest.raises(ValueError, match='every pair'):
         d.train(args(dpo_root=root, arm='joint', stage='dpo1'))
     assert not (root / 'joint/dpo1-merged').exists()
+    # A run that was not the 4-rank DDP recipe (here one process, all steps done) is refused as well.
+    monkeypatch.setattr(d.subprocess, 'run', lambda command, check: fake_train([])(command, check, world=1))
+    with pytest.raises(ValueError, match='every pair'):
+        d.train(args(dpo_root=root, arm='placement', stage='dpo1'))
+    assert not (root / 'placement/dpo1-merged').exists()
     monkeypatch.setattr(d, 'MAX_LEN', 50)  # train_dpo would silently skip every pair.
     with pytest.raises(ValueError, match='drop pairs'):
         d.preflight(root / 'placement/sft-merged', root / 'stage1-pairs/placement.jsonl', 4)
@@ -442,6 +458,121 @@ def test_inference_identity_uses_generic_lineage_root(pipeline, monkeypatch):
     monkeypatch.setattr(d.h, 'base_receipt', lambda base: {**BASE, 'revision': 'other'})
     with pytest.raises(ValueError, match='lineage root'):
         d.inference_identity(run)
+
+
+def test_exact_policy_identity_binds_training_base_and_unmerged_adapter(pipeline, monkeypatch):
+    root = pipeline.root
+    monkeypatch.setattr(d.subprocess, 'run', fake_train([]))
+    monkeypatch.setattr(d.h, 'base_receipt', lambda base: BASE)
+    for stage in ('dpo1', 'dpo2'):
+        d.train(args(dpo_root=root, arm='joint', stage=stage))
+    run = types.SimpleNamespace(model=root / 'joint/dpo2-merged', arm='joint', base=Path('/models/Qwen3-8B'),
+                                exact_policy=True)
+    identity = d.inference_identity(run)
+    assert identity['stage'] == 'dpo2' and identity['base_sha256'] == ROOT_SHA and 'model_sha256' not in identity
+    assert identity['policy'] == {  # The stage adapter on the merged previous stage it was trained on.
+        'mode': 'unmerged_fp32_adapter_on_bf16_training_base',
+        'training_base': str((root / 'joint/dpo1-merged').resolve()),
+        'training_base_sha256': h.strict_json((root / 'joint/dpo1-merged.json').read_text())['model_sha256'],
+        'adapter': str((root / 'joint/dpo2/final').resolve()),
+        'adapter_sha256': s.i._hash(h.artifact_manifest(root / 'joint/dpo2/final'))}
+    assert identity['lineage_sha256'] == h.sha256(root / 'joint/dpo2-merged.json')
+    # The merged stage model is not what is evaluated, so its bytes are not part of the exact identity.
+    (root / 'joint/dpo2-merged/model.safetensors').write_bytes(SAFETENSORS[:-1] + b'\1')
+    assert d.inference_identity(run) == identity
+    with pytest.raises(ValueError, match='bytes differ'):
+        d.inference_identity(types.SimpleNamespace(**{**vars(run), 'exact_policy': False}))
+    (root / 'joint/dpo2/final/adapter_model.safetensors').write_bytes(SAFETENSORS[:-1] + b'\1')
+    with pytest.raises(ValueError, match='stage adapter bytes differ'):
+        d.inference_identity(run)
+    (root / 'joint/dpo1-merged/model.safetensors').write_bytes(SAFETENSORS[:-1] + b'\1')
+    with pytest.raises(ValueError, match='bytes differ from its lineage receipt'):  # Training base rehashed.
+        d.inference_identity(run)
+    with pytest.raises(ValueError, match='DPO stages only'):
+        d.inference_identity(types.SimpleNamespace(**{**vars(run), 'model': root / 'joint/sft-merged'}))
+
+
+def test_merge_diagnostic_counts_changed_bf16_weights_per_module(tmp_path):
+    import torch
+    from safetensors.torch import save_file
+    q, down = 'model.layers.0.self_attn.q_proj.weight', 'model.layers.0.mlp.down_proj.weight'
+    parent = {q: torch.zeros(4, 4, dtype=torch.bfloat16), down: torch.ones(2, 8, dtype=torch.bfloat16),
+              'model.norm.weight': torch.ones(4, dtype=torch.bfloat16), 'lm_head.weight': torch.ones(2, dtype=torch.bfloat16)}
+    merged = {k: v.clone() for k, v in parent.items() if k != 'lm_head.weight'}
+    merged[q][0, :2] = 1e-3                      # 2 of 16 q_proj weights change.
+    merged[down] += 1e-4                         # Below half a BF16 ULP of 1.0: the merge rounds it away.
+    for name, tensors in (('parent', parent), ('merged', merged)):
+        (tmp_path / name).mkdir()
+        items = sorted(tensors.items())
+        save_file(dict(items[:2]), str(tmp_path / name / 'model-00001-of-00002.safetensors'))
+        save_file(dict(items[2:]), str(tmp_path / name / 'model-00002-of-00002.safetensors'))
+    assert d.merge_diagnostic(tmp_path / 'parent', tmp_path / 'merged') == {
+        'modules': {'down_proj': {'changed': 0, 'total': 16, 'fraction': 0.0},
+                    'other': {'changed': 0, 'total': 4, 'fraction': 0.0},
+                    'q_proj': {'changed': 2, 'total': 16, 'fraction': 0.125}},
+        'dtypes': ['torch.bfloat16'], 'tensors_only_in_parent': 1, 'tensors_only_in_merged': 0}
+
+
+def test_runtime_exact_policy_keeps_fp32_adapter_unmerged_on_training_base():
+    import contextlib
+    import sys
+    from unittest.mock import Mock
+    tok = Mock(pad_token_id=0)
+    tok.get_vocab.return_value = {'<|im_end|>': T.EOS}
+    auto, peft = Mock(), Mock()
+    modules = {
+        'torch': types.SimpleNamespace(bfloat16='bf16', inference_mode=contextlib.nullcontext,
+            cuda=Mock(device_count=Mock(return_value=1), is_bf16_supported=Mock(return_value=True))),
+        'transformers': types.SimpleNamespace(AutoTokenizer=Mock(from_pretrained=Mock(return_value=tok)),
+            AutoModelForCausalLM=auto, GenerationConfig=lambda **kw: types.SimpleNamespace(**kw)),
+        'peft': types.SimpleNamespace(PeftModel=peft)}
+    run = types.SimpleNamespace(base=Path('/dpo1-merged'), adapter=Path('/dpo2/final'), exact_policy=True,
+                                max_new_tokens=8, context_budget=20)
+    with patch.dict(sys.modules, modules), patch.dict('os.environ', {'WORLD_SIZE': '1'}):
+        s.i._runtime(run, merge=False)
+        with pytest.raises(ValueError, match='unmerged adapter'):
+            s.i._runtime(run, merge=True)
+    assert auto.from_pretrained.call_args.args == ('/dpo1-merged',)
+    assert peft.from_pretrained.call_args.args[1:] == ('/dpo2/final',)
+    assert peft.from_pretrained.call_args.kwargs['autocast_adapter_dtype'] is True  # FP32 LoRA, as train_dpo.
+    peft.from_pretrained.return_value.merge_and_unload.assert_not_called()
+    peft.from_pretrained.return_value.eval.assert_called_once()
+
+
+def test_exact_policy_shards_load_unmerged_policy_and_results_carry_the_stage(tmp_path):
+    data = T.make_data(tmp_path)
+    plan = T.make_plan(tmp_path, data)
+    outs = {}
+    for arm in h.ARMS:
+        policy = {'mode': 'unmerged_fp32_adapter_on_bf16_training_base', 'training_base': str(tmp_path / arm / 'dpo1-merged'),
+                  'training_base_sha256': arm[0] * 64, 'adapter': str(tmp_path / arm / 'dpo2/final'), 'adapter_sha256': 'e' * 64}
+        identity = {'base': {}, 'base_sha256': 'b' * 64, 'training_data': {'manifest_sha256': 'a' * 64},
+                    'stage': 'dpo2', 'policy': policy, 'lineage_sha256': '0' * 64}
+        shards = []
+        for k in range(2):
+            a = merged_shard_args(tmp_path, data, plan, arm, k, out=tmp_path / '004' / arm / f'shard-{k:02d}',
+                                  extra=('--exact-policy',))
+            with patch('fastfill.comparison.dpo_stages.inference_identity', return_value=identity) as verified, \
+                    patch.object(s.i, '_runtime', return_value=(T.Tok(), T.fake_generate(), T.EOS)) as runtime:
+                assert s.shard(a)['status'] == 'SHARD_COMPLETE'
+            assert verified.call_args.args[0].exact_policy is True and verified.call_args.args[0].model == a.model
+            loaded = runtime.call_args
+            assert loaded.kwargs == {'merge': False} and not hasattr(loaded.args[0], 'model')
+            assert (loaded.args[0].base, loaded.args[0].adapter, loaded.args[0].exact_policy) == (
+                Path(policy['training_base']), Path(policy['adapter']), True)
+            shards.append(a.out)
+        outs[arm] = T.merge(tmp_path, data, plan, arm, shards, name=f'infer-{arm}-004')
+    receipt = h.strict_json((outs['joint'] / 'run_receipt.json').read_text())
+    assert receipt['config']['lora'] == 'unmerged_fp32_stage_adapter_on_bf16_training_base'
+    assert receipt['policy']['training_base_sha256'] == 'j' * 64 and receipt['stage'] == 'dpo2'
+    summary = evaluate_pair.evaluate(data, outs, tmp_path / 'geometry-v4', repeats=20)
+    assert summary['stage'] == 'dpo2' and h.strict_json((tmp_path / 'geometry-v4/summary.json').read_text())['stage'] == 'dpo2'
+    assert '模型阶段（stage）：dpo2' in (tmp_path / 'geometry-v4/report.md').read_text()
+    alone = s.parse_args(['shard', '--data', str(data), '--base', str(tmp_path), '--adapter', str(tmp_path / 'a'),
+                          '--training-run', str(tmp_path), '--exact-policy', '--arm', 'joint', '--plan', str(plan),
+                          '--shard-index', '0', '--shard-count', '2', '--out', str(tmp_path / 'x')])
+    with pytest.raises(ValueError, match='--exact-policy'):  # Only with --model (a DPO stage's lineage receipt).
+        s.shard(alone)
 
 
 def merged_shard_args(root, data, plan, arm, index, count=2, out=None, extra=()):
@@ -566,6 +697,20 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     assert (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101\n'
     bad = subprocess.run(['bash', str(scripts / 'submit_dpo_stages.sh'), str(code), 'x', '-'], env=env)
     assert bad.returncode != 0 and len((tmp_path / 'log').read_text().splitlines()) == 22
+    # Amendment 009: 4 GPUs of one node for torchrun DDP within 12 h (inner timeout below it), per-arm compile
+    # caches for concurrent generate jobs, exact-policy shards tied to their stage's result root.
+    train = (scripts / 'isambard_dpo_train.sbatch').read_text()
+    assert '#SBATCH --nodes=1\n' in train and '#SBATCH --gpus-per-node=4\n' in train and '#SBATCH --time=12:00:00\n' in train
+    assert 'timeout --signal=TERM --kill-after=120s 705m' in train and 'test "$GPUS" -eq 4' in train
+    generate = (scripts / 'isambard_dpo_generate.sbatch').read_text()
+    assert all(f'$CACHE/dpo-generate/$ARM/{c}' in generate for c in ('vllm', 'torchinductor', 'triton'))
+    infer = (scripts / 'isambard_dpo_infer_shard.sbatch').read_text()
+    assert '--model "$MODEL" --exact-policy' in infer
+    for stage, tag, ok in (('dpo1', '003', True), ('dpo2', '004', True), ('dpo1', '004', False), ('dpo2', '003', False)):
+        shard = subprocess.run(['bash', str(scripts / 'isambard_dpo_infer_shard.sbatch'), str(code), stage, 'joint',
+                                '0', '4', f'{root}/infer-v2-{tag}'], env=env, capture_output=True, text=True)
+        # Cross-wired: exit 2 at the case check. Matched: passes it and stops at the missing Slurm allocation.
+        assert (shard.returncode, 'Slurm allocation required' in shard.stderr) == ((1, True) if ok else (2, False))
 
 
 def test_submit_aborts_on_failed_sbatch_and_lists_submitted_jobs(tmp_path):

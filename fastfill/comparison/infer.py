@@ -272,6 +272,11 @@ def _runtime(args, merge=False):
         raise RuntimeError('requires one process and exactly one BF16 GPU')
     torch.cuda.set_device(0)
     merged = getattr(args, 'model', None)  # Amendment 008: an already merged BF16 stage model, no adapter.
+    # Amendment 009: a DPO stage's exact trained policy keeps the adapter unmerged and in FP32, as train_dpo's
+    # get_peft_model created it (PEFT autocast); BF16-cast LoRA weights would already differ from training.
+    exact = getattr(args, 'exact_policy', False)
+    if exact and (merge or merged):
+        raise ValueError('the exact policy is an unmerged adapter on its training base')
     tok = AutoTokenizer.from_pretrained(str(merged or args.adapter), local_files_only=True, trust_remote_code=False)
     tok.padding_side = 'left'
     eos = tok.get_vocab().get('<|im_end|>')
@@ -282,7 +287,7 @@ def _runtime(args, merge=False):
     base = AutoModelForCausalLM.from_pretrained(str(merged or args.base), local_files_only=True, trust_remote_code=False,
                 dtype=torch.bfloat16, attn_implementation='sdpa', device_map={'': 0})
     model = base if merged else PeftModel.from_pretrained(base, str(args.adapter), local_files_only=True,
-                                                         is_trainable=False, autocast_adapter_dtype=False)
+                                                         is_trainable=False, autocast_adapter_dtype=exact)
     if merge and not merged:  # Amendment 002: LoRA folded into the BF16 base before generation.
         model = model.merge_and_unload(safe_merge=True)
     model.eval()

@@ -5,16 +5,16 @@
 #SBATCH --qos=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --gpus-per-node=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=96G
-#SBATCH --time=24:00:00
+#SBATCH --gpus-per-node=4
+#SBATCH --cpus-per-task=72
+#SBATCH --time=12:00:00
 #SBATCH --no-requeue
 #SBATCH --output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-dpo-train-%j.out
-# Amendment 008 DPO stage: CODE_ROOT ARM dpo1|dpo2 -> dpo-001/ARM/STAGE (train_dpo) -> dpo-001/ARM/STAGE-merged.
-# v1.1 train_dpo on one GPU (bs 1 x grad_accum 16), then merge_lora on CPU and a lineage receipt.
-# Resubmitting the same arguments resumes: training_guard refuses changed inputs, train_dpo continues from
-# ckpt_latest (every 50 optimizer steps and each epoch end), a finished stage is only re-verified.
+# Amendment 008/009 DPO stage: CODE_ROOT ARM dpo1|dpo2 -> dpo-001/ARM/STAGE (train_dpo) -> dpo-001/ARM/STAGE-merged.
+# v1.1 train_dpo under torchrun on 4 GPUs of one node (DDP, per device 1 x 4 GPUs x accumulation 1 = effective
+# batch 4; GPUs/CPUs as the v1.1 clean DPO job), then merge_lora on CPU, merge diagnostic and lineage receipt.
+# Expected ~2-3 h; resubmitting the same arguments resumes: training_guard refuses changed inputs, train_dpo
+# continues from ckpt_latest (every 100 optimizer steps and each epoch end), a finished stage is only re-verified.
 set -euo pipefail
 test "$#" -eq 3
 PAIR_CODE_ROOT="$1"
@@ -38,5 +38,7 @@ mkdir -p "$DPO_ROOT/$ARM"
 exec 9>"$DPO_ROOT/$ARM/.$STAGE.lock"
 flock -n 9 || { echo "another job owns $DPO_ROOT/$ARM/$STAGE" >&2; exit 1; }
 nvidia-smi -L
-timeout --signal=TERM --kill-after=120s 1425m "$PROJECT_ROOT/env/bin/python" -B -u \
+GPUS=$(nvidia-smi -L | grep -c '^GPU ' || true)
+test "$GPUS" -eq 4 || { echo "PREFLIGHT FAIL: need 4 GPUs for the DDP recipe, see $GPUS" >&2; exit 1; }
+timeout --signal=TERM --kill-after=120s 705m "$PROJECT_ROOT/env/bin/python" -B -u \
   -m fastfill.comparison.dpo_stages train --arm "$ARM" --stage "$STAGE" --dpo-root "$DPO_ROOT"

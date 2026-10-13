@@ -1,4 +1,4 @@
-"""Amendment 008: OptiScene recipe SFT -> DPO-stage1 -> DPO-stage2 for both arms; final model = DPO2.
+"""Amendments 008/009: OptiScene recipe SFT -> DPO-stage1 -> DPO-stage2 for both arms; final model = DPO2.
 
 python -m fastfill.comparison.dpo_stages STEP ...   (sbatch: isambard_dpo_*.sbatch; chain: submit_dpo_stages.sh)
 
@@ -22,14 +22,19 @@ stage2-pairs --dpo-root DPO --base QWEN3
     rejected = chosen with positions perturbed (v1.1 collision_shift / wall_oob; supported objects
     move with their support; size, yaw and support untouched); one schedule per UID seeded by
     'dpo-stage2-v1:' + uid, first step verified (targeted gate failure) in BOTH arms, used for both.
-train        --arm A --stage dpo1|dpo2 --dpo-root DPO   (1 GPU; a rerun resumes)
+train        --arm A --stage dpo1|dpo2 --dpo-root DPO   (4 GPUs, torchrun DDP; a rerun resumes)
     fastfill.v1_1.train_dpo (sigmoid DPO, the TRL default loss, without trl) on the merged previous
-    stage, bound by v1_1.training_guard, then merged -> DPO/A/STAGE-merged.
+    stage with the official OptiScene README hyper-parameters (amendment 009: lr 5e-6, 10 epochs,
+    LoRA r32 a16, effective batch 4 = 1 per device x 4 GPUs x accumulation 1), bound by
+    v1_1.training_guard, then merged -> DPO/A/STAGE-merged (next stage's base, delivered artifact).
 copy-plan    --src RUN/infer-v2-002/plan --out RUN/infer-v2-003/plan RUN/infer-v2-004/plan
     byte-identical shared amendment-002 plan for the stage inference (infer_shard shard --model).
 
 Every merged model has a sibling lineage receipt MODEL.json binding its bytes, adapter, training
-evidence and parent receipt; base_sha256 stays the generic Qwen3-8B root through all stages.
+evidence and parent receipt, plus the per-module fraction of weights the merge changed (amendment
+009); base_sha256 stays the generic Qwen3-8B root through all stages. A DPO stage is evaluated as
+its exact trained policy (infer_shard shard --model STAGE-merged --exact-policy): the stage adapter
+unmerged, in FP32 as trained, on its BF16 training base (the merged previous stage).
 Outputs are new-only (published directories or write-once receipts); nothing is overwritten.
 """
 import argparse
@@ -61,10 +66,13 @@ MAX_LEN = 8192  # The SFT --max-len: every DPO sequence fits whole; nothing is t
 EOS = '<|im_end|>'  # SFT supervises it; train_dpo appends tok.eos_token.
 SEED = 42
 SAMPLING = {'temperature': 0.85, 'top_p': 0.95, 'n': 4}  # v1.1 stage 1.
-RECIPE = {'beta': 0.1, 'lr': 5e-7, 'epochs': 5, 'bs': 1, 'grad_accum': 16, 'max_len': MAX_LEN,
-          'lora_r': 16, 'lora_alpha': 32, 'save_steps': 50, 'seed': SEED}  # train_dpo flags.
-TRAIN_FIXED = {'world_size': 1, 'lora_dropout': 0.05, 'dtype': 'bfloat16',
+RECIPE = {'beta': 0.1, 'lr': 5e-6, 'epochs': 10, 'bs': 1, 'grad_accum': 1, 'max_len': MAX_LEN,
+          'lora_r': 32, 'lora_alpha': 16, 'save_steps': 100, 'seed': SEED}  # train_dpo flags (amendment 009).
+WORLD_SIZE = 4  # torchrun ranks: effective batch = bs x WORLD_SIZE x grad_accum = 4, the README's 1 x accumulation 4.
+TRAIN_FIXED = {'world_size': WORLD_SIZE, 'effective_batch': WORLD_SIZE, 'launcher': 'torchrun --standalone (DDP)',
+               'lora_dropout': 0.05, 'dtype': 'bfloat16', 'gradient_checkpointing': True,
                'target_modules': 'q,k,v,o,gate,up,down_proj', 'scheduler': 'cosine, 5% warmup',
+               'sampler': 'DistributedSampler: each epoch padded to a multiple of 4 by repeating pairs (as v1.1)',
                'loss': 'sigmoid DPO vs the frozen previous stage (adapter disabled)'}
 MERGE_PROTOCOL = 'amendment-008-merge-v1'
 CODE = ('comparison/dpo_stages.py', 'comparison/geometry.py', 'comparison/contract.py',
@@ -231,7 +239,34 @@ def _merge(base, adapter, out, fields):
     i.write_once(receipt_path(out), {'protocol': MERGE_PROTOCOL, **fields,
         'adapter': {'path': str(Path(adapter).resolve()), 'files': h.artifact_manifest(adapter)},
         'model': {'path': str(Path(out).resolve()), 'files': files}, 'model_sha256': i._hash(files),
-        'merge': 'fastfill.merge_lora: BF16 PeftModel.merge_and_unload', 'code_sha256': _code()})
+        'merge': 'fastfill.merge_lora: BF16 PeftModel.merge_and_unload',
+        'merge_diagnostic': merge_diagnostic(base, out), 'code_sha256': _code()})
+
+
+def merge_diagnostic(parent, merged):
+    """Amendment 009: per module type, how many stored (BF16) weights the merge changed, exact compare."""
+    import contextlib
+    from safetensors import safe_open
+    with contextlib.ExitStack() as stack:
+        def index(model):
+            names = {}
+            for path in sorted(Path(model).glob('*.safetensors')):
+                handle = stack.enter_context(safe_open(str(path), framework='pt'))
+                names.update(dict.fromkeys(handle.keys(), handle))
+            return names
+        old, new = index(parent), index(merged)
+        modules, dtypes = {}, set()
+        for name in sorted(old.keys() & new.keys()):
+            before, after = old[name].get_tensor(name), new[name].get_tensor(name)
+            dtypes |= {str(before.dtype), str(after.dtype)}
+            entry = modules.setdefault(next((p for p in name.split('.') if p.endswith('_proj')), 'other'),
+                                       {'changed': 0, 'total': 0})
+            entry['changed'] += int((before != after).sum())
+            entry['total'] += before.numel()
+    for entry in modules.values():
+        entry['fraction'] = entry['changed'] / entry['total'] if entry['total'] else None
+    return {'modules': dict(sorted(modules.items())), 'dtypes': sorted(dtypes),
+            'tensors_only_in_parent': len(old.keys() - new.keys()), 'tensors_only_in_merged': len(new.keys() - old.keys())}
 
 
 def _lineage(path, arm, stage):
@@ -265,15 +300,40 @@ def verify_merged(model, arm, stage=None):
     return receipt
 
 
+def exact_policy(model, arm):
+    """Amendment 009: a DPO stage's trained policy is its adapter, unmerged, on its BF16 training base.
+
+    Walks the stage's receipt chain and rehashes what is loaded (training base and adapter), not the
+    merged stage model, which is only the next stage's base and the delivered artifact."""
+    path = receipt_path(Path(model).resolve())
+    receipt = _lineage(path, arm, h.strict_json(path.read_text()).get('stage'))
+    if receipt['stage'] not in PAIRS:
+        raise ValueError('exact-policy evaluation is for DPO stages only')
+    parent = verify_merged(receipt['parent']['path'], arm, receipt['parent']['stage'])
+    adapter = Path(receipt['adapter']['path'])
+    if h.artifact_manifest(adapter) != receipt['adapter']['files']:
+        raise ValueError(f'stage adapter bytes differ from its lineage receipt: {adapter}')
+    return receipt, {'mode': 'unmerged_fp32_adapter_on_bf16_training_base',
+                     'training_base': receipt['parent']['path'], 'training_base_sha256': parent['model_sha256'],
+                     'adapter': str(adapter), 'adapter_sha256': i._hash(receipt['adapter']['files'])}
+
+
 def inference_identity(run):
-    """infer_shard shard --model: base_sha256 is the generic Qwen3-8B lineage root, not this model."""
-    receipt = verify_merged(run.model, run.arm)
+    """infer_shard shard --model: base_sha256 is the generic Qwen3-8B lineage root, not this model.
+
+    With run.exact_policy the identity binds the loaded training base and adapter (policy) instead
+    of the merged model's bytes (model_sha256)."""
+    if getattr(run, 'exact_policy', False):
+        receipt, loaded = exact_policy(run.model, run.arm)
+        loaded = {'policy': loaded}
+    else:
+        receipt = verify_merged(run.model, run.arm)
+        loaded = {'model_sha256': receipt['model_sha256']}
     base = h.base_receipt(run.base)
     if any(base[k] != receipt['base'][k] for k in ('revision', 'files', 'receipt_hashes')):
         raise ValueError('generic base differs from the merged model lineage root')
     return {'base': base, 'base_sha256': receipt['base_sha256'], 'training_data': receipt['training_data'],
-            'stage': receipt['stage'], 'model_sha256': receipt['model_sha256'],
-            'lineage_sha256': h.sha256(receipt_path(Path(run.model).resolve()))}
+            'stage': receipt['stage'], **loaded, 'lineage_sha256': h.sha256(receipt_path(Path(run.model).resolve()))}
 
 
 def merge_sft(args):
@@ -597,10 +657,11 @@ def _completion(out, count):
     from fastfill.v1_1.evaluation_protocol import file_identity
     final = Path(out) / 'final'
     value = h.strict_json((final / 'completion.json').read_text())
-    steps = RECIPE['epochs'] * math.ceil(count / RECIPE['grad_accum'])
-    expected = {'kind': 'fastfill_v1.1_dpo_completion', 'admitted_pairs': count, 'loader_batches': count,
-                'world_size': 1, 'epochs': RECIPE['epochs'], 'expected_total_steps': steps,
-                'position': {'epoch': RECIPE['epochs'] - 1, 'it': count - 1, 'step': steps},
+    batches = math.ceil(count / (RECIPE['bs'] * WORLD_SIZE))  # Per rank; DistributedSampler pads the last.
+    steps = RECIPE['epochs'] * math.ceil(batches / RECIPE['grad_accum'])
+    expected = {'kind': 'fastfill_v1.1_dpo_completion', 'admitted_pairs': count, 'loader_batches': batches,
+                'world_size': WORLD_SIZE, 'epochs': RECIPE['epochs'], 'expected_total_steps': steps,
+                'position': {'epoch': RECIPE['epochs'] - 1, 'it': batches - 1, 'step': steps},
                 'training_guard': file_identity(Path(out) / 'training_guard.json')}
     if (any(value.get(k) != v for k, v in expected.items()) or
             any(file_identity(final / n) != v for n, v in value['adapter_files'].items())):
@@ -627,8 +688,8 @@ def train(args):
                                   [Path(train_dpo.__file__), Path(__file__), Path(merge_lora.__file__)])
     if not (out / 'final' / 'completion.json').exists():
         preflight(parent, pairs, count)
-        command = [sys.executable, '-m', 'fastfill.v1_1.train_dpo', '--model', str(parent),
-                   '--pairs', str(pairs), '--out', str(out)]
+        command = [sys.executable, '-m', 'torch.distributed.run', '--standalone', f'--nproc_per_node={WORLD_SIZE}',
+                   '-m', 'fastfill.v1_1.train_dpo', '--model', str(parent), '--pairs', str(pairs), '--out', str(out)]
         subprocess.run(command + [x for k, v in RECIPE.items() for x in ('--' + k, str(v))], check=True)
     completion = _completion(out, count)
     _merge(parent, out / 'final', merged, {'arm': arm, 'stage': stage,

@@ -76,6 +76,7 @@ def _write_tables(out, summary):
     lines = ['# 未知尺寸：联合生成与估计尺寸后布局', '',
         'J：联合预测尺寸、坐标和朝向。P：训练集估计尺寸，再预测坐标和朝向。两者使用相同通用基座和共同训练样本。', '',
         '**这是本项目改造后的系统对比，不是作者原始权重，也不是论文原始测试集的复现。**', '',
+        f"模型阶段（stage）：{summary['stage']}（sft / dpo1 / dpo2）。", '',
         'OOR 是物体重叠率：忽略朝向和高度的两两 XY 交叠面积之和，除以物体面积之和。它不是越界率，也不一定小于 1。', '',
         '尺寸 IoU 和 log MAE 均先在房间内按物体平均，再按房间平均；只对完整合法输出计算。完整率及几何成功率以全部请求为分母。', '',
         '| 数据范围 | 路线 | 请求数 | 完整输出 | OOR↓ | 尺寸 IoU↑ | log MAE↓ | 几何成功率↑ |',
@@ -131,7 +132,8 @@ def evaluate(data, runs, out, repeats=2000, workers=1):
     strata = {source + '/' + kind: {arm: g.aggregate([r for r in rows if r['source'] == source
                 and norm_room_type(r.get('room_type')) == kind]) for arm, rows in output_rows.items()}
               for source, kind in PAPER_STRATA}
-    summary = {'status': 'GEOMETRY_COMPLETE', 'expected_rooms_per_arm': len(expected),
+    summary = {'status': 'GEOMETRY_COMPLETE', 'stage': first.get('stage', 'sft'),  # Amendment 009 label.
+               'expected_rooms_per_arm': len(expected),
                'arms': {arm: g.summarize(rows) for arm, rows in output_rows.items()}, 'paper_strata': strata,
                'paired': g.paired_intervals(output_rows['joint'], output_rows['placement'], repeats=repeats),
                'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),

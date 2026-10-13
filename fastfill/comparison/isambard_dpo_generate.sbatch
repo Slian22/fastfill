@@ -31,8 +31,9 @@ CUDA_HOME="$(dirname "$(dirname "$NVCC")")"
 export CUDA_HOME CUDA_PATH="$CUDA_HOME" PATH="$(dirname "$PYTHON"):$CUDA_HOME/bin:$PATH"
 export PYTHONPATH="$PAIR_CODE_ROOT" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 export HF_HOME="$CACHE/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1
-export XDG_CACHE_HOME="$CACHE" VLLM_CACHE_ROOT="$CACHE/dpo-generate/vllm"
-export TORCHINDUCTOR_CACHE_DIR="$CACHE/dpo-generate/torchinductor" TRITON_CACHE_DIR="$CACHE/dpo-generate/triton"
+# Per-arm compile caches: both arms' generate jobs can run at once (as isambard_llm_open.sbatch per system).
+export XDG_CACHE_HOME="$CACHE" VLLM_CACHE_ROOT="$CACHE/dpo-generate/$ARM/vllm"
+export TORCHINDUCTOR_CACHE_DIR="$CACHE/dpo-generate/$ARM/torchinductor" TRITON_CACHE_DIR="$CACHE/dpo-generate/$ARM/triton"
 export VLLM_USE_FLASHINFER_SAMPLER=0 VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1 VLLM_ENGINE_READY_TIMEOUT_S=3600
 mkdir -p "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR" "$TRITON_CACHE_DIR"
 cd "$PAIR_CODE_ROOT"

@@ -11,11 +11,13 @@
 #SBATCH --time=08:00:00
 #SBATCH --no-requeue
 #SBATCH --output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-dpo-infer-shard-%j.out
-# Amendment 008 stage inference shard: CODE_ROOT dpo1|dpo2 ARM SHARD_INDEX SHARD_COUNT INFER_ROOT [--resume]
-# As isambard_infer_shard.sbatch (amendment 002 plan, decoding and receipts), but the model is the
-# lineage-verified merged stage model dpo-001/ARM/STAGE-merged (infer_shard shard --model, no adapter).
-# The amendment 005 dev-probe gate checks LoRA merging against the unmerged SFT probe; it has no
-# counterpart for DPO stages, which are trained on and evaluated as merged models.
+# Amendment 008/009 stage inference shard: CODE_ROOT dpo1|dpo2 ARM SHARD_INDEX SHARD_COUNT INFER_ROOT [--resume]
+# As isambard_infer_shard.sbatch (amendment 002 plan, decoding and receipts), but the policy is the DPO
+# stage's exact trained policy (amendment 009, infer_shard shard --model STAGE-merged --exact-policy): the
+# stage adapter dpo-001/ARM/STAGE/final unmerged (FP32, as trained) on its BF16 training base, the merged
+# previous stage; both are rehashed against the lineage receipt dpo-001/ARM/STAGE-merged.json.
+# The amendment 005 dev-probe gate checks LoRA merging against the unmerged SFT probe; nothing is merged here.
+# STAGE is tied to its result root: dpo1 -> infer-v2-003, dpo2 -> infer-v2-004.
 # A timed-out shard is resubmitted with the same arguments plus --resume.
 set -euo pipefail
 test "$#" -eq 6 || { test "$#" -eq 7 && test "$7" = --resume; }
@@ -27,12 +29,15 @@ PAIR_SHARD_COUNT="$5"
 PAIR_INFER_ROOT="$6"
 PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill
 PAIR_RUN_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013"
-case "$STAGE" in dpo1|dpo2) ;; *) exit 2 ;; esac
+case "$STAGE" in
+  dpo1) test "$PAIR_INFER_ROOT" = "$PAIR_RUN_ROOT/infer-v2-003" || exit 2 ;;
+  dpo2) test "$PAIR_INFER_ROOT" = "$PAIR_RUN_ROOT/infer-v2-004" || exit 2 ;;
+  *) exit 2 ;;
+esac
 case "$PAIR_ARM" in joint|placement) ;; *) exit 2 ;; esac
 case "$PAIR_SHARD_INDEX" in ''|*[!0-9]*) exit 2 ;; esac
 case "$PAIR_SHARD_COUNT" in ''|*[!0-9]*) exit 2 ;; esac
 test "$PAIR_SHARD_INDEX" -lt "$PAIR_SHARD_COUNT"
-case "$PAIR_INFER_ROOT" in "$PAIR_RUN_ROOT"/infer-v2-[0-9][0-9][0-9]) ;; *) exit 2 ;; esac
 : "${SLURM_JOB_ID:?Slurm allocation required}"
 test -f "$PAIR_INFER_ROOT/plan/MANIFEST.json"
 MODEL="$PAIR_RUN_ROOT/dpo-001/$PAIR_ARM/$STAGE-merged"
@@ -56,6 +61,6 @@ assert r['peak_allocated_bytes'] < .9 * r['gpu_total_bytes']
 PY
 exec timeout --signal=TERM --kill-after=60s 470m "$PROJECT_ROOT/env/bin/python" -B -u \
   -m fastfill.comparison.infer_shard shard --data "$PAIR_RUN_ROOT/eval-data-v1" \
-  --base "$PROJECT_ROOT/models/Qwen3-8B" --arm "$PAIR_ARM" --model "$MODEL" --plan "$PAIR_INFER_ROOT/plan" \
+  --base "$PROJECT_ROOT/models/Qwen3-8B" --arm "$PAIR_ARM" --model "$MODEL" --exact-policy --plan "$PAIR_INFER_ROOT/plan" \
   --shard-index "$PAIR_SHARD_INDEX" --shard-count "$PAIR_SHARD_COUNT" \
   --out "$PAIR_INFER_ROOT/$PAIR_ARM/shard-$(printf %02d "$PAIR_SHARD_INDEX")" ${7:+--resume}
