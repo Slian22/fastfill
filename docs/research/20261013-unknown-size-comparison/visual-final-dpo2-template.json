@@ -1,0 +1,57 @@
+{
+  "_comment": "Final N-system visual run (amendments 005 section 5, 007, 008): J-DPO2/P-DPO2 from geometry-v4 plus every agent whose DPO2-paired evaluation completed. Filled by python -m fastfill.comparison.visual_final; job ids from research-state.yaml dpo_chain/dpo_reports (update them here if a job is resubmitted). Fixed resources (reference set, Blender, vendor, Inception weights, API client, pinned manifests) are those of automation-config-run004.json.",
+  "candidate_agents": {
+    "L": {"dir": "llm-eval-L-dpo2-v1", "job_id": "7389188"},
+    "O1a": {"dir": "llm-eval-O1a-dpo2-v1", "job_id": "7389195"},
+    "O1b": {"dir": "llm-eval-O1b-dpo2-v1", "job_id": "7389196"},
+    "O2": {"dir": "llm-eval-O2-dpo2-v1", "job_id": "7389192"},
+    "O3": {"dir": "llm-eval-O3-dpo2-v1", "job_id": "7389193"},
+    "O4": {"dir": "llm-eval-O4-dpo2-v1", "job_id": "7389191"},
+    "O5": {"dir": "llm-eval-O5-dpo2-v1", "job_id": "7389190"},
+    "O6": {"dir": "llm-eval-O6-dpo2-v1", "job_id": "7389189"},
+    "O7": {"dir": "llm-eval-O7-dpo2-v1", "job_id": "7389194"}
+  },
+  "config": {
+    "api_client_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72/server_api_judge.py",
+    "api_client_sha256": "8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03",
+    "api_timeout_seconds": 86400,
+    "blender": "/Applications/Blender.app/Contents/MacOS/Blender",
+    "expected_manifest_sha256": {
+      "eval-data-v1": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+      "main-data-v1": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6"
+    },
+    "final_tables": true,
+    "geometry_job_id": "7389164",
+    "geometry_name": "geometry-v4",
+    "local_code_root": "<FILL: frozen local code snapshot (contains fastfill/comparison) whose judge_batch.py equals the server snapshot's>",
+    "local_python": "/usr/local/bin/python3",
+    "output_root": "/Volumes/harddisk/fastfillout/unknownsize-20261013/visual-final-dpo2-001",
+    "poll_seconds": 120,
+    "prerequisite_job_ids": ["7389123", "7389125", "7389149", "7389162"],
+    "read_retries": 3,
+    "receipt_paths": [
+      "infer-joint-004/run_receipt.json",
+      "infer-joint-004/result.json",
+      "infer-joint-004/status.json",
+      "infer-placement-004/run_receipt.json",
+      "infer-placement-004/result.json",
+      "infer-placement-004/status.json",
+      "dpo-001/joint/dpo2-merged.json",
+      "dpo-001/placement/dpo2-merged.json"
+    ],
+    "reference_data": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/data/visual-reference-v1",
+    "remote_api_code": "<FILL: absolute server code snapshot path, e.g. the DPO chain's CODE_ROOT>",
+    "remote_env_file": "/home/u6uv/shanliantian.u6uv/.fastfill_api.env",
+    "remote_python": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/bin/python",
+    "remote_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+    "remote_run_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013",
+    "render_timeout_seconds": 86400,
+    "slurm_account": "brics.u6uv",
+    "slurm_partition": "workq",
+    "slurm_qos": "normal",
+    "ssh_host": "u6uv.aip2.isambard",
+    "total_timeout_seconds": 432000,
+    "vendor": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261011-v11-clean-dpo/paper-metrics-20261013/vendor",
+    "weights": "/Users/slian/.cache/torch/hub/checkpoints/pt_inception-2015-12-05-6726825d.pth"
+  }
+}
