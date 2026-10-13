@@ -16,6 +16,13 @@ merge  --data --plan ROOT/plan --arm ARM --shards S0 .. SN-1 --out INFER_DIR
        Verifies every shard, then publishes the infer.py layout that the
        unchanged evaluate_pair accepts: records.jsonl in expected_uids order,
        INFERENCE_COMPLETE, run_receipt.json, context_plan.json, MANIFEST.json.
+probe  --base --adapter --training-run --arm --out ROOT/ARM/probe
+       Amendment 005 section 6 gate: the shard's merged BF16 runtime regenerates
+       the arm's 2 recorded training-time dev probes (each at batch 1, then both
+       repeated into one left-padded batch of 8) at the training probe's cap.
+       Write-once probe.json records exact match, schema validity (training
+       parser + contract) and token counts; exits 1 iff a prompt whose recorded
+       unmerged output was schema-valid becomes schema-invalid.
 """
 import argparse
 import hashlib
@@ -310,6 +317,57 @@ def merge(args):
     return result
 
 
+def probe(args):
+    from fastfill.comparison.contract import validate_output
+    args.out.mkdir(parents=True, exist_ok=False)
+    for key in OFFLINE:
+        os.environ[key] = '1'
+    root = args.training_run.resolve()
+    receipt = h.strict_json((root / 'run_receipt.json').read_text())
+    config, files = receipt['config'], receipt['data']['files']
+    cap = config['max_new_tokens']  # The recorded probe's own decoding cap.
+    run = types.SimpleNamespace(**{k: getattr(args, k) for k in ('base', 'adapter', 'training_run', 'arm')},
+                                context_budget=0, max_input_tokens=config['max_len'], max_new_tokens=cap)
+    identity = i.training_identity(run)  # Hash-verifies the whole training inventory.
+    if not {'dev_selection.json', f'{args.arm}/dev_generations.json'} <= h.strict_json(
+            (root / 'SHA256.json').read_text()).keys():
+        raise ValueError('training inventory lacks dev probe evidence')
+    uids = h.strict_json((root / 'dev_selection.json').read_text())['uids']
+    recorded = h._by_uid(h.strict_json((root / args.arm / 'dev_generations.json').read_text()))
+    if len(uids) != 2 or list(recorded) != uids:
+        raise ValueError('recorded dev probe does not match dev selection')
+    rows = h._by_uid(h._rows(Path(config['data']), f'{args.arm}/dev.jsonl', files[f'{args.arm}/dev.jsonl']))
+    rooms = h._by_uid(h._rows(Path(config['data']), 'dev_rooms.jsonl', files['dev_rooms.jsonl']))
+    prompts = [{**rows[u], 'messages': rows[u]['messages'][:-1]} for u in uids]  # Target turn dropped.
+    tok, generate, eos = i._runtime(run, merge=True)
+    outputs = []
+    for batch_id, batch in enumerate((prompts[:1], prompts[1:], prompts * 4)):
+        results = i.process_batch(batch, args.arm, tok, generate, eos, config['max_len'], cap, batch_id,
+                                  shared_max_new_tokens=cap)
+        for position, r in enumerate(results):
+            valid, before = r['schema']['valid'], recorded[r['uid']]
+            try:
+                if valid:  # The contract check the training probe applied after parsing.
+                    validate_output(r['raw'], rooms[r['uid']], args.arm)
+            except ValueError:
+                valid = False
+            outputs.append({'batch_id': batch_id, 'batch_size': len(batch), 'position': position, 'uid': r['uid'],
+                            'exact_match': r['raw'] == before['raw'], 'schema_valid': valid,
+                            'recorded_schema_valid': before['schema']['valid'],
+                            'input_tokens': r['input_tokens'], 'generated_tokens': r['generated_tokens'],
+                            'recorded_generated_tokens': before['generated_tokens'],
+                            'stopped_on_eos': r['stopped_on_eos'], 'reached_token_cap': r['reached_token_cap'],
+                            'error': r['error'], 'raw': r['raw']})
+    regressions = sum(o['recorded_schema_valid'] and not o['schema_valid'] for o in outputs)
+    result = {'status': 'PROBE_FAIL' if regressions else 'PROBE_PASS', 'protocol': 'amendment-005-dev-probe-gate',
+              'arm': args.arm, 'max_new_tokens': cap, 'lora': FIXED['lora'], 'quality_claim': False,
+              'exact_match_count': sum(o['exact_match'] for o in outputs), 'output_count': len(outputs),
+              'schema_regressions': regressions, 'outputs': outputs, 'identity': identity,
+              'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(i.__file__), Path(h.__file__))}}
+    i.write_once(args.out / 'probe.json', result)
+    return result
+
+
 def _terminate(signum, _frame):
     raise SystemExit(128 + signum)  # Slurm/timeout TERM: record FAIL status, keep receipts for --resume.
 
@@ -342,6 +400,10 @@ def parse_args(argv=None):
         merger.add_argument('--' + flag, type=Path, required=True)
     merger.add_argument('--arm', choices=h.ARMS, required=True)
     merger.add_argument('--shards', type=Path, nargs='+', required=True)
+    prober = sub.add_parser('probe')
+    for flag in ('base', 'adapter', 'training-run', 'out'):
+        prober.add_argument('--' + flag, type=Path, required=True)
+    prober.add_argument('--arm', choices=h.ARMS, required=True)
     return parser.parse_args(argv)
 
 
@@ -349,8 +411,10 @@ def main(argv=None):
     args = parse_args(argv)
     if args.command == 'shard':
         signal.signal(signal.SIGTERM, _terminate)
-    result = {'plan': plan, 'shard': shard, 'merge': merge}[args.command](args)
-    print(json.dumps({k: v for k, v in result.items() if k != 'shards'}))
+    result = {'plan': plan, 'shard': shard, 'merge': merge, 'probe': probe}[args.command](args)
+    print(json.dumps({k: v for k, v in result.items() if k not in ('shards', 'outputs', 'identity')}))
+    if result['status'] == 'PROBE_FAIL':
+        raise SystemExit(1)  # Amendment 005 section 6: fail the inference chain closed.
 
 
 if __name__ == '__main__':

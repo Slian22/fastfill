@@ -301,6 +301,85 @@ def test_completed_shard_resume_is_read_only_and_tokenizer_drift_fails_before_ge
     generate.assert_not_called()
 
 
+def make_training_run(root, data, edit=lambda k, entry: entry, arm='joint'):
+    """sft-ARM-001 with train_pair's dev probe evidence: dev_selection + dev_generations of the first two rooms."""
+    run, train = root / f'sft-{arm}-001', root / 'main-data'
+    (train / arm).mkdir(parents=True)
+    (run / arm).mkdir(parents=True)
+    rows = [{**r, 'split': 'dev', 'messages': [*r['messages'], {'role': 'assistant', 'content': '{}'}]}
+            for r in s.i.load_eval(data, arm)[0][:2]]
+    (train / arm / 'dev.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    (train / 'dev_rooms.jsonl').write_bytes((data / 'rooms.jsonl').read_bytes())
+    h.write_json(run / 'run_receipt.json', {'config': {'data': str(train), 'max_len': 8192, 'max_new_tokens': 4096},
+                                           'data': {'files': h.artifact_manifest(train)}})
+    h.write_json(run / 'dev_selection.json', {'uids': [r['uid'] for r in rows]})
+    recorded = []
+    for k, row in enumerate(rows):  # Unmerged batch-1 stand-in: same fake model, no padding.
+        out = s.i.process_batch([{**row, 'messages': row['messages'][:-1]}], arm, Tok(), fake_generate(), EOS,
+                                8192, 4096, 0, shared_max_new_tokens=4096)[0]
+        recorded.append(edit(k, {key: out[key] for key in ('uid', 'raw', 'schema', 'generated_tokens', 'reached_token_cap')}))
+    h.write_json(run / arm / 'dev_generations.json', recorded)
+    h.write_json(run / 'SHA256.json', h.artifact_manifest(run))
+    return run
+
+
+def run_probe(root, generate, name='probe', arm='joint'):
+    argv = ['probe', '--base', str(root / 'base'), '--adapter', str(root / f'sft-{arm}-001' / arm / 'adapter'),
+            '--training-run', str(root / f'sft-{arm}-001'), '--arm', arm, '--out', str(root / 'v2' / arm / name)]
+    with patch.object(s.i, 'training_identity', return_value=IDENTITY) as identity, \
+            patch.object(s.i, '_runtime', return_value=(Tok(), generate, EOS)) as runtime:
+        s.main(argv)
+    run = identity.call_args.args[0]
+    assert runtime.call_args == ((run,), {'merge': True})  # The shard's merged BF16 loader.
+    assert (run.max_new_tokens, run.context_budget, run.max_input_tokens) == (4096, 0, 8192)
+    return h.strict_json((root / 'v2' / arm / name / 'probe.json').read_text())
+
+
+def breaking_generate(objects):
+    """The padded batch of 8 corrupts rooms with this many objects; batch 1 stays intact."""
+    real = fake_generate()
+    def generate(ids, cap):
+        out, width = real(ids, cap)
+        bad = [ord(c) for c in '{"placements": []}'] + [EOS]
+        return [o[:width] + bad if len(ids) == 8 and len(json.loads(''.join(map(chr, x)))['objects']) == objects
+                else o for o, x in zip(out, ids)], width
+    return generate
+
+
+def test_probe_regenerates_dev_prompts_batch1_and_padded8_and_records_exact_match(tmp_path):
+    make_training_run(tmp_path, make_data(tmp_path),
+                      edit=lambda k, e: {**e, 'raw': e['raw'] + ' '} if k else e)  # Still valid, not exact.
+    seen, real = [], fake_generate()
+    def generate(ids, cap):
+        seen.append((len(ids), cap, len({len(x) for x in ids}) > 1))
+        return real(ids, cap)
+    result = run_probe(tmp_path, generate)
+    assert seen == [(1, 4096, False), (1, 4096, False), (8, 4096, True)]  # Batch 8 is left-padded.
+    assert result['status'] == 'PROBE_PASS' and result['schema_regressions'] == 0
+    assert [o['uid'] for o in result['outputs']] == ['r0', 'r1'] + ['r0', 'r1'] * 4
+    assert [o['exact_match'] for o in result['outputs']] == [True, False] + [True, False] * 4
+    assert result['exact_match_count'] == 5 and all(o['schema_valid'] for o in result['outputs'])
+    assert all(o['generated_tokens'] == o['recorded_generated_tokens'] and o['stopped_on_eos']
+               for o in result['outputs'])
+    with pytest.raises(FileExistsError):  # Write-once.
+        run_probe(tmp_path, generate)
+
+
+def test_probe_fails_closed_only_when_recorded_valid_output_turns_invalid(tmp_path):
+    invalid = {'valid': False, 'error': 'contract.validate_output rejected', 'placements': None}
+    make_training_run(tmp_path / 'a', make_data(tmp_path / 'a'),
+                      edit=lambda k, e: {**e, 'raw': 'oops', 'schema': invalid} if k else e)
+    result = run_probe(tmp_path / 'a', breaking_generate(OBJECTS[1]))  # r1 was already invalid unmerged.
+    assert result['status'] == 'PROBE_PASS' and result['schema_regressions'] == 0
+    assert [o['schema_valid'] for o in result['outputs']] == [True, True] + [True, False] * 4
+    make_training_run(tmp_path / 'b', make_data(tmp_path / 'b'))
+    with pytest.raises(SystemExit) as exit_:
+        run_probe(tmp_path / 'b', breaking_generate(OBJECTS[1]))
+    assert exit_.value.code == 1
+    result = h.strict_json((tmp_path / 'b/v2/joint/probe/probe.json').read_text())
+    assert result['status'] == 'PROBE_FAIL' and result['schema_regressions'] == 4
+
+
 def test_runtime_merges_lora_before_generation():
     tok = Mock(pad_token_id=0)
     tok.get_vocab.return_value = {'<|im_end|>': EOS}
@@ -320,27 +399,46 @@ def test_runtime_merges_lora_before_generation():
     peft_model.eval.assert_not_called()
 
 
+def stub_sbatch(tmp_path, fail_on=0):
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\nn=$(wc -l < "$SBATCH_LOG")\n'
+                    f'if [ "$n" -eq {fail_on} ]; then echo "sbatch: error: QOSMaxSubmitJobPerUserLimit" >&2; exit 1; fi\n'
+                    'echo "$((100 + n));cluster"\n')
+    stub.chmod(0o755)
+    return {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
+
+
 def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     code = Path(__file__).resolve().parents[3]
     scripts = code / 'fastfill/comparison'
-    for name in ('isambard_infer_plan.sbatch', 'isambard_infer_shard.sbatch', 'isambard_infer_merge.sbatch',
-                 'isambard_geometry.sbatch', 'submit_infer_v2.sh'):
+    for name in ('isambard_infer_plan.sbatch', 'isambard_infer_probe.sbatch', 'isambard_infer_shard.sbatch',
+                 'isambard_infer_merge.sbatch', 'isambard_geometry.sbatch', 'submit_infer_v2.sh'):
         subprocess.run(['bash', '-n', str(scripts / name)], check=True)
-    stub = tmp_path / 'sbatch'
-    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
-    stub.chmod(0o755)
-    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
+    env = stub_sbatch(tmp_path)
     run = subprocess.run(['bash', str(scripts / 'submit_infer_v2.sh'), str(code), '7365681', '-', '2'],
                          env=env, capture_output=True, text=True, check=True)
     log = (tmp_path / 'log').read_text().splitlines()
     root = '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013'
     kill = '--parsable --kill-on-invalid-dep=yes --dependency=afterok:'
     assert log[0] == f'--parsable {scripts}/isambard_infer_plan.sbatch {code} {root}/infer-v2-002'
-    assert log[1] == f'{kill}101:7365681 {scripts}/isambard_infer_shard.sbatch {code} joint 0 2 {root}/infer-v2-002'
-    assert log[3] == (f'{kill}102:103 {scripts}/isambard_infer_merge.sbatch {code} joint 2 '
+    assert log[1] == f'{kill}101:7365681 {scripts}/isambard_infer_probe.sbatch {code} joint {root}/infer-v2-002'
+    assert log[2] == f'{kill}101:102 {scripts}/isambard_infer_shard.sbatch {code} joint 0 2 {root}/infer-v2-002'
+    assert log[3].startswith(f'{kill}101:102 {scripts}/isambard_infer_shard.sbatch {code} joint 1 2 ')
+    assert log[4] == (f'{kill}103:104 {scripts}/isambard_infer_merge.sbatch {code} joint 2 '
                       f'{root}/infer-v2-002 {root}/infer-joint-002')
-    assert log[4].startswith(f'{kill}101 {scripts}/isambard_infer_shard.sbatch {code} placement 0 2 ')
-    assert log[7] == f'{kill}104:107 {scripts}/isambard_geometry.sbatch {code} 002 geometry-v2'
-    assert run.stdout.splitlines()[-1] == 'geometry 108'
+    assert log[5] == f'{kill}101 {scripts}/isambard_infer_probe.sbatch {code} placement {root}/infer-v2-002'
+    assert log[6].startswith(f'{kill}101:106 {scripts}/isambard_infer_shard.sbatch {code} placement 0 2 ')
+    assert log[9] == f'{kill}105:109 {scripts}/isambard_geometry.sbatch {code} 002 geometry-v2'
+    assert run.stdout.splitlines()[-1] == 'geometry 110' and 'probe placement 106' in run.stdout
     bad = subprocess.run(['bash', str(scripts / 'submit_infer_v2.sh'), str(code), 'x', '-'], env=env)
-    assert bad.returncode != 0 and len((tmp_path / 'log').read_text().splitlines()) == 8
+    assert bad.returncode != 0 and len((tmp_path / 'log').read_text().splitlines()) == 10
+
+
+def test_submit_aborts_on_any_failed_sbatch_and_lists_submitted_jobs(tmp_path):
+    scripts = Path(__file__).resolve().parents[3] / 'fastfill/comparison'
+    env = stub_sbatch(tmp_path, fail_on=4)  # Second joint shard is rejected.
+    run = subprocess.run(['bash', str(scripts / 'submit_infer_v2.sh'), str(scripts.parents[1]), '7365681', '7365682', '2'],
+                         env=env, capture_output=True, text=True)
+    assert run.returncode == 1 and len((tmp_path / 'log').read_text().splitlines()) == 4  # Nothing after the failure.
+    assert "sbatch failed for 'shard joint 1'" in run.stderr and 'scancel 101 102 103' in run.stderr
+    assert run.stdout.splitlines() == ['plan 101', 'probe joint 102', 'shard joint 0 103']
