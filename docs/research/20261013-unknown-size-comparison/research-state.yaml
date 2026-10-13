@@ -12,7 +12,7 @@ jobs:
   superseded_inference: {ids: [7367626, 7367628], status: CANCELLED_NEVER_STARTED, reason: projected_timeout_amendment_002}
   superseded_geometry: {ids: [7367629, 7368009], status: CANCELLED_NEVER_STARTED}
   inference_v2: {snapshot: main-934192e6d, plan: 7383109, probe_joint: 7383110, shards_joint: [7383111, 7383112, 7383113, 7383114], merge_joint: 7383115, probe_placement: 7383116, shards_placement: [7383117, 7383118, 7383119, 7383120], merge_placement: 7383121, geometry_v2: 7383122}
-  api_agent: {smoke: 7382896, smoke_status: PASSED_2of2_valid, full: 7382898, cohort_rooms: 1454, model: gpt-6.1-sol, reasoning: medium}
+  api_agent: {smoke: 7382896, smoke_status: PASSED_2of2_valid, full: 7382898, full_status: LLM_COMPLETE_2026-10-13T20:2xZ, rooms: 1454, api_failed: 0, schema_valid_first: 1454, calls: 1469, transient_retries: 15, model: gpt-6.1-sol, reasoning: medium, run_sha256: 6184dcea678e8655, evaluation: pending_after_J_P_merges}
   open_models: {amendment: '007', snapshot: main-dd390623f, order: [O6, O5, O4, O2, O3, O7, O1a, O1b], after: inference_v2_gpu_jobs, singleton: true, O6: [7385472, 7385473], O5: [7385474, 7385475], O4: [7385476, 7385477], O2: [7385478, 7385479], O3: [7385480, 7385481], O7: [7385482, 7385483], O1a: [7385484, 7385485], O1b: [7385486, 7385487], status_job: 7385488, superseded_chain_amendment_006: CANCELLED_NEVER_STARTED}
   open_model_downloads: {location: PROJECTDIR_fastfill_models, done: [gpt-oss-120b, Qwen3.6-27B_unused, gemma-4-31b-it, Qwen3.8-27B, DeepSeek-V4-Flash-0731, Qwen3.8-Flash-Next-FP8, Muse-Glimmer-30B]}
 counts: {common_qualified_train: 98923, prior_fit_pool: 124843, dev: 8167, test: 8647}
