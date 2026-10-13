@@ -1,0 +1,82 @@
+{
+  "locked_at_utc": "2026-10-13T00:50:49.152889+00:00",
+  "primary_endpoint": "matched_SFT_J0_vs_P0",
+  "base_repository": "Qwen/Qwen3-8B",
+  "base_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+  "seed": 42,
+  "epochs": 1,
+  "batch_size": 1,
+  "gradient_accumulation_steps": 4,
+  "max_sequence_length": 8192,
+  "learning_rate": 5e-05,
+  "lora": {
+    "r": 32,
+    "alpha": 64,
+    "dropout": 0.05
+  },
+  "training_pool": "all_common_qualified_train_then_same_both_arm_length_admission_no_sampling",
+  "prior_pool": "immutable_historical_flag_eligible_train_excluding_sourceheldout_components_before_decoder_admission",
+  "prior": "category_room_type_axis_logmedian_group_5fold_OOF_then_category_global_fallback",
+  "teacher": {
+    "pose_only": true,
+    "max_candidates_per_root_total": 200,
+    "max_passes": 4,
+    "max_objects": 256
+  },
+  "training_jobs": {
+    "arms": [
+      "joint",
+      "placement"
+    ],
+    "gpus_each": 1,
+    "wall_hours_each": 24,
+    "concurrent": true
+  },
+  "inference_jobs": {
+    "arms": [
+      "joint",
+      "placement"
+    ],
+    "gpus_each": 1,
+    "wall_hours_each": 16,
+    "batch_size": 4,
+    "max_input_tokens": 8192,
+    "max_new_tokens": 8192,
+    "greedy": true,
+    "test_scope": "all_8647_historical_test_requests_no_quality_filter"
+  },
+  "GPU_requested_hours": {
+    "pilot_failed": 0.5,
+    "pilot_isolated_retry": 0.5,
+    "main_training": 48,
+    "inference": 32,
+    "sum_planned": 81,
+    "absolute_cap": 96
+  },
+  "visual": {
+    "resolution": 512,
+    "samples": 32,
+    "denoise": true,
+    "views": [
+      "perspective",
+      "top"
+    ],
+    "FID_view": "perspective",
+    "FID_features": 2048,
+    "known_assets": "reference_identity_sidecar_fitted_to_each_layout_own_dimensions",
+    "unknown_height": "render_only_uniform_3m_both_arms_and_reference",
+    "GPT_preselected_per_stratum": 29,
+    "GPT_formal_request_cap": 348,
+    "GPT_model": "gpt-6.1-sol",
+    "GPT_smoke_successes_budget": 2,
+    "all_API_success_cap": 360,
+    "explicit_retry_attempt_cap": 20
+  },
+  "limitations": [
+    "adapted_category_prior_placement_baseline_not_authors_checkpoint",
+    "one_training_seed_bootstrap_excludes_training_run_variability",
+    "historical_exposed_test_split",
+    "prior_fit_pool_may_exceed_common_decoder_pool",
+    "human_UR_not_measured"
+  ]
+}

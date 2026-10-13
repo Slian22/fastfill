@@ -1,0 +1,2015 @@
+{
+  "schema_version": 1,
+  "report_date": "2026-10-13",
+  "generated_at_utc": "2026-10-13T08:29:52.174159+00:00",
+  "status": "interim_diagnostic_run_data_audit_complete_with_known_source_defects",
+  "language": "zh-CN",
+  "scope": {
+    "local_only": true,
+    "network_or_server_calls": false,
+    "code_edits": false,
+    "sources_searched": "仅同步本地完整数据审计、部署、验证及父任务直接 SSH 回执；最新进度为2026-10-13T07:49:46.330512+00:00。保留历史论文与legacy数值。",
+    "date_coverage": "论文2506.07570v2（本地审计标记2025-09-19）；本地实验报告2026-10-11至2026-10-13。",
+    "language_scope": "英语论文与协议、中文核验报告。",
+    "excluded": "不运行新实验、重训、推理、渲染、评分、SSH或测试全套；不将训练loss或工程验证当质量分数。",
+    "files_owned": [
+      "docs/research/20261013-unknown-size-comparison/current-results.md",
+      "docs/research/20261013-unknown-size-comparison/current-results.json"
+    ]
+  },
+  "sources": {
+    "paper": {
+      "path": "tmp/pdfs/optiscene-paper/paper.txt",
+      "sha256": "024b76675a48c5a97440dc53cd3dbac8073f3e8357313d7c4c1b0243dc01255c",
+      "evidence_type": "primary_author_report",
+      "weight": "high_for_transcription_only",
+      "independent_replication": false,
+      "locations": {
+        "table_1_lines": [
+          429,
+          438
+        ],
+        "table_2_lines": [
+          440,
+          448
+        ],
+        "test_counts_lines": [
+          453,
+          459
+        ],
+        "rendering_lines": [
+          1009,
+          1013
+        ],
+        "oor_definition_lines": [
+          1017,
+          1031
+        ]
+      }
+    },
+    "legacy_full": {
+      "path": "docs/research/20261011-v11-clean-dpo/evaluation_full/research-summary.json",
+      "sha256": "3994d56d6d90bf4b173281c3e8f6e395f2a843c30664fef9be1e9a9da3a59656",
+      "evidence_type": "verified_local_measurement_summary",
+      "weight": "high_for_frozen_legacy_diagnostics_only",
+      "independent_replication": false
+    },
+    "legacy_oor": {
+      "path": "docs/research/20261011-v11-clean-dpo/paper-metrics-20261013/oor-summary.json",
+      "sha256": "50b0382c790143cb81fe00fa136d0be1b3cab937e2e532799929bd48e9a526ca",
+      "evidence_type": "verified_reaggregation_of_same_legacy_outputs",
+      "weight": "high_for_stratum_values_only",
+      "independent_replication": false
+    },
+    "alignment": {
+      "path": "docs/research/20261011-v11-clean-dpo/paper-alignment-20261013.md",
+      "sha256": "22056636b56d4a3cdc93a9ce0432b77ca22fb527d10a57ab3aa398d48b878bdb",
+      "evidence_type": "secondary_local_audit",
+      "weight": "protocol_context_only",
+      "independent_replication": false
+    },
+    "protocol": {
+      "path": "docs/research/20261013-unknown-size-comparison/protocol.md",
+      "sha256": "f2fc11ec56d927f551a438fd14e83ff4ca64e5e4a0e60d4b5e47968e7853706e",
+      "evidence_type": "local_protocol_or_execution_record",
+      "weight": "configuration_or_historical_status_only"
+    },
+    "execution_lock": {
+      "path": "docs/research/20261013-unknown-size-comparison/execution-lock.json",
+      "sha256": "432158fcf1b4b91a9a98f85a3f3cdb0a5ad74d59b4d79b319d38dbfd1349b8bf",
+      "evidence_type": "local_protocol_or_execution_record",
+      "weight": "configuration_or_historical_status_only"
+    },
+    "state": {
+      "path": "docs/research/20261013-unknown-size-comparison/research-state.yaml",
+      "sha256": "d37aa46b292a0f1e646d2d2db57d9f73707390dfacc89a559cda58c3b622d6ff",
+      "evidence_type": "local_protocol_or_execution_record",
+      "weight": "configuration_or_historical_status_only",
+      "hash_scope": "historical_pre_sync_snapshot_not_current_file",
+      "temporal_scope": "由父任务维护的活动文件；本次当前状态只引用resume_live_status及full-audit部署证据。"
+    },
+    "execution_log": {
+      "path": "docs/research/20261013-unknown-size-comparison/research-log.md",
+      "sha256": "da9e62ca0261ccffc6b69a78be056efd3abe269c519d096e4bf9fdb1c5e5e676",
+      "evidence_type": "local_protocol_or_execution_record",
+      "weight": "configuration_or_historical_status_only",
+      "hash_scope": "historical_pre_sync_snapshot_not_current_file",
+      "temporal_scope": "由父任务维护的活动文件；本次当前状态只引用resume_live_status及full-audit部署证据。"
+    },
+    "renderer": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/renderer-handoff.md",
+      "sha256": "4a93503c8967fd90090a600b6c9a4a2618f22e437b382c34ec8d347ab8a01231",
+      "evidence_type": "local_protocol_or_execution_record",
+      "weight": "configuration_or_historical_status_only"
+    },
+    "parent_update": {
+      "type": "parent_direct_measurement_handoff_for_historical_configuration",
+      "date": "2026-10-13",
+      "text": "历史配置与规模：主数据7365659完成3h36m；prior pool124843、decoder train98923、dev8167、test8647；trainexcluded19307、eligiblefailedcommon25920；共同长度准入train98754、dev8151。dev不计算loss，仅从合格集固定取2间作训练后重新加载与生成合同探针。参考六层1009/1005资产合格、GPT174×2上限；CPU出网探针7367681调度耗时2秒。41项共享上下文针对性测试为历史验证，不与最新681项相加。当前运行状态以resume_live_status为准。",
+      "weight": "父任务测量交接；配置及历史规模，不是当前质量分数",
+      "independent_replication": false
+    },
+    "sft_joint_length_receipt": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/sft-joint-001/lengths.json",
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "evidence_type": "downloaded_server_length_admission_receipt",
+      "weight": "high_for_exact_admitted_counts_and_membership",
+      "independent_replication": false,
+      "note": "Both arm receipt files are byte-identical; they document shared admission, not independent repeated measurements.",
+      "field_pointers": {
+        "train_input": "/train/input_count",
+        "train_admitted": "/train/accepted_count",
+        "train_membership": "/train/accepted_uids",
+        "dev_input": "/dev/input_count",
+        "dev_admitted": "/dev/accepted_count",
+        "dev_membership": "/dev/accepted_uids",
+        "token_limit": "/train/max_len"
+      }
+    },
+    "sft_placement_length_receipt": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/sft-placement-001/lengths.json",
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "evidence_type": "downloaded_server_length_admission_receipt",
+      "weight": "high_for_exact_admitted_counts_and_membership",
+      "independent_replication": false,
+      "note": "Both arm receipt files are byte-identical; they document shared admission, not independent repeated measurements.",
+      "field_pointers": {
+        "train_input": "/train/input_count",
+        "train_admitted": "/train/accepted_count",
+        "train_membership": "/train/accepted_uids",
+        "dev_input": "/dev/input_count",
+        "dev_admitted": "/dev/accepted_count",
+        "dev_membership": "/dev/accepted_uids",
+        "token_limit": "/train/max_len"
+      }
+    },
+    "long_context_amendment": {
+      "path": "docs/research/20261013-unknown-size-comparison/long-context-amendment.json",
+      "sha256": "d753e7ecae4983152aae43519145cf2b8cce8fcba31072d70af2b9d1ff99dd67",
+      "evidence_type": "parent_locked_protocol_amendment",
+      "weight": "high_for_current_inference_configuration"
+    },
+    "context_capacity": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/context-capacity-result.json",
+      "sha256": "61face1f869fb9fe7ca157d8f57a7670785c15dea622ed0228a12c80b7a48e0c",
+      "evidence_type": "parent_direct_SSH_capacity_measurement_download",
+      "weight": "high_for_measured_synthetic_shape_only"
+    },
+    "context_capacity_job": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/context-capacity-job.json",
+      "sha256": "d194e5d40bcdd00ff9de8e4f98f46a2c434754b1a39325a449671d8d60cc3af6",
+      "evidence_type": "parent_SSH_job_receipt",
+      "weight": "job_identity_only"
+    },
+    "jason_context_review": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-context-length-review-20261013.md",
+      "sha256": "ccbfdb0666e09ff8b5b622cbea4b1e05e75147bdcdd4d5c7eef6b1192a0ee3b9",
+      "evidence_type": "independent_local_review_of_same_receipts",
+      "weight": "length_analysis_and_scope_caveats_not_independent_experiment",
+      "reviewer": "Agent Jason (parent attribution)",
+      "independent_experiment": false,
+      "temporal_scope": "Earlier snapshot; pending-capacity statements and 93.25h estimate superseded by long-context amendment and CAPACITY_COMPLETE receipt. Shared-plan implementation is not certified by that older review."
+    },
+    "old_eval_jobs": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/eval-jobs.json",
+      "sha256": "3be633e6896379c03f8ddf9c4cfd18608be438ed5803b8561f24813fb549cadf",
+      "evidence_type": "parent_SSH_submission_receipt",
+      "weight": "historical_superseded_job_identity_only"
+    },
+    "replacement_eval_jobs": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/eval-context-jobs.json",
+      "sha256": "269caa9fcd87e9c86ad85009bf73747430d4779882258d726d51ebe03a575782",
+      "evidence_type": "parent_direct_SSH_submission_receipt",
+      "weight": "推理7367626/7367628身份仍有效；其中几何7367629已由7368009替换，见geometry_cancelled/geometry_verified"
+    },
+    "final_eval_snapshot": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/eval-context-snapshot-final.json",
+      "sha256": "12f4186aa765c6e6c6e478bb30ed84841b7e537ac5e858821ac969b49f797a48",
+      "evidence_type": "parent_frozen_snapshot_manifest",
+      "weight": "high_for_recorded_snapshot_binding_not_independent_archive_rehash"
+    },
+    "comparison_test_coverage": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-final-test-coverage.json",
+      "sha256": "9805f4200e27acaf54ff1e4c397c61feacbcd43c30e0264f91fef5cc938d50d7",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "automation_config": {
+      "path": "docs/research/20261013-unknown-size-comparison/automation-config-run003.json",
+      "sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "pipeline_snapshot": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-snapshot.json",
+      "sha256": "f10d6ac2df964a047f55b01a079e19ad9a5409ea70663fe32aef570e4bf9f25c",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false,
+      "temporal_scope": "manifest的预部署状态已由deployment_release、run003_started及resume_live_status确认的实际部署取代；文件身份与哈希沿用。"
+    },
+    "comparison_validation": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-final-validation.json",
+      "sha256": "b7cdc906d98182a73e20ff66b3bb434ceb05d5e64019a10f06c4a242bff16824",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false,
+      "temporal_scope": "07:27的681项验证；其尚未更新活动部署的历史说明已由run003_started取代。"
+    },
+    "api_egress_result": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/api-egress-result.json",
+      "sha256": "913592baa8dbf0979f73dea1723aab5fcd792c80399250c6d43eb436061dc1dd",
+      "evidence_type": "local_parent_execution_artifact",
+      "weight": "compute_node_network_reachability_only_not_authenticated_scoring",
+      "independent_replication": false
+    },
+    "api_egress_job": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/api-egress-job.json",
+      "sha256": "0fe207f5e0af342fb687518513e13823d55ba483571ecec0293d82ba2767c032",
+      "evidence_type": "local_parent_execution_artifact",
+      "weight": "recorded_configuration_or_process_identity",
+      "independent_replication": false
+    },
+    "api_queue_audit": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/api-queue-readonly-audit-20261013.json",
+      "sha256": "23f9a6ab50d6b6a69c316b38f15e14603aa607b55bac15f68dabafd2b44a3dab",
+      "evidence_type": "local_parent_execution_artifact",
+      "weight": "historical_readonly_estimate_not_reservation; egress_unverified_status_superseded_by_actual_probe",
+      "independent_replication": false
+    },
+    "live_training_qa": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-live-training-qa-20261013.md",
+      "sha256": "3057986520b2fc4aed3ded6187a3819dceafd7a45090eac1b986dd025f38e5ce",
+      "evidence_type": "independent_readonly_training_audit",
+      "weight": "independent_narrow_execution_audit; same_training_runs_not_independent_quality_replication",
+      "independent_replication": false,
+      "temporal_scope": "历史执行QA；其无需重训的宽泛结论已由full_audit_data取代。dev用途已纠正：仅长度准入，固定2间训练后探针，无dev loss。"
+    },
+    "full_audit_data": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-final-summary.json",
+      "sha256": "e9a6319e0e3ae8693e75b7f6b3390f019c705a89b9939085ab431e721e8af870",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "resume_live_status": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/resume-live-status-20261013.json",
+      "sha256": "02afb79b8e77fba00b465d443897d585e7758b63dba0ec51ac8e861967718b97",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false,
+      "observed_utc": "2026-10-13T07:49:46.330512+00:00",
+      "acquisition": {
+        "measured_by": "parent task",
+        "method": "direct SSH and local process/status readback",
+        "report_sync_server_calls": false
+      }
+    },
+    "run003_started": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-run003-started.json",
+      "sha256": "ca649e75c55d55a2bf6be86f0dab6ca72fbc7d1a9f7ccdecc214cb4490f0fea8",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "deployment_release": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-driver-release.json",
+      "sha256": "572e91f6fddc854cc95379b68c93e3315a1d3c9613b074f1cbac619ff2dc31c4",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "deployment_deadline": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-deadline.json",
+      "sha256": "8c4ad5dcd7491e1cdc6984a06c681c0a8f0a6081fdf49764dbc14a2e475dae77",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "geometry_cancelled": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-geometry-cancelled.json",
+      "sha256": "0ab7e3f6472cb34fcd8ac8dfce33e8f40429410c0a75721d9778153a5890b2e9",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "geometry_verified": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-geometry-verified.json",
+      "sha256": "d33ef713f517b4fe083ebd0c325fcd510014993fdb9752726c172506ee8bf8d7",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "old_driver_stopped": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-old-stopped.json",
+      "sha256": "5085f3a7abb5e20e82ab23f3b603421050231343e3396b75a5154d75a888fede",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "deployment_two_polls": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-two-polls.json",
+      "sha256": "7b92384108cacc9cdc147495e7dc665cabe5bcac56dcc696f4c2fb6fcdccce17",
+      "evidence_type": "locally_read_parent_audit_or_execution_receipt",
+      "weight": "仅支持已记录范围；工程验证与运行状态不是模型质量分数",
+      "independent_replication": false
+    },
+    "post_visual_live": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/post-visual-binding-live-status-20261013.json",
+      "sha256": "5b5967e4bacce37ac3a275346cf1e6da1520bee12b25ac50f553a54cbe354840",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "run004_started": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-deploy-run004-started.json",
+      "sha256": "97cc273b1a4fcd8f06041866d41c38edfbea2836e5c42d2c159da0c3023a7b0c",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "visual_binding_validation": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-full-validation.json",
+      "sha256": "254f6f6f0c63da6d7743e1867fe11a448924f39bc138121329b98ca2f6d3e0a1",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "visual_binding_coverage": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-full-coverage.json",
+      "sha256": "e4cafe5fe9c3919dae041b8d95f46100f7c42d0859445450958002db6d732fc2",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "visual_binding_snapshot": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-deploy-snapshot.json",
+      "sha256": "aee7ad6315e551b86fe5f2f590d3bafbd9d53b3f8f911cf858589b0192a095af",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "visual_binding_review": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-independent-review-20261013.md",
+      "sha256": "ec319268cc9fa2544aabc6f1083af59225a8f9facd1efb56d2fdf1631d750aff",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "automation_config_run004": {
+      "path": "docs/research/20261013-unknown-size-comparison/automation-config-run004.json",
+      "sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    },
+    "run003_stopped": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-deploy-old-stopped.json",
+      "sha256": "f04b44826c7db2ce9980ce890152a2ff5a1e32854e6fa2e0209a8d20bb3a7ae2",
+      "evidence_type": "direct_parent_execution_or_review_receipt",
+      "independent_replication": false
+    }
+  },
+  "legacy": {
+    "interpretation": "diagnostic_only",
+    "completed_evaluations": 12,
+    "expected_evaluations": 12,
+    "audit_status": "passed",
+    "summary_generated_at": "2026-10-11T23:22:10.818521+00:00",
+    "aggregation": {
+      "requests": "sum rooms over 18 source buckets; exclude overlapping in_dist and held_out aggregates",
+      "counts": "sum round(rooms * stored rate), each product checked within 1e-8 of integer",
+      "OOR": "room-micro mean: sum(source mean_oor * complete_source_count) / total_complete; math.fsum; derived from stored source summaries, not rescored",
+      "failure_policy": "OOR conditional on complete outputs; never impute failed OOR as zero; count rates use all requests",
+      "accepted": "accepted_rate and zero_collision_accepted_rate are distinct automatic checks, neither is human UR",
+      "precision": "JSON numbers retain extracted binary64 precision; Markdown OOR uses the same full decimal representations; counts displayed as exact fractions"
+    },
+    "test_rows": [
+      {
+        "stage": "sft",
+        "split": "test_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8647,
+        "complete": 8623,
+        "failed": 24,
+        "complete_rate": 0.9972244709147682,
+        "accepted": 5544,
+        "accepted_rate": 0.6411472186885625,
+        "zero_collision_accepted": 5443,
+        "zero_collision_accepted_rate": 0.6294668671215451,
+        "oor_denominator_complete": 8623,
+        "mean_oor_raw": 0.09231095566447703,
+        "mean_oor_repaired": 0.08338844453941181,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/sft~1test_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      },
+      {
+        "stage": "dpo1",
+        "split": "test_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8647,
+        "complete": 8629,
+        "failed": 18,
+        "complete_rate": 0.9979183531860761,
+        "accepted": 5645,
+        "accepted_rate": 0.65282757025558,
+        "zero_collision_accepted": 5592,
+        "zero_collision_accepted_rate": 0.6466982768590263,
+        "oor_denominator_complete": 8629,
+        "mean_oor_raw": 0.07440924089914686,
+        "mean_oor_repaired": 0.06955183775081666,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/dpo1~1test_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      },
+      {
+        "stage": "final",
+        "split": "test_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8647,
+        "complete": 8615,
+        "failed": 32,
+        "complete_rate": 0.9962992945530241,
+        "accepted": 5753,
+        "accepted_rate": 0.6653174511391234,
+        "zero_collision_accepted": 5717,
+        "zero_collision_accepted_rate": 0.6611541575112756,
+        "oor_denominator_complete": 8615,
+        "mean_oor_raw": 0.0619245451137539,
+        "mean_oor_repaired": 0.06077252085670563,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/final~1test_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      },
+      {
+        "stage": "sft",
+        "split": "test_constrained_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8533,
+        "complete": 8504,
+        "failed": 29,
+        "complete_rate": 0.9966014297433493,
+        "accepted": 3392,
+        "accepted_rate": 0.39751552795031053,
+        "zero_collision_accepted": 3334,
+        "zero_collision_accepted_rate": 0.39071838743700926,
+        "oor_denominator_complete": 8504,
+        "mean_oor_raw": 0.0934409534852313,
+        "mean_oor_repaired": 0.08427535764103222,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/sft~1test_constrained_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      },
+      {
+        "stage": "dpo1",
+        "split": "test_constrained_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8533,
+        "complete": 8510,
+        "failed": 23,
+        "complete_rate": 0.9973045822102425,
+        "accepted": 3252,
+        "accepted_rate": 0.381108637056135,
+        "zero_collision_accepted": 3221,
+        "zero_collision_accepted_rate": 0.3774756826438533,
+        "oor_denominator_complete": 8510,
+        "mean_oor_raw": 0.0764592572865504,
+        "mean_oor_repaired": 0.06957187872762623,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/dpo1~1test_constrained_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      },
+      {
+        "stage": "final",
+        "split": "test_constrained_rooms",
+        "status": "complete",
+        "source_count": 18,
+        "requests": 8533,
+        "complete": 8497,
+        "failed": 36,
+        "complete_rate": 0.9957810851986406,
+        "accepted": 3318,
+        "accepted_rate": 0.3888433141919606,
+        "zero_collision_accepted": 3291,
+        "zero_collision_accepted_rate": 0.38567912809094107,
+        "oor_denominator_complete": 8497,
+        "mean_oor_raw": 0.0619408503848864,
+        "mean_oor_repaired": 0.061119939404803654,
+        "source_ref": "legacy_full",
+        "source_json_pointer": "/evaluations/final~1test_constrained_rooms/metrics",
+        "FID": null,
+        "GPT": null,
+        "UR": null
+      }
+    ],
+    "six_strata_aggregate": {
+      "sft": {
+        "requests": 1009,
+        "complete": 1009,
+        "failed": 0,
+        "parse_or_generation_failures": 0,
+        "schema_failures": 0,
+        "failure_by_error": {},
+        "invalid_geometry_raw": 25,
+        "invalid_geometry_repaired": 0,
+        "oor_denominator_complete": 1009,
+        "mean_oor_fraction": 0.02449645591023937,
+        "mean_oor_repaired_fraction": 0.0249476146740085,
+        "mean_oor_percent": 2.449645591023937,
+        "mean_oor_repaired_percent": 2.49476146740085
+      },
+      "dpo1": {
+        "requests": 1009,
+        "complete": 1009,
+        "failed": 0,
+        "parse_or_generation_failures": 0,
+        "schema_failures": 0,
+        "failure_by_error": {},
+        "invalid_geometry_raw": 26,
+        "invalid_geometry_repaired": 0,
+        "oor_denominator_complete": 1009,
+        "mean_oor_fraction": 0.02064697263310165,
+        "mean_oor_repaired_fraction": 0.022229749374957277,
+        "mean_oor_percent": 2.064697263310165,
+        "mean_oor_repaired_percent": 2.2229749374957275
+      },
+      "final": {
+        "requests": 1009,
+        "complete": 1009,
+        "failed": 0,
+        "parse_or_generation_failures": 0,
+        "schema_failures": 0,
+        "failure_by_error": {},
+        "invalid_geometry_raw": 20,
+        "invalid_geometry_repaired": 0,
+        "oor_denominator_complete": 1009,
+        "mean_oor_fraction": 0.019079714737419873,
+        "mean_oor_repaired_fraction": 0.01988249441637095,
+        "mean_oor_percent": 1.9079714737419873,
+        "mean_oor_repaired_percent": 1.9882494416370948
+      }
+    },
+    "six_strata_selection": "Exact source and normalized room_type; living dining room is not merged into living room.",
+    "six_strata_excluded_from_1375_source_subset": 366,
+    "oor_verification": {
+      "verified_cases": 4125,
+      "numerical_oor_comparisons": 8246,
+      "failure_oor_absence_checks": 4,
+      "mismatches": 0,
+      "absolute_tolerance": 1e-12,
+      "relative_tolerance": 1e-12
+    },
+    "limitations": [
+      "Object order and category-index assignment inherit reference footprint dimensions and pose tie-breaking from V1 canonicalization. Removing explicit size fields does not remove this target-derived information. These results do not establish performance for arbitrary object lists with unknown sizes.",
+      "The frozen SFT/DPO stage comparison remains a diagnostic comparison under that original input contract. Its inferential labels describe only the preregistered checker proxy on these cohorts; they do not establish general size-unknown deployment validity, causal benefits of cleaning alone, or physical mesh quality.",
+      "A target-independent input order requires a separately versioned data contract, rebuilt training/evaluation data and a new training protocol. Existing generated outputs and metrics are preserved; the scoring function and model recipe are not changed retrospectively.",
+      "This report is published only after independent CPU rescoring of all saved outputs with the original frozen scorer and interpreter, and verification of the DPO model training/merge lineage. Failure is reported as incomplete without inferential conclusions."
+    ]
+  },
+  "paper_adjacent_legacy_six_strata": [
+    {
+      "label_zh": "3D-FRONT 卧室",
+      "legacy_stratum": "IL3D_3dfront/bedroom",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 423,
+        "FID": 33.56,
+        "OOR": 0.03,
+        "GPT_functionality": 8.6,
+        "GPT_layout": 9.1,
+        "GPT_aesthetics": 9.3,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 419,
+        "stages": {
+          "sft": {
+            "requests": 419,
+            "complete": 419,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 14,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 419,
+            "mean_oor_fraction": 0.013213173403657817,
+            "mean_oor_repaired_fraction": 0.013303381601860845,
+            "mean_oor_percent": 1.3213173403657816,
+            "mean_oor_repaired_percent": 1.3303381601860846
+          },
+          "dpo1": {
+            "requests": 419,
+            "complete": 419,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 16,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 419,
+            "mean_oor_fraction": 0.011649644158070285,
+            "mean_oor_repaired_fraction": 0.013222050303196675,
+            "mean_oor_percent": 1.1649644158070285,
+            "mean_oor_repaired_percent": 1.3222050303196675
+          },
+          "final": {
+            "requests": 419,
+            "complete": 419,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 13,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 419,
+            "mean_oor_fraction": 0.01070657114291203,
+            "mean_oor_repaired_fraction": 0.011440604049941405,
+            "mean_oor_percent": 1.070657114291203,
+            "mean_oor_repaired_percent": 1.1440604049941405
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/IL3D_3dfront~1bedroom",
+      "head_to_head": false
+    },
+    {
+      "label_zh": "3D-FRONT 客厅",
+      "legacy_stratum": "IL3D_3dfront/living room",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 53,
+        "FID": 37.68,
+        "OOR": 0.08,
+        "GPT_functionality": 8.8,
+        "GPT_layout": 8.7,
+        "GPT_aesthetics": 9,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 87,
+        "stages": {
+          "sft": {
+            "requests": 87,
+            "complete": 87,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 11,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 87,
+            "mean_oor_fraction": 0.05689886775213029,
+            "mean_oor_repaired_fraction": 0.05167293995531056,
+            "mean_oor_percent": 5.689886775213028,
+            "mean_oor_repaired_percent": 5.167293995531056
+          },
+          "dpo1": {
+            "requests": 87,
+            "complete": 87,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 9,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 87,
+            "mean_oor_fraction": 0.05099720302308099,
+            "mean_oor_repaired_fraction": 0.050610379871133135,
+            "mean_oor_percent": 5.099720302308099,
+            "mean_oor_repaired_percent": 5.0610379871133135
+          },
+          "final": {
+            "requests": 87,
+            "complete": 87,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 7,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 87,
+            "mean_oor_fraction": 0.049519649449003396,
+            "mean_oor_repaired_fraction": 0.047933138183089634,
+            "mean_oor_percent": 4.95196494490034,
+            "mean_oor_repaired_percent": 4.793313818308963
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/IL3D_3dfront~1living room",
+      "head_to_head": false
+    },
+    {
+      "label_zh": "3D-SynthPlace 卧室",
+      "legacy_stratum": "OptiScene_holodeck/bedroom",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 50,
+        "FID": 26.45,
+        "OOR": 0.01,
+        "GPT_functionality": 8.7,
+        "GPT_layout": 9,
+        "GPT_aesthetics": 9.2,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 115,
+        "stages": {
+          "sft": {
+            "requests": 115,
+            "complete": 115,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 115,
+            "mean_oor_fraction": 0.004041512550520276,
+            "mean_oor_repaired_fraction": 0.003704316409993885,
+            "mean_oor_percent": 0.4041512550520276,
+            "mean_oor_repaired_percent": 0.37043164099938847
+          },
+          "dpo1": {
+            "requests": 115,
+            "complete": 115,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 115,
+            "mean_oor_fraction": 0.004850055799372488,
+            "mean_oor_repaired_fraction": 0.0048386889064787235,
+            "mean_oor_percent": 0.4850055799372488,
+            "mean_oor_repaired_percent": 0.48386889064787236
+          },
+          "final": {
+            "requests": 115,
+            "complete": 115,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 115,
+            "mean_oor_fraction": 0.0025803856866879506,
+            "mean_oor_repaired_fraction": 0.002515821110871406,
+            "mean_oor_percent": 0.25803856866879504,
+            "mean_oor_repaired_percent": 0.25158211108714057
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/OptiScene_holodeck~1bedroom",
+      "head_to_head": false
+    },
+    {
+      "label_zh": "3D-SynthPlace 客厅",
+      "legacy_stratum": "OptiScene_holodeck/living room",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 50,
+        "FID": 31.25,
+        "OOR": 0.02,
+        "GPT_functionality": 8.9,
+        "GPT_layout": 9.2,
+        "GPT_aesthetics": 9.1,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 131,
+        "stages": {
+          "sft": {
+            "requests": 131,
+            "complete": 131,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 131,
+            "mean_oor_fraction": 0.05987378180872774,
+            "mean_oor_repaired_fraction": 0.06122995077955864,
+            "mean_oor_percent": 5.987378180872774,
+            "mean_oor_repaired_percent": 6.1229950779558635
+          },
+          "dpo1": {
+            "requests": 131,
+            "complete": 131,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 1,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 131,
+            "mean_oor_fraction": 0.05244117179994702,
+            "mean_oor_repaired_fraction": 0.054017675991209206,
+            "mean_oor_percent": 5.244117179994702,
+            "mean_oor_repaired_percent": 5.40176759912092
+          },
+          "final": {
+            "requests": 131,
+            "complete": 131,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 131,
+            "mean_oor_fraction": 0.05409090110001628,
+            "mean_oor_repaired_fraction": 0.055238108636791024,
+            "mean_oor_percent": 5.409090110001627,
+            "mean_oor_repaired_percent": 5.523810863679103
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/OptiScene_holodeck~1living room",
+      "head_to_head": false
+    },
+    {
+      "label_zh": "3D-SynthPlace 厨房",
+      "legacy_stratum": "OptiScene_holodeck/kitchen",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 50,
+        "FID": 41.73,
+        "OOR": 0.05,
+        "GPT_functionality": 8.4,
+        "GPT_layout": 8.3,
+        "GPT_aesthetics": 8.8,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 129,
+        "stages": {
+          "sft": {
+            "requests": 129,
+            "complete": 129,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 129,
+            "mean_oor_fraction": 0.028654876604409373,
+            "mean_oor_repaired_fraction": 0.02925191684587671,
+            "mean_oor_percent": 2.8654876604409374,
+            "mean_oor_repaired_percent": 2.925191684587671
+          },
+          "dpo1": {
+            "requests": 129,
+            "complete": 129,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 129,
+            "mean_oor_fraction": 0.01800498494513835,
+            "mean_oor_repaired_fraction": 0.019368652138282143,
+            "mean_oor_percent": 1.8004984945138351,
+            "mean_oor_repaired_percent": 1.9368652138282143
+          },
+          "final": {
+            "requests": 129,
+            "complete": 129,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 129,
+            "mean_oor_fraction": 0.008891200041693357,
+            "mean_oor_repaired_fraction": 0.009775522713203337,
+            "mean_oor_percent": 0.8891200041693357,
+            "mean_oor_repaired_percent": 0.9775522713203336
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/OptiScene_holodeck~1kitchen",
+      "head_to_head": false
+    },
+    {
+      "label_zh": "3D-SynthPlace 浴室",
+      "legacy_stratum": "OptiScene_holodeck/bathroom",
+      "paper_reference": {
+        "method": "OptiScene",
+        "test_requests": 50,
+        "FID": 35.29,
+        "OOR": 0.02,
+        "GPT_functionality": 8.7,
+        "GPT_layout": 9.4,
+        "GPT_aesthetics": 9,
+        "GPT_judge": "GPT-4o",
+        "source_ref": "paper",
+        "table_ids": [
+          1,
+          2
+        ]
+      },
+      "legacy_actual": {
+        "scene_count": 128,
+        "stages": {
+          "sft": {
+            "requests": 128,
+            "complete": 128,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 128,
+            "mean_oor_fraction": 0.017388159536262424,
+            "mean_oor_repaired_fraction": 0.02251455723744759,
+            "mean_oor_percent": 1.7388159536262424,
+            "mean_oor_repaired_percent": 2.251455723744759
+          },
+          "dpo1": {
+            "requests": 128,
+            "complete": 128,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 128,
+            "mean_oor_fraction": 0.013786287819658799,
+            "mean_oor_repaired_fraction": 0.01840120381696912,
+            "mean_oor_percent": 1.3786287819658798,
+            "mean_oor_repaired_percent": 1.8401203816969118
+          },
+          "final": {
+            "requests": 128,
+            "complete": 128,
+            "failed": 0,
+            "parse_or_generation_failures": 0,
+            "schema_failures": 0,
+            "failure_by_error": {},
+            "invalid_geometry_raw": 0,
+            "invalid_geometry_repaired": 0,
+            "oor_denominator_complete": 128,
+            "mean_oor_fraction": 0.015059001216121288,
+            "mean_oor_repaired_fraction": 0.018055364516335756,
+            "mean_oor_percent": 1.5059001216121288,
+            "mean_oor_repaired_percent": 1.8055364516335757
+          }
+        }
+      },
+      "legacy_source_ref": "legacy_oor",
+      "legacy_json_pointer": "/paper_six_strata/strata/OptiScene_holodeck~1bathroom",
+      "head_to_head": false
+    }
+  ],
+  "comparability": {
+    "head_to_head": false,
+    "winner": null,
+    "differences": [
+      "dataset: paper 676 test layouts vs legacy six-strata 1009 and all-source test 8647; identical IDs not established",
+      "input: paper retrieved known asset sizes and reasoning; legacy unknown movable sizes with target-derived ordering/IDs and JSON placements",
+      "model: paper generic Qwen3-8B training; legacy inherits liantian/OptiScene-Qwen-8B-Final, author-checkpoint identity and upstream history not established; new J/P use pinned generic Qwen3-8B",
+      "render_protocol: paper Isaac Sim/GPT-4o; legacy has no measured FID/GPT; new planned Blender real-asset renders and gpt-6.1-sol differ from paper",
+      "metric: legacy unrotated XY box area OOR is conditional on complete outputs; repaired system outputs are separate; paper rotation/aggregation/failure details incompletely specified"
+    ],
+    "confidence": "高：已提供本地数值的转录与算术核对；无跨协议胜负结论；新实验状态仅父任务报告。"
+  },
+  "new_unknown_size": {
+    "status": "diagnostic_frozen_corpus_sft_running",
+    "primary_endpoint": "matched_SFT_J0_vs_P0",
+    "scores_available": false,
+    "scheduler_queried": true,
+    "live_job_states": {
+      "7365659": "COMPLETED",
+      "7365681": "RUNNING",
+      "7365682": "RUNNING",
+      "7367626": "PENDING",
+      "7367628": "PENDING",
+      "7368009": "PENDING"
+    },
+    "status_source_ref": "post_visual_live",
+    "parent_main_job": 7365659,
+    "sft_jobs": [
+      7365681,
+      7365682
+    ],
+    "per_arm_job_binding": "local_research_state_records_7365681_joint_7365682_placement",
+    "base_repository": "Qwen/Qwen3-8B",
+    "base_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "training_lock": {
+      "seed": 42,
+      "epochs": 1,
+      "batch_size": 1,
+      "gradient_accumulation_steps": 4,
+      "max_sequence_length": 8192,
+      "learning_rate": 5e-05,
+      "lora": {
+        "r": 32,
+        "alpha": 64,
+        "dropout": 0.05
+      }
+    },
+    "test_scope": {
+      "sources": 18,
+      "requests_per_arm": 8647,
+      "historical_exposed_split": true,
+      "source_refs": [
+        "execution_lock",
+        "full_audit_data"
+      ],
+      "all_requests_retained": true,
+      "train_dev_length_admission_applies": false
+    },
+    "reference_six_strata": {
+      "reference_requests": 1009,
+      "asset_eligible_requests": 1005,
+      "asset_eligibility_is_not_render_success": true,
+      "source_refs": [
+        "parent_update"
+      ],
+      "legacy_same_count_source_ref": "legacy_oor",
+      "new_same_ids_as_legacy_verified": false
+    },
+    "GPT_plan": {
+      "per_stratum_per_arm": 29,
+      "rooms_per_arm": 174,
+      "arm_count": 2,
+      "formal_requests_cap": 348,
+      "completed_formal_requests": null,
+      "judge": "gpt-6.1-sol",
+      "source_refs": [
+        "execution_lock",
+        "parent_update"
+      ]
+    },
+    "visual_lock": {
+      "resolution": 512,
+      "samples": 32,
+      "denoise": true,
+      "views": [
+        "perspective",
+        "top"
+      ],
+      "FID_view": "perspective",
+      "FID_features": 2048,
+      "known_assets": "reference_identity_sidecar_fitted_to_each_layout_own_dimensions",
+      "unknown_height": "render_only_uniform_3m_both_arms_and_reference",
+      "GPT_preselected_per_stratum": 29,
+      "GPT_formal_request_cap": 348,
+      "GPT_model": "gpt-6.1-sol",
+      "GPT_smoke_successes_budget": 2,
+      "all_API_success_cap": 360,
+      "explicit_retry_attempt_cap": 20
+    },
+    "arms": [
+      {
+        "arm": "J0",
+        "description_zh": "联合预测尺寸、位置、朝向",
+        "status": "diagnostic_frozen_corpus_sft_running",
+        "complete": null,
+        "accepted": null,
+        "OOR_raw": null,
+        "OOR_repaired": null,
+        "FID": null,
+        "GPT": null,
+        "UR": null,
+        "sft_job_id": 7365681,
+        "reported_state": "RUNNING",
+        "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+        "elapsed_display": "03:57:01",
+        "elapsed_seconds": 14221,
+        "step": 5853,
+        "total_steps": 24689,
+        "progress_percent": 23.71,
+        "displayed_eta": "11:29:27",
+        "eta_is_estimate": true,
+        "source_ref": "post_visual_live"
+      },
+      {
+        "arm": "P0",
+        "description_zh": "仅训练集拟合尺寸先验，再预测布局；训练用分组OOF尺寸",
+        "status": "diagnostic_frozen_corpus_sft_running",
+        "complete": null,
+        "accepted": null,
+        "OOR_raw": null,
+        "OOR_repaired": null,
+        "FID": null,
+        "GPT": null,
+        "UR": null,
+        "sft_job_id": 7365682,
+        "reported_state": "RUNNING",
+        "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+        "elapsed_display": "03:57:01",
+        "elapsed_seconds": 14221,
+        "step": 5450,
+        "total_steps": 24689,
+        "progress_percent": 22.07,
+        "displayed_eta": "13:15:58",
+        "eta_is_estimate": true,
+        "source_ref": "post_visual_live"
+      }
+    ],
+    "human_UR_status": "not_measured",
+    "pilot_and_api_smoke_are_quality_scores": false,
+    "limitations": [
+      "adapted_category_prior_placement_baseline_not_authors_checkpoint",
+      "one_training_seed_bootstrap_excludes_training_run_variability",
+      "historical_exposed_test_split",
+      "prior_fit_pool_may_exceed_common_decoder_pool",
+      "human_UR_not_measured",
+      "known_source_geometry_defects_in_training_context_targets_priors_and_test",
+      "corrected_data_and_paired_retraining_required_for_clean_scientific_claims",
+      "dev_length_qualification_is_not_full_dev_evaluation"
+    ],
+    "jobs": {
+      "main_data": {
+        "job_id": 7365659,
+        "reported_state": "COMPLETED",
+        "elapsed_hours": 3,
+        "elapsed_minutes_remainder": 36,
+        "elapsed_display": "03:36:08",
+        "elapsed_seconds": 12968,
+        "source_ref": "resume_live_status"
+      },
+      "sft": [
+        {
+          "job_id": 7365681,
+          "reported_state": "RUNNING",
+          "arm": "joint",
+          "observed_utc": "2026-10-13T07:49:46.330512+00:00",
+          "elapsed_display": "03:18:56",
+          "elapsed_seconds": 11936,
+          "step": 4881,
+          "total_steps": 24689,
+          "progress_percent": 19.77,
+          "displayed_eta": "12:18:02",
+          "eta_is_estimate": true,
+          "source_refs": [
+            "resume_live_status"
+          ]
+        },
+        {
+          "job_id": 7365682,
+          "reported_state": "RUNNING",
+          "arm": "placement",
+          "observed_utc": "2026-10-13T07:49:46.330512+00:00",
+          "elapsed_display": "03:18:56",
+          "elapsed_seconds": 11936,
+          "step": 4550,
+          "total_steps": 24689,
+          "progress_percent": 18.43,
+          "displayed_eta": "13:24:27",
+          "eta_is_estimate": true,
+          "source_refs": [
+            "resume_live_status"
+          ]
+        }
+      ],
+      "inference": [
+        {
+          "job_id": 7367626,
+          "arm": "joint",
+          "reported_state": "PENDING",
+          "dependency_type": "afterok",
+          "dependency_job_id": 7365681,
+          "wall_hours_cap": 22,
+          "snapshot": "eval-context-f1218f816e4b",
+          "source_refs": [
+            "replacement_eval_jobs",
+            "resume_live_status"
+          ],
+          "reason": "Dependency"
+        },
+        {
+          "job_id": 7367628,
+          "arm": "placement",
+          "reported_state": "PENDING",
+          "dependency_type": "afterok",
+          "dependency_job_id": 7365682,
+          "wall_hours_cap": 22,
+          "snapshot": "eval-context-f1218f816e4b",
+          "source_refs": [
+            "replacement_eval_jobs",
+            "resume_live_status"
+          ],
+          "reason": "Dependency"
+        }
+      ],
+      "geometry": {
+        "job_id": 7368009,
+        "reported_state": "PENDING",
+        "dependency_type": "afterok",
+        "dependency_job_ids": [
+          7367626,
+          7367628
+        ],
+        "wall_hours_cap": 2,
+        "snapshot": "pipeline-full-audit-a8726c726f72",
+        "source_refs": [
+          "geometry_verified",
+          "resume_live_status"
+        ],
+        "reason": "Dependency"
+      },
+      "source_ref": "resume_live_status",
+      "direct_scheduler_verification": false,
+      "per_arm_job_binding": "parent_direct_SSH_receipt",
+      "dependency_job_bindings": "推理分别afterok依赖7365681/7365682；几何7368009 afterok依赖7367626和7367628。",
+      "replacement_plan": {
+        "status": "full_audit_geometry_replacement_submitted_pending",
+        "submitted_at_utc": "2026-10-13T07:40:55+00:00",
+        "inference_joint_job_id": 7367626,
+        "inference_placement_job_id": 7367628,
+        "geometry_job_id": 7368009,
+        "source_refs": [
+          "geometry_verified",
+          "resume_live_status"
+        ]
+      },
+      "superseded_cancelled_jobs": [
+        {
+          "job_id": 7367601,
+          "reported_state": "CANCELLED",
+          "dependency_type": "afterok",
+          "arm": "joint",
+          "previous_parent_observed_scheduler_state": "QUEUED",
+          "historical_dependency_job_id": 7365681,
+          "replacement_job_id": 7367626,
+          "replacement_id_status": "confirmed_in_local_submission_receipt",
+          "cancellation_or_replacement_submission_verified": true,
+          "superseded": true,
+          "scheduler_state_at_cancellation": "PENDING",
+          "verification_scope": "parent direct SSH measurement plus local submission receipt/log; no sidecar scheduler query",
+          "gpu_allocated": false,
+          "inference_executed": false,
+          "outputs_created": false,
+          "source_refs": [
+            "parent_update",
+            "execution_log",
+            "replacement_eval_jobs"
+          ]
+        },
+        {
+          "job_id": 7367602,
+          "reported_state": "CANCELLED",
+          "dependency_type": "afterok",
+          "arm": "placement",
+          "previous_parent_observed_scheduler_state": "QUEUED",
+          "historical_dependency_job_id": 7365682,
+          "replacement_job_id": 7367628,
+          "replacement_id_status": "confirmed_in_local_submission_receipt",
+          "cancellation_or_replacement_submission_verified": true,
+          "superseded": true,
+          "scheduler_state_at_cancellation": "PENDING",
+          "verification_scope": "parent direct SSH measurement plus local submission receipt/log; no sidecar scheduler query",
+          "gpu_allocated": false,
+          "inference_executed": false,
+          "outputs_created": false,
+          "source_refs": [
+            "parent_update",
+            "execution_log",
+            "replacement_eval_jobs"
+          ]
+        },
+        {
+          "job_id": 7367603,
+          "reported_state": "CANCELLED",
+          "dependency_type": "afterok",
+          "previous_parent_observed_scheduler_state": "QUEUED",
+          "historical_dependency_job_ids": [
+            7367601,
+            7367602
+          ],
+          "replacement_job_id": 7367629,
+          "replacement_id_status": "confirmed_in_local_submission_receipt",
+          "cancellation_or_replacement_submission_verified": true,
+          "superseded": true,
+          "scheduler_state_at_cancellation": "PENDING",
+          "verification_scope": "parent direct SSH measurement plus local submission receipt/log; no sidecar scheduler query",
+          "gpu_allocated": false,
+          "inference_executed": false,
+          "outputs_created": false,
+          "source_refs": [
+            "parent_update",
+            "execution_log",
+            "replacement_eval_jobs"
+          ]
+        },
+        {
+          "job_id": 7367629,
+          "reported_state": "CANCELLED",
+          "cancelled_at_utc": "2026-10-13T07:37:10+00:00",
+          "scheduler_state_at_cancellation": "PENDING",
+          "replacement_job_id": 7368009,
+          "superseded": true,
+          "elapsed_seconds": 0,
+          "runtime_display": "00:00:00",
+          "resources_allocated": false,
+          "batch_step_records_absent": true,
+          "batch_log_absent": true,
+          "outputs_created": false,
+          "source_refs": [
+            "geometry_cancelled",
+            "resume_live_status"
+          ],
+          "note": "sacct Start=None；scontrol在取消时填入相同StartTime/EndTime，不代表执行。"
+        }
+      ],
+      "source_refs": [
+        "resume_live_status",
+        "geometry_verified",
+        "geometry_cancelled"
+      ]
+    },
+    "data_preparation": {
+      "status": "completed_audited_with_known_source_defects",
+      "common_decoder_train_before_common_length": 98923,
+      "dev_requests": 8167,
+      "test_requests": 8647,
+      "prior_pool": 124843,
+      "train_excluded_reported": 19307,
+      "eligible_failed_common_reported": 25920,
+      "train_excluded_definition": "release train144150中19307因历史eligibility不进入prior pool；另25920个eligible房间未通过共同decoder qualification。",
+      "length_admission": {
+        "training_updates_reported": 24689,
+        "training_rows_exact": 98754,
+        "receipt_available_to_sidecar": true,
+        "note": "两臂共同train/dev长度准入计数和UID一致；dev无loss，仅固定2间用于训练后探针。正式test全部8647请求保留；updates不能反推训练行数。",
+        "max_sequence_length": 8192,
+        "train_input_count": 98923,
+        "train_dropped_count": 169,
+        "dev_input_count": 8167,
+        "dev_rows_exact": 8151,
+        "dev_dropped_count": 16,
+        "dev_admission_scope": "length_qualified_pool_for_fixed_2_posttraining_probes",
+        "formal_test_requests_retained": 8647,
+        "formal_test_length_filter_applied": false,
+        "both_arm_receipts_match": true,
+        "source_refs": [
+          "sft_joint_length_receipt",
+          "sft_placement_length_receipt"
+        ],
+        "scope_source_ref": "parent_update",
+        "dev_loss_computed": false,
+        "posttraining_probe_room_count": 2
+      },
+      "source_ref": "full_audit_data",
+      "source_refs": [
+        "full_audit_data",
+        "sft_joint_length_receipt",
+        "sft_placement_length_receipt"
+      ]
+    },
+    "long_context_inference": {
+      "status": "capacity_passed_amendment_locked_replacement_jobs_queued",
+      "source_refs": [
+        "long_context_amendment",
+        "context_capacity",
+        "context_capacity_job",
+        "replacement_eval_jobs",
+        "final_eval_snapshot",
+        "execution_log"
+      ],
+      "locked_after_capacity_at_utc": "2026-10-13T05:30:10.448617+00:00",
+      "capacity_job_id": 7367612,
+      "capacity_result": {
+        "status": "CAPACITY_COMPLETE",
+        "quality_claim": false,
+        "batch_size": 8,
+        "cached_tokens": 40960,
+        "elapsed_seconds": 51.54129073000513,
+        "peak_allocated_bytes": 73998618112,
+        "peak_reserved_bytes": 100411637760,
+        "gpu_total_bytes": 102005473280,
+        "scope": "synthetic dev-token cache pressure test; chunked prefill differs from formal unchunked prompt prefill; no quality or throughput claim"
+      },
+      "planned_inference": {
+        "batch_size": 8,
+        "max_input_tokens": 40959,
+        "max_new_tokens": 40959,
+        "context_budget": 40960,
+        "per_batch_new_tokens": "min(max_new_tokens,40960-max eligible padded input width across BOTH arm requests)",
+        "wall_hours_each": 22
+      },
+      "shared_batch_rule": "W = maximum eligible padded input width over BOTH arms for the same batch; same effective cap=min(40959,40960-W); normal EOS stopping; all requested UIDs retained including explicit overflow failures",
+      "quality_or_runtime_guarantee": false,
+      "shared_plan_implementation_independently_verified_by_sidecar": false,
+      "training_decision": "保留当前配对8K SFT为诊断证据，披露169/98923长度排除，不截断目标。干净的科学结论需要修正数据并配对重训；本次同步不启动实验。正式test保留全部8647请求。",
+      "requested_GPU_hours_after_replacing_pending_inference_jobs": 93.75,
+      "absolute_cap": 96,
+      "earlier_budget_note": "93.75h includes the 0.5h context probe; earlier review93.25h is superseded.",
+      "final_snapshot": {
+        "snapshot": "eval-context-f1218f816e4b",
+        "archive_sha256": "d242c430abeadbfbde00f92501414e49ded0442fdf19f150071bce681ffe69ab",
+        "code_sha256": {
+          "fastfill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+          "fastfill/anchors.py": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+          "fastfill/validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+          "fastfill/build.py": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+          "fastfill/split.py": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+          "fastfill/interface.py": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+          "fastfill/requirements.txt": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+          "fastfill/comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+          "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+          "fastfill/comparison/data.py": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+          "fastfill/comparison/size_prior.py": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+          "fastfill/comparison/corpus.py": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+          "fastfill/comparison/eval_data.py": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+          "fastfill/comparison/train_pair_helpers.py": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+          "fastfill/comparison/infer.py": "61090b654451d4663631aa9ae7643e597beb93458abd47ef32210978bec3a7bc",
+          "fastfill/comparison/geometry.py": "567bd7455be1a5efe245c52faa01f49938ad97216b3a02de30d1840479fd2796",
+          "fastfill/comparison/evaluate_pair.py": "ace47c4a55394d7d2fc5f8b374706e66608ed8738c878a51c917c067ea949ccf",
+          "fastfill/comparison/isambard_infer.sbatch": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+          "fastfill/comparison/isambard_geometry.sbatch": "90b7a9fd6b1d96ce29bc592dd89d3f4978286cdd535e1ec82174c57ab1f20732"
+        },
+        "source_ref": "final_eval_snapshot",
+        "archive_rehashed_by_sidecar": false
+      },
+      "shared_full_context_validation": {
+        "status": "passed",
+        "focused_tests_passed": 41,
+        "scope": [
+          "hash_bound_shared_full_context_plan",
+          "receipt_binding",
+          "forged_receipt_rejection"
+        ],
+        "source_refs": [
+          "execution_log",
+          "parent_update"
+        ],
+        "rerun_by_sidecar": false,
+        "formal_inference_completed": false
+      }
+    },
+    "training_length_source_details": {
+      "source_refs": [
+        "sft_joint_length_receipt",
+        "sft_placement_length_receipt",
+        "jason_context_review"
+      ],
+      "grouping": "source labels from receipt UID prefixes; interiorgs -> InteriorGS, structured3d_ -> Structured3D",
+      "excluded_by_source": {
+        "train": {
+          "InternScenes_gen": 2,
+          "MansionWorld": 98,
+          "SAGE-10k": 66,
+          "InteriorGS": 2,
+          "Structured3D": 1
+        },
+        "dev": {
+          "HSSD200": 2,
+          "MansionWorld": 6,
+          "SAGE-10k": 4,
+          "InteriorGS": 4
+        }
+      },
+      "train_excluded_fraction": 0.00170839946220798,
+      "train_excluded_percent": 0.17083994622079798,
+      "matched_exposure": "same admitted UIDs and epochs, not equal supervised token counts",
+      "train_tokens": {
+        "joint": {
+          "input": 111845719,
+          "supervised": 53157852
+        },
+        "placement": {
+          "input": 112329829,
+          "supervised": 34454444
+        }
+      },
+      "not_random_tail": true,
+      "no_target_truncation": "当前8K冻结训练保持整条准入/排除，不截断目标；修正源数据与配对重训的必要性见数据审计结论。"
+    },
+    "engineering_validation": {
+      "full_suite": {
+        "status": "passed",
+        "tests_passed": 722,
+        "elapsed_seconds": 32.05,
+        "command": "python3 -m coverage run --source=fastfill/comparison -m pytest -q fastfill/comparison/tests",
+        "scope": "production fastfill/comparison/*.py, tests omitted from reporting; CPU test suite with mocked GPU/network/Blender; real smokes recorded separately",
+        "source_refs": [
+          "visual_binding_validation"
+        ],
+        "rerun_by_sidecar": false,
+        "supersedes": "681_test_validation_before_VIS01"
+      },
+      "coverage": {
+        "scope": "fastfill/comparison production statements; test files omitted",
+        "measurement": "statement_coverage",
+        "branch_coverage": false,
+        "num_statements": 5009,
+        "covered_statements": 4561,
+        "missing_statements": 448,
+        "percent": 91.05609902176083,
+        "percent_rounded_4dp": 91.0561,
+        "percent_reported": 91,
+        "components_percent": {
+          "infer": 96,
+          "train": 94,
+          "renderer": 81,
+          "driver": 83,
+          "judge": 91,
+          "visual": 96
+        },
+        "component_summaries": {
+          "infer": {
+            "path": "fastfill/comparison/infer.py",
+            "covered_lines": 265,
+            "num_statements": 275,
+            "percent_covered": 96.36363636363636,
+            "percent_covered_display": "96",
+            "missing_lines": 10,
+            "excluded_lines": 0
+          },
+          "train": {
+            "path": "fastfill/comparison/train_pair.py",
+            "covered_lines": 300,
+            "num_statements": 319,
+            "percent_covered": 94.04388714733543,
+            "percent_covered_display": "94",
+            "missing_lines": 19,
+            "excluded_lines": 0
+          },
+          "renderer": {
+            "path": "fastfill/comparison/render_assets.py",
+            "covered_lines": 462,
+            "num_statements": 569,
+            "percent_covered": 81.195079086116,
+            "percent_covered_display": "81",
+            "missing_lines": 107,
+            "excluded_lines": 0
+          },
+          "driver": {
+            "path": "fastfill/comparison/overnight.py",
+            "covered_lines": 450,
+            "num_statements": 539,
+            "percent_covered": 83.48794063079778,
+            "percent_covered_display": "83",
+            "missing_lines": 89,
+            "excluded_lines": 0
+          },
+          "judge": {
+            "path": "fastfill/comparison/judge_batch.py",
+            "covered_lines": 333,
+            "num_statements": 364,
+            "percent_covered": 91.48351648351648,
+            "percent_covered_display": "91",
+            "missing_lines": 31,
+            "excluded_lines": 0
+          },
+          "visual": {
+            "path": "fastfill/comparison/visual_pipeline.py",
+            "covered_lines": 296,
+            "num_statements": 309,
+            "percent_covered": 95.79288025889967,
+            "percent_covered_display": "96",
+            "missing_lines": 13,
+            "excluded_lines": 0
+          }
+        },
+        "source_option": "--source=fastfill/comparison",
+        "source_mode": "filesystem_path",
+        "test_files_omitted": true,
+        "dynamically_loaded_modules_included": true,
+        "instrumentation_issue_resolved": true,
+        "superseded_measurement": {
+          "percent": 68,
+          "status": "invalid_for_current_reporting_instrumentation_artifact",
+          "reason": "package-based source selection failed to correctly capture dynamically loaded modules; filesystem source selection resolves collection"
+        },
+        "interpretation": "722passed;4561/5009productionstatements91.056%; mocksdo notmeasurequality.",
+        "source_ref": "visual_binding_coverage",
+        "source_configuration_ref": "visual_binding_validation",
+        "meta": {
+          "version": "6.5.0",
+          "timestamp": "2026-10-13T09:22:55.952654",
+          "branch_coverage": false,
+          "show_contexts": false
+        },
+        "independently_remeasured_by_sidecar": false,
+        "locally_read_and_arithmetic_checked": true,
+        "artifact_path": "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-full-coverage.json"
+      },
+      "earlier_targeted_tests": {
+        "tests_passed": 41,
+        "scope": "shared_full_context_plan_and_receipt_binding",
+        "add_to_full_suite_count": false,
+        "overlap_with_full_suite": "not_asserted"
+      },
+      "quality_score_claim": false
+    },
+    "local_driver": {
+      "status": "running",
+      "stage": "jobs",
+      "execution_mode": "detached_CLI_host_controller",
+      "uses_launchd": false,
+      "uses_terminal_UI": false,
+      "controller_pid": 84994,
+      "controller_ppid": 1,
+      "controller_pgid": 84994,
+      "process_id": 90678,
+      "ssh_master_pid": 85042,
+      "wake_pid": 90679,
+      "launcher_pid": 84994,
+      "output_root": "/Volumes/harddisk/fastfillout/unknownsize-20261013/automation-run-004",
+      "config_ref": "automation_config_run004",
+      "launch_receipt_ref": "run004_started",
+      "status_ref": "post_visual_live",
+      "jobs_ref": "post_visual_live",
+      "source_refs": [
+        "run004_started",
+        "post_visual_live",
+        "visual_binding_snapshot",
+        "visual_binding_review"
+      ],
+      "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+      "observed_status": {
+        "api_submission_attempted": false,
+        "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+        "counts": {
+          "jobs_completed": 1,
+          "jobs_known": 6,
+          "jobs_observed": 6
+        },
+        "elapsed_seconds": 4.856840791995637,
+        "failures": [],
+        "pid": 90678,
+        "remote_batch": null,
+        "remote_job": null,
+        "schema_version": 1,
+        "stage": "jobs",
+        "status": "running",
+        "updated_unix": 1791879991.0914502
+      },
+      "api_submission_attempted": false,
+      "failures": [],
+      "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+      "endstate_status": "partial",
+      "endstate_interpretation": "driver活动阶段的partial记录；不是最终完成报告。",
+      "pipeline_snapshot": {
+        "snapshot": "pipeline-resource-bound-86e4e3bfc30f",
+        "manifest_sha256": "86e4e3bfc30fd2d1ad69550dd993b29c29f8697fc9f63abb1ead4b7bd3eb4831",
+        "source_ref": "visual_binding_snapshot",
+        "remote_api_snapshot_unchanged": "pipeline-full-audit-a8726c726f72"
+      },
+      "deadline_utc": "2026-10-18T05:53:20+00:00",
+      "deadline_unix": 1792302800,
+      "original_window_hours": 120,
+      "effective_driver_budget_seconds": 422803,
+      "deadline_reset_for_run003": false,
+      "cleanup_grace_seconds_max": 105,
+      "formal_new_metrics_available": false,
+      "launched_by_report_sync": false,
+      "previous_driver": {
+        "output_root": "docs/research/20261013-unknown-size-comparison/automation-run-003",
+        "status": "stopped_before_API",
+        "source_ref": "run003_stopped"
+      },
+      "protected_sft_jobs": [
+        7365681,
+        7365682
+      ],
+      "protected_inference_jobs": [
+        7367626,
+        7367628
+      ],
+      "resource_inventory_guard": {
+        "issue": "VIS_01",
+        "status": "deployed_pre_and_post_render_comparison",
+        "observed_drift": false,
+        "prepublication_guard_required": false,
+        "source_ref": "visual_binding_review",
+        "limitation": "Not immutable staging; transient drift restored between checks is outside guarantee."
+      },
+      "note": "Original absolute120hdeadlinepreserved; localrenderrequiresloggedinMac,harddisk,network; noSlurmjoborAPIbudgetchanges.",
+      "deadline_reset_for_run004": false
+    },
+    "training_qa": {
+      "source_refs": [
+        "full_audit_data",
+        "resume_live_status",
+        "deployment_release"
+      ],
+      "decision": "retain_diagnostic_current_pair_correct_data_and_retrain_both_arms_before_clean_scientific_claims",
+      "same_admitted_train_rows_each": 98754,
+      "same_optimizer_settings": true,
+      "optimizer": "adamw_torch",
+      "observed_losses_finite": true,
+      "quality_verified": false,
+      "final_fresh_load_gates_complete": false,
+      "dev_loss_computed": false,
+      "posttraining_probe_room_count": 2,
+      "scope": "有限训练loss与配对一致性只支持执行状态；源缺陷已确认，正式质量和最终重新加载门禁未完成。"
+    },
+    "api_connectivity_and_queue": {
+      "probe": {
+        "job_id": 7367681,
+        "status": "COMPLETED",
+        "scheduler_elapsed_seconds_reported": 2,
+        "elapsed_source_ref": "parent_update",
+        "gpu_requested": 0,
+        "credentials_read": false,
+        "http_status": 401,
+        "network_reachable": true,
+        "api_scoring_calls": 0,
+        "source_refs": [
+          "api_egress_job",
+          "api_egress_result"
+        ],
+        "interpretation": "No-key CPU reachability probe;401 does not establish authenticated model/scoring success."
+      },
+      "queue_forecast": {
+        "source_ref": "api_queue_audit",
+        "audit_observed_utc": [
+          "2026-10-13T05:42:07.836383+00:00",
+          "2026-10-13T05:42:50.313307+00:00"
+        ],
+        "estimated_wait_display": "about78h43m",
+        "is_reservation": false,
+        "is_completion_guarantee": false,
+        "read_only_no_jobs_submitted": true,
+        "driver_window_hours": 120,
+        "note": "Historical test-only scheduling estimates; actual probe completed quickly. Neither forecast nor probe guarantees scoring-job start/finish. Audit egress-unverified status superseded only for connectivity by actual probe.",
+        "driver_window_note": "原120小时窗口截止2026-10-18T05:53:20+00:00；run003不重置。"
+      }
+    },
+    "run_classification": "diagnostic_only",
+    "data_audit": {
+      "status": "COMPLETE_WITH_KNOWN_SOURCE_DEFECTS",
+      "observed_utc": "2026-10-13T07:44:42.686041+00:00",
+      "source_ref": "full_audit_data",
+      "current_pair_disposition_zh": "保留当前冻结语料上的配对运行作为诊断证据；修正源转换、版本化重建完整数据链并重训两臂后，才能提出干净的科学结论。",
+      "corrected_data_required_for_clean_scientific_claims": true,
+      "paired_retraining_required_for_clean_scientific_claims": true,
+      "current_sft_jobs_preserved": [
+        7365681,
+        7365682
+      ],
+      "new_experiments_started_by_report_sync": false,
+      "silent_posthoc_exclusions_allowed": false,
+      "verification": {
+        "strict_input_violations": {},
+        "paired_populations": {
+          "train": {
+            "rows_per_arm": 98923,
+            "admitted_per_arm": 98754,
+            "excluded_by_length": 169
+          },
+          "dev": {
+            "rows_per_arm": 8167,
+            "admitted_per_arm": 8151,
+            "excluded_by_length": 16
+          },
+          "test": {
+            "rows_per_arm": 8647,
+            "admitted_per_arm": null,
+            "excluded_by_length": null
+          }
+        },
+        "components": 56352,
+        "core_data_check_failures": {},
+        "core_checks_passed": 10513216,
+        "prior_bucket_count": 776848,
+        "prior_axis_values_compared": 2330544,
+        "median_max_delta": {
+          "absolute": 0,
+          "relative": 0
+        },
+        "prior_fits": {
+          "0": {
+            "room_count": 100139,
+            "object_count": 1274032,
+            "component_count": 39330,
+            "fixed_excluded_count": 275474,
+            "fitted_uid_sha256": "ee02e6d69c5dc12cb9493c667bc75b9f89084d260507c8e125da0e6e59347849",
+            "held_out_rooms": 24704,
+            "held_out_uid_sha256": "5fc8d55740f4bcfe3ec01df25dca311490ee684f8358e80bac95bc211f22240e",
+            "component_sha256": "ac7a726137640982790d79424de0734d94d068674e76f70310eace2e77347c15"
+          },
+          "1": {
+            "room_count": 100241,
+            "object_count": 1248226,
+            "component_count": 39330,
+            "fixed_excluded_count": 274801,
+            "fitted_uid_sha256": "ff0fbcb916e4f1db36b9f3db94425bcbf26732a71fc1534b47cf5551395bffd6",
+            "held_out_rooms": 24602,
+            "held_out_uid_sha256": "76069ae279360022f6e6353311937d01b0ad0f26f481c2b51bc96ffe24bd3130",
+            "component_sha256": "2062f139ecae3e815afc68496de26374d8195ba90182110e7c2b0ce5eb312cf8"
+          },
+          "2": {
+            "room_count": 100384,
+            "object_count": 1267636,
+            "component_count": 39330,
+            "fixed_excluded_count": 276053,
+            "fitted_uid_sha256": "ee80344bb294cbc545c0fd2543119ba2ba13d49ca9000d2eb4e16903b46741d0",
+            "held_out_rooms": 24459,
+            "held_out_uid_sha256": "d2255718b16ca73c4ae3405f07d5ed647b5dffe409068d603489b76cc8163424",
+            "component_sha256": "3b37261d4c747bc91f4d322370fa4ee640fd1fb2689118ec008b09100eb78739"
+          },
+          "3": {
+            "room_count": 98061,
+            "object_count": 1250911,
+            "component_count": 39331,
+            "fixed_excluded_count": 272589,
+            "fitted_uid_sha256": "b09378e794049983ce8ce1c0f092857325d8f47dc04b8959f56e18639946972f",
+            "held_out_rooms": 26782,
+            "held_out_uid_sha256": "7701568db743a685204a34618099d4a4d1b6f3910d5b701ce12ca58bb18210f9",
+            "component_sha256": "ea7d379ac34c3868ed9af3b61ac3849180ed26e22c620db10581d5c115cec0fc"
+          },
+          "4": {
+            "room_count": 100547,
+            "object_count": 1280191,
+            "component_count": 39331,
+            "fixed_excluded_count": 277203,
+            "fitted_uid_sha256": "214613f95bb7ecee7c6e1de4ae5d48e90e5841e2f4e88c86bde869b0a0cea788",
+            "held_out_rooms": 24296,
+            "held_out_uid_sha256": "16c3cc540e41f03e71319bba53457d1b4ca55abe8bc98d20ecf6521f50f58975",
+            "component_sha256": "5b15dfaf7ec5642a8fa0816b3ce78d7cc4cf7af9396deeb27c69cd1778adf35d"
+          },
+          "full": {
+            "room_count": 124843,
+            "object_count": 1580249,
+            "component_count": 49163,
+            "fixed_excluded_count": 344030,
+            "fitted_uid_sha256": "65e4abfeba4eb8219d9bda5aac8625eef78bdfe3a4e67a23b28f07bd0bdae5e2",
+            "held_out_rooms": 0,
+            "held_out_uid_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "component_sha256": "87fa9089ddde1624ba255c22893f9cf4cfd3cff01c4da4d347fd7dcbb0cc0923"
+          }
+        },
+        "p_targets": {
+          "train": {
+            "records": 98923,
+            "poses_different": 58796,
+            "poses_equal": 40127
+          },
+          "dev": {
+            "records": 8167,
+            "poses_different": 0,
+            "poses_equal": 8167
+          }
+        },
+        "p_target_issues": {},
+        "payload_status": "PASS",
+        "payload_issues": {}
+      },
+      "known_source_exposure": {
+        "Scan2CAD": {
+          "train_targets": 1,
+          "train_rooms": 1,
+          "prior_pool_targets": 7,
+          "prior_pool_rooms": 5
+        },
+        "IL3D_3dfront": {
+          "train_fixed": 20,
+          "train_rooms": 10,
+          "test_fixed": 2,
+          "test_rooms": 1,
+          "prior_pool_fixed": 25,
+          "prior_pool_rooms": 15
+        },
+        "SpatialGen": {
+          "test_targets": 2,
+          "test_rooms": 2
+        },
+        "k0_axis_semantic_exposure_not_error_count": {
+          "train_targets": 1113,
+          "train_fixed": 30,
+          "train_rooms": 806,
+          "dev_targets": 569,
+          "dev_fixed": 8,
+          "dev_rooms": 240,
+          "test_targets": 473,
+          "test_fixed": 9,
+          "test_rooms": 209
+        }
+      },
+      "audit_jobs": {
+        "input_scan": 7367962,
+        "geometry_exposure": 7367978,
+        "core_lineage_and_p_target": 7368003,
+        "payload_completion": 7368012
+      },
+      "lineage_original_job_state": "FAILED",
+      "lineage_original_result_status": "ERROR",
+      "payload_completion_status": "PASS",
+      "audit_logic_corrections": {
+        "geometry_job_false_assertion": "P train target equality to J minus size is invalid under pose repair. 58796 train differences are expected; zero dev differences, identity/support unchanged.",
+        "lineage_job_original_status": "ERROR preserved: core completed; final all-history manifest inventory hit an unconsumed missing auxiliary. Required current payload inventory completed separately with PASS."
+      },
+      "qualification_caveat": "window/windows is excluded from fixed_blocking used by admission/repair; wrong widths affect input and may affect fixed_collisions, not proven direct blocking-gate effect.",
+      "measurement_caveat": "Known-case identity/exact historical IR dimensions were checked against current full records. No new source-mesh remeasurement. Prior/model influence of corrected labels not measured.",
+      "uninspected_historical_auxiliary_files": [
+        {
+          "scope": "release",
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_constrained_rooms.jsonl",
+          "expected_sha256": "d54e28c06b4b3714b6e76b544230c6edb45dd592e966dec6b916ce068f16e2e2"
+        },
+        {
+          "scope": "release",
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_rooms.jsonl",
+          "expected_sha256": "e0c2a6fdb44778e83f91273122fb5f7a4489cdb2c6fcf49ffc118ab15671c97f"
+        },
+        {
+          "scope": "release",
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/stats.json",
+          "expected_sha256": "32ad3932f2f5a637f6f806fafc95388ed75dd7fc94dc269ae9dfeb6e9f9c12a4"
+        },
+        {
+          "scope": "release",
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test_constrained_rooms.jsonl",
+          "expected_sha256": "0bb4edaab1ceca5ee794ba5ae99ff8ee8aff26b48e46ae723259cc50900c727d"
+        },
+        {
+          "scope": "release",
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test_rooms.jsonl",
+          "expected_sha256": "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303"
+        }
+      ],
+      "uninspected_binaries": "Original mesh/texture assets and model/checkpoint tensor payloads were not opened by this data audit."
+    },
+    "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+    "dev_usage": {
+      "length_qualified_only": true,
+      "input_count": 8167,
+      "qualified_count": 8151,
+      "excluded_count": 16,
+      "evaluation_strategy": "no",
+      "dev_loss_computed": false,
+      "posttraining_probe_room_count": 2,
+      "probe_selection": "fixed_from_common_length_qualified_dev",
+      "probe_scope": "训练后重新加载与生成合同探针；不是对8151间做质量评测。",
+      "probes_completed": false,
+      "source_refs": [
+        "parent_update",
+        "live_training_qa",
+        "sft_joint_length_receipt",
+        "sft_placement_length_receipt"
+      ]
+    }
+  },
+  "synchronization": {
+    "status": "run004_local_visual_guard_deployed_source_rebuild_separate",
+    "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+    "data_audit_status": "COMPLETE_WITH_KNOWN_SOURCE_DEFECTS",
+    "final_results": false,
+    "source_refs": [
+      "post_visual_live",
+      "visual_binding_validation",
+      "full_audit_data"
+    ],
+    "only_report_files_modified": false,
+    "legacy_measured_tables_preserved": true,
+    "new_quality_scores_remain_null": true
+  },
+  "data_audit_status": "COMPLETE_WITH_KNOWN_SOURCE_DEFECTS"
+}

@@ -1,0 +1,37 @@
+{
+  "locked_at_utc": "2026-10-13T05:25:05.226573+00:00",
+  "reason": "User explicitly prioritizes full long-output coverage over conservative VRAM savings; dev reference target max14395 exceeds prior8192 generation cap",
+  "base_context": 40960,
+  "capacity_probe": {
+    "batch_size": 8,
+    "synthetic_context_tokens": 40959,
+    "prefill_chunk_tokens": 2048,
+    "gpu_hours_cap": 0.5,
+    "no_test_data": true,
+    "quality_claim": false
+  },
+  "planned_inference": {
+    "batch_size": 8,
+    "max_input_tokens": 40959,
+    "max_new_tokens": 40959,
+    "context_budget": 40960,
+    "per_batch_new_tokens": "min(max_new_tokens,40960-max eligible padded input width across BOTH arm requests)",
+    "wall_hours_each": 22
+  },
+  "training": "existing matched98754rows8k running unchanged while independent long-training review pending",
+  "requested_GPU_hours_after_replacing_pending_inference_jobs": 93.75,
+  "absolute_cap": 96,
+  "capacity_result": {
+    "job": 7367612,
+    "status": "CAPACITY_COMPLETE",
+    "cached_tokens": 40960,
+    "batch_size": 8,
+    "peak_allocated_bytes": 73998618112,
+    "peak_reserved_bytes": 100411637760,
+    "gpu_total_bytes": 102005473280,
+    "elapsed_seconds": 51.54129073000513,
+    "limitation": "synthetic chunked prefill, base BF16; does not measure task accuracy or natural generation runtime"
+  },
+  "training_decision": "preserve current paired8k SFT, disclose169/98923(0.17084%) length exclusion, no truncated target, no duplicate32k training; all8647testrequests retained",
+  "locked_after_capacity_at_utc": "2026-10-13T05:30:10.448617+00:00"
+}

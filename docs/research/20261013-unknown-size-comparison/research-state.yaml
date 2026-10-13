@@ -1,25 +1,53 @@
 project:
-  title: Unknown-size joint versus estimated-size placement comparison
+  title: Unknown-size matched J/P comparison
   status: active
   primary_endpoint: matched_SFT_J0_vs_P0
-  user_authorization: full_autonomous_server_api_local_data_agency_execution
-protocol: protocol.md
-continuity:
-  chat_loop_available: false
-  strategy: bounded_slurm_dependencies_receipts_and_automatic_tables
-  submitted_jobs: []
-  requested_gpu_hours_cap: 96
-  max_new_concurrent_gpus: 4
-  api_success_cap: 360
-  api_retry_cap: 20
-phase: target_independent_contract_and_server_preflight
-completed:
-  - prior_paper_and_five_agency_design_review
-  - server_login_and_existing_jobs_inventory
-pending:
-  - target_independent_data_and_group_oof_prior
-  - common_base_hash_and_two_arm_gpu_pilot
-  - frozen_matched_sft_budget_and_execution
-  - geometric_evaluation_and_real_asset_visual_tables
-  - independent_results_review_and_final_report
+phase: diagnostic_sft_running_audited_driver_active
+observed_utc: '2026-10-13T08:27:51Z'
+scientific_status: known_source_geometry_defects_corrected_version_and_paired_retraining_required
+jobs:
+  main_data: {id: 7365659, status: COMPLETED}
+  sft_joint: {id: 7365681, status: RUNNING, wall_hours_cap: 24}
+  sft_placement: {id: 7365682, status: RUNNING, wall_hours_cap: 24}
+  inference_joint: {id: 7367626, dependency: 7365681, wall_hours_cap: 22}
+  inference_placement: {id: 7367628, dependency: 7365682, wall_hours_cap: 22}
+  geometry: {id: 7368009, status: PENDING, dependencies: [7367626, 7367628], wall_hours_cap: 2}
+  superseded_geometry: {id: 7367629, status: CANCELLED, runtime_seconds: 0}
+counts: {common_qualified_train: 98923, prior_fit_pool: 124843, dev: 8167, test: 8647}
+budgets: {requested_gpu_hours: 93.75, cap_gpu_hours: 96, max_concurrent_new_gpus: 4, api_success_cap: 360, formal_api_cap: 348}
+visual: {reference_candidates: 1009, reference_asset_eligible: 1005, gpt_preselected_rooms: 174}
+pending: [measured_tables, final_review]
 human_ur: not_measured
+inference_context: {budget: 40960, batch_size: 8, policy: shared_paired_input_remaining_context, capacity_job: 7367612, peak_allocated_bytes: 73998618112}
+
+automation:
+  status: running
+  output: /Volumes/harddisk/fastfillout/unknownsize-20261013/automation-run-004
+  config: automation-config-run004.json
+  code_snapshot: pipeline-resource-bound-86e4e3bfc30f
+  controller_pid: 84994
+  driver_pid: 90678
+  ssh_master_pid: 85042
+  caffeinate_pid: 90679
+  total_watchdog_hours: 120
+  original_deadline_unix: 1792302800
+  api_execution_cap_hours: 10
+  mode: detached_local_process_not_permanent_agent
+  requires: [logged_in_Mac, network, assets, authenticated_SSH_session]
+validation: {tests_passed: 722, production_statement_coverage_percent: 91.05609902176083, real_visual_pipeline_smoke: passed, live_training_QA: execution_active_quality_unmeasured}
+training_population: {common_before_length: 98923, actual_per_arm: 98754, excluded_by_length: 169}
+dev_usage: {length_qualified: 8151, total: 8167, loss_computed: false, post_training_reload_probe_rooms: 2}
+data_audit:
+  status: COMPLETE_WITH_KNOWN_SOURCE_DEFECTS
+  final_summary: evidence/full-audit-data-final-summary.json
+  known_affected_train_rooms: 11
+  known_affected_test_rooms: 3
+  prior_recomputed_axis_values: 2330544
+  prior_max_absolute_delta: 0
+  lineage_job: {id: 7368003, status: FAILED, reason: unconsumed_historical_auxiliary_files_missing_after_core_checks_completed}
+  consumed_payload_completion: {id: 7368012, status: COMPLETED}
+  corrected_data_and_retraining: raw_candidate_rebuilt_identity_gates_pending_retraining_not_started
+visual_resource_integrity:
+  point_in_time_audit: {assets: 1945, files: 6558, mismatches: 0}
+  render_time_enforcement: deployed_pre_and_post_boundary_checks_transient_drift_not_excluded
+live_evidence: evidence/post-visual-binding-live-status-20261013.json

@@ -1,0 +1,16 @@
+{
+  "locked_at_utc": "2026-10-13T05:16:15.587148+00:00",
+  "amends_sha256": "432158fcf1b4b91a9a98f85a3f3cdb0a5ad74d59b4d79b319d38dbfd1349b8bf",
+  "change": "formal inference batch_size=16 and logits_to_keep=1; both arms same greedy decode, token caps unchanged",
+  "evidence": "capacity-001 Slurm7365676 completed on16 longest dev prompts; no test inference",
+  "capacity": {
+    "max_prompt_tokens": 1610,
+    "max_new_tokens": 2048,
+    "peak_allocated_bytes": 26188830720,
+    "tokens_per_second": 165.05476325206453
+  },
+  "limitation": "capacity probe does not cover worst8192input+8192output or prove formal runtime fits16h",
+  "gpu_hours_planned": 81.25,
+  "absolute_cap": 96,
+  "no_test_outputs_used": true
+}

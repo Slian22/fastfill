@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "config": {
+    "protocol": "canonical-asset-v1",
+    "resolution": 512,
+    "samples": 32,
+    "threads": 4,
+    "device": "CPU",
+    "transparent": false,
+    "top": false,
+    "denoise": true,
+    "script_sha256": "06083e8d8e33295b609971f456bc701383aa290d0ed1db89e1c0a5b10d105309"
+  },
+  "cases": [
+    {
+      "uid": "synthetic-dev-holo-front-smoke",
+      "stage": null,
+      "status": "rendered",
+      "images": {
+        "candidate": {
+          "perspective": "/private/tmp/unknownsize-render-smoke/smoke-clean32/0000-66c0df2bfe17/candidate/perspective.png"
+        }
+      },
+      "cameras": {
+        "perspective": {
+          "view": "perspective",
+          "target": [
+            2.75,
+            2.4,
+            1.4
+          ],
+          "fov_degrees": 50,
+          "location": [
+            8.238953213659741,
+            -3.088953213659742,
+            8.261191517074677
+          ]
+        },
+        "top": {
+          "view": "top",
+          "target": [
+            2.75,
+            2.4,
+            1.4
+          ],
+          "location": [
+            2.75,
+            2.4,
+            13.8
+          ],
+          "ortho_scale": 6.324999999999999
+        }
+      },
+      "assets": [
+        {
+          "id": "tub",
+          "asset_id": "800d3c5569b94abfa2da7976504d589d",
+          "mesh_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/800d3c5569b94abfa2da7976504d589d/raw_model3.obj",
+          "sha256": "e0457898d11b591072224345a4c809d88dcb5f6a7bc6d4a230c346ac0cd3f6b2",
+          "mtl_overrides": {},
+          "flip_winding": true
+        },
+        {
+          "id": "bed",
+          "asset_id": "21f34649-749e-4481-aef4-abf73263c950",
+          "mesh_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/21f34649-749e-4481-aef4-abf73263c950/raw_model.obj",
+          "sha256": "658ebfc02d0c6b87521712f3e01a204c6000289a59886594099a3509b522674e",
+          "mtl_overrides": {},
+          "flip_winding": false
+        }
+      ],
+      "blender_version": "5.2.1 LTS"
+    }
+  ]
+}

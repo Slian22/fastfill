@@ -1,0 +1,10 @@
+{
+  "locked_at_utc": "2026-10-13T00:55:54.809251+00:00",
+  "amends_sha256": "432158fcf1b4b91a9a98f85a3f3cdb0a5ad74d59b4d79b319d38dbfd1349b8bf",
+  "change": "dev-only batch16 inference capacity pilot before formal test inference; main inference batch remains4 until passed capacity receipt and separate pretest amendment",
+  "requested_GPU_hours_addition": 0.25,
+  "planned_total_GPU_hours": 81.25,
+  "absolute_cap": 96,
+  "reason": "HF generation observed substantially slower than training; measured batch capacity needed for complete8647-room run",
+  "no_test_outputs_used": true
+}

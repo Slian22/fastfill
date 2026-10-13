@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "expected_model": "gpt-6.1-sol",
+  "cases": [
+    {
+      "id": "non-test-realasset-vision-capability-smoke",
+      "prompt_file": "prompt.txt",
+      "prompt_sha256": "ab77dd9a549f7e93ce962c7165501b57afae8658d344d668d9293ca657680981",
+      "images": [
+        {
+          "path": "perspective.png",
+          "sha256": "ba5efa24c95e3cf37a1a910872ea3320c7c8cadfbb2b444c6d08b448fea91068"
+        }
+      ]
+    }
+  ]
+}

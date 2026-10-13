@@ -1,0 +1,14 @@
+{
+  "reason": "Slurm test-only forecasts exceeded original72h driver window; actualshortprobe started immediately, forecasts are not reservations/guarantees. Five-daywatchdog admitsqueuevariation withfinitebound.",
+  "previous_total_hours": 72,
+  "new_total_hours": 120,
+  "render_hours_max": 24,
+  "api_runtime_hours_max": 10,
+  "gpu_budget_unchanged": true,
+  "formal_api_cases_max": 348,
+  "automatic_api_retries": 0,
+  "queue_evidence": "evidence/api-queue-readonly-audit-20261013.json",
+  "actual_compute_egress_evidence": "evidence/api-egress-result.json",
+  "scope": "waiting/control-process walltime only; no restart, extraGPUjob or metric change",
+  "created_utc": "2026-10-13T05:47:24.035724+00:00"
+}
