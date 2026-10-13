@@ -3,7 +3,7 @@ project:
   status: active
   primary_endpoint: matched_SFT_J0_vs_P0
 phase: inference_v2_chain_submitted_awaiting_sft_completion
-observed_utc: '2026-10-13T18:45:00Z'
+observed_utc: '2026-10-13T19:45:00Z'
 scientific_status: training_audited_correct_no_retrain; source_correction_candidate_002_in_verification; amendments_002_005_locked_before_outputs
 jobs:
   main_data: {id: 7365659, status: COMPLETED}
@@ -13,6 +13,7 @@ jobs:
   superseded_geometry: {ids: [7367629, 7368009], status: CANCELLED_NEVER_STARTED}
   inference_v2: {snapshot: main-934192e6d, plan: 7383109, probe_joint: 7383110, shards_joint: [7383111, 7383112, 7383113, 7383114], merge_joint: 7383115, probe_placement: 7383116, shards_placement: [7383117, 7383118, 7383119, 7383120], merge_placement: 7383121, geometry_v2: 7383122}
   api_agent: {smoke: 7382896, smoke_status: PASSED_2of2_valid, full: 7382898, cohort_rooms: 1454, model: gpt-6.1-sol, reasoning: medium}
+  open_models: {snapshot: main-76323f9f1, order: [O5, O4, O2, O3, O1a, O1b], after: inference_v2_gpu_jobs, singleton: true, O5: [7384533, 7384535], O4: [7384537, 7384538], O2: [7384553, 7384554], O3: [7384555, 7384556], O1a: [7384557, 7384558], O1b: [7384561, 7384562], status_job: 7384563}
   open_model_downloads: {gpt_oss_120b: VERIFIED_PROJECTDIR, job: 7382840, done: [Qwen3.6-27B, gemma-4-31b-it], pending: [DeepSeek-V4-Flash-0731]}
 counts: {common_qualified_train: 98923, prior_fit_pool: 124843, dev: 8167, test: 8647}
 budgets: {requested_gpu_hours_before_amendment_002: 93.75, cap_gpu_hours: 260, max_concurrent_new_gpus: 8_after_amendment_002, api_success_cap: 360, formal_api_cap: 348}

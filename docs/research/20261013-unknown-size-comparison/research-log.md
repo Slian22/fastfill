@@ -77,3 +77,10 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - 推理 v2（fc41cc4a3）与 LLM agent（ad3b9ecdf）合并入 main，746 测试通过；快照 main-8d650094e 部署服务器（305 文件哈希一致）。
 - API agent：冒烟 7382896 通过（2/2 首答合法，~20 s/次），全量 7382898（1,454 间，gpt-6.1-sol medium）运行中；cohort uids_sha256 4afccef7…。
 - 模型：gpt-oss-120b 移入 $PROJECTDIR/fastfill/models 并 sha256 校验（61G）；7382840 已下载 Qwen3.6-27B、gemma-4-31b-it，DeepSeek-V4-Flash-0731 下载中；vLLM 0.31 支持全部五种架构。
+
+## 2026-10-13 18:45–19:45 UTC — 推理 v2 链、开源模型链提交；修订 006
+
+- 推理 v2 门禁（wbqi5ejp1）：提交脚本出错即停、dev 探针（合并 LoRA 后 2 个 dev 探针 schema 不得由合法变非法）；追加 plan 先 hold 后 release、分片自查 PROBE_PASS（934192e6d）。取消从未启动的 7367626/7367628/7368009；提交 plan 7383109 → probe J 7383110 / P 7383116 → 分片 J 7383111–14、P 7383117–20 → merge 7383115/7383121 → geometry-v2 7383122（快照 main-934192e6d）。
+- 源修正 candidate-002：Scan2CAD 与 SpatialGen 正确；IL3D 宽度正确但 1 cm 垂直间隔规则改动窗户合并 → NO-GO；决定恢复历史合并、只修宽度，candidate-003 流程 wmblf45vp 运行中。
+- 开源模型运行器、N 系统视觉、report_v2 合并；修订 006 锁定（O5 开思考；顺序 O5,O4,O2,O3,O1a,O1b；GPU 上限 400；评审 696 次、24 h）。集成修补与两处审查跟进（76323f9f1）：思考系统无推理则冒烟失败；无答案房间不再关闭逐行截断规则。
+- 开源模型链（快照 main-76323f9f1，singleton 串行，排在全部推理 GPU 作业之后）：O5 7384533/7384535，O4 7384537/7384538，O2 7384553/7384554，O3 7384555/7384556，O1a 7384557/7384558，O1b 7384561/7384562，status 7384563。vLLM 环境 shapely 2.2.0 可用。
