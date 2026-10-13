@@ -10,6 +10,9 @@ shard  --data --base --adapter --training-run --arm --plan ROOT/plan
        --shard-index I --shard-count N --out ROOT/ARM/shard-I [--resume]
        Plan batches b % N == I, LoRA merged into the BF16 base, greedy decoding
        through infer.process_batch. Receipts plus fsynced ledger as infer.py;
+       or --model MERGED instead of --adapter/--training-run (amendment 008): a
+       lineage-verified merged stage model loaded as is; base_sha256 stays the
+       generic Qwen3-8B lineage root, so evaluate_pair's cross-arm check holds;
        --resume continues from a verified ledger under the identical run
        identity (shard index and out are deliberately not part of it).
 merge  --data --plan ROOT/plan --arm ARM --shards S0 .. SN-1 --out INFER_DIR
@@ -217,11 +220,20 @@ def shard(args):
         mine = _mine(plan_value, args.shard_index, args.shard_count)
         expected = [u for _, b in mine for u in b['uids']]
         decode = plan_value['decode']
-        config = {**{k: str(getattr(args, k).resolve()) for k in ('data', 'base', 'adapter', 'training_run', 'plan')},
-                  'arm': args.arm, 'shard_count': args.shard_count, **decode, **FIXED}
-        run = types.SimpleNamespace(**{k: getattr(args, k) for k in ('base', 'adapter', 'training_run', 'arm')}, **decode)
+        merged = getattr(args, 'model', None) is not None
+        if merged == (args.adapter is not None or args.training_run is not None) or (
+                not merged and None in (args.adapter, args.training_run)):
+            raise ValueError('pass --model (amendment 008 merged stage model) or --adapter with --training-run')
+        sources = ('model',) if merged else ('adapter', 'training_run')
+        config = {**{k: str(getattr(args, k).resolve()) for k in ('data', 'base', *sources, 'plan')},
+                  'arm': args.arm, 'shard_count': args.shard_count, **decode, **FIXED,
+                  **({'lora': 'premerged_bf16_stage_model'} if merged else {})}
+        run = types.SimpleNamespace(**{k: getattr(args, k) for k in ('base', *sources, 'arm')}, **decode)
+        if merged:
+            from fastfill.comparison import dpo_stages
         identity = {'config': config, 'config_sha256': i._hash(config), 'data': data,
-                    **i.training_identity(run), 'versions': i._versions(), 'context_plan_sha256': plan_sha,
+                    **(dpo_stages.inference_identity(run) if merged else i.training_identity(run)),
+                    'versions': i._versions(), 'context_plan_sha256': plan_sha,
                     'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(i.__file__), Path(h.__file__))}}
         if identity['base_sha256'] != plan_value['base_sha256']:
             raise ValueError('base differs from plan tokenizer base')
@@ -389,8 +401,10 @@ def parse_args(argv=None):
                           ('max-new-tokens', 40959)):
         planner.add_argument('--' + flag, type=count(1), default=default)
     worker = sub.add_parser('shard')
-    for flag in ('data', 'base', 'adapter', 'training-run', 'plan', 'out'):
+    for flag in ('data', 'base', 'plan', 'out'):
         worker.add_argument('--' + flag, type=Path, required=True)
+    for flag in ('adapter', 'training-run', 'model'):  # --model: amendment 008 merged stage model.
+        worker.add_argument('--' + flag, type=Path)
     worker.add_argument('--arm', choices=h.ARMS, required=True)
     worker.add_argument('--shard-index', type=count(0), required=True)
     worker.add_argument('--shard-count', type=count(1), required=True)

@@ -271,18 +271,19 @@ def _runtime(args, merge=False):
     if int(os.environ.get('WORLD_SIZE', '1')) != 1 or torch.cuda.device_count() != 1 or not torch.cuda.is_bf16_supported():
         raise RuntimeError('requires one process and exactly one BF16 GPU')
     torch.cuda.set_device(0)
-    tok = AutoTokenizer.from_pretrained(str(args.adapter), local_files_only=True, trust_remote_code=False)
+    merged = getattr(args, 'model', None)  # Amendment 008: an already merged BF16 stage model, no adapter.
+    tok = AutoTokenizer.from_pretrained(str(merged or args.adapter), local_files_only=True, trust_remote_code=False)
     tok.padding_side = 'left'
     eos = tok.get_vocab().get('<|im_end|>')
     if eos is None:
         raise ValueError('Qwen3 tokenizer missing im_end')
     if tok.pad_token_id is None:
         tok.pad_token_id = eos
-    base = AutoModelForCausalLM.from_pretrained(str(args.base), local_files_only=True, trust_remote_code=False,
+    base = AutoModelForCausalLM.from_pretrained(str(merged or args.base), local_files_only=True, trust_remote_code=False,
                 dtype=torch.bfloat16, attn_implementation='sdpa', device_map={'': 0})
-    model = PeftModel.from_pretrained(base, str(args.adapter), local_files_only=True,
-                                    is_trainable=False, autocast_adapter_dtype=False)
-    if merge:  # Amendment 002: LoRA folded into the BF16 base before generation.
+    model = base if merged else PeftModel.from_pretrained(base, str(args.adapter), local_files_only=True,
+                                                         is_trainable=False, autocast_adapter_dtype=False)
+    if merge and not merged:  # Amendment 002: LoRA folded into the BF16 base before generation.
         model = model.merge_and_unload(safe_merge=True)
     model.eval()
     def generate(ids, shared_cap=None):
