@@ -34,15 +34,20 @@ Verified conventions (scratch checks against IL3D's own USDZ meshes and the 3D-F
 - anchors: assets.json placement flags are per ASSET, so they are used only when a single flag agrees with z.
 - doors / windows: the 3D-FRONT export lists them per source room (room["doors"] / ["windows"]: position = opening
   centre, width, height, sill_height (windows), profile = the door's floor footprint [[x, y] x4] incl. the frame
-  depth, or the window's vertical quad [[x, y, z] x4]); emitted as "structure" boxes in IL3D's frame (export minus
-  the frame shift): local X along the wall = width (the profile side closest to it gives the wall direction), depth =
-  door footprint area / width, 0.10 m for windows, bottom = sill_height or centre - height / 2. The export lists a
+  depth, or the window's vertical outline [[x, y, z], ...]); export width is max(world X span, world Y span),
+  not necessarily the along-wall width. A planar vertical window outline of positive area (it may touch itself)
+  defines its wall direction and full horizontal span in that frame, used when it exceeds the export width by more
+  than rounding; its depth is 0.10 m. Horizontal 2D footprints (doors, bay/fallback windows)
+  retain the exported width, nearest-width side direction and area / width depth. Emitted "structure" boxes
+  are in IL3D's frame (export minus the frame shift), with bottom = sill_height or centre - height / 2. The export lists a
   door on only one of the two rooms it joins (1 of 5,999 door positions in the first 1,500 houses is on two lists),
   so a door listed on another room of the house is added when it opens into this one (`on_edge`, tagged listed_on):
   10,768 doors, rooms with a door 7,470 -> 13,465 of 21,832; doors > 0.3 m inside the boundary 5,165 -> 19.
   The export splits one door / bay window into several mesh pieces (its README: "the entry count is not the number
   of real doors/windows"): pieces lower than MIN_H (sill slabs) are dropped, and a piece whose footprint is >= half
   covered by a bigger piece of the same kind is merged into it (dropped), so each opening is shown once.
+  Window pieces must also overlap, touch or be <= OPENING_GAP_M apart vertically (bay-window glass on its slab is
+  one opening, as before); a wider footprint must not merge windows on separate levels.
 """
 import collections
 import json
@@ -63,6 +68,11 @@ ARTEFACT_M2 = 0.01    # floor pieces / holes smaller than this are triangulation
 SPIKE_M = 0.02        # narrower gaps / spikes (mesh seams, degenerate triangles) do not survive the model's cm grid
 DOOR_TOL = 0.05       # a door footprint ends within 5 cm of the floor edges it opens onto
 LEVEL_TOL = 0.3       # own doors start at the room's floor (98% exactly, else <= 0.2 m steps); storeys are >2 m apart
+OPENING_PLANE_TOL = 1e-5  # source export's Window/WallInner plane matching tolerance, metres
+OPENING_ROUND_TOL = 2e-5  # export rounds coordinates and widths to five decimals (<= 5e-6 each): a span of two
+#                           rounded points vs the rounded width differs by < 1.92e-5 without a real change
+OPENING_GAP_M = 0.01      # window pieces <= 1 cm apart vertically (bay glass on its slab) are one opening
+OPENING_AXIS_TOL = 1e-12  # normalized cross product: keep the exact prior angle on the same wall axis
 
 SOURCE = "IL3D_3dfront"
 IL3D = "imChuling__3D_Room_Collections/IL3D_exported"
@@ -192,6 +202,66 @@ def on_edge(door, ring, floor_z):
     return LinearRing(ring).intersection(fp).length >= 0.5 * door["width"]
 
 
+def _opening_num(value):
+    try:
+        return not isinstance(value, bool) and _num(value)
+    except OverflowError:
+        return False
+
+
+def _opening_frame(kind, pr, width):
+    """Return (wall angle, width, depth), or None for malformed/degenerate profiles.
+
+    Only a 3D window whose XY projection is a line proves a wall frame. Project
+    its whole outline into that frame: subdivided edges must not shorten it.
+    A span within OPENING_ROUND_TOL of the exported width keeps width and angle.
+    2D footprints and nonplanar 3D profiles keep the previous width semantics.
+    """
+    if not isinstance(pr, (list, tuple)) or len(pr) < 3:
+        return None
+    if not all(isinstance(q, (list, tuple)) and len(q) in (2, 3) and all(_opening_num(v) for v in q) for q in pr):
+        return None
+    dim = len(pr[0])
+    if any(len(q) != dim for q in pr):
+        return None
+    xy = [q[:2] for q in pr]
+    segs = [(a, b) for a, b in zip(xy, xy[1:] + xy[:1]) if math.dist(a, b) > 1e-3]
+    if not segs:
+        return None
+    a, b = min(segs, key=lambda s: abs(math.dist(*s) - width))
+    depth = 0.0
+    if dim == 2:
+        poly = Polygon(xy)
+        if poly.area <= 0:      # positive-area but invalid (self-touching) outlines keep the legacy semantics
+            return None
+        depth = poly.area / width
+    elif kind == "window":
+        if max(q[2] for q in pr) - min(q[2] for q in pr) <= OPENING_PLANE_TOL:
+            return None
+        # Use the full extent: source-rounded subdivisions can give short
+        # segments a noisy direction even when the overall wall line is valid.
+        end = max(xy, key=lambda q: math.dist(xy[0], q))
+        start = max(xy, key=lambda q: math.dist(end, q))
+        length = math.dist(start, end)
+        ux, uy = (end[0] - start[0]) / length, (end[1] - start[1]) / length
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        if dx * ux + dy * uy < 0:  # a wall axis has two directions; retain the legacy edge's orientation
+            start, end, ux, uy = end, start, -ux, -uy
+        offsets = [(x - start[0], y - start[1]) for x, y in xy]
+        if all(abs(dx * uy - dy * ux) <= OPENING_PLANE_TOL for dx, dy in offsets):
+            along = [dx * ux + dy * uy for dx, dy in offsets]
+            # Validity is not required: a real arched outline can touch itself at mm scale
+            # (KidsRoom-194027 window_0, 2.86 m2); only a zero-area outline is degenerate.
+            if Polygon([(t, q[2]) for t, q in zip(along, pr)]).area <= 0:
+                return None
+            span = max(along) - min(along)
+            if abs(span - width) > OPENING_ROUND_TOL:  # else rounding only: keep width and angle bytes
+                width = span
+                if abs(dx * uy - dy * ux) > OPENING_AXIS_TOL * math.hypot(dx, dy):
+                    a, b = start, end
+    return math.atan2(b[1] - a[1], b[0] - a[0]), width, depth
+
+
 def openings(doors_windows, shift, prefix):
     """Export doors / windows of one source room -> (structure furniture dicts in IL3D's frame, n_skipped).
     rotation z = wall direction + 90 so that convert_room(front_offset_deg=-90) gives yaw = wall direction and
@@ -201,18 +271,16 @@ def openings(doors_windows, shift, prefix):
         boxes = []
         for k, o in enumerate(items):
             p, w, h, pr = o.get("position"), o.get("width"), o.get("height"), o.get("profile") or []
-            xy = [q[:2] for q in pr]
-            segs = [(a, b) for a, b in zip(xy, xy[1:] + xy[:1]) if math.dist(a, b) > 1e-3]
-            if not (p and all(_num(p.get(c)) for c in "xyz") and _num(w) and _num(h) and w > 0 and h > 0 and segs):
+            if not (isinstance(p, dict) and all(_opening_num(p.get(c)) for c in "xyz")
+                    and _opening_num(w) and _opening_num(h) and w > 0 and h >= MIN_H):
                 skipped += 1
                 continue
-            a, b = min(segs, key=lambda s: abs(math.dist(*s) - w))       # the side along the wall
-            depth = Polygon(xy).area / w if len(pr[0]) == 2 and len(xy) >= 3 else 0.0
-            z = o["sill_height"] if _num(o.get("sill_height")) else p["z"] - h / 2
-            if h < MIN_H:
+            frame = _opening_frame(kind, pr, w)
+            if frame is None:
                 skipped += 1
                 continue
-            ang = math.atan2(b[1] - a[1], b[0] - a[0])
+            ang, w, depth = frame
+            z = o["sill_height"] if _opening_num(o.get("sill_height")) else p["z"] - h / 2
             d = depth if depth > 0.01 else OPENING_T
             fp = Polygon(footprint({"pos": [p["x"], p["y"]], "size": [w, d], "yaw": ang}))
             boxes.append((fp.area * h, fp, {
@@ -223,7 +291,12 @@ def openings(doors_windows, shift, prefix):
                 "furniture_size": {"width": d, "length": w, "height": h}}))
         kept = []                       # biggest piece first; a piece half inside the kept ones is the same opening
         for _, fp, f in sorted(boxes, key=lambda t: -t[0]):
-            if kept and unary_union([g for g, _ in kept]).intersection(fp).area >= 0.5 * fp.area:
+            bottom = f["furniture_position"]["z"]
+            top = bottom + f["furniture_size"]["height"]
+            overlapping = [g for g, other in kept if kind == "door" or
+                           (other["furniture_position"]["z"] <= top + OPENING_GAP_M and
+                            bottom <= other["furniture_position"]["z"] + other["furniture_size"]["height"] + OPENING_GAP_M)]
+            if overlapping and unary_union(overlapping).intersection(fp).area >= 0.5 * fp.area:
                 skipped += 1
                 continue
             kept.append((fp, f))

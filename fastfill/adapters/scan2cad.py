@@ -4,6 +4,8 @@ Export (kits aggregate_scenecad_scan2cad.py): meters, Z-up, ScanNet axisAlignmen
 scan2cad_alignments[].furniture_position = oriented CAD bbox CENTER (position_type), size = full CAD bbox
 extents along the object's canonical Z-up axes [2*bx*sx, 2*bz*sz, 2*by*sy], rotation = Rz*Ry*Rx Euler of
 rotation_matrix_zup_scan_local, whose columns are the object's local X / Y / Z (local +Y = ShapeNet -Z).
+A real tilt (> MAX_TILT_DEG) becomes the conservative enclosure of the full CAD box (full matrix and scaled extents)
+at the exported yaw, with z = its bottom; upright fits keep the CAD-local size and bottom = centre - height / 2.
 Front: ShapeNet canonical front = CAD -Z = local +Y (front test: at -90 beds/bookshelves touched the wall with +X), so front_offset_deg = +90.
 
 Boundary: the SceneCAD floor plane polygon (human layout annotation, 994 scans) -> "polygon"; otherwise the
@@ -11,12 +13,13 @@ exported convex hull of ScanNet floor vertices, which misses occluded floor (38%
 for the SceneCAD polygon, mostly < 10 cm wall penetration) and so is typed "proxy".
 Limitations (why B_aux): one record = one whole ScanNet scan (is_true_room=false), and only the ~30% of objects
 that were matched to a ShapeNet CAD are present.
-Scan data noise: per-object tilt median 3 deg (9-DoF fit); tilts <= MAX_TILT_DEG are treated as upright.
+Scan data noise: per-object tilt median 3 deg (9-DoF fit; SceneCAD floor planes: 0.4 deg); tilts <= MAX_TILT_DEG are
+treated as upright (their enclosure would inflate heights by fit noise: median +3.7 cm, max +57 cm).
 Bottoms scatter +-10 cm around the floor, so z is measured from the per-scan median bottom of floor-standing
 categories and bottoms within FLOOR_SNAP of it are set to 0. Only bottoms within FLOOR_BAND of z = 0 vote: the
 axisAlignment frame already puts the floor there (SceneCAD floor plane z p1..p99 = -0.20..0.07), and an unbanded
 median followed stacked/wall-mounted CADs (scene0074_01: one shelf at 2.0 m -> floor_z 2.0; 47 scans |floor_z| > 0.2). CAD fits with an axis < 1 mm (a trs.scale axis of
-1e-14..1e-8, 75 objects, mostly displays) have no usable size: their size is dropped, so the room counts as incomplete.
+1e-14..1e-8, 76 objects, mostly displays) have no usable size: their size is dropped, so the room counts as incomplete.
 """
 import math
 import os
@@ -25,6 +28,7 @@ import statistics
 from shapely.geometry import Polygon
 
 from fastfill.adapters.unified import convert_room, iter_records
+from fastfill.adapters.upright_bounds import finite_vector, yaw_extents
 
 SOURCE = "Scan2CAD"
 PATH = "imChuling__3D_Room_Collections/SceneCAD_Scan2CAD_exported/scenecad_scan2cad_combined.json"
@@ -37,6 +41,22 @@ FLOOR_CATS = {"chair", "table", "sofa", "bed", "bookshelf", "file_cabinet", "tra
 
 def tilt_deg(a):
     return math.degrees(math.acos(max(-1.0, min(1.0, a["source_fields"]["rotation_matrix_zup_scan_local"][2][2]))))
+
+
+def _enclosure(a):
+    """(size, bottom z) enclosing the full CAD box at its exported yaw, before the +90 front turn; None if unusable.
+
+    CAD scale is already in furniture_size; the matrix includes ScanNet axis
+    alignment. Exported scan TRS scale is unit in this collection. Do not
+    normalize matrix columns: even the rounded alignment scale must survive.
+    """
+    s, p, r = (a.get(k) or {} for k in ("furniture_size", "furniture_position", "furniture_rotation"))
+    center = [p.get(k) for k in "xyz"]
+    linear = (a.get("source_fields") or {}).get("rotation_matrix_zup_scan_local")
+    bounds = yaw_extents([s.get(k) for k in ("width", "length", "height")], linear, r.get("z"))
+    if bounds is None or not finite_vector(center, 3):
+        return None
+    return dict(zip(("width", "length", "height"), bounds)), center[2] - bounds[2] / 2
 
 
 def shell_floor(shell):
@@ -64,19 +84,29 @@ def load(root):
         al = room["scan2cad_alignments"]
         if not al:          # scenecad_only scans: shell without objects
             continue
-        bottoms = [a["furniture_position"]["z"] - a["furniture_size"]["height"] / 2 for a in al
-                   if a["furniture_category"] in FLOOR_CATS and tilt_deg(a) <= MAX_TILT_DEG]
+        # The exporter omits inverse scan scale from its rotation matrix (tilt included).
+        # All 1,506 aligned scans have unit scale; other/missing values are
+        # evidence blockers, not permission to guess a complete transform.
+        scan_trs = s["provenance"].get("scan2cad_scan_to_world_trs") or {}
+        unit_scan = scan_trs.get("scale") == [1, 1, 1]
+        boxes = [_enclosure(a) if unit_scan else None for a in al]     # None: unusable source geometry
+        bottoms = [a["furniture_position"]["z"] - a["furniture_size"]["height"] / 2 for a, box in zip(al, boxes)
+                   if box and a["furniture_category"] in FLOOR_CATS and tilt_deg(a) <= MAX_TILT_DEG]
         bottoms = [b for b in bottoms if abs(b) < FLOOR_BAND]
         floor = statistics.median(bottoms) if bottoms else None
         furn, snapped = [], 0
-        for a in al:
+        for a, box in zip(al, boxes):
+            if box is None:
+                furn.append({**a, "furniture_size": None})
+                continue
             p, r = a["furniture_position"], a["furniture_rotation"]
-            z = p["z"] - a["furniture_size"]["height"] / 2 - (floor or 0.0)
-            if floor is not None and abs(z) < FLOOR_SNAP:
-                z, snapped = 0.0, snapped + 1
             upright = tilt_deg(a) <= MAX_TILT_DEG
             degenerate = min(a["furniture_size"].values()) < 1e-3
-            furn.append({**a, "furniture_size": None if degenerate else a["furniture_size"], "furniture_position": {"x": p["x"], "y": p["y"], "z": z},
+            size, bottom = (a["furniture_size"], p["z"] - a["furniture_size"]["height"] / 2) if upright or degenerate else box
+            z = bottom - (floor or 0.0)
+            if floor is not None and abs(z) < FLOOR_SNAP:
+                z, snapped = 0.0, snapped + 1
+            furn.append({**a, "furniture_size": None if degenerate else size, "furniture_position": {"x": p["x"], "y": p["y"], "z": z},
                          "furniture_rotation": {"x": 0 if upright else r["x"], "y": 0 if upright else r["y"], "z": r["z"]}})
         sid = s["scene_id"]
         poly = shell_floor(room["scene_shell"])
