@@ -90,3 +90,10 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - 用户指出 Qwen3.6 已过时；HF API 逐家核查（wf_94a1b68c-adf）后锁定修订 007（c9d9fd51c）：O1a/O1b Qwen3-8B，O2 Qwen3.8-27B，O3 gemma-4-31B-it，O4 gpt-oss-120b，O5 DeepSeek-V4-Flash-0731（思考，effort high；vLLM deepseek_v4 tokenizer 会把 medium 降为 low），O6 Qwen3.8-Flash-Next-FP8（180B/≈6B 激活，TP4+EP，effort medium，模板确认读取 reasoning_effort），O7 Muse-Glimmer-30B（模板默认 high）。单节点放不下或无权限者列为未运行并写明原因。用户说明不必追求超大模型；多节点可用但本组不需要。
 - 代码（0ed0fac8b, 48bbeb99a, dd390623f）：O7 依服务器 chat_template.jinja 改用 ATEM 通道切分（to=self 推理 / to=user 答案 / <|eot|> 结束），之前假定的 </think> 会把推理当答案。submit_llm_open.sh 在已有同名作业时拒绝提交。
 - 旧开源模型链（7384533–7384563）取消、从未启动；新链（快照 main-dd390623f）：O6 7385472/3，O5 7385474/5，O4 7385476/7，O2 7385478/9，O3 7385480/1，O7 7385482/3，O1a 7385484/5，O1b 7385486/7，status 7385488。所有模型权重已在 $PROJECTDIR/fastfill/models 并有 SHA256SUMS。
+
+## 2026-10-13 20:30–21:00 UTC — 源修正 candidate-003 通过、v3.3 构建、夜间接力链
+
+- candidate-003（444b2a3f1）：IL3D 只改 63 个斜墙窗宽度（全部变宽），窗户集合与顺序与 v3.2 完全一致；Scan2CAD 640 个倾斜物体；SpatialGen 977 个；其余 15 个来源逐字节等于 v3.2。独立复核 correct，门禁 GO。v3.3 发布工具在 .release/v3.3（git-ignored）；输入上传并逐一校验；构建作业 7385668（先控制重建 v3.2 须逐字节一致，再建 v3.3 + 身份审计 + QA + 扫描；exit 0 才上传 HF 新文件夹）。README 写明未修限制（2D 轮廓开口偏窄、挑高房间窗户合并、Scan2CAD 10–15° 下沉）。
+- API agent 完成：1,454/1,454 首答 schema 合法，0 API 失败。
+- 已知缺陷敏感性集合冻结（d095394a7）：candidate-003 改动的 47 个测试 UID（IR 层，超集）。
+- 夜间接力链（快照 main-d095394a7）：evaluate_llm L 7385871（afterok J/P 合并）；O6..O1b 评估 7385872–7385879（afterok 各自全量 + 合并）；J/P/L 报告与交付判定 7385880（afterok geometry-v2 + L 评估）。clifton 证书 2026-10-14 04:16:58 UTC 过期；之后视觉（本地渲染、FID、GPT 评审）与 HF 上传需用户重新 clifton auth。
