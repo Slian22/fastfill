@@ -1,0 +1,373 @@
+"""Open-weight agents O1a-O5 (amendments 003/004): the API agent's input and harness on offline vLLM.
+
+  python -m fastfill.comparison.llm_open run --system O4 --data EVAL --cohort COHORT.json \
+      --model-root MODELS --out RUN [--limit 2 --smoke-gate] [--chunk 256]
+  python -m fastfill.comparison.llm_open slurm --system O4 --mode smoke|full   (sbatch resource flags)
+  python -m fastfill.comparison.llm_open status --run-root ROOT    (writes ROOT/llm-open-status.json)
+
+Same as llm_agent: frozen cohort (rebuilt and compared), the exact J system+user messages plus
+llm_agent.SUFFIX, infer.parse_prediction(answer, request, 'joint'), up to llm_agent.REPAIRS repair
+rounds that append the answer as the assistant turn and a user turn holding only the parser error
+text, variants llm_raw/llm_harness, and the output layout written by llm_agent._finalize, which
+evaluate_llm consumes unchanged.
+
+Generation: one vLLM LLM.chat call per round per chunk of rooms (chunks follow an input-derived
+order: movable objects desc, prompt characters desc, UID; outputs are written in cohort order),
+greedy (temperature 0, seed 0), the model's own chat template with the system's fixed
+chat_template_kwargs, max_model_len 40960. Per-answer cap = min(1024 + 128 x movable objects (+16384
+for thinking systems), 40960 - prompt tokens), the prompt counted as LLM.chat renders it (the
+tokenizer's chat template, encoded without added special tokens; actual counts are recorded too).
+A prompt with no room left is not generated: INPUT_TOO_LONG as the room error in round 0 (a failure
+in every denominator), repair_stopped in a repair round.
+
+Reasoning is removed before parsing from text decoded with special tokens kept: the answer is the
+text after the last </think> (Qwen3, Qwen3.6, DeepSeek-V4), after the last <channel|> (Gemma 4), or
+the gpt-oss harmony final channel up to <|return|>/<|end|>/<|call|>. vLLM's reasoning parsers are
+not used: they serve OpenAI requests, and the gpt-oss one does not extract offline. An unclosed
+reasoning block in a thinking system is all reasoning unless generation stopped by itself.
+reasoning_tokens = generated - answer tokens (so it includes channel markers and the stop token).
+Latency is llm.chat wall time / requests in the call (amortized).
+
+Receipts (write-once, one per UID) make reruns resume; invocations.jsonl (fsynced) logs every
+llm.chat call and the process wall time for GPU-hours; cost.json summarises them. The run identity
+binds data, cohort, code, the system config (model path, model file hashes, engine and sampling
+settings, chat_template_kwargs) and the vllm/torch/transformers versions.
+"""
+import argparse
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import re
+import sys
+import time
+
+from fastfill.comparison import infer
+from fastfill.comparison import llm_agent as L
+from fastfill.comparison import train_pair_helpers as h
+
+MAX_MODEL_LEN = 40960
+SEED = 0
+CAP_BASE, CAP_PER_OBJECT, THINKING_ALLOWANCE = 1024, 128, 16384
+SAMPLING = {'temperature': 0.0, 'seed': SEED, 'skip_special_tokens': False, 'spaces_between_special_tokens': False}
+WEIGHTS = ('.safetensors', '.bin', '.pt', '.pth', '.gguf')
+# hours = full-run Slurm limit; smoke runs get SMOKE_MINUTES. Modes follow amendment 004 where it
+# names one and the model's own default otherwise (written out explicitly where the template reads it).
+SYSTEMS = {
+    'O1a': {'name': 'qwen3-8b-nothink', 'model': 'Qwen3-8B', 'tp': 1, 'hours': 3, 'split': 'think',
+            'thinking': False, 'template': {'enable_thinking': False}, 'effort': 'thinking off', 'engine': {}},
+    'O1b': {'name': 'qwen3-8b-think', 'model': 'Qwen3-8B', 'tp': 1, 'hours': 6, 'split': 'think',
+            'thinking': True, 'template': {'enable_thinking': True}, 'effort': 'thinking on', 'engine': {}},
+    'O2': {'name': 'qwen3.6-27b', 'model': 'Qwen3.6-27B', 'tp': 2, 'hours': 8, 'split': 'think',
+           'thinking': True, 'template': {'enable_thinking': True}, 'effort': 'thinking on (model default)',
+           'engine': {'limit_mm_per_prompt': {'image': 0, 'video': 0}}},
+    'O3': {'name': 'gemma-4-31b-it', 'model': 'gemma-4-31b-it', 'tp': 2, 'hours': 4, 'split': 'gemma',
+           'thinking': False, 'template': {'enable_thinking': False}, 'effort': 'thinking off (model default)',
+           'engine': {'limit_mm_per_prompt': {'image': 0, 'audio': 0}}},
+    'O4': {'name': 'gpt-oss-120b', 'model': 'gpt-oss-120b', 'tp': 2, 'hours': 6, 'split': 'harmony',
+           'thinking': True, 'template': {'reasoning_effort': 'medium'}, 'effort': 'medium', 'engine': {}},
+    'O5': {'name': 'deepseek-v4-flash-0731', 'model': 'DeepSeek-V4-Flash-0731', 'tp': 4, 'hours': 6, 'split': 'think',
+           'thinking': False, 'template': {}, 'effort': 'non-think (model default)',
+           # vLLM recipe: built-in DeepSeek-V4 encoding (no Jinja template), EP MoE, FP8 KV, block 256.
+           'engine': {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8',
+                      'block_size': 256, 'trust_remote_code': True}},
+}
+NOT_RUN = {'kimi-k3': 'not run (exceeds one node: 1,561 GB)', 'glm-5.2': 'not run (exceeds one node: 1,507 GB)'}
+SMOKE_MINUTES = 90
+HARMONY_FINAL = re.compile(r'<\|channel\|>\s*final\b[^<]*(?:<\|constrain\|>[^<]*)?<\|message\|>')
+HARMONY_END = re.compile(r'<\|(?:return|end|call)\|>')
+CLOSE = {'think': '</think>', 'gemma': '<channel|>'}
+
+
+def split_reasoning(text, style, thinking, stopped):
+    """(reasoning, answer) from text decoded with special tokens kept."""
+    if style == 'harmony':
+        finals = list(HARMONY_FINAL.finditer(text))
+        if not finals:
+            return text, ''
+        end = finals[-1].end()
+        return text[:end], HARMONY_END.split(text[end:], 1)[0]
+    head, close, tail = text.rpartition(CLOSE[style])
+    if close:
+        return head + close, tail
+    return (text, '') if thinking and not stopped else ('', text)
+
+
+def output_cap(record, spec):
+    objects = len(h.request(infer._schema_record(record))['objects'])
+    return CAP_BASE + CAP_PER_OBJECT * objects + (THINKING_ALLOWANCE if spec['thinking'] else 0)
+
+
+def out_name(system, mode):
+    return f'llm-open-{system}-smoke-001' if mode == 'smoke' else f'llm-open-{system}-001'
+
+
+def slurm_flags(system, mode):
+    spec = SYSTEMS[system]
+    minutes = SMOKE_MINUTES if mode == 'smoke' else 60 * spec['hours']
+    return (f"--gpus-per-node={spec['tp']} --cpus-per-task={16 * spec['tp']} --mem={100 * spec['tp']}G "
+            f'--time={minutes // 60:02d}:{minutes % 60:02d}:00')
+
+
+def load_vllm(engine):
+    from vllm import LLM, SamplingParams
+    return LLM(**engine), SamplingParams
+
+
+def _versions():
+    versions = {}
+    for name in ('vllm', 'torch', 'transformers'):
+        try:
+            versions[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            versions[name] = 'not_installed'
+    return versions
+
+
+def _append(path, entry):
+    with path.open('a') as stream:
+        stream.write(json.dumps(entry, allow_nan=False) + '\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _prompt_tokens(tok, conversation, kwargs):
+    prompt = tok.apply_chat_template(conversation, add_generation_prompt=True, tokenize=False, **kwargs)
+    return len(prompt) if isinstance(prompt, list) else len(tok.encode(prompt, add_special_tokens=False))
+
+
+def _answer(output, cap, precount, spec, tok, record, latency):
+    completion = output.outputs[0]
+    stopped, capped = completion.finish_reason == 'stop', completion.finish_reason == 'length'
+    reasoning, text = split_reasoning(completion.text, spec['split'], spec['thinking'], stopped)
+    prompt, generated = len(output.prompt_token_ids), len(completion.token_ids)
+    answer_tokens = len(tok.encode(text, add_special_tokens=False)) if text else 0
+    return {'raw': text, 'schema': infer.parse_prediction(text, record, 'joint'), 'reasoning': reasoning,
+            'finish_reason': completion.finish_reason, 'status': 'incomplete' if capped else 'completed',
+            'incomplete_reason': 'max_output_tokens' if capped else None,
+            'reached_token_cap': capped, 'stopped_on_eos': stopped,
+            'max_tokens': cap, 'prompt_tokens_precount': precount, 'answer_tokens': answer_tokens,
+            'usage': {'input_tokens': prompt, 'output_tokens': generated, 'total_tokens': prompt + generated,
+                      'reasoning_tokens': max(0, generated - answer_tokens) if reasoning else 0},
+            'latency_seconds': latency}
+
+
+def _chunk(llm, params, tok, spec, records, log):
+    """All rounds for one chunk; returns {uid: receipt body}."""
+    by_uid = {r['uid']: r for r in records}
+    conversations = {uid: [*r['messages'], {'role': 'user', 'content': L.SUFFIX}] for uid, r in by_uid.items()}
+    answers, stopped, active = {uid: [] for uid in by_uid}, {}, list(by_uid)
+    for round_ in range(L.REPAIRS + 1):
+        jobs = []
+        for uid in active:
+            precount = _prompt_tokens(tok, conversations[uid], spec['template'])
+            cap = min(output_cap(by_uid[uid], spec), MAX_MODEL_LEN - precount)
+            if cap < 1:
+                stopped[uid] = 'INPUT_TOO_LONG'
+            else:
+                jobs.append((uid, precount, cap))
+        if not jobs:
+            break
+        start = time.monotonic()
+        outputs = llm.chat([conversations[uid] for uid, _, _ in jobs],
+                           [params(max_tokens=cap, **SAMPLING) for _, _, cap in jobs],
+                           use_tqdm=False, chat_template_kwargs=spec['template'] or None)
+        wall = time.monotonic() - start
+        if len(outputs) != len(jobs):
+            raise ValueError('generation batch cardinality mismatch')
+        log({'event': 'call', 'round': round_, 'requests': len(jobs), 'wall_seconds': wall})
+        active = []
+        for (uid, precount, cap), output in zip(jobs, outputs):
+            answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs))
+            answers[uid].append(answer)
+            if not answer['schema']['valid'] and round_ < L.REPAIRS:
+                conversations[uid] = [*conversations[uid], {'role': 'assistant', 'content': answer['raw']},
+                                      {'role': 'user', 'content': answer['schema']['error']}]
+                active.append(uid)
+    return {uid: {'attempt': 1, 'error': None if values else stopped[uid], 'answers': values, 'http_errors': [],
+                  'repair_stopped': stopped.get(uid) if values else None, 'rounds': len(values), 'calls': len(values),
+                  'valid_first': bool(values) and values[0]['schema']['valid'],
+                  'valid_final': bool(values) and values[-1]['schema']['valid']}
+            for uid, values in answers.items()}
+
+
+def _cost(out, system, identity, receipts):
+    events = L._jsonl(out / 'invocations.jsonl')
+    spans = {}
+    for event in events:
+        spans[event['invocation']] = max(spans.get(event['invocation'], 0), event['elapsed_seconds'])
+    calls = [e for e in events if e['event'] == 'call']
+    answers = [a for r in receipts.values() for a in r['answers']]
+    gpus = SYSTEMS[system]['tp']
+    return {'system': system, 'model': identity['config']['model'], 'model_path': identity['config']['engine']['model'],
+            'config_sha256': identity['config_sha256'], 'versions': identity['config']['versions'], 'gpus': gpus,
+            'invocations': len(spans), 'slurm_job_ids': sorted({e['slurm_job_id'] for e in events if e['slurm_job_id']}),
+            'wall_seconds': sum(spans.values()), 'gpu_hours': sum(spans.values()) * gpus / 3600,
+            'generation_seconds': sum(e['wall_seconds'] for e in calls),
+            'generated_requests': sum(e['requests'] for e in calls),
+            'answers_with_content': sum(bool(a['raw']) for a in answers),
+            'input_too_long_rooms': sum(r['error'] == 'INPUT_TOO_LONG' for r in receipts.values()),
+            'repair_stopped_input_too_long': sum(r['repair_stopped'] == 'INPUT_TOO_LONG' for r in receipts.values()),
+            'prompt_token_precount_mismatches': sum(a['usage']['input_tokens'] != a['prompt_tokens_precount']
+                                                    for a in answers),
+            'scope': {'gpu_hours': 'process wall time x GPUs, model load included; a killed invocation loses the time '
+                                   'after its last ledger event (sacct over slurm_job_ids is authoritative)',
+                      'latency_seconds': 'llm.chat wall time / requests in that call (amortized, not per request)',
+                      'generated_requests': 'every generated answer, including chunks lost to a kill'}}
+
+
+def run(args, load=load_vllm):
+    started = time.monotonic()
+    spec = SYSTEMS[args.system]
+    rows, data = infer.load_eval(args.data, 'joint')
+    cohort = h.strict_json(Path(args.cohort).read_text())
+    if cohort != L.build_cohort(args.data):
+        raise ValueError('cohort file differs from its deterministic rebuild')
+    uids = cohort['uids'][:args.limit]
+    by_uid = h._by_uid(rows)
+    records = [by_uid[uid] for uid in uids]
+    model = (Path(args.model_root) / spec['model']).resolve()
+    files = {p.name: h.sha256(p) for p in sorted(model.iterdir()) if p.is_file() and not p.name.endswith(WEIGHTS)}
+    if 'config.json' not in files:
+        raise ValueError('model directory lacks config.json')
+    config = {'system': args.system, 'model': spec['name'], 'reasoning_effort': spec['effort'],
+              'model_files_sha256': files, 'chat_template_kwargs': spec['template'], 'thinking': spec['thinking'],
+              'engine': {'model': str(model), 'tensor_parallel_size': spec['tp'], 'max_model_len': MAX_MODEL_LEN,
+                         'seed': SEED, **spec['engine']},
+              'sampling': SAMPLING, 'cap': {'base': CAP_BASE, 'per_object': CAP_PER_OBJECT,
+                                            'thinking_allowance': THINKING_ALLOWANCE if spec['thinking'] else 0},
+              'reasoning_split': spec['split'], 'repair_rounds': L.REPAIRS,
+              'suffix': L.SUFFIX, 'input': 'joint_system_user_verbatim_then_suffix_user',
+              'parser': 'infer.parse_prediction(answer_after_reasoning, joint_request, joint)',
+              'repair_message': 'parser_error_text_only', 'limit': args.limit, 'versions': _versions()}
+    identity = {'arm': 'llm_open', 'variants': list(L.VARIANTS), 'config': config, 'config_sha256': infer._hash(config),
+                'data': {'manifest_sha256': data['manifest_sha256'],
+                         'joint_requests_sha256': data['files']['joint/requests.jsonl']},
+                'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids)},
+                'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(L.__file__), Path(infer.__file__),
+                                                              Path(h.__file__))}}
+    run_hash = infer._hash(identity)
+    out = Path(args.out)
+    (out / 'receipts').mkdir(parents=True, exist_ok=True)
+    if (out / 'run_receipt.json').exists():
+        if h.strict_json((out / 'run_receipt.json').read_text()) != {**identity, 'run_sha256': run_hash}:
+            raise ValueError('resume identity mismatch')
+    else:
+        infer.write_once(out / 'run_receipt.json', {**identity, 'run_sha256': run_hash})
+    if (out / 'MANIFEST.json').exists():
+        return h.strict_json((out / 'result.json').read_text())
+    def path(uid):
+        return out / 'receipts' / (L._digest(uid) + '.json')
+    invocation = f"{os.environ.get('SLURM_JOB_ID', 'local')}:{os.getpid()}:{time.time_ns()}"
+    def log(entry):
+        _append(out / 'invocations.jsonl', {'invocation': invocation, 'slurm_job_id': os.environ.get('SLURM_JOB_ID'),
+                                            'elapsed_seconds': time.monotonic() - started, **entry})
+    pending = sorted((r for r in records if not path(r['uid']).exists()),
+                     key=lambda r: (-output_cap(r, spec), -len(r['messages'][1]['content']), r['uid']))
+    log({'event': 'start', 'pending': len(pending)})
+    if pending:
+        llm, params = load(config['engine'])
+        tok = llm.get_tokenizer()
+        log({'event': 'loaded'})
+        for start in range(0, len(pending), args.chunk):
+            chunk = pending[start:start + args.chunk]
+            bodies = _chunk(llm, params, tok, spec, chunk, log)
+            for record in chunk:
+                infer.write_once(path(record['uid']), {**{k: record[k] for k in ('uid', 'source', 'group')},
+                                                       'run_sha256': run_hash, **bodies[record['uid']]})
+            h.write_json(out / 'status.json', {'status': 'RUNNING', 'expected_count': len(uids),
+                                               'receipt_count': sum(path(uid).exists() for uid in uids)})
+    receipts = {}
+    for uid in uids:
+        receipt = h.strict_json(path(uid).read_text())
+        if receipt['uid'] != uid or receipt['run_sha256'] != run_hash:
+            raise ValueError('receipt identity mismatch')
+        receipts[uid] = receipt
+    log({'event': 'finalize'})
+    calls = sum(e['requests'] for e in L._jsonl(out / 'invocations.jsonl') if e['event'] == 'call')
+    h.write_json(out / 'cost.json', _cost(out, args.system, identity, receipts))
+    return L._finalize(out, records, receipts, run_hash, calls)
+
+
+def _read(path):
+    return h.strict_json(path.read_text()) if path.exists() else None
+
+
+def _reason(status):
+    return ': '.join(str(status[k]) for k in ('status', 'error_type', 'error') if status.get(k))
+
+
+def smoke_failure(out):
+    """None when the smoke passed, else the reason the system is 'not run'."""
+    status = _read(out / 'status.json')
+    if status is None:
+        return 'smoke output missing (job not started or failed before its first write; see the Slurm log)'
+    if status.get('status') != 'LLM_COMPLETE':
+        return _reason(status)
+    if status['api_failed_rooms']:
+        return 'smoke rooms without an answer'
+    if not _read(out / 'cost.json')['answers_with_content']:
+        return 'no smoke answer had text after the reasoning was removed'
+    return None
+
+
+def write_status(root):
+    root, rows = Path(root), {}
+    for system, spec in SYSTEMS.items():
+        full = root / out_name(system, 'full')
+        status = _read(full / 'status.json') or {}
+        failure = smoke_failure(root / out_name(system, 'smoke'))
+        if status.get('status') == 'LLM_COMPLETE':
+            state, reason = 'complete', None
+        elif failure:
+            state, reason = 'not run', failure
+        else:
+            state, reason = 'incomplete', _reason(status) or 'full run not started'
+        rows[system] = {'model': spec['name'], 'state': state, 'reason': reason, 'dir': full.name,
+                        'result': status if state == 'complete' else None, 'cost': _read(full / 'cost.json')}
+    rows.update({name: {'model': name, 'state': 'not run', 'reason': reason} for name, reason in NOT_RUN.items()})
+    h.write_json(root / 'llm-open-status.json', rows)
+    return rows
+
+
+def main(argv=None, load=load_vllm):
+    def positive(text):
+        value = int(text)
+        if value < 1:
+            raise argparse.ArgumentTypeError('must be positive')
+        return value
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    commands = parser.add_subparsers(dest='command', required=True)
+    run_parser, slurm, status = (commands.add_parser(name) for name in ('run', 'slurm', 'status'))
+    for flag in ('data', 'cohort', 'model-root', 'out'):
+        run_parser.add_argument('--' + flag, type=Path, required=True)
+    for sub in (run_parser, slurm):
+        sub.add_argument('--system', choices=SYSTEMS, required=True)
+    run_parser.add_argument('--limit', type=positive)
+    run_parser.add_argument('--chunk', type=positive, default=256)
+    run_parser.add_argument('--smoke-gate', action='store_true')
+    slurm.add_argument('--mode', choices=('smoke', 'full'), required=True)
+    status.add_argument('--run-root', type=Path, required=True)
+    args = parser.parse_args(argv)
+    if args.command == 'slurm':
+        print(slurm_flags(args.system, args.mode))
+        return 0
+    if args.command == 'status':
+        print(json.dumps({name: row['state'] for name, row in write_status(args.run_root).items()}))
+        return 0
+    try:
+        result = run(args, load)
+    except Exception as exc:
+        args.out.mkdir(parents=True, exist_ok=True)
+        if not (args.out / 'MANIFEST.json').exists():  # Never touch a published run.
+            h.write_json(args.out / 'status.json', {'status': 'FAIL', 'error_type': type(exc).__name__,
+                                                    'error': str(exc)[:2000]})
+        raise
+    failure = smoke_failure(args.out) if args.smoke_gate else None
+    print(json.dumps({**{k: result.get(k) for k in ('status', 'rooms', 'valid_first', 'valid_final',
+                                                    'reached_token_cap', 'tokens')}, 'smoke_failure': failure}))
+    return 0 if result['status'] == 'LLM_COMPLETE' and not failure else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
