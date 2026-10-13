@@ -101,7 +101,13 @@ def rows(path):
 def test_split_reasoning_per_template():
     s = O.split_reasoning
     assert s('<think>plan</think>\n\n{"a":1}', 'think', True, True) == ('<think>plan</think>', '\n\n{"a":1}')
-    assert s('plan only, prefilled <think></think>{}', 'think', True, True)[1] == '{}'  # Qwen3.6 / DeepSeek: no opener
+    assert s('plan only, prefilled <think></think>{}', 'think', True, True)[1] == '{}'  # Qwen3.8 / DeepSeek: no opener
+    # Qwen3.8 cards: thinking content is '<think>\n...</think>\n\n' before the final response.
+    qwen38 = '<think>\nBed first.\n</think>\n\n{"a":1}'
+    assert s(qwen38, 'think', True, True) == ('<think>\nBed first.\n</think>', '\n\n{"a":1}')
+    assert s('Bed first.\n</think>\n\n{"a":1}', 'think', True, True)[1] == '\n\n{"a":1}'  # opener in the prompt
+    # DeepSeek-V4 encoding (thinking mode): the prompt ends with '<think>', the completion closes it.
+    assert s('Room is 4 x 3 m.</think>{"a":1}', 'think', True, True) == ('Room is 4 x 3 m.</think>', '{"a":1}')
     assert s('still planning {"a":1}', 'think', True, False) == ('still planning {"a":1}', '')  # cap hit while thinking
     assert s('{"a":1}', 'think', True, True) == ('', '{"a":1}')  # thinking system that answered directly
     assert s('{"a":1}', 'think', False, False) == ('', '{"a":1}')  # non-thinking text is the answer, even when capped
@@ -214,8 +220,8 @@ def test_harmony_final_channel_engine_flags_and_context_stop(world):
     assert O.main(argv(root, 'O5', 'ds', '--limit', '1'), loader(ds, deepseek)) == 0
     assert deepseek[0]['tokenizer_mode'] == 'deepseek_v4' and deepseek[0]['enable_expert_parallel']
     assert deepseek[0]['tensor_parallel_size'] == 4
-    # Amendment 006: O5 thinks (its agent mode), so it gets the thinking allowance and the split.
-    assert ds.calls[0]['kwargs'] == {'thinking': True} and O.SYSTEMS['O5']['thinking']
+    # Amendments 006/007: O5 thinks at effort high, so it gets the thinking allowance and the split.
+    assert ds.calls[0]['kwargs'] == {'thinking': True, 'reasoning_effort': 'high'} and O.SYSTEMS['O5']['thinking']
     assert ds.calls[0]['params'][0]['max_tokens'] == 1024 + 128 * 2 + 16384
     assert rows(root / 'ds/llm_harness/records.jsonl')[0]['schema']['valid']
     # The cap is bounded by the context left after the prompt; a repair that cannot fit is not attempted.
@@ -233,6 +239,38 @@ def test_harmony_final_channel_engine_flags_and_context_stop(world):
     assert result['api_failed_rooms'] == 2 and result['valid_final'] == 0
     assert {r['error'] for r in rows(root / 'none/llm_raw/records.jsonl')} == {'INPUT_TOO_LONG'}
     assert json.loads((root / 'none/cost.json').read_text())['input_too_long_rooms'] == 2
+
+
+# Amendment 007 (006 for O1a/O1b/O3/O4): model dir, GPUs, thinking, chat_template_kwargs, engine extras.
+MODES = {
+    'O1a': ('Qwen3-8B', 1, False, {'enable_thinking': False}, {}),
+    'O1b': ('Qwen3-8B', 1, True, {'enable_thinking': True}, {}),
+    'O2': ('Qwen3.8-27B', 2, True, {'enable_thinking': True}, {'limit_mm_per_prompt': {'image': 0, 'video': 0}}),
+    'O3': ('gemma-4-31b-it', 2, False, {'enable_thinking': False}, {'limit_mm_per_prompt': {'image': 0, 'audio': 0}}),
+    'O4': ('gpt-oss-120b', 2, True, {'reasoning_effort': 'medium'}, {}),
+    'O5': ('DeepSeek-V4-Flash-0731', 4, True, {'thinking': True, 'reasoning_effort': 'high'},
+           {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8', 'block_size': 256,
+            'trust_remote_code': True}),
+    'O6': ('Qwen3.8-Flash-Next-FP8', 4, True, {'enable_thinking': True, 'reasoning_effort': 'medium'},
+           {'enable_expert_parallel': True, 'moe_backend': 'triton', 'limit_mm_per_prompt': {'image': 0, 'video': 0}}),
+    'O7': ('Muse-Glimmer-30B', 2, True, {}, {}),  # Model default: no kwargs, no 'Reasoning strength:' line.
+}
+SAMPLES = {'think': '<think>\nplan\n</think>\n\n{valid}', 'gemma': '<|channel>thought\nplan<channel|>{valid}',
+           'harmony': '<|channel|>analysis<|message|>plan<|end|><|start|>assistant<|channel|>final<|message|>{valid}'}
+
+
+@pytest.mark.parametrize('system', MODES)
+def test_amendment_007_modes_reach_engine_and_template(world, system):
+    root, rooms = world
+    model, tp, thinking, template, engine = MODES[system]
+    assert list(O.SYSTEMS) == list(MODES) and O.SYSTEMS[system]['thinking'] is thinking
+    fake, engines = FakeLLM(rooms, default=SAMPLES[O.SYSTEMS[system]['split']]), []
+    assert O.main(argv(root, system, system, '--limit', '1'), loader(fake, engines)) == 0
+    assert engines == [{'model': str((root / 'models' / model).resolve()), 'tensor_parallel_size': tp,
+                        'max_model_len': 40960, 'seed': 0, **engine}]
+    assert fake.calls[0]['kwargs'] == (template or None) and fake.tok.kwargs == [template]
+    record = rows(root / system / 'llm_harness/records.jsonl')[0]
+    assert record['schema']['valid'] and 'plan' not in record['raw']
 
 
 def test_smoke_gate_and_status_fail_closed(world):
@@ -266,16 +304,21 @@ def test_smoke_gate_and_status_fail_closed(world):
     assert status['O3']['reason'].startswith('FAIL: RuntimeError: ')
     assert status['O4']['state'] == 'incomplete'  # smoke passed; full not started
     assert status['O5']['state'] == 'not run' and 'smoke output missing' in status['O5']['reason']
-    assert status['kimi-k3']['state'] == status['glm-5.2']['state'] == 'not run'
+    assert status['O6']['state'] == status['O7']['state'] == 'not run'  # No smoke output yet.
+    assert status['kimi-k3']['state'] == status['glm-5.2']['state'] == status['qwen3.6-27b']['state'] == 'not run'
+    assert status['qwen3.6-27b']['reason'] == 'not run (superseded by Qwen3.8-27B)'
+    assert not set(O.NOT_RUN) & set(O.SYSTEMS)
 
 
-def test_thinking_smoke_without_reasoning_fails_closed(world):
+@pytest.mark.parametrize('system,text', [('O5', '{valid}'), ('O7', '<|channel>thought\nplan<channel|>{valid}')])
+def test_thinking_smoke_without_reasoning_fails_closed(world, system, text):
     # A thinking system whose template switch is silently ignored answers without any reasoning:
-    # the smoke must not pass, or the full run would start in a mode amendment 006 forbids.
+    # the smoke must not pass, or the full run would start in a mode amendment 006 forbids. O7's
+    # template is not cached ('</think>' assumed): reasoning closed by any other marker fails the same way.
     root, rooms = world
-    out = root / 'runs' / O.out_name('O5', 'smoke')
-    assert O.main(argv(root, 'O5', 'runs/' + O.out_name('O5', 'smoke'), '--limit', '2', '--smoke-gate'),
-                  loader(FakeLLM(rooms))) == 1
+    out = root / 'runs' / O.out_name(system, 'smoke')
+    assert O.main(argv(root, system, 'runs/' + O.out_name(system, 'smoke'), '--limit', '2', '--smoke-gate'),
+                  loader(FakeLLM(rooms, default=text))) == 1
     assert O.smoke_failure(out) == 'thinking system produced no reasoning (mode not applied)'
 
 
@@ -285,7 +328,7 @@ def test_scripts_match_system_table():
     helper = (here / 'submit_llm_open.sh').read_text()
     systems = '|'.join(O.SYSTEMS)
     assert f'case "$SYSTEM" in {systems}) ;;' in sbatch and f'case "$SYSTEM" in {systems}) ;;' in helper
-    order = 'O5 O4 O2 O3 O1a O1b'  # Amendment 006 run order.
+    order = 'O6 O5 O4 O2 O3 O7 O1a O1b'  # Amendment 007 run order.
     assert f'SYSTEMS=({order})' in helper and sorted(order.split()) == sorted(O.SYSTEMS)
     # Preflight mirrors the v1_1 vLLM sbatch and fails fast before any GPU work.
     assert 'module load cudatoolkit || ' in sbatch and 'CUDA_PATH="$CUDA_HOME"' in sbatch
@@ -300,11 +343,22 @@ def test_scripts_match_system_table():
     assert re.search(r'VLLM_USE_FLASHINFER_SAMPLER=0', sbatch)
     for name in ('XDG_CACHE_HOME', 'VLLM_CACHE_ROOT', 'TORCHINDUCTOR_CACHE_DIR', 'TRITON_CACHE_DIR'):
         assert f'export {name}=' in sbatch or f' {name}=' in sbatch
-    assert O.slurm_flags('O5', 'full') == '--gpus-per-node=4 --cpus-per-task=64 --mem=400G --time=06:00:00'
+    assert O.slurm_flags('O5', 'full') == O.slurm_flags('O6', 'full') == (
+        '--gpus-per-node=4 --cpus-per-task=64 --mem=400G --time=06:00:00')
+    assert O.slurm_flags('O7', 'full') == '--gpus-per-node=2 --cpus-per-task=32 --mem=200G --time=08:00:00'
     assert O.slurm_flags('O1a', 'smoke') == '--gpus-per-node=1 --cpus-per-task=16 --mem=100G --time=01:30:00'
-    assert {s['tp'] for k, s in O.SYSTEMS.items() if k in ('O2', 'O3', 'O4')} == {2}
+    assert {s['tp'] for k, s in O.SYSTEMS.items() if k in ('O2', 'O3', 'O4', 'O7')} == {2}
     for script in ('isambard_llm_open.sbatch', 'submit_llm_open.sh'):
         subprocess.run(['bash', '-n', str(here / script)], check=True)
+
+
+def stub_squeue(tmp_path):
+    """squeue stub: prints $SQUEUE_OUT only for the exact open-model query; exits 1 when SQUEUE_FAIL is set."""
+    stub = tmp_path / 'squeue'
+    stub.write_text('#!/bin/sh\ntest -z "$SQUEUE_FAIL" || exit 1\n'
+                    'test "$*" = "-h -u me -n unknownsize-llm-open -o %i" || exit 3\n'
+                    'printf "%s" "$SQUEUE_OUT"\n')
+    stub.chmod(0o755)
 
 
 def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
@@ -318,7 +372,8 @@ def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
     stub = tmp_path / 'sbatch'
     stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
     stub.chmod(0o755)
-    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'USER': 'me'}
     run = subprocess.run(['bash', str(script), str(code), '7383111:7383121', 'O1a', 'O5'],
                          env=env, capture_output=True, text=True, check=True)
     log = (tmp_path / 'log').read_text().splitlines()
@@ -350,15 +405,39 @@ def test_submit_default_order_and_abort_lists_submitted_jobs(tmp_path):
                     'if [ "$n" -eq "$FAIL_ON" ]; then echo "sbatch: error: QOSMaxSubmitJobPerUserLimit" >&2; exit 1; fi\n'
                     'echo "$((100 + n));cluster"\n')
     stub.chmod(0o755)
-    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'FAIL_ON': '0'}
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'FAIL_ON': '0', 'USER': 'me'}
     run = subprocess.run(['bash', str(script), str(code), '-'], env=env, capture_output=True, text=True, check=True)
-    assert [line.split()[0] for line in run.stdout.splitlines()] == ['O5', 'O4', 'O2', 'O3', 'O1a', 'O1b', 'status']
+    assert [line.split()[0] for line in run.stdout.splitlines()] == [
+        'O6', 'O5', 'O4', 'O2', 'O3', 'O7', 'O1a', 'O1b', 'status']
     (tmp_path / 'log').unlink()
     run = subprocess.run(['bash', str(script), str(code), '-'], env={**env, 'FAIL_ON': '4'},
                          capture_output=True, text=True)
     assert run.returncode == 1 and len((tmp_path / 'log').read_text().splitlines()) == 4  # Nothing after it.
-    assert "sbatch for 'O4 full' failed" in run.stderr and 'scancel 101 102 103' in run.stderr
-    assert run.stdout.splitlines() == ['O5 smoke 101 full 102']
+    assert "sbatch for 'O5 full' failed" in run.stderr and 'scancel 101 102 103' in run.stderr
+    assert run.stdout.splitlines() == ['O6 smoke 101 full 102']
     (tmp_path / 'log').unlink()
     bad = subprocess.run(['bash', str(script), str(code), '-', 'O5', 'O9'], env=env, capture_output=True)
     assert bad.returncode == 2 and not (tmp_path / 'log').exists()  # Systems are checked before any sbatch.
+
+
+def test_submit_refuses_while_an_open_model_chain_is_in_slurm(tmp_path):
+    """An older chain shares the singleton name and output folders; nothing new goes in behind it."""
+    code = Path(O.__file__).resolve().parents[2]
+    helper = (code / 'fastfill/comparison/submit_llm_open.sh').read_text()
+    script = tmp_path / 'submit_llm_open.sh'
+    script.write_text(helper.replace('PYTHON="$PROJECT_ROOT/env/bin/python"\n', f'PYTHON={sys.executable}\n'))
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
+    stub.chmod(0o755)
+    stub_squeue(tmp_path)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'USER': 'me'}
+    run = subprocess.run(['bash', str(script), str(code), '-', 'O5'], env={**env, 'SQUEUE_OUT': '7384533\n7384535\n'},
+                         capture_output=True, text=True)
+    assert run.returncode == 1 and not (tmp_path / 'log').exists() and run.stdout == ''
+    assert 'scancel 7384533 7384535' in run.stderr
+    run = subprocess.run(['bash', str(script), str(code), '-', 'O5'], env={**env, 'SQUEUE_FAIL': '1'},
+                         capture_output=True, text=True)
+    assert run.returncode == 1 and not (tmp_path / 'log').exists()  # Fails closed when Slurm can't be asked.
+    subprocess.run(['bash', str(script), str(code), '-', 'O5'], env=env, check=True, capture_output=True)
+    assert len((tmp_path / 'log').read_text().splitlines()) == 3  # Empty queue: smoke, full, status.

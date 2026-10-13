@@ -10,8 +10,9 @@ reference (reference_rows.py) that must bind this data and the same geometry.py,
 outputs on one shared cohort that paired these J/P runs, and FID/GPT outputs carrying this
 geometry's lineage. geometry-v2 and every agent evaluation must have used the running geometry.py.
 FID/GPT come from either the J/P visual run or the N-system one (fid systems mode with KID, judge
-arms J/P/L/O5 with summary.endpoint); the N-system lineage is visual_pipeline.systems_lineage over
-J/P = GEOMETRY_V2 and each rendered agent label, which must be passed as --agent LABEL=DIR.
+arms = visual_pipeline.judged_systems, e.g. J/P/L/O6, with summary.endpoint); the N-system lineage
+is visual_pipeline.systems_lineage over J/P = GEOMETRY_V2 and each rendered agent label, which must
+be passed as --agent LABEL=DIR.
 Rules (amendments 005/006):
 - reached_token_cap without stopped_on_eos is a failure in every all-request denominator (J/P per
   row; agents per row where their rows carry the flags, i.e. open models, else a count + warning);
