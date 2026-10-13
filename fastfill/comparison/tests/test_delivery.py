@@ -44,6 +44,8 @@ def test_p_package_lists_prior_model_and_report(world, tmp_path):
     assert f"{t1['(a)']['J']:.4f}" in card and D._fmt(t1['(b)']['delta'], True) in card
     assert 'P-DPO2' in card and "predict_sizes(features, prior)" in card and 'GPT judge: not measured' in card
     assert 'Human user rating (UR): not measured' in card and 'exact policy' in card
+    assert 'secondary, not confirmatory' in card and 'primary (confirmatory) comparison stays the same-stage matched SFT' in card
+    assert '| Holm p (within (a), (b); secondary) |' in card
     requests = [json.loads(line) for line in (run / 'eval-data-v1' / 'placement' / 'requests.jsonl').read_text().splitlines()]
     shortest = min(requests, key=lambda r: (len(r['messages'][1]['content']), r['uid']))
     assert value['example_request_uid'] == shortest['uid'] and shortest['messages'][1]['content'] in card

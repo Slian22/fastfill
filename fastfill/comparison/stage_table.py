@@ -42,6 +42,9 @@ LABELS = {'joint': 'J', 'placement': 'P'}
 ENDPOINTS = ('(a)', '(b)', '(a′)')
 T1B = ('complete', 'geometry_success_repaired', 'oor', 'oor_repaired', 'size_iou')
 NOT_RUN = '未运行：未提供该阶段的 report_v2 输出'
+# protocol.md: matched SFT J0/P0 stays the primary endpoint; DPO comparisons are secondary (amendment 008
+# makes DPO2 decide delivery, never confirmatory). Holm in report_v2 runs within one stage's (a), (b).
+ROLE = {'sft': (('(a)', '(b)'), '主要（确认性，protocol.md）'), 'dpo2': (ENDPOINTS, '次要（交付比较，修订 008）')}
 REASONS = {'oor_rotated': '未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）',
            'automatic_acceptance': '未测：report_v2 未输出自动接受率字段'}
 COLUMNS = [('stage', '阶段'), ('arm', '系统'), ('requests', '请求'), ('complete_rate', '完整率'),
@@ -222,7 +225,9 @@ def differences(stage):
              'p': r.get('p'), 'p_holm': r.get('p_holm')} for r in t['T1']]
     rows += [{'stage': stage['stage'], 'endpoint': f"{r['field']}（房间微平均）", 'delta': r['micro'], 'n': r['micro']['n']}
              for r in t['T1b'] if r['field'] in T1B]
-    return [{**r, 'missing': {k: '不适用：只对 (a)、(b) 计算 p 与 Holm' for k in ('p', 'p_holm') if r.get(k) is None}}
+    scope, role = ROLE.get(stage['stage'], ((), None))
+    return [{**r, 'role': role if r['endpoint'].split(' ')[0] in scope else '描述性',
+             'missing': {k: '不适用：只对 (a)、(b) 计算 p 与 Holm' for k in ('p', 'p_holm') if r.get(k) is None}}
             for r in rows]
 
 
@@ -356,9 +361,12 @@ def _report(result):
     lines += _md(t['reference'], COLUMNS[1:])
     lines += ['GT 是参考，不是上限。先验行为全部房间上的 P 先验尺寸误差。', '',
               '## 各阶段 J−P 配对差（房屋连通组自举）', '']
-    lines += _md(t['differences'], [('stage', '阶段'), ('endpoint', '终点'), ('delta', 'Δ J−P [95% CI]'),
-                                     ('n', '配对 n'), ('p', '自举双侧 p'), ('p_holm', 'Holm p（两共同主要终点）')])
-    lines += ['只有 DPO2 的 (a)、(b) J−P 为确认性比较（Holm）；其它阶段与次要终点为描述性估计。', '',
+    lines += _md(t['differences'], [('stage', '阶段'), ('endpoint', '终点'), ('role', '比较地位'),
+                                     ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'), ('p', '自举双侧 p'),
+                                     ('p_holm', 'Holm p（同阶段 (a)、(b) 内）')])
+    lines += ['SFT 阶段 (a)、(b) J−P 为方案保留的主要（确认性）比较（Holm，protocol.md）；'
+              'DPO2 J−P 决定交付（修订 008；规则用 (b) 与 (a′)），属次要比较；DPO1 与其它终点为描述性估计。'
+              'Holm 只在同一阶段的 (a)、(b) 两终点内校正。', '',
               '## 修订 005 交付规则在各阶段的结果', '']
     lines += _md(t['decisions'], [('stage', '阶段'), ('rule_outcome', '规则结果'),
                                   ('condition_i_size_log_mae', '条件 (i)'), ('condition_ii_debiased_success', '条件 (ii)'),

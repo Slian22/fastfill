@@ -213,7 +213,12 @@ def card(value, results, chain, pair_summaries, example):
     else:
         lines += ['J needs no size prior: `request = {\'messages\': messages(bind_room(prepared_room)[0], \'joint\')[:2]}` '
                   '(fastfill.comparison.contract).', '']
-    lines += ['## Measured results (J-DPO2 vs P-DPO2, one shared inference plan, frozen geometry code)', '',
+    lines += ['## Measured results: secondary delivery comparison J-DPO2 vs P-DPO2 (one shared inference plan, '
+              'frozen geometry code)', '',
+              'This comparison decides which arm is delivered (amendment 008); it is secondary, not confirmatory. '
+              "The protocol's primary (confirmatory) comparison stays the same-stage matched SFT J0 vs P0 (protocol.md), "
+              'reported in the SFT-stage report and the stage table, not in this card. Holm p below adjusts only '
+              'within (a), (b) of this DPO2 comparison.', '',
               f"Intervals: house-component cluster bootstrap, {results['repeats']} draws, seed {results['seed']}; "
               'they cover test-room sampling only, not training randomness.', '']
     rows = [[r['endpoint'], _fmt(r['J']), _fmt(r['P']), _fmt(r['delta'], True), _fmt(r['n']),
@@ -223,7 +228,8 @@ def card(value, results, chain, pair_summaries, example):
                  _fmt(complete, True), _fmt(complete['n']), 'n/a', 'n/a'])
     rows.append(['footprint size bias B = mean log(pred/GT)', _fmt(bias['J']['footprint']), _fmt(bias['P']['footprint']),
                  'n/a', 'n/a', 'n/a', 'n/a'])
-    lines += _table(['endpoint', 'J-DPO2', 'P-DPO2', 'Δ J−P [95% CI]', 'n', 'bootstrap p', 'Holm p'], rows)
+    lines += _table(['endpoint', 'J-DPO2', 'P-DPO2', 'Δ J−P [95% CI]', 'n', 'bootstrap p',
+                     'Holm p (within (a), (b); secondary)'], rows)
     every = t2['all']
     lines += [f"Delivery rule: condition (i) {_fmt(d['condition_i_size_log_mae'])}, condition (ii) "
               f"{_fmt(d['condition_ii_debiased_success'])} → **{label}**. Model-free GT reference on the same requests: "

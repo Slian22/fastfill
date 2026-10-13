@@ -161,6 +161,10 @@ def test_three_stage_table_reads_measured_values_only(run, tmp_path):
     assert prior['size_log_mae'] == reference['prior']['prior_size_log_mae'] and gt['missing']['size_iou'].startswith('不适用')
     assert [(r['stage'], r['rule_outcome']) for r in t['decisions']] == [('sft', 'J'), ('dpo1', 'J'), ('dpo2', 'P')]
     assert {r['stage'] for r in t['differences']} == set(S.STAGES) and len(t['differences']) == 3 * (3 + len(S.T1B))
+    # protocol.md: SFT (a), (b) J−P is the confirmatory endpoint; DPO2 decides delivery but is secondary.
+    role = {(r['stage'], r['endpoint'].split(' ')[0]): r['role'] for r in t['differences']}
+    assert {k for k, v in role.items() if v.startswith('主要')} == {('sft', '(a)'), ('sft', '(b)')}
+    assert {k for k, v in role.items() if v.startswith('次要')} == {('dpo2', '(a)'), ('dpo2', '(b)'), ('dpo2', '(a′)')}
     lineage = {(r['stage'], r['arm']): r for r in t['lineage']}
     assert lineage['dpo2', 'P']['pairs'] == 2150 and lineage['dpo1', 'J']['steps'] == 5000
     assert lineage['sft', 'J']['merge_changed_fraction'] == .15 and lineage['sft', 'J']['missing']['pairs'].startswith('不适用')
@@ -169,6 +173,8 @@ def test_three_stage_table_reads_measured_values_only(run, tmp_path):
     h.verify_artifacts(out, json.loads((out / 'MANIFEST.json').read_text())['files'])
     md = (out / 'stage_table.md').read_text()
     assert '修订 009' in md and '运行时 GPU 合并' in md and '| 未测 |' in md and '正式交付决定' in md
+    assert 'SFT 阶段 (a)、(b) J−P 为方案保留的主要（确认性）比较' in md and '属次要比较' in md
+    assert '只有 DPO2' not in md and '共同主要终点' not in md and '| sft | (a) 全请求原始几何成功率 | 主要（确认性' in md
     assert (out / 'stage_stages.csv').read_text().splitlines()[0].startswith('stage,arm,requests,complete_rate')
     with pytest.raises(FileExistsError):
         S.build(run, reports(run), out)
