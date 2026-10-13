@@ -37,7 +37,7 @@ CACHE=/scratch/u6uv/shanliantian.u6uv/.cache
 SYSTEM_CACHE="$CACHE/llm-open/$SYSTEM"
 : "${SLURM_JOB_ID:?Slurm allocation required}"
 # As isambard_v1_1_pipeline.sbatch: JIT builds (FlashInfer, DeepGEMM) need the cluster nvcc.
-module load cudatoolkit
+module load cudatoolkit || { echo "PREFLIGHT FAIL: module load cudatoolkit" >&2; exit 1; }
 NVCC=$(command -v nvcc) || { echo "PREFLIGHT FAIL: no nvcc after 'module load cudatoolkit'" >&2; exit 1; }
 CUDA_HOME="$(dirname "$(dirname "$NVCC")")"
 export CUDA_HOME CUDA_PATH="$CUDA_HOME" PATH="$(dirname "$PYTHON"):$CUDA_HOME/bin:$PATH"

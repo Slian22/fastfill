@@ -269,6 +269,16 @@ def test_smoke_gate_and_status_fail_closed(world):
     assert status['kimi-k3']['state'] == status['glm-5.2']['state'] == 'not run'
 
 
+def test_thinking_smoke_without_reasoning_fails_closed(world):
+    # A thinking system whose template switch is silently ignored answers without any reasoning:
+    # the smoke must not pass, or the full run would start in a mode amendment 006 forbids.
+    root, rooms = world
+    out = root / 'runs' / O.out_name('O5', 'smoke')
+    assert O.main(argv(root, 'O5', 'runs/' + O.out_name('O5', 'smoke'), '--limit', '2', '--smoke-gate'),
+                  loader(FakeLLM(rooms))) == 1
+    assert O.smoke_failure(out) == 'thinking system produced no reasoning (mode not applied)'
+
+
 def test_scripts_match_system_table():
     here = Path(O.__file__).parent
     sbatch = (here / 'isambard_llm_open.sbatch').read_text()
@@ -278,7 +288,7 @@ def test_scripts_match_system_table():
     order = 'O5 O4 O2 O3 O1a O1b'  # Amendment 006 run order.
     assert f'SYSTEMS=({order})' in helper and sorted(order.split()) == sorted(O.SYSTEMS)
     # Preflight mirrors the v1_1 vLLM sbatch and fails fast before any GPU work.
-    assert 'module load cudatoolkit\n' in sbatch and 'CUDA_PATH="$CUDA_HOME"' in sbatch
+    assert 'module load cudatoolkit || ' in sbatch and 'CUDA_PATH="$CUDA_HOME"' in sbatch
     preflight = sbatch.index("\"$PYTHON\" -B -c 'import shapely, fastfill.comparison.llm_open' || {")
     assert sbatch.index('module load cudatoolkit') < preflight < sbatch.index('nvidia-smi -L')
     assert 'PREFLIGHT FAIL' in sbatch[preflight:sbatch.index('nvidia-smi -L')]

@@ -310,6 +310,9 @@ def smoke_failure(out):
         return _reason(status)
     if not _read(out / 'cost.json')['generated_requests']:
         return 'smoke generated no answer'
+    receipt = _read(out / 'run_receipt.json') or {}
+    if (receipt.get('config') or {}).get('thinking') and not (status.get('tokens') or {}).get('reasoning_tokens'):
+        return 'thinking system produced no reasoning (mode not applied)'
     return None
 
 

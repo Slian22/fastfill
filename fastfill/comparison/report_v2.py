@@ -480,10 +480,12 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
             raise ValueError('agents were scored on different cohorts')
         cohort, agent_meta[name] = uids, summary
         # Amendment 006: the cap rule per row where the rows carry the flags (open models).
-        row_cap[name] = all('reached_token_cap' in r and 'stopped_on_eos' in r for v in variants.values() for r in v)
+        # Rooms without an answer (e.g. INPUT_TOO_LONG) carry no flags, so any flagged row enables the rule.
+        row_cap[name] = any('reached_token_cap' in r and 'stopped_on_eos' in r for v in variants.values() for r in v)
         for variant, vrows in variants.items():
             label = f"{name}-{variant.removeprefix('llm_')}"
-            caps = [row_cap[name] and r['reached_token_cap'] and not r['stopped_on_eos'] for r in vrows]
+            caps = [row_cap[name] and r.get('reached_token_cap', False) and not r.get('stopped_on_eos', True)
+                    for r in vrows]
             flipped[label] = sum(c and r['complete'] for c, r in zip(caps, vrows)) if row_cap[name] else None
             vrows = [cap_failure(r) if c else r for r, c in zip(vrows, caps)]
             derived = _map(_derive, [(r, rooms[r['uid']], None, None) for r in vrows], workers)
@@ -622,7 +624,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         warnings.append('agent_answers_reached_output_cap_not_row_applied')
     if corrected is None:
         warnings.append('source_correction_sensitivity_not_provided')
-    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '005', 'delivery': decision, 'tables': tables,
+    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'delivery': decision, 'tables': tables,
               'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}, 'warnings': warnings,
               'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256'],
                              'cap_rule_per_row': row_cap[k]} for k, v in agent_meta.items()},
