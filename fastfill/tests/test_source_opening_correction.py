@@ -2,7 +2,7 @@
 
 Coordinates are from 3DFront_exported/3dfront.jsonl and the 2026-09-28
 designer/opening-target-join.json audit. See the 20261013 correction report.
-Profiles of the arch, rounding and small-angle fixtures are verbatim export rows.
+Profiles of the arch, rounding, small-angle and bay-window fixtures are verbatim export rows.
 """
 import copy
 import math
@@ -77,6 +77,30 @@ ROUNDING_WINDOWS = [
       [-0.62874, 4.95926, 2.09999], [-0.62874, 4.95926, 0.50001]]),
 ]
 
+# One bay window exported as 13 pieces: 3dfront.jsonl line 43135 (byte offset 284091668), house
+# c3c2b237-b863-436f-b66d-27bf5d0ca927 SecondBedroom-104672 (v3.2 train split), every piece
+# opening_type BayWindow, wall_id None. (position x/y/z, width, height, sill_height, profile).
+BAY_PIECES = [
+    ((-6.3775, 3.22, 1.6), 0.587, 2.2, 0.5, [[-6.671, 3.213], [-6.084, 3.213], [-6.084, 3.227], [-6.671, 3.227]]),
+    ((-6.391, 3.227, 1.6), 0.614, 2.2, 0.5, [[-6.698, 3.2], [-6.084, 3.2], [-6.084, 3.254], [-6.698, 3.254]]),
+    ((-6.6775, 4.385, 1.6), 2.344, 2.2, 0.5, [[-6.684, 3.213], [-6.671, 3.227], [-6.671, 5.557], [-6.684, 5.543]]),
+    ((-6.671, 4.392, 1.6), 2.384, 2.2, 0.5, [[-6.698, 3.2], [-6.644, 3.2], [-6.644, 5.584], [-6.698, 5.584]]),
+    ((-5.7505, 5.5635, 1.6), 1.867, 2.2, 0.5, [[-6.684, 5.57], [-6.671, 5.557], [-4.817, 5.557], [-4.83, 5.57]]),
+    ((-5.744, 5.557, 1.6), 1.908, 2.2, 0.5, [[-6.698, 5.53], [-4.79, 5.53], [-4.79, 5.584], [-6.698, 5.584]]),
+    ((-4.81, 5.27, 1.6), 0.6, 2.2, 0.5, [[-4.817, 4.97], [-4.803, 4.983], [-4.803, 5.57], [-4.817, 5.557]]),
+    ((-4.817, 5.277, 1.6), 0.614, 2.2, 0.5, [[-4.844, 4.97], [-4.79, 4.97], [-4.79, 5.584], [-4.844, 5.584]]),
+    ((-5.744, 4.392, 2.75), 2.53, 0.1, 2.7,
+     [[-6.771, 3.127], [-6.084, 3.2], [-4.79, 4.97], [-4.717, 5.657], [-6.771, 5.657]]),
+    ((-5.744, 4.392, 1.625), 2.276, 2.15, 0.55,
+     [[-6.644, 3.254], [-5.844, 3.254], [-4.844, 4.73], [-4.844, 5.53], [-6.644, 5.53]]),
+    ((-5.311, 3.959, 1.65801), 1.542, 2.21602, 0.55,
+     [[-5.844, 3.188], [-5.824, 3.188], [-4.778, 4.71], [-4.778, 4.73], [-5.844, 4.73]]),
+    ((-5.744, 4.392, 0.4), 2.53, 0.2, 0.3,
+     [[-6.771, 3.127], [-6.084, 3.127], [-4.717, 4.97], [-4.717, 5.657], [-6.771, 5.657]]),
+    ((-5.744, 4.392, 0.525), 2.276, 0.05, 0.5,
+     [[-6.644, 3.254], [-5.814, 3.254], [-4.844, 4.7], [-4.844, 5.53], [-6.644, 5.53]]),
+]
+
 
 def window(a, b, bottom, top, width):
     return {"opening_type": "Window", "width": width, "height": top - bottom,
@@ -146,7 +170,7 @@ def test_full_extent_keeps_legacy_directed_wall_axis_exactly(vector):
     bottom = [[a[k] + vector[k] * t / 3 for k in range(2)] + [0.9] for t in range(4)]
     source = {**source, "profile": bottom + [[*b, 2.4], [*a, 2.4]]}
     expected_angle = math.atan2(a[1] - b[1], a[0] - b[0])
-    angle, width, _ = il._opening_frame("window", source["profile"], source["width"])
+    angle, width, _, _ = il._opening_frame("window", source["profile"], source["width"])
     assert angle == expected_angle
     assert width == pytest.approx(math.dist(a, b))
     obj = emitted(source)
@@ -166,8 +190,9 @@ def test_near_axis_preserves_exact_angle_only_below_tolerance(sign, epsilon):
     # only by rounding in one case, and by real source geometry in the other.
     old_angle = math.atan2(middle[1], middle[0])
     full_angle = math.atan2(b[1], b[0])
-    angle, width, _ = il._opening_frame("window", source["profile"], source["width"])
+    angle, width, _, legacy = il._opening_frame("window", source["profile"], source["width"])
     assert angle == (old_angle if epsilon < 1e-12 else full_angle)
+    assert legacy == old_angle   # openings merges on this v3.2 angle in either case
     assert width == pytest.approx(math.dist(a, b))
 
 
@@ -268,23 +293,52 @@ def test_corrected_dimensions_reach_ir_and_merging_keeps_original_index():
     assert source == before
 
 
-@pytest.mark.parametrize("second_bottom", [1.52, 1.8])
-def test_wider_footprints_do_not_merge_windows_at_separate_heights(second_bottom):
+@pytest.mark.parametrize("second_bottom", [0.9, 1.52, 1.8])
+def test_merging_uses_export_width_not_corrected_span(second_bottom):
+    # As v3.2: the export-width footprints overlap 0.35 / 0.8 < half, so both pieces stay at
+    # any height, although their corrected 1.0 m spans would overlap 0.55 / 1.0.
     first = window((0, 0), (0.6, 0.8), 0.9, 1.5, 0.8)
     second = window((0.27, 0.36), (0.87, 1.16), second_bottom, second_bottom + 0.6, 0.8)
     objects, skipped = il.openings(([], [first, second]), (0, 0), "room")
     assert skipped == 0
     assert {o["furniture_instance_id"] for o in objects} == {"room::window_0", "room::window_1"}
+    assert [o["furniture_size"]["length"] for o in objects] == pytest.approx([1.0, 1.0])
 
 
-@pytest.mark.parametrize("gap", [0, 0.005, 0.01])
-def test_touching_or_near_window_pieces_merge_as_one_opening(gap):
-    # Bay glass on its slab is one opening, as in the historical adapter. The export
-    # rounds height independently: 0.9 + 0.8 > 1.7 in floating point.
-    first = {**window((0, 0), (0.6, 0.8), 0.9, 1.7, 0.8), "height": 0.8}
-    second = {**window((0.27, 0.36), (0.87, 1.16), 1.7 + gap, 2.5, 0.8), "height": 0.8 - gap}
+@pytest.mark.parametrize("gap", [0, 0.01, 1.0])
+def test_covered_window_piece_merges_at_any_height(gap):
+    # As v3.2, heights are not compared: bay glass on its slab (gap 0) is one opening, and so is
+    # a smaller window 1 m above a bigger one (a kept v3.2 limitation in double-height rooms).
+    first = window((0, 0), (0.6, 0.8), 0.9, 2.4, 0.8)
+    second = window((0.18, 0.24), (0.78, 1.04), 2.4 + gap, 2.9 + gap, 0.8)   # 0.5 / 0.8 covered
     objects, skipped = il.openings(([], [first, second]), (0, 0), "room")
     assert skipped == 1 and [o["furniture_instance_id"] for o in objects] == ["room::window_0"]
+
+
+def test_pieces_are_ordered_by_export_width_volume():
+    # v3.2 order: 0.9 x 0.1 x 1.5 m before the oblique piece's export 0.8 x 0.1 x 1.5 m,
+    # although its corrected 1.0 m span alone would put it first.
+    oblique = window((0, 0), (0.6, 0.8), 0.9, 2.4, 0.8)
+    straight = window((3, 0), (3.9, 0), 0.9, 2.4, 0.9)
+    objects, skipped = il.openings(([], [oblique, straight]), (0, 0), "room")
+    assert skipped == 0
+    assert [o["furniture_instance_id"] for o in objects] == ["room::window_1", "room::window_0"]
+    assert [o["furniture_size"]["length"] for o in objects] == pytest.approx([0.9, 1.0])
+
+
+def test_real_bay_window_keeps_v32_glass_panes_not_its_seat_slab():
+    windows = [{"opening_type": "BayWindow", "wall_id": None, "position": dict(zip("xyz", pos)),
+                "width": width, "height": height, "sill_height": sill, "profile": profile}
+               for pos, width, height, sill, profile in BAY_PIECES]
+    before = copy.deepcopy(windows)
+    objects, skipped = il.openings(([], windows), (0, 0), "room")
+    # v3.2 IR objects, in order: the 2.2 m glass panes window_1 / window_5 stay, and the
+    # 20 cm seat slab window_11 (2.53 x 1.56 m footprint) is merged into window_9.
+    assert skipped == 8 and windows == before
+    assert [o["furniture_instance_id"] for o in objects] == [
+        f"room::window_{k}" for k in (9, 3, 5, 1, 7)]
+    assert [o["furniture_size"]["length"] for o in objects] == [2.276, 2.384, 1.908, 0.614, 0.614]
+    assert [o["furniture_position"]["z"] for o in objects] == [0.55, 0.5, 0.5, 0.5, 0.5]
 
 
 def test_load_preserves_source_room_join_neighbour_door_and_floor_reference(monkeypatch, tmp_path):

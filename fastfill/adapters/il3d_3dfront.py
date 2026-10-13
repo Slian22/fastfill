@@ -45,9 +45,10 @@ Verified conventions (scratch checks against IL3D's own USDZ meshes and the 3D-F
   10,768 doors, rooms with a door 7,470 -> 13,465 of 21,832; doors > 0.3 m inside the boundary 5,165 -> 19.
   The export splits one door / bay window into several mesh pieces (its README: "the entry count is not the number
   of real doors/windows"): pieces lower than MIN_H (sill slabs) are dropped, and a piece whose footprint is >= half
-  covered by a bigger piece of the same kind is merged into it (dropped), so each opening is shown once.
-  Window pieces must also overlap, touch or be <= OPENING_GAP_M apart vertically (bay-window glass on its slab is
-  one opening, as before); a wider footprint must not merge windows on separate levels.
+  covered by a bigger piece of the same kind is merged into it (dropped), so each opening is shown once. Size and
+  cover are measured on v3.2's footprint (export width along the nearest-width side; heights are not compared, so a
+  lower window under a bigger one in a double-height room merges too, as in v3.2): the corrected span changes no
+  merge and no order, only the kept box's width and angle.
 """
 import collections
 import json
@@ -71,7 +72,6 @@ LEVEL_TOL = 0.3       # own doors start at the room's floor (98% exactly, else <
 OPENING_PLANE_TOL = 1e-5  # source export's Window/WallInner plane matching tolerance, metres
 OPENING_ROUND_TOL = 2e-5  # export rounds coordinates and widths to five decimals (<= 5e-6 each): a span of two
 #                           rounded points vs the rounded width differs by < 1.92e-5 without a real change
-OPENING_GAP_M = 0.01      # window pieces <= 1 cm apart vertically (bay glass on its slab) are one opening
 OPENING_AXIS_TOL = 1e-12  # normalized cross product: keep the exact prior angle on the same wall axis
 
 SOURCE = "IL3D_3dfront"
@@ -210,12 +210,13 @@ def _opening_num(value):
 
 
 def _opening_frame(kind, pr, width):
-    """Return (wall angle, width, depth), or None for malformed/degenerate profiles.
+    """Return (wall angle, width, depth, legacy angle), or None for malformed/degenerate profiles.
 
     Only a 3D window whose XY projection is a line proves a wall frame. Project
     its whole outline into that frame: subdivided edges must not shorten it.
     A span within OPENING_ROUND_TOL of the exported width keeps width and angle.
     2D footprints and nonplanar 3D profiles keep the previous width semantics.
+    legacy angle = the nearest-width side's direction (v3.2's angle; openings merges on it).
     """
     if not isinstance(pr, (list, tuple)) or len(pr) < 3:
         return None
@@ -229,10 +230,11 @@ def _opening_frame(kind, pr, width):
     if not segs:
         return None
     a, b = min(segs, key=lambda s: abs(math.dist(*s) - width))
+    legacy = math.atan2(b[1] - a[1], b[0] - a[0])
     depth = 0.0
     if dim == 2:
         poly = Polygon(xy)
-        if poly.area <= 0:      # positive-area but invalid (self-touching) outlines keep the legacy semantics
+        if poly.area <= 0:      # degenerate: skipped (v3.2 kept it with OPENING_T depth; none in the export)
             return None
         depth = poly.area / width
     elif kind == "window":
@@ -259,7 +261,7 @@ def _opening_frame(kind, pr, width):
                 width = span
                 if abs(dx * uy - dy * ux) > OPENING_AXIS_TOL * math.hypot(dx, dy):
                     a, b = start, end
-    return math.atan2(b[1] - a[1], b[0] - a[0]), width, depth
+    return math.atan2(b[1] - a[1], b[0] - a[0]), width, depth, legacy
 
 
 def openings(doors_windows, shift, prefix):
@@ -279,24 +281,20 @@ def openings(doors_windows, shift, prefix):
             if frame is None:
                 skipped += 1
                 continue
-            ang, w, depth = frame
+            ang, span, depth, legacy = frame
             z = o["sill_height"] if _opening_num(o.get("sill_height")) else p["z"] - h / 2
             d = depth if depth > 0.01 else OPENING_T
-            fp = Polygon(footprint({"pos": [p["x"], p["y"]], "size": [w, d], "yaw": ang}))
+            # merge / order on v3.2's export-width footprint; the box gets the corrected span and angle
+            fp = Polygon(footprint({"pos": [p["x"], p["y"]], "size": [w, d], "yaw": legacy}))
             boxes.append((fp.area * h, fp, {
                 "furniture_category": kind, "furniture_instance_id": f"{prefix}::{kind}_{k}", "structure": True,
                 **({"listed_on": o["listed_on"]} if o.get("listed_on") else {}),
                 "furniture_position": {"x": p["x"] - shift[0], "y": p["y"] - shift[1], "z": z},
                 "furniture_rotation": {"x": 0.0, "y": 0.0, "z": math.degrees(ang) + 90},
-                "furniture_size": {"width": d, "length": w, "height": h}}))
+                "furniture_size": {"width": d, "length": span, "height": h}}))
         kept = []                       # biggest piece first; a piece half inside the kept ones is the same opening
         for _, fp, f in sorted(boxes, key=lambda t: -t[0]):
-            bottom = f["furniture_position"]["z"]
-            top = bottom + f["furniture_size"]["height"]
-            overlapping = [g for g, other in kept if kind == "door" or
-                           (other["furniture_position"]["z"] <= top + OPENING_GAP_M and
-                            bottom <= other["furniture_position"]["z"] + other["furniture_size"]["height"] + OPENING_GAP_M)]
-            if overlapping and unary_union(overlapping).intersection(fp).area >= 0.5 * fp.area:
+            if kept and unary_union([g for g, _ in kept]).intersection(fp).area >= 0.5 * fp.area:
                 skipped += 1
                 continue
             kept.append((fp, f))
