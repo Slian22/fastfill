@@ -2,26 +2,27 @@ project:
   title: Unknown-size matched J/P comparison
   status: active
   primary_endpoint: matched_SFT_J0_vs_P0
-phase: diagnostic_sft_running_audited_driver_active
-observed_utc: '2026-10-13T08:27:51Z'
-scientific_status: known_source_geometry_defects_corrected_version_and_paired_retraining_required
+phase: inference_v2_chain_submitted_awaiting_sft_completion
+observed_utc: '2026-10-13T18:45:00Z'
+scientific_status: training_audited_correct_no_retrain; source_correction_candidate_002_in_verification; amendments_002_005_locked_before_outputs
 jobs:
   main_data: {id: 7365659, status: COMPLETED}
   sft_joint: {id: 7365681, status: RUNNING, wall_hours_cap: 24}
   sft_placement: {id: 7365682, status: RUNNING, wall_hours_cap: 24}
-  inference_joint: {id: 7367626, dependency: 7365681, wall_hours_cap: 22}
-  inference_placement: {id: 7367628, dependency: 7365682, wall_hours_cap: 22}
-  geometry: {id: 7368009, status: PENDING, dependencies: [7367626, 7367628], wall_hours_cap: 2}
-  superseded_geometry: {id: 7367629, status: CANCELLED, runtime_seconds: 0}
+  superseded_inference: {ids: [7367626, 7367628], status: CANCELLED_NEVER_STARTED, reason: projected_timeout_amendment_002}
+  superseded_geometry: {ids: [7367629, 7368009], status: CANCELLED_NEVER_STARTED}
+  inference_v2: {snapshot: main-934192e6d, plan: 7383109, probe_joint: 7383110, shards_joint: [7383111, 7383112, 7383113, 7383114], merge_joint: 7383115, probe_placement: 7383116, shards_placement: [7383117, 7383118, 7383119, 7383120], merge_placement: 7383121, geometry_v2: 7383122}
+  api_agent: {smoke: 7382896, smoke_status: PASSED_2of2_valid, full: 7382898, cohort_rooms: 1454, model: gpt-6.1-sol, reasoning: medium}
+  open_model_downloads: {gpt_oss_120b: VERIFIED_PROJECTDIR, job: 7382840, done: [Qwen3.6-27B, gemma-4-31b-it], pending: [DeepSeek-V4-Flash-0731]}
 counts: {common_qualified_train: 98923, prior_fit_pool: 124843, dev: 8167, test: 8647}
-budgets: {requested_gpu_hours: 93.75, cap_gpu_hours: 96, max_concurrent_new_gpus: 4, api_success_cap: 360, formal_api_cap: 348}
+budgets: {requested_gpu_hours_before_amendment_002: 93.75, cap_gpu_hours: 260, max_concurrent_new_gpus: 8_after_amendment_002, api_success_cap: 360, formal_api_cap: 348}
 visual: {reference_candidates: 1009, reference_asset_eligible: 1005, gpt_preselected_rooms: 174}
 pending: [measured_tables, final_review]
 human_ur: not_measured
 inference_context: {budget: 40960, batch_size: 8, policy: shared_paired_input_remaining_context, capacity_job: 7367612, peak_allocated_bytes: 73998618112}
 
 automation:
-  status: running
+  status: run004_died_2026-10-13T15:11:04Z_ssh_cert_expiry_relaunch_after_geometry_v2
   output: /Volumes/harddisk/fastfillout/unknownsize-20261013/automation-run-004
   config: automation-config-run004.json
   code_snapshot: pipeline-resource-bound-86e4e3bfc30f
