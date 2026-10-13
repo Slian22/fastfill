@@ -59,6 +59,7 @@ def test_end_to_end_two_arm_tables(tmp_path):
     assert result['paper_strata']['IL3D_3dfront/bedroom']['joint']['requests'] == 1
     assert (out / 'geometry.csv').read_text().count('\n') >= 3
     assert 'OOR' in (out / 'report.md').read_text()
+    assert result['stage'] == 'sft' and '模型阶段（stage）：sft' in (out / 'report.md').read_text()  # No stage = SFT run.
     h.verify_artifacts(out, json.loads((out/'MANIFEST.json').read_text())['files'])
     with pytest.raises(FileExistsError):
         e.evaluate(data, runs, out, repeats=20)

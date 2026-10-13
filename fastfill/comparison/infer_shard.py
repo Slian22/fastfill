@@ -13,6 +13,9 @@ shard  --data --base --adapter --training-run --arm --plan ROOT/plan
        or --model MERGED instead of --adapter/--training-run (amendment 008): a
        lineage-verified merged stage model loaded as is; base_sha256 stays the
        generic Qwen3-8B lineage root, so evaluate_pair's cross-arm check holds;
+       --model STAGE-merged --exact-policy (amendment 009) instead evaluates the
+       DPO stage's exact trained policy: its adapter unmerged (FP32 as trained)
+       on its BF16 training base, both rehashed against the lineage receipt;
        --resume continues from a verified ledger under the identical run
        identity (shard index and out are deliberately not part of it).
 merge  --data --plan ROOT/plan --arm ARM --shards S0 .. SN-1 --out INFER_DIR
@@ -221,14 +224,18 @@ def shard(args):
         expected = [u for _, b in mine for u in b['uids']]
         decode = plan_value['decode']
         merged = getattr(args, 'model', None) is not None
+        exact = getattr(args, 'exact_policy', False)
         if merged == (args.adapter is not None or args.training_run is not None) or (
-                not merged and None in (args.adapter, args.training_run)):
-            raise ValueError('pass --model (amendment 008 merged stage model) or --adapter with --training-run')
+                not merged and None in (args.adapter, args.training_run)) or (exact and not merged):
+            raise ValueError('pass --model (amendment 008 merged stage model, optionally --exact-policy) '
+                             'or --adapter with --training-run')
         sources = ('model',) if merged else ('adapter', 'training_run')
+        lora = 'unmerged_fp32_stage_adapter_on_bf16_training_base' if exact else 'premerged_bf16_stage_model'
         config = {**{k: str(getattr(args, k).resolve()) for k in ('data', 'base', *sources, 'plan')},
                   'arm': args.arm, 'shard_count': args.shard_count, **decode, **FIXED,
-                  **({'lora': 'premerged_bf16_stage_model'} if merged else {})}
-        run = types.SimpleNamespace(**{k: getattr(args, k) for k in ('base', *sources, 'arm')}, **decode)
+                  **({'lora': lora} if merged else {})}
+        run = types.SimpleNamespace(**{k: getattr(args, k) for k in ('base', *sources, 'arm')}, **decode,
+                                    exact_policy=exact)
         if merged:
             from fastfill.comparison import dpo_stages
         identity = {'config': config, 'config_sha256': i._hash(config), 'data': data,
@@ -253,7 +260,11 @@ def shard(args):
         (args.out / 'receipts').mkdir(exist_ok=True)
         ledger, _ = _ledger(args.out, expected, run_hash, adopt=True)
         h.write_json(args.out / 'status.json', {'status': 'LOADING', **i.accounting(expected, ledger)})
-        tok, generate, eos = i._runtime(run, merge=True)
+        if exact:  # Load exactly what the identity rehashed: training base + stage adapter, never merged.
+            policy = identity['policy']
+            run = types.SimpleNamespace(base=Path(policy['training_base']), adapter=Path(policy['adapter']),
+                                        arm=args.arm, exact_policy=True, **decode)
+        tok, generate, eos = i._runtime(run, merge=not exact)
         by_uid = {r['uid']: r for r in rows}
         for _, batch in mine:
             if [len(i.prompt_ids(tok, by_uid[u])) for u in batch['uids']] != batch['input_tokens'][args.arm]:
@@ -409,6 +420,7 @@ def parse_args(argv=None):
     worker.add_argument('--shard-index', type=count(0), required=True)
     worker.add_argument('--shard-count', type=count(1), required=True)
     worker.add_argument('--resume', action='store_true')
+    worker.add_argument('--exact-policy', action='store_true')  # Amendment 009, with --model STAGE-merged.
     merger = sub.add_parser('merge')
     for flag in ('data', 'plan', 'out'):
         merger.add_argument('--' + flag, type=Path, required=True)
