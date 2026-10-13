@@ -32,14 +32,14 @@ PNG = (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', 1, 1, 8, 2,
        + chunk(b'IDAT', zlib.compress(b'\x00\xff\xff\xff')) + chunk(b'IEND', b''))
 
 
-def bundle(tmp_path, n=2):
+def bundle(tmp_path, n=2, arms=('joint', 'placement')):
     root = tmp_path / 'bundle'
     api = root / 'api-bundle'
     api.mkdir(parents=True)
     (api / 'prompt.txt').write_text('Judge supplied prediction renders. Return rubric scores.')
     cases, mapping = [], {}
     for i in range(n):
-        for arm in ('joint', 'placement'):
+        for arm in arms:
             cid = f'room-{i}-{arm}'
             image = api / f'{cid}.png'
             image.write_bytes(PNG)
@@ -77,7 +77,7 @@ def fake_client(calls, outcomes=None, hook=None):
         write(out / (stem + '.attempt.json'), dict(identity, status='attempted'))
         if mode == 'timeout':
             raise subprocess.TimeoutExpired(command, 1)
-        scores = dict(functionality_score=8 if 'joint' in case['id'] else 4,
+        scores = dict(functionality_score=8 if 'joint' in case['id'] or case['id'].endswith('-J') else 4,
                       layout_score=6, aesthetics_score=7)
         if mode != 'no_overall':
             scores['overall_score'] = 7.5
@@ -540,3 +540,51 @@ def test_checksum_only_upload_manifest_accepts_actual_visual_bundle(tmp_path, mo
     monkeypatch.setattr(batch.subprocess, 'run', lambda *a, **k: pytest.fail('client launched'))
     with pytest.raises(ValueError, match='lineage_mismatch'):
         batch.evaluate(upload / 'api-bundle', tmp_path / 'invalid-output', CLIENT)
+
+
+def test_systems_mode_labels_cap_and_endpoint(tmp_path, monkeypatch):
+    root = bundle(tmp_path, n=3, arms=('J', 'P', 'L'))
+    calls = []
+    monkeypatch.setattr(batch.subprocess, 'run', fake_client(calls, outcomes={'room-2-P': 'fail'}))
+    result = batch.evaluate(root, tmp_path / 'output', CLIENT, max_cases=800, arms=('J', 'P', 'L'))
+    assert len(calls) == 9 and result['arms'] == ['J', 'P', 'L'] and set(result['by_arm']) == {'J', 'P', 'L'}
+    endpoint = result['endpoint']
+    assert endpoint['direction'] == 'J_minus_P' and result['paired'][0]['direction'] == 'J_minus_P'
+    assert (endpoint['both_complete'], endpoint['selected_pairs']) == (2, 3)
+    assert endpoint['mean_difference'] == pytest.approx(4 / 3)  # functionality 8 vs 4 -> room mean +4/3
+    assert endpoint['ci95'] == pytest.approx([4 / 3, 4 / 3])
+    assert 'Endpoint (J_minus_P' in (tmp_path / 'output/tables.md').read_text()
+    batch.validate_summary(result)
+    tampered = copy.deepcopy(result)
+    tampered['endpoint']['both_complete'] += 1
+    with pytest.raises(batch.BatchError, match='endpoint'):
+        batch.validate_summary(tampered)
+    with pytest.raises(batch.BatchError, match='structure'):
+        batch.validate_summary({k: v for k, v in result.items() if k != 'endpoint'})
+    assert batch.main(['--bundle', str(root), '--output', str(tmp_path / 'cli'), '--client', str(CLIENT),
+                       '--max-cases', '800', '--arms', 'J,P,L']) == 1  # one failed case
+    assert json.loads((tmp_path / 'cli/summary.json').read_text())['arms'] == ['J', 'P', 'L']
+    with pytest.raises(batch.BatchError, match='invalid_bounds'):
+        batch.evaluate(root, tmp_path / 'v1-cap', CLIENT, max_cases=800)
+    with pytest.raises(batch.BatchError, match='invalid_bounds'):
+        batch.evaluate(root, tmp_path / 'over', CLIENT, max_cases=801, arms=('J', 'P', 'L'))
+    with pytest.raises(batch.BatchError, match='arm'):
+        batch.evaluate(root, tmp_path / 'subset', CLIENT, max_cases=800, arms=('J', 'P'))
+
+
+def test_endpoint_resamples_rooms_within_stratum_with_fixed_seed():
+    def record(uid, arm, stratum, functionality, status='completed'):
+        return dict(uid=uid, arm=arm, stratum=stratum, status=status,
+                    scores=dict(functionality_score=functionality, layout_score=5, aesthetics_score=5))
+    records = [r for i, (stratum, delta) in enumerate([('a', 0), ('a', 3), ('b', 6)])
+               for r in (record(f'u{i}', 'J', stratum, 5 + delta), record(f'u{i}', 'P', stratum, 5))]
+    records += [record('u9', 'J', 'b', 9, status='failed'), record('u9', 'P', 'b', 1)]
+    endpoint = batch._endpoint(records, 'J', 'P')
+    assert (endpoint['both_complete'], endpoint['selected_pairs']) == (3, 4)
+    assert endpoint['both_complete_by_stratum'] == {'a': 2, 'b': 1}
+    assert endpoint['mean_difference'] == pytest.approx(1.0)  # room-mean deltas 0, 1, 2
+    # Stratum b's single room is in every draw, so draws lie in {2/3, 1, 4/3}, never 0.
+    assert endpoint['ci95'] == pytest.approx([2 / 3, 4 / 3])
+    assert batch._endpoint(records, 'J', 'P') == endpoint
+    assert endpoint['bootstrap'] == {'draws': 2000, 'seed': 42, 'resample': 'rooms_within_stratum',
+                                     'interval': 'percentile'}

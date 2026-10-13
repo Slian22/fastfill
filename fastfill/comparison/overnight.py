@@ -6,10 +6,15 @@ prerequisite_job_ids, local_code_root, local_python, output_root, reference_data
 blender, vendor, weights, remote_api_code, api_client_path, remote_env_file.
 remote_env_file must be /home/u6uv/shanliantian.u6uv/.fastfill_api.env. Remote code/client
 paths refer to the SERVER. local_code_root must be a finalized frozen snapshot.
-receipt_paths lists exact run-root-relative small training/inference receipts.
+receipt_paths lists exact run-root-relative small training/inference receipts
+(e.g. infer-joint-002/run_receipt.json). geometry_name (geometry-v1) names the
+run-root J/P geometry dir, e.g. geometry-v2. agents (absent = J/P only) maps
+agent labels (L, O1a..O5) to run-root record dirs (evaluate_llm-style
+llm_harness-geometry.jsonl); when present, visual/FID/judge/tables use the
+N-system path with J and P from geometry_name, judge cap 800.
 Optional remote_python (python3), slurm_account (brics.u6uv),
 ssh_control_path (an existing task-owned local SSH control socket),
-expected_manifest_sha256 (mapping geometry-v1/eval-data-v1/main-data-v1 to hashes),
+expected_manifest_sha256 (mapping downloaded dir names and main-data-v1 to hashes),
 final_tables (false), poll_seconds (60), read_retries (3). Time caps in seconds:
 total_timeout_seconds=432000, render_timeout_seconds=86400, api_timeout_seconds=36000.
 The five-day total bound includes scheduler waiting; it does not extend job runtimes.
@@ -43,6 +48,7 @@ CAPS = {'total_timeout_seconds': 120 * 3600, 'render_timeout_seconds': 24 * 3600
         'api_timeout_seconds': 10 * 3600}
 TERMINAL_FAILURES = {'BOOT_FAIL', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL',
                      'OUT_OF_MEMORY', 'PREEMPTED', 'REVOKED', 'SPECIAL_EXIT', 'TIMEOUT'}
+AGENTS = ('L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5')  # visual_pipeline.SYSTEMS without J/P.
 SSH_OPTIONS = ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=30', '-o',
                'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2']
 
@@ -135,7 +141,7 @@ def validate_config(raw):
     if not isinstance(raw, dict) or any(k not in raw for k in required):
         raise ValueError('missing required config field')
     config = {**{'poll_seconds': 60, 'read_retries': 3, 'receipt_paths': [],
-                 'remote_python': 'python3', 'final_tables': False,
+                 'remote_python': 'python3', 'final_tables': False, 'geometry_name': 'geometry-v1',
                  'slurm_account': 'brics.u6uv', 'slurm_partition': 'workq', 'slurm_qos': 'normal'}, **CAPS, **raw}
     for key in required:
         if key in ('prerequisite_job_ids', 'geometry_job_id'):
@@ -171,6 +177,11 @@ def validate_config(raw):
     jobs = [str(v) for v in [*ids, config['geometry_job_id']]]
     if any(not re.fullmatch('[1-9][0-9]*', v) for v in jobs) or len(set(jobs)) != len(jobs):
         raise ValueError('invalid or duplicate job IDs')
+    agents = config.get('agents', {})
+    names = [config['geometry_name'], *(agents.values() if isinstance(agents, dict) else [None])]
+    if (not isinstance(agents, dict) or not set(agents) <= set(AGENTS)
+            or any('/' in relative_name(n) or n == 'eval-data-v1' for n in names) or len(set(names)) != len(names)):
+        raise ValueError('geometry_name/agents must be distinct run-root directory names; agents in L, O1a..O5')
     if not isinstance(config['receipt_paths'], list):
         raise ValueError('receipt_paths must be a list')
     for path in config['receipt_paths']:
@@ -404,7 +415,8 @@ class Driver:
     def fetch_inputs(self):
         c, dest = self.config, self.out / 'inputs'
         pinned = c.get('expected_manifest_sha256', {})
-        for name in ('geometry-v1', 'eval-data-v1'):
+        geometry = c['geometry_name']
+        for name in (geometry, 'eval-data-v1', *c.get('agents', {}).values()):
             target = dest / name
             target.mkdir(parents=True)
             self.rsync(f'{c["ssh_host"]}:{c["remote_run_root"]}/{name}/', str(target) + '/')
@@ -431,9 +443,10 @@ class Driver:
         evaluation = read_json(dest / 'eval-data-v1/MANIFEST.json')
         if evaluation.get('training_manifest_sha256', training_hash) != training_hash:
             raise ValueError('evaluation/training manifest hash mismatch')
-        geometry = read_json(dest / 'geometry-v1/summary.json')
-        if geometry.get('data_manifest_sha256') != sha256(dest / 'eval-data-v1/MANIFEST.json'):
-            raise ValueError('geometry/evaluation manifest hash mismatch')
+        for name in (geometry, *c.get('agents', {}).values()):
+            if read_json(dest / name / 'summary.json').get('data_manifest_sha256') != sha256(
+                    dest / 'eval-data-v1/MANIFEST.json'):
+                raise ValueError('geometry/evaluation manifest hash mismatch')
         atomic_json(self.out / 'download-receipt.json', {'files': inventory(dest)})
         self.counts = {**self.counts, 'downloaded_files': len(inventory(dest)), 'training_receipts': len(c['receipt_paths'])}
 
@@ -441,10 +454,20 @@ class Driver:
         return self.command([self.config['local_python'], '-B', '-u', '-m', 'fastfill.comparison.' + module,
                              *map(str, args)], timeout=self.remaining(timeout))
 
+    def systems(self):
+        """N-system --system arguments, or None for the J/P path."""
+        if 'agents' not in self.config:
+            return None
+        inputs, geometry = self.out / 'inputs', self.config['geometry_name']
+        pairs = {'J': geometry, 'P': geometry, **self.config['agents']}
+        return [arg for label, name in pairs.items() for arg in ('--system', f'{label}={inputs / name}')]
+
     def render(self):
         c, inputs, out = self.config, self.out / 'inputs', self.out / 'visual'
-        self.local_module('visual_pipeline', ['prepare', '--reference-dir', c['reference_data'],
-            '--geometry-dir', inputs / 'geometry-v1', '--eval-data', inputs / 'eval-data-v1',
+        systems = self.systems()
+        source = (['prepare-systems', '--reference-dir', c['reference_data'], *systems] if systems else
+                  ['prepare', '--reference-dir', c['reference_data'], '--geometry-dir', inputs / c['geometry_name']])
+        self.local_module('visual_pipeline', [*source, '--eval-data', inputs / 'eval-data-v1',
             '--out', out, '--blender-path', c['blender'], '--workers', '2', '--threads', '3',
             '--timeout-seconds', c['render_timeout_seconds']], c['render_timeout_seconds'])
         verify_manifest(out)
@@ -484,7 +507,8 @@ class Driver:
         manifest = read_json(dest / 'api-bundle/manifest.json')
         cases = manifest['cases']
         mapping = read_json(dest / 'api-mapping.json')
-        if len(mapping) > 348 or len(cases) > 348 or len({c['id'] for c in cases}) != len(cases):
+        cap = 800 if self.systems() else 348
+        if len(mapping) > cap or len(cases) > cap or len({c['id'] for c in cases}) != len(cases):
             raise ValueError('API duplicate/cap violation')
         for case in cases:
             entries = [{'path': case['prompt_file'], 'sha256': case['prompt_sha256']}, *case['images']]
@@ -531,9 +555,11 @@ class Driver:
         # ten hours by both Slurm and timeout. A now+walltime deadline would make
         # almost every queued submission ineligible before it could start.
         self.api_deadline = self.deadline
+        arms = (['--max-cases', '800', '--arms', ','.join(read_json(self.out / 'visual/preparation.json')['judged'])]
+                if self.systems() else ['--max-cases', '348'])
         judge = [c['remote_python'], '-B', '-u', c['remote_api_code'] + '/fastfill/comparison/judge_batch.py',
                  '--bundle', self.remote_batch + '/bundle', '--output', self.remote_batch + '/results',
-                 '--client', c['api_client_path'], '--max-cases', '348', '--timeout', '90',
+                 '--client', c['api_client_path'], *arms, '--timeout', '90',
                  '--expected-total', str(len(read_json(dest / 'api-mapping.json')))]
         script = ('#!/bin/bash\nset -u\ncd ' + q(c['remote_api_code']) + '\n'
             + 'export PYTHONPATH=' + q(c['remote_api_code']) + '\n'
@@ -654,7 +680,8 @@ class Driver:
             return
         if not judge.exists():
             raise ValueError('final tables require judge summary')
-        self.local_module('final_tables', ['--geometry', self.out / 'inputs/geometry-v1',
+        inputs = self.systems() or ['--geometry', self.out / 'inputs' / self.config['geometry_name']]
+        self.local_module('final_tables', [*inputs,
             '--fid', self.out / 'fid.json', '--judge', judge, '--out', self.out / 'final-results'], self.remaining())
 
     def execute(self):

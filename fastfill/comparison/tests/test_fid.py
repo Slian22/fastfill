@@ -33,6 +33,46 @@ def test_low_rank_matches_sample_covariance(kind):
         assert actual == pytest.approx(x.mean(0) @ x.mean(0) + np.var(x, axis=0, ddof=1).sum())
 
 
+def test_kid_matches_naive_paired_u_statistic():
+    rng = np.random.default_rng(3)
+    x, y = rng.normal(size=(7, 5)), rng.normal(size=(7, 5)) + .5
+    k = lambda a, b: (a @ b / 5 + 1) ** 3  # noqa: E731
+    h = [[k(x[i], x[j]) + k(y[i], y[j]) - k(x[i], y[j]) - k(x[j], y[i]) for j in range(7)] for i in range(7)]
+    h1 = [sum(h[i][j] for j in range(7) if j != i) / 6 for i in range(7)]
+    result = fid.kernel_inception_distance(x, y)
+    assert result["kid"] == pytest.approx(np.mean(h1))
+    assert result["se"] == pytest.approx(2 * np.sqrt(np.var(h1, ddof=1) / 7))
+    assert fid.kernel_inception_distance(x, x)["kid"] == pytest.approx(0, abs=1e-12)
+    with pytest.raises(ValueError):
+        fid.kernel_inception_distance(x[:1], y[:1])
+
+
+def test_systems_mode_all_system_intersection_kid_and_small_n(tmp_path, worker):
+    run, calls = worker
+    entry = image_entry(tmp_path)
+    other = image_entry(tmp_path, "other.png", 90)
+
+    def systems_case(uid, stratum="front", **images):
+        return {"uid": uid, "stratum": stratum,
+                "images": {arm: dict(images.get(arm, entry)) for arm in ("reference", "J", "P", "L")}}
+
+    cases = [systems_case("a"), systems_case("b", J=other), systems_case("c", L={"failure": "schema_incomplete"}),
+             systems_case("d", P={"path": "absent.png", "sha256": entry["sha256"]}), systems_case("e", "holo")]
+    result = run(cases, systems=["J", "P", "L"])
+    front = result["strata"]["front"]
+    assert front["counts"] == {"requested": 4, "reference_eligible": 4, "shared_success": 2}
+    assert front["shared_uids"] == ["a", "b"] and front["small_n"] is True
+    assert set(front["kid"]) == {"J", "P", "L"} and front["P_vs_reference"] == pytest.approx(0)
+    assert front["J_vs_reference"] > 0 and front["kid"]["P"] == {"kid": pytest.approx(0), "se": pytest.approx(0)}
+    assert result["strata"]["holo"]["kid"] == {"J": None, "P": None, "L": None}
+    assert {(f["uid"], f["arm"]) for f in result["failures"]} == {("c", "L"), ("d", "P")}
+    assert result["systems"] == ["J", "P", "L"] and result["small_n_threshold"] == 50
+    assert "EVERY listed system" in result["disclosure"]
+    assert "kid" not in run([case("a", entry), case("b", entry)])["strata"]["front"]  # J/P path unchanged
+    with pytest.raises(ValueError, match="systems"):
+        run(cases, systems=["reference"])
+
+
 @pytest.mark.parametrize("x,y", [(np.ones((1, 4)), np.ones((3, 4))),
                                   (np.ones((3, 4)), np.ones((3, 2))),
                                   (np.full((3, 4), np.nan), np.ones((3, 4)))])

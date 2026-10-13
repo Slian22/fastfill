@@ -267,3 +267,25 @@ def test_failed_reference_stays_failed_even_with_valid_predictions(tmp_path):
     result = v.attach_predictions(out / 'reference-cases.jsonl', j, p)
     assert result['cases'] == []
     assert 'reference' in result['ledger'][0]['errors']
+    systems = v.attach_systems(out / 'reference-cases.jsonl', {'J': (j, 'joint'), 'P': (p, 'placement')})
+    assert systems['cases'] == [] and 'reference' in systems['ledger'][0]['errors']
+
+
+def test_attach_systems_one_failure_never_removes_other_systems(tmp_path):
+    out, _, cases = freeze(tmp_path)
+    j, p = (predictions(tmp_path, cases, arm) for arm in ('joint', 'placement'))
+    agent = predictions(tmp_path, cases, 'llm_harness', schema_complete=False)
+    refs = out / 'reference-cases.jsonl'
+    result = v.attach_systems(refs, {'J': (j, 'joint'), 'P': (p, 'placement'), 'L': (agent, 'llm_harness')})
+    assert result['counts'] == {'reference_cohort': 1, 'renderable': 1, 'failed': 0}
+    assert set(result['cases'][0]['layouts']) == {'reference', 'J', 'P'}
+    row = result['ledger'][0]
+    assert row['status'] == 'renderable' and row['errors'] == {'L': 'schema_incomplete'}
+    assert row['schema_complete'] == {'J': True, 'P': True, 'L': False}
+    wrong_arm = v.attach_systems(refs, {'J': (p, 'joint'), 'P': (p, 'placement')})
+    assert set(wrong_arm['cases'][0]['layouts']) == {'reference', 'P'}  # arm mismatch is a failure
+    none = v.attach_systems(refs, {'L': (agent, 'llm_harness')})
+    assert none['cases'] == [] and none['ledger'][0]['status'] == 'failed'
+    for label in ('reference', 'reference_cases', '1bad'):
+        with pytest.raises(ValueError, match='label'):
+            v.attach_systems(refs, {label: (j, 'joint')})

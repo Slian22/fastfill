@@ -17,6 +17,9 @@ CLI: python -m fastfill.comparison.fid --manifest MANIFEST --out RESULT.json
 --vendor VENDOR --weights WEIGHTS [--batch-size 8 --threads 4 --device cpu].
 FID uses sample covariance (ddof=1), separately by stratum, on the same complete
 three-arm UID intersection. N<2 has no score; strata are never averaged.
+Systems mode: a manifest key systems=[label, ...] replaces joint/placement by
+those labels; FID is then on the all-system successful intersection per
+stratum, with KID (paired U-statistic, standard error) and small_n (N<50).
 """
 from __future__ import annotations
 
@@ -43,6 +46,13 @@ DISCLOSURE = (
     "Small cohorts give unstable, biased FID estimates. Scores are reported "
     "separately by stratum and are neither pooled nor averaged."
 )
+SYSTEMS_DISCLOSURE = (
+    "FID and KID are conditional on the per-stratum intersection of rooms where the "
+    "reference and EVERY listed system have verified images and features; N is that "
+    "intersection. Failures remain in requested counts and are never imputed. "
+    "Strata with N < 50 are flagged small_n. Scores are never pooled or averaged."
+)
+SMALL_N = 50
 
 
 @dataclass(frozen=True)
@@ -107,6 +117,30 @@ def frechet_distance(x, y):
     if not np.isfinite(score) or score < -1e-8 * max(1.0, scale):
         raise ValueError("nonfinite or materially negative FID")
     return max(0.0, score)
+
+
+def kernel_inception_distance(x, y):
+    """KID with its standard error for row-paired features (same room UID).
+
+    Cubic polynomial kernel k(a, b) = (a.b / d + 1)^3. Rows i of x and y are
+    renders of the same room, so the unbiased MMD^2 is the U-statistic over
+    room pairs i != j of h_ij = k(x_i,x_j) + k(y_i,y_j) - k(x_i,y_j) - k(x_j,y_i).
+    SE is first order: 2 * sqrt(var(h1_i) / n), h1_i = mean_j!=i h_ij.
+    """
+    import numpy as np
+
+    x, y = _feature_array(x), _feature_array(y)
+    if len(x) < 2 or x.shape != y.shape:
+        raise ValueError("KID requires paired N >= 2 feature matrices")
+    n, dims = x.shape
+    kxy = (x @ y.T / dims + 1) ** 3
+    h = (x @ x.T / dims + 1) ** 3 + (y @ y.T / dims + 1) ** 3 - kxy - kxy.T
+    np.fill_diagonal(h, 0)
+    h1 = h.sum(axis=1) / (n - 1)
+    kid, se = float(h1.mean()), float(2 * np.sqrt(h1.var(ddof=1) / n))
+    if not np.isfinite(kid) or not np.isfinite(se):
+        raise ValueError("nonfinite KID")
+    return {"kid": kid, "se": se}
 
 
 def read_image(ref):
@@ -213,7 +247,17 @@ def _load_manifest(path):
     return data, cases, hashlib.sha256(raw).hexdigest()
 
 
-def _inspect_cases(cases, base):
+def _arms(data):
+    systems = data.get("systems")
+    if systems is None:
+        return ARMS
+    if (not isinstance(systems, list) or not systems or len(set(systems)) != len(systems)
+            or any(not isinstance(s, str) or not s or s == "reference" for s in systems)):
+        raise ValueError("systems must be a nonempty list of unique labels")
+    return ("reference", *systems)
+
+
+def _inspect_cases(cases, base, arms=ARMS):
     """Inspect all arms, retaining every failure and the original denominator."""
     checked, failures, memo = {}, [], {}
     for case in cases:
@@ -224,7 +268,7 @@ def _inspect_cases(cases, base):
                              "reason": "declared_failure", "detail": declared})
         images = case.get("images") or {}
         good = {}
-        for arm in ARMS:
+        for arm in arms:
             try:
                 if not isinstance(images, dict):
                     raise ValueError("images must be an arm mapping")
@@ -244,7 +288,7 @@ def _inspect_cases(cases, base):
             except (OSError, ValueError) as exc:
                 failures.append({"uid": uid, "stratum": stratum, "arm": arm,
                                  "reason": f"{type(exc).__name__}: {exc}"})
-        checked[uid] = {"images": good, "candidate": len(good) == 3 and not declared}
+        checked[uid] = {"images": good, "candidate": len(good) == len(arms) and not declared}
     return checked, failures
 
 
@@ -300,16 +344,20 @@ def _cached_features(refs, out, *, extractor, options, weight_hash):
     return dict(zip(refs, values)), _cache_receipt(path, meta_path), None
 
 
-def _stratum_result(cases, checked, features):
+def _stratum_result(cases, checked, features, arms=ARMS, kid=False):
     shared = [case for case in cases if checked[case["uid"]]["candidate"]
               and all(ref in features for ref in checked[case["uid"]]["images"].values())]
-    scores = {f"{arm}_vs_reference": None for arm in ARMS[1:]}
+    scores = {f"{arm}_vs_reference": None for arm in arms[1:]}
+    kids = {arm: None for arm in arms[1:]}
     if len(shared) >= 2:
-        arrays = {arm: [features[checked[c["uid"]]["images"][arm]] for c in shared] for arm in ARMS}
-        scores = {f"{arm}_vs_reference": frechet_distance(arrays[arm], arrays["reference"]) for arm in ARMS[1:]}
+        arrays = {arm: [features[checked[c["uid"]]["images"][arm]] for c in shared] for arm in arms}
+        scores = {f"{arm}_vs_reference": frechet_distance(arrays[arm], arrays["reference"]) for arm in arms[1:]}
+        if kid:
+            kids = {arm: kernel_inception_distance(arrays[arm], arrays["reference"]) for arm in arms[1:]}
     return {"counts": {"requested": len(cases), "reference_eligible": sum(
                 "reference" in checked[c["uid"]]["images"] for c in cases), "shared_success": len(shared)},
             "shared_uids": [c["uid"] for c in shared], **scores,
+            **({"kid": kids, "small_n": len(shared) < SMALL_N} if kid else {}),
             "status": "ok" if len(shared) >= 2 else "insufficient_sample_size"}
 
 
@@ -332,9 +380,10 @@ def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, dev
     _settings(batch_size, threads, device)
     manifest, out = Path(manifest).resolve(), Path(out).resolve()
     data, cases, manifest_hash = _load_manifest(manifest)
+    arms, systems = _arms(data), "systems" in data
     _protect_outputs(manifest, out, weights, cases)
     weight_hash = verify_weights(weights)
-    checked, failures = _inspect_cases(cases, manifest.parent)
+    checked, failures = _inspect_cases(cases, manifest.parent, arms)
     refs = list(dict.fromkeys(ref for c in cases if checked[c["uid"]]["candidate"]
                              for ref in checked[c["uid"]]["images"].values()))
     options = {"vendor": vendor, "weights": weights, "batch_size": batch_size,
@@ -343,7 +392,7 @@ def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, dev
     if error:
         failures = failures + [{"uid": c["uid"], "stratum": c["stratum"], "arm": "features", "reason": error}
                                for c in cases if checked[c["uid"]]["candidate"]]
-    strata = {s: _stratum_result([c for c in cases if c["stratum"] == s], checked, features)
+    strata = {s: _stratum_result([c for c in cases if c["stratum"] == s], checked, features, arms, systems)
               for s in sorted({c["stratum"] for c in cases})}
     result = {"schema_version": 1, "metric": "FID", "feature_dimension": FEATURE_DIM,
               "extractor": "injected" if extractor else "pytorch_fid:0.3.0:pool3",
@@ -354,6 +403,10 @@ def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, dev
               "counts": {key: sum(s["counts"][key] for s in strata.values())
                          for key in ("requested", "reference_eligible", "shared_success")},
               "strata": strata, "failures": failures, "feature_cache": cache, "disclosure": DISCLOSURE}
+    if systems:
+        result = {**result, "systems": list(arms[1:]), "disclosure": SYSTEMS_DISCLOSURE, "small_n_threshold": SMALL_N,
+                  "kid_definition": "cubic polynomial kernel (x.y/d+1)^3; paired U-statistic over rooms i!=j; "
+                                    "first-order U-statistic standard error"}
     _json_write(out, result)
     return result
 

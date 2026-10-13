@@ -3,6 +3,9 @@
 CLI: python -m fastfill.comparison.visual_pipeline prepare --reference-dir REF
      --geometry-dir GEO --out OUT --blender-path BLENDER [--eval-data EVAL]
      [--workers 2 --threads 3 --timeout-seconds 86400]
+     python -m fastfill.comparison.visual_pipeline prepare-systems --reference-dir REF
+     --system J=GEO --system P=GEO --system L=LLM_EVAL [--system O5=OPEN_EVAL ...]
+     --out OUT --blender-path BLENDER [--eval-data EVAL]   (N systems, see prepare_systems)
 
 OUT must be new. It remains inspectable after interruption; never resume/retry
 implicitly. One chunk per worker, at most two Blender subprocesses, three threads
@@ -35,6 +38,9 @@ import subprocess
 from fastfill.comparison import eval_data as evaluation, fid, render_assets as render, visual_cases
 
 ARMS = ('reference', 'joint', 'placement')
+# N-system labels (amendments 003-005): J, P, API agent L, open models O*.
+SYSTEMS = ('J', 'P', 'L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5')
+SYSTEM_ARMS = {'J': 'joint', 'P': 'placement'}  # Agents: the harness variant.
 VIEWS = ('perspective', 'top')
 SETTINGS = visual_cases.RENDER_SETTINGS
 MODEL = 'gpt-6.1-sol'
@@ -95,13 +101,35 @@ def _selection(root, references):
     return selected
 
 
-def _provenance(ref, geo, reference, references, eval_data):
-    summary = _read(geo / 'summary.json')
+def judged_systems(labels):
+    """Amendment 005 section 5: J, P, API agent L, largest run open model (O5, else O4)."""
+    return [s for s in ('J', 'P', 'L') if s in labels] + [s for s in ('O5', 'O4') if s in labels][:1]
+
+
+def _systems(systems):
+    """{label: record dir} -> {label: (dir, arm)} in protocol order; J and P required."""
+    if not isinstance(systems, dict) or not set(systems) <= set(SYSTEMS) or not {'J', 'P'} <= set(systems):
+        raise ValueError(f'systems must be a subset of {SYSTEMS} including J and P')
+    return {s: (Path(systems[s]).resolve(), SYSTEM_ARMS.get(s, 'llm_harness')) for s in SYSTEMS if s in systems}
+
+
+def systems_lineage(systems):
+    """Per-system record-dir manifest hashes; their json_sha256 is the run's geometry lineage."""
+    return {label: {'arm': arm, 'manifest_sha256': render.file_sha256(Path(root) / 'MANIFEST.json')}
+            for label, (root, arm) in systems.items()}
+
+
+def _provenance(ref, dirs, reference, references, eval_data, lineage=None):
+    summaries = [_read(root / 'summary.json') for root in dirs]
+    if len({s['data_manifest_sha256'] for s in summaries}) != 1:
+        raise ValueError('system evaluation manifest mismatch')
+    summary = summaries[0]
     corpus = reference['provenance']['corpus_manifest_sha256']
     if any(c.get('provenance', {}).get('corpus_manifest_sha256') != corpus for c in references.values()):
         raise ValueError('reference case corpus provenance mismatch')
     provenance = {'reference_manifest_sha256': render.file_sha256(ref / 'MANIFEST.json'),
-                  'geometry_manifest_sha256': render.file_sha256(geo / 'MANIFEST.json'),
+                  'geometry_manifest_sha256': render.file_sha256(dirs[0] / 'MANIFEST.json')
+                  if lineage is None else render.json_sha256(lineage),
                   'corpus_manifest_sha256': corpus,
                   'data_manifest_sha256': summary['data_manifest_sha256'],
                   'corpus_link': 'unverified_without_eval_data'}
@@ -120,14 +148,18 @@ def _provenance(ref, geo, reference, references, eval_data):
     return {**provenance, 'corpus_link': 'verified', 'eval_data': str(root)}
 
 
-def _inputs(reference_dir, geometry_dir, eval_data):
-    ref, geo = Path(reference_dir).resolve(), Path(geometry_dir).resolve()
+def _inputs(reference_dir, systems, eval_data, lineage=None):
+    ref = Path(reference_dir).resolve()
     reference, _ = _snapshot(ref, ('reference-cases.jsonl', 'eligibility.jsonl',
                                    'gpt-selection.json', 'resources.json'))
     resources = evaluation._read(ref / 'resources.json', reference['files']['resources.json'])
     if not isinstance(resources, dict):
         raise ValueError('invalid frozen resources inventory')
-    _snapshot(geo, ('summary.json', 'joint-geometry.jsonl', 'placement-geometry.jsonl'))
+    dirs = {}
+    for root, arm in systems.values():
+        dirs.setdefault(root, []).append(f'{arm}-geometry.jsonl')
+    for root, names in dirs.items():
+        _snapshot(root, ('summary.json', *names))
     references = visual_cases._index(visual_cases._read_rows(ref / 'reference-cases.jsonl'))
     if references.keys() != _inventory(reference['expected_uids'], 'reference'):
         raise ValueError('reference case UID inventory mismatch')
@@ -137,14 +169,14 @@ def _inputs(reference_dir, geometry_dir, eval_data):
         raise ValueError('reference eligibility inventory mismatch')
     if reference['render_settings'] != SETTINGS:
         raise ValueError('frozen render settings mismatch')
-    predictions = {arm: {u: r for u, r in visual_cases._index(visual_cases._read_rows(
-        geo / f'{arm}-geometry.jsonl')).items() if u in references} for arm in ARMS[1:]}
+    predictions = {label: {u: r for u, r in visual_cases._index(visual_cases._read_rows(
+        root / f'{arm}-geometry.jsonl')).items() if u in references} for label, (root, arm) in systems.items()}
     for uid in references:
         groups = {records[uid].get('group') for records in predictions.values() if uid in records}
         if len(groups) > 1 or (groups and any(not isinstance(g, str) or not g for g in groups)):
             raise ValueError(f'geometry group mismatch/missing: {uid}')
-    provenance = _provenance(ref, geo, reference, references, eval_data)
-    return ref, geo, references, predictions, _selection(ref, references), provenance, resources
+    provenance = _provenance(ref, list(dirs), reference, references, eval_data, lineage)
+    return ref, references, predictions, _selection(ref, references), provenance, resources
 
 
 def _portable(case, ref):
@@ -156,11 +188,13 @@ def _portable(case, ref):
                                      for r in rows]}
 
 
-def _attach(out, ref, references, predictions):
+def _attach(out, ref, references, predictions, systems=None):
     for arm, records in predictions.items():
         _rows_write(out / f'{arm}-geometry.jsonl', list(records.values()))
     attached = visual_cases.attach_predictions(ref / 'reference-cases.jsonl',
-        out / 'joint-geometry.jsonl', out / 'placement-geometry.jsonl')
+        out / 'joint-geometry.jsonl', out / 'placement-geometry.jsonl') if systems is None else (
+        visual_cases.attach_systems(ref / 'reference-cases.jsonl', {
+            label: (out / f'{label}-geometry.jsonl', arm) for label, (_, arm) in systems.items()}))
     cases = {c['uid']: _portable(c, ref) for c in attached['cases']}
     ledger = {r['uid']: r for r in attached['ledger']}
     all_cases = [cases.get(u, {**c, 'attachment_failure': ledger[u]['errors']})
@@ -238,14 +272,15 @@ def _checked_images(case, receipt, root):
         raise ValueError('frozen camera mismatch')
     if receipt.get('input_sha256') != _hash(case) or receipt.get('layout_variant') != 'raw':
         raise ValueError('render input hash/variant mismatch')
-    expected = {a: _hash(case['layouts'][a]) for a in ARMS}
+    arms = tuple(case['layouts'])  # J/P: exactly ARMS; N systems: reference + successful systems.
+    expected = {a: _hash(case['layouts'][a]) for a in arms}
     if receipt.get('layout_sha256') != expected:
         raise ValueError('layout hash mismatch')
     images, hashes = receipt.get('images', {}), receipt.get('image_sha256', {})
-    if set(images) != set(ARMS) or set(hashes) != set(ARMS):
+    if set(images) != set(arms) or set(hashes) != set(arms):
         raise ValueError('all three layouts required')
     checked = {}
-    for arm in ARMS:
+    for arm in arms:
         if set(images[arm]) != set(VIEWS) or set(hashes[arm]) != set(VIEWS):
             raise ValueError('matching perspective/top views required')
         checked[arm] = {}
@@ -332,7 +367,7 @@ def build_prompt(case):
         'quality under the stated criteria. Apply the same criteria to every room.\n')
 
 
-def _api_bundle(out, references, predictions, selected, ledger, provenance):
+def _api_bundle(out, references, predictions, selected, ledger, provenance, arms=ARMS[1:]):
     bundle = out / 'api-bundle'
     bundle.mkdir()
     by_uid = {r['uid']: r for r in ledger}
@@ -343,13 +378,16 @@ def _api_bundle(out, references, predictions, selected, ledger, provenance):
         if result['failure'] is None:
             (bundle / prompt).parent.mkdir(parents=True, exist_ok=True)
             (bundle / prompt).write_text(build_prompt(case), encoding='utf-8')
-        for arm in ARMS[1:]:
+        for arm in arms:
             identity = _hash([uid, arm])
             meta = {'uid': uid, 'arm': arm, 'stratum': case['stratum'],
                     'group': next((r[uid]['group'] for r in predictions.values() if uid in r), None)}
             mapping[identity] = meta
-            if result['failure'] is not None:
-                failures.append({'id': identity, **meta, 'failure': result['failure']})
+            failure = result['failure']
+            if failure is None and arm in result.get('system_errors', {}):
+                failure = {'stage': 'attachment', 'errors': {arm: result['system_errors'][arm]}}
+            if failure is not None:
+                failures.append({'id': identity, **meta, 'failure': failure})
                 continue
             images = []
             for view in VIEWS:
@@ -371,13 +409,14 @@ def _api_bundle(out, references, predictions, selected, ledger, provenance):
     return len(requests)
 
 
-def _fid_manifest(out, ledger, provenance):
+def _fid_manifest(out, ledger, provenance, systems=None):
     cases = [{'uid': r['uid'], 'stratum': r['stratum'], 'failure': r['failure'],
-              'images': {arm: {**views['perspective'], 'path': str(
-                  Path(views['perspective']['path']).relative_to(out))}
-                         for arm, views in r['images'].items()}} for r in ledger]
+              'images': {**{s: {'failure': e} for s, e in r.get('system_errors', {}).items()},
+                         **{arm: {**views['perspective'], 'path': str(
+                             Path(views['perspective']['path']).relative_to(out))}
+                            for arm, views in r['images'].items()}}} for r in ledger]
     _write(out / 'fid-manifest.json', {'cases': cases, 'frozen_uids': [r['uid'] for r in ledger],
-           'config': SETTINGS, 'provenance': {**provenance,
+           'config': SETTINGS, **({'systems': list(systems)} if systems else {}), 'provenance': {**provenance,
                'ledger_sha256': render.file_sha256(out / 'ledger.json'),
                'ledger': 'ledger.json', 'cases_sha256': render.file_sha256(out / 'cases.jsonl')}})
 
@@ -393,38 +432,73 @@ def _limits(workers, threads, timeout):
 def prepare(reference_dir, geometry_dir, out, blender_path, workers=2, threads=3,
             *, eval_data=None, timeout_seconds=MAX_TIMEOUT_SECONDS):
     """Prepare full-cohort FID and selected paired API artifacts, without retries."""
+    geo = Path(geometry_dir).resolve()
+    return _prepare(reference_dir, {arm: (geo, arm) for arm in ARMS[1:]}, out, blender_path,
+                    workers, threads, eval_data, timeout_seconds, False)
+
+
+def prepare_systems(reference_dir, systems, out, blender_path, workers=2, threads=3,
+                    *, eval_data=None, timeout_seconds=MAX_TIMEOUT_SECONDS):
+    """N-system variant; systems maps a SYSTEMS label -> verified record dir.
+
+    J/P read joint/placement-geometry.jsonl (evaluate_pair), agents read
+    llm_harness-geometry.jsonl (evaluate_llm-style). Every system is rendered
+    beside the reference with the same frozen assets, cameras and renderer; a
+    failed system is a recorded failure that never removes another system. The
+    API bundle covers judged_systems() on the frozen GPT selection. Lineage:
+    provenance geometry_manifest_sha256 = json_sha256(systems_lineage(...)), so
+    the judge/FID provenance schema is unchanged; every summary must share one
+    data_manifest_sha256.
+    """
+    return _prepare(reference_dir, _systems(systems), out, blender_path,
+                    workers, threads, eval_data, timeout_seconds, True)
+
+
+def _prepare(reference_dir, systems, out, blender_path, workers, threads, eval_data, timeout_seconds, n_mode):
     _limits(workers, threads, timeout_seconds)
     out = Path(out).resolve()
-    roots = (reference_dir, geometry_dir) + ((eval_data,) if eval_data is not None else ())
+    roots = (reference_dir, *dict.fromkeys(root for root, _ in systems.values()))
+    roots += (eval_data,) if eval_data is not None else ()
     if any(out.is_relative_to(Path(root).resolve()) for root in roots):
         raise ValueError('output must be outside input snapshots')
     if out.exists():
         raise FileExistsError(out)
-    ref, geo, references, predictions, selected, provenance, resources = _inputs(
-        reference_dir, geometry_dir, eval_data)
+    lineage = systems_lineage(systems) if n_mode else None
+    ref, references, predictions, selected, provenance, resources = _inputs(
+        reference_dir, systems, eval_data, lineage)
     out.mkdir(parents=True)
     _write(out / 'preparation.json', {'status': 'running', 'expected_uids': list(references),
                                     'selected_uids': selected, 'provenance': provenance})
-    cases, attached = _attach(out, ref, references, predictions)
+    cases, attached = _attach(out, ref, references, predictions, systems if n_mode else None)
     before = _resource_failures(cases, resources, 'before_render')
     renderable = {u: c for u, c in cases.items() if u not in before}
     chunks = _render(renderable, out, blender_path, workers, threads, timeout_seconds)
     after = _resource_failures(renderable, resources, 'after_render')
     ledger = _combine(references, cases, attached, chunks, threads, {**before, **after})
+    if n_mode:
+        ledger = [{**r, 'system_errors': {k: v for k, v in attached[r['uid']]['errors'].items()
+                                          if k != 'reference'}} for r in ledger]
     _write(out / 'ledger.json', {'cases': ledger, 'chunks': chunks, 'config': SETTINGS,
                                 'provenance': provenance, 'expected_uids': list(references)})
     failures = [r for r in ledger if r['failure'] is not None]
     _rows_write(out / 'failures.jsonl', failures)
-    _fid_manifest(out, ledger, provenance)
-    api_count = _api_bundle(out, references, predictions, selected, ledger, provenance)
-    for root, expected in ((ref, provenance['reference_manifest_sha256']),
-                           (geo, provenance['geometry_manifest_sha256'])):
+    _fid_manifest(out, ledger, provenance, systems if n_mode else None)
+    judged = judged_systems(systems) if n_mode else list(ARMS[1:])
+    api_count = _api_bundle(out, references, predictions, selected, ledger, provenance, judged)
+    checks = [(ref, provenance['reference_manifest_sha256'])] + (
+        [(root, lineage[label]['manifest_sha256']) for label, (root, _) in systems.items()] if n_mode
+        else [(systems['joint'][0], provenance['geometry_manifest_sha256'])])
+    for root, expected in checks:
         if _snapshot(root, ())[1] != expected:
             raise ValueError('input manifest changed during prepare')
     result = {'status': 'prepared', 'provenance': provenance, 'chunks': chunks,
               'expected_uids': list(references), 'selected_uids': selected,
               'counts': {'frozen': len(references), 'rendered': len(ledger) - len(failures),
                          'failed': len(failures), 'gpt_selected': len(selected), 'api_cases': api_count}}
+    if n_mode:
+        result = {**result, 'systems': lineage, 'judged': judged,
+                  'counts': {**result['counts'], 'system_rendered': {
+                      label: sum(label in r['images'] for r in ledger) for label in systems}}}
     _write(out / 'preparation.json', result)
     artifacts = ('cases.jsonl', 'attachment-ledger.jsonl', 'ledger.json', 'failures.jsonl',
                  'fid-manifest.json', 'api-mapping.json', 'api-failures.json',
@@ -445,10 +519,24 @@ def main(argv=None):
     prepare_parser.add_argument('--workers', type=int, default=2)
     prepare_parser.add_argument('--threads', type=int, default=3)
     prepare_parser.add_argument('--timeout-seconds', type=float, default=MAX_TIMEOUT_SECONDS)
+    systems_parser = sub.add_parser('prepare-systems')
+    for name in ('reference-dir', 'out', 'blender-path'):
+        systems_parser.add_argument('--' + name, type=Path, required=True)
+    systems_parser.add_argument('--system', action='append', required=True, metavar='LABEL=DIR')
+    systems_parser.add_argument('--eval-data', type=Path)
+    systems_parser.add_argument('--workers', type=int, default=2)
+    systems_parser.add_argument('--threads', type=int, default=3)
+    systems_parser.add_argument('--timeout-seconds', type=float, default=MAX_TIMEOUT_SECONDS)
     args = vars(parser.parse_args(argv))
-    args.pop('command')
+    command = args.pop('command')
     try:
-        result = prepare(**args)
+        if command == 'prepare':
+            result = prepare(**args)
+        else:
+            pairs = [value.split('=', 1) for value in args.pop('system')]
+            if any(len(p) != 2 for p in pairs) or len({p[0] for p in pairs}) != len(pairs):
+                raise ValueError('--system must be unique LABEL=DIR')
+            result = prepare_systems(systems=dict(pairs), **args)
     except ERRORS as exc:
         parser.exit(2, f'visual pipeline: {exc}\n')
     print(json.dumps({'out': str(args['out']), 'status': result['status'], 'counts': result['counts']}))
