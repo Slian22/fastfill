@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -263,7 +264,8 @@ def test_scripts_match_system_table():
     assert 'smoke) OUT="llm-open-$SYSTEM-smoke-001"; EXTRA=(--limit 2 --smoke-gate)' in sbatch
     assert 'full) OUT="llm-open-$SYSTEM-001"' in sbatch
     assert O.out_name('O2', 'smoke') == 'llm-open-O2-smoke-001' and O.out_name('O2', 'full') == 'llm-open-O2-001'
-    assert '--dependency="afterok:$SMOKE"' in helper and '--kill-on-invalid-dep=yes' in helper
+    assert '--dependency="afterok:$SMOKE,$DEP"' in helper and '--kill-on-invalid-dep=yes' in helper
+    assert '#SBATCH --job-name=unknownsize-llm-open\n' in sbatch  # singleton keys on this one name
     assert re.search(r'VLLM_USE_FLASHINFER_SAMPLER=0', sbatch)
     for name in ('XDG_CACHE_HOME', 'VLLM_CACHE_ROOT', 'TORCHINDUCTOR_CACHE_DIR', 'TRITON_CACHE_DIR'):
         assert f'export {name}=' in sbatch or f' {name}=' in sbatch
@@ -272,3 +274,36 @@ def test_scripts_match_system_table():
     assert {s['tp'] for k, s in O.SYSTEMS.items() if k in ('O2', 'O3', 'O4')} == {2}
     for script in ('isambard_llm_open.sbatch', 'submit_llm_open.sh'):
         subprocess.run(['bash', '-n', str(here / script)], check=True)
+
+
+def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
+    """GPU cap: every open-model job is singleton (one at a time) and waits for the AFTER job ids."""
+    code = Path(O.__file__).resolve().parents[2]
+    helper = (code / 'fastfill/comparison/submit_llm_open.sh').read_text()
+    pin = 'PYTHON="$PROJECT_ROOT/env/bin/python"\n'
+    assert pin in helper
+    script = tmp_path / 'submit_llm_open.sh'
+    script.write_text(helper.replace(pin, f'PYTHON={sys.executable}\n'))
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\necho "$((100 + $(wc -l < "$SBATCH_LOG")));cluster"\n')
+    stub.chmod(0o755)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
+    run = subprocess.run(['bash', str(script), str(code), '7383111:7383121', 'O1a', 'O5'],
+                         env=env, capture_output=True, text=True, check=True)
+    log = (tmp_path / 'log').read_text().splitlines()
+    sb = f"{code}/fastfill/comparison/isambard_llm_open.sbatch {code}"
+    dep = 'afterany:7383111:7383121,singleton'
+    assert log[0] == f"--parsable --dependency={dep} {O.slurm_flags('O1a', 'smoke')} {sb} O1a smoke"
+    assert log[1] == (f"--parsable --kill-on-invalid-dep=yes --dependency=afterok:101,{dep} "
+                      f"{O.slurm_flags('O1a', 'full')} {sb} O1a full")
+    assert log[2] == f"--parsable --dependency={dep} {O.slurm_flags('O5', 'smoke')} {sb} O5 smoke"
+    assert log[3].startswith(f'--parsable --kill-on-invalid-dep=yes --dependency=afterok:103,{dep} ')
+    assert '--dependency=afterany:101:102:103:104 ' in log[4] and len(log) == 5
+    assert run.stdout.splitlines() == ['O1a smoke 101 full 102', 'O5 smoke 103 full 104', 'status 105']
+    (tmp_path / 'log').unlink()
+    subprocess.run(['bash', str(script), str(code), '-', 'O2'], env=env, check=True, capture_output=True)
+    log = (tmp_path / 'log').read_text().splitlines()
+    assert '--dependency=singleton ' in log[0] and '--dependency=afterok:101,singleton ' in log[1]
+    for bad in (['O1a'], ['', 'O1a'], ['7383111:', 'O1a'], ['7383111,singleton', 'O1a'], []):
+        assert subprocess.run(['bash', str(script), str(code), *bad], env=env, capture_output=True).returncode != 0
+    assert len((tmp_path / 'log').read_text().splitlines()) == 3
