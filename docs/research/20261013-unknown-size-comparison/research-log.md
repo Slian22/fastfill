@@ -60,3 +60,12 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 本轮直接SSH于07:49:46UTC核验两臂RUNNING03:18:56：J4881/24689，P4550/24689；日志显示剩余约12:18/13:24，仅为瞬时估计。当前日志尾部无Traceback/OOM；完整训练、fresh reload、正式几何/FID/GPT均待完成。记录见evidence/resume-live-status-20261013.json。纠正旧状态中的dev-loss表述：8151仅为长度准入，训练器不计算dev loss，只保留2间训练后重载生成探针。
 
 主文档contribution-and-evaluation-audit.md更新贡献判断、完整指标合同、已知数据错误、具体修正次序、实时服务器与ARIS执行边界。此轮未新增训练、付费评分或改变计算/API额度；无限对话token不是无限模型上下文或无限GPU预算。
+
+## 2026-10-13 16:27–18:01 UTC — 推理可行性复核、修订002/003、用户新授权
+
+- 16:27 实时核验：J SFT 18098/24689、P 16665/24689，均健康；本地控制器 run004 于 15:11:04 UTC 因 SSH 主连接断开且 clifton 证书过期（4次重试均 publickey 拒绝）进入 stage_failed，服务器作业不受影响。
+- 审查 workflow wf_e5054089-226（8 agent，对抗复核）：按冻结方案（UID 顺序 batch 8、HF greedy、~68 ms/步、无续跑）J 推理预计 24–29 h，超过 1315 分钟上限；P 16–19.5 h 临界；任一臂超时会使几何 7368009 被取消、三张表全空。表格设计缺配对差值表、GT 参考行、P 尺寸=先验标注、原始 OOR 标注、失败分类；3D-FRONT 客厅排除 166 间客餐厅。模型无关参考（CPU 复算两次一致）：GT OOR 全体 0.0787，六层 .0302/.0672/.0035/.0341/.0109/.0081；GT geometry_success 0.723（IL3D .494，holodeck 1.0）；P 先验尺寸 IoU .5582 / log MAE .2824。
+- 17:43 `scontrol hold 7367626 7367628`（从未启动）。用户授权：自主 autoresearch、按需申请 GPU、Agency 审计、最终交付一个模型 + 同输入对比表（gpt-6.1-sol 与服务器 vLLM 开源模型）。
+- 锁定修订：26a841a3c（已部署对比代码入库）、823cab3e9（修订002：共享长度排序计划、输入派生生成上限、LoRA 合并、分片+续跑+合并、LLM agent 臂、共同主指标、交付规则、GPU 上限200）、780bf7804（修订003：Qwen3-8B 两种模式、Qwen3-VL-32B、Qwen3-VL-235B FP8、条件性 gpt-oss-120b；GPU 上限260）。均在任何测试输出产生之前。
+- 已推送 GitHub main（be521c581，干净检出 722 测试通过）。源修正（Scan2CAD/IL3D 开口/SpatialGen 倾斜）代码与 v3.3 数据在 wf_2c387d07-73e 中对原始数据独立核验，通过后才构建并上传 HF。
+- 服务器：vLLM 冒烟 7382244 因 flashinfer 采样 JIT 编译失败，改 `VLLM_USE_FLASHINFER_SAMPLER=0` 重提 7382555；gpt-oss-120b 下载 7382259 因 `--exclude` 写法错误失败，重提 7382556。
