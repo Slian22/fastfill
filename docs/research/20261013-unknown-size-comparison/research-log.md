@@ -84,3 +84,9 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - 源修正 candidate-002：Scan2CAD 与 SpatialGen 正确；IL3D 宽度正确但 1 cm 垂直间隔规则改动窗户合并 → NO-GO；决定恢复历史合并、只修宽度，candidate-003 流程 wmblf45vp 运行中。
 - 开源模型运行器、N 系统视觉、report_v2 合并；修订 006 锁定（O5 开思考；顺序 O5,O4,O2,O3,O1a,O1b；GPU 上限 400；评审 696 次、24 h）。集成修补与两处审查跟进（76323f9f1）：思考系统无推理则冒烟失败；无答案房间不再关闭逐行截断规则。
 - 开源模型链（快照 main-76323f9f1，singleton 串行，排在全部推理 GPU 作业之后）：O5 7384533/7384535，O4 7384537/7384538，O2 7384553/7384554，O3 7384555/7384556，O1a 7384557/7384558，O1b 7384561/7384562，status 7384563。vLLM 环境 shapely 2.2.0 可用。
+
+## 2026-10-13 19:45–20:30 UTC — 修订 007：最新主流开源模型
+
+- 用户指出 Qwen3.6 已过时；HF API 逐家核查（wf_94a1b68c-adf）后锁定修订 007（c9d9fd51c）：O1a/O1b Qwen3-8B，O2 Qwen3.8-27B，O3 gemma-4-31B-it，O4 gpt-oss-120b，O5 DeepSeek-V4-Flash-0731（思考，effort high；vLLM deepseek_v4 tokenizer 会把 medium 降为 low），O6 Qwen3.8-Flash-Next-FP8（180B/≈6B 激活，TP4+EP，effort medium，模板确认读取 reasoning_effort），O7 Muse-Glimmer-30B（模板默认 high）。单节点放不下或无权限者列为未运行并写明原因。用户说明不必追求超大模型；多节点可用但本组不需要。
+- 代码（0ed0fac8b, 48bbeb99a, dd390623f）：O7 依服务器 chat_template.jinja 改用 ATEM 通道切分（to=self 推理 / to=user 答案 / <|eot|> 结束），之前假定的 </think> 会把推理当答案。submit_llm_open.sh 在已有同名作业时拒绝提交。
+- 旧开源模型链（7384533–7384563）取消、从未启动；新链（快照 main-dd390623f）：O6 7385472/3，O5 7385474/5，O4 7385476/7，O2 7385478/9，O3 7385480/1，O7 7385482/3，O1a 7385484/5，O1b 7385486/7，status 7385488。所有模型权重已在 $PROJECTDIR/fastfill/models 并有 SHA256SUMS。
