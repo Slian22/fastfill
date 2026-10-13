@@ -169,6 +169,12 @@ def decode_output(tok, sequence, prompt_width, eos, cap):
                  'stopped_on_eos': stopped}
 
 
+def prompt_ids(tok, record):
+    prompt = tok.apply_chat_template(record['messages'], tokenize=False,
+                                     add_generation_prompt=True, enable_thinking=False)
+    return tok(prompt, add_special_tokens=False, truncation=False)['input_ids']
+
+
 def context_plan(paired, tok, batch_size, budget, max_input, max_new):
     """Identical per-batch output allowance from both arms' input tokens only."""
     uids = [[r['uid'] for r in paired[arm]] for arm in h.ARMS]
@@ -176,12 +182,7 @@ def context_plan(paired, tok, batch_size, budget, max_input, max_new):
         raise ValueError('paired context plan UID mismatch')
     lengths = {}
     for arm in h.ARMS:
-        values = []
-        for record in paired[arm]:
-            prompt = tok.apply_chat_template(record['messages'], tokenize=False,
-                                            add_generation_prompt=True, enable_thinking=False)
-            values.append(len(tok(prompt, add_special_tokens=False, truncation=False)['input_ids']))
-        lengths[arm] = values
+        lengths[arm] = [len(prompt_ids(tok, record)) for record in paired[arm]]
     plan = []
     for start in range(0, len(uids[0]), batch_size):
         subset = {arm: values[start:start + batch_size] for arm, values in lengths.items()}
@@ -203,9 +204,7 @@ def process_batch(records, arm, tok, generate, eos, max_input, cap, batch_id, co
                   'generated_tokens': 0, 'reached_token_cap': False, 'stopped_on_eos': False,
                   'input_tokens': None, 'batch_id': batch_id}
         try:
-            prompt = tok.apply_chat_template(record['messages'], tokenize=False,
-                                            add_generation_prompt=True, enable_thinking=False)
-            ids = tok(prompt, add_special_tokens=False, truncation=False)['input_ids']
+            ids = prompt_ids(tok, record)
             if not ids:
                 raise ValueError('empty prompt')
             result = {**result, 'input_tokens': len(ids)}
@@ -249,7 +248,23 @@ def accounting(expected, records):
             'error_count': sum(r['error'] is not None for r in records)}
 
 
-def _runtime(args):
+def ledger_entry(out, path, record):
+    return {**{k: record[k] for k in ('uid', 'source', 'group', 'arm', 'generated', 'error')},
+            'schema': {'valid': record['schema']['valid']},
+            'receipt': str(path.relative_to(out)), 'sha256': h.sha256(path)}
+
+
+def ledger_append(out, path, record):
+    """Bind one immutable receipt with an fsynced ledger line; returns the entry."""
+    entry = ledger_entry(out, path, record)
+    with (out / 'ledger.jsonl').open('a') as stream:
+        stream.write(json.dumps(entry, allow_nan=False) + '\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+    return entry
+
+
+def _runtime(args, merge=False):
     import torch
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
@@ -267,6 +282,8 @@ def _runtime(args):
                 dtype=torch.bfloat16, attn_implementation='sdpa', device_map={'': 0})
     model = PeftModel.from_pretrained(base, str(args.adapter), local_files_only=True,
                                     is_trainable=False, autocast_adapter_dtype=False)
+    if merge:  # Amendment 002: LoRA folded into the BF16 base before generation.
+        model = model.merge_and_unload(safe_merge=True)
     model.eval()
     def generate(ids, shared_cap=None):
         inputs = tok.pad({'input_ids': ids, 'attention_mask': [[1] * len(x) for x in ids]},
@@ -334,14 +351,7 @@ def run(args):
             for index, record in enumerate(results, offset):
                 path = args.out / 'receipts' / f'{index:08d}.json'
                 write_once(path, {**record, 'run_sha256': run_hash})
-                entry = {**{k: record[k] for k in ('uid', 'source', 'group', 'arm', 'generated', 'error')},
-                         'schema': {'valid': record['schema']['valid']},
-                         'receipt': str(path.relative_to(args.out)), 'sha256': h.sha256(path)}
-                with (args.out / 'ledger.jsonl').open('a') as stream:
-                    stream.write(json.dumps(entry, allow_nan=False) + '\n')
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                ledger.append(entry)
+                ledger.append(ledger_append(args.out, path, record))
                 h.write_json(args.out / 'status.json', {'status': 'RUNNING', **accounting(expected, ledger)})
         temporary = args.out / 'records.jsonl.tmp'
         with temporary.open('x') as stream:
