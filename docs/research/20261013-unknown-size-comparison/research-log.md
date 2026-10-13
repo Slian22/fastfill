@@ -97,3 +97,10 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - API agent 完成：1,454/1,454 首答 schema 合法，0 API 失败。
 - 已知缺陷敏感性集合冻结（d095394a7）：candidate-003 改动的 47 个测试 UID（IR 层，超集）。
 - 夜间接力链（快照 main-d095394a7）：evaluate_llm L 7385871（afterok J/P 合并）；O6..O1b 评估 7385872–7385879（afterok 各自全量 + 合并）；J/P/L 报告与交付判定 7385880（afterok geometry-v2 + L 评估）。clifton 证书 2026-10-14 04:16:58 UTC 过期；之后视觉（本地渲染、FID、GPT 评审）与 HF 上传需用户重新 clifton auth。
+
+## 2026-10-13 21:00–22:30 UTC — OptiScene 多阶段 DPO（修订 008/009）上线
+
+- 用户澄清：训练方法应为论文的 SFT → DPO1 → DPO2（即 V1.1 的实现），交付最终模型 + 评测。修订 008（4a2918ea1）：两臂各自 DPO1（2,200 个 GT-pass 正样本：holodeck 1,100 + IL3D 1,100；负样本为自身 SFT 采样）与 DPO2（位置扰动造成越界/重叠）。审查发现论文正文 lr 5e-7 的更新会被 BF16 合并抹去 → 修订 009（e02c9352b）改用官方 README 超参（lr 5e-6、10 epoch、LoRA r32/α16、有效 batch 4，4 卡 DDP），阶段评测用未合并 LoRA 的精确策略。
+- 代码：dpo_stages.py（2b7e6dc62 合并）、amendment 009 实现（7279bb718）、审查跟进（3cdfcc90e：跨臂 LoRA 模式校验、DPO 分片 14 h、合并诊断不阻塞）。
+- J SFT 完成（16:22:09），P SFT 完成（17:44:51）；J dev 探针 PROBE_PASS（记录 2/2 合法，合并后 10/10 合法）。v3.3 控制重建与已发布 v3.2 逐字节一致，v3.3 构建进入 QA。
+- 提交 DPO 全链 43 个作业（快照 main-3cdfcc90e，见 research-state dpo_chain）与 DPO 阶段报告/对照组评估链（dpo_reports）。用户 22:27 UTC 续期 clifton 证书，至 2026-10-14 10:27 UTC。
