@@ -1,0 +1,25 @@
+project:
+  title: Unknown-size joint versus estimated-size placement comparison
+  status: active
+  primary_endpoint: matched_SFT_J0_vs_P0
+  user_authorization: full_autonomous_server_api_local_data_agency_execution
+protocol: protocol.md
+continuity:
+  chat_loop_available: false
+  strategy: bounded_slurm_dependencies_receipts_and_automatic_tables
+  submitted_jobs: []
+  requested_gpu_hours_cap: 96
+  max_new_concurrent_gpus: 4
+  api_success_cap: 360
+  api_retry_cap: 20
+phase: target_independent_contract_and_server_preflight
+completed:
+  - prior_paper_and_five_agency_design_review
+  - server_login_and_existing_jobs_inventory
+pending:
+  - target_independent_data_and_group_oof_prior
+  - common_base_hash_and_two_arm_gpu_pilot
+  - frozen_matched_sft_budget_and_execution
+  - geometric_evaluation_and_real_asset_visual_tables
+  - independent_results_review_and_final_report
+human_ur: not_measured
