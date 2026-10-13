@@ -405,6 +405,9 @@ def stub_sbatch(tmp_path, fail_on=0):
                     f'if [ "$n" -eq {fail_on} ]; then echo "sbatch: error: QOSMaxSubmitJobPerUserLimit" >&2; exit 1; fi\n'
                     'echo "$((100 + n));cluster"\n')
     stub.chmod(0o755)
+    release = tmp_path / 'scontrol'
+    release.write_text('#!/bin/sh\necho "scontrol $@" >> "$SBATCH_LOG.scontrol"\n')
+    release.chmod(0o755)
     return {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log')}
 
 
@@ -420,7 +423,7 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     log = (tmp_path / 'log').read_text().splitlines()
     root = '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013'
     kill = '--parsable --kill-on-invalid-dep=yes --dependency=afterok:'
-    assert log[0] == f'--parsable {scripts}/isambard_infer_plan.sbatch {code} {root}/infer-v2-002'
+    assert log[0] == f'--parsable --hold {scripts}/isambard_infer_plan.sbatch {code} {root}/infer-v2-002'
     assert log[1] == f'{kill}101:7365681 {scripts}/isambard_infer_probe.sbatch {code} joint {root}/infer-v2-002'
     assert log[2] == f'{kill}101:102 {scripts}/isambard_infer_shard.sbatch {code} joint 0 2 {root}/infer-v2-002'
     assert log[3].startswith(f'{kill}101:102 {scripts}/isambard_infer_shard.sbatch {code} joint 1 2 ')
@@ -429,7 +432,8 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     assert log[5] == f'{kill}101 {scripts}/isambard_infer_probe.sbatch {code} placement {root}/infer-v2-002'
     assert log[6].startswith(f'{kill}101:106 {scripts}/isambard_infer_shard.sbatch {code} placement 0 2 ')
     assert log[9] == f'{kill}105:109 {scripts}/isambard_geometry.sbatch {code} 002 geometry-v2'
-    assert run.stdout.splitlines()[-1] == 'geometry 110' and 'probe placement 106' in run.stdout
+    assert run.stdout.splitlines()[-2:] == ['geometry 110', 'released plan 101'] and 'probe placement 106' in run.stdout
+    assert (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101\n'
     bad = subprocess.run(['bash', str(scripts / 'submit_infer_v2.sh'), str(code), 'x', '-'], env=env)
     assert bad.returncode != 0 and len((tmp_path / 'log').read_text().splitlines()) == 10
 
@@ -442,3 +446,4 @@ def test_submit_aborts_on_any_failed_sbatch_and_lists_submitted_jobs(tmp_path):
     assert run.returncode == 1 and len((tmp_path / 'log').read_text().splitlines()) == 4  # Nothing after the failure.
     assert "sbatch failed for 'shard joint 1'" in run.stderr and 'scancel 101 102 103' in run.stderr
     assert run.stdout.splitlines() == ['plan 101', 'probe joint 102', 'shard joint 0 103']
+    assert not (tmp_path / 'log.scontrol').exists()  # The held plan is never released after an abort.

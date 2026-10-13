@@ -29,6 +29,8 @@ test "$PAIR_SHARD_INDEX" -lt "$PAIR_SHARD_COUNT"
 case "$PAIR_INFER_ROOT" in "$PAIR_RUN_ROOT"/infer-v2-[0-9][0-9][0-9]) ;; *) exit 2 ;; esac
 : "${SLURM_JOB_ID:?Slurm allocation required}"
 test -f "$PAIR_INFER_ROOT/plan/MANIFEST.json"
+# amendment 005 section 6: shards (including manual --resume resubmits) run only after a passed dev probe
+grep -q '"status": "PROBE_PASS"' "$PAIR_INFER_ROOT/$PAIR_ARM/probe/probe.json"
 module load cudatoolkit/24.11_12.6
 export CUDA_HOME=/opt/nvidia/hpc_sdk/Linux_aarch64/24.11/cuda/12.6
 export CUDA_PATH="$CUDA_HOME" PYTHONPATH="$PAIR_CODE_ROOT"

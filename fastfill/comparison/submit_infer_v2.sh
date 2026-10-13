@@ -48,7 +48,9 @@ submit() {  # submit LABEL DEPENDENCY SCRIPT ARGS...; sets ID. set -e does not r
   SUBMITTED="$SUBMITTED${SUBMITTED:+ }$ID"
   echo "$1 $ID"
 }
-submit plan "" "$S/isambard_infer_plan.sbatch" "$CODE_ROOT" "$INFER_ROOT"
+# The plan is held until the whole chain is submitted, so an ABORT leaves nothing that ran and the
+# same TAG can be resubmitted after the printed scancel.
+submit plan "" --hold "$S/isambard_infer_plan.sbatch" "$CODE_ROOT" "$INFER_ROOT"
 PLAN="$ID"
 MERGES=""
 for ARM in joint placement; do
@@ -67,3 +69,5 @@ for ARM in joint placement; do
   MERGES="$MERGES${MERGES:+:}$ID"
 done
 submit geometry "$MERGES" "$S/isambard_geometry.sbatch" "$CODE_ROOT" "$TAG" "$GEOMETRY"
+scontrol release "$PLAN" || { echo "ABORT: could not release plan $PLAN; cancel with: scancel $SUBMITTED" >&2; exit 1; }
+echo "released plan $PLAN"
