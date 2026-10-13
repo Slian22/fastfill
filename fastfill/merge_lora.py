@@ -7,6 +7,7 @@ The nearest run_manifest.json selects the run; its numbered resume manifests tra
 """
 import argparse
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -53,11 +54,23 @@ def apply_lora(model_name_or_path, output_path, lora_path):
     lora_model = PeftModel.from_pretrained(base, lora_path, torch_dtype=torch.bfloat16)
     print("Applying the LoRA")
     model = lora_model.merge_and_unload()
-    print(f"Saving the target model to {output_path}")
-    model.save_pretrained(output_path)
-    tokenizer.save_pretrained(output_path)
-    save_compatibility(output_path)
-    copy_run_manifests(lora_path, output_path)
+    out_p = Path(output_path)
+    tmp_p = out_p.with_name(f"{out_p.name}.tmp.{os.getpid()}")
+    if tmp_p.exists():
+        shutil.rmtree(tmp_p)
+    print(f"Saving the target model atomically via {tmp_p} -> {out_p}")
+    model.save_pretrained(tmp_p)
+    tokenizer.save_pretrained(tmp_p)
+    save_compatibility(tmp_p)
+    copy_run_manifests(lora_path, tmp_p)
+    bak_p = out_p.with_name(f"{out_p.name}.bak.{os.getpid()}")
+    if bak_p.exists():
+        shutil.rmtree(bak_p)
+    if out_p.exists():
+        os.replace(out_p, bak_p)
+    os.replace(tmp_p, out_p)
+    if bak_p.exists():
+        shutil.rmtree(bak_p)
 
 
 def main():
