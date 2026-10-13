@@ -11,12 +11,15 @@ receipt_paths lists exact run-root-relative small training/inference receipts
 run-root J/P geometry dir, e.g. geometry-v2. agents (absent = J/P only) maps
 agent labels (L, O1a..O5) to run-root record dirs (evaluate_llm-style
 llm_harness-geometry.jsonl); when present, visual/FID/judge/tables use the
-N-system path with J and P from geometry_name, judge cap 800.
+N-system path with J and P from geometry_name, judge cap 800 (amendment 006), and
+agent_job_ids must map every agent label to the Slurm job that wrote its record
+dir (its evaluate_llm job); those are polled with the prerequisites before download.
 Optional remote_python (python3), slurm_account (brics.u6uv),
 ssh_control_path (an existing task-owned local SSH control socket),
 expected_manifest_sha256 (mapping downloaded dir names and main-data-v1 to hashes),
 final_tables (false), poll_seconds (60), read_retries (3). Time caps in seconds:
-total_timeout_seconds=432000, render_timeout_seconds=86400, api_timeout_seconds=36000.
+total_timeout_seconds=432000, render_timeout_seconds=86400, api_timeout_seconds=86400
+(API execution cap 24 h, amendment 006).
 The five-day total bound includes scheduler waiting; it does not extend job runtimes.
 
 Output must not exist. status.json, endstate.json and receipts are atomically
@@ -45,7 +48,7 @@ import time
 
 
 CAPS = {'total_timeout_seconds': 120 * 3600, 'render_timeout_seconds': 24 * 3600,
-        'api_timeout_seconds': 10 * 3600}
+        'api_timeout_seconds': 24 * 3600}
 TERMINAL_FAILURES = {'BOOT_FAIL', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL',
                      'OUT_OF_MEMORY', 'PREEMPTED', 'REVOKED', 'SPECIAL_EXIT', 'TIMEOUT'}
 AGENTS = ('L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5')  # visual_pipeline.SYSTEMS without J/P.
@@ -182,6 +185,10 @@ def validate_config(raw):
     if (not isinstance(agents, dict) or not set(agents) <= set(AGENTS)
             or any('/' in relative_name(n) or n == 'eval-data-v1' for n in names) or len(set(names)) != len(names)):
         raise ValueError('geometry_name/agents must be distinct run-root directory names; agents in L, O1a..O5')
+    agent_jobs = config.get('agent_job_ids', {})
+    if (not isinstance(agent_jobs, dict) or set(agent_jobs) != set(agents)
+            or any(not re.fullmatch('[1-9][0-9]*', str(v)) or str(v) in jobs for v in agent_jobs.values())):
+        raise ValueError('agent_job_ids must map every agent label to its evaluation job id')
     if not isinstance(config['receipt_paths'], list):
         raise ValueError('receipt_paths must be a list')
     for path in config['receipt_paths']:
@@ -197,7 +204,8 @@ def validate_config(raw):
     if not run_root.is_relative_to(root) or '..' in run_root.parts or run_root == root:
         raise ValueError('remote_run_root must be beneath remote_root')
     config = {**config, 'remote_run_root': str(run_root), 'geometry_job_id': jobs[-1],
-              'prerequisite_job_ids': jobs[:-1], 'remote_env_file': config.get(
+              'prerequisite_job_ids': jobs[:-1], 'agent_job_ids': {k: str(v) for k, v in agent_jobs.items()},
+              'remote_env_file': config.get(
                   'remote_env_file', str(root / '.fastfill_api.env'))}
     for key in ('remote_api_code', 'api_client_path', 'remote_env_file'):
         if (not isinstance(config[key], str) or any(ord(c) < 32 for c in config[key])
@@ -389,7 +397,8 @@ class Driver:
                 raise ValueError('frozen file hash mismatch: ' + key)
 
     def poll_geometry(self):
-        jobs = [*self.config['prerequisite_job_ids'], self.config['geometry_job_id']]
+        c = self.config
+        jobs = list(dict.fromkeys([*c['prerequisite_job_ids'], *c['agent_job_ids'].values(), c['geometry_job_id']]))
         while True:
             self.remaining()
             raw = self.ssh(shlex.join(['sacct', '-n', '-P', '-j', ','.join(jobs),
@@ -552,7 +561,7 @@ class Driver:
             raise TimeoutError('insufficient API watchdog time')
         seconds = int(allowance) - 5
         # Queueing may use the remaining driver window; execution is capped at
-        # ten hours by both Slurm and timeout. A now+walltime deadline would make
+        # api_timeout_seconds by both Slurm and timeout. A now+walltime deadline would make
         # almost every queued submission ineligible before it could start.
         self.api_deadline = self.deadline
         arms = (['--max-cases', '800', '--arms', ','.join(read_json(self.out / 'visual/preparation.json')['judged'])]

@@ -153,7 +153,8 @@ def systems_inputs(tmp_path):
                                (llm, 'LLM_COMPARISON_COMPLETE', ('llm_harness',))):
         root.mkdir()
         h.write_json(root / 'summary.json', dict(status=status, data_manifest_sha256='a' * 64,
-                                                 paper_strata={STRATUM: {a: metrics for a in arms}}))
+                                                 paper_strata={STRATUM: {a: metrics for a in arms}},
+                                                 llm={'config': {'model': 'gpt-6.1-sol', 'reasoning_effort': 'medium'}}))
         for arm in arms:
             (root / f'{arm}-geometry.jsonl').write_text('{}\n')
         seal(root)
@@ -194,7 +195,7 @@ def test_system_tables_kid_small_n_gpt_endpoint_and_cli(tmp_path):
 
 @pytest.mark.parametrize('mutation,match', [('judged_set', 'judged system set'), ('fid_systems', 'FID system set'),
                                             ('data_manifest', 'evaluation manifest'), ('incomplete', 'complete'),
-                                            ('lineage', 'lineage')])
+                                            ('lineage', 'lineage'), ('label', 'system label')])
 def test_system_tables_fail_closed(tmp_path, mutation, match):
     systems, fid, judge = systems_inputs(tmp_path)
     llm = systems['L']
@@ -203,10 +204,12 @@ def test_system_tables_fail_closed(tmp_path, mutation, match):
         judge_summary(judge, systems, arms=('J', 'P'))
     if mutation == 'fid_systems':
         h.write_json(fid, {**json.loads(fid.read_text()), 'systems': ['J', 'P']})
-    if mutation in ('data_manifest', 'incomplete', 'lineage'):
+    if mutation in ('data_manifest', 'incomplete', 'lineage', 'label'):
         summary = {**summary, **{'data_manifest': {'data_manifest_sha256': 'b' * 64},
                                  'incomplete': {'status': 'RUNNING'},
-                                 'lineage': {'note': 'changed after visual run'}}[mutation]}
+                                 'lineage': {'note': 'changed after visual run'},
+                                 'label': {'llm': {'config': {'model': 'gpt-oss-120b', 'reasoning_effort': 'medium'}}}
+                                 }[mutation]}
         h.write_json(llm / 'summary.json', summary)
         seal(llm)
     with pytest.raises(ValueError, match=match):

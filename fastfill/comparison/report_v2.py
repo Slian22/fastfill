@@ -8,8 +8,13 @@ Every input is verified fail-closed: merged J/P inference dirs (evaluate_pair._i
 geometry-v2 evaluate_pair output that must bind those runs and this data, the frozen model-free
 reference (reference_rows.py) that must bind this data and the same geometry.py, evaluate_llm agent
 outputs on one shared cohort that paired these J/P runs, and FID/GPT outputs carrying this
-geometry's lineage. Rules (amendment 005):
-- reached_token_cap without stopped_on_eos is a failure in every all-request denominator;
+geometry's lineage. geometry-v2 and every agent evaluation must have used the running geometry.py.
+FID/GPT come from either the J/P visual run or the N-system one (fid systems mode with KID, judge
+arms J/P/L/O5 with summary.endpoint); the N-system lineage is visual_pipeline.systems_lineage over
+J/P = GEOMETRY_V2 and each rendered agent label, which must be passed as --agent LABEL=DIR.
+Rules (amendments 005/006):
+- reached_token_cap without stopped_on_eos is a failure in every all-request denominator (J/P per
+  row; agents per row where their rows carry the flags, i.e. open models, else a count + warning);
 - B_arm = mean over J/P common-complete rooms of the room mean of log(pred/GT footprint), also volume;
 - (a') rescales each arm's predicted x/y about the object centre by exp(-B_arm/2), keeps pos/yaw
   and re-scores with geometry.geometry on the request context, exactly as geometry.score builds it;
@@ -37,7 +42,9 @@ from fastfill.comparison import evaluate_pair as e
 from fastfill.comparison import geometry as g
 from fastfill.comparison import judge_batch
 from fastfill.comparison import llm_agent
+from fastfill.comparison import render_assets as render
 from fastfill.comparison import train_pair_helpers as h
+from fastfill.comparison import visual_pipeline
 from fastfill.comparison.corpus import _publish
 from fastfill.comparison.eval_data import PAPER_STRATA
 from fastfill.comparison.fid import WEIGHTS_SHA256
@@ -53,7 +60,9 @@ RUNTIME_FAILURES = ('BATCH_GENERATION_FAILED', 'INPUT_TOO_LONG', 'TOKENIZATION_F
 GPT_KEYS = ('functionality_score', 'layout_score', 'aesthetics_score')
 LEVELS = ('bias_fp', 'bias_vol', 'size_log_mae')  # single-arm levels on J/P common-complete rooms
 JP_FIELDS = ('geometry_success', 'size_log_mae', 'debiased', *(k + s for k in LEVELS for s in ('_J', '_P')))
-P_LABEL = 'P（类别×房型中位数尺寸，未见类别回退常数 (0.40, 0.50, 0.65) m）'
+P_RULE = ('category × room-type median, then category median, with constant fallback (0.40, 0.50, 0.65 m) '
+          'when neither bucket has ≥ 5 training observations')  # Amendment 006, verbatim.
+P_LABEL = f'P（{P_RULE}）'
 
 
 def stratum(row):
@@ -211,6 +220,11 @@ def _reference(path, data, expected, rooms):
     return ref
 
 
+def _same_geometry(summary, what):
+    if summary.get('code_sha256', {}).get('geometry.py') != h.sha256(g.__file__):
+        raise ValueError(f'{what} used a geometry.py other than the running one')
+
+
 def _geometry(root, data, expected, receipts, ref):
     manifest = e._verified(root)
     summary = _json(root / 'summary.json')
@@ -220,6 +234,7 @@ def _geometry(root, data, expected, receipts, ref):
         raise ValueError('geometry does not bind the merged inference runs')
     if summary['code_sha256'].get('geometry.py') != ref['code_sha256']['geometry.py']:
         raise ValueError('reference and geometry used different geometry.py')
+    _same_geometry(summary, 'geometry-v2')
     rows = {}
     for arm in h.ARMS:
         name = arm + '-geometry.jsonl'
@@ -236,6 +251,7 @@ def _agent(root, data_sha, run_hashes):
         raise ValueError('agent evaluation is incomplete or binds other data')
     if summary.get('inference_run_sha256') and summary['inference_run_sha256'] != run_hashes:
         raise ValueError('agent evaluation paired other J/P runs')
+    _same_geometry(summary, 'agent evaluation ' + root.name)
     rows = {v: h._rows(root, v + '-geometry.jsonl', manifest['files'][v + '-geometry.jsonl'])
             for v in llm_agent.VARIANTS}
     uids = [r['uid'] for r in rows['llm_raw']]
@@ -245,49 +261,82 @@ def _agent(root, data_sha, run_hashes):
     return rows, summary, uids
 
 
-def _fid(path, geometry_sha):
+def _lineage(geometry, agents, labels):
+    """geometry_manifest_sha256 a visual run must carry: the geometry MANIFEST hash (J/P run, labels
+    None) or json_sha256(systems_lineage) over J/P = geometry and each agent label's evaluation dir."""
+    if labels is None:
+        return h.sha256(geometry / 'MANIFEST.json')
+    dirs = {label: geometry if label in ('J', 'P') else (agents or {}).get(label) for label in labels}
+    if None in dirs.values():
+        raise ValueError('visual systems need --agent LABEL=DIR for every rendered agent label')
+    systems = visual_pipeline._systems(dirs)
+    if list(systems) != list(labels):
+        raise ValueError('visual system labels are not in protocol order')
+    return render.json_sha256(visual_pipeline.systems_lineage(systems))
+
+
+def _fid(path, geometry, agents):
     fid = _json(path)
     if (fid.get('extractor') != 'pytorch_fid:0.3.0:pool3' or fid.get('feature_dimension') != 2048
             or fid.get('weights_sha256') != WEIGHTS_SHA256
-            or fid.get('provenance', {}).get('provenance', {}).get('geometry_manifest_sha256') != geometry_sha):
+            or fid.get('provenance', {}).get('provenance', {}).get('geometry_manifest_sha256')
+            != _lineage(geometry, agents, fid.get('systems'))):
         raise ValueError('FID extractor/weights/lineage mismatch')
     return fid
 
 
-def _judge(root, geometry_sha):
+def _judge(root, geometry, agents, labels):
+    """J/P judge, or the N-system judge (arms = judged_systems of the rendered labels)."""
     summary = _json(root / 'summary.json')
     records = [h.strict_json(line) for line in (root / 'records.jsonl').read_text().splitlines()]
     judge_batch.validate_summary(summary)
-    if summary.get('model') != 'gpt-6.1-sol' or summary.get('provenance', {}).get('geometry_manifest_sha256') != geometry_sha:
+    arms = summary.get('arms')
+    if arms is not None:
+        labels = labels or ['J', 'P', *(s for s in visual_pipeline.SYSTEMS[2:] if s in (agents or {}))]
+        if arms != visual_pipeline.judged_systems(labels):
+            raise ValueError('judged system set mismatch')
+    lineage = _lineage(geometry, agents, None if arms is None else labels)
+    if summary.get('model') != 'gpt-6.1-sol' or summary.get('provenance', {}).get('geometry_manifest_sha256') != lineage:
         raise ValueError('judge model/lineage mismatch')
-    if judge_batch.summarize(records, summary['model'], summary['counts']['runnable'])['by_stratum'] != summary['by_stratum']:
+    again = judge_batch.summarize(records, summary['model'], summary['counts']['runnable'], arms or judge_batch.ARMS)
+    if again['by_stratum'] != summary['by_stratum'] or again.get('endpoint') != summary.get('endpoint'):
         raise ValueError('judge records disagree with their summary')
-    return records
+    return records, summary
 
 
-def gpt_endpoint(records, repeats, seed=SEED):
+def _gpt(root, geometry, agents, labels, repeats):
+    records, summary = _judge(root, geometry, agents, labels)
+    if 'arms' not in summary:
+        return gpt_endpoint(records, repeats)
+    e = summary['endpoint']  # N-system run: the judge's own stratified-bootstrap endpoint is canonical.
+    return {**gpt_endpoint(records, repeats, tuple(summary['arms'])),
+            'pooled': {'estimate': e['mean_difference'], 'ci95': e['ci95'], 'n': e['both_complete'],
+                       'source': 'judge_batch summary.endpoint', 'bootstrap': e['bootstrap']}}
+
+
+def gpt_endpoint(records, repeats, arms=judge_batch.ARMS, seed=SEED):
     """Section 5: room mean of three sub-scores; J-P on both-complete rooms, resampled within stratum."""
     def mean3(r):
         return statistics.mean(r['scores'][k] for k in GPT_KEYS)
     by = {(r['uid'], r['arm']): r for r in records}
     diffs = collections.defaultdict(list)
     for uid, name in sorted({(r['uid'], r['stratum']) for r in records}):
-        a, b = by.get((uid, 'joint')), by.get((uid, 'placement'))
+        a, b = by.get((uid, arms[0])), by.get((uid, arms[1]))
         if a and b and a['status'] == b['status'] == 'completed':
             diffs[name].append(mean3(a) - mean3(b))
     pooled = [d for s in sorted(diffs) for d in diffs[s]]
     rng = random.Random(seed)
     draws = [statistics.mean([rng.choice(diffs[s]) for s in sorted(diffs) for _ in diffs[s]])
              for _ in range(repeats)] if pooled else []
-    arms = {(r['stratum'], r['arm']): [] for r in records}
+    by_arm = {(r['stratum'], r['arm']): [] for r in records}
     for r in records:
         if r['status'] == 'completed':
-            arms[r['stratum'], r['arm']].append(mean3(r))
-    return {'pooled': {'estimate': statistics.mean(pooled) if pooled else None, 'n': len(pooled),
+            by_arm[r['stratum'], r['arm']].append(mean3(r))
+    return {'arms': list(arms), 'pooled': {'estimate': statistics.mean(pooled) if pooled else None, 'n': len(pooled),
                        'ci95': [g._quantile(draws, .025), g._quantile(draws, .975)] if draws else None},
             'difference_by_stratum': {s: {'n': len(v), 'mean_difference': statistics.mean(v)} for s, v in diffs.items()},
             'arm_by_stratum': {f'{s}|{a}': {'success': len(v), 'requested': sum(r['stratum'] == s and r['arm'] == a
-                               for r in records), 'mean': statistics.fmean(v) if v else None} for (s, a), v in arms.items()}}
+                               for r in records), 'mean': statistics.fmean(v) if v else None} for (s, a), v in by_arm.items()}}
 
 
 def _parses(raw):
@@ -298,9 +347,11 @@ def _parses(raw):
         return False
 
 
-def taxonomy(rows, records=None):
-    kinds = (('token_cap_without_eos', 'invalid_json', 'invalid_schema_or_geometry') if records is not None
-             else ('invalid_output',)) + ('generation_or_api_failure', 'missing_output')
+def taxonomy(rows, records=None, cap_known=None):
+    """Failure kinds; the cap kind is listed (0 included) only where per-row cap flags exist."""
+    cap = ('token_cap_without_eos',) if (records is not None if cap_known is None else cap_known) else ()
+    kinds = cap + (('invalid_json', 'invalid_schema_or_geometry') if records is not None
+                   else ('invalid_output',)) + ('generation_or_api_failure', 'missing_output')
     counts = collections.Counter({'requests': len(rows), 'complete': 0, **dict.fromkeys(kinds, 0)})
     for i, row in enumerate(rows):
         error = row.get('error') or 'missing_output'
@@ -422,17 +473,24 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     for arm in h.ARMS:
         tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], factor[arm]) for r in rows[arm]]
         rows[arm] = [{**r, **d} for r, d in zip(rows[arm], _map(_derive, tasks, workers))]
-    systems, agent_meta, cohort = {}, {}, None
+    systems, agent_meta, cohort, row_cap, flipped = {}, {}, None, {}, {}
     for name, root in (agents or {}).items():
         variants, summary, uids = _agent(Path(root), data_sha, run_hashes)
         if cohort is not None and uids != cohort:
             raise ValueError('agents were scored on different cohorts')
         cohort, agent_meta[name] = uids, summary
+        # Amendment 006: the cap rule per row where the rows carry the flags (open models).
+        row_cap[name] = all('reached_token_cap' in r and 'stopped_on_eos' in r for v in variants.values() for r in v)
         for variant, vrows in variants.items():
+            label = f"{name}-{variant.removeprefix('llm_')}"
+            caps = [row_cap[name] and r['reached_token_cap'] and not r['stopped_on_eos'] for r in vrows]
+            flipped[label] = sum(c and r['complete'] for c, r in zip(caps, vrows)) if row_cap[name] else None
+            vrows = [cap_failure(r) if c else r for r, c in zip(vrows, caps)]
             derived = _map(_derive, [(r, rooms[r['uid']], None, None) for r in vrows], workers)
-            systems[f"{name}-{variant.removeprefix('llm_')}"] = [{**r, **d} for r, d in zip(vrows, derived)]
-    fid_result = _fid(fid, geometry_sha) if fid else None
-    gpt = gpt_endpoint(_judge(Path(judge), geometry_sha), repeats) if judge else None
+            systems[label] = [{**r, **d} for r, d in zip(vrows, derived)]
+    visual_pipeline.check_labels(agent_meta)
+    fid_result = _fid(fid, geometry, agents) if fid else None
+    gpt = _gpt(Path(judge), geometry, agents, (fid_result or {}).get('systems'), repeats) if judge else None
     corrected = set(_json(corrections)) if corrections else None
     if corrected is not None and not corrected <= set(expected):
         raise ValueError('correction UIDs outside the frozen inventory')
@@ -469,17 +527,26 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     # T3: per source and paper stratum, GT reference beside each arm.
     t3_names = ['all', *(n for n in sj if n.startswith(('source/', 'stratum/'))), 'strata_pooled']
     tables['T3'] = [t1, *(_jp_row(n, sj[n], sp[n], rs.get(n), repeats) for n in t3_names[1:])]
-    # T4: paper-style six strata.
+    # T4: paper-style six strata. Visual keys: joint/placement (J/P run) or J/P/agent label (N-system
+    # run, which renders and judges each agent's harness answer).
     everyone = {'J': J, 'P': P, **systems}
+    fid_systems = 'systems' in (fid_result or {})
+    judge_systems = (gpt or {}).get('arms', list(judge_batch.ARMS)) != list(judge_batch.ARMS)
+
+    def visual_key(label, n_mode):
+        if label in ('J', 'P'):
+            return label if n_mode else {'J': 'joint', 'P': 'placement'}[label]
+        return label.removesuffix('-harness') if n_mode and label.endswith('-harness') else None
     tables['T4'] = []
     for source, kind in PAPER_STRATA:
         name = f'{source}/{kind}'
         visual = (fid_result or {}).get('strata', {}).get(name, {})
         for label, srows in everyone.items():
             agg = _aggregate([r for r in srows if stratum(r) == name])
-            arm = {'J': 'joint', 'P': 'placement'}.get(label)
-            judged = (gpt or {}).get('arm_by_stratum', {}).get(f'{name}|{arm}', {})
+            arm, judge_arm = visual_key(label, fid_systems), visual_key(label, judge_systems)
+            judged = (gpt or {}).get('arm_by_stratum', {}).get(f'{name}|{judge_arm}', {})
             shared = visual.get('counts', {}).get('shared_success')
+            kid = ((visual.get('kid') or {}).get(arm) or {}) if arm else {}
             tables['T4'].append({
                 'stratum': name, 'system': label, 'requests': agg['requests'], 'complete': agg['complete_count'],
                 'oor': agg['oor'], 'oor_rotated': agg['oor_rotated'],
@@ -487,6 +554,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
                 'gt_oor_rotated': rs.get('stratum/' + name, {}).get('gt', {}).get('gt_oor_rotated'),
                 'fid': visual.get(arm + '_vs_reference') if arm else None, 'fid_n': shared if arm else None,
                 'fid_flag': ('N<50' if shared is not None and shared < 50 else None) if arm else None,
+                'kid': kid.get('kid'), 'kid_se': kid.get('se'),
                 'gpt': judged.get('mean'), 'gpt_success': judged.get('success'), 'gpt_requested': judged.get('requested')})
     tables['T4_gpt'] = ([{'scope': 'pooled', 'delta': gpt['pooled'], 'n': gpt['pooled']['n']}]
                         + [{'scope': s, 'mean_difference': v['mean_difference'], 'n': v['n']}
@@ -518,8 +586,9 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
                 'input_tokens': sum(r.get('input_tokens') or 0 for r in cohort_records)})
         for name, summary in agent_meta.items():
             result, config = summary['llm']['result'], summary['llm']['config']
+            cost = summary['llm'].get('cost') or {}  # Open models: the run's cost.json via evaluate_llm.
             tables['T5_cost'].append({'system': name, 'model': config.get('model'), 'reasoning': config.get('reasoning_effort'),
-                'calls': result.get('calls_ledger'), 'gpu_hours': result.get('gpu_hours'),
+                'calls': result.get('calls_ledger'), 'gpu_hours': cost.get('gpu_hours'),
                 'input_tokens': (result.get('tokens') or {}).get('input_tokens'),
                 'output_tokens': (result.get('tokens') or {}).get('output_tokens'),
                 'reasoning_tokens': (result.get('tokens') or {}).get('reasoning_tokens'),
@@ -528,7 +597,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     # T6: failure taxonomy (J/P on the full test set, agents on the cohort).
     tables['T6'] = [{'system': 'J', **taxonomy(J, records['joint']), 'cap_rule_flipped_complete': cap_complete['joint']},
                     {'system': 'P', **taxonomy(P, records['placement']), 'cap_rule_flipped_complete': cap_complete['placement']},
-                    *({'system': k, **taxonomy(v), 'answers_reaching_cap': agent_meta[k.rsplit('-', 1)[0]]['llm']['result'].get('reached_token_cap')}
+                    *({'system': k, **taxonomy(v, cap_known=flipped[k] is not None), 'cap_rule_flipped_complete': flipped[k],
+                       'answers_reaching_cap': agent_meta[k.rsplit('-', 1)[0]]['llm']['result'].get('reached_token_cap')}
                       for k, v in systems.items())]
     # Sensitivity.
     gt_pass, known, levels = set(ref['gt_pass']['uids']), set(ref['known_defect_uids']), ref['prior_levels']
@@ -548,14 +618,16 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     warnings = []
     if ref['prior_level_method'] != 'exact_frozen_prior':
         warnings.append('prior_level_pair_category_unresolved_without_frozen_size_priors')
-    if any((s['llm']['result'].get('reached_token_cap') or 0) for s in agent_meta.values()):
+    if any((s['llm']['result'].get('reached_token_cap') or 0) and not row_cap[k] for k, s in agent_meta.items()):
         warnings.append('agent_answers_reached_output_cap_not_row_applied')
     if corrected is None:
         warnings.append('source_correction_sensitivity_not_provided')
     result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '005', 'delivery': decision, 'tables': tables,
               'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}, 'warnings': warnings,
-              'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256']}
-                         for k, v in agent_meta.items()},
+              'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256'],
+                             'cap_rule_per_row': row_cap[k]} for k, v in agent_meta.items()},
+              'visual_mode': {'fid': 'systems' if fid_systems else 'J/P' if fid else None,
+                              'judge': 'systems' if judge_systems else 'J/P' if judge else None},
               'cohort_rooms': len(cohort) if cohort else None, 'repeats': repeats, 'seed': SEED,
               'input_sha256': {'data_MANIFEST': data_sha, 'geometry_MANIFEST': geometry_sha,
                                'reference': h.sha256(reference), 'inference_run_sha256': run_hashes,
@@ -619,12 +691,17 @@ def _report(result, agent_meta):
     lines += ['## T4 论文式六层', '']
     lines += _md(t['T4'], [('stratum', '来源/房型'), ('system', '系统'), ('complete', '完整'), ('requests', '请求'),
                            ('oor', 'OOR 轴对齐↓'), ('oor_rotated', 'OOR 旋转↓'), ('gt_oor', 'GT OOR 轴对齐'),
-                           ('gt_oor_rotated', 'GT OOR 旋转'), ('fid', 'FID↓'), ('fid_n', 'FID 共同 N'), ('fid_flag', '标记'),
+                           ('gt_oor_rotated', 'GT OOR 旋转'), ('fid', 'FID↓'), ('kid', 'KID↓'), ('kid_se', 'KID SE'),
+                           ('fid_n', 'FID 共同 N'), ('fid_flag', '标记'),
                            ('gpt', 'GPT 三项均值↑'), ('gpt_success', 'GPT 成功'), ('gpt_requested', 'GPT 选定')])
-    lines += ['轴对齐 OOR 为论文定义（忽略朝向）；旋转 OOR 使用检查器已构建的旋转足迹。FID 只在共同成功渲染上计算，N<50 标记；'
-              'KID 未由现有 FID 代码产出，记为未测。GPT 为 `gpt-6.1-sol` 同一裁判的功能/布局/美观三项房间均值，不能与论文 GPT-4o 分数互换。', '']
+    fid_note = ('FID 与 KID 只在参考及全部渲染系统都成功的房间交集上计算（N 为该交集）；KID 为配对 U 统计量，'
+                '不能与文献 KID 比较；代理只渲染 harness 答案。' if result['visual_mode']['fid'] == 'systems' else
+                'FID 只在参考、J、P 共同成功渲染的交集上计算；此 J/P 视觉运行不产出 KID，记为未测。')
+    lines += ['轴对齐 OOR 为论文定义（忽略朝向）；旋转 OOR 使用检查器已构建的旋转足迹。' + fid_note + 'N<50 标记。'
+              'GPT 为 `gpt-6.1-sol` 同一裁判的功能/布局/美观三项房间均值，不能与论文 GPT-4o 分数互换。', '']
     if t['T4_gpt']:
-        lines += ['GPT 主终点：J−P 两臂均完成房间的配对均值差，按层内重抽样自举。', '']
+        lines += ['GPT 主终点：J−P 两臂均完成房间的配对均值差，按层内重抽样自举'
+                  + ('（N 系统裁判运行自身的 summary.endpoint）。' if result['visual_mode']['judge'] == 'systems' else '。'), '']
         lines += _md(t['T4_gpt'], [('scope', '范围'), ('delta', 'Δ J−P [95% CI]'), ('mean_difference', '分层描述性均值差'), ('n', 'n')])
     lines += ['论文数值（独立协议，仅作背景，不能据此宣称胜负）：', '']
     lines += _md(t['T4_paper'], [('stratum', '来源/房型'), ('FID', 'FID'), ('OOR', 'OOR'), ('functionality', '功能'),
@@ -637,8 +714,8 @@ def _report(result, agent_meta):
         lines += ['配对差只给估计与区间（仅全队列与六层合并），不作“显著”判断；harness 为主比较对象，raw 为单次回答敏感性。', '']
         lines += _md(t['T5_contrasts'], [('scope', '范围'), ('comparison', '比较'), ('geometry_success', 'Δ(a) [95% CI]'),
                                          ('size_log_mae', 'Δ(b) [95% CI]')])
-        lines += _md(t['T5_cost'], [('system', '系统'), ('model', '模型'), ('reasoning', '推理强度'), ('calls', 'API 调用'),
-                                    ('gpu_hours', 'GPU 时'), ('gpu_hours_full_test_generation', 'GPU 时（全测试生成）'),
+        lines += _md(t['T5_cost'], [('system', '系统'), ('model', '模型'), ('reasoning', '推理强度'), ('calls', '调用／生成请求'),
+                                    ('gpu_hours', 'GPU 时（cost.json）'), ('gpu_hours_full_test_generation', 'GPU 时（全测试生成）'),
                                     ('input_tokens', '输入 tokens（队列）'), ('output_tokens', '输出 tokens（队列）'),
                                     ('reasoning_tokens', '推理 tokens'), ('latency_p50_s', '中位延迟 s')])
         lines += ['API 失败计入分母。代理的模型名称：' + '；'.join(f"{k} = {v['llm']['config'].get('model')}"

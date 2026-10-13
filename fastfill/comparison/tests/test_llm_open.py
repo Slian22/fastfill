@@ -167,6 +167,11 @@ def test_thinking_run_same_input_harness_order_and_evaluator(world):
     assert summary['arms']['llm_raw']['all']['complete_count'] == 34
     assert summary['arms']['llm_harness']['all']['complete_count'] == 35
     assert summary['llm']['config']['model'] == 'qwen3-8b-think'
+    # Cost and the scored answer's per-row cap flags ride through to report_v2.
+    assert summary['llm']['cost'] == cost and summary['metric_contract']['cap_flags']
+    for variant in L.VARIANTS:
+        scored = {r['uid']: r for r in rows(root / 'eval' / f'{variant}-geometry.jsonl')}
+        assert all(r['reached_token_cap'] is False and r['stopped_on_eos'] is True for r in scored.values())
     before = {p: p.read_bytes() for p in out.rglob('*') if p.is_file()}
     again = FakeLLM(rooms)
     assert O.main(argv(root, 'O1b'), loader(again)) == 0 and again.calls == []
@@ -205,10 +210,14 @@ def test_harmony_final_channel_engine_flags_and_context_stop(world):
     records = rows(root / 'gptoss/llm_harness/records.jsonl')
     assert all(r['schema']['valid'] and r['raw'] == base.target(None, 'joint', rooms[r['uid']]) for r in records)
     assert json.loads((root / 'gptoss/run_receipt.json').read_text())['config']['reasoning_effort'] == 'medium'
-    deepseek = []
-    O.main(argv(root, 'O5', 'ds', '--limit', '1'), loader(FakeLLM(rooms), deepseek))
+    deepseek, ds = [], FakeLLM(rooms, default='<think>plan</think>{valid}')
+    assert O.main(argv(root, 'O5', 'ds', '--limit', '1'), loader(ds, deepseek)) == 0
     assert deepseek[0]['tokenizer_mode'] == 'deepseek_v4' and deepseek[0]['enable_expert_parallel']
     assert deepseek[0]['tensor_parallel_size'] == 4
+    # Amendment 006: O5 thinks (its agent mode), so it gets the thinking allowance and the split.
+    assert ds.calls[0]['kwargs'] == {'thinking': True} and O.SYSTEMS['O5']['thinking']
+    assert ds.calls[0]['params'][0]['max_tokens'] == 1024 + 128 * 2 + 16384
+    assert rows(root / 'ds/llm_harness/records.jsonl')[0]['schema']['valid']
     # The cap is bounded by the context left after the prompt; a repair that cannot fit is not attempted.
     full = FakeLLM(rooms, default=('x' * 950, 'length'), prompt_tokens=40000)
     assert O.main(argv(root, 'O3', 'long', '--limit', '1'), loader(full)) == 0
@@ -229,9 +238,15 @@ def test_harmony_final_channel_engine_flags_and_context_stop(world):
 def test_smoke_gate_and_status_fail_closed(world):
     root, rooms = world
     run_root = root / 'runs'
+    # Amendment 006: loads and runs but only cap-hit reasoning -> measured failure; the smoke passes.
     thinking_only = FakeLLM(rooms, default=('<think>still planning', 'length'))
     assert O.main(argv(root, 'O1b', 'runs/' + O.out_name('O1b', 'smoke'), '--limit', '2', '--smoke-gate'),
-                  loader(thinking_only)) == 1
+                  loader(thinking_only)) == 0
+    measured = json.loads((run_root / O.out_name('O1b', 'smoke') / 'result.json').read_text())
+    assert measured['valid_final'] == 0 and measured['reached_token_cap'] == 2 * (L.REPAIRS + 1)
+    # Nothing generated at all (no prompt fits) is not evidence that the system executes.
+    assert O.main(argv(root, 'O2', 'runs/' + O.out_name('O2', 'smoke'), '--limit', '2', '--smoke-gate'),
+                  loader(FakeLLM(rooms, prompt_tokens=40960))) == 1
     def broken(engine):
         raise RuntimeError('Model architectures [Gemma4ForConditionalGeneration] are not supported')
     with pytest.raises(RuntimeError):
@@ -245,8 +260,8 @@ def test_smoke_gate_and_status_fail_closed(world):
     status = json.loads((run_root / 'llm-open-status.json').read_text())
     assert status['O1a']['state'] == 'complete' and status['O1a']['cost']['gpus'] == 1
     assert status['O1a']['result']['rooms'] == 36
-    assert status['O1b'] == {**status['O1b'], 'state': 'not run',
-                             'reason': 'no smoke answer had text after the reasoning was removed'}
+    assert status['O1b']['state'] == 'incomplete' and status['O1b']['reason'] == 'full run not started'
+    assert status['O2'] == {**status['O2'], 'state': 'not run', 'reason': 'smoke generated no answer'}
     assert status['O3']['state'] == 'not run' and 'Gemma4ForConditionalGeneration' in status['O3']['reason']
     assert status['O3']['reason'].startswith('FAIL: RuntimeError: ')
     assert status['O4']['state'] == 'incomplete'  # smoke passed; full not started
@@ -260,7 +275,13 @@ def test_scripts_match_system_table():
     helper = (here / 'submit_llm_open.sh').read_text()
     systems = '|'.join(O.SYSTEMS)
     assert f'case "$SYSTEM" in {systems}) ;;' in sbatch and f'case "$SYSTEM" in {systems}) ;;' in helper
-    assert f'SYSTEMS=({" ".join(O.SYSTEMS)})' in helper
+    order = 'O5 O4 O2 O3 O1a O1b'  # Amendment 006 run order.
+    assert f'SYSTEMS=({order})' in helper and sorted(order.split()) == sorted(O.SYSTEMS)
+    # Preflight mirrors the v1_1 vLLM sbatch and fails fast before any GPU work.
+    assert 'module load cudatoolkit\n' in sbatch and 'CUDA_PATH="$CUDA_HOME"' in sbatch
+    preflight = sbatch.index("\"$PYTHON\" -B -c 'import shapely, fastfill.comparison.llm_open' || {")
+    assert sbatch.index('module load cudatoolkit') < preflight < sbatch.index('nvidia-smi -L')
+    assert 'PREFLIGHT FAIL' in sbatch[preflight:sbatch.index('nvidia-smi -L')]
     assert 'smoke) OUT="llm-open-$SYSTEM-smoke-001"; EXTRA=(--limit 2 --smoke-gate)' in sbatch
     assert 'full) OUT="llm-open-$SYSTEM-001"' in sbatch
     assert O.out_name('O2', 'smoke') == 'llm-open-O2-smoke-001' and O.out_name('O2', 'full') == 'llm-open-O2-001'
@@ -307,3 +328,27 @@ def test_submit_serialises_open_jobs_after_inference_with_stub_sbatch(tmp_path):
     for bad in (['O1a'], ['', 'O1a'], ['7383111:', 'O1a'], ['7383111,singleton', 'O1a'], []):
         assert subprocess.run(['bash', str(script), str(code), *bad], env=env, capture_output=True).returncode != 0
     assert len((tmp_path / 'log').read_text().splitlines()) == 3
+
+
+def test_submit_default_order_and_abort_lists_submitted_jobs(tmp_path):
+    code = Path(O.__file__).resolve().parents[2]
+    helper = (code / 'fastfill/comparison/submit_llm_open.sh').read_text()
+    script = tmp_path / 'submit_llm_open.sh'
+    script.write_text(helper.replace('PYTHON="$PROJECT_ROOT/env/bin/python"\n', f'PYTHON={sys.executable}\n'))
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\nn=$(wc -l < "$SBATCH_LOG")\n'
+                    'if [ "$n" -eq "$FAIL_ON" ]; then echo "sbatch: error: QOSMaxSubmitJobPerUserLimit" >&2; exit 1; fi\n'
+                    'echo "$((100 + n));cluster"\n')
+    stub.chmod(0o755)
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'FAIL_ON': '0'}
+    run = subprocess.run(['bash', str(script), str(code), '-'], env=env, capture_output=True, text=True, check=True)
+    assert [line.split()[0] for line in run.stdout.splitlines()] == ['O5', 'O4', 'O2', 'O3', 'O1a', 'O1b', 'status']
+    (tmp_path / 'log').unlink()
+    run = subprocess.run(['bash', str(script), str(code), '-'], env={**env, 'FAIL_ON': '4'},
+                         capture_output=True, text=True)
+    assert run.returncode == 1 and len((tmp_path / 'log').read_text().splitlines()) == 4  # Nothing after it.
+    assert "sbatch for 'O4 full' failed" in run.stderr and 'scancel 101 102 103' in run.stderr
+    assert run.stdout.splitlines() == ['O5 smoke 101 full 102']
+    (tmp_path / 'log').unlink()
+    bad = subprocess.run(['bash', str(script), str(code), '-', 'O5', 'O9'], env=env, capture_output=True)
+    assert bad.returncode == 2 and not (tmp_path / 'log').exists()  # Systems are checked before any sbatch.

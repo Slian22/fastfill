@@ -51,8 +51,8 @@ SEED = 0
 CAP_BASE, CAP_PER_OBJECT, THINKING_ALLOWANCE = 1024, 128, 16384
 SAMPLING = {'temperature': 0.0, 'seed': SEED, 'skip_special_tokens': False, 'spaces_between_special_tokens': False}
 WEIGHTS = ('.safetensors', '.bin', '.pt', '.pth', '.gguf')
-# hours = full-run Slurm limit; smoke runs get SMOKE_MINUTES. Modes follow amendment 004 where it
-# names one and the model's own default otherwise (written out explicitly where the template reads it).
+# hours = full-run Slurm limit; smoke runs get SMOKE_MINUTES. Modes are fixed by amendment 006 (written
+# out explicitly where the template reads them); thinking systems get THINKING_ALLOWANCE in their cap.
 SYSTEMS = {
     'O1a': {'name': 'qwen3-8b-nothink', 'model': 'Qwen3-8B', 'tp': 1, 'hours': 3, 'split': 'think',
             'thinking': False, 'template': {'enable_thinking': False}, 'effort': 'thinking off', 'engine': {}},
@@ -67,7 +67,7 @@ SYSTEMS = {
     'O4': {'name': 'gpt-oss-120b', 'model': 'gpt-oss-120b', 'tp': 2, 'hours': 6, 'split': 'harmony',
            'thinking': True, 'template': {'reasoning_effort': 'medium'}, 'effort': 'medium', 'engine': {}},
     'O5': {'name': 'deepseek-v4-flash-0731', 'model': 'DeepSeek-V4-Flash-0731', 'tp': 4, 'hours': 6, 'split': 'think',
-           'thinking': False, 'template': {}, 'effort': 'non-think (model default)',
+           'thinking': True, 'template': {'thinking': True}, 'effort': 'thinking on (amendment 006)',
            # vLLM recipe: built-in DeepSeek-V4 encoding (no Jinja template), EP MoE, FP8 KV, block 256.
            'engine': {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8',
                       'block_size': 256, 'trust_remote_code': True}},
@@ -298,16 +298,18 @@ def _reason(status):
 
 
 def smoke_failure(out):
-    """None when the smoke passed, else the reason the system is 'not run'."""
+    """None when the smoke passed, else the reason the system is 'not run'.
+
+    Amendment 006: 'not run' only when the system cannot load or execute. A smoke that loads and
+    generates but yields only cap-hit reasoning (or invalid answers) is a measured failure and passes.
+    """
     status = _read(out / 'status.json')
     if status is None:
         return 'smoke output missing (job not started or failed before its first write; see the Slurm log)'
     if status.get('status') != 'LLM_COMPLETE':
         return _reason(status)
-    if status['api_failed_rooms']:
-        return 'smoke rooms without an answer'
-    if not _read(out / 'cost.json')['answers_with_content']:
-        return 'no smoke answer had text after the reasoning was removed'
+    if not _read(out / 'cost.json')['generated_requests']:
+        return 'smoke generated no answer'
     return None
 
 
