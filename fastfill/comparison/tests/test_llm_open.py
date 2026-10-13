@@ -118,6 +118,13 @@ def test_split_reasoning_per_template():
     assert s(harmony + '<|return|>', 'harmony', True, True)[1] == '{"a":1}'
     assert s(harmony.replace('final<', 'final <|constrain|>json<'), 'harmony', True, True)[1] == '{"a":1}'
     assert s('<|channel|>analysis<|message|>{"x":0}', 'harmony', True, False) == ('<|channel|>analysis<|message|>{"x":0}', '')
+    # Muse-Glimmer ATEM (its chat_template.jinja): generation prompt '<|start|>assistant', reasoning on
+    # ' to=self<|message|>...<|eom|>', answer on '<|start|>assistant to=user<|message|>...<|eot|>'.
+    muse = ' to=self<|message|>Bed by the wall {"x":0}<|eom|><|start|>assistant to=user<|message|>{"a":1}<|eot|>'
+    assert s(muse, 'muse', True, True) == (muse[:muse.index('{"a"')], '{"a":1}')
+    assert s(' to=self<|message|>still planning', 'muse', True, False) == (' to=self<|message|>still planning', '')
+    assert s(' to=self<|message|>plan<|eom|>', 'muse', True, True)[1] == ''  # reasoning only, no user message
+    assert s(' to=user<|message|>{"a":1}<|eot|>', 'muse', True, True) == ('', '{"a":1}')  # answered, no reasoning
 
 
 def test_thinking_run_same_input_harness_order_and_evaluator(world):
@@ -256,7 +263,8 @@ MODES = {
     'O7': ('Muse-Glimmer-30B', 2, True, {}, {}),  # Model default: no kwargs, no 'Reasoning strength:' line.
 }
 SAMPLES = {'think': '<think>\nplan\n</think>\n\n{valid}', 'gemma': '<|channel>thought\nplan<channel|>{valid}',
-           'harmony': '<|channel|>analysis<|message|>plan<|end|><|start|>assistant<|channel|>final<|message|>{valid}'}
+           'harmony': '<|channel|>analysis<|message|>plan<|end|><|start|>assistant<|channel|>final<|message|>{valid}',
+           'muse': ' to=self<|message|>plan<|eom|><|start|>assistant to=user<|message|>{valid}<|eot|>'}
 
 
 @pytest.mark.parametrize('system', MODES)
@@ -310,11 +318,11 @@ def test_smoke_gate_and_status_fail_closed(world):
     assert not set(O.NOT_RUN) & set(O.SYSTEMS)
 
 
-@pytest.mark.parametrize('system,text', [('O5', '{valid}'), ('O7', '<|channel>thought\nplan<channel|>{valid}')])
+@pytest.mark.parametrize('system,text', [('O5', '{valid}'), ('O7', ' to=user<|message|>{valid}<|eot|>')])
 def test_thinking_smoke_without_reasoning_fails_closed(world, system, text):
     # A thinking system whose template switch is silently ignored answers without any reasoning:
-    # the smoke must not pass, or the full run would start in a mode amendment 006 forbids. O7's
-    # template is not cached ('</think>' assumed): reasoning closed by any other marker fails the same way.
+    # the smoke must not pass, or the full run would start in a mode amendment 006 forbids. O7 (Muse ATEM):
+    # an answer on the user channel with no 'to=self' reasoning message.
     root, rooms = world
     out = root / 'runs' / O.out_name(system, 'smoke')
     assert O.main(argv(root, system, 'runs/' + O.out_name(system, 'smoke'), '--limit', '2', '--smoke-gate'),

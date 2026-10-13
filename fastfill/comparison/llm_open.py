@@ -81,7 +81,7 @@ SYSTEMS = {
                       'limit_mm_per_prompt': {'image': 0, 'video': 0}}},
     # ponytail: no cached Muse-Glimmer chat template; '</think>' is assumed. If it closes reasoning otherwise,
     # stopped answers carry no reasoning and the smoke fails closed ('thinking system produced no reasoning').
-    'O7': {'name': 'muse-glimmer-30b', 'model': 'Muse-Glimmer-30B', 'tp': 2, 'hours': 8, 'split': 'think',
+    'O7': {'name': 'muse-glimmer-30b', 'model': 'Muse-Glimmer-30B', 'tp': 2, 'hours': 8, 'split': 'muse',
            'thinking': True, 'template': {}, 'effort': 'model default (no "Reasoning strength:" system line)',
            'engine': {}},
 }
@@ -103,6 +103,7 @@ SMOKE_MINUTES = 90
 HARMONY_FINAL = re.compile(r'<\|channel\|>\s*final\b[^<]*(?:<\|constrain\|>[^<]*)?<\|message\|>')
 HARMONY_END = re.compile(r'<\|(?:return|end|call)\|>')
 CLOSE = {'think': '</think>', 'gemma': '<channel|>'}
+MUSE_ANSWER = 'to=user<|message|>'
 
 
 def split_reasoning(text, style, thinking, stopped):
@@ -113,6 +114,11 @@ def split_reasoning(text, style, thinking, stopped):
             return text, ''
         end = finals[-1].end()
         return text[:end], HARMONY_END.split(text[end:], 1)[0]
+    if style == 'muse':  # ATEM: reasoning on 'assistant to=self' (<|eom|>), answer on 'to=user' (<|eot|>)
+        head, close, tail = text.rpartition(MUSE_ANSWER)
+        if close:  # reasoning only counts when a 'to=self' message was actually produced
+            return (head + close if 'to=self' in head else ''), tail.split('<|eot|>', 1)[0]
+        return (text, '') if thinking and (not stopped or 'to=self' in text) else ('', text)
     head, close, tail = text.rpartition(CLOSE[style])
     if close:
         return head + close, tail
