@@ -2,7 +2,8 @@
 
   python -m fastfill.comparison.llm_agent cohort --data EVAL --out COHORT.json
   python -m fastfill.comparison.llm_agent run --data EVAL --cohort COHORT.json --out RUN \
-      [--env-file ~/.fastfill_api.env] [--concurrency 4] [--max-calls 4800] [--limit N]
+      [--env-file ~/.fastfill_api.env] [--concurrency 4] [--max-calls 4800] [--limit N] \
+      [--max-attempts 2] [--require-no-api-failed]
 
 Cohort: every paper six-strata test room (eval_data.PAPER_STRATA on
 scene.norm_room_type, as evaluate_pair) plus, per source, up to 30 remaining test
@@ -27,7 +28,8 @@ receipt, logs fixed error codes to api-errors.jsonl, stops scheduling (fail
 closed) and exits 2. Rerunning the same command resumes: UIDs with receipts are
 never called again. Only request-specific rejections (HTTP 400/413/422) count
 per UID; after --max-attempts of them the UID gets a final API_FAILED receipt
-without a call; outages never finalize a UID. Completion publishes
+without a call; outages never finalize a UID (--require-no-api-failed, the smoke
+gate, exits 1 if any UID ended API_FAILED). Completion publishes
 llm_raw/records.jsonl and llm_harness/records.jsonl (inference records shape),
 result.json and MANIFEST.json.
 The API key is never logged or printed; stored receipts are redacted.
@@ -506,6 +508,7 @@ def main(argv=None):
                           ('timeout', 900), ('max-attempts', 2)):
         run_parser.add_argument('--' + flag, type=positive, default=default)
     run_parser.add_argument('--limit', type=positive)
+    run_parser.add_argument('--require-no-api-failed', action='store_true')
     args = parser.parse_args(argv)
     if args.command == 'cohort':
         value = build_cohort(args.data)
@@ -519,7 +522,9 @@ def main(argv=None):
         print('llm_agent_error: ' + exc.code, file=sys.stderr)
         return 1
     print(json.dumps({k: result.get(k) for k in ('status', 'rooms', 'expected_count', 'receipt_count',
-                                                 'calls_ledger', 'valid_first', 'valid_final')}))
+                                                 'calls_ledger', 'api_failed_rooms', 'valid_first', 'valid_final')}))
+    if args.require_no_api_failed and result.get('api_failed_rooms'):
+        return 1
     return 0 if result['status'] == 'LLM_COMPLETE' else 2 if result['status'] == 'API_FAILURE' else 1
 
 

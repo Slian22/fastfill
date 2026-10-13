@@ -5,6 +5,8 @@ import io
 import json
 import os
 from pathlib import Path
+import re
+import shlex
 import urllib.error
 
 import pytest
@@ -304,6 +306,32 @@ def test_hard_call_cap_and_smoke_limit(world):
     result = L.run(args(root, limit=2, max_calls=7), FakeApi(rooms, default='bad'))
     assert result['status'] == 'LLM_COMPLETE' and result['rooms'] == 2 and result['calls_ledger'] == 7
     assert result['rounds_histogram'] == {'3': 2}
+
+
+def test_sbatch_smoke_gate_fails_closed_on_persistent_rejection(world, monkeypatch):
+    """Mirror isambard_llm_agent.sbatch smoke (its own args, up to 3 invocations, continue only on exit 2):
+    a systemic HTTP 400 (e.g. an unsupported parameter) must never let the smoke exit 0 and start the full run."""
+    root, rooms = world
+    text = Path(L.__file__).with_name('isambard_llm_agent.sbatch').read_text()
+    assert 'for invocation in 1 2 3; do' in text and 'test "$rc" -eq 2 || exit "$rc"' in text
+    extra = shlex.split(re.search(r'^\s*smoke\).*EXTRA=\(([^)]*)\)', text, re.M).group(1))
+
+    def smoke(out, api, *more):
+        monkeypatch.setattr(L.run, '__defaults__', (api,))
+        argv = ['run', '--data', str(root / 'data'), '--cohort', str(root / 'cohort.json'), '--out', str(out),
+                '--env-file', str(root / 'api.env'), '--concurrency', '4', *extra, *more]
+        codes = []
+        while len(codes) < 3 and (not codes or codes[-1] == 2):
+            codes.append(L.main(argv))
+        return codes
+
+    rejected = FakeApi(rooms, default=L.ApiError('http_status_400'))
+    assert smoke(root / 'smoke', rejected)[-1] != 0
+    assert not list((root / 'smoke/receipts').iterdir()) and 3 <= len(rejected.calls) <= 6
+    # Belt and braces: an API_FAILED room (forced here with --max-attempts 1) still fails the smoke.
+    codes = smoke(root / 'smoke-1', FakeApi(rooms, default=L.ApiError('http_status_400')), '--max-attempts', '1')
+    result = json.loads((root / 'smoke-1/result.json').read_text())
+    assert codes[-1] == 1 and result['status'] == 'LLM_COMPLETE' and result['api_failed_rooms'] == 2
 
 
 # Evaluator ---------------------------------------------------------------

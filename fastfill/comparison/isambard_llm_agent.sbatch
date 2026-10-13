@@ -21,7 +21,9 @@ set -euo pipefail
 test "$#" -eq 2
 PAIR_CODE_ROOT="$1"
 case "$2" in
-  smoke) OUT=llm-agent-smoke-001; MINUTES=25; EXTRA=(--limit 2 --max-calls 6) ;;
+  # Smoke never finalizes API_FAILED (99 attempts > its 6-call cap) and exits 1 if any room is
+  # API_FAILED, so a systemic 400/413/422 (an unsupported parameter) cannot pass afterok.
+  smoke) OUT=llm-agent-smoke-001; MINUTES=25; EXTRA=(--limit 2 --max-calls 6 --max-attempts 99 --require-no-api-failed) ;;
   full) OUT=llm-agent-001; MINUTES=470; EXTRA=(--max-calls 4794) ;;
   *) exit 2 ;;
 esac
