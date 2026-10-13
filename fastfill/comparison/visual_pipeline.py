@@ -38,8 +38,8 @@ import subprocess
 from fastfill.comparison import eval_data as evaluation, fid, llm_agent, llm_open, render_assets as render, visual_cases
 
 ARMS = ('reference', 'joint', 'placement')
-# N-system labels (amendments 003-005): J, P, API agent L, open models O*.
-SYSTEMS = ('J', 'P', 'L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5')
+# N-system labels (amendments 003-007): J, P, API agent L, open models O* (llm_open.SYSTEMS).
+SYSTEMS = ('J', 'P', 'L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7')
 SYSTEM_ARMS = {'J': 'joint', 'P': 'placement'}  # Agents: the harness variant.
 VIEWS = ('perspective', 'top')
 SETTINGS = visual_cases.RENDER_SETTINGS
@@ -102,8 +102,8 @@ def _selection(root, references):
 
 
 def judged_systems(labels):
-    """Amendment 005 section 5: J, P, API agent L, largest run open model (O5, else O4)."""
-    return [s for s in ('J', 'P', 'L') if s in labels] + [s for s in ('O5', 'O4') if s in labels][:1]
+    """Amendments 005 section 5 / 007: J, P, API agent L, strongest run open model (O6, else O5, else O4)."""
+    return [s for s in ('J', 'P', 'L') if s in labels] + [s for s in ('O6', 'O5', 'O4') if s in labels][:1]
 
 
 def _systems(systems):

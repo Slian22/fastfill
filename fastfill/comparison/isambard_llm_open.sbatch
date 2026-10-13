@@ -23,7 +23,7 @@ set -euo pipefail
 test "$#" -eq 3
 PAIR_CODE_ROOT="$1"
 SYSTEM="$2"
-case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5) ;; *) exit 2 ;; esac
+case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5|O6|O7) ;; *) exit 2 ;; esac
 case "$3" in
   smoke) OUT="llm-open-$SYSTEM-smoke-001"; EXTRA=(--limit 2 --smoke-gate) ;;
   full) OUT="llm-open-$SYSTEM-001"; EXTRA=() ;;

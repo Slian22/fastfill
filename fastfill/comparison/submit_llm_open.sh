@@ -1,6 +1,6 @@
 #!/bin/bash
-# Open-weight agents (amendments 003/004); run by the parent on the Isambard login node:
-#   submit_llm_open.sh CODE_ROOT AFTER [SYSTEM ...]  (default: amendment 006 order O5 O4 O2 O3 O1a O1b)
+# Open-weight agents (amendments 003/004/006/007); run by the parent on the Isambard login node:
+#   submit_llm_open.sh CODE_ROOT AFTER [SYSTEM ...]  (default: amendment 007 order O6 O5 O4 O2 O3 O7 O1a O1b)
 # AFTER: colon-separated GPU job ids every open-model job waits for (afterany), e.g. the 8 inference
 # v2 shards and both merges; '-' once they have left Slurm.
 # Per system: smoke (2 rooms, gated) -> full (afterok smoke, --kill-on-invalid-dep=yes), so a failed
@@ -38,9 +38,9 @@ submit() {  # submit LABEL SBATCH_ARGS...; sets ID. set -e does not reach $(...)
   SUBMITTED="$SUBMITTED${SUBMITTED:+ }$ID"
 }
 SYSTEMS=("$@")
-if test "${#SYSTEMS[@]}" -eq 0; then SYSTEMS=(O5 O4 O2 O3 O1a O1b); fi
+if test "${#SYSTEMS[@]}" -eq 0; then SYSTEMS=(O6 O5 O4 O2 O3 O7 O1a O1b); fi
 for SYSTEM in "${SYSTEMS[@]}"; do
-  case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5) ;; *) echo "unknown system $SYSTEM" >&2; exit 2 ;; esac
+  case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5|O6|O7) ;; *) echo "unknown system $SYSTEM" >&2; exit 2 ;; esac
 done
 ALL=""
 for SYSTEM in "${SYSTEMS[@]}"; do

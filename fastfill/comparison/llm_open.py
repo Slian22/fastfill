@@ -1,4 +1,4 @@
-"""Open-weight agents O1a-O5 (amendments 003/004): the API agent's input and harness on offline vLLM.
+"""Open-weight agents O1a-O7 (amendments 003/004/006/007): the API agent's input and harness on offline vLLM.
 
   python -m fastfill.comparison.llm_open run --system O4 --data EVAL --cohort COHORT.json \
       --model-root MODELS --out RUN [--limit 2 --smoke-gate] [--chunk 256]
@@ -21,7 +21,7 @@ A prompt with no room left is not generated: INPUT_TOO_LONG as the room error in
 in every denominator), repair_stopped in a repair round.
 
 Reasoning is removed before parsing from text decoded with special tokens kept: the answer is the
-text after the last </think> (Qwen3, Qwen3.6, DeepSeek-V4), after the last <channel|> (Gemma 4), or
+text after the last </think> (Qwen3, Qwen3.8, DeepSeek-V4, Muse-Glimmer), after the last <channel|> (Gemma 4), or
 the gpt-oss harmony final channel up to <|return|>/<|end|>/<|call|>. vLLM's reasoning parsers are
 not used: they serve OpenAI requests, and the gpt-oss one does not extract offline. An unclosed
 reasoning block in a thinking system is all reasoning unless generation stopped by itself.
@@ -51,14 +51,15 @@ SEED = 0
 CAP_BASE, CAP_PER_OBJECT, THINKING_ALLOWANCE = 1024, 128, 16384
 SAMPLING = {'temperature': 0.0, 'seed': SEED, 'skip_special_tokens': False, 'spaces_between_special_tokens': False}
 WEIGHTS = ('.safetensors', '.bin', '.pt', '.pth', '.gguf')
-# hours = full-run Slurm limit; smoke runs get SMOKE_MINUTES. Modes are fixed by amendment 006 (written
+# hours = full-run Slurm limit; smoke runs get SMOKE_MINUTES. Modes are fixed by amendments 006/007 (written
 # out explicitly where the template reads them); thinking systems get THINKING_ALLOWANCE in their cap.
+# 'reasoning_effort' is the template variable vLLM's server fills from a request's reasoning_effort.
 SYSTEMS = {
     'O1a': {'name': 'qwen3-8b-nothink', 'model': 'Qwen3-8B', 'tp': 1, 'hours': 3, 'split': 'think',
             'thinking': False, 'template': {'enable_thinking': False}, 'effort': 'thinking off', 'engine': {}},
     'O1b': {'name': 'qwen3-8b-think', 'model': 'Qwen3-8B', 'tp': 1, 'hours': 6, 'split': 'think',
             'thinking': True, 'template': {'enable_thinking': True}, 'effort': 'thinking on', 'engine': {}},
-    'O2': {'name': 'qwen3.6-27b', 'model': 'Qwen3.6-27B', 'tp': 2, 'hours': 8, 'split': 'think',
+    'O2': {'name': 'qwen3.8-27b', 'model': 'Qwen3.8-27B', 'tp': 2, 'hours': 8, 'split': 'think',
            'thinking': True, 'template': {'enable_thinking': True}, 'effort': 'thinking on (model default)',
            'engine': {'limit_mm_per_prompt': {'image': 0, 'video': 0}}},
     'O3': {'name': 'gemma-4-31b-it', 'model': 'gemma-4-31b-it', 'tp': 2, 'hours': 4, 'split': 'gemma',
@@ -67,12 +68,37 @@ SYSTEMS = {
     'O4': {'name': 'gpt-oss-120b', 'model': 'gpt-oss-120b', 'tp': 2, 'hours': 6, 'split': 'harmony',
            'thinking': True, 'template': {'reasoning_effort': 'medium'}, 'effort': 'medium', 'engine': {}},
     'O5': {'name': 'deepseek-v4-flash-0731', 'model': 'DeepSeek-V4-Flash-0731', 'tp': 4, 'hours': 6, 'split': 'think',
-           'thinking': True, 'template': {'thinking': True}, 'effort': 'thinking on (amendment 006)',
+           'thinking': True, 'template': {'thinking': True, 'reasoning_effort': 'high'},
+           'effort': 'thinking on, high (amendment 007; the model offers low/high/max)',
            # vLLM recipe: built-in DeepSeek-V4 encoding (no Jinja template), EP MoE, FP8 KV, block 256.
            'engine': {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8',
                       'block_size': 256, 'trust_remote_code': True}},
+    'O6': {'name': 'qwen3.8-flash-next-fp8', 'model': 'Qwen3.8-Flash-Next-FP8', 'tp': 4, 'hours': 6, 'split': 'think',
+           'thinking': True, 'template': {'enable_thinking': True, 'reasoning_effort': 'medium'},
+           'effort': 'thinking on, medium (amendment 007; the model offers xhigh/medium/low)',
+           # vLLM recipe on Hopper: TP4 + expert parallel (plain TP conflicts with its 128-wide FP8 blocks), triton MoE.
+           'engine': {'enable_expert_parallel': True, 'moe_backend': 'triton',
+                      'limit_mm_per_prompt': {'image': 0, 'video': 0}}},
+    # ponytail: no cached Muse-Glimmer chat template; '</think>' is assumed. If it closes reasoning otherwise,
+    # stopped answers carry no reasoning and the smoke fails closed ('thinking system produced no reasoning').
+    'O7': {'name': 'muse-glimmer-30b', 'model': 'Muse-Glimmer-30B', 'tp': 2, 'hours': 8, 'split': 'think',
+           'thinking': True, 'template': {}, 'effort': 'model default (no "Reasoning strength:" system line)',
+           'engine': {}},
 }
-NOT_RUN = {'kimi-k3': 'not run (exceeds one node: 1,561 GB)', 'glm-5.2': 'not run (exceeds one node: 1,507 GB)'}
+_TOO_LARGE = 'not run (exceeds one 4xGH200 node in a Hopper precision)'
+_NOT_SELECTED = 'not run (fits; not selected: lower adoption/scores or a custom vLLM build)'
+NOT_RUN = {  # Amendment 007.
+    **dict.fromkeys(('qwen3.8-2.4t-a95b', 'deepseek-v4-pro', 'kimi-k3', 'kimi-k2.6', 'minimax-m3', 'mimo-v2.6-pro',
+                     'mistral-large-3', 'nemotron-3-ultra', 'llama-4-maverick'), _TOO_LARGE),
+    'deepseek-v4.1-flash': 'not run (exceeds one node: 510 GB)',
+    'glm-5.2': 'not run (exceeds one node: 755 GB FP8)', 'glm-5.3': 'not run (exceeds one node: 755 GB FP8)',
+    'glm-5.3-flash': 'not run (FP8 328 GB leaves no KV-cache headroom on one node)',
+    'llama-4-scout': 'not run (gated without access: HTTP 403)',
+    **dict.fromkeys(('mimo-v2.6-flash', 'minimax-m2.7', 'step-3.7-flash', 'hy3', 'mistral-small-4',
+                     'mistral-medium-3.5', 'nemotron-3-super'), _NOT_SELECTED),
+    'phi': 'not run (context too short)',
+    'qwen3.6-27b': 'not run (superseded by Qwen3.8-27B)',
+}
 SMOKE_MINUTES = 90
 HARMONY_FINAL = re.compile(r'<\|channel\|>\s*final\b[^<]*(?:<\|constrain\|>[^<]*)?<\|message\|>')
 HARMONY_END = re.compile(r'<\|(?:return|end|call)\|>')

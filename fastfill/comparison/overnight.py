@@ -9,7 +9,7 @@ paths refer to the SERVER. local_code_root must be a finalized frozen snapshot.
 receipt_paths lists exact run-root-relative small training/inference receipts
 (e.g. infer-joint-002/run_receipt.json). geometry_name (geometry-v1) names the
 run-root J/P geometry dir, e.g. geometry-v2. agents (absent = J/P only) maps
-agent labels (L, O1a..O5) to run-root record dirs (evaluate_llm-style
+agent labels (L, O1a..O7) to run-root record dirs (evaluate_llm-style
 llm_harness-geometry.jsonl); when present, visual/FID/judge/tables use the
 N-system path with J and P from geometry_name, judge cap 800 (amendment 006), and
 agent_job_ids must map every agent label to the Slurm job that wrote its record
@@ -51,7 +51,7 @@ CAPS = {'total_timeout_seconds': 120 * 3600, 'render_timeout_seconds': 24 * 3600
         'api_timeout_seconds': 24 * 3600}
 TERMINAL_FAILURES = {'BOOT_FAIL', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL',
                      'OUT_OF_MEMORY', 'PREEMPTED', 'REVOKED', 'SPECIAL_EXIT', 'TIMEOUT'}
-AGENTS = ('L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5')  # visual_pipeline.SYSTEMS without J/P.
+AGENTS = ('L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7')  # visual_pipeline.SYSTEMS without J/P.
 SSH_OPTIONS = ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=30', '-o',
                'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2']
 
@@ -184,7 +184,7 @@ def validate_config(raw):
     names = [config['geometry_name'], *(agents.values() if isinstance(agents, dict) else [None])]
     if (not isinstance(agents, dict) or not set(agents) <= set(AGENTS)
             or any('/' in relative_name(n) or n == 'eval-data-v1' for n in names) or len(set(names)) != len(names)):
-        raise ValueError('geometry_name/agents must be distinct run-root directory names; agents in L, O1a..O5')
+        raise ValueError('geometry_name/agents must be distinct run-root directory names; agents in L, O1a..O7')
     agent_jobs = config.get('agent_job_ids', {})
     if (not isinstance(agent_jobs, dict) or set(agent_jobs) != set(agents)
             or any(not re.fullmatch('[1-9][0-9]*', str(v)) or str(v) in jobs for v in agent_jobs.values())):

@@ -506,8 +506,22 @@ def test_prepare_systems_fails_closed_on_labels_and_mixed_evaluation_data(tmp_pa
     with pytest.raises(ValueError, match='evaluation manifest'):
         pipeline.prepare_systems(ref, {'J': geo, 'P': geo, 'L': llm}, tmp_path / 'out', '/mock')
     assert not (tmp_path / 'out').exists()
-    assert pipeline.judged_systems(['J', 'P', 'O4', 'O5', 'O1a']) == ['J', 'P', 'O5']
+    # Amendment 007: the strongest successfully run open model, O6, else O5, else O4; others get FID only.
+    assert pipeline.judged_systems(['J', 'P', 'L', 'O1a', 'O4', 'O5', 'O6', 'O7']) == ['J', 'P', 'L', 'O6']
+    assert pipeline.judged_systems(['J', 'P', 'O4', 'O5', 'O1a', 'O7']) == ['J', 'P', 'O5']
     assert pipeline.judged_systems(['J', 'P', 'L', 'O4']) == ['J', 'P', 'L', 'O4']
+    assert pipeline.judged_systems(['J', 'P', 'L', 'O2', 'O3', 'O7']) == ['J', 'P', 'L']
+
+
+def test_check_labels_binds_amendment_007_systems_to_server_model_dirs():
+    assert pipeline.SYSTEMS[3:] == tuple(llm_open.SYSTEMS)
+    assert {s: llm_open.SYSTEMS[s]['model'] for s in ('O2', 'O3', 'O6', 'O7')} == {
+        'O2': 'Qwen3.8-27B', 'O3': 'gemma-4-31b-it', 'O6': 'Qwen3.8-Flash-Next-FP8', 'O7': 'Muse-Glimmer-30B'}
+    pipeline.check_labels({s: {'llm': {'config': agent_config(s)}} for s in llm_open.SYSTEMS})
+    for label, other in (('O6', 'O5'), ('O7', 'O2'), ('O2', 'O6')):
+        wrong = {**agent_config(label), 'engine': agent_config(other)['engine']}
+        with pytest.raises(ValueError, match=f'system label {label} '):
+            pipeline.check_labels({label: {'llm': {'config': wrong}}})
 
 
 @pytest.mark.parametrize('case', ['L_is_open_model', 'L_effort', 'O5_other_path', 'O5_other_system', 'same_dir'])
