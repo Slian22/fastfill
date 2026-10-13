@@ -14,7 +14,10 @@
 # Usage: sbatch $(python -m fastfill.comparison.llm_open slurm --system S --mode M) \
 #          isambard_llm_open.sbatch CODE_ROOT S smoke|full
 # GPUs/CPUs/memory/time per system come from llm_open.SYSTEMS (submit_llm_open.sh passes them).
-# smoke: 2 cohort rooms, exits non-zero unless both rooms got an answer and some answer had text.
+# smoke: 2 cohort rooms; exits non-zero only when the system cannot load or execute (amendment 006:
+# cap-hit reasoning or invalid answers are measured failures, and the full run still follows).
+# Preflight (fails fast, before the GPU work): cudatoolkit/nvcc for vLLM JIT kernels, and the vLLM env
+# must import shapely + fastfill.comparison.
 # Resubmitting the same system and mode resumes from receipts under the same run identity.
 set -euo pipefail
 test "$#" -eq 3
@@ -33,6 +36,11 @@ PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
 CACHE=/scratch/u6uv/shanliantian.u6uv/.cache
 SYSTEM_CACHE="$CACHE/llm-open/$SYSTEM"
 : "${SLURM_JOB_ID:?Slurm allocation required}"
+# As isambard_v1_1_pipeline.sbatch: JIT builds (FlashInfer, DeepGEMM) need the cluster nvcc.
+module load cudatoolkit
+NVCC=$(command -v nvcc) || { echo "PREFLIGHT FAIL: no nvcc after 'module load cudatoolkit'" >&2; exit 1; }
+CUDA_HOME="$(dirname "$(dirname "$NVCC")")"
+export CUDA_HOME CUDA_PATH="$CUDA_HOME" PATH="$(dirname "$PYTHON"):$CUDA_HOME/bin:$PATH"
 export PYTHONPATH="$PAIR_CODE_ROOT" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 export HF_HOME="$CACHE/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1
 export XDG_CACHE_HOME="$CACHE" VLLM_CACHE_ROOT="$SYSTEM_CACHE/vllm"
@@ -41,6 +49,9 @@ export TORCHINDUCTOR_CACHE_DIR="$SYSTEM_CACHE/torchinductor" TRITON_CACHE_DIR="$
 export VLLM_USE_FLASHINFER_SAMPLER=0 VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1 VLLM_ENGINE_READY_TIMEOUT_S=3600
 mkdir -p "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR" "$TRITON_CACHE_DIR"
 cd "$PAIR_CODE_ROOT"
+"$PYTHON" -B -c 'import shapely, fastfill.comparison.llm_open' || {
+  echo "PREFLIGHT FAIL: $PYTHON cannot import shapely + fastfill.comparison from $PAIR_CODE_ROOT;" \
+    "install shapely into the vLLM env (system $SYSTEM stays 'not run')" >&2; exit 1; }
 # The API-agent smoke normally writes the cohort first; it is deterministic and write-once, so a
 # concurrent writer is harmless (llm_open rebuilds and compares it anyway).
 test -e "$COHORT" || "$PYTHON" -B -m fastfill.comparison.llm_agent cohort \

@@ -387,6 +387,9 @@ def test_evaluator_llm_only_and_refuses_smoke_or_tampering(world):
     L.run(args(root), FakeApi(rooms))
     summary = ev.evaluate(root / 'data', root / 'cohort.json', root / 'run', root / 'eval-l', repeats=20)
     assert list(summary['arms']) == list(L.VARIANTS) and summary['paired'] == {}
+    # API receipts carry no per-answer EOS flag and the run has no cost.json: nothing is invented.
+    scored = [json.loads(x) for x in (root / 'eval-l/llm_harness-geometry.jsonl').read_text().splitlines()]
+    assert summary['llm']['cost'] is None and not any(set(ev.CAP_FLAGS) & set(r) for r in scored)
     path = root / 'run/llm_raw/records.jsonl'
     path.write_text(path.read_text().replace('"generated": true', '"generated": false', 1))
     with pytest.raises(ValueError, match='hash'):

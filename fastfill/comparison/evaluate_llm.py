@@ -11,6 +11,9 @@ evaluate_pair rule, and paired differences J-L and P-L (both L variants, pooled
 and per stratum) use geometry.paired_intervals (house-cluster bootstrap). In
 paired output, estimate_joint_minus_placement means FIRST minus SECOND arm of
 the comparison key. Without --joint/--placement only L tables are written.
+Carried through unchanged for report_v2 (not applied here): the scored answer's
+reached_token_cap/stopped_on_eos on each L geometry row where the receipts carry
+them (open models), and the run's cost.json (GPU-hours) as summary.llm.cost.
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -30,6 +33,13 @@ from fastfill.scene import norm_room_type
 ORDER = ('joint', 'placement', *llm_agent.VARIANTS)
 LABELS = {'joint': 'J', 'placement': 'P（尺寸为训练集先验）', 'llm_raw': 'L-raw', 'llm_harness': 'L-harness'}
 PAIRED_METRICS = ('complete', 'geometry_success', 'oor', 'size_log_mae', 'size_iou')
+CAP_FLAGS = ('reached_token_cap', 'stopped_on_eos')
+
+
+def _cap_flags(receipt, variant):
+    """Cap flags of the answer a variant row scores (llm_agent._finalize), where the receipt has them."""
+    answers = receipt['answers'][:1] if variant == 'llm_raw' else receipt['answers'][-1:]
+    return {k: answers[0][k] for k in CAP_FLAGS if answers and k in answers[0]}
 
 
 def _llm(root, data, cohort, cohort_sha256):
@@ -44,6 +54,13 @@ def _llm(root, data, cohort, cohort_sha256):
         raise ValueError('LLM run identity hash mismatch')
     if receipt['data']['manifest_sha256'] != h.sha256(data / 'MANIFEST.json') or receipt['cohort']['sha256'] != cohort_sha256:
         raise ValueError('LLM run data/cohort identity mismatch')
+    receipts = {}
+    for uid in cohort['uids']:
+        name = f'receipts/{llm_agent._digest(uid)}.json'  # Hash-checked by _verified.
+        stored = h.strict_json((root / name).read_text()) if name in manifest['files'] else {}
+        if stored.get('uid') != uid or stored.get('run_sha256') != receipt['run_sha256']:
+            raise ValueError('LLM receipts do not match run identity/cohort')
+        receipts[uid] = stored
     records = {}
     for variant in llm_agent.VARIANTS:
         name = variant + '/records.jsonl'
@@ -51,13 +68,15 @@ def _llm(root, data, cohort, cohort_sha256):
         if ([r['uid'] for r in rows] != cohort['uids']
                 or any(r['run_sha256'] != receipt['run_sha256'] or r['arm'] != variant for r in rows)):
             raise ValueError('LLM records do not match run identity/cohort')
-        records[variant] = rows
-    return records, receipt, result
+        records[variant] = [{**r, **_cap_flags(receipts[r['uid']], variant)} for r in rows]
+    cost = h.strict_json((root / 'cost.json').read_text()) if 'cost.json' in manifest['files'] else None
+    return records, receipt, result, cost
 
 
 def _score_llm(task):
     room, request, record = task
-    return {**e._score((room, request, {**record, 'arm': 'joint'}, 'joint')), 'arm': record['arm']}
+    return {**e._score((room, request, {**record, 'arm': 'joint'}, 'joint')), 'arm': record['arm'],
+            **{k: record[k] for k in CAP_FLAGS if k in record}}
 
 
 def _ci(item):
@@ -119,7 +138,7 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1):
     rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
     requests = {arm: h._by_uid(h._rows(data, arm + '/requests.jsonl', manifest['files'][arm + '/requests.jsonl']))
                 for arm in h.ARMS}
-    records, llm_receipt, llm_result = _llm(Path(llm), data, cohort, h.sha256(cohort_path))
+    records, llm_receipt, llm_result, llm_cost = _llm(Path(llm), data, cohort, h.sha256(cohort_path))
     jobs = {v: (_score_llm, [(rooms[r['uid']], requests['joint'][r['uid']], r) for r in rows])
             for v, rows in records.items()}
     receipts = {}
@@ -155,12 +174,14 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1):
                'arms': {n: g.summarize(rows) for n, rows in scored.items()},
                'paper_strata': {s: {n: g.aggregate(rows) for n, rows in v.items()} for s, v in strata.items()},
                'paired': paired,
-               'llm': {'run_sha256': llm_receipt['run_sha256'], 'config': llm_receipt['config'], 'result': llm_result},
+               'llm': {'run_sha256': llm_receipt['run_sha256'], 'config': llm_receipt['config'], 'result': llm_result,
+                       'cost': llm_cost},
                'inference_run_sha256': receipts, 'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
                'metric_contract': {'llm_scoring': 'evaluate_pair._score_joint_semantics_on_the_J_request',
                    'paired': 'geometry.paired_intervals_on_cohort; estimate_joint_minus_placement = first minus second arm in key',
                    'placement_size': 'train_only_prior_not_predicted', 'rate_denominator': 'all_cohort_requests',
-                   'scalar_missingness': 'conditional_on_complete_output_no_imputation'},
+                   'scalar_missingness': 'conditional_on_complete_output_no_imputation',
+                   'cap_flags': 'copied_per_row_where_receipts_carry_them_not_applied_here'},
                'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(e.__file__), Path(g.__file__),
                                                               Path(llm_agent.__file__))}}
     out.parent.mkdir(parents=True, exist_ok=True)

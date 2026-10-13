@@ -35,7 +35,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from fastfill.comparison import eval_data as evaluation, fid, render_assets as render, visual_cases
+from fastfill.comparison import eval_data as evaluation, fid, llm_agent, llm_open, render_assets as render, visual_cases
 
 ARMS = ('reference', 'joint', 'placement')
 # N-system labels (amendments 003-005): J, P, API agent L, open models O*.
@@ -113,6 +113,23 @@ def _systems(systems):
     return {s: (Path(systems[s]).resolve(), SYSTEM_ARMS.get(s, 'llm_harness')) for s in SYSTEMS if s in systems}
 
 
+def check_labels(summaries):
+    """{label: evaluation summary}: L must record the API agent (gpt-6.1-sol, reasoning medium) and
+    O* the vLLM run of that system id and its model path; other labels are not agents."""
+    for label, summary in summaries.items():
+        if label not in SYSTEMS or label in SYSTEM_ARMS:
+            continue
+        config = (summary.get('llm') or {}).get('config') or {}
+        if label == 'L':
+            ok = (config.get('model'), config.get('reasoning_effort')) == (llm_agent.EXPECTED_MODEL, llm_agent.EFFORT)
+        else:
+            path = (config.get('engine') or {}).get('model')
+            ok = (config.get('system') == label and isinstance(path, str)
+                  and Path(path).name == llm_open.SYSTEMS[label]['model'])
+        if not ok:
+            raise ValueError(f'system label {label} does not match the model its evaluation records')
+
+
 def systems_lineage(systems):
     """Per-system record-dir manifest hashes; their json_sha256 is the run's geometry lineage."""
     return {label: {'arm': arm, 'manifest_sha256': render.file_sha256(Path(root) / 'MANIFEST.json')}
@@ -176,6 +193,7 @@ def _inputs(reference_dir, systems, eval_data, lineage=None):
         if len(groups) > 1 or (groups and any(not isinstance(g, str) or not g for g in groups)):
             raise ValueError(f'geometry group mismatch/missing: {uid}')
     provenance = _provenance(ref, list(dirs), reference, references, eval_data, lineage)
+    check_labels({label: _read(root / 'summary.json') for label, (root, _) in systems.items()})
     return ref, references, predictions, _selection(ref, references), provenance, resources
 
 

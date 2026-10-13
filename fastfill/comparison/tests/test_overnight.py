@@ -120,7 +120,7 @@ def test_load_config_defaults_and_no_output_side_effects(overnight, tmp_path, co
 @pytest.mark.parametrize("field,limit", [
     ("total_timeout_seconds", 432000),
     ("render_timeout_seconds", 86400),
-    ("api_timeout_seconds", 36000),
+    ("api_timeout_seconds", 86400),  # Amendment 006: API execution cap 24 h.
 ])
 @pytest.mark.parametrize("bad", [0, -1, True, float("nan"), float("inf"), "over"])
 def test_config_rejects_invalid_timeout(overnight, tmp_path, config, field, limit, bad):
@@ -336,7 +336,7 @@ class Commands:
             state = {"terminal_failure": "FAILED", "dependency_never": "PENDING",
                      "timeout": "RUNNING"}.get(self.scenario, "COMPLETED")
             code = "1:0" if state == "FAILED" else "0:0"
-            return f"101|COMPLETED|0:0\n102|COMPLETED|0:0\n103|{state}|{code}\n"
+            return f"101|COMPLETED|0:0\n102|COMPLETED|0:0\n104|COMPLETED|0:0\n105|COMPLETED|0:0\n103|{state}|{code}\n"
         if "squeue" in command:
             self.events.append("squeue")
             return "103|PENDING|DependencyNeverSatisfied\n" if self.scenario == "dependency_never" else ""
@@ -473,9 +473,12 @@ def test_pipeline_happy_path_order_and_one_remote_launch(overnight, tmp_path, co
 
 
 def test_systems_mode_parameterized_names_render_and_judge_arms(overnight, tmp_path, config, monkeypatch):
-    config = {**config, "geometry_name": "geometry-v2", "agents": {"L": "llm-eval-001", "O5": "open-eval-o5"}}
+    config = {**config, "geometry_name": "geometry-v2", "agents": {"L": "llm-eval-001", "O5": "open-eval-o5"},
+              "agent_job_ids": {"L": "104", "O5": 105}}
     endstate, commands, _ = simulated_run(overnight, tmp_path, config, monkeypatch, "completed")
     assert endstate["status"] == "completed", endstate
+    polled = next(shlex.join(argv) for argv, _, _ in commands.calls if "sacct" in shlex.join(argv))
+    assert "101,102,104,105,103" in polled  # Agent evaluations finish before their dirs are downloaded.
     downloads = "\n".join(shlex.join(argv) for argv, _, _ in commands.calls
                           if Path(argv[0]).name == "rsync" and ":" in argv[-2])
     assert all(name in downloads for name in ("geometry-v2", "llm-eval-001", "open-eval-o5"))
@@ -492,7 +495,8 @@ def test_systems_mode_parameterized_names_render_and_judge_arms(overnight, tmp_p
 
 @pytest.mark.parametrize("agents", [None, {"L": "llm-eval-001"}])
 def test_final_tables_arguments_follow_geometry_name_and_agents(overnight, tmp_path, config, monkeypatch, agents):
-    extra = {"geometry_name": "geometry-v2", "final_tables": True, **({"agents": agents} if agents else {})}
+    extra = {"geometry_name": "geometry-v2", "final_tables": True,
+             **({"agents": agents, "agent_job_ids": {"L": "104"}} if agents else {})}
     driver = overnight.Driver(load(overnight, tmp_path, {**config, **extra}))
     calls = []
     monkeypatch.setattr(driver, "local_module", lambda module, args, timeout: calls.append([str(a) for a in args]))
@@ -508,7 +512,10 @@ def test_final_tables_arguments_follow_geometry_name_and_agents(overnight, tmp_p
 @pytest.mark.parametrize("change", [{"agents": {"J": "x"}}, {"agents": {"X": "x"}}, {"agents": ["L"]},
                                     {"agents": {"L": "geometry-v1"}}, {"agents": {"L": "a/b"}},
                                     {"agents": {"L": "d", "O5": "d"}}, {"geometry_name": "../g"},
-                                    {"geometry_name": "eval-data-v1"}])
+                                    {"geometry_name": "eval-data-v1"},
+                                    {"agents": {"L": "d"}}, {"agents": {"L": "d"}, "agent_job_ids": {"O5": "104"}},
+                                    {"agents": {"L": "d"}, "agent_job_ids": {"L": "103"}},
+                                    {"agents": {"L": "d"}, "agent_job_ids": {"L": "x"}}])
 def test_config_rejects_invalid_geometry_name_or_agents(overnight, tmp_path, config, change):
     from fastfill.comparison import visual_pipeline
     assert load(overnight, tmp_path, config)["geometry_name"] == "geometry-v1"

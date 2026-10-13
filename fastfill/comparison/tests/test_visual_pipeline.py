@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from PIL import Image
 import pytest
 
-from fastfill.comparison import render_assets as render, visual_cases
+from fastfill.comparison import llm_open, render_assets as render, visual_cases
 from fastfill.comparison import visual_pipeline as pipeline
 
 
@@ -439,9 +439,17 @@ def test_all_1009_frozen_cases_and_174_selection_accounted_without_render(tmp_pa
     assert len(json.loads((out / 'fid-manifest.json').read_text())['cases']) == 1009
 
 
-def agent_dir(tmp_path, name, cases, evaluation, fail=(), drop=()):
+def agent_config(label):
+    """The evaluate_llm summary.llm.config a system label must record (check_labels)."""
+    if label == 'L':
+        return {'model': 'gpt-6.1-sol', 'reasoning_effort': 'medium'}
+    spec = llm_open.SYSTEMS[label]
+    return {'system': label, 'model': spec['name'], 'engine': {'model': '/project/models/' + spec['model']}}
+
+
+def agent_dir(tmp_path, name, cases, evaluation, fail=(), drop=(), label='L'):
     root = tmp_path / name
-    write(root / 'summary.json', {'status': 'LLM_COMPARISON_COMPLETE',
+    write(root / 'summary.json', {'status': 'LLM_COMPARISON_COMPLETE', 'llm': {'config': agent_config(label)},
                                   'data_manifest_sha256': render.file_sha256(evaluation / 'MANIFEST.json')})
     rows(root / 'llm_harness-geometry.jsonl', [dict(
         uid=c['uid'], arm='llm_harness', source=c['source'], group='g', complete=c['uid'] not in fail,
@@ -453,7 +461,7 @@ def agent_dir(tmp_path, name, cases, evaluation, fail=(), drop=()):
 def test_prepare_systems_renders_every_system_and_keeps_per_system_failures(tmp_path, monkeypatch):
     ref, geo, evaluation, cases = fixture(tmp_path)
     llm = agent_dir(tmp_path, 'llm', cases, evaluation, fail={'room-1'}, drop={'room-2'})
-    o5, o1a = (agent_dir(tmp_path, name, cases, evaluation) for name in ('o5', 'o1a'))
+    o5, o1a = (agent_dir(tmp_path, name, cases, evaluation, label=label) for name, label in (('o5', 'O5'), ('o1a', 'O1a')))
     calls = []
     monkeypatch.setattr(pipeline.subprocess, 'run', fake_blender(calls))
     out = tmp_path / 'visual'
@@ -500,3 +508,24 @@ def test_prepare_systems_fails_closed_on_labels_and_mixed_evaluation_data(tmp_pa
     assert not (tmp_path / 'out').exists()
     assert pipeline.judged_systems(['J', 'P', 'O4', 'O5', 'O1a']) == ['J', 'P', 'O5']
     assert pipeline.judged_systems(['J', 'P', 'L', 'O4']) == ['J', 'P', 'L', 'O4']
+
+
+@pytest.mark.parametrize('case', ['L_is_open_model', 'L_effort', 'O5_other_path', 'O5_other_system', 'same_dir'])
+def test_prepare_systems_rejects_agent_label_not_matching_recorded_model(tmp_path, monkeypatch, case):
+    ref, geo, evaluation, cases = fixture(tmp_path)
+    monkeypatch.setattr(pipeline.subprocess, 'run', lambda *a, **k: pytest.fail('render launched'))
+    llm = agent_dir(tmp_path, 'llm', cases, evaluation)
+    o5 = agent_dir(tmp_path, 'o5', cases, evaluation, label='O5')
+    config = {'L_is_open_model': ('llm', agent_config('O5')),
+              'L_effort': ('llm', {**agent_config('L'), 'reasoning_effort': 'high'}),
+              'O5_other_path': ('o5', {**agent_config('O5'), 'engine': {'model': '/project/models/gpt-oss-120b'}}),
+              'O5_other_system': ('o5', {**agent_config('O5'), 'system': 'O4'})}.get(case)
+    if config:
+        summary = json.loads((tmp_path / config[0] / 'summary.json').read_text())
+        write(tmp_path / config[0] / 'summary.json', {**summary, 'llm': {'config': config[1]}})
+        seal(tmp_path / config[0])
+    systems = {'J': geo, 'P': geo, 'L': llm, 'O5': llm if case == 'same_dir' else o5}
+    with pytest.raises(ValueError, match='system label'):
+        pipeline.prepare_systems(ref, systems, tmp_path / 'out', '/mock')
+    assert not (tmp_path / 'out').exists()
+    pipeline.check_labels({'J': {}, 'P': {}, 'joint': {}, 'L': {'llm': {'config': agent_config('L')}}})

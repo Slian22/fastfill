@@ -84,6 +84,7 @@ def _verify_systems(systems, fid_path, judge_path):
             raise ValueError(f'{label}: evaluation must be complete')
     if len({s.get('data_manifest_sha256') for s in summaries.values()}) != 1:
         raise ValueError('system evaluation manifest mismatch')
+    visual_pipeline.check_labels(summaries)
     fid, judge = _read(fid_path), _read(judge_path)
     _check_visual(fid, judge, render.json_sha256(visual_pipeline.systems_lineage(systems)))
     if fid.get('systems') != list(systems):

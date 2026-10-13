@@ -2,7 +2,9 @@
 import gzip
 import json
 import math
+from pathlib import Path
 import random
+import statistics
 
 import pytest
 
@@ -138,6 +140,126 @@ def test_debias_rescoring_matches_frozen_score_and_cap_rule(built):
         assert derived['success_debiased'] == (row['geometry_success'] if row['complete'] else False)
     capped = R.cap_failure(next(r for r in rows if r['uid'] == 'x-05'))
     assert capped['complete'] is False and capped['size_log_mae'] is None and capped['error'] == R.CAP
+
+
+def _reseal(directory, summary):
+    h.write_json(directory / 'summary.json', summary)
+    manifest = json.loads((directory / 'MANIFEST.json').read_text())
+    h.write_json(directory / 'MANIFEST.json', {**manifest, 'files': {**manifest['files'],
+                                                                     'summary.json': h.sha256(directory / 'summary.json')}})
+
+
+@pytest.mark.parametrize('kind', ['running_geometry', 'agent_geometry_code', 'fid_unlisted_agent', 'judge_arms'])
+def test_refuses_other_geometry_code_or_unmatched_visual_systems(built, monkeypatch, kind):
+    root, rooms, runs = built
+    if kind == 'running_geometry':  # geometry-v2 and the agents were scored by another geometry.py.
+        monkeypatch.setattr(g, '__file__', R.__file__)
+    if kind == 'agent_geometry_code':
+        summary = json.loads((root / 'llm-eval' / 'summary.json').read_text())
+        _reseal(root / 'llm-eval', {**summary, 'code_sha256': {**summary['code_sha256'], 'geometry.py': 'c' * 64}})
+    if kind == 'fid_unlisted_agent':  # An N-system FID whose O5 has no --agent O5=DIR cannot be bound.
+        h.write_json(root / 'fid.json', {**json.loads((root / 'fid.json').read_text()), 'systems': ['J', 'P', 'O5']})
+    if kind == 'judge_arms':  # N-system judge without L although L was rendered (judged_systems).
+        records = [{**r, 'arm': {'joint': 'J', 'placement': 'P'}[r['arm']]} for r in _jsonl(root / 'judge' / 'records.jsonl')]
+        write_rows(root / 'judge' / 'records.jsonl', records)
+        h.write_json(root / 'judge' / 'summary.json', {**judge_batch.summarize(records, 'gpt-6.1-sol', len(records), ('J', 'P')),
+                                                       'provenance': {'geometry_manifest_sha256': 'x'}})
+    match = {'running_geometry': 'geometry-v2 used a geometry.py', 'agent_geometry_code': 'agent evaluation llm-eval',
+             'fid_unlisted_agent': '--agent LABEL=DIR', 'judge_arms': 'judged system set'}[kind]
+    with pytest.raises(ValueError, match=match):
+        _build(root, runs, out='bad')
+    assert not (root / 'bad').exists()
+
+
+def test_p_label_is_amendment_006_verbatim(built):
+    root, _, runs = built
+    amendment = (Path(R.__file__).parents[2] / 'docs/research/20261013-unknown-size-comparison'
+                 / 'amendment-006-agent-modes-budgets-20261013.md').read_text()
+    assert f'- P label: "{R.P_RULE}".' in amendment
+    _build(root, runs)
+    assert R.P_LABEL in (root / 'report' / 'report.md').read_text()
+
+
+def test_end_to_end_two_agents_and_n_system_visual_outputs(built, monkeypatch):
+    """geometry-v2 + API agent L + open agent O5 + FID/judge written by the merged N-system visual code."""
+    import numpy as np
+    from PIL import Image
+    from fastfill.comparison import fid as F
+    from fastfill.comparison import llm_open as O
+    from fastfill.comparison import render_assets as render
+    from fastfill.comparison import visual_pipeline as V
+    from fastfill.comparison.tests.test_llm_open import FakeLLM, argv, loader
+    root, rooms, runs = built
+    model = root / 'models' / O.SYSTEMS['O5']['model']
+    model.mkdir(parents=True)
+    (model / 'config.json').write_text('{}')
+    # O5 thinks; one first answer parses but hit the cap without EOS, so amendment 005 §3 fails that row.
+    fake = FakeLLM(rooms, {'il-bed-0': [('<think>plan</think>{valid}', 'length')]}, default='<think>plan</think>{valid}')
+    assert O.main(argv(root, 'O5', 'o5-run'), loader(fake)) == 0
+    ev.evaluate(root / 'data', root / 'cohort.json', root / 'o5-run', root / 'o5-eval', runs, repeats=200)
+    agents, labels, bed = {'L': root / 'llm-eval', 'O5': root / 'o5-eval'}, ['J', 'P', 'L', 'O5'], 'IL3D_3dfront/bedroom'
+    geometry = root / 'geometry-v2'
+    lineage = render.json_sha256(V.systems_lineage(V._systems({'J': geometry, 'P': geometry, **agents})))
+    visual, cases = root / 'visual', []
+    for i, uid in enumerate(('il-bed-0', 'il-bed-1', 'il-bed-2')):
+        images = {}
+        for j, arm in enumerate(['reference', *labels]):
+            (visual / uid).mkdir(parents=True, exist_ok=True)
+            Image.new('RGB', (512, 512), (40 * j, 60 * i, 90)).save(visual / uid / f'{arm}.png')
+            images[arm] = {'path': f'{uid}/{arm}.png', 'sha256': h.sha256(visual / uid / f'{arm}.png')}
+        cases.append({'uid': uid, 'stratum': bed, 'images': images})
+    h.write_json(visual / 'fid-manifest.json', {'cases': cases, 'systems': labels,
+                                                'provenance': {'geometry_manifest_sha256': lineage}})
+    monkeypatch.setattr(F, 'verify_weights', lambda path: F.WEIGHTS_SHA256)
+    features = lambda refs, **_: np.random.default_rng(0).normal(size=(len(refs), 2048))  # noqa: E731
+    fid = F.run_manifest(visual / 'fid-manifest.json', root / 'fid-n.json', vendor=root, weights=root / 'w', extractor=features)
+    h.write_json(root / 'fid-n.json', {**fid, 'extractor': 'pytorch_fid:0.3.0:pool3'})  # Inception mocked only.
+    base = {'J': 8, 'P': 6, 'L': 7, 'O5': 5}
+    records = [{'id': f'{u}-{a}', 'uid': u, 'arm': a, 'stratum': s, 'group': None, 'launched': True, 'status': 'completed',
+                'scores': {'functionality_score': base[a] + (u == 'il-bed-1' and a == 'J'), 'layout_score': 7,
+                           'aesthetics_score': 9, 'overall_score': 8}}
+               for u, s in (('il-bed-0', bed), ('il-bed-1', bed), ('il-bed-2', bed), ('holo-k-0', 'OptiScene_holodeck/kitchen'))
+               for a in labels]
+    (root / 'judge-n').mkdir()
+    write_rows(root / 'judge-n' / 'records.jsonl', records)
+    judged = judge_batch.summarize(records, 'gpt-6.1-sol', len(records), tuple(labels))
+    h.write_json(root / 'judge-n' / 'summary.json', {**judged, 'provenance': {'geometry_manifest_sha256': lineage}})
+
+    result = _build(root, runs, out='report-n', agents=agents, fid=root / 'fid-n.json', judge=root / 'judge-n')
+    t = result['tables']
+    assert result['visual_mode'] == {'fid': 'systems', 'judge': 'systems'}
+    t4 = {(r['stratum'], r['system']): r for r in t['T4']}
+    for label, key in (('J', 'J'), ('P', 'P'), ('L-harness', 'L'), ('O5-harness', 'O5')):
+        row = t4[bed, label]
+        assert row['fid'] == fid['strata'][bed][key + '_vs_reference'] and row['kid'] == fid['strata'][bed]['kid'][key]['kid']
+        assert row['fid_n'] == 3 and row['fid_flag'] == 'N<50' and row['kid_se'] is not None
+        assert row['gpt'] == pytest.approx(statistics.mean([base[key] + (key == 'J') / 3, 7, 9])) and row['gpt_success'] == 3
+    assert t4[bed, 'L-raw']['fid'] is None and t4[bed, 'O5-raw']['gpt'] is None  # Only harness answers are rendered.
+    assert t4['OptiScene_holodeck/kitchen', 'O5-harness']['gpt'] == pytest.approx(7)
+    endpoint = judged['endpoint']
+    assert t['T4_gpt'][0]['delta'] == {**t['T4_gpt'][0]['delta'], 'estimate': endpoint['mean_difference'],
+                                       'ci95': endpoint['ci95'], 'n': endpoint['both_complete']}
+    cost = {r['system']: r for r in t['T5_cost']}
+    assert cost['O5']['gpu_hours'] == json.loads((root / 'o5-run' / 'cost.json').read_text())['gpu_hours']
+    assert cost['O5']['reasoning'] == O.SYSTEMS['O5']['effort'] and cost['L']['model'] == L.EXPECTED_MODEL
+    assert all(cost[k][f] is not None for k in ('L', 'O5') for f in ('calls', 'input_tokens', 'output_tokens', 'latency_p50_s'))
+    t6 = {r['system']: r for r in t['T6']}
+    assert (t6['O5-harness']['token_cap_without_eos'], t6['O5-harness']['cap_rule_flipped_complete']) == (1, 1)
+    assert 'token_cap_without_eos' not in t6['L-harness'] and result['agents']['O5']['cap_rule_per_row']
+    assert 'agent_answers_reached_output_cap_not_row_applied' not in result['warnings']
+    t5 = {(r['scope'], r['system']): r for r in t['T5']}
+    assert t5['cohort', 'O5-harness']['complete_rate'] == pytest.approx(35 / 36)
+    assert {r['comparison'] for r in t['T5_contrasts']} >= {'J−O5-harness', 'P−L-harness'}
+    # Every rendered cell with an input is filled: T4 rows of the rendered systems, T5 and its contrasts.
+    report = (root / 'report-n' / 'report.md').read_text()
+    lines = report.splitlines()
+    for label in ('J', 'P', 'L-harness', 'O5-harness'):
+        assert '—' not in next(x for x in lines if x.startswith(f'| {bed} | {label} |'))
+    for scope in ('cohort', 'strata_pooled'):
+        for label in ('J', 'P', 'L-raw', 'L-harness', 'O5-raw', 'O5-harness'):
+            assert '—' not in next(x for x in lines if x.startswith(f'| {scope} | {label} |'))
+        assert all('—' not in x for x in lines if x.startswith(f'| {scope} | J−'))
+    assert 'KID 为配对 U 统计量' in report and '（N 系统裁判运行自身的 summary.endpoint）' in report
 
 
 @pytest.mark.parametrize('kind', ['reference_data', 'geometry_code', 'fid_lineage', 'agent_runs'])

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Open-weight agents (amendments 003/004); run by the parent on the Isambard login node:
-#   submit_llm_open.sh CODE_ROOT AFTER [SYSTEM ...]  (default: every system in llm_open.SYSTEMS)
+#   submit_llm_open.sh CODE_ROOT AFTER [SYSTEM ...]  (default: amendment 006 order O5 O4 O2 O3 O1a O1b)
 # AFTER: colon-separated GPU job ids every open-model job waits for (afterany), e.g. the 8 inference
 # v2 shards and both merges; '-' once they have left Slurm.
 # Per system: smoke (2 rooms, gated) -> full (afterok smoke, --kill-on-invalid-dep=yes), so a failed
@@ -9,6 +9,7 @@
 # open-model job (<= 4 GPUs) runs at a time, in submission order (max_concurrent_new_gpus = 8).
 # A CPU job (afterany all) then writes runs/unknownsize-20261013/llm-open-status.json.
 # Rerunning resumes existing outputs from receipts (same run identity), it never starts them over.
+# Any failed sbatch (or flag lookup) aborts and lists the job ids already submitted, for scancel.
 set -euo pipefail
 test "$#" -ge 2
 CODE_ROOT="$1"
@@ -23,26 +24,39 @@ test -f "$S/llm_open.py" -a -f "$S/isambard_llm_open.sbatch"
 flags() {  # flags SYSTEM MODE: sbatch resources from llm_open.SYSTEMS.
   (cd "$CODE_ROOT" && PYTHONPATH="$CODE_ROOT" "$PYTHON" -B -m fastfill.comparison.llm_open slurm --system "$1" --mode "$2")
 }
+SUBMITTED=""
+abort() {
+  echo "ABORT: $1 failed; open-model chain NOT complete. Already submitted: ${SUBMITTED:-none}" >&2
+  if test -n "$SUBMITTED"; then echo "cancel with: scancel $SUBMITTED" >&2; fi
+  exit 1
+}
+submit() {  # submit LABEL SBATCH_ARGS...; sets ID. set -e does not reach $(...), so check here.
+  local out=""
+  out=$(sbatch --parsable "${@:2}") || out=""
+  ID="${out%%;*}"
+  case "$ID" in ''|*[!0-9]*) abort "sbatch for '$1'" ;; esac
+  SUBMITTED="$SUBMITTED${SUBMITTED:+ }$ID"
+}
 SYSTEMS=("$@")
-if test "${#SYSTEMS[@]}" -eq 0; then SYSTEMS=(O1a O1b O2 O3 O4 O5); fi
-ALL=""
+if test "${#SYSTEMS[@]}" -eq 0; then SYSTEMS=(O5 O4 O2 O3 O1a O1b); fi
 for SYSTEM in "${SYSTEMS[@]}"; do
   case "$SYSTEM" in O1a|O1b|O2|O3|O4|O5) ;; *) echo "unknown system $SYSTEM" >&2; exit 2 ;; esac
-  SMOKE_FLAGS=$(flags "$SYSTEM" smoke)
-  FULL_FLAGS=$(flags "$SYSTEM" full)
-  # shellcheck disable=SC2086  # the flags are space-separated sbatch options
-  SMOKE=$(sbatch --parsable --dependency="$DEP" $SMOKE_FLAGS \
-    "$S/isambard_llm_open.sbatch" "$CODE_ROOT" "$SYSTEM" smoke)
-  SMOKE="${SMOKE%%;*}"
-  # shellcheck disable=SC2086
-  FULL=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency="afterok:$SMOKE,$DEP" $FULL_FLAGS \
-    "$S/isambard_llm_open.sbatch" "$CODE_ROOT" "$SYSTEM" full)
-  FULL="${FULL%%;*}"
-  echo "$SYSTEM smoke $SMOKE full $FULL"
-  ALL="$ALL:$SMOKE:$FULL"
 done
-STATUS=$(sbatch --parsable --account=brics.u6uv --partition=workq --qos=normal --nodes=1 --ntasks=1 \
+ALL=""
+for SYSTEM in "${SYSTEMS[@]}"; do
+  SMOKE_FLAGS=$(flags "$SYSTEM" smoke) || abort "flags for $SYSTEM smoke"
+  FULL_FLAGS=$(flags "$SYSTEM" full) || abort "flags for $SYSTEM full"
+  # shellcheck disable=SC2086  # the flags are space-separated sbatch options
+  submit "$SYSTEM smoke" --dependency="$DEP" $SMOKE_FLAGS "$S/isambard_llm_open.sbatch" "$CODE_ROOT" "$SYSTEM" smoke
+  SMOKE="$ID"
+  # shellcheck disable=SC2086
+  submit "$SYSTEM full" --kill-on-invalid-dep=yes --dependency="afterok:$SMOKE,$DEP" $FULL_FLAGS \
+    "$S/isambard_llm_open.sbatch" "$CODE_ROOT" "$SYSTEM" full
+  echo "$SYSTEM smoke $SMOKE full $ID"
+  ALL="$ALL:$SMOKE:$ID"
+done
+submit status --account=brics.u6uv --partition=workq --qos=normal --nodes=1 --ntasks=1 \
   --cpus-per-task=1 --mem=4G --gres=none --time=00:10:00 --no-requeue --dependency="afterany$ALL" \
   --output="$PROJECT_ROOT/runs/isambard/unknownsize-llm-open-status-%j.out" \
-  --wrap "cd $CODE_ROOT && PYTHONPATH=$CODE_ROOT $PYTHON -B -m fastfill.comparison.llm_open status --run-root $RUN_ROOT")
-echo "status ${STATUS%%;*}"
+  --wrap "cd $CODE_ROOT && PYTHONPATH=$CODE_ROOT $PYTHON -B -m fastfill.comparison.llm_open status --run-root $RUN_ROOT"
+echo "status $ID"
