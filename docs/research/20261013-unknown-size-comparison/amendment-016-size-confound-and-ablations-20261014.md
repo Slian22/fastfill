@@ -55,3 +55,29 @@ These breakdowns are descriptive, with no new decision rules.
 ## 6. Checker validity (descriptive)
 
 GT pass rates and failure reasons per source, and the sensitivity of GT / J / P / agent pass rates to the out-of-bounds tolerance (1 mm, 1 cm, 10 cm) and to counting tucked chairs as collisions (downstream A4) or not (frozen checker).
+
+## Addendum A (locked before any amendment-016 output exists; from a second external review)
+
+1. **Ranking criterion for §2 (fixed in advance).**
+   - **Rankings:** systems are ranked by downstream acceptance on the cohort, raw and after S1. Systems: P, O2, O4, O6, O7, and L on its subsample. The size-free ranking uses each agent's own sizes (J input). The size-fixed ranking uses P's input (sizes given).
+   - **Statistic:** Kendall τ between the two rankings, with a house-cluster bootstrap CI.
+   - **Pre-specified flips:**
+     - P vs the strongest open model (O2);
+     - P vs L;
+     - OptiScene (E2, prior-size mode) vs P.
+
+     Each is reported as a paired difference with CI in both settings.
+   - **Which sizes:** the primary result uses the train-prior sizes (P's input). GT sizes are a supplementary figure, run only for O2 and only on the pilot subsample.
+2. **gpt-6.1-sol, size-fixed:** L is re-run with P's input on a 300-room stable-hash subsample of the cohort (`sha256('a016-L:' + uid)`, stratified by object-count bin). Its size-free counterpart is the same 300 rooms from its existing run. This is within the remaining amendment-006 API call cap; one attempt plus the same harness.
+3. **Primary size evidence for §1:** the size-substitution effect per system. On the same rooms with positions, yaw and support fixed, it is pass(own sizes) − pass(prior sizes) and pass(own) − pass(GT sizes), with paired CIs, shown next to the footprint bias B. The scale curves only show sensitivity, and the GT curve is drawn on the same figure as the reference. "Steep" is never read as "gaming" on its own.
+4. **Rule-level failure table (§6):** for GT and every system (raw and after S1), the share of rooms failing each rule:
+   - downstream: R1/R2 1 mm envelope, R5, A2 door keep-out, A3 reachability, A4 AABB collisions incl. tucked chairs, A6/A7 door clearance, required-class counts;
+   - checker: OOB, support, ceiling, main/severe collisions, fixed blocking.
+
+   This table defends the GT downstream acceptance of 0.29 and shows how the metric definition drives conclusions.
+5. **§3 additions:**
+   - every arm also reports B and is stratified by object-count bin;
+   - RFT and op-dpo2 (the two key arms) get a second training seed (seed 43);
+   - rpo-dpo1 and the perturbation arm are single-seed, stated as such.
+6. **Pilot first:** §2 runs on a 300-room stable-hash pilot (`sha256('a016-pilot:' + uid)`, stratified by object-count bin) for every system before the full cohort, to get an early reading under GPU queueing. Pilot numbers are labelled as such and never replace the full results.
+7. **Wording fallback (fixed now):** if the stratified tables do not show the gap widening in dense (> 50 objects) or real-scan rooms, the paper says "evaluation must cover dense and real-scan rooms" rather than "the real difficulty is there".
