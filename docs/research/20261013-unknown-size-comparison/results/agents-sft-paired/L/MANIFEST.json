@@ -1,0 +1,10 @@
+{
+  "files": {
+    "joint-geometry.jsonl": "860fb09fb63959cdc58c74d3e5808ae129105b4ec9ad9da0d1b48d482f4fb16b",
+    "llm_harness-geometry.jsonl": "0d7a043a8f8ecda52a53920e94708ddf4e62621e5de61f1f3844529058645684",
+    "llm_raw-geometry.jsonl": "7eca92ed310cf413c06f3e8778b48174980bb15fc49666080e39f51ff591e89a",
+    "placement-geometry.jsonl": "cd26948a424467cbe015391feb1ab639f6e6d1b485a0b9c1b6214cbc5a20620f",
+    "report.md": "2a0c72f43c9d5acd38432a4f22efff693acae4d1c9ebb0c8e73d45ef92baa525",
+    "summary.json": "8c1471709a773b80e83e5eff1f1bae7f351f0a66241b61af0a760a0ec663c8b6"
+  }
+}
