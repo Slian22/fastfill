@@ -3,7 +3,7 @@ project:
   status: active
   primary_endpoint: matched_SFT_J0_vs_P0
 phase: amendments_013_016_execution (scope frozen at locked amendments 011-016; no new branches)
-observed_utc: '2026-10-14T16:26:00Z'
+observed_utc: '2026-10-14T19:55:00Z'
 scientific_status: delivered P = rpo-dpo1 (amendment 010); S1 adopted (012 dev) and applied on test; 013 on-policy DPO2, 014 OptiScene reproduction, 015 E3, 016 size-confound/ablation pending GPU queue
 jobs:
   main_data: {id: 7365659, status: COMPLETED}
@@ -79,6 +79,10 @@ handoff_20261014:
   a016_submitted: {tooling: ab2548d0d, addendum_C: 8a832aa95, snapshot: main-8a832aa95, pilots: {O2: 7409061, O6: 7409065, O4: 7409069, O7: 7409073, L_api: 7409077}, fulls: {O2: 7409081, O6: 7409085, O4: 7409089, O7: 7409093}, O2_gt_pilot: 7409103, range: 7409061-7409106, outputs: 'RUN/llm-open-SYS-P[-pilot]-001, RUN/llm-eval-SYS-P[-pilot]-v1, RUN/s1-016-size-fixed/', gpu_ceiling_min: 2010}
   a016_ablation: {snapshot: main-4a92e2f57, after: 7411904, train: {rft: 7411916, rft_s43: 7411920, pert: 7411924, op_dpo2_s43: 7411928}, dev: '7411917-7411931', score: 7411932, first_submission_cancelled: '7410434-7410451', out: RUN/dev-eval-016}
   a013_pairs: {rooms: 3000, rooms_with_pair: 1514, pairs: 4496, meets_floors: true}
+  a016_o2_full_resubmitted: {failed: 7409081 (nid010569 GPU memory taken), full: 7413029, eval: 7413031, s1: [7413033, 7413034], script: RUN/ops/resubmit_o2_full_016.sh}
+  amendments_locked_20261014_evening: {'017': '969822ad4 + 6b7b1f552 (metric roles; admission = infinite-task-world strict port)', '018': '1b0d7cdaf distil from O2', '019': '74b924f76 mesh collisions', '020': '510f4c7cc two-stage LLM size -> placer by family', '021': 'DRAFT under Agency review (diagnostics, D1 gate, one extra arm, final cross-amendment selection)'}
+  workflows_running: {a018_tooling: w2dzr2gkv, a019_mesh: w2wk22do4, source_audit: woe6d035s, a020_tooling: w3a0p9hpy}
+  pilot_results: {compare: results/compare-016-pilot-v1, single_shot_checker: {P: 0.513, O2_raw: 0.793, L: 0.947}, with_S1: {P: 0.827, O2_raw: 0.797, O2_harness: 0.923, L: 0.977}}
   a016_local: {scale_curve: 'running locally (6 workers) -> H/scale-curve-016; no cap-rule inputs locally (T6: 0 flips)', seeds_workflow: wz2dlyjv4}
   not_started:
     a016: '§2 compare (agents_016 compare, local) after pilot S1; §3 ablation after 7407094 + seeds build; §4 OptiScene+S1 after 7406363/7408062'
