@@ -1,4 +1,4 @@
-"""Score the LLM-agent arm L on its frozen cohort and pair it with J and P (amendment 002).
+"""Score an LLM agent (API agent L or open model O*) on its frozen cohort and pair it with J and P (amendment 002).
 
 python -m fastfill.comparison.evaluate_llm --data EVAL --cohort COHORT.json --llm LLM_RUN \
     [--joint MERGED_J --placement MERGED_P] --out NEW_DIR [--repeats 2000] [--workers 1]
@@ -14,6 +14,9 @@ the comparison key. Without --joint/--placement only L tables are written.
 Carried through unchanged for report_v2 (not applied here): the scored answer's
 reached_token_cap/stopped_on_eos on each L geometry row where the receipts carry
 them (open models), and the run's cost.json (GPU-hours) as summary.llm.cost.
+Rows and titles carry the agent's system id and model name from its run config (L when the config names no
+system; audit minor 17) and summary.paired_stage records the J/P policies paired with it (the stage each
+inference receipt records, sft when absent, plus its run and lineage hashes).
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -32,6 +35,10 @@ from fastfill.scene import norm_room_type
 
 ORDER = ('joint', 'placement', *llm_agent.VARIANTS)
 LABELS = {'joint': 'J', 'placement': 'P（尺寸为训练集先验）', 'llm_raw': 'L-raw', 'llm_harness': 'L-harness'}
+
+
+def labels(system):
+    return {**LABELS, 'llm_raw': f'{system}-raw', 'llm_harness': f'{system}-harness'}
 PAIRED_METRICS = ('complete', 'geometry_success', 'oor', 'size_log_mae', 'size_iou')
 CAP_FLAGS = ('reached_token_cap', 'stopped_on_eos')
 
@@ -88,9 +95,17 @@ def _ci(item):
 
 
 def _report(summary):
-    lines = ['# 未知尺寸：LLM 代理 L 与 J／P 同输入对比', '',
-             'L 收到与 J 完全相同的 system 与 user 消息，另加一条对所有请求相同的“只输出 JSON”后缀，由 J 的解析器判定。'
-             'L-raw 是第一次回答；L-harness 是至多两轮修复后的答案，修复消息只含解析器错误文本。P 的尺寸来自训练集先验，不是预测。', '',
+    s, config = summary['system'], summary['llm']['config']
+    names = labels(s)
+    stages = summary.get('paired_stage') or {}
+    paired = ('配对的 J／P 策略（推理收据记录的阶段）：' + '；'.join(
+        f"{LABELS[arm][0]} = {v['stage']}（推理 run {v['run_sha256'][:12]}"
+        + (f"，谱系 {v['lineage_sha256'][:12]}" if v.get('lineage_sha256') else '') + '）' for arm, v in stages.items())
+        + '。' if stages else '未配对 J／P，只有代理自身的表。')
+    lines = [f"# 未知尺寸：LLM 代理 {s}（{config['model']}）与 J／P 同输入对比", '',
+             f'{s} 收到与 J 完全相同的 system 与 user 消息，另加一条对所有请求相同的“只输出 JSON”后缀，由 J 的解析器判定。'
+             f'{s}-raw 是第一次回答；{s}-harness 是至多两轮重试后的答案（共至多 3 次尝试），重试消息只含异常类名'
+             '（通用重试，不含解析器错误文本）。P 的尺寸来自训练集先验，不是预测。' + paired, '',
              f"队列：{summary['cohort']['rooms']} 个测试房间（论文六层全部，加每个来源至多 30 个哈希抽样）。"
              '完整率与几何成功率以队列全部请求为分母；OOR 与尺寸指标只在完整输出上计算。单次运行，区间只覆盖房间抽样。', '',
              '## 表 1：各路线指标', '',
@@ -99,7 +114,7 @@ def _report(summary):
     scopes = [('全队列', {n: a['all'] for n, a in summary['arms'].items()}), *summary['paper_strata'].items()]
     for scope, arms in scopes:
         for name, m in arms.items():
-            lines.append(f"| {scope} | {LABELS[name]} | {m['requests']} | {m['complete_count']} | " + ' | '.join(
+            lines.append(f"| {scope} | {names[name]} | {m['requests']} | {m['complete_count']} | " + ' | '.join(
                 e._fmt(m[k]) for k in ('complete_rate', 'oor', 'size_iou', 'size_log_mae',
                                        'geometry_success_rate', 'geometry_success_repaired_rate')) + ' |')
     if summary['paired']:
@@ -109,12 +124,12 @@ def _report(summary):
         for key, scopes in summary['paired'].items():
             first, second = key.split('_minus_')
             for scope, fields in scopes.items():
-                lines.append(f"| {LABELS[first]} − {LABELS[second]} | {'全队列' if scope == 'all' else scope} | "
+                lines.append(f"| {names[first]} − {names[second]} | {'全队列' if scope == 'all' else scope} | "
                              f"{fields['complete']['paired_rooms']} | " + ' | '.join(_ci(fields[k]) for k in PAIRED_METRICS) + ' |')
     r = summary['llm']['result']
     latency = (r['latency_seconds'] or {}).get('p50')
-    lines += ['', f"## 表 3：L 调用统计（{summary['llm']['config']['model']}，推理强度 {summary['llm']['config']['reasoning_effort']}）", '',
-              '| 房间 | API 失败 | 首答合法 | 最终合法 | 回答轮数分布 | 调用（含失败重试） | 输入 tokens | 输出 tokens | 推理 tokens | 中位延迟 s |',
+    lines += ['', f"## 表 3：{s} 调用统计（{config['model']}，推理强度 {config.get('reasoning_effort', '未记录')}）", '',
+              '| 房间 | 调用失败房间 | 首答合法 | 最终合法 | 回答轮数分布 | 调用（含失败重试） | 输入 tokens | 输出 tokens | 推理 tokens | 中位延迟 s |',
               '|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|',
               f"| {r['rooms']} | {r['api_failed_rooms']} | {r['valid_first']} | {r['valid_final']} | "
               + ', '.join(f'{k}轮:{v}' for k, v in r['rounds_histogram'].items())
@@ -141,7 +156,7 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1):
     records, llm_receipt, llm_result, llm_cost = _llm(Path(llm), data, cohort, h.sha256(cohort_path))
     jobs = {v: (_score_llm, [(rooms[r['uid']], requests['joint'][r['uid']], r) for r in rows])
             for v, rows in records.items()}
-    receipts = {}
+    receipts, stages = {}, {}
     for arm, root in runs.items():
         rows, receipt = e._inference(Path(root), data, manifest['expected_uids'])
         if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
@@ -149,6 +164,8 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1):
         if receipt['config']['arm'] != arm:
             raise ValueError('run arm mismatch')
         receipts[arm] = receipt['run_sha256']
+        stages[arm] = {'stage': receipt.get('stage', 'sft'), 'run_sha256': receipt['run_sha256'],
+                       'lineage_sha256': receipt.get('lineage_sha256'), 'lora': receipt['config'].get('lora')}
         indexed = {r['uid']: r for r in rows}
         jobs[arm] = (e._score, [(rooms[uid], requests[arm][uid], indexed[uid], arm) for uid in cohort['uids']])
     scored = {}
@@ -168,7 +185,8 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1):
                   'all': g.paired_intervals(scored[arm], scored[variant], repeats=repeats),
                   **{s: g.paired_intervals(v[arm], v[variant], repeats=repeats) for s, v in strata.items()}}
               for arm in h.ARMS if arm in scored for variant in llm_agent.VARIANTS}
-    summary = {'status': 'LLM_COMPARISON_COMPLETE',
+    summary = {'status': 'LLM_COMPARISON_COMPLETE', 'system': llm_receipt['config'].get('system', 'L'),
+               'model': llm_receipt['config']['model'], 'paired_stage': stages,
                'cohort': {'rooms': len(cohort['uids']), 'sha256': h.sha256(cohort_path),
                           'uids_sha256': cohort['uids_sha256'], 'counts': cohort['counts']},
                'arms': {n: g.summarize(rows) for n, rows in scored.items()},

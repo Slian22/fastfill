@@ -6,7 +6,7 @@ python -m fastfill.comparison.stage_table --run-root RUN --report sft=REPORT_V2_
     [--selection RUN/dev-eval-010/selection.json] --out NEW_DIR
 
 Reads only small JSON evidence under the run-root layout of the DPO chain (submit_dpo_stages.sh) and the
-amendment 010 chain (submit_dev_selection.sh):
+amendment 010 chain (submit_dev_selection.sh), except the within-arm contrast below (row-level geometry and records):
 - each stage's report_v2 output dir (whole MANIFEST verified; results.json);
 - RUN/geometry-v{2,3,4,5}/summary.json, hash-checked against its MANIFEST, whose sha256 must be the
   report's geometry_MANIFEST; status GEOMETRY_COMPLETE and stage label (absent = sft, as written by
@@ -28,7 +28,14 @@ amendment 010 chain (submit_dev_selection.sh):
 Every stage report must share data, reference, repeats, seed, geometry.py and report_v2.py (or two
 report_v2.py versions in SAME_NUMBERS, audited to compute identical numbers).
 A stage without a report is 'not run' (the amendment-009 DPO2 test run: stopped, amendment 010
-addendum); a value the inputs do not carry is '未测' with its reason.
+addendum); a value the inputs do not carry is '未测' with its reason; metrics amendment 008 promised but
+no input carries (automatic acceptance, all-room rotated OOR) are '未测（修订 008 承诺）'; human UR, which amendment
+008 declared not measured, is '未测' with that reason.
+Amendment 011 section 4: p_holm only at stage sft (other stages unadjusted, secondary/descriptive); bootstrap
+p = 0 prints "< 1/R"; with sft and selected reports, the EXPLORATORY within-arm test contrast selected - SFT of
+each arm whose selected model is not SFT: Delta(a) by report_v2.contrasts on the two stages' row-level geometry
+(GEOMETRY dir rows bound by the report's geometry MANIFEST, report_v2.cap_rule with the bound inference records,
+checked against each report's T1 (a)), with the dev gain (raw and a') from the selection's dev scores.
 Outputs: stage_table.md (Chinese), one CSV per table, stage_table.json, MANIFEST.json.
 """
 import argparse
@@ -65,17 +72,23 @@ UNSCORED = '未测：修订 010 补充 2，仅报告行单独评分，本表未�
 ROLE = {'sft': (('(a)', '(b)'), '主要（确认性，protocol.md）'), 'selected': (ENDPOINTS, '次要（交付比较，修订 010）')}
 # report_v2.py versions audited to compute identical numbers: the amendment-009 SFT/DPO1 reports' (snapshot
 # main-281257f25) and the amendment-010 one; git diff 281257f25 between them changes report text only (T5 note,
-# stage roles, the selected stage). A new report_v2.py must be re-audited before it joins this set.
+# stage roles, the selected stage). A new report_v2.py must be re-audited before it joins this set. Amendment 011's
+# report_v2.py is deliberately not in it (no Holm outside SFT): its reports are accepted only when every stage
+# report was built by it (all three are regenerated from one snapshot, amendment 011 clarification).
 SAME_NUMBERS = {'181bb2fe3928026e8f2241ed109e835e70f0d9a0c29328cbfa925e2674c254e4',
                 '9bc9e0837d120ccf28325b897947c4fdfeb2c81e13d05adc30d47b9770ec3105'}
-REASONS = {'oor_rotated': '未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）',
-           'automatic_acceptance': '未测：report_v2 未输出自动接受率字段'}
+PROMISED = '未测（修订 008 承诺）'  # Audit 2026-10-14 minor 25: promised by amendment 008, carried by no input.
+REASONS = {'oor_rotated': PROMISED + '：report_v2 只按论文六层输出旋转 OOR（见六层合并列），全部房间的旋转 OOR 未汇总输出',
+           'automatic_acceptance': PROMISED + '：自动接受率未实现，report_v2 无此字段',
+           'human_ur': '未测：修订 008 已声明不测真人 UR'}
+HOLM = '不适用：Holm 只用于 SFT 阶段的确认性 (a)、(b)（修订 011 §4），本阶段 p 未校正'
+WITHIN = 'EXPLORATORY（修订 011 §4：同臂 selected − SFT，测试集配对，事后比较）'
 COLUMNS = [('stage', '阶段'), ('arm', '系统'), ('requests', '请求'), ('complete_rate', '完整率'),
            ('geometry_success', '(a) 原始几何成功率'), ('debiased_success', "(a′) 去偏成功率"),
            ('size_iou', '尺寸 IoU¹'), ('size_log_mae', '(b) 尺寸 log MAE [95% CI]²'),
            ('oor_axis', 'OOR 轴对齐¹'), ('oor_rotated', 'OOR 旋转（全部）'),
            ('oor_axis_strata', 'OOR 轴对齐（六层）³'), ('oor_rotated_strata', 'OOR 旋转（六层）³'),
-           ('automatic_acceptance', '自动接受率'), ('bias_fp', '足迹偏差 B [95% CI]²'),
+           ('automatic_acceptance', '自动接受率'), ('human_ur', '真人 UR'), ('bias_fp', '足迹偏差 B [95% CI]²'),
            ('bias_vol', '体积偏差 [95% CI]²'), ('cap_rule_flipped_complete', '上限规则翻转行')]
 VALUES = [k for k, _ in COLUMNS[2:]]
 DEV_COLUMNS = [('arm', '系统'), ('candidate', '候选'), ('requests', 'dev 请求'), ('complete_rate', '完整率'),
@@ -189,7 +202,7 @@ def load_stage(run, stage, report, selection=None):
             ds._bind(receipt, run, arm, picked[arm])  # The candidate's model, as for its dev run.
         receipts[arm] = receipt
     return {'stage': stage, 'report': report, 'results': results, 'geometry': summary, 'receipts': receipts,
-            **({'candidates': picked} if picked else {})}
+            'dirs': dirs, 'geometry_dir': run / GEOMETRY[stage], **({'candidates': picked} if picked else {})}
 
 
 def check_shared(stages):
@@ -340,15 +353,52 @@ def reference_rows(results):
 
 
 def differences(stage):
-    t = stage['results']['tables']
+    t, sft = stage['results']['tables'], stage['stage'] == 'sft'
     rows = [{'stage': stage['stage'], 'endpoint': r['endpoint'], 'delta': r['delta'], 'n': r['n'],
-             'p': r.get('p'), 'p_holm': r.get('p_holm')} for r in t['T1']]
+             'p': r.get('p'), 'p_holm': r.get('p_holm') if sft else None} for r in t['T1']]  # Amendment 011 section 4.
     rows += [{'stage': stage['stage'], 'endpoint': f"{r['field']}（房间微平均）", 'delta': r['micro'], 'n': r['micro']['n']}
              for r in t['T1b'] if r['field'] in T1B]
     scope, role = ROLE.get(stage['stage'], ((), None))
     return [{**r, 'role': role if r['endpoint'].split(' ')[0] in scope else '描述性',
-             'missing': {k: '不适用：只对 (a)、(b) 计算 p 与 Holm' for k in ('p', 'p_holm') if r.get(k) is None}}
+             'missing': {k: HOLM if k == 'p_holm' and not sft and r.get('p') is not None else '不适用：只对 (a)、(b) 计算 p 与 Holm'
+                         for k in ('p', 'p_holm') if r.get(k) is None}}
             for r in rows]
+
+
+def scored_test_rows(stage, arm):
+    """One arm's test rows as its report scored them: GEOMETRY rows bound by the report's geometry MANIFEST,
+    report_v2.cap_rule with the inference records of the bound run, checked against the report's T1 (a)."""
+    root, run = stage['geometry_dir'], stage['dirs'][arm]
+    name = arm + '-geometry.jsonl'
+    scored = h._rows(root, name, _read(root / 'MANIFEST.json')['files'][name])  # MANIFEST hash bound in load_stage.
+    records = h._rows(run, 'records.jsonl', _read(run / 'MANIFEST.json')['files']['records.jsonl'])
+    if ([r['uid'] for r in records] != [r['uid'] for r in scored]
+            or any(r['run_sha256'] != stage['receipts'][arm]['run_sha256'] for r in records)):
+        raise ValueError(f"{stage['stage']}/{arm}: inference records do not bind the evaluated run")
+    rows = R.cap_rule(scored, records)[0]
+    t1 = {r['endpoint'].split()[0]: r for r in stage['results']['tables']['T1']}['(a)'][LABELS[arm]]
+    if R._rate(rows, 'geometry_success') != t1:
+        raise ValueError(f"{stage['stage']}/{arm}: row-level geometry does not reproduce the report's (a)")
+    return rows
+
+
+def within_arm(selected, sft, picked, repeats, seed):
+    """EXPLORATORY (amendment 011 section 4): selected - SFT on test per arm whose selected model is not SFT,
+    paired with report_v2.contrasts (house components, the reports' repeats and seed); dev gain beside it."""
+    rows = []
+    for arm, label in LABELS.items():
+        candidate = selected['candidates'][arm]
+        if candidate == 'sft':
+            continue
+        delta = R.contrasts(scored_test_rows(selected, arm), scored_test_rows(sft, arm), ('geometry_success',),
+                            repeats, seed)['geometry_success']
+        dev = picked['scores']['candidates'][arm]
+        gain = {out: None if None in (dev[candidate][k], dev['sft'][k]) else dev[candidate][k] - dev['sft'][k]
+                for out, k in (('dev_gain_a', 'geometry_success_rate'), ('dev_gain_a_prime', 'a_prime'))}
+        rows.append({'arm': label, 'comparison': f'{label}-selected（{candidate}）− {label}-SFT', 'role': WITHIN,
+                     'delta': delta, 'n': delta['n'], 'p': delta['p'], **gain,
+                     'missing': {k: '未测：dev 评分无此值' for k, v in gain.items() if v is None}})
+    return rows
 
 
 def lineage_rows(stage, chain, pair_summaries):
@@ -428,6 +478,8 @@ def build(run, reports, out, selection=None, report_only=None):
                         'inference_run_sha256': stage['results']['input_sha256']['inference_run_sha256'],
                         'lineage_receipts': {arm: links[arm][_arm_stage(stage, arm)]['sha256'] for arm in h.ARMS},
                         **({'candidates': stage['candidates']} if 'candidates' in stage else {})}
+    tables['within_arm'] = (within_arm(done['selected'], done['sft'], picked, stages[0]['results']['repeats'],
+                                       stages[0]['results']['seed']) if {'selected', 'sft'} <= set(done) else [])
     warnings = sorted({w for s in stages for w in s['results'].get('warnings', [])})
     dev = picked and {'selection': str(picked['path']), 'selection_sha256': picked['sha256'], 'rule': ds.RULE,
                       'rooms': picked['scores']['candidates']['joint']['sft']['requests'], 'selected': picked['value']['selected'],
@@ -469,6 +521,11 @@ def _cell(row, key):
     return R._cell(value)
 
 
+def _p_shown(rows, repeats):
+    """Rows with p / p_holm as display text (report_v2.p_text: 0 -> '< 1/R'); None stays for its reason."""
+    return [{**r, **{k: R.p_text(r[k], repeats) for k in ('p', 'p_holm') if r.get(k) is not None}} for r in rows]
+
+
 def _md(rows, columns):
     lines = ['| ' + ' | '.join(t for _, t in columns) + ' |', '|' + '---|' * len(columns)]
     return lines + ['| ' + ' | '.join(_cell(r, k) for k, _ in columns) + ' |' for r in rows] + ['']
@@ -481,7 +538,8 @@ def _report(result):
              '两臂同一 Qwen3-8B 基座、单一训练种子；全部阶段使用同一测试请求、同一共享推理计划'
              f"（context plan sha256 {result['context_plan_sha256'][:12]}…）和冻结几何代码。"
              f"区间为房屋连通组自举 {result['repeats']} 次（种子 {result['seed']}），不覆盖训练随机性。"
-             '历史测试集曾用于诊断，不是新盲测。真人 UR 未测。', '',
+             '历史测试集曾用于诊断，不是新盲测。自动接受率与全部房间的旋转 OOR 为修订 008 承诺但未测；真人 UR 按修订 008 不测（见缺失值原因）。'
+             f"自举 p = 0 显示为 “< 1/{result['repeats']}”（没有一次抽样越过 0）。", '',
              '**评测策略（修订 009）**：SFT 行来自 infer-v2-002，SFT LoRA 在 GPU 上运行时合并（merge_and_unload_bf16）；'
              'DPO1／DPO2 行评测精确训练策略——阶段适配器不合并、按训练时的 FP32 作用于 BF16 训练基座（上一阶段合并模型）。'
              '各阶段合并后的 BF16 模型（下一阶段基座、交付产物）改变的权重比例见“训练谱系”表。'
@@ -510,14 +568,22 @@ def _report(result):
                   "(a)、(a′) 与完整率以全部 dev 请求为分母。a009-dpo1／a009-dpo2 为修订 009 阶段，按修订 010 补充只在 dev 上评分、仅作报告，不参与选择。"
                   '选定：' + '；'.join(f'{LABELS[arm]} = {c}' for arm, c in v['selected'].items()) + '。', '']
     lines += ['## 各阶段 J−P 配对差（房屋连通组自举）', '']
-    lines += _md(t['differences'], [('stage', '阶段'), ('endpoint', '终点'), ('role', '比较地位'),
-                                     ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'), ('p', '自举双侧 p'),
-                                     ('p_holm', 'Holm p（同阶段 (a)、(b) 内）')])
+    lines += _md(_p_shown(t['differences'], result['repeats']), [
+        ('stage', '阶段'), ('endpoint', '终点'), ('role', '比较地位'), ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'),
+        ('p', '自举双侧 p'), ('p_holm', 'Holm p（仅 SFT 阶段 (a)、(b) 内）')])
     lines += ['SFT 阶段 (a)、(b) J−P 为方案保留的主要（确认性）比较（Holm，protocol.md）；'
               'selected（两臂各自 dev 选定的模型）J−P 决定交付（修订 010；规则用 (b) 与 (a′)），属次要比较；'
               'DPO1、DPO2（修订 009）与其它终点为描述性估计。'
-              'Holm 只在同一阶段的 (a)、(b) 两终点内校正。', '',
-              '## 修订 005 交付规则在各阶段的结果', '']
+              'Holm 只在 SFT 阶段的 (a)、(b) 两终点内校正；其它阶段的 p 未校正（修订 011 §4）。', '']
+    if t['within_arm']:
+        lines += ['## 同臂测试对比：selected − SFT（EXPLORATORY，修订 011 §4）', '']
+        lines += _md(_p_shown(t['within_arm'], result['repeats']), [
+            ('comparison', '比较'), ('delta', 'Δ(a) 测试 [95% CI]'), ('n', '配对 n'), ('p', '自举双侧 p'),
+            ('dev_gain_a', 'dev Δ(a)（选择所用的 dev 增益）'), ('dev_gain_a_prime', "dev Δ(a′)"), ('role', '地位')])
+        lines += ['测试集全部请求上的配对差（两阶段同一请求、同一冻结几何，应用上限规则），房屋连通组自举，与报告同一抽样设计。'
+                  '本对比在测试结果已知后（修订 011）加入，属事后探索性比较；测试集未参与选择，但曾用于诊断，不是新盲测；'
+                  '选定为 SFT 的一臂不列出。', '']
+    lines += ['## 修订 005 交付规则在各阶段的结果', '']
     lines += _md(t['decisions'], [('stage', '阶段'), ('rule_outcome', '规则结果'),
                                   ('condition_i_size_log_mae', '条件 (i)'), ('condition_ii_debiased_success', '条件 (ii)'),
                                   ('note', '说明')])
@@ -532,7 +598,7 @@ def _report(result):
         lines += _md(t['pairs'], [('stage', '阶段'), ('positives', '正样本'), ('kept_both_arms', '两臂均保留'),
                                   ('verified_per_arm', '各臂验证通过'), ('dropped_by_other_arm_only', '仅因另一臂丢弃'),
                                   ('kept_by_source', '按来源')])
-    reasons = sorted({(k, v) for r in t['stages'] + t['dev'] for k, v in r['missing'].items()})
+    reasons = sorted({(k, v) for r in t['stages'] + t['dev'] + t['within_arm'] for k, v in r['missing'].items()})
     lines += ['## 缺失值原因', ''] + [f'- {k}：{v}' for k, v in reasons] + ['- 参考行的“不适用”：该参考不含此量。', 
         '', f"report_v2 警告：{', '.join(result['report_warnings']) or '无'}。",
         'stage_table.json 保存全部数值、区间与输入哈希；MANIFEST.json 固定本输出的文件哈希。']

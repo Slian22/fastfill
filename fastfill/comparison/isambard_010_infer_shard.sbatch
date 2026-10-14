@@ -19,6 +19,8 @@
 # 005 dev probe gate); e1-dpoK / rpo-dpoK: the dpo-002 / dpo-003 stage's exact trained policy (amendment 009,
 # infer_shard --model STAGE-merged --exact-policy); a009-dpoK (dev only, report-only rows of the amendment 010
 # addendum): the amendment-009 dpo-001 stage's exact policy. Decoding, receipts and resume as isambard_dpo_infer_shard.
+# rpo-dpo1-merged (dev, placement only; amendment 011 section 5 merged-weight check): the delivered BF16 merge
+# dpo-003/placement/dpo1-merged loaded as is (no --exact-policy: lora premerged_bf16_stage_model), same dev plan.
 # A timed-out shard is resubmitted with the same arguments plus --resume.
 set -euo pipefail
 test "$#" -eq 6 || { test "$#" -eq 7 && test "$7" = --resume; }
@@ -46,6 +48,8 @@ case "$CANDIDATE" in
                    --training-run "$PAIR_RUN_ROOT/sft-$PAIR_ARM-001") ;;
   e1-dpo1|e1-dpo2) MODEL_ARGS=(--model "$PAIR_RUN_ROOT/dpo-002/$PAIR_ARM/${CANDIDATE#e1-}-merged" --exact-policy) ;;
   rpo-dpo1|rpo-dpo2) MODEL_ARGS=(--model "$PAIR_RUN_ROOT/dpo-003/$PAIR_ARM/${CANDIDATE#rpo-}-merged" --exact-policy) ;;
+  rpo-dpo1-merged) test "$SET" = dev -a "$PAIR_ARM" = placement || exit 2
+       MODEL_ARGS=(--model "$PAIR_RUN_ROOT/dpo-003/placement/dpo1-merged") ;;
   a009-dpo1|a009-dpo2) test "$SET" = dev || exit 2
        MODEL_ARGS=(--model "$PAIR_RUN_ROOT/dpo-001/$PAIR_ARM/${CANDIDATE#a009-}-merged" --exact-policy) ;;
   *) exit 2 ;;

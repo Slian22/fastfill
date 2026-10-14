@@ -11,15 +11,25 @@ these entries, retaining ledger/config/input/layout/material hashes in provenanc
 This worker does not infer arm/stage mappings, render images, or download files.
 
 API: run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4,
-device='cpu'). Output is a JSON file with sibling .features.npz/.features.json.
-``extractor`` is an explicit testing hook; its outputs are labeled injected.
-CLI: python -m fastfill.comparison.fid --manifest MANIFEST --out RESULT.json
---vendor VENDOR --weights WEIGHTS [--batch-size 8 --threads 4 --device cpu].
+device='cpu', judged=None); recompute(visual_dir, out, ...) re-scores an existing
+visual_pipeline output (its fid-manifest.json and preparation.json judged set,
+both MANIFEST-verified) without re-rendering. Output is a JSON file with sibling
+.features.npz/.features.json. ``extractor`` is an explicit testing hook; its
+outputs are labeled injected.
+CLI: python -m fastfill.comparison.fid (--manifest MANIFEST | --visual-dir DIR)
+--out RESULT.json --vendor VENDOR --weights WEIGHTS [--batch-size 8 --threads 4
+--device cpu].
 FID uses sample covariance (ddof=1), separately by stratum, on the same complete
 three-arm UID intersection. N<2 has no score; strata are never averaged.
-Systems mode: a manifest key systems=[label, ...] replaces joint/placement by
-those labels; FID is then on the all-system successful intersection per
-stratum, with KID (paired U-statistic, standard error) and small_n (N<50).
+Systems mode: a manifest key systems=[label, ...] (J and P required) replaces
+joint/placement by those labels. Populations (amendment 011 section 1), per
+stratum and pooled over every manifest stratum (the six paper strata): primary =
+reference & J & P; agent/X = reference & J & P & X with J, P and X scored on the
+same rooms; judged = the all-system intersection of the pre-specified judged set
+(manifest key judged or the judged argument; required), secondary. Each has its N, KID
+(paired U-statistic, standard error) and small_n (N<50). The stratum-level
+J/P_vs_reference, kid, shared_uids and counts.shared_success are the primary
+population; agents appear only under populations.
 """
 from __future__ import annotations
 
@@ -47,12 +57,15 @@ DISCLOSURE = (
     "separately by stratum and are neither pooled nor averaged."
 )
 SYSTEMS_DISCLOSURE = (
-    "FID and KID are conditional on the per-stratum intersection of rooms where the "
-    "reference and EVERY listed system have verified images and features; N is that "
-    "intersection. Failures remain in requested counts and are never imputed. "
-    "Strata with N < 50 are flagged small_n. Scores are never pooled or averaged."
+    "Amendment 011: primary J/P FID and KID are conditional on the rooms where the reference, "
+    "J and P all have verified images and features; each agent's on reference, J, P and that "
+    "agent, with J and P re-scored on the same rooms; the all-system intersection only for the "
+    "judged set (secondary). Every population reports its N; N < 50 is flagged small_n and "
+    "N < 2 has no score. Failures remain in requested counts and are never imputed. 'pooled' "
+    "scores the union of the manifest strata as one cohort; strata are never averaged."
 )
 SMALL_N = 50
+PRIMARY = ("J", "P")
 
 
 @dataclass(frozen=True)
@@ -254,11 +267,25 @@ def _arms(data):
     if (not isinstance(systems, list) or not systems or len(set(systems)) != len(systems)
             or any(not isinstance(s, str) or not s or s == "reference" for s in systems)):
         raise ValueError("systems must be a nonempty list of unique labels")
+    if not set(PRIMARY) <= set(systems):
+        raise ValueError("systems must include J and P (amendment 011 primary population)")
     return ("reference", *systems)
 
 
-def _inspect_cases(cases, base, arms=ARMS):
-    """Inspect all arms, retaining every failure and the original denominator."""
+def _judged(judged, arms):
+    if judged is None:  # Amendment 011 section 1: the secondary population is pre-specified, never dropped.
+        raise ValueError("systems mode requires the pre-specified judged set (manifest key judged)")
+    if (not isinstance(judged, list) or len(set(judged)) != len(judged) or not set(PRIMARY) <= set(judged)
+            or not set(judged) <= set(arms[1:])):
+        raise ValueError("judged must be unique system labels including J and P")
+    return list(judged)
+
+
+def _inspect_cases(cases, base, arms=ARMS, required=None):
+    """Inspect all arms, retaining every failure and the original denominator.
+
+    candidate: no declared failure and every required arm (default: all arms) verified.
+    """
     checked, failures, memo = {}, [], {}
     for case in cases:
         uid, stratum = case["uid"], case["stratum"]
@@ -288,7 +315,8 @@ def _inspect_cases(cases, base, arms=ARMS):
             except (OSError, ValueError) as exc:
                 failures.append({"uid": uid, "stratum": stratum, "arm": arm,
                                  "reason": f"{type(exc).__name__}: {exc}"})
-        checked[uid] = {"images": good, "candidate": len(good) == len(arms) and not declared}
+        checked[uid] = {"images": good,
+                        "candidate": all(a in good for a in (required or arms)) and not declared}
     return checked, failures
 
 
@@ -344,21 +372,42 @@ def _cached_features(refs, out, *, extractor, options, weight_hash):
     return dict(zip(refs, values)), _cache_receipt(path, meta_path), None
 
 
-def _stratum_result(cases, checked, features, arms=ARMS, kid=False):
+def _stratum_result(cases, checked, features, arms=ARMS):
     shared = [case for case in cases if checked[case["uid"]]["candidate"]
               and all(ref in features for ref in checked[case["uid"]]["images"].values())]
     scores = {f"{arm}_vs_reference": None for arm in arms[1:]}
-    kids = {arm: None for arm in arms[1:]}
     if len(shared) >= 2:
         arrays = {arm: [features[checked[c["uid"]]["images"][arm]] for c in shared] for arm in arms}
         scores = {f"{arm}_vs_reference": frechet_distance(arrays[arm], arrays["reference"]) for arm in arms[1:]}
-        if kid:
-            kids = {arm: kernel_inception_distance(arrays[arm], arrays["reference"]) for arm in arms[1:]}
     return {"counts": {"requested": len(cases), "reference_eligible": sum(
                 "reference" in checked[c["uid"]]["images"] for c in cases), "shared_success": len(shared)},
             "shared_uids": [c["uid"] for c in shared], **scores,
-            **({"kid": kids, "small_n": len(shared) < SMALL_N} if kid else {}),
             "status": "ok" if len(shared) >= 2 else "insufficient_sample_size"}
+
+
+def _population(cases, checked, features, labels):
+    """FID/KID of labels vs reference on the candidate rooms where all of them have features."""
+    shared = [c["uid"] for c in cases if checked[c["uid"]]["candidate"] and all(
+        checked[c["uid"]]["images"].get(arm) in features for arm in ("reference", *labels))]
+    arrays = ({arm: [features[checked[u]["images"][arm]] for u in shared] for arm in ("reference", *labels)}
+              if len(shared) >= 2 else None)
+    return {"systems": list(labels), "n": len(shared), "uids": shared,
+            "fid": {s: frechet_distance(arrays[s], arrays["reference"]) if arrays else None for s in labels},
+            "kid": {s: kernel_inception_distance(arrays[s], arrays["reference"]) if arrays else None for s in labels},
+            "small_n": len(shared) < SMALL_N, "status": "ok" if arrays else "insufficient_sample_size"}
+
+
+def _systems_result(cases, checked, features, arms, judged):
+    """Amendment 011 populations; the legacy stratum keys carry the primary J/P population."""
+    names = {"primary": PRIMARY, **{f"agent/{s}": (*PRIMARY, s) for s in arms[1:] if s not in PRIMARY},
+             "judged": tuple(judged)}
+    populations = {name: _population(cases, checked, features, labels) for name, labels in names.items()}
+    primary = populations["primary"]
+    return {"counts": {"requested": len(cases), "reference_eligible": sum(
+                "reference" in checked[c["uid"]]["images"] for c in cases), "shared_success": primary["n"]},
+            "shared_uids": primary["uids"], **{f"{s}_vs_reference": primary["fid"][s] for s in PRIMARY},
+            "kid": primary["kid"], "small_n": primary["small_n"], "status": primary["status"],
+            "populations": populations}
 
 
 def _protect_outputs(manifest, out, weights, cases):
@@ -375,15 +424,21 @@ def _protect_outputs(manifest, out, weights, cases):
         raise ValueError("output must not overwrite inputs")
 
 
-def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, device="cpu", extractor=None):
-    """Write scores, complete failure ledger, and a hash-bound feature cache."""
+def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, device="cpu", extractor=None,
+                 judged=None):
+    """Write scores, complete failure ledger, and a hash-bound feature cache.
+
+    judged (systems mode): the pre-specified judged set; default the manifest's judged key.
+    """
     _settings(batch_size, threads, device)
     manifest, out = Path(manifest).resolve(), Path(out).resolve()
     data, cases, manifest_hash = _load_manifest(manifest)
     arms, systems = _arms(data), "systems" in data
+    judged = _judged(judged if judged is not None else data.get("judged"), arms) if systems else None
     _protect_outputs(manifest, out, weights, cases)
     weight_hash = verify_weights(weights)
-    checked, failures = _inspect_cases(cases, manifest.parent, arms)
+    # Systems mode extracts features for every image of the rooms with reference, J and P (amendment 011).
+    checked, failures = _inspect_cases(cases, manifest.parent, arms, ("reference", *PRIMARY) if systems else None)
     refs = list(dict.fromkeys(ref for c in cases if checked[c["uid"]]["candidate"]
                              for ref in checked[c["uid"]]["images"].values()))
     options = {"vendor": vendor, "weights": weights, "batch_size": batch_size,
@@ -392,8 +447,10 @@ def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, dev
     if error:
         failures = failures + [{"uid": c["uid"], "stratum": c["stratum"], "arm": "features", "reason": error}
                                for c in cases if checked[c["uid"]]["candidate"]]
-    strata = {s: _stratum_result([c for c in cases if c["stratum"] == s], checked, features, arms, systems)
-              for s in sorted({c["stratum"] for c in cases})}
+    def score(subset):
+        return (_systems_result(subset, checked, features, arms, judged) if systems
+                else _stratum_result(subset, checked, features, arms))
+    strata = {s: score([c for c in cases if c["stratum"] == s]) for s in sorted({c["stratum"] for c in cases})}
     result = {"schema_version": 1, "metric": "FID", "feature_dimension": FEATURE_DIM,
               "extractor": "injected" if extractor else "pytorch_fid:0.3.0:pool3",
               "covariance_ddof": 1, "weights_sha256": weight_hash,
@@ -405,25 +462,48 @@ def run_manifest(manifest, out, *, vendor, weights, batch_size=8, threads=4, dev
               "strata": strata, "failures": failures, "feature_cache": cache, "disclosure": DISCLOSURE}
     if systems:
         result = {**result, "systems": list(arms[1:]), "disclosure": SYSTEMS_DISCLOSURE, "small_n_threshold": SMALL_N,
+                  "amendment": "011", "primary": list(PRIMARY), "judged": judged, "pooled": score(cases),
                   "kid_definition": "cubic polynomial kernel (x.y/d+1)^3; paired U-statistic over rooms i!=j; "
                                     "first-order U-statistic standard error"}
     _json_write(out, result)
     return result
 
 
+def recompute(visual_dir, out, **options):
+    """Amendment 011: re-score an existing visual_pipeline output without re-rendering. Verifies the visual
+    MANIFEST hashes of fid-manifest.json and preparation.json, takes the judged set from preparation.json
+    (systems mode; refused when the manifest records a different one) and writes OUT outside the visual directory."""
+    visual, out = Path(visual_dir).resolve(), Path(out).resolve()
+    if out.is_relative_to(visual):
+        raise ValueError("output must be outside the visual directory")
+    files = json.loads((visual / "MANIFEST.json").read_text())["files"]
+    for name in ("fid-manifest.json", "preparation.json"):
+        if files.get(name) != file_sha256(visual / name):
+            raise ValueError(f"visual MANIFEST hash mismatch: {name}")
+    judged = json.loads((visual / "preparation.json").read_text()).get("judged")
+    recorded = json.loads((visual / "fid-manifest.json").read_text()).get("judged")
+    if None not in (judged, recorded) and judged != recorded:
+        raise ValueError("preparation.json and fid-manifest.json record different judged sets")
+    return run_manifest(visual / "fid-manifest.json", out, judged=judged, **options)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    for flag in ("manifest", "out", "vendor", "weights"):
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--manifest", type=Path)
+    source.add_argument("--visual-dir", type=Path)
+    for flag in ("out", "vendor", "weights"):
         parser.add_argument(f"--{flag}", required=True, type=Path)
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--device", default="cpu")
-    args = parser.parse_args(argv)
+    args = vars(parser.parse_args(argv))
+    visual = args.pop("visual_dir")
     try:
-        result = run_manifest(**vars(args))
+        result = recompute(visual, **{k: v for k, v in args.items() if k != "manifest"}) if visual else run_manifest(**args)
     except (OSError, ValueError) as exc:
         parser.exit(2, f"FID worker: {exc}\n")
-    print(json.dumps({"out": str(args.out), "counts": result["counts"]}))
+    print(json.dumps({"out": str(args["out"]), "counts": result["counts"]}))
     return 0
 
 

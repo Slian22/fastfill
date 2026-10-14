@@ -47,7 +47,7 @@ def test_kid_matches_naive_paired_u_statistic():
         fid.kernel_inception_distance(x[:1], y[:1])
 
 
-def test_systems_mode_all_system_intersection_kid_and_small_n(tmp_path, worker):
+def test_systems_mode_amendment_011_populations_kid_and_small_n(tmp_path, worker):
     run, calls = worker
     entry = image_entry(tmp_path)
     other = image_entry(tmp_path, "other.png", 90)
@@ -58,19 +58,69 @@ def test_systems_mode_all_system_intersection_kid_and_small_n(tmp_path, worker):
 
     cases = [systems_case("a"), systems_case("b", J=other), systems_case("c", L={"failure": "schema_incomplete"}),
              systems_case("d", P={"path": "absent.png", "sha256": entry["sha256"]}), systems_case("e", "holo")]
-    result = run(cases, systems=["J", "P", "L"])
+    result = run(cases, systems=["J", "P", "L"], judged=["J", "P", "L"])
     front = result["strata"]["front"]
-    assert front["counts"] == {"requested": 4, "reference_eligible": 4, "shared_success": 2}
-    assert front["shared_uids"] == ["a", "b"] and front["small_n"] is True
-    assert set(front["kid"]) == {"J", "P", "L"} and front["P_vs_reference"] == pytest.approx(0)
-    assert front["J_vs_reference"] > 0 and front["kid"]["P"] == {"kid": pytest.approx(0), "se": pytest.approx(0)}
-    assert result["strata"]["holo"]["kid"] == {"J": None, "P": None, "L": None}
+    # Primary = reference & J & P: an agent failure (c) no longer removes the room from J/P.
+    assert front["counts"] == {"requested": 4, "reference_eligible": 4, "shared_success": 3}
+    assert front["shared_uids"] == ["a", "b", "c"] and front["small_n"] is True and set(front["kid"]) == {"J", "P"}
+    assert front["P_vs_reference"] == pytest.approx(0) and front["J_vs_reference"] > 0 and "L_vs_reference" not in front
+    pops = front["populations"]
+    assert set(pops) == {"primary", "agent/L", "judged"} and pops["primary"]["uids"] == ["a", "b", "c"]
+    agent = pops["agent/L"]
+    assert (agent["systems"], agent["n"], agent["uids"]) == (["J", "P", "L"], 2, ["a", "b"])
+    assert agent["fid"]["L"] == pytest.approx(0) and agent["fid"]["J"] > 0 and set(agent["kid"]) == {"J", "P", "L"}
+    assert agent["fid"]["J"] != pytest.approx(pops["primary"]["fid"]["J"])  # J re-scored on the agent's rooms.
+    assert pops["judged"]["uids"] == ["a", "b"] and front["kid"]["P"] == {"kid": pytest.approx(0), "se": pytest.approx(0)}
+    holo = result["strata"]["holo"]
+    assert holo["kid"] == {"J": None, "P": None} and holo["populations"]["agent/L"]["status"] == "insufficient_sample_size"
+    pooled = result["pooled"]
+    assert pooled["shared_uids"] == ["a", "b", "c", "e"] and pooled["populations"]["agent/L"]["uids"] == ["a", "b", "e"]
+    assert pooled["counts"] == {"requested": 5, "reference_eligible": 5, "shared_success": 4}
     assert {(f["uid"], f["arm"]) for f in result["failures"]} == {("c", "L"), ("d", "P")}
-    assert result["systems"] == ["J", "P", "L"] and result["small_n_threshold"] == 50
-    assert "EVERY listed system" in result["disclosure"]
+    assert result["systems"] == ["J", "P", "L"] and result["small_n_threshold"] == 50 and result["judged"] == ["J", "P", "L"]
+    assert result["amendment"] == "011" and "Amendment 011" in result["disclosure"] and len(calls) == 1
+    with pytest.raises(ValueError, match="pre-specified judged set"):  # Never silently left out.
+        run(cases, systems=["J", "P", "L"])
     assert "kid" not in run([case("a", entry), case("b", entry)])["strata"]["front"]  # J/P path unchanged
-    with pytest.raises(ValueError, match="systems"):
-        run(cases, systems=["reference"])
+    for bad in ({"systems": ["reference"]}, {"systems": ["J", "L"]}):
+        with pytest.raises(ValueError, match="systems"):
+            run(cases, **bad)
+    with pytest.raises(ValueError, match="judged"):
+        run(cases, systems=["J", "P", "L"], judged=["J", "L"])
+
+
+def test_recompute_reuses_a_visual_output_and_verifies_its_manifest(tmp_path, monkeypatch):
+    monkeypatch.setattr(fid, "verify_weights", lambda path: fid.WEIGHTS_SHA256)
+    visual = tmp_path / "visual"
+    visual.mkdir()
+    entry = image_entry(visual)
+    cases = [{"uid": u, "stratum": "front", "images": {a: dict(entry) for a in ("reference", "J", "P", "O6")}}
+             for u in ("a", "b")]
+    (visual / "fid-manifest.json").write_text(json.dumps({"cases": cases, "systems": ["J", "P", "O6"]}))
+    (visual / "preparation.json").write_text(json.dumps({"judged": ["J", "P", "O6"]}))
+    (visual / "MANIFEST.json").write_text(json.dumps({"files": {n: fid.file_sha256(visual / n)
+                                                                for n in ("fid-manifest.json", "preparation.json")}}))
+    extract = lambda images, **kwargs: np.zeros((len(images), 2048))  # noqa: E731
+    out = tmp_path / "fid" / "fid.json"
+    result = fid.recompute(visual, out, vendor=tmp_path, weights=tmp_path / "w", extractor=extract)
+    assert result["judged"] == ["J", "P", "O6"] and result["strata"]["front"]["populations"]["judged"]["n"] == 2
+    assert result["manifest"]["path"] == str((visual / "fid-manifest.json").resolve())
+    with pytest.raises(ValueError, match="outside the visual directory"):
+        fid.recompute(visual, visual / "fid.json", vendor=tmp_path, weights=tmp_path / "w", extractor=extract)
+    seen = []
+    monkeypatch.setattr(fid, "recompute", lambda visual_dir, **kw: seen.append((visual_dir, kw)) or result)
+    assert fid.main(["--visual-dir", str(visual), "--out", str(out), "--vendor", str(tmp_path), "--weights", "w"]) == 0
+    assert seen[0][0] == visual and seen[0][1]["out"] == out and "manifest" not in seen[0][1]
+    monkeypatch.undo()
+    (visual / "preparation.json").write_text(json.dumps({"judged": ["J", "P"]}))
+    with pytest.raises(ValueError, match="MANIFEST hash mismatch: preparation.json"):
+        fid.recompute(visual, out, vendor=tmp_path, weights=tmp_path / "w", extractor=extract)
+    (visual / "fid-manifest.json").write_text(json.dumps({"cases": cases, "systems": ["J", "P", "O6"],
+                                                          "judged": ["J", "P", "O6"]}))
+    (visual / "MANIFEST.json").write_text(json.dumps({"files": {n: fid.file_sha256(visual / n)
+                                                                for n in ("fid-manifest.json", "preparation.json")}}))
+    with pytest.raises(ValueError, match="different judged sets"):
+        fid.recompute(visual, out, vendor=tmp_path, weights=tmp_path / "w", extractor=extract)
 
 
 @pytest.mark.parametrize("x,y", [(np.ones((1, 4)), np.ones((3, 4))),

@@ -31,6 +31,7 @@ def test_config_renders_completed_agents_and_judges_strongest_open_model(tmp_pat
     assert selection['included'] == ['L', 'O1a', 'O1b', 'O2', 'O3', 'O4', 'O5', 'O7']
     assert selection['excluded'] == {'O6': {'state': 'FAILED', 'exit_code': '1:0'}}
     assert selection['judged'] == ['J', 'P', 'L', 'O5'] and config['agents']['L'] == 'llm-eval-L-dpo2-v1'
+    assert selection['fid_populations'].startswith('Amendment 011: primary J/P FID')
     loaded = overnight.load_config(tmp_path / 'config.json')
     assert loaded['geometry_name'] == 'geometry-v4' and loaded['agent_job_ids']['O5'] == '7389190'
     assert loaded['api_timeout_seconds'] == 86400 and loaded['final_tables'] is True

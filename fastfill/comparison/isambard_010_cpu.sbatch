@@ -14,10 +14,12 @@
 #   build-dev                  main-data-v1 + both SFT runs' dev length admission -> dev-select-v1 (600 rooms, frozen)
 #   dev-plan                   amendment 002 shared length-sorted plan (caps) for dev-select-v1 -> dev-eval-010/plan
 #   dev-merge ARM CAND N       dev-eval-010/CAND/ARM/shard-* -> dev-eval-010/CAND/infer-ARM
+#                              (CAND rpo-dpo1-merged: placement only, amendment 011 section 5)
 #   score                      frozen geometry over the five selectable candidates -> dev-eval-010/scores
 #   score-report-only          sft + report-only a009-* (addendum 2) -> dev-eval-010/scores-report-only
 #   select                     selection rule -> dev-eval-010/selection.json, then submits the test chain
 #   selected-geometry J_DIR P_DIR   evaluate_pair --stage-label selected on eval-data-v1 -> geometry-v5
+#   check-merged               amendment 011 section 5: merged vs unmerged rpo-dpo1 (P) on dev -> dev-eval-010/merged-check
 # Every output is new-only.
 set -euo pipefail
 test "$#" -ge 2
@@ -39,7 +41,10 @@ case "$STEP" in
   dev-merge)
     test "$#" -eq 5
     case "$3" in joint|placement) ;; *) exit 2 ;; esac
-    case "$4" in sft|e1-dpo1|e1-dpo2|rpo-dpo1|rpo-dpo2|a009-dpo1|a009-dpo2) ;; *) exit 2 ;; esac
+    case "$4" in sft|e1-dpo1|e1-dpo2|rpo-dpo1|rpo-dpo2|a009-dpo1|a009-dpo2) ;;
+      rpo-dpo1-merged) test "$3" = placement || exit 2 ;;
+      *) exit 2 ;;
+    esac
     case "$5" in ''|*[!0-9]*) exit 2 ;; esac
     SHARDS=()
     for ((i = 0; i < $5; i++)); do SHARDS+=("$EVAL/$4/$3/shard-$(printf %02d "$i")"); done
@@ -58,6 +63,10 @@ case "$STEP" in
     command -v sbatch >/dev/null || echo "WARNING: no sbatch in this job; the selector prints the test chain" >&2
     ARGS=(fastfill.comparison.dev_select select --scores "$EVAL/scores" --out "$EVAL/selection.json"
           --code-root "$PAIR_CODE_ROOT" --shards 6) ;;
+  check-merged)
+    test "$#" -eq 2
+    ARGS=(fastfill.comparison.dev_select check-merged --data "$DEV" --root "$EVAL" --out "$EVAL/merged-check"
+          --workers 30) ;;
   selected-geometry)
     test "$#" -eq 4
     case "$3" in "$PAIR_RUN_ROOT"/infer-joint-[0-9][0-9][0-9]) ;; *) exit 2 ;; esac

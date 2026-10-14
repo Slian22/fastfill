@@ -37,6 +37,16 @@ final   --run-root RUN --reference REF.json --corrections UIDS.json [--agent NAM
     --selection RUN/dev-eval-010/selection.json) -> report-v2-selected-001, stage_table (amendment-009 SFT and
     DPO1 reports of record, the selected report, the dev table) -> stage-table-010-001, delivery ->
     delivery-010-001. Refuses if any of the three outputs exists.
+check-merged --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/merged-check [--workers N]
+    Amendment 011 section 5 (CPU job of submit_011.sh): the delivered P (placement rpo-dpo1) BF16 merge
+    dpo-003/placement/dpo1-merged, loaded as is (lora premerged_bf16_stage_model, no --exact-policy), run on
+    the same 600 dev rooms, shared dev plan, caps and decoding -> ROOT/rpo-dpo1-merged/infer-placement. It and
+    the unmerged rpo-dpo1 dev inference are scored exactly as score scores a candidate (complete rate, raw
+    success, size log MAE vs SFT on the common rooms, own B, a'; selection.json must be bound to ROOT/scores,
+    stage_table.load_selection, and the unmerged a', complete rate and run must equal its score there), plus the fraction of rooms whose raw output
+    text is byte-identical. The merge may be listed as a convenience artifact iff |delta a'| <= 0.01 and
+    |delta complete| <= 0.005; otherwise only adapter + training base are delivered. The model card leads with
+    adapter + training base (the evaluated policy) either way. Writes check.json + MANIFEST.json (new only).
 """
 import argparse
 import hashlib
@@ -78,6 +88,12 @@ RULE = ("eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01
         "protocol order sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2")
 FINAL = {'report': 'report-v2-selected-001', 'table': 'stage-table-010-001', 'delivery': 'delivery-010-001'}
 STAGE_REPORTS = {'sft': 'report-v2-JPL-002', 'dpo1': 'report-v2-dpo1-001'}  # Amendment-009 test reports of record.
+PREMERGED = 'premerged_bf16_stage_model'  # infer_shard --model without --exact-policy: the merged bytes as is.
+MERGED = ('placement', 'rpo-dpo1')  # Amendment 011 section 5: the delivered model whose BF16 merge is checked.
+MERGED_A_PRIME, MERGED_COMPLETE = 0.01, 0.005
+MERGED_RULE = ("merged BF16 model listed as a convenience artifact iff |a'(merged) - a'(unmerged)| <= 0.01 and "
+               "|complete(merged) - complete(unmerged)| <= 0.005 on the 600 dev rooms; otherwise only adapter + "
+               "training base are delivered; the model card leads with adapter + training base either way")
 
 
 def rank(uid):
@@ -164,7 +180,12 @@ def model_path(run_root, arm, candidate):
 def _bind(receipt, run_root, arm, candidate):
     """The merged dev inference must come from this candidate's model for this arm."""
     config = receipt['config']
-    if candidate == 'sft':
+    if candidate.endswith('-merged'):  # Amendment 011: the merged stage model's own bytes, loaded as is.
+        exact = candidate.removesuffix('-merged')
+        ok = (receipt.get('stage') == exact.split('-')[1] and config.get('lora') == PREMERGED
+              and 'model_sha256' in receipt and 'policy' not in receipt
+              and config.get('model') == str(model_path(run_root, arm, exact).resolve()))
+    elif candidate == 'sft':
         run = (Path(run_root) / f'sft-{arm}-001').resolve()
         ok = (receipt.get('stage') is None and config.get('training_run') == str(run)
               and config.get('adapter') == str(run / arm / 'adapter') and 'model' not in config)
@@ -190,15 +211,47 @@ def metrics(rows, sft_rows):
             'footprint_bias': bias, 'scale_factor': None if bias is None else math.exp(-bias / 2)}
 
 
+def _dev(data):
+    manifest = e._verified(data)
+    rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
+    requests = {arm: h._by_uid(h._rows(data, f'{arm}/requests.jsonl', manifest['files'][f'{arm}/requests.jsonl']))
+                for arm in ARMS}
+    return manifest, rooms, requests
+
+
+def _scored(root, candidate, arm, data, manifest, rooms, requests, workers):
+    """One candidate's verified, model-bound dev inference, scored by the frozen geometry (score, check-merged)."""
+    path = root / candidate / f'infer-{arm}'
+    records, receipt = e._inference(path, data, manifest['expected_uids'])
+    if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
+        raise ValueError('dev inference used other training data')
+    _bind(receipt, root.parent, arm, candidate)
+    tasks = [(rooms[r['uid']], requests[arm][r['uid']], r, arm) for r in records]
+    scored = r2._map(e._score, tasks, workers)
+    caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records]
+    rows = [r2._with_bias(r2.cap_failure(s) if c else s, rooms[s['uid']]) for s, c in zip(scored, caps)]
+    info = {'inference': {'path': str(path.resolve()), 'run_sha256': receipt['run_sha256'],
+                          'manifest_sha256': h.sha256(path / 'MANIFEST.json'),
+                          'stage': receipt.get('stage', 'sft'), 'lora': receipt['config']['lora']},
+            'token_cap_failures': sum(caps)}
+    return records, receipt, rows, info
+
+
+def _finished(rows, sft_rows, rooms, requests, arm, workers):
+    """metrics + a' (own-bias rescale, report_v2._derive) and the per-room geometry file."""
+    value = metrics(rows, sft_rows)
+    tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], value['scale_factor']) for r in rows]
+    derived = r2._map(r2._derive, tasks, workers)
+    value['a_prime'] = sum(bool(x['success_debiased']) for x in derived) / len(derived)
+    return value, d._jsonl({**r, 'success_debiased': x['success_debiased']} for r, x in zip(rows, derived))
+
+
 def score(args):
     data, root, out = Path(args.data), Path(args.root), Path(args.out)
     if os.path.lexists(out):
         raise FileExistsError(out)
-    manifest = e._verified(data)
+    manifest, rooms, requests = _dev(data)
     expected = manifest['expected_uids']
-    rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
-    requests = {arm: h._by_uid(h._rows(data, f'{arm}/requests.jsonl', manifest['files'][f'{arm}/requests.jsonl']))
-                for arm in ARMS}
     only = getattr(args, 'only', None)  # Amendment 010 addendum 2: selection does not wait for report-only rows.
     selectable, report = only != 'report-only', only != 'selectable'
     names = (CANDIDATES if selectable else ('sft',)) + (REPORT_ONLY if report else ())
@@ -206,28 +259,13 @@ def score(args):
     for arm in ARMS:
         rows, result[arm] = {}, {}
         for candidate in names:
-            path = root / candidate / f'infer-{arm}'
-            records, receipt = e._inference(path, data, expected)
-            if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
-                raise ValueError('dev inference used other training data')
-            _bind(receipt, root.parent, arm, candidate)
+            _, receipt, rows[candidate], result[arm][candidate] = _scored(root, candidate, arm, data, manifest, rooms,
+                                                                          requests, args.workers)
             plans.add(receipt['context_plan_sha256'])
-            tasks = [(rooms[r['uid']], requests[arm][r['uid']], r, arm) for r in records]
-            scored = r2._map(e._score, tasks, args.workers)
-            caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records]
-            rows[candidate] = [r2._with_bias(r2.cap_failure(s) if c else s, rooms[s['uid']]) for s, c in zip(scored, caps)]
-            result[arm][candidate] = {'inference': {'path': str(path.resolve()), 'run_sha256': receipt['run_sha256'],
-                                                    'manifest_sha256': h.sha256(path / 'MANIFEST.json'),
-                                                    'stage': receipt.get('stage', 'sft'), 'lora': receipt['config']['lora']},
-                                      'token_cap_failures': sum(caps)}
         for candidate in names:
-            value = metrics(rows[candidate], rows['sft'])
-            tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], value['scale_factor']) for r in rows[candidate]]
-            derived = r2._map(r2._derive, tasks, args.workers)
-            value['a_prime'] = sum(bool(x['success_debiased']) for x in derived) / len(derived)
+            value, files[f'{arm}-{candidate}-geometry.jsonl'] = _finished(rows[candidate], rows['sft'], rooms, requests,
+                                                                          arm, args.workers)
             result[arm][candidate].update(value)
-            files[f'{arm}-{candidate}-geometry.jsonl'] = d._jsonl(
-                {**r, 'success_debiased': x['success_debiased']} for r, x in zip(rows[candidate], derived))
     if len(plans) != 1 or None in plans:
         raise ValueError('candidates were not run on one shared dev plan')
     value = {'protocol': 'amendment-010-dev-scores', 'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
@@ -242,6 +280,67 @@ def score(args):
     d._publish_dir(out, {'scores.json': (json.dumps(value, indent=1) + '\n').encode(), **files})
     return {'status': 'DEV_SCORES_COMPLETE', **{arm: {c: round(m['a_prime'], 4) for c, m in result[arm].items()}
                                                 for arm in ARMS}}
+
+
+# ---- check-merged (amendment 011 section 5) ------------------------------------------------------
+
+def check_merged(args):
+    data, root, out = Path(args.data), Path(args.root), Path(args.out)
+    if os.path.lexists(out):
+        raise FileExistsError(out)
+    from fastfill.comparison import stage_table  # It imports this module.
+    arm, candidate = MERGED
+    selection = root / 'selection.json'
+    scored = stage_table.load_selection(selection)  # Bound to ROOT/scores and reproduced by choose.
+    if scored['value']['selected'][arm] != candidate:
+        raise ValueError(f'the delivered {arm} model is not {candidate}; nothing to check')
+    manifest, rooms, requests = _dev(data)
+    if _digest(manifest['expected_uids']) != manifest['uids_sha256']:
+        raise ValueError('dev UIDs differ from the frozen dev selection')
+    merged = candidate + '-merged'
+    names = ('sft', candidate, merged)
+    runs = {c: _scored(root, c, arm, data, manifest, rooms, requests, args.workers) for c in names}
+    plans = {runs[c][1]['context_plan_sha256'] for c in names}
+    if len(plans) != 1 or None in plans:
+        raise ValueError('merged check not on the shared dev plan')
+    same = [{k: v for k, v in runs[c][1]['config'].items() if k not in ('lora', 'shard_count')}
+            for c in (candidate, merged)]
+    if same[0] != same[1]:  # Same model dir, data, base, plan, caps and decoding; only the loading differs.
+        raise ValueError('merged and unmerged dev runs differ beyond the weight loading')
+    result, files = {}, {}
+    for c in (candidate, merged):
+        value, files[f'{arm}-{c}-geometry.jsonl'] = _finished(runs[c][2], runs['sft'][2], rooms, requests, arm,
+                                                               args.workers)
+        result[c] = {**runs[c][3], **value}
+    entry = scored['scores']['candidates'][arm][candidate]  # The unmerged rescoring is the dev score of record.
+    if any(result[candidate][k] != entry[k] for k in ('a_prime', 'complete_rate')) or (
+            result[candidate]['inference']['run_sha256'] != entry['inference']['run_sha256']):
+        raise ValueError(f'unmerged {arm}/{candidate} rescoring differs from its dev score in {selection.parent / "scores"}')
+    receipt = runs[merged][1]
+    result[merged]['model'] = {'path': receipt['config']['model'], 'model_sha256': receipt['model_sha256'],
+                               'lineage_sha256': receipt.get('lineage_sha256')}
+    identical = sum(a['raw'] is not None and a['raw'] == b['raw']
+                    for a, b in zip(runs[candidate][0], runs[merged][0], strict=True))
+    delta = {k: result[merged][k] - result[candidate][k] for k in ('complete_rate', 'geometry_success_rate', 'a_prime')}
+    listed = abs(delta['a_prime']) <= MERGED_A_PRIME + EPS and abs(delta['complete_rate']) <= MERGED_COMPLETE + EPS
+    value = {'protocol': 'amendment-011-merged-weight-check', 'arm': arm, 'candidate': candidate, 'rule': MERGED_RULE,
+             'thresholds': {'a_prime': MERGED_A_PRIME, 'complete_rate': MERGED_COMPLETE},
+             'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'), 'uids_sha256': manifest['uids_sha256'],
+             'plan_sha256': plans.pop(), 'selection_sha256': h.sha256(selection), 'rooms': len(runs[merged][0]),
+             'sft_inference': runs['sft'][3]['inference'], 'unmerged': result[candidate], 'merged': result[merged],
+             'delta_merged_minus_unmerged': delta,
+             'byte_identical': {'rooms': identical, 'fraction': identical / len(runs[merged][0])},
+             'merged_listed_as_convenience': listed,
+             'decision': 'merged_convenience_artifact' if listed else 'adapter_and_training_base_only',
+             'decision_zh': ('合并权重可列为便利产物（与未合并策略的 dev 差异在阈值内）' if listed else
+                             '仅交付 adapter + 训练基座（合并权重超出阈值，不列出）')
+                            + '；模型卡均以 adapter + 训练基座（被评测策略）为首。',
+             'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(e.__file__), Path(g.__file__),
+                                                           Path(r2.__file__))}}
+    d._publish_dir(out, {'check.json': (json.dumps(value, indent=1) + '\n').encode(), **files})
+    return {'status': 'MERGED_CHECK_COMPLETE', 'decision': value['decision'],
+            'delta': {k: round(v, 4) for k, v in delta.items()},
+            'byte_identical': round(value['byte_identical']['fraction'], 4)}
 
 
 # ---- select --------------------------------------------------------------------------------------
@@ -375,17 +474,10 @@ def select(args, run=subprocess.run, which=shutil.which):
 
 # ---- final ---------------------------------------------------------------------------------------
 
-def final(args):
-    from fastfill.comparison import delivery, stage_table  # Both import this module.
-    run = Path(args.run_root)
-    outs = {k: run / v for k, v in FINAL.items()}
-    taken = [str(p) for p in outs.values() if os.path.lexists(p)]
-    if taken:
-        raise FileExistsError(f'refusing existing outputs: {taken}')
-    selection = run / 'dev-eval-010' / 'selection.json'
-    test = h.strict_json(selection.read_text())['test']
+def complete_agents(items):
+    """NAME=DIR items -> ({name: Path} complete, {name: reason} excluded); also used by final_011."""
     agents, excluded = {}, {}
-    for item in args.agent:
+    for item in items:
         name, root = item.split('=', 1)
         if not name or '-' in name or name in agents or name in excluded:
             raise ValueError(f'agents need unique NAME=DIR with no "-" in NAME: {item}')
@@ -397,6 +489,19 @@ def final(args):
             agents[name] = Path(root)
         except (OSError, ValueError, KeyError) as exc:
             excluded[name] = f'{root}: {type(exc).__name__}: {exc}'
+    return agents, excluded
+
+
+def final(args):
+    from fastfill.comparison import delivery, stage_table  # Both import this module.
+    run = Path(args.run_root)
+    outs = {k: run / v for k, v in FINAL.items()}
+    taken = [str(p) for p in outs.values() if os.path.lexists(p)]
+    if taken:
+        raise FileExistsError(f'refusing existing outputs: {taken}')
+    selection = run / 'dev-eval-010' / 'selection.json'
+    test = h.strict_json(selection.read_text())['test']
+    agents, excluded = complete_agents(args.agent)
     print(json.dumps({'agents_included': {k: str(v) for k, v in agents.items()}, 'agents_excluded': excluded}), flush=True)
     r2.build(run / 'eval-data-v1', run / GEOMETRY, {arm: test[arm]['inference'] for arm in ARMS}, args.reference,
              outs['report'], agents, corrections=args.corrections, repeats=args.repeats, workers=args.workers,
@@ -433,12 +538,17 @@ def parse_args(argv=None):
     step.add_argument('--agent', action='append', default=[], metavar='NAME=EVAL_LLM_DIR')
     step.add_argument('--repeats', type=int, default=2000)
     step.add_argument('--workers', type=int, default=1)
+    step = sub.add_parser('check-merged')
+    for flag in ('data', 'root', 'out'):
+        step.add_argument('--' + flag, type=Path, required=True)
+    step.add_argument('--workers', type=int, default=1)
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv)
-    print(json.dumps({'build': build, 'score': score, 'select': select, 'final': final}[args.command](args)))
+    print(json.dumps({'build': build, 'score': score, 'select': select, 'final': final,
+                      'check-merged': check_merged}[args.command](args)))
 
 
 if __name__ == '__main__':

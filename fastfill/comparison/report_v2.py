@@ -3,7 +3,8 @@
 python -m fastfill.comparison.report_v2 --data EVAL --geometry GEOMETRY_V2 --joint MERGED_J \
     --placement MERGED_P --reference REFERENCE.json --out NEW_DIR [--agent NAME=EVAL_LLM_DIR ...] \
     [--fid FID.json] [--judge JUDGE_DIR] [--corrections UIDS.json] [--selection SELECTION.json] \
-    [--repeats 2000] [--workers 1]
+    [--agent-run NAME=LLM_RUN_DIR ...] [--open-status RUN/llm-open-status.json] [--not-run NAME=REASON ...] \
+    [--amendment NNN] [--repeats 2000] [--workers 1]
 
 Every input is verified fail-closed: merged J/P inference dirs (evaluate_pair._inference), the
 geometry-v2 evaluate_pair output that must bind those runs and this data, the frozen model-free
@@ -34,6 +35,21 @@ required for, and only for, stage 'selected': dev_select's selection.json whose 
 and input_sha256 its sha256. T2/T3/S1 carry house components k: report.md prints no CI when k < 10
 and flags k < 30 and rooms < 50. T5 adds each system's own B on the cohort's all-system common-complete rooms and its
 own-B (a') via _derive (EXPLORATORY). report.md renders report- and interval-level warnings.
+Amendment 011 reporting (numbers of J/P are unchanged): Holm only at stage sft (other stages unadjusted,
+secondary/descriptive); results.json 'amendment' = --amendment, default the stage's governing one (AMENDMENT);
+bootstrap p = 0 prints as "< 1/R". T1_gt: GT layouts (geometry.score of the GT answer on the J request, checked
+against the frozen gt_pass) re-scored at J's and P's exp(-B/2). T5 (EXPLORATORY throughout): scopes cohort,
+strata_pooled and other_sources (cohort rooms outside the six strata); Delta(a') beside Delta(a), Delta(b) in
+T5_contrasts (same design and draws); the equal-size control (each complete answer's x/y replaced by the GT x/y of
+the same object, z/pos/yaw/support kept, frozen checker); T5_gt (GT unscaled and at each system's own factor);
+T5_sources (cohort vs full-test source shares: the cohort is not representative); T5_cost discloses output budgets,
+modes and, with --agent-run (the agent's own LLM run dir, bound to its evaluation), cap hits per round, which also
+splits T6 agent invalid outputs into JSON/schema; T5_not_run lists systems not run (--open-status rows not
+complete, then --not-run NAME=REASON). T4_gpt_arms/T4_gpt_contrasts: per-arm pooled judge means and P-L,
+P-(judged open model), J-P (canonical endpoint) with the same stratified bootstrap. An amendment-011 fid systems
+output (strata with 'populations'): T4 J/P read the primary population (reference & J & P), each agent its own
+(reference & J & P & agent, J/P FID on the same rooms beside it); T4_fid lists every population, per stratum and
+pooled, with its N (the judged all-system intersection is secondary).
 """
 import argparse
 import collections
@@ -48,10 +64,13 @@ import tempfile
 
 from shapely.geometry import Polygon
 
+from fastfill.comparison import contract
+from fastfill.comparison import evaluate_llm
 from fastfill.comparison import evaluate_pair as e
 from fastfill.comparison import geometry as g
 from fastfill.comparison import judge_batch
 from fastfill.comparison import llm_agent
+from fastfill.comparison import llm_open
 from fastfill.comparison import render_assets as render
 from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison import visual_pipeline
@@ -79,12 +98,17 @@ INTERVAL_WARNINGS = {'singleton_source_signature_strata': '某来源签名层只
                      'too_few_valid_bootstrap_draws': '有定义的自举抽样不足，不给区间'}
 DEV_SELECTED = '修订 010：交付比较为 dev 选定模型'
 ROLE = {'sft': 'SFT 阶段：(a)、(b) 的 J−P 为方案锁定的主要（确认性）比较（protocol.md），两终点间做 Holm 校正；其余均为描述或估计。',
-        'dpo1': 'DPO1 阶段：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
+        'dpo1': 'DPO1 阶段：全部 J−P 均为描述性估计，p 未经 Holm 校正（修订 011：Holm 只用于 SFT 确认性比较）；'
                 f'主要（确认性）比较为 SFT J0/P0（protocol.md），{DEV_SELECTED}。',
-        'dpo2': 'DPO2 阶段（修订 009）：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
+        'dpo2': 'DPO2 阶段（修订 009）：全部 J−P 均为描述性估计，p 未经 Holm 校正（修订 011：Holm 只用于 SFT 确认性比较）；'
                 f'主要（确认性）比较为 SFT J0/P0（protocol.md），{DEV_SELECTED}。',
         'selected': 'dev 选定模型（修订 010）：(a)、(b) 及交付规则所用的 (a′) 的 J−P 为有约束力的交付比较（两臂各自在 dev 上选定的两个模型），'
-                    'Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；主要（确认性）比较仍为 SFT J0/P0（protocol.md）。'}
+                    '属次要比较，p 未经 Holm 校正（修订 011：Holm 只用于 SFT 确认性比较）；主要（确认性）比较仍为 SFT J0/P0（protocol.md）。'}
+AMENDMENT = {'sft': '006', 'dpo1': '009', 'dpo2': '009', 'selected': '010'}  # Governing amendment per stage.
+REPORTING = '011'
+SCOPES = (('cohort', lambda r: True), ('strata_pooled', lambda r: bool(stratum(r))),
+          ('other_sources', lambda r: not stratum(r)))  # T5 scopes; other_sources = cohort rooms outside the strata.
+MODE_NOTES = {'muse-glimmer-30b': '聊天模板默认推理强度为 high（修订 007 核查）'}  # Audit 2026-10-14 minor 20.
 T1_ROLE = {'sft': 'SFT：主要确认性比较', 'dpo1': 'DPO1：描述性', 'dpo2': 'DPO2：描述性',
            'selected': 'dev 选定模型：有约束力的交付比较（修订 010）'}
 
@@ -130,6 +154,18 @@ def cap_failure(row):
             'error': CAP, 'raw_layout': None, 'repaired_layout': None, **{k: None for k in g.SCALARS}}
 
 
+def cap_rule(scored, records):
+    """Amendment 005 section 3 on J/P rows: a cap hit without EOS fails; -> (rows, scorable rows it flipped)."""
+    caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records]
+    return ([cap_failure(r) if c else r for r, c in zip(scored, caps, strict=True)],
+            sum(c and r['complete'] for c, r in zip(caps, scored)))
+
+
+def p_text(p, repeats):
+    """Bootstrap p for display: 0 means no draw crossed zero, i.e. p < 1/R (audit 2026-10-14 minor 7)."""
+    return p if p is None else f'< 1/{repeats}' if p == 0 else f'{p:.4f}'
+
+
 def _with_bias(row, room):
     fp, vol = size_bias(room['objects'], row['raw_layout']) if row['complete'] else (None, None)
     return {**row, 'bias_fp': fp, 'bias_vol': vol}
@@ -142,13 +178,34 @@ def _derive(task):
     if not row['complete']:
         return {'oor_rotated': None, 'success_debiased': debiased}
     if factor is not None:
-        req = h.strict_json(request['messages'][1]['content'])
-        objects = [{**o, 'size': [o['size'][0] * factor, o['size'][1] * factor, o['size'][2]]}
-                   for o in row['raw_layout']]
-        pred = {**room, 'objects': objects, 'fixed': [{**f, 'yaw': math.radians(f['yaw'])} for f in req.get('fixed', [])],
-                'boundary': req['boundary'], 'height': req.get('height'), 'constraints': []}
-        debiased = g.geometry(pred)['geometry_success']
+        debiased = _rescore(room, request, [{**o, 'size': [o['size'][0] * factor, o['size'][1] * factor, o['size'][2]]}
+                                            for o in row['raw_layout']])
     return {'oor_rotated': rotated_oor(row['raw_layout']), 'success_debiased': debiased}
+
+
+def _rescore(room, request, objects):
+    """geometry_success of these objects on the request context, exactly as geometry.score builds it."""
+    req = h.strict_json(request['messages'][1]['content'])
+    pred = {**room, 'objects': objects, 'fixed': [{**f, 'yaw': math.radians(f['yaw'])} for f in req.get('fixed', [])],
+            'boundary': req['boundary'], 'height': req.get('height'), 'constraints': []}
+    return g.geometry(pred)['geometry_success']
+
+
+def _control(task):
+    """EXPLORATORY controls (amendment 011) on a complete row, else False: x/y scaled by `factor`, or (factor None,
+    the equal-size control) each object's x/y replaced by the GT x/y of that object; z, pos, yaw, support kept."""
+    row, room, request, factor = task
+    if not row['complete']:
+        return False
+    return _rescore(room, request, [{**o, 'size': ([o['size'][0] * factor, o['size'][1] * factor] if factor is not None
+                                                   else list(gt['size'][:2])) + [o['size'][2]]}
+                                    for o, gt in zip(row['raw_layout'], room['objects'], strict=True)])
+
+
+def _gt(task):
+    """The GT layout scored as reference_rows scores it: geometry.score of the GT answer on the J request."""
+    room, request = task
+    return g.score(room, request['messages'], contract.messages(room, 'joint')[2]['content'], 'joint')
 
 
 def _map(function, tasks, workers):
@@ -200,6 +257,12 @@ def delivery(size_mae, debiased):
             'condition_ii_debiased_success': second, 'margin': MARGIN,
             'inputs': {'b_size_log_mae_joint_minus_placement': size_mae,
                        'a_prime_debiased_success_joint_minus_placement': debiased}}
+
+
+def _mean(values):
+    """Mean of numbers or booleans; None for no values (or None)."""
+    values = None if values is None else list(values)
+    return sum(values) / len(values) if values else None
 
 
 def _rate(rows, key):
@@ -315,6 +378,52 @@ def _agent(root, data_sha, run_hashes):
     return rows, summary, uids
 
 
+def _agent_run(root, data, summary):
+    """The agent's own LLM run, bound to the run its evaluation scored: answer text per variant (T6 JSON/schema
+    split) and answers that hit the output cap per round (amendment 011 disclosure)."""
+    records, receipt, _, _ = evaluate_llm._llm(Path(root), Path(data), llm_agent.build_cohort(data), summary['cohort']['sha256'])
+    if receipt['run_sha256'] != summary['llm']['run_sha256']:
+        raise ValueError(f'agent run {Path(root).name} is not the run its evaluation scored')
+    rounds = [0] * (llm_agent.REPAIRS + 1)
+    for uid in (r['uid'] for r in records['llm_raw']):  # Receipts hash-checked by evaluate_llm._llm.
+        answers = h.strict_json((Path(root) / f'receipts/{llm_agent._digest(uid)}.json').read_text())['answers']
+        for k, answer in enumerate(answers):
+            rounds[k] += answer.get('incomplete_reason') == 'max_output_tokens'
+    if sum(rounds) != (summary['llm']['result'].get('reached_token_cap') or 0):
+        raise ValueError(f'agent run {Path(root).name}: per-round cap hits disagree with its result')
+    return records, rounds
+
+
+def not_run_rows(open_status, extra, agents):
+    """Systems not run with their reason (amendment 007): llm_open status rows not complete, then NAME=REASON;
+    a complete open system must be in the report and a reported system cannot be listed."""
+    rows = {}
+    for name, v in (_json(open_status) if open_status else {}).items():
+        if v.get('state') != 'complete':
+            rows[name] = {'system': name, 'model': v.get('model'), 'state': v.get('state'), 'reason': v.get('reason')}
+        elif name not in agents:
+            raise ValueError(f'{name} is complete in the open-model status but not reported (--agent {name}=DIR)')
+    for name, reason in (extra or {}).items():
+        rows[name] = {**rows.get(name, {'system': name, 'model': llm_open.SYSTEMS.get(name, {}).get('name'),
+                                        'state': 'not run'}), 'reason': reason}
+    if set(rows) & set(agents):
+        raise ValueError('a reported system is also listed as not run')
+    return list(rows.values())
+
+
+def _budget(config):
+    """Output-token budget per answer as the run's own config states it (J/P receipt, L, open models)."""
+    cap = config.get('cap')  # Open models (llm_open); L carries max_output_tokens, J/P receipts cap_base.
+    if 'max_output_tokens' in config:
+        return f"{config['max_output_tokens']:,}（固定）"
+    if cap:
+        think = f" + {cap['thinking_allowance']:,}（思考）" if cap.get('thinking_allowance') else ''
+        return f"min({cap['base']:,} + {cap['per_object']}·物体{think}, {config['engine']['max_model_len']:,} − 提示)"
+    if 'cap_base' in config:
+        return f"min({config['cap_base']:,} + {config['cap_per_object']}·批内最大物体, {config['context_budget']:,} − 批宽)"
+    return None
+
+
 def _lineage(geometry, agents, labels):
     """geometry_manifest_sha256 a visual run must carry: the geometry MANIFEST hash (J/P run, labels
     None) or json_sha256(systems_lineage) over J/P = geometry and each agent label's evaluation dir."""
@@ -361,23 +470,28 @@ def _judge(root, geometry, agents, labels):
 def _gpt(root, geometry, agents, labels, repeats):
     records, summary = _judge(root, geometry, agents, labels)
     if 'arms' not in summary:
-        return gpt_endpoint(records, repeats)
-    e = summary['endpoint']  # N-system run: the judge's own stratified-bootstrap endpoint is canonical.
-    return {**gpt_endpoint(records, repeats, tuple(summary['arms'])),
-            'pooled': {'estimate': e['mean_difference'], 'ci95': e['ci95'], 'n': e['both_complete'],
-                       'source': 'judge_batch summary.endpoint', 'bootstrap': e['bootstrap']}}
+        result = gpt_endpoint(records, repeats)
+    else:
+        e = summary['endpoint']  # N-system run: the judge's own stratified-bootstrap endpoint is canonical.
+        result = {**gpt_endpoint(records, repeats, tuple(summary['arms'])),
+                  'pooled': {'estimate': e['mean_difference'], 'ci95': e['ci95'], 'n': e['both_complete'],
+                             'source': 'judge_batch summary.endpoint', 'bootstrap': e['bootstrap']}}
+    means, contrast = gpt_arms(records, result['arms'], result['pooled'], repeats)
+    return {**result, 'arm_means': means, 'contrasts': contrast}
+
+
+def _mean3(r):
+    return statistics.mean(r['scores'][k] for k in GPT_KEYS)
 
 
 def gpt_endpoint(records, repeats, arms=judge_batch.ARMS, seed=SEED):
     """Section 5: room mean of three sub-scores; J-P on both-complete rooms, resampled within stratum."""
-    def mean3(r):
-        return statistics.mean(r['scores'][k] for k in GPT_KEYS)
     by = {(r['uid'], r['arm']): r for r in records}
     diffs = collections.defaultdict(list)
     for uid, name in sorted({(r['uid'], r['stratum']) for r in records}):
         a, b = by.get((uid, arms[0])), by.get((uid, arms[1]))
         if a and b and a['status'] == b['status'] == 'completed':
-            diffs[name].append(mean3(a) - mean3(b))
+            diffs[name].append(_mean3(a) - _mean3(b))
     pooled = [d for s in sorted(diffs) for d in diffs[s]]
     rng = random.Random(seed)
     draws = [statistics.mean([rng.choice(diffs[s]) for s in sorted(diffs) for _ in diffs[s]])
@@ -385,12 +499,28 @@ def gpt_endpoint(records, repeats, arms=judge_batch.ARMS, seed=SEED):
     by_arm = {(r['stratum'], r['arm']): [] for r in records}
     for r in records:
         if r['status'] == 'completed':
-            by_arm[r['stratum'], r['arm']].append(mean3(r))
+            by_arm[r['stratum'], r['arm']].append(_mean3(r))
     return {'arms': list(arms), 'pooled': {'estimate': statistics.mean(pooled) if pooled else None, 'n': len(pooled),
                        'ci95': [g._quantile(draws, .025), g._quantile(draws, .975)] if draws else None},
             'difference_by_stratum': {s: {'n': len(v), 'mean_difference': statistics.mean(v)} for s, v in diffs.items()},
             'arm_by_stratum': {f'{s}|{a}': {'success': len(v), 'requested': sum(r['stratum'] == s and r['arm'] == a
                                for r in records), 'mean': statistics.fmean(v) if v else None} for (s, a), v in by_arm.items()}}
+
+
+def gpt_arms(records, arms, canonical, repeats):
+    """Amendment 011 section 2 (estimation only): each judged arm's pooled mean on the judged selection, and P-L,
+    P-(judged open model), J-P (= the canonical endpoint) paired, resampled within stratum as gpt_endpoint."""
+    label = {'joint': 'J', 'placement': 'P'}
+    by = {label.get(a, a): a for a in arms}
+    means = []
+    for system, arm in by.items():
+        values = [_mean3(r) for r in records if r['arm'] == arm and r['status'] == 'completed']
+        means.append({'system': system, 'mean': statistics.fmean(values) if values else None, 'success': len(values),
+                      'requested': sum(r['arm'] == arm for r in records)})
+    pairs = [('P', 'L'), *(('P', s) for s in by if s not in ('J', 'P', 'L')), ('J', 'P')]
+    contrast = [{'comparison': f'{a}−{b}', 'delta': d, 'n': d['n']} for a, b in pairs if a in by and b in by
+                for d in [canonical if (a, b) == ('J', 'P') else gpt_endpoint(records, repeats, (by[a], by[b]))['pooled']]]
+    return means, contrast
 
 
 def _parses(raw):
@@ -505,10 +635,14 @@ def _aggregate(rows):
 
 
 def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=None, corrections=None,
-          repeats=2000, workers=1, selection=None):
+          repeats=2000, workers=1, selection=None, agent_runs=None, open_status=None, not_run=None, amendment=None):
     data, geometry, out = Path(data), Path(geometry), Path(out)
     if out.exists():
         raise FileExistsError(out)
+    # Disclosure inputs fail before the heavy J/P and agent scoring (agent_meta below is keyed by the --agent names).
+    if not set(agent_runs or {}) <= set(agents or {}):
+        raise ValueError('--agent-run names an agent without --agent')
+    absent = not_run_rows(open_status, not_run, set(agents or {}))
     manifest = e._verified(data)
     expected, data_sha = manifest['expected_uids'], h.sha256(data / 'MANIFEST.json')
     rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
@@ -525,9 +659,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     models = _selection(selection, runs, summary) if selection else None
     rows, cap_complete = {}, {}
     for arm in h.ARMS:
-        caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records[arm]]
-        cap_complete[arm] = sum(c and r['complete'] for c, r in zip(caps, scored[arm]))
-        rows[arm] = [_with_bias(cap_failure(r) if c else r, rooms[r['uid']]) for r, c in zip(scored[arm], caps)]
+        capped, cap_complete[arm] = cap_rule(scored[arm], records[arm])
+        rows[arm] = [_with_bias(r, rooms[r['uid']]) for r in capped]
     both = [a['complete'] and b['complete'] for a, b in zip(rows['joint'], rows['placement'])]
     bias = {arm: statistics.mean(r['bias_fp'] for r, c in zip(rows[arm], both) if c) if any(both) else None
             for arm in h.ARMS}
@@ -553,18 +686,36 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
             derived = _map(_derive, [(r, rooms[r['uid']], None, None) for r in vrows], workers)
             systems[label] = [{**r, **d} for r, d in zip(vrows, derived)]
     visual_pipeline.check_labels(agent_meta)
+    agent_raw, cap_rounds = {}, {}
+    for name, root in (agent_runs or {}).items():
+        agent_raw[name], cap_rounds[name] = _agent_run(root, data, agent_meta[name])
     fid_result = _fid(fid, geometry, agents) if fid else None
     gpt = _gpt(Path(judge), geometry, agents, (fid_result or {}).get('systems'), repeats) if judge else None
     corrected = set(_json(corrections)) if corrections else None
     if corrected is not None and not corrected <= set(expected):
         raise ValueError('correction UIDs outside the frozen inventory')
+    # Amendment 011 controls (EXPLORATORY): the GT layout of every room, checked against the frozen reference.
+    gt_rows = dict(zip(expected, _map(_gt, [(rooms[u], requests['joint'][u]) for u in expected], workers)))
+    if {u for u, r in gt_rows.items() if r['geometry_success']} != set(ref['gt_pass']['uids']):
+        raise ValueError('GT layouts do not reproduce the frozen reference gt_pass')
+    gt_cache = {}
+
+    def gt_at(f, uids):
+        """GT success per room at x/y factor f (None: undefined), cached per factor."""
+        if f is None:
+            return None
+        known = gt_cache.setdefault(f, {})
+        todo = [u for u in uids if u not in known]
+        known.update(zip(todo, _map(_control, [(gt_rows[u], rooms[u], requests['joint'][u], f) for u in todo], workers)))
+        return [known[u] for u in uids]
 
     J, P, low = rows['joint'], rows['placement'], ref['low_reuse_sources']
     sj, sp, rs = scopes(J, low), scopes(P, low), ref['scopes']
     tables = {}
     # T1: co-primaries, bias guard, debiased success and the delivery decision.
     t1 = _jp_row('all', J, P, rs['all'], repeats)
-    p_holm = holm([t1['geometry_success']['p'], t1['size_log_mae']['p']])
+    # Amendment 011 section 4: Holm only at the confirmatory SFT stage; other stages unadjusted.
+    p_holm = holm([t1['geometry_success']['p'], t1['size_log_mae']['p']]) if stage == 'sft' else [None, None]
     decision = {**delivery(t1['size_log_mae'], t1['debiased']), 'stage': stage, 'binding': stage == 'selected',  # Amendment 010.
                 'raw_a_joint_minus_placement': t1['geometry_success'], 'B_footprint': {'J': t1['bias_fp_J'], 'P': t1['bias_fp_P']},
                 'scale_factor': factor, 'gt_reference_success': t1['gt_success'],
@@ -581,6 +732,12 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         {'system': 'J', 'footprint': t1['bias_fp_J'], 'volume': t1['bias_vol_J'], 'scale_factor': factor['joint']},
         {'system': 'P', 'footprint': t1['bias_fp_P'], 'volume': t1['bias_vol_P'], 'scale_factor': factor['placement']},
         {'system': 'P 先验（全部房间，参考）', 'footprint': prior_all['prior_bias_fp'], 'volume': prior_all['prior_bias_vol']}]
+    # Audit minor 22 (EXPLORATORY): GT layouts at each arm's delivery-rule factor, beside its (a').
+    tables['T1_gt'] = [{'control': 'GT 未缩放', 'scale_factor': 1., 'requests': len(expected),
+                        'gt_success': _mean(r['geometry_success'] for r in gt_rows.values())}]
+    tables['T1_gt'] += [{'control': f'GT × {label} 系数', 'system': label, 'scale_factor': factor[arm], 'requests': len(expected),
+                         'gt_success': _mean(gt_at(factor[arm], expected)), 'system_a_prime': t1[label + '_a1']}
+                        for arm, label in (('joint', 'J'), ('placement', 'P'))]
     secondary = g.paired_intervals(J, P, repeats=repeats)
     tables['T1b'] = [{'field': f, **{k: {'estimate': v['estimate_joint_minus_placement'], 'ci95': v['ci95'], 'n': n}
                       for k, v, n in (('micro', secondary[f], secondary[f]['paired_rooms']),
@@ -612,28 +769,45 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
             judged = (gpt or {}).get('arm_by_stratum', {}).get(f'{name}|{judge_arm}', {})
             shared = visual.get('counts', {}).get('shared_success')
             kid = ((visual.get('kid') or {}).get(arm) or {}) if arm else {}
+            score = visual.get(arm + '_vs_reference') if arm else None
+            # Amendment 011 (fid systems mode with populations): the stratum keys are the primary J/P population;
+            # an agent's FID/KID is on reference, J, P and that agent, with J and P on the same rooms beside it.
+            own = (visual.get('populations') or {}).get(f'agent/{arm}') if arm not in (None, 'J', 'P') else None
+            if own is not None:
+                score, shared, kid = own['fid'][arm], own['n'], own['kid'][arm] or {}
             tables['T4'].append({
                 'stratum': name, 'system': label, 'requests': agg['requests'], 'complete': agg['complete_count'],
                 'oor': agg['oor'], 'oor_rotated': agg['oor_rotated'],
                 'gt_oor': rs.get('stratum/' + name, {}).get('gt', {}).get('gt_oor'),
                 'gt_oor_rotated': rs.get('stratum/' + name, {}).get('gt', {}).get('gt_oor_rotated'),
-                'fid': visual.get(arm + '_vs_reference') if arm else None, 'fid_n': shared if arm else None,
+                'fid': score, 'fid_n': shared if arm else None,
                 'fid_flag': ('N<50' if shared is not None and shared < 50 else None) if arm else None,
                 'kid': kid.get('kid'), 'kid_se': kid.get('se'),
+                **({'fid_J_same_rooms': own['fid']['J'], 'fid_P_same_rooms': own['fid']['P']} if own else {}),
                 'gpt': judged.get('mean'), 'gpt_success': judged.get('success'), 'gpt_requested': judged.get('requested')})
+    role = {'primary': '主要：参考∩J∩P', 'judged': '次要：评审集合的全系统交集'}
+    tables['T4_fid'] = [{'stratum': s, 'population': name, 'role': role.get(name, '代理：参考∩J∩P∩该代理'), 'system': x,
+                         'n': pop['n'], 'fid': pop['fid'][x], 'kid': (pop['kid'][x] or {}).get('kid'),
+                         'kid_se': (pop['kid'][x] or {}).get('se'), 'flag': 'N<50' if pop['small_n'] else None}
+                        for s, v in [*sorted((fid_result or {}).get('strata', {}).items()), ('pooled', (fid_result or {}).get('pooled'))]
+                        if v and 'populations' in v for name, pop in v['populations'].items() for x in pop['systems']]
     tables['T4_gpt'] = ([{'scope': 'pooled', 'delta': gpt['pooled'], 'n': gpt['pooled']['n']}]
                         + [{'scope': s, 'mean_difference': v['mean_difference'], 'n': v['n']}
                            for s, v in sorted(gpt['difference_by_stratum'].items())]) if gpt else []
+    tables['T4_gpt_arms'], tables['T4_gpt_contrasts'] = (gpt['arm_means'], gpt['contrasts']) if gpt else ([], [])
     tables['T4_paper'] = [{'stratum': f'{s}/{k}', **dict(zip(('FID', 'OOR', 'functionality', 'layout', 'aesthetics'), v))}
                           for (s, k), v in zip(PAPER_STRATA, PAPER)]
     # T5: agent benchmark on the shared cohort.
-    tables['T5'], tables['T5_contrasts'], tables['T5_cost'] = [], [], []
+    for name in ('T5', 'T5_contrasts', 'T5_cost', 'T5_gt', 'T5_sources'):
+        tables[name] = []
+    tables['T5_not_run'] = absent
     if cohort is not None:
         index = {arm: {r['uid']: r for r in rows[arm]} for arm in h.ARMS}
         bench = {'J': [index['joint'][u] for u in cohort], 'P': [index['placement'][u] for u in cohort], **systems}
         # EXPLORATORY (audit 2026-10-14): each system's own B on the rooms where J, P and that system are all
         # complete (so one weak agent cannot shrink every other system's room set), and (a') rescaled by it
-        # through _derive; agents answer the J request (evaluate_llm).
+        # through _derive; agents answer the J request (evaluate_llm). Amendment 011: the equal-size control
+        # (GT x/y per object, through _control) on the same requests.
         base = [j['complete'] and p['complete'] for j, p in zip(bench['J'], bench['P'], strict=True)]
         common = {label: [c and r['complete'] for c, r in zip(base, brows, strict=True)] for label, brows in bench.items()}
         own_factor = {}
@@ -643,44 +817,69 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
             own_factor[label] = None if b is None else math.exp(-b / 2)
             arm = 'placement' if label == 'P' else 'joint'
             tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], own_factor[label]) for r in brows]
-            bench[label] = [{**r, 'own_debiased': d['success_debiased']} for r, d in zip(brows, _map(_derive, tasks, workers))]
-        for scope_name, keep in (('cohort', lambda r: True), ('strata_pooled', stratum)):
+            equal = _map(_control, [(r, room, request, None) for r, room, request, _ in tasks], workers)
+            bench[label] = [{**r, 'own_debiased': d['success_debiased'], 'equal_size': q}
+                            for r, d, q in zip(brows, _map(_derive, tasks, workers), equal, strict=True)]
+        for scope_name, keep in SCOPES:
             subset = {k: [r for r in v if keep(r)] for k, v in bench.items()}
+            uids = [r['uid'] for r in subset['J']]
+            tables['T5_gt'].append({'scope': scope_name, 'control': 'GT 未缩放', 'scale_factor': 1., 'requests': len(uids),
+                                    'gt_success': _mean(gt_rows[u]['geometry_success'] for u in uids)})
             for label, srows in subset.items():
                 mask = [c for c, r in zip(common[label], bench[label], strict=True) if keep(r)]
                 agg = g.aggregate(srows)
                 tables['T5'].append({'scope': scope_name, 'system': label, **{k: agg[k] for k in (
                     'requests', 'complete_rate', 'geometry_success_rate', 'size_log_mae', 'size_iou', 'oor')},
                     **own_bias(srows, mask, repeats), 'scale_factor': own_factor[label],
-                    'success_debiased_rate': _rate(srows, 'own_debiased')})
+                    'success_debiased_rate': _rate(srows, 'own_debiased'), 'equal_size_success_rate': _rate(srows, 'equal_size'),
+                    'support_fail_rooms': sum(r['complete'] and bool(r.get('support_fail')) for r in srows)})
+                tables['T5_gt'].append({'scope': scope_name, 'control': f'GT × {label} 自身系数', 'system': label,
+                                        'scale_factor': own_factor[label], 'requests': len(uids),
+                                        'gt_success': _mean(gt_at(own_factor[label], uids)),
+                                        'system_a_prime': tables['T5'][-1]['success_debiased_rate']})
             pairs = [('J', 'P'), *((a, s) for s in systems for a in ('J', 'P'))]
             for a, b in pairs:
-                c = contrasts(subset[a], subset[b], ('geometry_success', 'size_log_mae'), repeats)
+                c = contrasts(subset[a], subset[b], ('geometry_success', 'size_log_mae', 'own_debiased'), repeats)
                 tables['T5_contrasts'].append({'scope': scope_name, 'comparison': f'{a}−{b}', **c})
         cohort_set = set(cohort)
+        shares = collections.Counter(r['source'] for r in bench['J']), collections.Counter(r['source'] for r in J)
+        tables['T5_sources'] = [{'source': source, 'cohort_rooms': shares[0][source], 'cohort_share': shares[0][source] / len(cohort),
+                                 'test_rooms': n, 'test_share': n / len(J)} for source, n in sorted(shares[1].items())]
         for arm, label in (('joint', 'J'), ('placement', 'P')):
             cohort_records = [r for r in records[arm] if r['uid'] in cohort_set]
             batches = {r.get('batch_id'): r.get('duration_seconds') for r in records[arm]}
-            tables['T5_cost'].append({'system': label, 'model': 'Qwen3-8B + LoRA',
+            config = receipts[arm].get('config') or {}
+            tables['T5_cost'].append({'system': label, 'model': 'Qwen3-8B + LoRA', 'thinking': config.get('enable_thinking'),
+                'budget': _budget(config),
                 'gpu_hours_full_test_generation': (sum(batches.values()) / 3600 if None not in batches and None not in batches.values() else None),
                 'output_tokens': sum(r.get('generated_tokens') or 0 for r in cohort_records),
-                'input_tokens': sum(r.get('input_tokens') or 0 for r in cohort_records)})
+                'input_tokens': sum(r.get('input_tokens') or 0 for r in cohort_records),
+                'answers_reaching_cap': sum(r.get('reached_token_cap') or 0 for r in cohort_records)})
         for name, summary in agent_meta.items():
             result, config = summary['llm']['result'], summary['llm']['config']
             cost = summary['llm'].get('cost') or {}  # Open models: the run's cost.json via evaluate_llm.
+            rounds = cap_rounds.get(name)
             tables['T5_cost'].append({'system': name, 'model': config.get('model'), 'reasoning': config.get('reasoning_effort'),
+                'thinking': config.get('thinking'), 'mode_note': MODE_NOTES.get(config.get('model')),
+                'budget': _budget(config), 'attempts': config['repair_rounds'] + 1 if 'repair_rounds' in config else None,
                 'calls': result.get('calls_ledger'), 'gpu_hours': cost.get('gpu_hours'),
                 'input_tokens': (result.get('tokens') or {}).get('input_tokens'),
                 'output_tokens': (result.get('tokens') or {}).get('output_tokens'),
                 'reasoning_tokens': (result.get('tokens') or {}).get('reasoning_tokens'),
                 'latency_p50_s': (result.get('latency_seconds') or {}).get('p50'),
+                **{f'cap_round_{k + 1}': rounds[k] if rounds else None for k in range(llm_agent.REPAIRS + 1)},
                 'answers_reaching_cap': result.get('reached_token_cap')})
-    # T6: failure taxonomy (J/P on the full test set, agents on the cohort).
+    # T6: failure taxonomy (J/P on the full test set, agents on the cohort; agent JSON/schema split with --agent-run).
     tables['T6'] = [{'system': 'J', **taxonomy(J, records['joint']), 'cap_rule_flipped_complete': cap_complete['joint']},
-                    {'system': 'P', **taxonomy(P, records['placement']), 'cap_rule_flipped_complete': cap_complete['placement']},
-                    *({'system': k, **taxonomy(v, cap_known=flipped[k] is not None), 'cap_rule_flipped_complete': flipped[k],
-                       'answers_reaching_cap': agent_meta[k.rsplit('-', 1)[0]]['llm']['result'].get('reached_token_cap')}
-                      for k, v in systems.items())]
+                    {'system': 'P', **taxonomy(P, records['placement']), 'cap_rule_flipped_complete': cap_complete['placement']}]
+    for k, v in systems.items():
+        name, variant = k.rsplit('-', 1)
+        raw = agent_raw.get(name, {}).get('llm_' + variant)
+        if raw is not None and [r['uid'] for r in raw] != [r['uid'] for r in v]:
+            raise ValueError(f'{k}: agent run records do not align with its scored rows')
+        tables['T6'].append({'system': k, **taxonomy(v, raw, cap_known=flipped[k] is not None),
+                             'cap_rule_flipped_complete': flipped[k],
+                             'answers_reaching_cap': agent_meta[name]['llm']['result'].get('reached_token_cap')})
     # Sensitivity.
     gt_pass, known, levels = set(ref['gt_pass']['uids']), set(ref['known_defect_uids']), ref['prior_levels']
     filters = {f"GT 通过冻结几何门（{len(gt_pass)}）": lambda r: r['uid'] in gt_pass,
@@ -703,9 +902,9 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         warnings.append('agent_answers_reached_output_cap_not_row_applied')
     if corrected is None:
         warnings.append('source_correction_sensitivity_not_provided')
-    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'stage': stage, **({'models': models} if models else {}),
-              'delivery': decision, 'tables': tables,
-              'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}, 'warnings': warnings,
+    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': amendment or AMENDMENT[stage], 'reporting_amendment': REPORTING,
+              'stage': stage, **({'models': models} if models else {}), 'delivery': decision, 'tables': tables,
+              **({'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}} if stage == 'sft' else {}), 'warnings': warnings,
               'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256'],
                              'cap_rule_per_row': row_cap[k]} for k, v in agent_meta.items()},
               'visual_mode': {'fid': 'systems' if fid_systems else 'J/P' if fid else None,
@@ -718,6 +917,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
                                **({'judge_summary': h.sha256(Path(judge) / 'summary.json'),
                                    'judge_records': h.sha256(Path(judge) / 'records.jsonl')} if judge else {}),
                                **({'corrections': h.sha256(corrections)} if corrections else {}),
+                               **{'agent_run_' + k + '_MANIFEST': h.sha256(Path(v) / 'MANIFEST.json') for k, v in (agent_runs or {}).items()},
+                               **({'open_status': h.sha256(open_status)} if open_status else {}),
                                **({'selection': h.sha256(selection)} if selection else {})},
               'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(g.__file__), Path(e.__file__))}}
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -747,7 +948,9 @@ def _report(result, agent_meta):
     lines = [f"# 未知尺寸 J／P 对比（{stage} 阶段）：修正案 005 报告" + ('与交付决定' if d['binding'] else ''), '', *models,
              f'J：联合预测尺寸、位置和朝向。{P_LABEL}：尺寸来自训练集先验（不是预测），再生成位置和朝向。'
              f"两者为同一 Qwen3-8B 基座、单一训练种子；区间只覆盖测试房间抽样（房屋连通组自举 {result['repeats']} 次，"
-             f'种子 {SEED}；协议设定为 2,000 次），不覆盖训练随机性。历史测试集曾用于诊断，不是新盲测。缺失值一律显示为“—”，从不补值。', '',
+             f'种子 {SEED}；协议设定为 2,000 次），不覆盖训练随机性。历史测试集曾用于诊断，不是新盲测。缺失值一律显示为“—”，从不补值。'
+             f"本报告属修订 {result['amendment']}，按修订 {result['reporting_amendment']} 的报告规则生成"
+             f"（自举 p = 0 显示为 “< 1/{result['repeats']}”，即没有一次抽样越过 0）。", '',
              *decision,
              f"- 条件 (i) J 的尺寸 log MAE 低于 P 且配对 95% CI 不含 0：{_cell(d['condition_i_size_log_mae'])}；"
              f"Δ(b) J−P = {_cell(d['inputs']['b_size_log_mae_joint_minus_placement'])}",
@@ -758,15 +961,24 @@ def _report(result, agent_meta):
              f"P {_cell(d['scale_factor']['placement'])}；GT 参考几何成功率 {_cell(d['gt_reference_success'])}。", '',
              '任一区间无法计算时，规则按失败处理并交付 P。', '',
              f"## T1 (a)、(b) 终点（全部测试请求，配对 J−P；{T1_ROLE[stage]}）", '']
-    lines += _md(t['T1'], [('endpoint', '终点'), ('J', 'J'), ('P', 'P'), ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'),
-                           ('p', '自举双侧 p'), ('p_holm', 'Holm p（本阶段 (a)、(b) 内）')])
+    shown = [{**r, **{k: p_text(r.get(k), result['repeats']) for k in ('p', 'p_holm')}} for r in t['T1']]
+    lines += _md(shown, [('endpoint', '终点'), ('J', 'J'), ('P', 'P'), ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'),
+                         ('p', '自举双侧 p'), ('p_holm', 'Holm p（仅 SFT 确认性阶段，(a)、(b) 内）')])
     lines += ['(a) 以全部请求为分母，失败/不完整输出计 0；达到生成上限且未输出 EOS 的请求即使 JSON 可解析也计为失败。'
               '(b) 只在 J、P 共同完整的房间上计算，房间内按物体平均，再按房间平均。'
               "(a′) 将各臂预测的 x/y 尺寸绕物体中心乘以 exp(−B/2)，位置与朝向不变，用冻结几何代码重新评分。", '',
               '## T1-B 带符号尺寸偏差 B（共同完整房间，log(预测/GT)）', '']
     lines += _md(t['T1_bias'], [('system', '系统'), ('footprint', '足迹偏差 [95% CI]'), ('volume', '体积偏差 [95% CI]'),
                                 ('scale_factor', '去偏缩放 exp(−B/2)')])
-    lines += ['## T1b 次要配对终点（J−P；房间微平均与来源宏平均）', '']
+    gt_j, gt_p = (r['gt_success'] for r in t['T1_gt'][1:])
+    lines += ["## T1-GT 对照：GT 布局按各臂的 exp(−B/2) 缩放（EXPLORATORY，修订 011）", '']
+    lines += _md(t['T1_gt'], [('control', '对照'), ('scale_factor', 'x/y 系数'), ('requests', '房间'),
+                              ('gt_success', 'GT 几何成功率'), ('system_a_prime', '该臂 (a′)')])
+    lines += ['GT 布局（冻结参考的同一评分，已核对 gt_pass）的 x/y 尺寸按该臂系数缩放，位置、朝向不变，用冻结几何代码重新评分。'
+              f"仅因缩放，GT × J 系数 − GT × P 系数 = {_cell(None if None in (gt_j, gt_p) else gt_j - gt_p)}；"
+              f"观测 Δ(a′) J−P = {_cell(t['T1'][2]['delta'])}。(a′) 的差异部分来自两臂被缩放的幅度不同，"
+              '不是纯粹的放置质量差；B 在自举外估计一次，(a′) 区间未含 B 的不确定性。', '',
+              '## T1b 次要配对终点（J−P；房间微平均与来源宏平均）', '']
     lines += _md(t['T1b'], [('field', '指标'), ('micro', '房间微平均 [95% CI]'), ('macro', '来源宏平均 [95% CI]')])
     lines += ['“repaired” 指“贴边（≤10 cm）；可能产生碰撞”：它不单调，在 GT 上反而降低成功率。原始结果为主。', '',
               '## T2 模型无关参考行（冻结）', '']
@@ -787,50 +999,108 @@ def _report(result, agent_meta):
                            ('oor', 'OOR 轴对齐↓'), ('oor_rotated', 'OOR 旋转↓'), ('gt_oor', 'GT OOR 轴对齐'),
                            ('gt_oor_rotated', 'GT OOR 旋转'), ('fid', 'FID↓'), ('kid', 'KID↓'), ('kid_se', 'KID SE'),
                            ('fid_n', 'FID 共同 N'), ('fid_flag', '标记'),
+                           *((('fid_J_same_rooms', 'FID J（同房间）'), ('fid_P_same_rooms', 'FID P（同房间）')) if t['T4_fid'] else ()),
                            ('gpt', 'GPT 三项均值↑'), ('gpt_success', 'GPT 成功'), ('gpt_requested', 'GPT 选定')])
-    fid_note = ('FID 与 KID 只在参考及全部渲染系统都成功的房间交集上计算（N 为该交集）；KID 为配对 U 统计量，'
-                '不能与文献 KID 比较；代理只渲染 harness 答案。' if result['visual_mode']['fid'] == 'systems' else
-                'FID 只在参考、J、P 共同成功渲染的交集上计算；此 J/P 视觉运行不产出 KID，记为未测。')
-    lines += ['轴对齐 OOR 为论文定义（忽略朝向）；旋转 OOR 使用检查器已构建的旋转足迹。' + fid_note + 'N<50 标记。'
-              'GPT 为 `gpt-6.1-sol` 同一裁判的功能/布局/美观三项房间均值，不能与论文 GPT-4o 分数互换。', '']
+    fid_note = {'systems': ('FID 与 KID 按修订 011 的人群计算：J、P 为参考∩J∩P（主要）；每个代理为参考∩J∩P∩该代理，'
+                            '同一房间上的 J、P 并列于“FID J/P（同房间）”；全系统交集只用于预先指定的评审集合（次要）；'
+                            '各人群 N 单独报告（见 T4-FID，含六层合并）。' if t['T4_fid'] else
+                            'FID 与 KID 只在参考及全部渲染系统都成功的房间交集上计算（N 为该交集）。')
+                           + 'KID 为配对 U 统计量，不能与文献 KID 比较；代理只渲染 harness 答案。',
+                'J/P': 'FID 只在参考、J、P 共同成功渲染的交集上计算；此 J/P 视觉运行不产出 KID，记为未测。',
+                None: 'FID/KID：视觉指标待测（未提供 FID 输入）。'}[result['visual_mode']['fid']]
+    gpt_note = ('GPT 为 `gpt-6.1-sol` 同一裁判的功能/布局/美观三项房间均值，不能与论文 GPT-4o 分数互换。'
+                if result['visual_mode']['judge'] else 'GPT 评审：视觉指标待测（未提供评审输入）。')
+    lines += ['轴对齐 OOR 为论文定义（忽略朝向）；旋转 OOR 使用检查器已构建的旋转足迹。' + fid_note + 'N<50 标记。' + gpt_note, '']
+    if t['T4_fid']:
+        lines += ['### T4-FID 修订 011 的 FID/KID 人群（各层与六层合并 pooled）', '']
+        lines += _md(t['T4_fid'], [('stratum', '来源/房型'), ('population', '人群'), ('role', '地位'), ('system', '系统'),
+                                   ('n', 'N'), ('fid', 'FID↓'), ('kid', 'KID↓'), ('kid_se', 'KID SE'), ('flag', '标记')])
     if t['T4_gpt']:
         lines += ['GPT 主终点：J−P 两臂均完成房间的配对均值差，按层内重抽样自举'
                   + ('（N 系统裁判运行自身的 summary.endpoint）。' if result['visual_mode']['judge'] == 'systems' else '。'), '']
         lines += _md(t['T4_gpt'], [('scope', '范围'), ('delta', 'Δ J−P [95% CI]'), ('mean_difference', '分层描述性均值差'), ('n', 'n')])
+        lines += ['GPT 评审各系统合并均值（冻结的评审房间选择上已完成的房间）与配对差（两系统均完成的房间，层内重抽样自举，'
+                  f"{result['repeats']} 次，种子 {SEED}；J−P 即上面的主终点）。只作估计，不作显著性判断。"
+                  + ('评审系统集合为预先指定（修正案 005 §5、修订 007：J、P、L，以及按 O6、O5、O4 优先级取一个开源模型），'
+                     '不是按实测成绩选出。' if result['visual_mode']['judge'] == 'systems' else ''), '']
+        lines += _md(t['T4_gpt_arms'], [('system', '系统'), ('mean', 'GPT 三项均值（合并）'), ('success', '已完成'),
+                                        ('requested', '选定')])
+        lines += _md(t['T4_gpt_contrasts'], [('comparison', '比较'), ('delta', 'Δ [95% CI]'), ('n', '两者均完成 n')])
     lines += ['论文数值（独立协议，仅作背景，不能据此宣称胜负）：', '']
     lines += _md(t['T4_paper'], [('stratum', '来源/房型'), ('FID', 'FID'), ('OOR', 'OOR'), ('functionality', '功能'),
                                  ('layout', '布局'), ('aesthetics', '美观')])
-    lines += ['## T5 代理基准（同一冻结队列，同一输入）', '']
+    lines += ['## T5 代理基准（同一冻结队列；EXPLORATORY；队列不代表测试集）', '']
     if t['T5']:
+        lines += ['**队列不代表测试集**：来源构成与全测试集不同（见 T5-S），队列内的 J−P 可以与全测试集（T1）相差很大，'
+                  '本节结论只适用于本队列。代理收到与 J 相同的请求；P 另外获得训练集先验尺寸（代理不能使用），因此 P 与代理不是同一输入。'
+                  '范围：cohort = 全队列；strata_pooled = 论文六层合并；other_sources = 队列中六层以外的房间。本节全部为 EXPLORATORY。'
+                  f"J、P 为本报告 {stage} 阶段的模型" + ('（' + '，'.join(f"{label} = {result['models'][arm]['candidate']}"
+                                                              for arm, label in zip(h.ARMS, 'JP')) + '）'
+                                                    if 'models' in result else '') + '。', '']
         lines += _md(t['T5'], [('scope', '范围'), ('system', '系统'), ('requests', '请求'), ('complete_rate', '完整率'),
                                ('geometry_success_rate', '(a) 几何成功率'), ('size_log_mae', '(b) log MAE（完整输出）'),
                                ('size_iou', '尺寸 IoU'), ('oor', '原始 OOR'),
                                ('bias_fp', 'B 足迹 [95% CI]（EXPLORATORY）'), ('bias_vol', 'B 体积 [95% CI]（EXPLORATORY）'),
                                ('scale_factor', 'exp(−B/2)（全队列）'),
-                               ('success_debiased_rate', "(a′) 自身 B 去偏成功率（EXPLORATORY）")])
+                               ('success_debiased_rate', "(a′) 自身 B 去偏成功率（EXPLORATORY）"),
+                               ('equal_size_success_rate', '等尺寸对照成功率（EXPLORATORY）')])
         lines += ['(b) log MAE、尺寸 IoU 与 OOR 为各系统在自身完整输出上的均值（各系统房间集合不同）；'
                   '配对 Δ(b) 只用两系统共同完整的房间。'
                   'B 为各系统在本范围内 J、P 与该系统三者均完整的房间上的 log(预测/GT)（足迹 x·y、体积），房屋连通组自举区间。'
                   "(a′) 用全队列上同一掩码（J、P 与该系统均完整）下的自身 B 将 x/y 尺寸乘以 exp(−B/2)，位置与朝向不变，经同一 _derive 用冻结几何重新评分，"
                   '以全部请求为分母。代理的 B 与 (a′) 为 EXPLORATORY（修正案 005 §4 未预先登记）；'
-                  'J／P 此处用队列内自身 B，不同于 T1 预先登记的全测试 B，同属 EXPLORATORY。', '',
-                  '配对差只给估计与区间（仅全队列与六层合并），不作“显著”判断；harness 为主比较对象，raw 为单次回答敏感性。', '']
+                  'J／P 此处用队列内自身 B，不同于 T1 预先登记的全测试 B，同属 EXPLORATORY。'
+                  '(a′) 是固定位置的尺寸压力测试：各系统被放大的幅度不同，放大越多，GT 布局本身也越难通过（T5-GT），'
+                  '所以 (a′) 的系统间差异主要反映缩放幅度，不是放置能力。'
+                  '等尺寸对照（修订 011）：每个系统的每个完整输出，把每个物体预测的 x/y 尺寸换成该物体的 GT x/y，'
+                  '高度、位置、朝向和支撑不变，用冻结检查器重新评分（以全部请求为分母），把放置质量与尺寸选择分开。', '']
+        support = [r for r in t['T5'] if r['scope'] == 'cohort' and r['system'].startswith('O1')]
+        if support:
+            lines += ['O1a／O1b（Qwen3-8B 基座）的近零成功率反映输出契约中支撑字段（`on`）的失败，不是布局能力的证据，'
+                      '也不能说明微调教会了布局：' + '；'.join(
+                          f"{r['system']} 完整 {round(r['complete_rate'] * r['requests'])} 间中 {r['support_fail_rooms']} 间支撑检查失败"
+                          for r in support) + '（全队列）。', '']
+        lines += ['### T5-GT 对照：GT 布局在各系统自身系数下的成功率（EXPLORATORY，修订 011）', '']
+        lines += _md(t['T5_gt'], [('scope', '范围'), ('control', '对照'), ('scale_factor', 'x/y 系数'), ('requests', '房间'),
+                                  ('gt_success', 'GT 几何成功率'), ('system_a_prime', '该系统 (a′)')])
+        lines += ['GT 布局按系统自身的 exp(−B/2) 缩放 x/y、位置与朝向不变后重新评分：它只量化缩放本身造成的损失。', '',
+                  '配对差只给估计与区间，不作“显著”判断；harness 为主比较对象，raw 为单次回答敏感性。'
+                  'Δ(a′) 与 Δ(a)、Δ(b) 共用同一房屋连通组自举设计与抽样（EXPLORATORY）；两系统的 (a′) 系数不同，'
+                  'B 在自举外估计一次，区间不含 B 的不确定性。', '']
         lines += _md(t['T5_contrasts'], [('scope', '范围'), ('comparison', '比较'), ('geometry_success', 'Δ(a) [95% CI]'),
-                                         ('size_log_mae', 'Δ(b) [95% CI]')])
-        lines += _md(t['T5_cost'], [('system', '系统'), ('model', '模型'), ('reasoning', '推理强度'), ('calls', '调用／生成请求'),
+                                         ('size_log_mae', 'Δ(b) [95% CI]'), ('own_debiased', "Δ(a′) [95% CI]（EXPLORATORY）")])
+        lines += ['### T5 模式与输出预算', '']
+        lines += _md(t['T5_cost'], [('system', '系统'), ('model', '模型'), ('thinking', '思考'), ('reasoning', '推理强度（收据原文）'),
+                                    ('mode_note', '模式说明'), ('budget', '每个回答的输出 token 预算'), ('attempts', '至多尝试'),
+                                    *((f'cap_round_{k + 1}', f'达上限 第 {k + 1} 轮') for k in range(llm_agent.REPAIRS + 1)),
+                                    ('answers_reaching_cap', '达上限回答（全部轮次）')])
+        lines += ['输出预算按各运行自身的配置：L 为固定的 max_output_tokens；开源模型为 1,024 + 128·物体（思考系统另加 16,384），'
+                  '并受 40,960 上下文减去提示长度限制；J/P 为批内共享上限。各系统预算不同，回答达到上限即截断、计为失败，'
+                  '部分代理的失败主要来自上限截断（见逐轮达上限数）。'
+                  f'harness = 首答加至多 {llm_agent.REPAIRS} 轮重试（至多 {llm_agent.REPAIRS + 1} 次尝试）；重试消息只含异常类名'
+                  '（如 “ValueError: invalid contract output/request”），不含解析器的错误文本，属通用重试'
+                  '（运行配置的 repair_message 写作 parser_error_text_only，与实际不符）。'
+                  '逐轮达上限数来自代理运行收据（--agent-run）；未提供时为“—”。J/P 的达上限数为队列内的单轮回答。', '']
+        lines += _md(t['T5_cost'], [('system', '系统'), ('calls', '调用／生成请求'),
                                     ('gpu_hours', 'GPU 时（cost.json）'), ('gpu_hours_full_test_generation', 'GPU 时（全测试生成）'),
                                     ('input_tokens', '输入 tokens（队列）'), ('output_tokens', '输出 tokens（队列）'),
                                     ('reasoning_tokens', '推理 tokens'), ('latency_p50_s', '中位延迟 s')])
         lines += ['API 失败计入分母。代理的模型名称：' + '；'.join(f"{k} = {v['llm']['config'].get('model')}"
-                                                     for k, v in agent_meta.items()), '']
+                                                     for k, v in agent_meta.items()), '',
+                  '### T5-S 队列与全测试集的来源构成', '']
+        lines += _md(t['T5_sources'], [('source', '来源'), ('cohort_rooms', '队列房间'), ('cohort_share', '队列占比'),
+                                       ('test_rooms', '全测试房间'), ('test_share', '全测试占比')])
     else:
         lines += ['未提供代理评测输出：本表未测。', '']
+    lines += ['### 未运行的系统（修订 007：写明原因，从不替代）', '']
+    lines += (_md(t['T5_not_run'], [('system', '系统'), ('model', '模型'), ('state', '状态'), ('reason', '原因')])
+              if t['T5_not_run'] else ['未提供未运行清单（--open-status / --not-run）。', ''])
     lines += ['## T6 失败分类', '']
     lines += _md(t['T6'], [('system', '系统'), ('requests', '请求'), ('complete', '完整'), ('incomplete', '未完成'),
                            ('token_cap_without_eos', '达上限无 EOS'), ('cap_rule_flipped_complete', '其中原可评分'),
                            ('invalid_json', 'JSON 无效'), ('invalid_schema_or_geometry', '格式/几何无效'),
-                           ('invalid_output', '无效（代理未分 JSON/格式）'), ('generation_or_api_failure', '生成/API 失败'),
-                           ('missing_output', '无输出'), ('answers_reaching_cap', '代理达上限回答数')])
+                           ('invalid_output', '无效（未提供代理运行，未分 JSON/格式）'), ('generation_or_api_failure', '生成/API 失败'),
+                           ('missing_output', '无输出'), ('answers_reaching_cap', '代理达上限回答数（全部轮次，raw 与 harness 行相同）')])
     lines += ['## 敏感性分析', '']
     lines += _md(t['S1'], JP_COLUMNS)
     lines += ['按先验层级的物体级尺寸误差（共同完整房间，物体微平均；先验列为全部房间）。'
@@ -865,17 +1135,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     for flag in ('data', 'geometry', 'joint', 'placement', 'reference', 'out'):
         parser.add_argument('--' + flag, type=Path, required=True)
-    for flag in ('fid', 'judge', 'corrections', 'selection'):
-        parser.add_argument('--' + flag, type=Path)
+    for flag in ('fid', 'judge', 'corrections', 'selection', 'open_status'):
+        parser.add_argument('--' + flag.replace('_', '-'), type=Path)
     parser.add_argument('--agent', action='append', default=[], help='NAME=EVAL_LLM_DIR (repeatable)')
+    parser.add_argument('--agent-run', action='append', default=[], help='NAME=LLM_RUN_DIR (repeatable; amendment 011)')
+    parser.add_argument('--not-run', action='append', default=[], help='NAME=REASON (repeatable; amendment 007)')
+    parser.add_argument('--amendment', help="results.json 'amendment' (default: the stage's governing amendment)")
     parser.add_argument('--repeats', type=int, default=2000)
     parser.add_argument('--workers', type=int, default=1)
     args = parser.parse_args()
-    agents = dict(item.split('=', 1) for item in args.agent)
-    if len(agents) != len(args.agent) or any(not k or '-' in k for k in agents):
-        raise ValueError('agents need unique NAME=DIR with no "-" in NAME')
+    agents, agent_runs, not_run = (dict(item.split('=', 1) for item in items)
+                                   for items in (args.agent, args.agent_run, args.not_run))
+    if (len(agents) != len(args.agent) or len(agent_runs) != len(args.agent_run) or len(not_run) != len(args.not_run)
+            or any(not k or '-' in k for k in agents)):
+        raise ValueError('agents need unique NAME=DIR with no "-" in NAME; --agent-run/--not-run names must be unique')
     result = build(args.data, args.geometry, {arm: getattr(args, arm) for arm in h.ARMS}, args.reference, args.out,
-                   agents, args.fid, args.judge, args.corrections, args.repeats, args.workers, args.selection)
+                   agents, args.fid, args.judge, args.corrections, args.repeats, args.workers, args.selection,
+                   agent_runs, args.open_status, not_run, args.amendment)
     print(json.dumps({'status': result['status'], 'stage': result['stage'], 'delivered': result['delivery']['delivered'],
                       'binding': result['delivery']['binding']}))
 

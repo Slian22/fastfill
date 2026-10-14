@@ -106,14 +106,21 @@ def _system_rows(systems, summaries, fid, judge):
         visual = fid['strata'].get(stratum, {})
         for label, (_, arm) in systems.items():
             geometry = summaries[label]['paper_strata'].get(stratum, {}).get(arm, {})
-            kid = (visual.get('kid') or {}).get(label) or {}
+            # Amendment 011: J/P from the primary reference∩J∩P population, each agent from reference∩J∩P∩agent.
+            name = 'primary' if label in ('J', 'P') else 'agent/' + label
+            population = (visual.get('populations') or {}).get(name)
+            if population is not None:
+                fid_value, kid, shared_n, small_n = (population['fid'].get(label), population['kid'].get(label) or {},
+                                                     population['n'], population['small_n'])
+            else:  # Pre-amendment-011 FID output (all-system intersection).
+                fid_value, kid = visual.get(label + '_vs_reference'), (visual.get('kid') or {}).get(label) or {}
+                shared_n, small_n, name = visual.get('counts', {}).get('shared_success', 0), visual.get('small_n'), 'all_systems'
             judged = judge['by_stratum'].get(stratum, {}).get(label, {})
             means = [judged.get(k) for k in SCORES[:3]]
             rows.append({'stratum': stratum, 'system': label, 'requested': geometry.get('requests', 0),
                 'OOR_complete_n': geometry.get('complete_count', 0), 'OOR': geometry.get('oor'),
-                'FID': visual.get(label + '_vs_reference'), 'KID': kid.get('kid'), 'KID_SE': kid.get('se'),
-                'FID_shared_n': visual.get('counts', {}).get('shared_success', 0),
-                'FID_small_n': visual.get('small_n'),
+                'FID': fid_value, 'KID': kid.get('kid'), 'KID_SE': kid.get('se'),
+                'FID_population': name, 'FID_shared_n': shared_n, 'FID_small_n': small_n,
                 'GPT_requested': judged.get('requested', 0), 'GPT_success': judged.get('success', 0),
                 **{score: judged.get(score) for score in SCORES},
                 'GPT_room_mean': None if None in means else math.fsum(means) / 3, 'UR': None})

@@ -103,7 +103,8 @@ def _selection(root, references):
 
 
 def judged_systems(labels):
-    """Amendments 005 section 5 / 007: J, P, API agent L, strongest run open model (O6, else O5, else O4)."""
+    """Amendments 005 section 5 / 007: J, P, API agent L and the pre-specified open model O6 (else O5, else O4
+    when O6 is absent); not the best measured open model (amendment 011 section 2)."""
     return [s for s in ('J', 'P', 'L') if s in labels] + [s for s in ('O6', 'O5', 'O4') if s in labels][:1]
 
 
@@ -428,14 +429,14 @@ def _api_bundle(out, references, predictions, selected, ledger, provenance, arms
     return len(requests)
 
 
-def _fid_manifest(out, ledger, provenance, systems=None):
+def _fid_manifest(out, ledger, provenance, systems=None, judged=None):
     cases = [{'uid': r['uid'], 'stratum': r['stratum'], 'failure': r['failure'],
               'images': {**{s: {'failure': e} for s, e in r.get('system_errors', {}).items()},
                          **{arm: {**views['perspective'], 'path': str(
                              Path(views['perspective']['path']).relative_to(out))}
                             for arm, views in r['images'].items()}}} for r in ledger]
     _write(out / 'fid-manifest.json', {'cases': cases, 'frozen_uids': [r['uid'] for r in ledger],
-           'config': SETTINGS, **({'systems': list(systems)} if systems else {}), 'provenance': {**provenance,
+           'config': SETTINGS, **({'systems': list(systems), 'judged': judged} if systems else {}), 'provenance': {**provenance,
                'ledger_sha256': render.file_sha256(out / 'ledger.json'),
                'ledger': 'ledger.json', 'cases_sha256': render.file_sha256(out / 'cases.jsonl')}})
 
@@ -464,7 +465,9 @@ def prepare_systems(reference_dir, systems, out, blender_path, workers=2, thread
     llm_harness-geometry.jsonl (evaluate_llm-style). Every system is rendered
     beside the reference with the same frozen assets, cameras and renderer; a
     failed system is a recorded failure that never removes another system. The
-    API bundle covers judged_systems() on the frozen GPT selection. Lineage:
+    API bundle covers judged_systems() on the frozen GPT selection, also recorded as
+    fid-manifest judged: fid scores the amendment-011 populations (primary J/P,
+    each agent with J/P on its rooms, the judged all-system intersection). Lineage:
     provenance geometry_manifest_sha256 = json_sha256(systems_lineage(...)), so
     the judge/FID provenance schema is unchanged; every summary must share one
     data_manifest_sha256.
@@ -501,8 +504,8 @@ def _prepare(reference_dir, systems, out, blender_path, workers, threads, eval_d
                                 'provenance': provenance, 'expected_uids': list(references)})
     failures = [r for r in ledger if r['failure'] is not None]
     _rows_write(out / 'failures.jsonl', failures)
-    _fid_manifest(out, ledger, provenance, systems if n_mode else None)
     judged = judged_systems(systems) if n_mode else list(ARMS[1:])
+    _fid_manifest(out, ledger, provenance, systems if n_mode else None, judged if n_mode else None)
     api_count = _api_bundle(out, references, predictions, selected, ledger, provenance, judged)
     checks = [(ref, provenance['reference_manifest_sha256'])] + (
         [(root, lineage[label]['manifest_sha256']) for label, (root, _) in systems.items()] if n_mode

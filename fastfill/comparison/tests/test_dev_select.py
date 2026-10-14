@@ -17,6 +17,7 @@ from fastfill.comparison import stage_table
 from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison.tests import test_dpo_stages as D
 from fastfill.comparison.tests import test_infer_shard as T
+from fastfill.comparison.tests.test_delivery import implementation  # noqa: F401  Autouse (audit M9).
 from fastfill.comparison.tests.test_stage_table import BROKEN, build_selected, build_world
 
 CODE = Path(__file__).resolve().parents[3]
@@ -98,12 +99,15 @@ def run_candidate(root, data, plan, arm, candidate, kind, training_sha):
         source = ['--adapter', str(root / f'sft-{arm}-001' / arm / 'adapter'), '--training-run', str(root / f'sft-{arm}-001')]
         target, identity = 'fastfill.comparison.infer.training_identity', {
             'base_sha256': 'b' * 64, 'training_data': {'manifest_sha256': training_sha}}
-    else:
-        source = ['--model', str(ds.model_path(root, arm, candidate)), '--exact-policy']
+    else:  # RECIPE-dpoK: the exact policy; RECIPE-dpoK-merged (amendment 011): the merged bytes as is.
+        merged = candidate.endswith('-merged')
+        source = ['--model', str(ds.model_path(root, arm, candidate.removesuffix('-merged')))] + ([] if merged else
+                                                                                               ['--exact-policy'])
         target, identity = 'fastfill.comparison.dpo_stages.inference_identity', {
             'base': {}, 'base_sha256': 'b' * 64, 'training_data': {'manifest_sha256': training_sha},
             'stage': candidate.split('-')[1], 'lineage_sha256': '0' * 64,
-            'policy': {'mode': 'x', 'training_base': str(root / 'base'), 'adapter': str(root / 'adapter')}}
+            **({'model_sha256': 'f' * 64} if merged else
+               {'policy': {'mode': 'x', 'training_base': str(root / 'base'), 'adapter': str(root / 'adapter')}})}
     shards = []
     for k in range(2):
         out = eval_root / candidate / arm / f'shard-{k:02d}'
@@ -215,6 +219,70 @@ def test_dev_scores_rule_selection_and_test_chain_submission(dev, monkeypatch):
         evaluate_pair.evaluate(dev.out, runs, root / 'geometry-x', repeats=20)
     summary = evaluate_pair.evaluate(dev.out, runs, root / 'geometry-v5', repeats=20, stage_label='selected')
     assert summary['stage'] == 'selected' and summary['stages'] == {'joint': 'sft', 'placement': 'dpo1'}
+
+
+@pytest.mark.parametrize('kind, listed', [('good', True), ('collide', False)])
+def test_merged_weight_check_scores_merged_and_unmerged_like_score(dev, kind, listed, monkeypatch):
+    """Amendment 011 section 5: the delivered P (rpo-dpo1) BF16 merge vs its exact policy on the same dev plan."""
+    root, training_sha = dev.root, h.sha256(dev.data / 'MANIFEST.json')
+    plan = plan_for(dev.out, root / 'dev-eval-010/plan')
+    made = {c: 'good' if c == 'rpo-dpo1' else 'collide' for c in ds.CANDIDATES}  # rpo-dpo1 is selected in both arms.
+    for arm in h.ARMS:
+        for candidate in ds.CANDIDATES:
+            run_candidate(root, dev.out, plan, arm, candidate, made[candidate], training_sha)
+    run_candidate(root, dev.out, plan, 'placement', 'rpo-dpo1-merged', kind, training_sha)
+    def receipt(candidate):
+        return h.strict_json((root / 'dev-eval-010' / candidate / 'infer-placement/run_receipt.json').read_text())
+    assert receipt('rpo-dpo1-merged')['config']['lora'] == ds.PREMERGED and receipt('rpo-dpo1')['config']['lora'] == ds.EXACT
+    with pytest.raises(ValueError, match='not placement/rpo-dpo1-merged'):  # The exact policy is not the merged bytes,
+        ds._bind(receipt('rpo-dpo1'), root, 'placement', 'rpo-dpo1-merged')
+    with pytest.raises(ValueError, match='not placement/rpo-dpo1$'):  # and the merged bytes never stand in for it.
+        ds._bind(receipt('rpo-dpo1-merged'), root, 'placement', 'rpo-dpo1')
+    with pytest.raises(ValueError, match='not joint/rpo-dpo1-merged'):
+        ds._bind(receipt('rpo-dpo1-merged'), root, 'joint', 'rpo-dpo1-merged')
+    selection, out = root / 'dev-eval-010/selection.json', root / 'dev-eval-010/merged-check'
+    args = ds.parse_args(['check-merged', '--data', str(dev.out), '--root', str(root / 'dev-eval-010'), '--out', str(out)])
+    ds.score(ns(data=dev.out, root=root / 'dev-eval-010', out=root / 'dev-eval-010/scores', workers=1, only='selectable'))
+    selection.write_text('{"selected": {"joint": "sft", "placement": "rpo-dpo1"}}\n')
+    with pytest.raises(ValueError, match='not bound to its dev scores'):  # A selection not reproduced from its scores.
+        ds.check_merged(args)
+    selection.unlink()
+    assert ds.select(ns(scores=root / 'dev-eval-010/scores', out=selection, code_root=CODE, shards=2, no_submit=True))[
+        'selected'] == {'joint': 'rpo-dpo1', 'placement': 'rpo-dpo1'}
+    with monkeypatch.context() as m:
+        m.setattr(ds, 'MERGED', ('placement', 'e1-dpo1'))
+        with pytest.raises(ValueError, match='not e1-dpo1'):
+            ds.check_merged(args)
+    with monkeypatch.context() as m:  # Rescoring drift: the unmerged side no longer equals its dev score of record.
+        finished = ds._finished
+        m.setattr(ds, '_finished', lambda *a: (lambda v, f: ({**v, 'a_prime': v['a_prime'] - .5}, f))(*finished(*a)))
+        with pytest.raises(ValueError, match='rescoring differs from its dev score'):
+            ds.check_merged(args)
+    assert not out.exists()
+    result = ds.check_merged(args)
+    files = ds.d._verified_dir(out)
+    check = h.strict_json((out / 'check.json').read_text())
+    assert set(files) == {'check.json', 'placement-rpo-dpo1-geometry.jsonl', 'placement-rpo-dpo1-merged-geometry.jsonl'}
+    unmerged, merged = check['unmerged'], check['merged']
+    rooms = dev.result['rooms']
+    assert check['rooms'] == merged['requests'] == unmerged['requests'] == rooms
+    assert unmerged['complete_rate'] == unmerged['a_prime'] == 1 and unmerged['footprint_bias'] == 0  # P sizes = GT.
+    assert unmerged['common_with_sft'] == rooms and unmerged['inference']['lora'] == ds.EXACT
+    assert merged['inference']['lora'] == ds.PREMERGED and merged['inference']['stage'] == 'dpo1'
+    assert merged['model'] == {'path': str(ds.model_path(root, 'placement', 'rpo-dpo1').resolve()),
+                               'model_sha256': 'f' * 64, 'lineage_sha256': '0' * 64}
+    assert check['sft_inference']['path'] == str((root / 'dev-eval-010/sft/infer-placement').resolve())
+    assert check['selection_sha256'] == h.sha256(selection) and check['thresholds'] == {'a_prime': .01, 'complete_rate': .005}
+    assert check['merged_listed_as_convenience'] is listed and result['decision'] == check['decision'] == (
+        'merged_convenience_artifact' if listed else 'adapter_and_training_base_only')
+    if listed:  # Same weights' outputs: identical text, zero deltas.
+        assert check['byte_identical'] == {'rooms': rooms, 'fraction': 1.0}
+        assert check['delta_merged_minus_unmerged'] == {'complete_rate': 0, 'geometry_success_rate': 0, 'a_prime': 0}
+    else:  # Every object on one spot: still complete, never a geometry success.
+        assert check['byte_identical']['fraction'] < 1 and merged['complete_rate'] == 1 and merged['a_prime'] == 0
+        assert check['delta_merged_minus_unmerged']['a_prime'] == -1
+    with pytest.raises(FileExistsError):
+        ds.check_merged(args)
 
 
 def test_selection_without_sbatch_prints_the_exact_commands_and_fails(capsys):
@@ -346,7 +414,8 @@ def test_final_reports_tables_and_delivers_with_complete_agent_evaluations_only(
     table = h.strict_json((run / ds.FINAL['table'] / 'stage_table.json').read_text())
     assert table['stages_run'] == ['sft', 'dpo1', 'selected'] and table['not_run'] == {'dpo2': stage_table.STOPPED}
     package = h.strict_json((run / ds.FINAL['delivery'] / 'delivery.json').read_text())
-    assert package['candidate'] == 'sft' and package['agents'] == {'included': [], 'excluded': result['agents_excluded']}
+    assert package['candidate'] == 'sft' and {k: package['agents'][k] for k in ('included', 'excluded')} == {
+        'included': [], 'excluded': result['agents_excluded']}
     card = (run / ds.FINAL['delivery'] / 'MODEL_CARD.md').read_text()
     assert 'Excluded (evaluation incomplete; never substituted): O4 (' in card and "PeftModel.from_pretrained(base, 'sft-adapter')" in card
     assert {r['candidate'] for r in table['tables']['dev']} == set(ds.CANDIDATES + ds.REPORT_ONLY)
@@ -456,7 +525,14 @@ def test_submit_final_refusals(tmp_path, case, match):
     ('isambard_dpo_train.sbatch', ['joint', 'dpo1', 'official'], False),
     ('isambard_010_cpu.sbatch', ['selected-geometry', f'{RUN}/infer-joint-002', f'{RUN}/infer-placement-005'], True),
     ('isambard_010_cpu.sbatch', ['selected-geometry', f'{RUN}/infer-placement-005', f'{RUN}/infer-joint-002'], False),
-    ('isambard_010_cpu.sbatch', ['dev-merge', 'joint', 'e1-dpo3', '2'], False)])
+    ('isambard_010_cpu.sbatch', ['dev-merge', 'joint', 'e1-dpo3', '2'], False),
+    ('isambard_010_infer_shard.sbatch', ['dev', 'placement', 'rpo-dpo1-merged', '1', '2'], True),  # Amendment 011.
+    ('isambard_010_infer_shard.sbatch', ['dev', 'joint', 'rpo-dpo1-merged', '0', '2'], False),  # P is delivered.
+    ('isambard_010_infer_shard.sbatch', ['test', 'placement', 'rpo-dpo1-merged', '0', '6'], False),  # Dev only.
+    ('isambard_010_infer_shard.sbatch', ['dev', 'placement', 'e1-dpo1-merged', '0', '2'], False),
+    ('isambard_010_cpu.sbatch', ['dev-merge', 'placement', 'rpo-dpo1-merged', '2'], True),
+    ('isambard_010_cpu.sbatch', ['dev-merge', 'joint', 'rpo-dpo1-merged', '2'], False),
+    ('isambard_010_cpu.sbatch', ['check-merged'], True)])
 def test_sbatch_argument_checks(tmp_path, script, argv, ok):
     run = subprocess.run(['bash', str(SCRIPTS / script), str(CODE), *argv], env=T.stub_sbatch(tmp_path),
                          capture_output=True, text=True)

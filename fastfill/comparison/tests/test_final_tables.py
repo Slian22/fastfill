@@ -237,7 +237,8 @@ def test_actual_systems_chain_visual_fid_judge_tables_share_lineage(tmp_path, mo
     features = lambda refs, **_: np.random.default_rng(0).normal(size=(len(refs), 2048))  # noqa: E731
     result = fid_module.run_manifest(tmp_path / 'visual/fid-manifest.json', tmp_path / 'fid.json',
                                      vendor=tmp_path, weights=tmp_path / 'weights', extractor=features)
-    assert result['strata'][STRATUM]['counts']['shared_success'] == 3  # L failed room-1
+    assert result['strata'][STRATUM]['counts']['shared_success'] == 4  # Primary reference∩J∩P (amendment 011).
+    assert result['strata'][STRATUM]['populations']['agent/L']['n'] == 3  # L failed room-1
     h.write_json(tmp_path / 'fid.json', {**result, 'extractor': 'pytorch_fid:0.3.0:pool3'})  # mocked model only
     monkeypatch.setattr(judge_batch.subprocess, 'run', tj.fake_client([]))
     judged = judge_batch.evaluate(tmp_path / 'visual/api-bundle', tmp_path / 'judge', tj.CLIENT, max_cases=800,
@@ -245,5 +246,6 @@ def test_actual_systems_chain_visual_fid_judge_tables_share_lineage(tmp_path, mo
     assert judged['counts']['success'] == 11 and judged['endpoint']['both_complete'] == 4
     out = tables.build_systems(systems, tmp_path / 'fid.json', tmp_path / 'judge/summary.json', tmp_path / 'tables')
     first = {r['system']: r for r in out['system_rows'] if r['stratum'] == STRATUM}
-    assert first['L']['GPT_success'] == 3 and first['J']['FID_shared_n'] == 3 and first['L']['KID'] is not None
+    assert first['L']['GPT_success'] == 3 and first['J']['FID_shared_n'] == 4 and first['L']['FID_shared_n'] == 3
+    assert first['L']['KID'] is not None and first['L']['FID_population'] == 'agent/L' and first['J']['FID_population'] == 'primary'
     assert out['input_sha256']['systems_lineage'] == prepared['provenance']['geometry_manifest_sha256']

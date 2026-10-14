@@ -6,6 +6,7 @@ import subprocess
 import threading
 from types import SimpleNamespace
 
+import numpy as np
 from PIL import Image
 import pytest
 
@@ -490,9 +491,16 @@ def test_prepare_systems_renders_every_system_and_keeps_per_system_failures(tmp_
     provenance = json.loads((out / 'api-bundle/provenance.json').read_text())
     assert provenance['geometry_manifest_sha256'] == render.json_sha256(lineage)
     data, fid_cases, _ = pipeline.fid._load_manifest(out / 'fid-manifest.json')
-    assert data['systems'] == ['J', 'P', 'L', 'O1a', 'O5']
+    assert data['systems'] == ['J', 'P', 'L', 'O1a', 'O5'] and data['judged'] == result['judged']
     checked, failures = pipeline.fid._inspect_cases(fid_cases, out, pipeline.fid._arms(data))
     assert [u for u, c in checked.items() if c['candidate']] == ['room-0', 'room-3']
+    # Amendment 011: FID re-scored from this output without re-rendering; L's failures leave J/P whole.
+    monkeypatch.setattr(pipeline.fid, 'verify_weights', lambda path: pipeline.fid.WEIGHTS_SHA256)
+    fid_result = pipeline.fid.recompute(out, tmp_path / 'fid.json', vendor=tmp_path, weights=tmp_path / 'w',
+                                        extractor=lambda images, **kw: np.zeros((len(images), 2048)))
+    pooled = fid_result['pooled']['populations']
+    assert pooled['primary']['n'] == 4 and pooled['agent/L']['n'] == 2 and pooled['agent/O5']['n'] == 4
+    assert pooled['judged']['systems'] == ['J', 'P', 'L', 'O5'] and pooled['judged']['n'] == 2
     assert {(f['uid'], f['arm']) for f in failures} == {('room-1', 'L'), ('room-2', 'L')}
     mapping = json.loads((out / 'api-mapping.json').read_text())
     api = json.loads((out / 'api-bundle/manifest.json').read_text())

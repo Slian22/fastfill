@@ -114,9 +114,15 @@ def test_end_to_end_report_and_delivery(built):
     assert t4['IL3D_3dfront/bedroom', 'L-harness']['requests'] == 3 and t4['IL3D_3dfront/bedroom', 'L-raw']['fid'] is None
     gpt = t['T4_gpt'][0]
     assert gpt['n'] == 3 and gpt['delta']['estimate'] == pytest.approx(1 / 3)
-    # Agents on the cohort: J/P/agent contrasts on the two pooled scopes only, with cost.
+    # Amendment 011 section 2 on a J/P judge: per-arm pooled means; J−P is the canonical endpoint itself.
+    arms = {r['system']: r for r in t['T4_gpt_arms']}
+    assert arms['J']['mean'] == pytest.approx(25 / 3) and arms['P']['mean'] == pytest.approx(8)
+    assert (arms['P']['success'], arms['P']['requested']) == (3, 4)
+    assert [r['comparison'] for r in t['T4_gpt_contrasts']] == ['J−P'] and t['T4_gpt_contrasts'][0]['delta'] == gpt['delta']
+    # Agents on the cohort: J/P/agent contrasts on the three pooled scopes only, with cost.
     assert {(r['scope'], r['comparison']) for r in t['T5_contrasts']} == {
-        (s, c) for s in ('cohort', 'strata_pooled') for c in ('J−P', 'J−L-raw', 'P−L-raw', 'J−L-harness', 'P−L-harness')}
+        (s, c) for s in ('cohort', 'strata_pooled', 'other_sources')
+        for c in ('J−P', 'J−L-raw', 'P−L-raw', 'J−L-harness', 'P−L-harness')}
     assert {r['system'] for r in t['T5']} == {'J', 'P', 'L-raw', 'L-harness'} and result['cohort_rooms'] == 36
     cost = {r['system']: r for r in t['T5_cost']}
     assert cost['L']['model'] == L.EXPECTED_MODEL and cost['J']['gpu_hours_full_test_generation'] == pytest.approx(5 * 36 / 3600)
@@ -124,6 +130,12 @@ def test_end_to_end_report_and_delivery(built):
     h.verify_artifacts(out, json.loads((out / 'MANIFEST.json').read_text())['files'])
     report = (out / 'report.md').read_text()
     assert '达上限无 EOS' in report and 'Holm' in report
+    # Amendment 011 section 4: Holm at the confirmatory SFT stage only; amendment label from the stage.
+    assert result['amendment'] == R.AMENDMENT['sft'] == '006' and result['reporting_amendment'] == '011'
+    assert result['holm_co_primaries'] == {'a': t1['(a) ']['p_holm'], 'b': t1['(b) ']['p_holm']}
+    assert t1['(b) ']['p'] == 0 and '| < 1/200 | < 1/200 |' in report  # Audit minor 7: p = 0 prints as < 1/R.
+    # J/P-only judge run: the pre-specified N-system judged set is not claimed.
+    assert '评审系统集合为预先指定' not in report and '| J−P |' in report and '此 J/P 视觉运行不产出 KID' in report
     # SFT geometry (no stage label): the amendment-005 rule is informational, delivery is between the dev-selected models.
     assert result['stage'] == 'sft' and d['stage'] == 'sft' and d['binding'] is False and 'models' not in result
     assert '**交付：' not in report and '规则结果：P' in report and '修订 010：交付比较为 dev 选定模型' in report
@@ -178,6 +190,170 @@ def test_t5_own_bias_and_rescaled_success_for_every_system(built):
     assert "(a′) 自身 B 去偏成功率（EXPLORATORY）" in report and '各系统在自身完整输出上的均值' in report
 
 
+def test_amendment_011_gt_and_equal_size_controls(built):
+    """EXPLORATORY controls: GT at each factor (T1_gt, T5_gt), equal-size column, Delta(a') with CIs, other sources."""
+    root, rooms, runs = built
+    result = _build(root, runs)
+    t = result['tables']
+    stored = {r['uid']: r for r in _jsonl(root / 'data' / 'rooms.jsonl')}
+    requests = {arm: {r['uid']: r for r in _jsonl(root / 'data' / arm / 'requests.jsonl')} for arm in h.ARMS}
+    gt = {u: R._gt((stored[u], requests['joint'][u])) for u in stored}
+    factor = result['delivery']['scale_factor']
+    # T1_gt: GT unscaled is the frozen reference; J is unbiased (factor 1); P's factor shrinks GT.
+    unscaled, at_j, at_p = t['T1_gt']
+    assert unscaled['gt_success'] == t['T2'][0]['gt_success'] == 1 and at_j['gt_success'] == 1 and factor['joint'] == 1
+    manual = [R._control((gt[u], stored[u], requests['joint'][u], factor['placement'])) for u in stored]
+    assert at_p['gt_success'] == sum(manual) / len(manual) and at_p['scale_factor'] == factor['placement'] < 1
+    assert at_p['system_a_prime'] == result['delivery']['a_prime']['P'] and at_j['system'] == 'J'
+    # T5: three scopes; other_sources = cohort rooms outside the six strata.
+    t5 = {(r['scope'], r['system']): r for r in t['T5']}
+    cohort = [r['uid'] for r in _jsonl(root / 'llm-eval' / 'llm_harness-geometry.jsonl')]
+    inside = sum(bool(R.stratum(stored[u])) for u in cohort)
+    assert t5['other_sources', 'J']['requests'] == len(cohort) - inside == len(cohort) - t5['strata_pooled', 'J']['requests'] > 0
+    # Equal-size control: J and L answer GT sizes (= raw (a)); P re-scored with GT x/y at its own z, pos and yaw.
+    for system in ('J', 'L-harness', 'L-raw'):
+        assert t5['cohort', system]['equal_size_success_rate'] == t5['cohort', system]['geometry_success_rate']
+    rows = {r['uid']: r for r in _jsonl(root / 'geometry-v2' / 'placement-geometry.jsonl')}
+    again = [R._control((rows[u], stored[u], requests['placement'][u], None)) for u in cohort]
+    assert t5['cohort', 'P']['equal_size_success_rate'] == sum(again) / len(again)
+    sized = R._control((rows[cohort[0]], stored[cohort[0]], requests['placement'][cohort[0]], None))
+    assert sized is (R._control((gt[cohort[0]], stored[cohort[0]], requests['joint'][cohort[0]], 1.)) and True)
+    assert R._control(({**rows[cohort[0]], 'complete': False}, None, None, None)) is False
+    # T5_gt per scope: unscaled, and GT at each system's own factor beside that system's (a').
+    t5_gt = {(r['scope'], r['control']): r for r in t['T5_gt']}
+    for scope in ('cohort', 'strata_pooled', 'other_sources'):
+        assert t5_gt[scope, 'GT 未缩放']['gt_success'] == 1 == t5_gt[scope, 'GT × J 自身系数']['gt_success']
+        p = t5_gt[scope, 'GT × P 自身系数']
+        assert p['scale_factor'] == t5['cohort', 'P']['scale_factor'] and p['system_a_prime'] == t5[scope, 'P']['success_debiased_rate']
+    keep = [u for u in cohort if R.stratum(stored[u])]
+    shrunk = [R._control((gt[u], stored[u], requests['joint'][u], t5['cohort', 'P']['scale_factor'])) for u in keep]
+    assert t5_gt['strata_pooled', 'GT × P 自身系数']['gt_success'] == sum(shrunk) / len(shrunk)
+    # Delta(a') with the same design and draws as Delta(a): J−P equals the a' rate difference; J−L-harness = Delta(a).
+    contrast = {(r['scope'], r['comparison']): r for r in t['T5_contrasts']}
+    for scope in ('cohort', 'strata_pooled', 'other_sources'):
+        jp = contrast[scope, 'J−P']['own_debiased']
+        assert jp['estimate'] == pytest.approx(t5[scope, 'J']['success_debiased_rate'] - t5[scope, 'P']['success_debiased_rate'])
+        assert jp['ci95'] is not None and contrast[scope, 'J−L-harness']['own_debiased']['estimate'] == \
+            contrast[scope, 'J−L-harness']['geometry_success']['estimate']
+    # Cohort representativeness: source shares against the full test set.
+    sources = {r['source']: r for r in t['T5_sources']}
+    assert sum(r['cohort_rooms'] for r in sources.values()) == len(cohort) and sum(r['test_rooms'] for r in sources.values()) == len(rooms)
+    assert sum(r['cohort_share'] for r in sources.values()) == pytest.approx(1) == sum(r['test_share'] for r in sources.values())
+    report = (root / 'report' / 'report.md').read_text()
+    assert '**队列不代表测试集**' in report and '### T5-S 队列与全测试集的来源构成' in report and '## T1-GT 对照' in report
+    assert '等尺寸对照成功率（EXPLORATORY）' in report and "Δ(a′) [95% CI]（EXPLORATORY）" in report
+    assert '| other_sources | J |' in report and '### T5-GT 对照' in report
+    assert (root / 'report' / 'T5_gt.csv').exists() and (root / 'report' / 'T1_gt.csv').exists()
+
+
+def _open_agent(root, rooms, system, script=None):
+    """A complete llm_open run of `system` on the fixture cohort, evaluated against the merged J/P runs."""
+    from fastfill.comparison import llm_open as O
+    from fastfill.comparison.tests.test_llm_open import FakeLLM, argv, loader
+    model = root / 'models' / O.SYSTEMS[system]['model']
+    model.mkdir(parents=True, exist_ok=True)
+    (model / 'config.json').write_text('{}')
+    thinking = O.SYSTEMS[system]['thinking']
+    fake = FakeLLM(rooms, script, default='<think>plan</think>{valid}' if thinking else '{valid}')
+    assert O.main(argv(root, system, f'{system}-run'), loader(fake)) == 0
+    return root / f'{system}-run'
+
+
+def test_amendment_011_agent_disclosures(built):
+    """Budgets, modes, harness, per-round cap hits, T6 JSON/schema split, not-run list, O1a support note."""
+    root, rooms, runs = built
+    cohort = json.loads((root / 'cohort.json').read_text())['uids']
+    uid = next(u for u in cohort if len(rooms[u]['objects']) >= 2)
+    answer = json.loads(target(None, 'joint', rooms[uid]))  # Schema-valid, but object 0 claims support by object 1.
+    answer['placements'][0]['on'] = answer['placements'][1]['id']
+    o1a = _open_agent(root, rooms, 'O1a', {uid: [json.dumps(answer)]})
+    ev.evaluate(root / 'data', root / 'cohort.json', o1a, root / 'o1a-eval', runs, repeats=200)
+    status = root / 'llm-open-status.json'
+    h.write_json(status, {'O1a': {'model': 'qwen3-8b-nothink', 'state': 'complete', 'reason': None},
+                          'O5': {'model': 'deepseek-v4-flash-0731', 'state': 'not run', 'reason': 'smoke: engine build failed'},
+                          'kimi-k3': {'model': 'kimi-k3', 'state': 'not run', 'reason': 'not run (too large)'}})
+    reason = 'not run: 4 engine-build failures, never substituted'
+    result = _build(root, runs, out='report-011', agents={'L': root / 'llm-eval', 'O1a': root / 'o1a-eval'},
+                    agent_runs={'L': root / 'run', 'O1a': o1a}, open_status=status, not_run={'O5': reason})
+    t = result['tables']
+    assert t['T5_not_run'] == [{'system': 'O5', 'model': 'deepseek-v4-flash-0731', 'state': 'not run', 'reason': reason},
+                               {'system': 'kimi-k3', 'model': 'kimi-k3', 'state': 'not run', 'reason': 'not run (too large)'}]
+    cost = {r['system']: r for r in t['T5_cost']}
+    assert cost['L']['budget'] == '65,536（固定）' and cost['L']['reasoning'] == 'medium' and cost['L']['attempts'] == 3
+    assert cost['O1a']['budget'] == 'min(1,024 + 128·物体, 40,960 − 提示)' and cost['O1a']['thinking'] is False
+    assert [cost[k][f'cap_round_{i}'] for k in ('L', 'O1a') for i in (1, 2, 3)] == [0] * 6
+    assert cost['J']['budget'] is None and cost['J']['answers_reaching_cap'] == 1  # x-05 hits the cap in the cohort.
+    # T6 with the agent runs: invalid outputs split into JSON / schema (L's 'bad' answers are not JSON).
+    t6 = {r['system']: r for r in t['T6']}
+    assert (t6['L-raw']['invalid_json'], t6['L-harness']['invalid_json'], t6['L-raw']['invalid_schema_or_geometry']) == (2, 1, 0)
+    assert 'invalid_output' not in t6['L-raw'] and t6['O1a-harness']['complete'] == 36
+    assert result['input_sha256']['open_status'] == h.sha256(status)
+    assert result['input_sha256']['agent_run_O1a_MANIFEST'] == h.sha256(o1a / 'MANIFEST.json')
+    report = (root / 'report-011' / 'report.md').read_text()
+    assert '| O5 | deepseek-v4-flash-0731 | not run | ' + reason + ' |' in report and '从不替代' in report
+    assert 'O1a-raw 完整 36 间中 1 间支撑检查失败；O1a-harness 完整 36 间中 1 间支撑检查失败（全队列）' in report
+    assert '不是布局能力的证据' in report and t5_support(t) == {'O1a-raw': 1, 'O1a-harness': 1, 'L-raw': 0}
+    assert '至多 3 次尝试' in report and '不含解析器的错误文本' in report and '达上限回答（全部轮次）' in report
+    assert '| O1a | qwen3-8b-nothink | 否 | thinking off |' in report
+    # Thinking open model with a cap hit in round 1: budget with the thinking allowance, per-round counts.
+    o5 = _open_agent(root, rooms, 'O5', {'il-bed-0': [('<think>plan</think>{valid}', 'length')]})
+    ev.evaluate(root / 'data', root / 'cohort.json', o5, root / 'o5-eval', runs, repeats=200)
+    again = _build(root, runs, out='report-o5', agents={'O5': root / 'o5-eval'}, agent_runs={'O5': o5}, fid=None, judge=None)
+    o5_cost = {r['system']: r for r in again['tables']['T5_cost']}['O5']
+    assert [o5_cost[f'cap_round_{i}'] for i in (1, 2, 3)] == [1, 0, 0] == [o5_cost['answers_reaching_cap'], 0, 0]
+    assert o5_cost['budget'] == 'min(1,024 + 128·物体 + 16,384（思考）, 40,960 − 提示)' and o5_cost['thinking'] is True
+    assert again['tables']['T5_not_run'] == [] and '未提供未运行清单' in (root / 'report-o5' / 'report.md').read_text()
+
+
+@pytest.mark.parametrize('kind', ['complete_unreported', 'listed_and_reported', 'stale_status', 'run_without_agent',
+                                  'other_run'])
+def test_amendment_011_disclosure_inputs_fail_closed(built, monkeypatch, kind):
+    root, rooms, runs = built
+    status = root / 'status.json'
+    h.write_json(status, {'O2': {'model': 'qwen3.8-27b', 'state': 'complete'}, 'L': {'state': 'incomplete'}}
+                 if kind == 'stale_status' else {'O2': {'model': 'qwen3.8-27b', 'state': 'complete'}})
+    options = {'complete_unreported': {'open_status': status}, 'listed_and_reported': {'not_run': {'L': 'not run'}},
+               'stale_status': {'open_status': status, 'agents': {'L': root / 'llm-eval', 'O2': root / 'llm-eval'}},
+               'run_without_agent': {'agent_runs': {'O5': root / 'run'}},
+               'other_run': {'agent_runs': {'L': root / 'other-run'}}}[kind]
+    if kind == 'other_run':  # A second, different L run on the same cohort: not the one llm-eval scored.
+        L.run(args(root, out=root / 'other-run', max_output_tokens=4096), FakeApi(rooms))
+    else:  # Disclosure inputs alone fail before any data is read or scored.
+        monkeypatch.setattr(R.e, '_verified', lambda *_: pytest.fail('scoring started before the disclosure check'))
+    match = {'complete_unreported': 'O2 is complete', 'listed_and_reported': 'also listed as not run',
+             'stale_status': 'also listed as not run', 'run_without_agent': 'without --agent',
+             'other_run': 'not the run its evaluation scored'}[kind]
+    with pytest.raises(ValueError, match=match):
+        _build(root, runs, out='bad', **options)
+    assert not (root / 'bad').exists()
+
+
+def test_gt_control_must_reproduce_the_frozen_reference(built, monkeypatch):
+    root, _, runs = built
+    score = R._gt
+    monkeypatch.setattr(R, '_gt', lambda task: {**score(task), 'geometry_success': task[0]['uid'] != 'il-bed-0'})
+    with pytest.raises(ValueError, match='GT layouts do not reproduce the frozen reference gt_pass'):
+        _build(root, runs, out='bad')
+    assert not (root / 'bad').exists()
+
+
+def t5_support(tables):
+    """Cohort rooms whose complete output fails the support check, for a few systems (T5 support_fail_rooms)."""
+    return {r['system']: r['support_fail_rooms'] for r in tables['T5']
+            if r['scope'] == 'cohort' and r['system'] in ('O1a-raw', 'O1a-harness', 'L-raw')}
+
+
+def test_p_text_and_cap_rule():
+    assert R.p_text(0., 2000) == '< 1/2000' and R.p_text(.0412, 2000) == '0.0412' and R.p_text(None, 2000) is None
+    rows = [{'uid': 'a', 'complete': True}, {'uid': 'b', 'complete': True}, {'uid': 'c', 'complete': False}]
+    flags = [{'reached_token_cap': True, 'stopped_on_eos': False}, {'reached_token_cap': True, 'stopped_on_eos': True},
+             {'reached_token_cap': True, 'stopped_on_eos': False}]
+    capped, flipped = R.cap_rule(rows, flags)
+    assert [r['complete'] for r in capped] == [False, True, False] and capped[0]['error'] == R.CAP and flipped == 1
+    with pytest.raises(ValueError):
+        R.cap_rule(rows, flags[:2])
+
+
 @pytest.mark.parametrize('stage', ['dpo1', 'dpo2'])
 def test_delivery_section_not_binding_at_dpo_stages(built, stage):
     root, _, runs = built
@@ -189,6 +365,13 @@ def test_delivery_section_not_binding_at_dpo_stages(built, stage):
     assert R.ROLE[stage] in report and all(R.ROLE[s] not in report for s in R.ROLE if s != stage)
     assert '**交付：' not in report and f'（{stage} 阶段，非交付决定；修订 010：交付比较为 dev 选定模型）' in report
     assert f'{stage.upper()}：描述性' in report and '修订 008' not in report
+    # Amendment 011: no Holm outside SFT (unadjusted, descriptive); governing amendment 009; visual pending.
+    assert all(r.get('p_holm') is None for r in result['tables']['T1']) and 'holm_co_primaries' not in result
+    assert result['amendment'] == '009' and '未经 Holm 校正' in report and '| < 1/200 | — |' in report
+    assert 'FID/KID：视觉指标待测' in report and 'GPT 评审：视觉指标待测' in report and '此 J/P 视觉运行' not in report
+    assert result['tables']['T4_gpt_arms'] == result['tables']['T4_gpt_contrasts'] == []
+    again = _build(root, runs, out='report-again-' + stage, fid=None, judge=None, amendment='011')
+    assert again['amendment'] == '011'
 
 
 def _selected(root, runs, stages=('dpo1', 'sft'), inference=None):
@@ -218,6 +401,9 @@ def test_selected_stage_is_the_binding_delivery_comparison(built):
     assert f"**交付：{d['delivered']}**" in report and '## 交付决定（修正案 005 §1；修订 010：交付比较为 dev 选定模型）' in report
     assert 'J = e1-dpo1（stage dpo1，LoRA unmerged_fp32_stage_adapter_on_bf16_training_base）；P = sft（stage sft' in report
     assert '配对 J−P；dev 选定模型：有约束力的交付比较（修订 010）' in report
+    assert result['amendment'] == '010' and 'holm_co_primaries' not in result and '属次要比较，p 未经 Holm 校正' in report
+    assert 'J、P 为本报告 selected 阶段的模型（J = e1-dpo1，P = sft）。' in report  # Audit M4: T5 states the stage.
+    assert all(r['p_holm'] is None for r in result['tables']['T1'][:2]) and result['tables']['T1'][0]['p'] is not None
     manifest = json.loads((root / 'report-selected' / 'MANIFEST.json').read_text())
     assert manifest['input_sha256']['selection'] == h.sha256(selection)
     with pytest.raises(ValueError, match='required for, and only for'):  # The selected stage needs its selection.
@@ -327,11 +513,14 @@ def test_end_to_end_two_agents_and_n_system_visual_outputs(built, monkeypatch):
     for i, uid in enumerate(('il-bed-0', 'il-bed-1', 'il-bed-2')):
         images = {}
         for j, arm in enumerate(['reference', *labels]):
+            if (uid, arm) == ('il-bed-2', 'O5'):  # A failed O5 render: O5's population is smaller than J/P's.
+                images[arm] = {'failure': 'render_failed'}
+                continue
             (visual / uid).mkdir(parents=True, exist_ok=True)
             Image.new('RGB', (512, 512), (40 * j, 60 * i, 90)).save(visual / uid / f'{arm}.png')
             images[arm] = {'path': f'{uid}/{arm}.png', 'sha256': h.sha256(visual / uid / f'{arm}.png')}
         cases.append({'uid': uid, 'stratum': bed, 'images': images})
-    h.write_json(visual / 'fid-manifest.json', {'cases': cases, 'systems': labels,
+    h.write_json(visual / 'fid-manifest.json', {'cases': cases, 'systems': labels, 'judged': labels,
                                                 'provenance': {'geometry_manifest_sha256': lineage}})
     monkeypatch.setattr(F, 'verify_weights', lambda path: F.WEIGHTS_SHA256)
     features = lambda refs, **_: np.random.default_rng(0).normal(size=(len(refs), 2048))  # noqa: E731
@@ -351,17 +540,30 @@ def test_end_to_end_two_agents_and_n_system_visual_outputs(built, monkeypatch):
     result = _build(root, runs, out='report-n', agents=agents, fid=root / 'fid-n.json', judge=root / 'judge-n')
     t = result['tables']
     assert result['visual_mode'] == {'fid': 'systems', 'judge': 'systems'}
+    assert '评审系统集合为预先指定' in (root / 'report-n' / 'report.md').read_text()
     t4 = {(r['stratum'], r['system']): r for r in t['T4']}
-    for label, key in (('J', 'J'), ('P', 'P'), ('L-harness', 'L'), ('O5-harness', 'O5')):
-        row = t4[bed, label]
-        assert row['fid'] == fid['strata'][bed][key + '_vs_reference'] and row['kid'] == fid['strata'][bed]['kid'][key]['kid']
-        assert row['fid_n'] == 3 and row['fid_flag'] == 'N<50' and row['kid_se'] is not None
+    # Amendment 011 populations: J/P on reference∩J∩P; each agent on reference∩J∩P∩agent with J/P on its rooms.
+    pops = fid['strata'][bed]['populations']
+    for label, key, population, n in (('J', 'J', 'primary', 3), ('P', 'P', 'primary', 3), ('L-harness', 'L', 'agent/L', 3),
+                                      ('O5-harness', 'O5', 'agent/O5', 2)):
+        row, own = t4[bed, label], pops[population]
+        assert row['fid'] == own['fid'][key] and row['kid'] == own['kid'][key]['kid'] and row['fid_n'] == n == own['n']
+        assert row['fid_flag'] == 'N<50' and row['kid_se'] is not None
+        if population != 'primary':
+            assert (row['fid_J_same_rooms'], row['fid_P_same_rooms']) == (own['fid']['J'], own['fid']['P'])
         assert row['gpt'] == pytest.approx(statistics.mean([base[key] + (key == 'J') / 3, 7, 9])) and row['gpt_success'] == 3
     assert t4[bed, 'L-raw']['fid'] is None and t4[bed, 'O5-raw']['gpt'] is None  # Only harness answers are rendered.
     assert t4['OptiScene_holodeck/kitchen', 'O5-harness']['gpt'] == pytest.approx(7)
     endpoint = judged['endpoint']
     assert t['T4_gpt'][0]['delta'] == {**t['T4_gpt'][0]['delta'], 'estimate': endpoint['mean_difference'],
                                        'ci95': endpoint['ci95'], 'n': endpoint['both_complete']}
+    arms = {r['system']: r['mean'] for r in t['T4_gpt_arms']}
+    assert arms == pytest.approx({k: statistics.mean([base[k], 7, 9]) + (k == 'J') / 12 for k in base})  # 4 rooms.
+    contrast = {r['comparison']: r['delta'] for r in t['T4_gpt_contrasts']}
+    assert list(contrast) == ['P−L', 'P−O5', 'J−P'] and contrast['J−P'] == t['T4_gpt'][0]['delta']
+    # Functionality differs by the base only: room means differ by base / 3 in every room.
+    assert contrast['P−L']['estimate'] == pytest.approx(-1 / 3) and contrast['P−L']['ci95'] == pytest.approx([-1 / 3] * 2)
+    assert contrast['P−O5']['estimate'] == pytest.approx(1 / 3) and contrast['P−O5']['n'] == 4
     cost = {r['system']: r for r in t['T5_cost']}
     assert cost['O5']['gpu_hours'] == json.loads((root / 'o5-run' / 'cost.json').read_text())['gpu_hours']
     assert cost['O5']['reasoning'] == O.SYSTEMS['O5']['effort'] and cost['L']['model'] == L.EXPECTED_MODEL
@@ -376,8 +578,12 @@ def test_end_to_end_two_agents_and_n_system_visual_outputs(built, monkeypatch):
     # Every rendered cell with an input is filled: T4 rows of the rendered systems, T5 and its contrasts.
     report = (root / 'report-n' / 'report.md').read_text()
     lines = report.splitlines()
-    for label in ('J', 'P', 'L-harness', 'O5-harness'):
-        assert '—' not in next(x for x in lines if x.startswith(f'| {bed} | {label} |'))
+    for label in ('J', 'P', 'L-harness', 'O5-harness'):  # J/P have no same-room agent columns.
+        assert next(x for x in lines if x.startswith(f'| {bed} | {label} |')).count('—') == 2 * (label in 'JP')
+    populations = {(r['stratum'], r['population'], r['system']): r for r in t['T4_fid']}
+    assert populations[bed, 'judged', 'O5']['n'] == 2 and populations[bed, 'judged', 'O5']['role'].startswith('次要')
+    assert populations['pooled', 'primary', 'J']['n'] == 3 and populations['pooled', 'agent/O5', 'P']['n'] == 2
+    assert '### T4-FID 修订 011 的 FID/KID 人群' in report and '参考∩J∩P∩该代理' in report
     for scope in ('cohort', 'strata_pooled'):
         for label in ('J', 'P', 'L-raw', 'L-harness', 'O5-raw', 'O5-harness'):
             assert '—' not in next(x for x in lines if x.startswith(f'| {scope} | {label} |'))

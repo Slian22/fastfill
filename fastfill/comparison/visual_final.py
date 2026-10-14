@@ -10,7 +10,10 @@ SACCT.txt is the saved output of
 taken after every candidate DPO2-paired agent evaluation (llm-eval-*-dpo2-v1) has ended. An agent whose
 job COMPLETED with exit 0:0 is rendered; any other ended state excludes it with that state recorded; a
 job still pending/running, or absent from the output, refuses (launch later). L is required. The judged
-set is visual_pipeline.judged_systems: J, P, L and the strongest included open model (O6 > O5 > O4).
+set is visual_pipeline.judged_systems: J, P, L and the pre-specified open model (O6; O5, then O4, only when
+O6 was not rendered), not the best measured one. Every rendered agent gets FID/KID on the amendment-011
+populations (fid.py: primary reference∩J∩P, each agent on reference∩J∩P∩agent, the all-system
+intersection only for the judged set), recorded as visual_final_selection.fid_populations.
 Writes a new overnight config, validated by overnight.validate_config, with the selection recorded under
 visual_final_selection. It launches nothing; the user starts the run on the Mac:
     caffeinate -dimsu python -m fastfill.comparison.overnight --config CONFIG.json
@@ -57,6 +60,7 @@ def build(template, sacct, out, local_code_root, remote_api_code, output_root=No
               'agent_job_ids': {s: str(agents[s]['job_id']) for s in included},
               'visual_final_selection': {'included': included, 'excluded': excluded,
                                          'judged': visual_pipeline.judged_systems(['J', 'P', *included]),
+                                         'fid_populations': visual_pipeline.fid.SYSTEMS_DISCLOSURE,
                                          'template_sha256': overnight.sha256(template),
                                          'sacct_sha256': overnight.sha256(sacct)}}
     if FILL in json.dumps(config):
