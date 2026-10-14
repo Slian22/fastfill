@@ -148,14 +148,16 @@ def test_end_to_end_report_and_delivery(built):
 
 
 def test_t5_own_bias_and_rescaled_success_for_every_system(built):
-    """EXPLORATORY T5: B on the cohort's all-system common-complete rooms, (a') through _derive with own B."""
+    """EXPLORATORY T5: B on rooms where J, P and that system are complete, (a') through _derive with own B."""
     root, rooms, runs = built
     t5 = {(r['scope'], r['system']): r for r in _build(root, runs)['tables']['T5']}
     cohort = [r['uid'] for r in _jsonl(root / 'llm-eval' / 'llm_harness-geometry.jsonl')]
-    failed = {'x-05', 'x-06', 'y-0', 'il-bed-1'}  # J (cap, truncated, schema) and L-raw (il-bed-1, y-0).
-    systems = ('J', 'P', 'L-raw', 'L-harness')
-    assert {t5['cohort', s]['bias_fp']['n'] for s in systems} == {len(set(cohort) - failed)}
-    assert {t5['strata_pooled', s]['bias_vol']['n'] for s in systems} == {3}
+    failed = {'x-05', 'x-06', 'y-0', 'il-bed-1'}  # J (cap rule, truncated, schema) and L-raw (il-bed-1, y-0).
+    n = {s: t5['cohort', s]['bias_fp']['n'] for s in ('J', 'P', 'L-raw', 'L-harness')}
+    # Per-system masks (J, P and that system complete): a weak agent no longer shrinks J's, P's or L-harness's set.
+    assert n['J'] == n['P'] == n['L-harness'] > n['L-raw'] == len(set(cohort) - failed)
+    strata_n = {s: t5['strata_pooled', s]['bias_vol']['n'] for s in ('J', 'P', 'L-raw', 'L-harness')}
+    assert strata_n['J'] == strata_n['P'] == strata_n['L-harness'] == 4 and strata_n['L-raw'] == 3  # il-bed-1 L-raw
     # J and L answer GT sizes: B = 0, factor 1, (a') = raw (a). P sizes are GT + 0.1 m in every room.
     for s in ('J', 'L-raw', 'L-harness'):
         row = t5['cohort', s]

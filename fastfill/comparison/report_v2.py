@@ -76,7 +76,7 @@ INTERVAL_WARNINGS = {'singleton_source_signature_strata': '某来源签名层只
 ROLE = {'sft': 'SFT 阶段：(a)、(b) 的 J−P 为方案锁定的主要（确认性）比较（protocol.md），两终点间做 Holm 校正；其余均为描述或估计。',
         'dpo1': 'DPO1 阶段：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
                 '主要（确认性）比较为 SFT J0/P0（protocol.md），交付比较为 DPO2（修订 008）。',
-        'dpo2': 'DPO2 阶段：(a)、(b) 的 J−P 为次要的交付比较（修订 008），Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；'
+        'dpo2': 'DPO2 阶段：(a)、(b) 及交付规则所用的 (a′) 的 J−P 为次要的交付比较（修订 008），Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；'
                 '主要（确认性）比较为 SFT J0/P0（protocol.md）。'}
 
 
@@ -228,7 +228,7 @@ def _design(rows):
 
 def own_bias(rows, keep, repeats):
     """One system's B (footprint, volume) on the kept rooms, house-cluster CI as a level against 0.0."""
-    levels = [{**r, **{k: r[k] if c else None for k in ('bias_fp', 'bias_vol')}} for r, c in zip(rows, keep)]
+    levels = [{**r, **{k: r[k] if c else None for k in ('bias_fp', 'bias_vol')}} for r, c in zip(rows, keep, strict=True)]
     return contrasts(levels, [{**r, 'bias_fp': 0., 'bias_vol': 0.} for r in rows], ('bias_fp', 'bias_vol'), repeats)
 
 
@@ -269,7 +269,10 @@ def _geometry(root, data, expected, receipts, ref):
         rows[arm] = h._rows(root, name, manifest['files'][name])
         if [r['uid'] for r in rows[arm]] != expected or any(r['arm'] != arm for r in rows[arm]):
             raise ValueError('geometry rows do not match the frozen inventory')
-    return rows, summary.get('stage', 'sft')  # Amendment 009 label; pre-009 SFT summaries carry none.
+    stage = summary.get('stage', 'sft')  # Amendment 009 label; pre-009 SFT summaries carry none.
+    if stage not in ROLE:
+        raise ValueError(f'unknown geometry stage {stage!r}')
+    return rows, stage
 
 
 def _agent(root, data_sha, run_hashes):
@@ -602,20 +605,23 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     if cohort is not None:
         index = {arm: {r['uid']: r for r in rows[arm]} for arm in h.ARMS}
         bench = {'J': [index['joint'][u] for u in cohort], 'P': [index['placement'][u] for u in cohort], **systems}
-        # EXPLORATORY (audit 2026-10-14): each system's own B on the cohort's all-system common-complete rooms
-        # and (a') rescaled by it through _derive; agents answer the J request (evaluate_llm).
-        common = [all(v[i]['complete'] for v in bench.values()) for i in range(len(cohort))]
+        # EXPLORATORY (audit 2026-10-14): each system's own B on the rooms where J, P and that system are all
+        # complete (so one weak agent cannot shrink every other system's room set), and (a') rescaled by it
+        # through _derive; agents answer the J request (evaluate_llm).
+        base = [j['complete'] and p['complete'] for j, p in zip(bench['J'], bench['P'], strict=True)]
+        common = {label: [c and r['complete'] for c, r in zip(base, brows, strict=True)] for label, brows in bench.items()}
         own_factor = {}
         for label, brows in bench.items():
-            b = statistics.mean(r['bias_fp'] for r, c in zip(brows, common) if c) if any(common) else None
+            b = (statistics.mean(r['bias_fp'] for r, c in zip(brows, common[label]) if c)
+                 if any(common[label]) else None)
             own_factor[label] = None if b is None else math.exp(-b / 2)
             arm = 'placement' if label == 'P' else 'joint'
             tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], own_factor[label]) for r in brows]
             bench[label] = [{**r, 'own_debiased': d['success_debiased']} for r, d in zip(brows, _map(_derive, tasks, workers))]
         for scope_name, keep in (('cohort', lambda r: True), ('strata_pooled', stratum)):
             subset = {k: [r for r in v if keep(r)] for k, v in bench.items()}
-            mask = [c for c, r in zip(common, bench['J']) if keep(r)]
             for label, srows in subset.items():
+                mask = [c for c, r in zip(common[label], bench[label], strict=True) if keep(r)]
                 agg = g.aggregate(srows)
                 tables['T5'].append({'scope': scope_name, 'system': label, **{k: agg[k] for k in (
                     'requests', 'complete_rate', 'geometry_success_rate', 'size_log_mae', 'size_iou', 'oor')},
@@ -719,9 +725,9 @@ def _report(result, agent_meta):
              f"B_P = {_cell(d['B_footprint']['P'])}；缩放系数 exp(−B/2)：J {_cell(d['scale_factor']['joint'])}，"
              f"P {_cell(d['scale_factor']['placement'])}；GT 参考几何成功率 {_cell(d['gt_reference_success'])}。", '',
              '任一区间无法计算时，规则按失败处理并交付 P。', '',
-             '## T1 共同主要终点（全部测试请求，配对 J−P）', '']
+             f"## T1 (a)、(b) 终点（全部测试请求，配对 J−P；{ {'sft': 'SFT：主要确认性比较', 'dpo1': 'DPO1：描述性', 'dpo2': 'DPO2：次要交付比较'}[stage] }）", '']
     lines += _md(t['T1'], [('endpoint', '终点'), ('J', 'J'), ('P', 'P'), ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'),
-                           ('p', '自举双侧 p'), ('p_holm', 'Holm p（两终点）')])
+                           ('p', '自举双侧 p'), ('p_holm', 'Holm p（本阶段 (a)、(b) 内）')])
     lines += ['(a) 以全部请求为分母，失败/不完整输出计 0；达到生成上限且未输出 EOS 的请求即使 JSON 可解析也计为失败。'
               '(b) 只在 J、P 共同完整的房间上计算，房间内按物体平均，再按房间平均。'
               "(a′) 将各臂预测的 x/y 尺寸绕物体中心乘以 exp(−B/2)，位置与朝向不变，用冻结几何代码重新评分。", '',
