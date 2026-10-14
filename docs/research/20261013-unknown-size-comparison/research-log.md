@@ -110,3 +110,9 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - v3.3 构建 7386117 release_ready：v3.2 控制重建逐字节一致（aarch64，numpy 2.4.6 / shapely 2.2.0 / GEOS 3.14.1），9 项条件全部通过；相对 v3.2 改动 43 行 SFT（train 32 / test 11），无新增/删除，无划分迁移，dev/test 人群一致，默认训练集 124,843 → 124,842。
 - 发布作业 7389340 → HF liantian/fastfill-v3 commit 6d951e3441eff6854d42cbe21653bd8f9ab5a500（父 d264159e），新增 v3.3/、code_v3.3/、ir_v3.3/ 并追加 README v3.3 章节；88 个文件远端校验通过（20 个按 LFS sha256）。首次发布作业 7389337 误带 --verify（仅核验模式），因无 PUBLISHED.json 失败、未改动远端，已取消。
 - 注意：当前 J/P 模型训练于 v3.2；v3.3 只影响 43 行，测试集 11 行变化（主要 SpatialGen），已纳入冻结的 47 UID 敏感性集合。
+
+## 2026-10-14 00:35 UTC — DPO 进展
+
+- DPO 偏好对：stage1 2,200/2,200 两臂均通过验证（IL3D_3dfront 1,100 + OptiScene_holodeck 1,100，负样本均为自身 SFT 采样）；stage2 已构建。
+- P DPO1 训练 7389124 完成（1:52:12）；合并诊断：投影层 BF16 权重改变比例 q 12.7% / k 10.9% / v 16.5% / o 18.1% / gate 19.3% / up 18.6% / down 15.3%，other 0%——修订 009 的超参使更新在合并中大部分保留。P DPO2 训练 7389125 与 P DPO1 测试分片 7389134–39 已开始。
+- SFT 推理：J 完成并合并（infer-joint-002）；P 剩分片 0（1,280/2,167）。
