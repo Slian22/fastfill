@@ -63,7 +63,9 @@ from fastfill.comparison.llm_open import CAP_BASE, CAP_PER_OBJECT, _append, outp
 N, TEMPERATURE, TOP_P, SEED_SALT, MAX_MODEL_LEN, CHUNK_TOKENS = 8, 0.7, 0.95, 's2-bo-v1:', 40960, 2_000_000
 ENGINE = {'enable_lora': True, 'max_lora_rank': 32, 'max_loras': 1, 'max_model_len': MAX_MODEL_LEN,
           'dtype': 'bfloat16', 'seed': 0, 'tensor_parallel_size': 1}
-MULTIMODAL_ENGINE = {'limit_mm_per_prompt': {'image': 0, 'video': 0}}  # Amendment 021: the pinned 27B is multimodal.
+# Amendment 021: the pinned 27B is multimodal; its hybrid (Mamba-style) layers allow at most 641 cached sequences on one
+# GH200, so max_num_seqs is 256 (addendum B; vLLM's default 1024 fails engine start).
+MULTIMODAL_ENGINE = {'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'max_num_seqs': 256}
 PROTOCOL = 's2-best-of-n-sampling-v1'
 EOS = '<|im_end|>'
 PROMPT = ('infer.prompt_ids: the HF tokenizer of the loaded adapter dir, its chat template with add_generation_prompt '

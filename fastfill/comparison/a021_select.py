@@ -548,8 +548,8 @@ def o2nt_score(args):
         records, receipt, result, cost = ev._llm(o2nt_dir(run, slice_), data, cohort, h.sha256(cohort_path))
         config = receipt['config']
         if (config.get('system'), config.get('request_arm'), config.get('thinking'),
-                config.get('chat_template_kwargs'), config.get('reasoning_tokens')) != (
-                'O2nt', ARM, False, {'enable_thinking': False}, 'asserted_zero'):
+                config.get('chat_template_kwargs')) != ('O2nt', ARM, False, {'enable_thinking': False}) or \
+                config.get('reasoning_tokens') not in ('asserted_zero', 'zero_else_failure'):  # Addendum B.
             raise ValueError(f'{o2nt_dir(run, slice_)} is not an O2nt P-input run')
         if result['tokens']['reasoning_tokens'] != 0:
             raise ValueError(f'O2nt reasoned on {slice_}: {result["tokens"]["reasoning_tokens"]} tokens')

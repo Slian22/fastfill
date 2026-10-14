@@ -204,17 +204,18 @@ def test_o2nt_is_o2_without_thinking_asserts_zero_reasoning_and_leaves_the_table
     assert {k for k in a.keys() | b.keys() if a.get(k) != b.get(k)} == {
         'system', 'model', 'reasoning_effort', 'chat_template_kwargs', 'thinking', 'cap', 'reasoning_tokens'}
     assert (b['chat_template_kwargs'], b['thinking'], b['cap']['thinking_allowance'], b['reasoning_tokens']) == (
-        {'enable_thinking': False}, False, 0, 'asserted_zero')
+        {'enable_thinking': False}, False, 0, 'zero_else_failure')
     assert fake.calls[0]['kwargs'] == {'enable_thinking': False}
     assert all(p['max_tokens'] == 1024 + 128 * 2 for p in fake.calls[0]['params'])
     result = h.strict_json((root / 'o2nt/result.json').read_text())
     assert result['tokens']['reasoning_tokens'] == 0 and result['valid_final'] == 2
-    # Any reasoning in an O2nt answer stops the run before its receipt is written.
+    # Addendum B: an O2nt answer that reasons is a failure of that room (never repaired); the run completes.
     leak = TO.FakeLLM(rooms, default='<think>x</think>{valid}', arm='placement')
-    with pytest.raises(ValueError, match='reasoning tokens in a no-reasoning system'):
-        O.main(TO.argv(root, 'O2nt', 'leak', '--arm', 'placement', '--limit', '2'), TO.loader(leak))
-    assert not list((root / 'leak/receipts').iterdir())
-    assert h.strict_json((root / 'leak/status.json').read_text())['status'] == 'FAIL'
+    assert O.main(TO.argv(root, 'O2nt', 'leak', '--arm', 'placement', '--limit', '2'), TO.loader(leak)) == 0
+    receipts = [h.strict_json(p.read_text()) for p in sorted((root / 'leak/receipts').iterdir())]
+    assert len(receipts) == 2 and all(len(r['answers']) == 1 for r in receipts)  # No repair round.
+    assert all(r['answers'][0]['no_reasoning_violation'] and not r['answers'][0]['schema']['valid'] for r in receipts)
+    assert all(r['answers'][0]['schema']['error'] == 'reasoning_in_no_reasoning_system' for r in receipts)
     assert list(O.write_status(root)) == [*O.SYSTEMS, *O.NOT_RUN]  # The amendment 003-007 status table is unchanged.
 
 

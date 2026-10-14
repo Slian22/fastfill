@@ -49,7 +49,7 @@ recorded as config cohort_rule 'all_rooms' only when given.
 
 --system O2nt (amendment 021 section 1.4, reference rows only): O2 (same model files, engine, TP, harness, sampling and
 repairs) with enable_thinking False and so the non-thinking cap. It must reason 0 tokens: an answer with any reasoning
-raises before its receipt is written (config reasoning_tokens 'asserted_zero'). O2nt is in SPECS, not SYSTEMS: the
+raises before its receipt is written (config reasoning_tokens 'zero_else_failure'). O2nt is in SPECS, not SYSTEMS: the
 amendment 003-007 status table (llm-open-status.json), scripts and every existing identity are unchanged.
 """
 import argparse
@@ -247,10 +247,13 @@ def _chunk(llm, params, tok, spec, records, log, arm):
         active = []
         for (uid, precount, cap), output in zip(jobs, outputs):
             answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs), arm)
-            if spec.get('no_reasoning') and (answer['reasoning'] or answer['usage']['reasoning_tokens']):
-                raise ValueError(f'{uid}: reasoning tokens in a no-reasoning system')  # Amendment 021: asserted 0.
+            violated = bool(spec.get('no_reasoning') and (answer['reasoning'] or answer['usage']['reasoning_tokens']))
+            if violated:  # Amendment 021 addendum B: a no-reasoning answer that reasons is a failure, never repaired.
+                answer = {**answer, 'schema': {**answer['schema'], 'valid': False,
+                                               'error': 'reasoning_in_no_reasoning_system'},
+                          'no_reasoning_violation': True}
             answers[uid].append(answer)
-            if not answer['schema']['valid'] and round_ < L.REPAIRS:
+            if not answer['schema']['valid'] and round_ < L.REPAIRS and not violated:
                 conversations[uid] = [*conversations[uid], {'role': 'assistant', 'content': answer['raw']},
                                       {'role': 'user', 'content': answer['schema']['error']}]
                 active.append(uid)
@@ -320,7 +323,7 @@ def run(args, load=load_vllm):
               **({'request_arm': 'placement'} if args.arm == 'placement' else {}),  # Joint identity unchanged.
               **({'request_sizes': 'gt'} if gt else {}),
               **({'cohort_rule': 'all_rooms'} if args.all_rooms else {}),  # Amendment 018 teacher plan.
-              **({'reasoning_tokens': 'asserted_zero'} if spec.get('no_reasoning') else {})}  # Amendment 021 O2nt.
+              **({'reasoning_tokens': 'zero_else_failure'} if spec.get('no_reasoning') else {})}  # Amendment 021 O2nt.
     identity = {'arm': 'llm_open', 'variants': list(L.VARIANTS), 'config': config, 'config_sha256': infer._hash(config),
                 'data': {'manifest_sha256': data['manifest_sha256'],
                          f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl'],

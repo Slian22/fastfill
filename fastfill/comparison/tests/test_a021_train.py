@@ -215,7 +215,7 @@ def test_sample_vllm_runs_the_27b_policy_text_only_and_8b_engine_is_unchanged(tm
         'lineage_sha256': '0' * 64, 'policy': {'training_base': str(tmp_path / 'qwen27'), 'adapter': str(tmp_path / 'a021/27b/train/final')}})
     engines = []
     sv.main(SV.argv(world.root, world.data, 'placement', 'samples-27b'), SV.loader(SV.FakeLLM(world.data), engines))
-    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'model': str(tmp_path / 'qwen27')}]
+    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'max_num_seqs': 256, 'model': str(tmp_path / 'qwen27')}]
     base.clear()  # An 8B identity (no model_type): the amendment-011 engine, bit for bit.
     engines.clear()
     sv.main(SV.argv(world.root, world.data, 'placement', 'samples-8b'), SV.loader(SV.FakeLLM(world.data), engines))
@@ -324,7 +324,7 @@ def test_smoke_then_train_arm_a_writes_n_before_training_and_a_policy(world, mon
         a.train(args, fake_torchrun(calls))
     loaded, engines, fake = vllm_load(world, monkeypatch, smoke.out, b27)
     assert loaded == {'status': 'OK', 'rooms': a.VLLM_SMOKE_ROOMS, 'stopped_on_eos': a.VLLM_SMOKE_ROOMS}
-    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'model': str(b27)}]
+    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'max_num_seqs': 256, 'model': str(b27)}]
     assert fake.calls[0]['lora'] == ('a021-smoke', 1, str(smoke.out / 'train/final'))
     assert all(p['temperature'] == 0.0 for p in fake.calls[0]['params'])
     load = json.loads((smoke.out / a.VLLM_LOAD).read_text())
@@ -425,7 +425,7 @@ def test_probe_hf_vllm_report_on_the_same_rooms(tmp_path, monkeypatch):
     engines = []
     shifted = SV.FakeLLM(data, script=lambda request, uid, k: SV.spaced(request, uid, 3 if uid == 'r0' else k))
     assert a.probe_vllm(args, SV.loader(shifted, engines)) == {'status': 'PROBE_VLLM_DONE', 'rooms': 7}
-    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'model': str(tmp_path / 'qwen27')}]
+    assert engines == [{**sv.ENGINE, 'limit_mm_per_prompt': {'image': 0, 'video': 0}, 'max_num_seqs': 256, 'model': str(tmp_path / 'qwen27')}]
     assert all(p['temperature'] == 0.0 and p['stop_token_ids'] == [T.EOS] for p in shifted.calls[0]['params'])
     assert shifted.calls[0]['lora'] == ('a021', 1, identity['policy']['adapter'])
     report = a.probe_report(args)
