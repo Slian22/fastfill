@@ -27,11 +27,15 @@
 #   finalize                   CPU                     sample_vllm finalize -> dpo-004/samples (SAMPLING_COMPLETE)
 #   pairs                      --cpus-per-task=72 --mem=192G --time=08:00:00   onpolicy_dpo pairs -> dpo-004/stage2-pairs
 #   train                      --gpus-per-node=4 --cpus-per-task=72 --mem=0 --time=12:00:00   onpolicy_dpo train:
-#                              torchrun train_dpo (DDP 4 ranks) -> dpo-004/placement/dpo2, merges dpo2-epoch01-merged
-#                              and dpo2-merged; resubmitting resumes (training_guard, ckpt_latest).
+#                              torchrun train_dpo (DDP 4 ranks) from rpo-dpo1's exact policy, not its BF16 merge:
+#                              --model dpo-001/placement/sft-merged (rpo-dpo1's training base) --init_adapter
+#                              dpo-003/placement/dpo1/final (policy start and frozen reference) -> dpo-004/placement/dpo2;
+#                              merges dpo2-epoch01-merged and dpo2-merged (training base + adapter: receipt anchors and
+#                              convenience artifacts); resubmitting resumes (training_guard, ckpt_latest).
 #   shard dev|test CAND I N [--resume]   --gpus-per-node=1 --cpus-per-task=8 --mem=96G --time=14:00:00
 #                              infer_shard shard as isambard_010_infer_shard.sbatch. CAND op-dpo2-e1 / op-dpo2-e2: the
-#                              exact policy of dpo2-epoch01-merged / dpo2-merged (--exact-policy); dev -> dev-eval-013/
+#                              exact policy of dpo2-epoch01-merged / dpo2-merged (--exact-policy: the DPO2 adapter on
+#                              dpo-001/placement/sft-merged, from the receipt's training_base); dev -> dev-eval-013/
 #                              CAND/placement/shard-NN on the shared dev-eval-010/plan; test (the adopted CAND only) ->
 #                              infer-v2-006/placement/shard-NN on infer-v2-006/plan. op-dpo2-eK-merged (dev only, the
 #                              adopted K): the BF16 merge loaded as is, for the merged-weight check.

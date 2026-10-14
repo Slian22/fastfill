@@ -15,7 +15,8 @@
 #   array (SHARDS x 1 GPU, 4 h)          <- smoke: sample_vllm run, K = 9 per room -> dpo-004/samples
 #   finalize (CPU)                       <- array
 #   pairs (CPU 72, 192G, 8 h)            <- finalize: S1-repaired / best-passing chosen -> dpo-004/stage2-pairs
-#   train (4 GPUs, 12 h)                 <- pairs: dpo2 on dpo-003 dpo1-merged; merges epoch 1 and epoch 2
+#   train (4 GPUs, 12 h)                 <- pairs: dpo2 from rpo-dpo1's exact policy (dpo-001 SFT merge + the dpo-003
+#                                           dpo1 adapter as policy start and frozen reference); merges epoch 1 and 2
 #   per op-dpo2-e1, op-dpo2-e2: DEV_N dev shards (1 GPU) <- train; dev merge (CPU) <- its shards
 #   dev-score (CPU)                      <- both dev merges
 #   select (CPU)                         <- dev-score: selection.json only (--no-submit)
@@ -46,7 +47,8 @@ done
 test -n "$DOC" || { echo "ABORT: no amendment-013 protocol doc in $CODE_ROOT; nothing submitted" >&2; exit 1; }
 for path in main-data-v1/MANIFEST.json sft-joint-001/SHA256.json sft-placement-001/SHA256.json \
     dpo-001/positives/MANIFEST.json dev-select-v1/MANIFEST.json dev-full-v1/MANIFEST.json eval-data-v1/MANIFEST.json \
-    dpo-003/placement/dpo1-merged.json dev-eval-010/plan/MANIFEST.json dev-eval-010/scores/MANIFEST.json \
+    dpo-003/placement/dpo1-merged.json dpo-001/placement/sft-merged.json \
+    dpo-003/placement/dpo1/final/adapter_model.safetensors dev-eval-010/plan/MANIFEST.json dev-eval-010/scores/MANIFEST.json \
     dev-eval-010/selection.json dev-eval-010/sft/infer-placement/MANIFEST.json \
     dev-eval-010/rpo-dpo1/infer-placement/MANIFEST.json context-capacity-001/SHA256.json \
     infer-v2-002/plan/MANIFEST.json infer-joint-002/MANIFEST.json infer-placement-005/MANIFEST.json; do

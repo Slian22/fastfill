@@ -12,7 +12,7 @@ from fastfill.v1_1 import train_dpo
 
 
 class Adapter:
-    def save_pretrained(self, target):
+    def save_pretrained(self, target, **kwargs):
         (Path(target) / "adapter_config.json").write_text("{}")
         save_file({"adapter": torch.ones(1)}, Path(target) / "adapter_model.safetensors")
 

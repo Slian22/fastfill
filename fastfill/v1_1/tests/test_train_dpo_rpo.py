@@ -34,7 +34,7 @@ class Saver:
     def __init__(self, name):
         self.name = name
 
-    def save_pretrained(self, path):
+    def save_pretrained(self, path, **kwargs):
         (Path(path) / self.name).write_text(self.name)
 
 

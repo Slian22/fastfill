@@ -22,8 +22,9 @@ pairs        --data RUN/dpo-004/train-subset --samples RUN/dpo-004/samples --bas
              --out RUN/dpo-004/stage2-pairs [--workers 72] [--dry-run ROOMS]
     Binding (raises): samples SAMPLING_COMPLETE and hash-verified on this data (as best_of_n.evaluate), sampled by
     rpo-dpo1's exact policy (receipt model.policy == dpo_stages.exact_policy(BASE_MODEL), stage dpo1, candidate rpo),
-    tokenizer = train_dpo's (dpo_stages._tokenizer(BASE_MODEL), EOS im_end) and every prompt's token count equals the
-    sampled input_tokens (template drift) and the subset's sft_prompt_tokens (verify_pair's SFT binding). Per sample:
+    tokenizer = train_dpo's (dpo_stages._tokenizer of rpo-dpo1's training base, EOS im_end) and every prompt's token
+    count equals the sampled input_tokens (template drift) and the subset's sft_prompt_tokens (verify_pair's SFT
+    binding). Per sample:
     geometry.score (+ report_v2.cap_failure on 'length'), best_of_n violations / exploits and downstream.accept on the
     raw layout. pass = geometry_success and accepted; reject = complete and not pass (cap hits and invalid JSON never
     count). Rejected, ordered by tier then k: colocated_duplicate (a main/severe/contained pair of one normalized
@@ -42,12 +43,19 @@ pairs        --data RUN/dpo-004/train-subset --samples RUN/dpo-004/samples --bas
     to the 3,000-room subset (meets_floors gates submit_013.sh). Dev rooms, unlike the subset's, were not SFT training
     rooms, so the projection is indicative only.
 train        --dpo-root RUN/dpo-004   (4 GPUs; a rerun resumes)
-    dpo_stages.train for candidate op without editing it: the same torchrun train_dpo entry point, recipe
-    {**RECIPE, epochs 2, rpo_alpha 1.0, save_every_epoch}, training_guard, preflight and completion, on the frozen
-    dpo-003/placement/dpo1-merged with dpo-004/stage2-pairs/placement.jsonl. Before the final merge each epoch of
-    EPOCH_MERGES is merged from out/epoch-0E (epoch.json must be {epoch: E, step: E x steps per epoch}) into
-    dpo2-epoch0E-merged, so an existing dpo2-merged receipt means every merge is done. Lineage: dpo2[-epoch01]-merged
-    -> dpo-003/placement/dpo1-merged -> dpo-001/placement/sft-merged; exact_policy / inference_identity work as is.
+    DPO2 starts from rpo-dpo1's evaluated exact policy, not its BF16 merge (amendment 011 section 5: the merge loses
+    the DPO1 gain): dpo_stages.exact_policy(dpo-003/placement/dpo1-merged) gives (and rehashes) rpo-dpo1's training
+    base (dpo-001/placement/sft-merged, BF16) and adapter (dpo-003/placement/dpo1/final, FP32). The same torchrun
+    train_dpo entry point, recipe {**RECIPE, epochs 2, rpo_alpha 1.0, save_every_epoch}, training_guard, preflight
+    and completion run on that training base with --init_adapter = that adapter: the policy LoRA starts as it and
+    a frozen copy of it is the DPO reference (LOSS), on dpo-004/stage2-pairs/placement.jsonl. Each saved adapter is
+    again one FP32 adapter on the training base. Before the final merge each epoch of EPOCH_MERGES is merged from
+    out/epoch-0E (epoch.json must be {epoch: E, step: E x steps per epoch}) into dpo2-epoch0E-merged, so an existing
+    dpo2-merged receipt means every merge is done. The merges (training base + adapter, BF16) are receipt anchors
+    and convenience artifacts (MERGED_MODEL), not the evaluated policy. Lineage: dpo2[-epoch01]-merged -> parent
+    dpo-003/placement/dpo1-merged -> dpo-001/placement/sft-merged, plus training_base = dpo-001/placement/sft-merged
+    (path, model and receipt sha256, is_dpo1_merge false), so dpo_stages.exact_policy / inference_identity
+    (--exact-policy) load training base + the DPO2 adapter.
 dev-score    --data RUN/dev-select-v1 --root RUN/dev-eval-013 --ref-root RUN/dev-eval-010 --out RUN/dev-eval-013/scores
     sft and rpo-dpo1 from dev-eval-010 (dev_select._scored; both must reproduce their a', complete rate and run
     from dev-eval-010/scores), op-dpo2-e1 / op-dpo2-e2 from ROOT (own binding: stage dpo2, exact policy, model path),
@@ -102,6 +110,10 @@ RUN, PARENT_RUN, CANDIDATE = 'dpo-004', 'dpo-003', 'op'
 SALT, ROOMS, SUBSET_SCOPE = 'op-dpo2-v1:', 3000, 'op_dpo2_train_subset'
 RECIPE = {**d.RECIPE, 'epochs': 2, 'rpo_alpha': 1.0, 'save_every_epoch': True}  # lr 5e-6, beta 0.1, r32/a16, seed 42.
 EPOCH_MERGES = (1,)
+LOSS = ("sigmoid DPO vs the frozen rpo-dpo1 exact policy (its BF16 training base + its original FP32 adapter, dropout "
+        "off); the policy LoRA starts as that adapter (train_dpo --init_adapter), so DPO2 starts from rpo-dpo1 exactly")
+MERGED_MODEL = ("convenience BF16 merge of training_base + adapter, unevaluated as trained: the evaluated policy is the "
+                "exact policy (adapter unmerged in FP32 on training_base); only check-merged loads this merge")
 MODELS = {'op-dpo2-e1': 'dpo2-epoch01-merged', 'op-dpo2-e2': 'dpo2-merged'}
 CANDIDATES, SFT, REFERENCE = tuple(MODELS), 'sft', 'rpo-dpo1'
 TIERS = ('colocated_duplicate', 'main_collision', 'other')
@@ -391,7 +403,7 @@ def build_pairs(args):
             or receipt['model'].get('lineage_sha256') != h.sha256(d.receipt_path(model))):
         raise ValueError("samples are not of rpo-dpo1's exact policy (the DPO2 reference model)")
     uids = expected if dry is None else sorted(sorted(expected, key=lambda u: (rank(u), u))[:dry])
-    tok = d._tokenizer(model)  # train_dpo's: it loads the tokenizer of --model.
+    tok = d._tokenizer(policy['training_base'])  # train_dpo's: the tokenizer of --model, rpo-dpo1's training base.
     prompts = [scene.prompt_text(tok, requests[u]['messages']) for u in uids]
     prompt_ids = tok(prompts, add_special_tokens=False)['input_ids']
     drift = [u for u, p in zip(uids, prompt_ids) if len(p) != grouped[u][0]['input_tokens']]
@@ -466,7 +478,7 @@ def build_pairs(args):
     with tempfile.NamedTemporaryFile(dir=out.parent, prefix='.pairs-', suffix='.jsonl') as stream:
         stream.write(payload)
         stream.flush()
-        d.preflight(model, Path(stream.name), len(kept))  # train_dpo must admit every pair.
+        d.preflight(policy['training_base'], Path(stream.name), len(kept))  # train_dpo must admit every pair.
     d._publish_dir(out, {f'{ARM}.jsonl': payload, 'ledger.jsonl': d._jsonl(ledger), 'summary.json': _json_bytes(summary)})
     return {'status': summary['status'], 'pairs': len(kept), 'rooms_with_pair': summary['rooms_with_pair'],
             'by_chosen_from': summary['by_chosen_from']}
@@ -478,13 +490,14 @@ def train(args):
     root = Path(args.dpo_root)
     if root.name != RUN:
         raise ValueError(f'candidate {CANDIDATE} trains in {RUN}, not {root.name}')
-    parent = (root.parent / PARENT_RUN / ARM / 'dpo1-merged').resolve()
+    parent = (root.parent / PARENT_RUN / ARM / 'dpo1-merged').resolve()  # rpo-dpo1's receipt; its BF16 bytes are unused.
     out, merged = root / ARM / STAGE, root / ARM / f'{STAGE}-merged'
     if d.receipt_path(merged).exists():  # Epoch merges come first: the final receipt means every merge is done.
         return d.verify_merged(merged, ARM, STAGE)
-    lineage = d.verify_merged(parent, ARM, 'dpo1')
-    if lineage['training'].get('candidate') != 'rpo':
-        raise ValueError('the DPO2 base must be the dev-selected rpo-dpo1 (dpo-003)')
+    lineage, policy = d.exact_policy(parent, ARM)  # Rehashes rpo-dpo1's training base and adapter.
+    if lineage['stage'] != 'dpo1' or lineage['training'].get('candidate') != 'rpo':
+        raise ValueError('the DPO2 start must be the dev-selected rpo-dpo1 (dpo-003)')
+    base, init = Path(policy['training_base']), Path(policy['adapter'])
     pairs_dir = root / 'stage2-pairs'
     files = d._verified_dir(pairs_dir)
     summary = h.strict_json((pairs_dir / 'summary.json').read_text())
@@ -495,19 +508,23 @@ def train(args):
     count = len(pairs.read_bytes().splitlines())  # Up to 4 pairs per room: h._rows would refuse repeated UIDs.
     from fastfill import merge_lora
     from fastfill.v1_1 import train_dpo, training_guard
-    settings = {**RECIPE, **d.TRAIN_FIXED}
-    training_guard.guard_training(parent, pairs, out, settings, [Path(train_dpo.__file__), Path(d.__file__),
-                                                                 Path(__file__), Path(merge_lora.__file__)])
+    settings = {**RECIPE, **d.TRAIN_FIXED, 'loss': LOSS,
+                'init_adapter': {'path': str(init), 'sha256': policy['adapter_sha256'], 'of': 'rpo-dpo1'}}
+    training_guard.guard_training(base, pairs, out, settings, [Path(train_dpo.__file__), Path(d.__file__),
+                                                               Path(__file__), Path(merge_lora.__file__)])
     if not (out / 'final' / 'completion.json').exists():
-        d.preflight(parent, pairs, count)
+        d.preflight(base, pairs, count)
         command = [sys.executable, '-m', 'torch.distributed.run', '--standalone', f'--nproc_per_node={d.WORLD_SIZE}',
-                   '-m', 'fastfill.v1_1.train_dpo', '--model', str(parent), '--pairs', str(pairs), '--out', str(out)]
+                   '-m', 'fastfill.v1_1.train_dpo', '--model', str(base), '--pairs', str(pairs), '--out', str(out),
+                   '--init_adapter', str(init)]
         subprocess.run(command + d._flags(RECIPE), check=True)
     completion = d._completion(out, count, RECIPE)
     per_epoch = completion['steps'] // RECIPE['epochs']
     fields = {'arm': ARM, 'stage': STAGE,
               'parent': {'stage': 'dpo1', 'path': str(parent), 'lineage_sha256': h.sha256(d.receipt_path(parent))},
-              **{k: lineage[k] for k in ('base', 'base_sha256', 'training_data')}}
+              'training_base': {'stage': 'sft', 'path': str(base), 'model_sha256': policy['training_base_sha256'],
+                                'lineage_sha256': h.sha256(d.receipt_path(base)), 'is_dpo1_merge': False},
+              'merged_model': MERGED_MODEL, **{k: lineage[k] for k in ('base', 'base_sha256', 'training_data')}}
     training = {'pairs': {'path': str(pairs), 'count': count, 'sha256': h._expected_hash(files[pairs.name]),
                           'manifest_sha256': h.sha256(pairs_dir / 'MANIFEST.json')},
                 'guard_sha256': h.sha256(out / 'training_guard.json'), 'completion': completion, 'recipe': settings,
@@ -518,9 +535,9 @@ def train(args):
             state = h.strict_json((adapter / 'epoch.json').read_text())
             if state != {'epoch': epoch, 'step': epoch * per_epoch}:
                 raise ValueError(f'{adapter} is not the end of epoch {epoch}: {state}')
-            d._merge(parent, adapter, target, {**fields, 'training': {**training, 'epoch': epoch}})
+            d._merge(base, adapter, target, {**fields, 'training': {**training, 'epoch': epoch}})
         d.verify_merged(target, ARM, STAGE)
-    d._merge(parent, out / 'final', merged, {**fields, 'training': training})
+    d._merge(base, out / 'final', merged, {**fields, 'training': training})
     return d.verify_merged(merged, ARM, STAGE)
 
 

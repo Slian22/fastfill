@@ -320,17 +320,27 @@ def exact_policy(model, arm):
     """Amendment 009: a DPO stage's trained policy is its adapter, unmerged, on its BF16 training base.
 
     Walks the stage's receipt chain and rehashes what is loaded (training base and adapter), not the
-    merged stage model, which is only the next stage's base and the delivered artifact."""
+    merged stage model, which is only the next stage's base and the delivered artifact. The training base is
+    the parent stage's merge, or the receipt's own training_base (amendment 013: DPO2 continues rpo-dpo1's
+    adapter on rpo-dpo1's training base), bound by its lineage receipt hash and the same lineage root."""
     path = receipt_path(Path(model).resolve())
     receipt = _lineage(path, arm, h.strict_json(path.read_text()).get('stage'))
     if receipt['stage'] not in PAIRS:
         raise ValueError('exact-policy evaluation is for DPO stages only')
-    parent = verify_merged(receipt['parent']['path'], arm, receipt['parent']['stage'])
+    base = receipt.get('training_base', receipt['parent'])
+    parent = verify_merged(base['path'], arm, base['stage'])
+    if 'training_base' in receipt:  # Must be the parent stage's own training base (parent receipt hash-checked by _lineage).
+        upstream = h.strict_json(receipt_path(receipt['parent']['path']).read_text())
+        if (base['path'] != upstream.get('training_base', upstream['parent'])['path']
+                or h.sha256(receipt_path(Path(base['path']))) != base['lineage_sha256']
+                or any(parent[k] != receipt[k] for k in ('base', 'base_sha256', 'training_data'))):
+            raise ValueError("training base is not the parent stage's training base, "
+                             'or its lineage receipt changed or has another lineage root')
     adapter = Path(receipt['adapter']['path'])
     if h.artifact_manifest(adapter) != receipt['adapter']['files']:
         raise ValueError(f'stage adapter bytes differ from its lineage receipt: {adapter}')
     return receipt, {'mode': 'unmerged_fp32_adapter_on_bf16_training_base',
-                     'training_base': receipt['parent']['path'], 'training_base_sha256': parent['model_sha256'],
+                     'training_base': base['path'], 'training_base_sha256': parent['model_sha256'],
                      'adapter': str(adapter), 'adapter_sha256': i._hash(receipt['adapter']['files'])}
 
 

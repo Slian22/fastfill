@@ -8,10 +8,15 @@ Why this trainer instead of `trl.DPOTrainer` from old OptiScene (`scripts/dpo_tr
    VRAM for a second 8B model and zero `trl` dependency!
 3. Prompt tokens are strictly masked (`labels = -100` for all `system` + `user` tokens), so DPO log-ratios are summed
    exclusively over the `assistant` JSON tokens.
+4. `--init_adapter PATH` (amendment 013) continues a trained stage adapter instead of a new LoRA: PATH is loaded twice
+   on `--model` (its own training base), as the trainable policy (PEFT "default", initial weights = PATH) and as a
+   frozen "reference" (= PATH, dropout off) that replaces the disabled-adapter reference. Only the policy is saved, in
+   the plain adapter layout, so the result is again "training base + one FP32 adapter". Without the flag nothing changes.
 """
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -28,6 +33,49 @@ from torch.utils.data.distributed import DistributedSampler
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_cosine_schedule_with_warmup, set_seed
 
 from fastfill.scene import prompt_text
+
+POLICY, REFERENCE = "default", "reference"  # PEFT saves the "default" adapter in the plain (root) layout.
+TARGET_MODULES = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+INIT_FIELDS = ("peft_type", "task_type", "r", "lora_alpha", "lora_dropout", "bias", "use_rslora", "use_dora",
+               "modules_to_save", "layers_to_transform", "rank_pattern", "alpha_pattern")
+
+
+def lora_config(r: int, alpha: int) -> LoraConfig:
+    return LoraConfig(task_type="CAUSAL_LM", r=r, lora_alpha=alpha, lora_dropout=0.05, target_modules=TARGET_MODULES)
+
+
+def init_policy(base: Any, path: Path, expected: LoraConfig) -> Any:
+    """--init_adapter: PATH as the trainable policy ("default") and as the frozen reference, on BASE.
+
+    PEFT autocasts both to FP32 on a BF16 base (as get_peft_model does); the reference's dropout is Identity, so its
+    log-probabilities are the exact policy PATH on BASE also while the model is in train mode."""
+    from peft import PeftConfig, PeftModel
+    from peft.tuners.lora import LoraLayer
+
+    found = PeftConfig.from_pretrained(str(path))
+    if (any(getattr(found, k, None) != getattr(expected, k) for k in INIT_FIELDS)
+            or set(found.target_modules) != set(expected.target_modules)):
+        raise ValueError(f"--init_adapter LoRA config differs from this run's (r, alpha, dropout, targets): {path}")
+    model = PeftModel.from_pretrained(base, str(path), adapter_name=POLICY, is_trainable=True)
+    model.load_adapter(str(path), adapter_name=REFERENCE, is_trainable=False)
+    for module in model.modules():
+        if isinstance(module, LoraLayer):
+            module.lora_dropout[REFERENCE] = torch.nn.Identity()
+    return model
+
+
+@contextlib.contextmanager
+def _reference_adapter(model: Any):
+    model.set_adapter(REFERENCE)
+    try:
+        yield
+    finally:
+        model.set_adapter(POLICY)  # Also restores requires_grad: policy trainable, reference frozen.
+
+
+def reference_policy(model: Any, init_adapter: Path | None) -> Any:
+    """Context for the frozen reference: the training base alone (adapter disabled), or base + the --init_adapter copy."""
+    return model.disable_adapter() if init_adapter is None else _reference_adapter(model)
 
 
 class DPOPairDataset(Dataset):
@@ -132,7 +180,7 @@ def save_epoch_adapter(target: Path, raw_peft: Any, tok: Any, state: dict[str, i
     if tmp.exists():
         shutil.rmtree(tmp)
     tmp.mkdir(parents=True)
-    raw_peft.save_pretrained(tmp)
+    raw_peft.save_pretrained(tmp, selected_adapters=[POLICY])
     tok.save_pretrained(tmp)
     (tmp / "epoch.json").write_text(json.dumps(state) + "\n", encoding="utf-8")
     if target.exists():
@@ -232,7 +280,7 @@ def _save_dpo_ckpt(ckpt_dir: Path, raw_peft: Any, opt: torch.optim.Optimizer, sc
     if tmp_dir.exists():
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir(parents=True, exist_ok=True)
-    raw_peft.save_pretrained(tmp_dir)
+    raw_peft.save_pretrained(tmp_dir, selected_adapters=[POLICY])
     torch.save(
         {
             "optimizer": opt.state_dict(),
@@ -278,6 +326,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--rpo_alpha", type=float, default=0.0, help="RPO: + alpha x chosen mean token NLL (0 = plain DPO)")
     ap.add_argument("--save_every_epoch", action="store_true", help="also save the adapter to OUT/epoch-NN at each epoch end")
+    ap.add_argument("--init_adapter", type=Path, help="continue this trained adapter of --model; it is also the frozen reference")
     args = ap.parse_args()
     if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
         raise ValueError("--rpo_alpha must be finite and >= 0")
@@ -295,7 +344,8 @@ def main() -> None:
     if rank == 0:
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "run_manifest.json").write_text(
-            json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}, indent=1) + "\n",
+            json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
+                                 if not (k == "init_adapter" and v is None)}}, indent=1) + "\n",
             encoding="utf-8",
         )
 
@@ -323,16 +373,8 @@ def main() -> None:
     )
     base.config.use_cache = False
     base.enable_input_require_grads()
-    peft_model = get_peft_model(
-        base,
-        LoraConfig(
-            task_type="CAUSAL_LM",
-            r=args.lora_r,
-            lora_alpha=args.lora_alpha,
-            lora_dropout=0.05,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-        ),
-    )
+    config = lora_config(args.lora_r, args.lora_alpha)
+    peft_model = get_peft_model(base, config) if args.init_adapter is None else init_policy(base, args.init_adapter, config)
     peft_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     peft_model.to(device)
     if rank == 0:
@@ -379,7 +421,7 @@ def main() -> None:
             window_size = accumulation_window_size(it, len(loader), args.grad_accum)
             sync_ctx = contextlib.nullcontext if (not is_ddp or sync_step) else model.no_sync
 
-            with torch.no_grad(), raw_peft.disable_adapter():
+            with torch.no_grad(), reference_policy(raw_peft, args.init_adapter):
                 ref_c = sequence_logps(raw_peft, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
                 ref_r = sequence_logps(raw_peft, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
 
@@ -438,7 +480,7 @@ def main() -> None:
         if tmp_final.exists():
             shutil.rmtree(tmp_final)
         tmp_final.mkdir(parents=True, exist_ok=True)
-        raw_peft.save_pretrained(tmp_final)
+        raw_peft.save_pretrained(tmp_final, selected_adapters=[POLICY])
         tok.save_pretrained(tmp_final)
         write_dpo_completion(tmp_final, args.out, len(ds), len(loader), world_size, args.epochs, step, total_steps)
         if final_dir.exists():

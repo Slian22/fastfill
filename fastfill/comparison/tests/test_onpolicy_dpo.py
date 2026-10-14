@@ -260,9 +260,11 @@ def lines(path):
     return [json.loads(x) for x in Path(path).read_text().splitlines()]
 
 
-def test_pairs_s1_chosen_fallback_tiers_cap_and_ledger(world):
-    out = world.root / 'stage2-pairs'
+def test_pairs_s1_chosen_fallback_tiers_cap_and_ledger(world, monkeypatch):
+    out, tokenizers = world.root / 'stage2-pairs', []
+    monkeypatch.setattr(d, '_model_tokenizer', lambda path: (tokenizers.append(str(path)), Tok())[1])
     result = op.build_pairs(pair_args(world, out))  # Includes dpo_stages.preflight: train_dpo admits every pair.
+    assert set(tokenizers) == {POLICY['training_base']}  # train_dpo's --model: rpo-dpo1's training base.
     rows, summary = lines(out / 'placement.jsonl'), json.loads((out / 'summary.json').read_text())
     ledger = {x['uid']: x for x in lines(out / 'ledger.jsonl')}
     assert set(d._verified_dir(out)) == {'placement.jsonl', 'ledger.jsonl', 'summary.json'}
@@ -455,36 +457,56 @@ def op_pairs(pipeline, extra=1, lineage=None):
     return root, parent, len(rows) + extra
 
 
-def test_train_op_dpo2_on_rpo_dpo1_with_epoch_merges_and_exact_policies(pipeline, monkeypatch):
+def test_train_op_dpo2_from_rpo_dpo1_exact_policy_with_epoch_merges_and_exact_policies(pipeline, monkeypatch):
     source, calls, commands = pipeline.root, [], []
     monkeypatch.setattr(d.subprocess, 'run', D.fake_train(calls))
     d.train(D.args(dpo_root=source.parent / 'dpo-003', arm='placement', stage='dpo1', candidate='rpo'))
     root, parent, count = op_pairs(pipeline)
+    sft, init = (source / 'placement/sft-merged').resolve(), (source.parent / 'dpo-003/placement/dpo1/final').resolve()
     inner = fake_train_epochs(calls)
     monkeypatch.setattr(op.subprocess, 'run', lambda command, check: (commands.append(command), inner(command, check)))
     final = op.train(ns(dpo_root=root))
     flags, command = calls[-1], commands[-1]
     assert len(calls) == 2 and (flags['--epochs'], flags['--rpo_alpha'], command[-1]) == ('2', '1.0', '--save_every_epoch')
-    assert {k: v for k, v in flags.items() if k not in ('--epochs', '--rpo_alpha', '--model', '--pairs', '--out')} == {
+    assert {k: v for k, v in flags.items() if k not in ('--epochs', '--rpo_alpha', '--model', '--pairs', '--out',
+                                                         '--init_adapter')} == {
         '--' + k: str(v) for k, v in d.RECIPE.items() if k != 'epochs'}  # lr 5e-6, beta 0.1, r32/a16, bs 1 x 4 x 1, seed 42.
-    assert (Path(flags['--model']), Path(flags['--pairs']), Path(flags['--out'])) == (
-        parent, (root / 'stage2-pairs/placement.jsonl').resolve(), root / 'placement/dpo2')
+    # DPO2 starts from rpo-dpo1's exact policy: its training base (the SFT merge) + its adapter, never its BF16 merge.
+    assert (Path(flags['--model']), Path(flags['--init_adapter']), Path(flags['--pairs']), Path(flags['--out'])) == (
+        sft, init, (root / 'stage2-pairs/placement.jsonl').resolve(), root / 'placement/dpo2')
+    rpo, policy = d.exact_policy(parent, 'placement')
+    assert policy['training_base'] == str(sft) and policy['adapter'] == str(init) == rpo['adapter']['path']
     guard = h.strict_json((root / 'placement/dpo2/training_guard.json').read_text())
-    assert guard['settings'] == {**op.RECIPE, **d.TRAIN_FIXED} and str(Path(op.__file__).resolve()) in guard['code']
+    assert guard['model']['path'] == str(sft) and str(Path(op.__file__).resolve()) in guard['code']
+    assert guard['settings'] == {**op.RECIPE, **d.TRAIN_FIXED, 'loss': op.LOSS, 'init_adapter': {
+        'path': str(init), 'sha256': policy['adapter_sha256'], 'of': 'rpo-dpo1'}} == final['training']['recipe']
     epoch = d.verify_merged(root / 'placement/dpo2-epoch01-merged', 'placement', 'dpo2')
     assert epoch['adapter']['path'] == str((root / 'placement/dpo2/epoch-01').resolve()) and epoch['training']['epoch'] == 1
     assert final['adapter']['path'] == str((root / 'placement/dpo2/final').resolve()) and 'epoch' not in final['training']
     assert final['training']['pairs']['count'] == count == 6 and final['training']['completion']['steps'] == 2 * 2
     assert final['training']['candidate'] == 'op' and final['parent'] == {
         'stage': 'dpo1', 'path': str(parent), 'lineage_sha256': h.sha256(d.receipt_path(parent))}
+    sft_receipt = d.verify_merged(sft, 'placement', 'sft')
+    for receipt in (epoch, final):
+        assert receipt['training_base'] == {'stage': 'sft', 'path': str(sft), 'model_sha256': sft_receipt['model_sha256'],
+                                            'lineage_sha256': h.sha256(d.receipt_path(sft)), 'is_dpo1_merge': False}
+        assert receipt['merged_model'] == op.MERGED_MODEL and json.loads(  # The convenience merge: training base + adapter.
+            Path(receipt['model']['path'], 'config.json').read_text()) == {'base': str(sft), 'adapter': receipt['adapter']['path']}
     first = d.verify_merged(parent, 'placement', 'dpo1')  # SFT + DPO1 + DPO2 lineage.
-    assert first['training']['candidate'] == 'rpo' and first['parent']['path'] == str((source / 'placement/sft-merged').resolve())
+    assert first['training']['candidate'] == 'rpo' and first['parent']['path'] == str(sft)
     monkeypatch.setattr(d.h, 'base_receipt', lambda base: D.BASE)
     for name, adapter in (('dpo2-epoch01-merged', 'epoch-01'), ('dpo2-merged', 'final')):
         identity = d.inference_identity(ns(model=root / 'placement' / name, arm='placement', base=Path('/models/Qwen3-8B'),
                                            exact_policy=True))
-        assert identity['stage'] == 'dpo2' and identity['policy']['training_base'] == str(parent)
+        assert identity['stage'] == 'dpo2' and identity['policy']['training_base'] == str(sft)
+        assert identity['policy']['training_base_sha256'] == sft_receipt['model_sha256']
         assert identity['policy']['adapter'] == str((root / 'placement/dpo2' / adapter).resolve())
+    dpo1_merge = {'stage': 'dpo1', 'path': str(parent), 'lineage_sha256': h.sha256(d.receipt_path(parent))}
+    for tampered, match in (({'lineage_sha256': '0' * 64}, 'lineage receipt'), ({'path': str(parent)}, 'not placement/sft'),
+                            (dpo1_merge, "parent stage's training base")):  # Bound to rpo-dpo1's own training base.
+        h.write_json(root / 'placement/tampered.json', {**final, 'training_base': {**final['training_base'], **tampered}})
+        with pytest.raises(ValueError, match=match):
+            d.exact_policy(root / 'placement/tampered', 'placement')
     assert op.train(ns(dpo_root=root))['model_sha256'] == final['model_sha256'] and len(calls) == 2  # Rerun: verify only.
     epoch_receipt = d.receipt_path(root / 'placement/dpo2-epoch01-merged').read_bytes()
     shutil.rmtree(root / 'placement/dpo2-merged')  # Interrupted after the epoch merge, before the final one.
@@ -771,7 +793,8 @@ def shard_preflight(w, argv):
 
 INPUTS = ('main-data-v1/MANIFEST.json', 'sft-joint-001/SHA256.json', 'sft-placement-001/SHA256.json',
           'dpo-001/positives/MANIFEST.json', 'dev-select-v1/MANIFEST.json', 'dev-full-v1/MANIFEST.json',
-          'eval-data-v1/MANIFEST.json', 'dpo-003/placement/dpo1-merged.json', 'dev-eval-010/plan/MANIFEST.json',
+          'eval-data-v1/MANIFEST.json', 'dpo-003/placement/dpo1-merged.json', 'dpo-001/placement/sft-merged.json',
+          'dpo-003/placement/dpo1/final/adapter_model.safetensors', 'dev-eval-010/plan/MANIFEST.json',
           'dev-eval-010/scores/MANIFEST.json', 'dev-eval-010/selection.json',
           'dev-eval-010/sft/infer-placement/MANIFEST.json', 'dev-eval-010/rpo-dpo1/infer-placement/MANIFEST.json',
           'context-capacity-001/SHA256.json', 'infer-v2-002/plan/MANIFEST.json', 'infer-joint-002/MANIFEST.json',
@@ -895,6 +918,10 @@ def test_submit_013_chain_dependencies_held_root_and_refusals(tmp_path):
     done, log = submit('3', '2', 'train')
     assert log == [] and done.returncode == 1 and 'dev-eval-010/selection.json' in done.stderr
     (run / 'dev-eval-010/selection.json').write_text('{}')
+    (run / 'dpo-003/placement/dpo1/final/adapter_model.safetensors').unlink()  # DPO2's start: rpo-dpo1's own adapter.
+    done, log = submit('3', '2', 'train')
+    assert log == [] and done.returncode == 1 and 'dpo-003/placement/dpo1/final/adapter_model.safetensors' in done.stderr
+    (run / 'dpo-003/placement/dpo1/final/adapter_model.safetensors').write_text('{}')
     done = subprocess.run(['bash', str(script), str(code_root(tmp_path / 'main-nodoc', doc=False))], env=env,
                           capture_output=True, text=True)
     assert done.returncode == 1 and 'no amendment-013 protocol doc' in done.stderr
