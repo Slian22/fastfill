@@ -145,3 +145,4 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - DPO1 几何 7389141、报告 7394713（results/report-v2-dpo1-001）：J 几何成功 0.388→0.213、log MAE 0.286→0.590、足迹偏差 −0.08→−0.36；P 几何成功 0.390→0.093，完整输出仅 4,291/8,647（JSON 无效 2,532）。训练日志 reward margin 震荡并饱和（第 8 epoch 起 loss≈0）——DPO 过度优化/似然位移崩坏；仅保存最终步，无法回溯早停。
 - 修订 010（3437401e1，查看 DPO1 测试后制定，已披露；DPO2 测试未查看）：两组正则化候选 e1（官方超参但每阶段 1 epoch）与 rpo（lr 5e-6、3 epoch、RPO α=1），以 600 间 dev 房间（从未用于训练/测试决策）选模：资格 = dev 完整率 ≥ SFT−0.01 且 log MAE ≤ SFT+0.01，取 dev (a′) 最高者，SFT 为兜底；交付规则改为在两臂各自选中的模型间应用。实现 workflow w0sm1g31g 进行中。
 - 04:45 UTC：按修订 010 补充说明停止 009-DPO2 测试推理（12 分片及其 merge/geometry/report、各代理 DPO2 配对评估），未查看其输出；009 DPO1/DPO2 改在 600 间 dev 上评分、仅作报告。O2 全量与评估完成；O3 冒烟通过、全量运行中。
+- 05:00 UTC：修订 010 实现合并（242d5b3a1：train_dpo --rpo_alpha、e1/rpo 候选、dev-select-v1、dev 精确策略评测、选择器自动提交测试链；审查修复 MAE 资格在同一批房间上比较、a009 阶段 dev 仅报告）。提交 dev 选模链（build-dev 7397532 … score 7397586、select 7397587）。
