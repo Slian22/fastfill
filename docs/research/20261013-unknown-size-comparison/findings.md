@@ -85,6 +85,20 @@ Every system gets P's input (train-prior sizes, enforced); rates over all 300 re
 - **The substitution result was misleading as a ranking.** "Under prior sizes P ≥ L" held only for layouts planned around small furniture. Read as a ranking it was wrong, and it is withdrawn as ranking evidence. It still shows that self-chosen sizes are undersized and would yield miniature furniture in RoomGenBench.
 - **Where P is closest.** Only on admission with required = {} after S1: P 0.803 vs O2-fixed 0.767 vs L-fixed 0.850. On the checker, P + S1 (0.827) stays well below both (0.92–0.98).
 - **Unauthorised size changes:** L returned no sizes in 300 / 300 answers, and one object's z was recomputed.
+- **All five agents, PILOT (`results/compare-016-pilot-v1`, `agents_016 compare`).** Checker success with fixed sizes, raw → S1:
+
+  | System | Checker, raw → S1 |
+  |---|---|
+  | L | 0.947 → 0.977 |
+  | O2 | 0.920 → 0.923 |
+  | O6 | 0.760 → 0.880 |
+  | O7 | 0.697 → 0.787 |
+  | O4 | 0.623 → 0.837 |
+  | P | 0.513 → 0.827 |
+
+  - **Ranking stability.** By strict admission, Kendall τ-b between the size-free and size-fixed rankings is +0.73 [+0.47, +0.87] for harness raw and +0.87 [+0.60, +0.97] for raw raw. The ranking barely changes when sizes are fixed.
+  - **Pre-specified flips.** P − O2 under fixed sizes, harness, is −0.273 [−0.329, −0.219] on admission raw and −0.097 [−0.133, −0.059] on the checker after S1. P − L under fixed sizes is −0.310 [−0.373, −0.247].
+  - **One exception.** On admission with required = {} after S1, P (0.803) ranks second, behind L (0.850) and ahead of O2 (0.767), O6, O4 and O7.
 
 ## Size confound: size substitution (amendment 016 §1, addendum A3; EXPLORATORY; `results/scale-curve-016/`)
 
