@@ -34,7 +34,9 @@ PAIR_RUN_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013"
 COHORT="$PAIR_RUN_ROOT/llm-cohort-v1.json"
 PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
 CACHE=/scratch/u6uv/shanliantian.u6uv/.cache
-SYSTEM_CACHE="$CACHE/llm-open/$SYSTEM"
+# Scratch hit its 1.024M-file project limit (2026-10-14); compile caches (many small files) live under
+# $PROJECTDIR instead. HF_HOME stays on scratch: offline, read-only model metadata.
+SYSTEM_CACHE="/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/.cache-jobs/llm-open/$SYSTEM"
 : "${SLURM_JOB_ID:?Slurm allocation required}"
 # JIT builds (FlashInfer, DeepGEMM) need an nvcc matching torch cu130: DeepGEMM asserts nvcc >= 12.9 and the
 # cluster module is 12.6, so prefer the env's pip CUDA 13 toolkit; fall back to the module (v1_1 pattern).
@@ -50,11 +52,11 @@ fi
 export CUDA_HOME CUDA_PATH="$CUDA_HOME" PATH="$(dirname "$PYTHON"):$CUDA_HOME/bin:$PATH"
 export PYTHONPATH="$PAIR_CODE_ROOT" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 export HF_HOME="$CACHE/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1
-export XDG_CACHE_HOME="$CACHE" VLLM_CACHE_ROOT="$SYSTEM_CACHE/vllm"
+export XDG_CACHE_HOME="$SYSTEM_CACHE/xdg" VLLM_CACHE_ROOT="$SYSTEM_CACHE/vllm"
 export TORCHINDUCTOR_CACHE_DIR="$SYSTEM_CACHE/torchinductor" TRITON_CACHE_DIR="$SYSTEM_CACHE/triton"
 # FlashInfer's sampler JIT build fails on this GH200 image; large checkpoints may need a long engine start.
 export VLLM_USE_FLASHINFER_SAMPLER=0 VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1 VLLM_ENGINE_READY_TIMEOUT_S=3600
-mkdir -p "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR" "$TRITON_CACHE_DIR"
+mkdir -p "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR" "$TRITON_CACHE_DIR" "$XDG_CACHE_HOME"
 cd "$PAIR_CODE_ROOT"
 "$PYTHON" -B -c 'import shapely, fastfill.comparison.llm_open' || {
   echo "PREFLIGHT FAIL: $PYTHON cannot import shapely + fastfill.comparison from $PAIR_CODE_ROOT;" \
