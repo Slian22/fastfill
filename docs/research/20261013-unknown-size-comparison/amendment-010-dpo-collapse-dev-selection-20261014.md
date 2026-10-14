@@ -27,3 +27,7 @@ Each stage trains on the BF16 merge of the previous stage (as before); each cand
 ## Reporting
 
 The stage-ablation table reports: SFT, amendment-009 DPO1/DPO2 (collapsed), and the dev scores of all regularised candidates; test scores only for selected models. All agents are compared with the delivered model. Budget: GPU cap 600 GPU-hours unchanged.
+
+## Addendum (2026-10-14 ~04:40 UTC, before any amendment-009 DPO2 test output was viewed)
+
+The amendment-009 DPO2 test inference (infer-v2-004) progressed at ~460/8,647 (J) and ~1,020/8,647 (P) rows in its first 2 h — far slower than the SFT and DPO1 runs, so it would exceed the 14 h shard limit while holding 12 GPUs (≈ 170 GPU-h) that the regularised candidates need. Because its starting point (amendment-009 DPO1) collapsed and the final model is now chosen on dev (above), the amendment-009 DPO2 test run is stopped; its partial outputs are not analysed (the processed rooms are the largest ones, a biased subset). Amendment-009 DPO1 and DPO2 are instead scored on the same 600-room dev set as the candidates and reported in the stage-ablation table as dev-only, report-only rows (not selectable). The agent evaluations that were paired with amendment-009 DPO2 are cancelled with it; agents are re-paired with the selected models.
