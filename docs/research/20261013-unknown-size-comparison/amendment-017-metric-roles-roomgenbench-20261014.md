@@ -35,3 +35,9 @@ Locked 2026-10-14 (UTC), before any final table is built. This is a post hoc rep
    - visual metrics (FID, GPT judge, the latter secondary per addendum B4).
 2. **EmbodiedGen admission (strict port) — secondary.** It is relabelled everywhere from "downstream acceptance" to "EmbodiedGen admission (strict port)". It is reported next to two variants: lenient (one entry door) and required = {}. These two bracket the real gate, whose required set depends on the task.
 3. Numbers already reported under the old label stay as they are, with the new label attached. No result is recomputed or replaced.
+
+## Provenance correction (same day, before any final table)
+
+- `admit.validate` and `chain.grow` are not official EmbodiedGen code. They sit in `embodied_gen/world/` of the local repo `Slian22/infinite-task-world`, which is a fork of EmbodiedGen. The official history (Xinjie, from 2025-06-11) has no `world/` module. All 135 commits of `world/` are by Slian, starting 2026-08-16.
+- `fastfill/comparison/downstream.py` is our own port of that `admit.py`, with the two stricter assumptions P4 and P5.
+- So neither RoomGenBench nor official EmbodiedGen imposes these rules. The label becomes **"infinite-task-world admission (strict port)"**.
