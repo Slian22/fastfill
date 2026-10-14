@@ -1,0 +1,2031 @@
+{
+  "amendment": "019",
+  "analysed_rooms": 1005,
+  "bbox_max_err_m": 1.4988010832439613e-15,
+  "cache": {
+    "placements": 54884,
+    "voxelised": 48548
+  },
+  "cohort_rooms": 1009,
+  "command": "python -m fastfill.comparison.mesh_collision --run /Volumes/harddisk/fastfillout/unknownsize-20261013/visual-final-selected-002 --out /Volumes/harddisk/fastfillout/unknownsize-20261013/mesh-collision-019 --workers 4 --repeats 2000",
+  "gt_a4_classes": {
+    "box_artefact": {
+      "collides_125": 0,
+      "collides_2000": 0,
+      "collides_500": 0,
+      "median_volume_cm3": 0.0,
+      "pairs": 21
+    },
+    "contained": {
+      "collides_125": 19,
+      "collides_2000": 17,
+      "collides_500": 19,
+      "median_volume_cm3": 7680.0,
+      "pairs": 27
+    },
+    "genuine": {
+      "collides_125": 268,
+      "collides_2000": 188,
+      "collides_500": 235,
+      "median_volume_cm3": 2120.0,
+      "pairs": 373
+    },
+    "small_overlap": {
+      "collides_125": 21,
+      "collides_2000": 2,
+      "collides_500": 13,
+      "median_volume_cm3": 0.0,
+      "pairs": 143
+    },
+    "tucked": {
+      "collides_125": 156,
+      "collides_2000": 93,
+      "collides_500": 130,
+      "median_volume_cm3": 0.0,
+      "pairs": 423
+    }
+  },
+  "gt_a4_pairs": 987,
+  "limit": null,
+  "missing_rooms": {
+    "il3d:b6abccc4-86d4-11f0-a478-60cf84ae2082::MasterBedroom-1482": "not rendered: RenderReject: no_asset: fixed_0001",
+    "il3d:b98bdae2-86d4-11f0-a478-60cf84ae2082": "not rendered: RenderReject: no_asset: fixed_0001",
+    "il3d:ba41e08a-86d4-11f0-a478-60cf84ae2082": "not rendered: RenderReject: no_asset: fixed_0001",
+    "il3d:bad4321e-86d4-11f0-a478-60cf84ae2082": "not rendered: RenderReject: no_asset: fixed_0001"
+  },
+  "paired_vs_P": {
+    "GT": {
+      "mesh_free_125": {
+        "ci95": [
+          0.1968723610659523,
+          0.2732795076226903
+        ],
+        "estimate": 0.23383084577114427,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.21584053492054409,
+          0.2878187007787408
+        ],
+        "estimate": 0.2507462686567164,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.21272438082254033,
+          0.28719484807586126
+        ],
+        "estimate": 0.24875621890547264,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "J": {
+      "mesh_free_125": {
+        "ci95": [
+          -0.19558647942742785,
+          -0.11365544675000264
+        ],
+        "estimate": -0.15223880597014924,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          -0.15024415005571376,
+          -0.07841421456541
+        ],
+        "estimate": -0.11144278606965174,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          -0.16717058349254751,
+          -0.09081113184013875
+        ],
+        "estimate": -0.1263681592039801,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "L": {
+      "mesh_free_125": {
+        "ci95": [
+          0.4044817958112692,
+          0.4747056891807935
+        ],
+        "estimate": 0.43980099502487563,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.3617393322106561,
+          0.4325401439645626
+        ],
+        "estimate": 0.39800995024875624,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.39546329728123486,
+          0.464463557504184
+        ],
+        "estimate": 0.43084577114427863,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O1a": {
+      "mesh_free_125": {
+        "ci95": [
+          -0.1875063775510204,
+          -0.04593381919905773
+        ],
+        "estimate": -0.11284046692607004,
+        "n": 257,
+        "p": 0.002,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          -0.20953125,
+          -0.06158624156254502
+        ],
+        "estimate": -0.13229571984435798,
+        "n": 257,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          -0.20636724386724387,
+          -0.053756803398380494
+        ],
+        "estimate": -0.1245136186770428,
+        "n": 257,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O1b": {
+      "mesh_free_125": {
+        "ci95": [
+          -0.2583935712972327,
+          -0.16109263419624198
+        ],
+        "estimate": -0.208130081300813,
+        "n": 615,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          -0.22186917543190365,
+          -0.11883760174707168
+        ],
+        "estimate": -0.16910569105691056,
+        "n": 615,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          -0.23338498482051875,
+          -0.1369845758995317
+        ],
+        "estimate": -0.183739837398374,
+        "n": 615,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O2": {
+      "mesh_free_125": {
+        "ci95": [
+          0.3962251856466076,
+          0.47032221979700967
+        ],
+        "estimate": 0.4338677354709419,
+        "n": 998,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.35640171730183695,
+          0.4296828332413301
+        ],
+        "estimate": 0.3927855711422846,
+        "n": 998,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.3888235114061987,
+          0.4605555986352357
+        ],
+        "estimate": 0.4248496993987976,
+        "n": 998,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O3": {
+      "mesh_free_125": {
+        "ci95": [
+          -0.07009756177635754,
+          0.0316712050118928
+        ],
+        "estimate": -0.019559902200488997,
+        "n": 409,
+        "p": 0.48,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          -0.04700488674052643,
+          0.05934293097083793
+        ],
+        "estimate": 0.007334963325183374,
+        "n": 409,
+        "p": 0.801,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          -0.0581677200755848,
+          0.049536977132640055
+        ],
+        "estimate": -0.004889975550122249,
+        "n": 409,
+        "p": 0.873,
+        "warnings": []
+      }
+    },
+    "O4": {
+      "mesh_free_125": {
+        "ci95": [
+          0.22670225798443588,
+          0.2976684034166086
+        ],
+        "estimate": 0.2626865671641791,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.2596092209072979,
+          0.32553461625409746
+        ],
+        "estimate": 0.29253731343283584,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.25075174303398,
+          0.3210688346093393
+        ],
+        "estimate": 0.2865671641791045,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O6": {
+      "mesh_free_125": {
+        "ci95": [
+          0.29317223577460577,
+          0.3628151471643934
+        ],
+        "estimate": 0.3283582089552239,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.3053341481173289,
+          0.3772903252043541
+        ],
+        "estimate": 0.34129353233830845,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.3136111863488624,
+          0.38095354694277317
+        ],
+        "estimate": 0.3472636815920398,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "O7": {
+      "mesh_free_125": {
+        "ci95": [
+          0.2575879515769674,
+          0.33017779576272266
+        ],
+        "estimate": 0.2945273631840796,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_2000": {
+        "ci95": [
+          0.2849947075905187,
+          0.3479904221738921
+        ],
+        "estimate": 0.3174129353233831,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      },
+      "mesh_free_500": {
+        "ci95": [
+          0.27965978278755965,
+          0.34611498605021923
+        ],
+        "estimate": 0.31343283582089554,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    }
+  },
+  "pitch_m": 0.02,
+  "primary_tau_cm3": 500,
+  "repeats": 2000,
+  "runtime": {
+    "room_seconds_max": 54.705774791014846,
+    "room_seconds_mean": 8.647404981373382,
+    "room_seconds_sum": 8690.64200628025,
+    "rooms": 1005
+  },
+  "sample_spacing_m": 0.005,
+  "seed": 42,
+  "status": "EXPLORATORY_DESCRIPTIVE",
+  "systems": {
+    "GT": {
+      "a4_free": {
+        "k": 591,
+        "n": 1005,
+        "rate": 0.5880597014925373
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.7632258525711813,
+            0.8382360713841562
+          ],
+          "estimate": 0.8,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.7307970803521823,
+            0.8067443980315985
+          ],
+          "estimate": 0.7691542288557214,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.8035486212760609,
+            0.8700253727541684
+          ],
+          "estimate": 0.8388059701492537,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.7609203867058718,
+            0.8315037496540043
+          ],
+          "estimate": 0.7970149253731343,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 852,
+        "n": 1005,
+        "rate": 0.8477611940298507
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 418,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 464,
+            "n": 987,
+            "rate": 0.47011144883485306
+          },
+          "checker_main_severe_confirmed": {
+            "k": 269,
+            "n": 379,
+            "rate": 0.7097625329815304
+          },
+          "checker_missed": {
+            "k": 213,
+            "n": 482,
+            "rate": 0.44190871369294604
+          },
+          "contact_dominated": {
+            "k": 155,
+            "n": 482,
+            "rate": 0.3215767634854772
+          },
+          "mesh_colliding_pairs": 482,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 47,
+            "contained": 19,
+            "tuck": 147
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 397,
+            "n": 987,
+            "rate": 0.4022289766970618
+          },
+          "checker_main_severe_confirmed": {
+            "k": 236,
+            "n": 379,
+            "rate": 0.6226912928759895
+          },
+          "checker_missed": {
+            "k": 173,
+            "n": 409,
+            "rate": 0.4229828850855746
+          },
+          "contact_dominated": {
+            "k": 111,
+            "n": 409,
+            "rate": 0.2713936430317848
+          },
+          "mesh_colliding_pairs": 409,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 28,
+            "contained": 19,
+            "tuck": 126
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 300,
+            "n": 987,
+            "rate": 0.303951367781155
+          },
+          "checker_main_severe_confirmed": {
+            "k": 189,
+            "n": 379,
+            "rate": 0.49868073878627966
+          },
+          "checker_missed": {
+            "k": 118,
+            "n": 307,
+            "rate": 0.38436482084690554
+          },
+          "contact_dominated": {
+            "k": 75,
+            "n": 307,
+            "rate": 0.24429967426710097
+          },
+          "mesh_colliding_pairs": 307,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 9,
+            "contained": 17,
+            "tuck": 92
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "J": {
+      "a4_free": {
+        "k": 317,
+        "n": 1005,
+        "rate": 0.3154228855721393
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.46892011467612,
+            0.532533354591605
+          ],
+          "estimate": 0.5024875621890548,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.34302636892979826,
+            0.4222653843598976
+          ],
+          "estimate": 0.38308457711442784,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.4365079365079365,
+            0.513276447341755
+          ],
+          "estimate": 0.4766169154228856,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.3814881479840496,
+            0.45946350138772873
+          ],
+          "estimate": 0.4218905472636816,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 497,
+        "n": 1005,
+        "rate": 0.4945273631840796
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 430,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 1325,
+            "n": 1691,
+            "rate": 0.7835600236546422
+          },
+          "checker_main_severe_confirmed": {
+            "k": 874,
+            "n": 973,
+            "rate": 0.8982528263103803
+          },
+          "checker_missed": {
+            "k": 485,
+            "n": 1359,
+            "rate": 0.35688005886681384
+          },
+          "contact_dominated": {
+            "k": 269,
+            "n": 1359,
+            "rate": 0.19793966151582046
+          },
+          "mesh_colliding_pairs": 1359,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 52,
+            "contained": 97,
+            "tuck": 333,
+            "z_overlap_le_5cm": 3
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 1186,
+            "n": 1691,
+            "rate": 0.7013601419278533
+          },
+          "checker_main_severe_confirmed": {
+            "k": 813,
+            "n": 973,
+            "rate": 0.8355601233299075
+          },
+          "checker_missed": {
+            "k": 395,
+            "n": 1208,
+            "rate": 0.3269867549668874
+          },
+          "contact_dominated": {
+            "k": 220,
+            "n": 1208,
+            "rate": 0.18211920529801323
+          },
+          "mesh_colliding_pairs": 1208,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 28,
+            "contained": 95,
+            "tuck": 270,
+            "z_overlap_le_5cm": 2
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 1007,
+            "n": 1691,
+            "rate": 0.5955056179775281
+          },
+          "checker_main_severe_confirmed": {
+            "k": 711,
+            "n": 973,
+            "rate": 0.7307297019527236
+          },
+          "checker_missed": {
+            "k": 307,
+            "n": 1018,
+            "rate": 0.30157170923379173
+          },
+          "contact_dominated": {
+            "k": 225,
+            "n": 1018,
+            "rate": 0.22102161100196463
+          },
+          "mesh_colliding_pairs": 1018,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 12,
+            "contained": 80,
+            "tuck": 215
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "L": {
+      "a4_free": {
+        "k": 981,
+        "n": 1005,
+        "rate": 0.9761194029850746
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.9864193984385417,
+            0.997009343991834
+          ],
+          "estimate": 0.9920398009950249,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.9653757658868027,
+            0.9841285526068134
+          ],
+          "estimate": 0.9751243781094527,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.9786815796937038,
+            0.9925305196705548
+          ],
+          "estimate": 0.9860696517412936,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.970265644430478,
+            0.9873911880916397
+          ],
+          "estimate": 0.9791044776119403,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 1000,
+        "n": 1005,
+        "rate": 0.9950248756218906
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 524,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 9,
+            "n": 30,
+            "rate": 0.3
+          },
+          "checker_main_severe_confirmed": {
+            "k": 7,
+            "n": 9,
+            "rate": 0.7777777777777778
+          },
+          "checker_missed": {
+            "k": 28,
+            "n": 35,
+            "rate": 0.8
+          },
+          "contact_dominated": {
+            "k": 27,
+            "n": 35,
+            "rate": 0.7714285714285715
+          },
+          "mesh_colliding_pairs": 35,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 26,
+            "tuck": 1,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 8,
+            "n": 30,
+            "rate": 0.26666666666666666
+          },
+          "checker_main_severe_confirmed": {
+            "k": 6,
+            "n": 9,
+            "rate": 0.6666666666666666
+          },
+          "checker_missed": {
+            "k": 22,
+            "n": 28,
+            "rate": 0.7857142857142857
+          },
+          "contact_dominated": {
+            "k": 22,
+            "n": 28,
+            "rate": 0.7857142857142857
+          },
+          "mesh_colliding_pairs": 28,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 20,
+            "tuck": 1,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 5,
+            "n": 30,
+            "rate": 0.16666666666666666
+          },
+          "checker_main_severe_confirmed": {
+            "k": 3,
+            "n": 9,
+            "rate": 0.3333333333333333
+          },
+          "checker_missed": {
+            "k": 14,
+            "n": 17,
+            "rate": 0.8235294117647058
+          },
+          "contact_dominated": {
+            "k": 15,
+            "n": 17,
+            "rate": 0.8823529411764706
+          },
+          "mesh_colliding_pairs": 17,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 13,
+            "tuck": 1
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "O1a": {
+      "a4_free": {
+        "k": 86,
+        "n": 257,
+        "rate": 0.3346303501945525
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.3681764069264069,
+            0.49805558432335667
+          ],
+          "estimate": 0.4357976653696498,
+          "n": 257,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.25462962962962965,
+            0.40268939211047267
+          ],
+          "estimate": 0.3346303501945525,
+          "n": 257,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.3199908675799087,
+            0.469539471166724
+          ],
+          "estimate": 0.40077821011673154,
+          "n": 257,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.2661570795688422,
+            0.42012263099219616
+          ],
+          "estimate": 0.35019455252918286,
+          "n": 257,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 105,
+        "n": 257,
+        "rate": 0.4085603112840467
+      },
+      "missing_reasons": {
+        "schema_incomplete": 748
+      },
+      "missing_rooms": 748,
+      "open_meshes": 134,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 490,
+            "n": 751,
+            "rate": 0.6524633821571239
+          },
+          "checker_main_severe_confirmed": {
+            "k": 284,
+            "n": 318,
+            "rate": 0.8930817610062893
+          },
+          "checker_missed": {
+            "k": 225,
+            "n": 509,
+            "rate": 0.44204322200392926
+          },
+          "contact_dominated": {
+            "k": 90,
+            "n": 509,
+            "rate": 0.17681728880157171
+          },
+          "mesh_colliding_pairs": 509,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 13,
+            "contained": 132,
+            "tuck": 70,
+            "z_overlap_le_5cm": 10
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 454,
+            "n": 751,
+            "rate": 0.6045272969374168
+          },
+          "checker_main_severe_confirmed": {
+            "k": 266,
+            "n": 318,
+            "rate": 0.8364779874213837
+          },
+          "checker_missed": {
+            "k": 200,
+            "n": 466,
+            "rate": 0.4291845493562232
+          },
+          "contact_dominated": {
+            "k": 89,
+            "n": 466,
+            "rate": 0.19098712446351931
+          },
+          "mesh_colliding_pairs": 466,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 6,
+            "contained": 128,
+            "tuck": 63,
+            "z_overlap_le_5cm": 3
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 372,
+            "n": 751,
+            "rate": 0.49533954727030627
+          },
+          "checker_main_severe_confirmed": {
+            "k": 228,
+            "n": 318,
+            "rate": 0.7169811320754716
+          },
+          "checker_missed": {
+            "k": 151,
+            "n": 379,
+            "rate": 0.39841688654353563
+          },
+          "contact_dominated": {
+            "k": 100,
+            "n": 379,
+            "rate": 0.2638522427440633
+          },
+          "mesh_colliding_pairs": 379,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 2,
+            "contained": 98,
+            "tuck": 49,
+            "z_overlap_le_5cm": 2
+          }
+        }
+      },
+      "placements": 1326,
+      "rooms": 257
+    },
+    "O1b": {
+      "a4_free": {
+        "k": 226,
+        "n": 615,
+        "rate": 0.367479674796748
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.47057821424992485,
+            0.5594750425470819
+          ],
+          "estimate": 0.5154471544715448,
+          "n": 615,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.3087181541954656,
+            0.39909551282704114
+          ],
+          "estimate": 0.3544715447154472,
+          "n": 615,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.3959995373130344,
+            0.4934661606578115
+          ],
+          "estimate": 0.44552845528455287,
+          "n": 615,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.3463417953485865,
+            0.4406779661016949
+          ],
+          "estimate": 0.3934959349593496,
+          "n": 615,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 287,
+        "n": 615,
+        "rate": 0.4666666666666667
+      },
+      "missing_reasons": {
+        "schema_incomplete": 390
+      },
+      "missing_rooms": 390,
+      "open_meshes": 351,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 978,
+            "n": 1093,
+            "rate": 0.8947849954254345
+          },
+          "checker_main_severe_confirmed": {
+            "k": 570,
+            "n": 622,
+            "rate": 0.9163987138263665
+          },
+          "checker_missed": {
+            "k": 529,
+            "n": 1099,
+            "rate": 0.4813466787989081
+          },
+          "contact_dominated": {
+            "k": 269,
+            "n": 1099,
+            "rate": 0.24476797088262056
+          },
+          "mesh_colliding_pairs": 1099,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 106,
+            "contained": 180,
+            "tuck": 230,
+            "z_overlap_le_5cm": 13
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 899,
+            "n": 1093,
+            "rate": 0.8225068618481244
+          },
+          "checker_main_severe_confirmed": {
+            "k": 518,
+            "n": 622,
+            "rate": 0.8327974276527331
+          },
+          "checker_missed": {
+            "k": 441,
+            "n": 959,
+            "rate": 0.45985401459854014
+          },
+          "contact_dominated": {
+            "k": 219,
+            "n": 959,
+            "rate": 0.2283628779979145
+          },
+          "mesh_colliding_pairs": 959,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 48,
+            "contained": 176,
+            "tuck": 212,
+            "z_overlap_le_5cm": 5
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 750,
+            "n": 1093,
+            "rate": 0.6861848124428179
+          },
+          "checker_main_severe_confirmed": {
+            "k": 439,
+            "n": 622,
+            "rate": 0.7057877813504824
+          },
+          "checker_missed": {
+            "k": 342,
+            "n": 781,
+            "rate": 0.4379001280409731
+          },
+          "contact_dominated": {
+            "k": 189,
+            "n": 781,
+            "rate": 0.24199743918053776
+          },
+          "mesh_colliding_pairs": 781,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 21,
+            "contained": 142,
+            "tuck": 174,
+            "z_overlap_le_5cm": 5
+          }
+        }
+      },
+      "placements": 3482,
+      "rooms": 615
+    },
+    "O2": {
+      "a4_free": {
+        "k": 986,
+        "n": 998,
+        "rate": 0.9879759519038076
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.9929776957134028,
+            1.0
+          ],
+          "estimate": 0.996993987975952,
+          "n": 998,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.9603747103184128,
+            0.9815577248731933
+          ],
+          "estimate": 0.9719438877755511,
+          "n": 998,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.9752519313185025,
+            0.9911504424778761
+          ],
+          "estimate": 0.9839679358717435,
+          "n": 998,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.9658376243040582,
+            0.9848335478138309
+          ],
+          "estimate": 0.9759519038076152,
+          "n": 998,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 996,
+        "n": 998,
+        "rate": 0.9979959919839679
+      },
+      "missing_reasons": {
+        "schema_incomplete": 7
+      },
+      "missing_rooms": 7,
+      "open_meshes": 507,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 4,
+            "n": 13,
+            "rate": 0.3076923076923077
+          },
+          "checker_main_severe_confirmed": {
+            "k": 4,
+            "n": 4,
+            "rate": 1.0
+          },
+          "checker_missed": {
+            "k": 41,
+            "n": 45,
+            "rate": 0.9111111111111111
+          },
+          "contact_dominated": {
+            "k": 41,
+            "n": 45,
+            "rate": 0.9111111111111111
+          },
+          "mesh_colliding_pairs": 45,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 41
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 4,
+            "n": 13,
+            "rate": 0.3076923076923077
+          },
+          "checker_main_severe_confirmed": {
+            "k": 4,
+            "n": 4,
+            "rate": 1.0
+          },
+          "checker_missed": {
+            "k": 30,
+            "n": 34,
+            "rate": 0.8823529411764706
+          },
+          "contact_dominated": {
+            "k": 31,
+            "n": 34,
+            "rate": 0.9117647058823529
+          },
+          "mesh_colliding_pairs": 34,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 30
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 3,
+            "n": 13,
+            "rate": 0.23076923076923078
+          },
+          "checker_main_severe_confirmed": {
+            "k": 3,
+            "n": 4,
+            "rate": 0.75
+          },
+          "checker_missed": {
+            "k": 17,
+            "n": 20,
+            "rate": 0.85
+          },
+          "contact_dominated": {
+            "k": 18,
+            "n": 20,
+            "rate": 0.9
+          },
+          "mesh_colliding_pairs": 20,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 17
+          }
+        }
+      },
+      "placements": 5905,
+      "rooms": 998
+    },
+    "O3": {
+      "a4_free": {
+        "k": 222,
+        "n": 409,
+        "rate": 0.5427872860635696
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.7113269713011982,
+            0.7984298266975121
+          ],
+          "estimate": 0.7555012224938875,
+          "n": 409,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.5123078699317923,
+            0.6146818245646882
+          ],
+          "estimate": 0.5647921760391198,
+          "n": 409,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.5913943942283771,
+            0.6957626448102937
+          ],
+          "estimate": 0.6454767726161369,
+          "n": 409,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.5382610544217686,
+            0.6398010933583385
+          ],
+          "estimate": 0.589242053789731,
+          "n": 409,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 265,
+        "n": 409,
+        "rate": 0.6479217603911981
+      },
+      "missing_reasons": {
+        "schema_incomplete": 596
+      },
+      "missing_rooms": 596,
+      "open_meshes": 216,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 292,
+            "n": 360,
+            "rate": 0.8111111111111111
+          },
+          "checker_main_severe_confirmed": {
+            "k": 121,
+            "n": 133,
+            "rate": 0.9097744360902256
+          },
+          "checker_missed": {
+            "k": 195,
+            "n": 316,
+            "rate": 0.6170886075949367
+          },
+          "contact_dominated": {
+            "k": 69,
+            "n": 316,
+            "rate": 0.21835443037974683
+          },
+          "mesh_colliding_pairs": 316,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 26,
+            "contained": 8,
+            "tuck": 160,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 267,
+            "n": 360,
+            "rate": 0.7416666666666667
+          },
+          "checker_main_severe_confirmed": {
+            "k": 106,
+            "n": 133,
+            "rate": 0.7969924812030075
+          },
+          "checker_missed": {
+            "k": 177,
+            "n": 283,
+            "rate": 0.6254416961130742
+          },
+          "contact_dominated": {
+            "k": 61,
+            "n": 283,
+            "rate": 0.21554770318021202
+          },
+          "mesh_colliding_pairs": 283,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 16,
+            "contained": 8,
+            "tuck": 152,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 213,
+            "n": 360,
+            "rate": 0.5916666666666667
+          },
+          "checker_main_severe_confirmed": {
+            "k": 89,
+            "n": 133,
+            "rate": 0.6691729323308271
+          },
+          "checker_missed": {
+            "k": 133,
+            "n": 222,
+            "rate": 0.5990990990990991
+          },
+          "contact_dominated": {
+            "k": 49,
+            "n": 222,
+            "rate": 0.22072072072072071
+          },
+          "mesh_colliding_pairs": 222,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 9,
+            "contained": 7,
+            "tuck": 117
+          }
+        }
+      },
+      "placements": 2045,
+      "rooms": 409
+    },
+    "O4": {
+      "a4_free": {
+        "k": 820,
+        "n": 1005,
+        "rate": 0.8159203980099502
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.8314062710041672,
+            0.8795070737519451
+          ],
+          "estimate": 0.8557213930348259,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.7709992695570217,
+            0.8256987989717345
+          ],
+          "estimate": 0.7980099502487562,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.8595729112610275,
+            0.9035639412997903
+          ],
+          "estimate": 0.8805970149253731,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.808571187844916,
+            0.8610687990398052
+          ],
+          "estimate": 0.8348258706467662,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 893,
+        "n": 1005,
+        "rate": 0.8885572139303483
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 549,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 224,
+            "n": 297,
+            "rate": 0.7542087542087542
+          },
+          "checker_main_severe_confirmed": {
+            "k": 163,
+            "n": 200,
+            "rate": 0.815
+          },
+          "checker_missed": {
+            "k": 144,
+            "n": 307,
+            "rate": 0.46905537459283386
+          },
+          "contact_dominated": {
+            "k": 140,
+            "n": 307,
+            "rate": 0.4560260586319218
+          },
+          "mesh_colliding_pairs": 307,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 88,
+            "contained": 6,
+            "tuck": 49,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 190,
+            "n": 297,
+            "rate": 0.6397306397306397
+          },
+          "checker_main_severe_confirmed": {
+            "k": 144,
+            "n": 200,
+            "rate": 0.72
+          },
+          "checker_missed": {
+            "k": 88,
+            "n": 232,
+            "rate": 0.3793103448275862
+          },
+          "contact_dominated": {
+            "k": 96,
+            "n": 232,
+            "rate": 0.41379310344827586
+          },
+          "mesh_colliding_pairs": 232,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 44,
+            "contained": 5,
+            "tuck": 38,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 136,
+            "n": 297,
+            "rate": 0.45791245791245794
+          },
+          "checker_main_severe_confirmed": {
+            "k": 110,
+            "n": 200,
+            "rate": 0.55
+          },
+          "checker_missed": {
+            "k": 38,
+            "n": 148,
+            "rate": 0.25675675675675674
+          },
+          "contact_dominated": {
+            "k": 52,
+            "n": 148,
+            "rate": 0.35135135135135137
+          },
+          "mesh_colliding_pairs": 148,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 14,
+            "contained": 5,
+            "tuck": 19
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "O6": {
+      "a4_free": {
+        "k": 857,
+        "n": 1005,
+        "rate": 0.8527363184079602
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.8960434430047483,
+            0.9293506449576042
+          ],
+          "estimate": 0.9124378109452737,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.8427773363355721,
+            0.8852661402440462
+          ],
+          "estimate": 0.863681592039801,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.9135418727687212,
+            0.9443300889763617
+          ],
+          "estimate": 0.9293532338308458,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.8775313160042009,
+            0.9136856358549332
+          ],
+          "estimate": 0.8955223880597015,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 942,
+        "n": 1005,
+        "rate": 0.9373134328358209
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 527,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 165,
+            "n": 251,
+            "rate": 0.6573705179282868
+          },
+          "checker_main_severe_confirmed": {
+            "k": 99,
+            "n": 118,
+            "rate": 0.8389830508474576
+          },
+          "checker_missed": {
+            "k": 106,
+            "n": 205,
+            "rate": 0.5170731707317073
+          },
+          "contact_dominated": {
+            "k": 90,
+            "n": 205,
+            "rate": 0.43902439024390244
+          },
+          "mesh_colliding_pairs": 205,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 47,
+            "contained": 1,
+            "tuck": 58
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 126,
+            "n": 251,
+            "rate": 0.50199203187251
+          },
+          "checker_main_severe_confirmed": {
+            "k": 88,
+            "n": 118,
+            "rate": 0.7457627118644068
+          },
+          "checker_missed": {
+            "k": 58,
+            "n": 146,
+            "rate": 0.3972602739726027
+          },
+          "contact_dominated": {
+            "k": 60,
+            "n": 146,
+            "rate": 0.410958904109589
+          },
+          "mesh_colliding_pairs": 146,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 24,
+            "contained": 1,
+            "tuck": 33
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 85,
+            "n": 251,
+            "rate": 0.3386454183266932
+          },
+          "checker_main_severe_confirmed": {
+            "k": 67,
+            "n": 118,
+            "rate": 0.5677966101694916
+          },
+          "checker_missed": {
+            "k": 26,
+            "n": 93,
+            "rate": 0.27956989247311825
+          },
+          "contact_dominated": {
+            "k": 32,
+            "n": 93,
+            "rate": 0.34408602150537637
+          },
+          "mesh_colliding_pairs": 93,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 8,
+            "contained": 1,
+            "tuck": 17
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "O7": {
+      "a4_free": {
+        "k": 796,
+        "n": 1005,
+        "rate": 0.7920398009950249
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.863547734049749,
+            0.9058388515290835
+          ],
+          "estimate": 0.8855721393034826,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.8061421454083039,
+            0.854073506979532
+          ],
+          "estimate": 0.8298507462686567,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.8848546146108387,
+            0.9259673401277246
+          ],
+          "estimate": 0.9054726368159204,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.8392514201942459,
+            0.8836108590441621
+          ],
+          "estimate": 0.8616915422885573,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 911,
+        "n": 1005,
+        "rate": 0.9064676616915422
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 501,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 233,
+            "n": 373,
+            "rate": 0.6246648793565683
+          },
+          "checker_main_severe_confirmed": {
+            "k": 134,
+            "n": 185,
+            "rate": 0.7243243243243244
+          },
+          "checker_missed": {
+            "k": 154,
+            "n": 288,
+            "rate": 0.5347222222222222
+          },
+          "contact_dominated": {
+            "k": 120,
+            "n": 288,
+            "rate": 0.4166666666666667
+          },
+          "mesh_colliding_pairs": 288,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 60,
+            "contained": 1,
+            "tuck": 91,
+            "z_overlap_le_5cm": 2
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 184,
+            "n": 373,
+            "rate": 0.4932975871313673
+          },
+          "checker_main_severe_confirmed": {
+            "k": 117,
+            "n": 185,
+            "rate": 0.6324324324324324
+          },
+          "checker_missed": {
+            "k": 100,
+            "n": 217,
+            "rate": 0.4608294930875576
+          },
+          "contact_dominated": {
+            "k": 83,
+            "n": 217,
+            "rate": 0.3824884792626728
+          },
+          "mesh_colliding_pairs": 217,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 34,
+            "contained": 1,
+            "tuck": 63,
+            "z_overlap_le_5cm": 2
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 121,
+            "n": 373,
+            "rate": 0.32439678284182305
+          },
+          "checker_main_severe_confirmed": {
+            "k": 80,
+            "n": 185,
+            "rate": 0.43243243243243246
+          },
+          "checker_missed": {
+            "k": 52,
+            "n": 132,
+            "rate": 0.3939393939393939
+          },
+          "contact_dominated": {
+            "k": 48,
+            "n": 132,
+            "rate": 0.36363636363636365
+          },
+          "mesh_colliding_pairs": 132,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 11,
+            "contained": 1,
+            "tuck": 38,
+            "z_overlap_le_5cm": 2
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    },
+    "P": {
+      "a4_free": {
+        "k": 482,
+        "n": 1005,
+        "rate": 0.47960199004975124
+      },
+      "levels": {
+        "checker_collision_free": {
+          "ci95": [
+            0.5886727904667328,
+            0.6559843486266688
+          ],
+          "estimate": 0.6218905472636815,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_125": {
+          "ci95": [
+            0.49943686412732047,
+            0.5714388341543513
+          ],
+          "estimate": 0.5353233830845772,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_2000": {
+          "ci95": [
+            0.5535161083848944,
+            0.6230176067073927
+          ],
+          "estimate": 0.5880597014925373,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        },
+        "mesh_free_500": {
+          "ci95": [
+            0.5137130319579756,
+            0.5837844049039038
+          ],
+          "estimate": 0.5482587064676617,
+          "n": 1005,
+          "p": 0.0,
+          "warnings": []
+        }
+      },
+      "mesh_free_deep_500": {
+        "k": 607,
+        "n": 1005,
+        "rate": 0.6039800995024875
+      },
+      "missing_reasons": {},
+      "missing_rooms": 0,
+      "open_meshes": 429,
+      "per_tau": {
+        "125": {
+          "a4_confirmed": {
+            "k": 956,
+            "n": 1216,
+            "rate": 0.7861842105263158
+          },
+          "checker_main_severe_confirmed": {
+            "k": 657,
+            "n": 726,
+            "rate": 0.9049586776859504
+          },
+          "checker_missed": {
+            "k": 335,
+            "n": 992,
+            "rate": 0.3377016129032258
+          },
+          "contact_dominated": {
+            "k": 181,
+            "n": 992,
+            "rate": 0.18245967741935484
+          },
+          "mesh_colliding_pairs": 992,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 41,
+            "contained": 108,
+            "tuck": 185,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "500": {
+          "a4_confirmed": {
+            "k": 885,
+            "n": 1216,
+            "rate": 0.727796052631579
+          },
+          "checker_main_severe_confirmed": {
+            "k": 628,
+            "n": 726,
+            "rate": 0.8650137741046832
+          },
+          "checker_missed": {
+            "k": 282,
+            "n": 910,
+            "rate": 0.3098901098901099
+          },
+          "contact_dominated": {
+            "k": 179,
+            "n": 910,
+            "rate": 0.1967032967032967
+          },
+          "mesh_colliding_pairs": 910,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 29,
+            "contained": 97,
+            "tuck": 155,
+            "z_overlap_le_5cm": 1
+          }
+        },
+        "2000": {
+          "a4_confirmed": {
+            "k": 743,
+            "n": 1216,
+            "rate": 0.6110197368421053
+          },
+          "checker_main_severe_confirmed": {
+            "k": 548,
+            "n": 726,
+            "rate": 0.7548209366391184
+          },
+          "checker_missed": {
+            "k": 212,
+            "n": 760,
+            "rate": 0.2789473684210526
+          },
+          "contact_dominated": {
+            "k": 199,
+            "n": 760,
+            "rate": 0.2618421052631579
+          },
+          "mesh_colliding_pairs": 760,
+          "missed_by_checker_verdict": {
+            "area_le_100cm2": 21,
+            "contained": 78,
+            "tuck": 112,
+            "z_overlap_le_5cm": 1
+          }
+        }
+      },
+      "placements": 6018,
+      "rooms": 1005
+    }
+  },
+  "systems_beyond_amendment_list": [
+    "O1a",
+    "O1b"
+  ],
+  "systems_present": [
+    "GT",
+    "J",
+    "P",
+    "L",
+    "O1a",
+    "O1b",
+    "O2",
+    "O3",
+    "O4",
+    "O6",
+    "O7"
+  ],
+  "taus_cm3": [
+    125,
+    500,
+    2000
+  ],
+  "voxel_cm3": 8.0,
+  "wall_seconds": 2179.0167169579945,
+  "workers": 4
+}

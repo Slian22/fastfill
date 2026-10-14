@@ -1,0 +1,1 @@
+rows.jsonl (4.8 MB) and pairs.jsonl (3.6 MB) are in MANIFEST.json and kept at /Volumes/harddisk/fastfillout/unknownsize-20261013/mesh-collision-019.

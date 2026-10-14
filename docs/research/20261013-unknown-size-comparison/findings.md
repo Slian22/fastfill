@@ -141,6 +141,47 @@ Every system gets P's input (train-prior sizes, enforced); rates over all 300 re
   - **Pre-specified flips.** P − O2 under fixed sizes, harness, is −0.273 [−0.329, −0.219] on admission raw and −0.097 [−0.133, −0.059] on the checker after S1. P − L under fixed sizes is −0.310 [−0.373, −0.247].
   - **One exception.** On admission with required = {} after S1, P (0.803) ranks second, behind L (0.850) and ahead of O2 (0.767), O6, O4 and O7.
 
+## Mesh-level collisions on rendered rooms (amendment 019; 1,005 paper-strata rooms; EXPLORATORY)
+
+Every object's real reference mesh is placed into its bbox exactly as rendered. The primary threshold is τ = 500 cm³ of voxel interpenetration.
+
+**Collision-free rooms (τ = 500)**
+
+| System | Collision-free rooms | 95 % CI |
+|---|---|---|
+| GT | 0.797 | [0.761, 0.832] |
+| P | 0.548 | — |
+| J | 0.422 | — |
+| L | 0.979 | — |
+| O2 | 0.976 | (998 rooms) |
+| O6 | 0.896 | — |
+| O7 | 0.862 | — |
+| O4 | 0.835 | — |
+
+The agents' rows use their own, smaller sizes (size-free runs), and that confound applies here too.
+
+**What box-level "collisions" mean in GT (the user's point that real furniture does not fill its box)**
+
+- Pairs of GT's A4 box pairs that also collide at mesh level:
+
+  | Pair class | Mesh-collision share | Note |
+  |---|---|---|
+  | tucked (chair under table, nightstand into the bed's box) | 31 % | median interpenetration 0 cm³ |
+  | rotated-box artefacts | 0 % | — |
+  | small box overlaps | 9 % | — |
+  | genuine (checker main/severe) | 63 % | — |
+  | contained | 70 % | — |
+
+- Overall, only 40 % of GT's A4 pairs are real mesh collisions.
+
+**P's collisions are real**
+- 86.5 % of P's checker main/severe pairs are confirmed at mesh level, against 62 % for GT.
+- The frozen checker misses about a third of mesh collisions, mostly through its tuck exemption.
+
+**Flush contact (diagnostic, not pre-registered)**
+- Some counted collisions are only a flush contact layer, e.g. 27 % of GT's colliding pairs.
+- Collision-free rates computed without that layer: GT 0.848, P 0.604, L 0.995, O2 0.998.
+
 ## Size confound: size substitution (amendment 016 §1, addendum A3; EXPLORATORY; `results/scale-curve-016/`)
 
 Each system keeps its own positions, yaw and support; only the sizes are replaced (x/y/z, primary per addendum C3; supported children follow their parent). Shown: downstream acceptance on the 1,454-room cohort, raw outputs, with house-cluster CIs (2,000 draws).
