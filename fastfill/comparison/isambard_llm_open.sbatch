@@ -36,10 +36,17 @@ PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
 CACHE=/scratch/u6uv/shanliantian.u6uv/.cache
 SYSTEM_CACHE="$CACHE/llm-open/$SYSTEM"
 : "${SLURM_JOB_ID:?Slurm allocation required}"
-# As isambard_v1_1_pipeline.sbatch: JIT builds (FlashInfer, DeepGEMM) need the cluster nvcc.
-module load cudatoolkit || { echo "PREFLIGHT FAIL: module load cudatoolkit" >&2; exit 1; }
-NVCC=$(command -v nvcc) || { echo "PREFLIGHT FAIL: no nvcc after 'module load cudatoolkit'" >&2; exit 1; }
-CUDA_HOME="$(dirname "$(dirname "$NVCC")")"
+# JIT builds (FlashInfer, DeepGEMM) need an nvcc matching torch cu130: DeepGEMM asserts nvcc >= 12.9 and the
+# cluster module is 12.6, so prefer the env's pip CUDA 13 toolkit; fall back to the module (v1_1 pattern).
+PIP_CUDA="$(dirname "$(dirname "$PYTHON")")/lib/python3.11/site-packages/nvidia/cu13"
+if test -x "$PIP_CUDA/bin/nvcc"; then
+  CUDA_HOME="$PIP_CUDA"
+else
+  module load cudatoolkit || { echo "PREFLIGHT FAIL: module load cudatoolkit" >&2; exit 1; }
+  NVCC=$(command -v nvcc) || { echo "PREFLIGHT FAIL: no nvcc after 'module load cudatoolkit'" >&2; exit 1; }
+  CUDA_HOME="$(dirname "$(dirname "$NVCC")")"
+fi
+"$CUDA_HOME/bin/nvcc" --version | tail -1
 export CUDA_HOME CUDA_PATH="$CUDA_HOME" PATH="$(dirname "$PYTHON"):$CUDA_HOME/bin:$PATH"
 export PYTHONPATH="$PAIR_CODE_ROOT" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 export HF_HOME="$CACHE/huggingface" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1
