@@ -29,7 +29,7 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
 
 - Delivered **P = rpo-dpo1** (prior sizes + model placement). Test (a) J-sft 0.388 vs P-rpo-dpo1 0.398, Δ −0.010 [−0.021, +0.002], unadjusted p 0.095; size log MAE 0.286 vs 0.281, Δ +0.0046 [+0.0007, +0.0087] (J not more accurate); (a′) 0.344 vs 0.404, Δ −0.060 [−0.071, −0.049]. Both delivery conditions fail, so P.
 - **The dev gain of rpo-dpo1 over P-SFT did not replicate on test (EXPLORATORY, no CI yet):** +0.0084 raw (73 of 8,647 rooms), coming from MansionWorld (+82 rooms, 15 house clusters); without MansionWorld −0.0012, on holodeck + 3D-FRONT −0.0007. Practically P-rpo-dpo1 ≈ P-SFT on test.
-- **The delivered BF16 merge is not yet evaluated.** All test numbers are from the exact policy (unmerged adapter on its BF16 training base); the merge changed only 6.75 % of target weights. Until the amendment-011 §5 dev check passes, the delivered artifact is adapter + training base.
+- **The BF16 merge loses the DPO gain (amendment 011 §5 dev check):** merged vs evaluated policy on the 600 dev rooms: complete 0.998 vs 0.998, raw success 0.433 vs 0.470, a′ 0.397 vs 0.435 (Δ −0.038, threshold 0.01), only 3.3 % byte-identical outputs. Delivered artifact = adapter + training base only. Any later stage must not train on a BF16 merge of this stage (use an FP32 merge or stacked adapters).
 
 ## Same-input agents (1,454-room cohort; estimation only; selected-stage report T5)
 
