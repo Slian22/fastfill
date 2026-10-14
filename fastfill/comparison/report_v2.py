@@ -2,7 +2,8 @@
 
 python -m fastfill.comparison.report_v2 --data EVAL --geometry GEOMETRY_V2 --joint MERGED_J \
     --placement MERGED_P --reference REFERENCE.json --out NEW_DIR [--agent NAME=EVAL_LLM_DIR ...] \
-    [--fid FID.json] [--judge JUDGE_DIR] [--corrections UIDS.json] [--repeats 2000] [--workers 1]
+    [--fid FID.json] [--judge JUDGE_DIR] [--corrections UIDS.json] [--selection SELECTION.json] \
+    [--repeats 2000] [--workers 1]
 
 Every input is verified fail-closed: merged J/P inference dirs (evaluate_pair._inference), the
 geometry-v2 evaluate_pair output that must bind those runs and this data, the frozen model-free
@@ -26,9 +27,12 @@ contrasts are estimation only. --corrections is a JSON list of UIDs changed by t
 source-correction candidate (separate sensitivity row). Outputs: report.md (Chinese), one CSV per
 table, results.json and MANIFEST.json.
 Audit 2026-10-14 reporting: results.json records the geometry summary's stage (absent = sft); the
-delivery section is binding only at dpo2 (amendment 008), else an informational application of the
-rule. T2/T3/S1 carry house components k: report.md prints no CI when k < 10 and flags k < 30 and
-rooms < 50. T5 adds each system's own B on the cohort's all-system common-complete rooms and its
+delivery section is binding only for stage 'selected' (amendment 010: the two dev-selected models,
+evaluate_pair --stage-label selected), else an informational application of the rule. --selection is
+required for, and only for, stage 'selected': dev_select's selection.json whose test inference dirs are
+--joint/--placement; results.json then records each arm's candidate, stage and LoRA loading (models)
+and input_sha256 its sha256. T2/T3/S1 carry house components k: report.md prints no CI when k < 10
+and flags k < 30 and rooms < 50. T5 adds each system's own B on the cohort's all-system common-complete rooms and its
 own-B (a') via _derive (EXPLORATORY). report.md renders report- and interval-level warnings.
 """
 import argparse
@@ -73,11 +77,16 @@ NO_CI, FEW_CLUSTERS, SMALL_N = 10, 30, 50  # Audit 2026-10-14 F7: house componen
 INTERVAL_WARNINGS = {'singleton_source_signature_strata': '某来源签名层只有一个房屋连通组，组间不确定性无法识别',
                      'undefined_bootstrap_draws': '部分自举抽样无定义（区间以有定义的抽样为条件）',
                      'too_few_valid_bootstrap_draws': '有定义的自举抽样不足，不给区间'}
+DEV_SELECTED = '修订 010：交付比较为 dev 选定模型'
 ROLE = {'sft': 'SFT 阶段：(a)、(b) 的 J−P 为方案锁定的主要（确认性）比较（protocol.md），两终点间做 Holm 校正；其余均为描述或估计。',
         'dpo1': 'DPO1 阶段：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
-                '主要（确认性）比较为 SFT J0/P0（protocol.md），交付比较为 DPO2（修订 008）。',
-        'dpo2': 'DPO2 阶段：(a)、(b) 及交付规则所用的 (a′) 的 J−P 为次要的交付比较（修订 008），Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；'
-                '主要（确认性）比较为 SFT J0/P0（protocol.md）。'}
+                f'主要（确认性）比较为 SFT J0/P0（protocol.md），{DEV_SELECTED}。',
+        'dpo2': 'DPO2 阶段（修订 009）：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
+                f'主要（确认性）比较为 SFT J0/P0（protocol.md），{DEV_SELECTED}。',
+        'selected': 'dev 选定模型（修订 010）：(a)、(b) 及交付规则所用的 (a′) 的 J−P 为有约束力的交付比较（两臂各自在 dev 上选定的两个模型），'
+                    'Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；主要（确认性）比较仍为 SFT J0/P0（protocol.md）。'}
+T1_ROLE = {'sft': 'SFT：主要确认性比较', 'dpo1': 'DPO1：描述性', 'dpo2': 'DPO2：描述性',
+           'selected': 'dev 选定模型：有约束力的交付比较（修订 010）'}
 
 
 def stratum(row):
@@ -272,7 +281,21 @@ def _geometry(root, data, expected, receipts, ref):
     stage = summary.get('stage', 'sft')  # Amendment 009 label; pre-009 SFT summaries carry none.
     if stage not in ROLE:
         raise ValueError(f'unknown geometry stage {stage!r}')
-    return rows, stage
+    return rows, stage, summary
+
+
+def _selection(path, runs, summary):
+    """Amendment 010: dev_select's selection.json must name the evaluated test runs; -> each arm's model."""
+    value = _json(path)
+    test = value.get('test') or {}
+    models = {arm: {'candidate': (value.get('selected') or {}).get(arm), 'stage': summary['stages'][arm],
+                    'lora': summary['lora'][arm]} for arm in h.ARMS}
+    if value.get('protocol') != 'amendment-010-dev-selection' or any(
+            Path((test.get(arm) or {}).get('inference', '')).resolve() != Path(runs[arm]).resolve()
+            or (test.get(arm) or {}).get('candidate') != m['candidate'] or str(m['candidate']).rsplit('-', 1)[-1] != m['stage']
+            for arm, m in models.items()):
+        raise ValueError('selection.json does not name these selected test runs and their stages')
+    return models
 
 
 def _agent(root, data_sha, run_hashes):
@@ -482,7 +505,7 @@ def _aggregate(rows):
 
 
 def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=None, corrections=None,
-          repeats=2000, workers=1):
+          repeats=2000, workers=1, selection=None):
     data, geometry, out = Path(data), Path(geometry), Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -496,7 +519,10 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         records[arm], receipts[arm] = e._inference(Path(runs[arm]), data, expected)
     run_hashes = {arm: r['run_sha256'] for arm, r in receipts.items()}
     ref = _reference(reference, data, expected, rooms)
-    (scored, stage), geometry_sha = _geometry(geometry, data, expected, receipts, ref), h.sha256(geometry / 'MANIFEST.json')
+    (scored, stage, summary), geometry_sha = _geometry(geometry, data, expected, receipts, ref), h.sha256(geometry / 'MANIFEST.json')
+    if (selection is not None) != (stage == 'selected'):
+        raise ValueError('--selection is required for, and only for, the selected stage (amendment 010)')
+    models = _selection(selection, runs, summary) if selection else None
     rows, cap_complete = {}, {}
     for arm in h.ARMS:
         caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records[arm]]
@@ -539,7 +565,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     # T1: co-primaries, bias guard, debiased success and the delivery decision.
     t1 = _jp_row('all', J, P, rs['all'], repeats)
     p_holm = holm([t1['geometry_success']['p'], t1['size_log_mae']['p']])
-    decision = {**delivery(t1['size_log_mae'], t1['debiased']), 'stage': stage, 'binding': stage == 'dpo2',  # Amendment 008.
+    decision = {**delivery(t1['size_log_mae'], t1['debiased']), 'stage': stage, 'binding': stage == 'selected',  # Amendment 010.
                 'raw_a_joint_minus_placement': t1['geometry_success'], 'B_footprint': {'J': t1['bias_fp_J'], 'P': t1['bias_fp_P']},
                 'scale_factor': factor, 'gt_reference_success': t1['gt_success'],
                 'a_prime': {'J': t1['J_a1'], 'P': t1['P_a1']}, 'raw_a': {'J': t1['J_a'], 'P': t1['P_a']}}
@@ -677,7 +703,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         warnings.append('agent_answers_reached_output_cap_not_row_applied')
     if corrected is None:
         warnings.append('source_correction_sensitivity_not_provided')
-    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'stage': stage, 'delivery': decision, 'tables': tables,
+    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'stage': stage, **({'models': models} if models else {}),
+              'delivery': decision, 'tables': tables,
               'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}, 'warnings': warnings,
               'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256'],
                              'cap_rule_per_row': row_cap[k]} for k, v in agent_meta.items()},
@@ -690,7 +717,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
                                **({'FID': h.sha256(fid)} if fid else {}),
                                **({'judge_summary': h.sha256(Path(judge) / 'summary.json'),
                                    'judge_records': h.sha256(Path(judge) / 'records.jsonl')} if judge else {}),
-                               **({'corrections': h.sha256(corrections)} if corrections else {})},
+                               **({'corrections': h.sha256(corrections)} if corrections else {}),
+                               **({'selection': h.sha256(selection)} if selection else {})},
               'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(g.__file__), Path(e.__file__))}}
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.' + out.name + '-', dir=out.parent) as tmp:
@@ -707,12 +735,16 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
 
 def _report(result, agent_meta):
     t, d, stage = result['tables'], result['delivery'], result['stage']
-    decision = (['## 交付决定（修正案 005 §1；修订 008：DPO2 为正式交付比较）', '',
+    decision = ([f'## 交付决定（修正案 005 §1；{DEV_SELECTED}）', '',
                  f"**交付：{d['delivered']}**。这是为用户管线选择的产物，不是科学上的优劣结论。", '']
                 if d['binding'] else
-                [f'## 修正案 005 §1 交付规则的参考性应用（{stage} 阶段，非交付决定；binding decision at DPO2, amendment 008）', '',
-                 f"规则结果：{d['delivered']}（仅供参考；正式交付决定只在 DPO2 阶段作出，修订 008）。", ''])
-    lines = [f"# 未知尺寸 J／P 对比（{stage} 阶段）：修正案 005 报告" + ('与交付决定' if d['binding'] else ''), '',
+                [f'## 修正案 005 §1 交付规则的参考性应用（{stage} 阶段，非交付决定；{DEV_SELECTED}）', '',
+                 f"规则结果：{d['delivered']}（仅供参考；正式交付决定只在两臂 dev 选定模型之间作出，修订 010）。", ''])
+    models = ([f"dev 选定模型（修订 010；selection.json sha256 {result['input_sha256']['selection'][:12]}…）："
+               + '；'.join(f"{label} = {result['models'][arm]['candidate']}（stage {result['models'][arm]['stage']}，"
+                          f"LoRA {result['models'][arm]['lora']}）" for arm, label in zip(h.ARMS, 'JP')) + '。', '']
+              if 'models' in result else [])
+    lines = [f"# 未知尺寸 J／P 对比（{stage} 阶段）：修正案 005 报告" + ('与交付决定' if d['binding'] else ''), '', *models,
              f'J：联合预测尺寸、位置和朝向。{P_LABEL}：尺寸来自训练集先验（不是预测），再生成位置和朝向。'
              f"两者为同一 Qwen3-8B 基座、单一训练种子；区间只覆盖测试房间抽样（房屋连通组自举 {result['repeats']} 次，"
              f'种子 {SEED}；协议设定为 2,000 次），不覆盖训练随机性。历史测试集曾用于诊断，不是新盲测。缺失值一律显示为“—”，从不补值。', '',
@@ -725,7 +757,7 @@ def _report(result, agent_meta):
              f"B_P = {_cell(d['B_footprint']['P'])}；缩放系数 exp(−B/2)：J {_cell(d['scale_factor']['joint'])}，"
              f"P {_cell(d['scale_factor']['placement'])}；GT 参考几何成功率 {_cell(d['gt_reference_success'])}。", '',
              '任一区间无法计算时，规则按失败处理并交付 P。', '',
-             f"## T1 (a)、(b) 终点（全部测试请求，配对 J−P；{ {'sft': 'SFT：主要确认性比较', 'dpo1': 'DPO1：描述性', 'dpo2': 'DPO2：次要交付比较'}[stage] }）", '']
+             f"## T1 (a)、(b) 终点（全部测试请求，配对 J−P；{T1_ROLE[stage]}）", '']
     lines += _md(t['T1'], [('endpoint', '终点'), ('J', 'J'), ('P', 'P'), ('delta', 'Δ J−P [95% CI]'), ('n', '配对 n'),
                            ('p', '自举双侧 p'), ('p_holm', 'Holm p（本阶段 (a)、(b) 内）')])
     lines += ['(a) 以全部请求为分母，失败/不完整输出计 0；达到生成上限且未输出 EOS 的请求即使 JSON 可解析也计为失败。'
@@ -833,7 +865,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     for flag in ('data', 'geometry', 'joint', 'placement', 'reference', 'out'):
         parser.add_argument('--' + flag, type=Path, required=True)
-    for flag in ('fid', 'judge', 'corrections'):
+    for flag in ('fid', 'judge', 'corrections', 'selection'):
         parser.add_argument('--' + flag, type=Path)
     parser.add_argument('--agent', action='append', default=[], help='NAME=EVAL_LLM_DIR (repeatable)')
     parser.add_argument('--repeats', type=int, default=2000)
@@ -843,7 +875,7 @@ def main():
     if len(agents) != len(args.agent) or any(not k or '-' in k for k in agents):
         raise ValueError('agents need unique NAME=DIR with no "-" in NAME')
     result = build(args.data, args.geometry, {arm: getattr(args, arm) for arm in h.ARMS}, args.reference, args.out,
-                   agents, args.fid, args.judge, args.corrections, args.repeats, args.workers)
+                   agents, args.fid, args.judge, args.corrections, args.repeats, args.workers, args.selection)
     print(json.dumps({'status': result['status'], 'stage': result['stage'], 'delivered': result['delivery']['delivered'],
                       'binding': result['delivery']['binding']}))
 

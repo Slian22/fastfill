@@ -1,7 +1,9 @@
 """Amendment 010 dev selection on CPU: fakes stand in for the models, the GPU runtime and Slurm."""
 import json
 from pathlib import Path
+import re
 import subprocess
+import sys
 import types
 from unittest.mock import patch
 
@@ -9,10 +11,13 @@ import pytest
 
 from fastfill.comparison import dev_select as ds
 from fastfill.comparison import evaluate_pair
+from fastfill.comparison import infer
 from fastfill.comparison import infer_shard as s
+from fastfill.comparison import stage_table
 from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison.tests import test_dpo_stages as D
 from fastfill.comparison.tests import test_infer_shard as T
+from fastfill.comparison.tests.test_stage_table import BROKEN, build_selected, build_world
 
 CODE = Path(__file__).resolve().parents[3]
 SCRIPTS = CODE / 'fastfill/comparison'
@@ -305,6 +310,110 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
                          capture_output=True, text=True)
     assert bad.returncode == 1 and "sbatch failed for 'train e1 joint dpo1'" in bad.stderr and 'scancel 101 102' in bad.stderr
     assert not (failed / 'log.scontrol').exists()
+
+
+def test_final_reports_tables_and_delivers_with_complete_agent_evaluations_only(tmp_path, monkeypatch, capsys):
+    run = build_selected(build_world(tmp_path), broken=BROKEN)  # J e1-dpo2 (3 broken rooms), P sft -> delivers P.
+    monkeypatch.setattr(ds, 'STAGE_REPORTS', {'sft': 'report-sft', 'dpo1': 'report-dpo1'})
+    (run / 'corrections.json').write_text('["il-bed-2"]\n')
+    unfinished = run / 'llm-eval-O6-selected-v1'
+    unfinished.mkdir()  # An evaluation that died before publishing: no MANIFEST.
+    args = ds.parse_args(['final', '--run-root', str(run), '--reference', str(run / 'reference.json'), '--corrections',
+                          str(run / 'corrections.json'), '--agent', f'O6={unfinished}', '--agent', f'O4={run / "absent"}',
+                          '--repeats', '200'])
+    result = ds.final(args)
+    assert (result['delivered'], result['candidate'], result['agents']) == ('P', 'sft', [])
+    assert set(result['agents_excluded']) == {'O6', 'O4'} and 'FileNotFoundError' in result['agents_excluded']['O6']
+    assert json.loads(capsys.readouterr().out.splitlines()[0])['agents_excluded'] == result['agents_excluded']
+    report = h.strict_json((run / ds.FINAL['report'] / 'results.json').read_text())
+    assert report['stage'] == 'selected' and report['delivery']['binding'] and report['agents'] == {}
+    assert report['input_sha256']['corrections'] == h.sha256(run / 'corrections.json')
+    table = h.strict_json((run / ds.FINAL['table'] / 'stage_table.json').read_text())
+    assert table['stages_run'] == ['sft', 'dpo1', 'selected'] and table['not_run'] == {'dpo2': stage_table.STOPPED}
+    assert h.strict_json((run / ds.FINAL['delivery'] / 'delivery.json').read_text())['candidate'] == 'sft'
+    with pytest.raises(FileExistsError, match='refusing existing outputs'):
+        ds.final(args)
+    other = tmp_path / 'other'
+    (other / 'dev-eval-010').mkdir(parents=True)
+    (other / 'dev-eval-010' / 'selection.json').write_text('{"test": {}}\n')
+    with pytest.raises(ValueError, match='unique NAME=DIR'):
+        ds.final(ds.parse_args(['final', '--run-root', str(other), '--reference', 'r', '--corrections', 'c',
+                                '--agent', 'O-6=x']))
+
+
+def final_world(tmp_path, geometry_published=False):
+    """The submit script with PROJECT_ROOT moved under tmp_path, a stub sbatch and the select job's receipts."""
+    project = tmp_path / 'project'
+    run = project / 'runs/unknownsize-20261013'
+    (run / 'dev-eval-010').mkdir(parents=True)
+    (project / 'env/bin').mkdir(parents=True)
+    (project / 'env/bin/python').symlink_to(sys.executable)
+    script = tmp_path / 'submit_final_010.sh'
+    original = (SCRIPTS / 'submit_final_010.sh').read_text()
+    script.write_text(original.replace(f'PROJECT_ROOT={RUN.removesuffix("/runs/unknownsize-20261013")}\n',
+                                       f'PROJECT_ROOT={project}\n', 1))
+    assert script.read_text() != original
+    infer.write_once(run / 'dev-eval-010/selection.json', {'test': {'joint': {'inference': f'{run}/infer-joint-005'},
+                                                                    'placement': {'inference': f'{run}/infer-placement-002'}}})
+    h.write_json(run / 'dev-eval-010/submission.json', {'selection_sha256': h.sha256(run / 'dev-eval-010/selection.json'),
+                 'jobs': [{'label': 'test merge joint', 'id': '201'}, {'label': 'selected geometry', 'id': '207'}]})
+    for name in ('llm-agent-001', 'llm-open-O6-001') + (('geometry-v5',) if geometry_published else ()):
+        (run / name).mkdir()
+        (run / name / 'MANIFEST.json').write_text('{}\n')
+    return script, run
+
+
+def test_submit_final_chain_with_stub_sbatch(tmp_path):
+    subprocess.run(['bash', '-n', str(SCRIPTS / 'submit_final_010.sh')], check=True)
+    script, run = final_world(tmp_path)
+    env = T.stub_sbatch(tmp_path)
+    done = subprocess.run(['bash', str(script), str(CODE), f'L={run}/llm-agent-001', f'O6={run}/llm-open-O6-001',
+                           f'O3={run}/llm-open-O3-001:7394845'], env=env, capture_output=True, text=True)
+    assert done.returncode == 0, done.stderr
+    log = (tmp_path / 'log').read_text().splitlines()
+    cpu = ('--account=brics.u6uv --partition=workq --qos=normal --nodes=1 --ntasks=1 --cpus-per-task=16 --mem=64G '
+           '--gres=none --no-requeue --kill-on-invalid-dep=yes')
+    project = run.parents[1]
+    prefix = f'cd {CODE} && PYTHONPATH={CODE} PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 {project}/env/bin/python -B -m'
+    for k, (name, llm, after) in enumerate((('L', 'llm-agent-001', '207'), ('O6', 'llm-open-O6-001', '207'),
+                                            ('O3', 'llm-open-O3-001', '207:7394845'))):
+        assert log[k] == (
+            f'--parsable --hold --dependency=afterok:{after} {cpu} --time=04:00:00 --job-name=unknownsize-010-eval '
+            f'--output={project}/runs/isambard/unknownsize-010-eval-{name}-%j.out --wrap {prefix} fastfill.comparison.evaluate_llm '
+            f'--data {run}/eval-data-v1 --cohort {run}/llm-cohort-v1.json --llm {run}/{llm} --joint {run}/infer-joint-005 '
+            f'--placement {run}/infer-placement-002 --out {run}/llm-eval-{name}-selected-v1 --workers 16')
+    evidence = f'{CODE}/docs/research/20261013-unknown-size-comparison/evidence'
+    assert log[3] == (
+        f'--parsable --hold --dependency=afterany:101:102:103,afterok:207 {cpu} --time=12:00:00 --job-name=unknownsize-010-final '
+        f'--output={project}/runs/isambard/unknownsize-010-final-%j.out --wrap {prefix} fastfill.comparison.dev_select final '
+        f'--run-root {run} --reference {evidence}/amendment-005-reference-rows-20261013.json '
+        f'--corrections {evidence}/amendment-006-corrections-uids-candidate-003.json --agent L={run}/llm-eval-L-selected-v1 '
+        f'--agent O6={run}/llm-eval-O6-selected-v1 --agent O3={run}/llm-eval-O3-selected-v1 --repeats 2000 --workers 16')
+    assert len(log) == 4 and (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101,102,103,104\n'
+    assert done.stdout.splitlines()[-1] == 'released 101 102 103 104'
+
+
+@pytest.mark.parametrize('case, match', [
+    ('published', None), ('unfinished agent', 'O3 generation not complete'), ('existing output', 'refusing to reuse'),
+    ('sbatch fails', "sbatch failed for 'eval O6'.*scancel 101"), ('unbound selection', 'cannot read')])
+def test_submit_final_refusals(tmp_path, case, match):
+    script, run = final_world(tmp_path, geometry_published=case == 'published')
+    agents = [f'L={run}/llm-agent-001', f'O6={run}/llm-open-O6-001']
+    if case == 'unfinished agent':
+        agents.append(f'O3={run}/llm-open-O3-001')  # Generation still running: needs :JOBID.
+    if case == 'existing output':
+        (run / 'llm-eval-O6-selected-v1').mkdir()
+    if case == 'unbound selection':
+        (run / 'dev-eval-010/selection.json').write_text('{"test": {}}\n')
+    done = subprocess.run(['bash', str(script), str(CODE), *agents], env=T.stub_sbatch(tmp_path, fail_on=2 if case == 'sbatch fails' else 0),
+                          capture_output=True, text=True)
+    if match is None:  # geometry-v5 already published: the evaluations wait for nothing, the final job only for them.
+        log = (tmp_path / 'log').read_text().splitlines()
+        assert done.returncode == 0 and log[0].startswith('--parsable --hold --account=') and \
+            log[2].startswith('--parsable --hold --dependency=afterany:101:102 --account=')
+        return
+    assert done.returncode == 1 and re.search(match, done.stderr, re.S)
+    assert not (tmp_path / 'log.scontrol').exists() and (case == 'sbatch fails') == (tmp_path / 'log').exists()
 
 
 @pytest.mark.parametrize('script, argv, ok', [

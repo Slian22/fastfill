@@ -124,9 +124,10 @@ def test_end_to_end_report_and_delivery(built):
     h.verify_artifacts(out, json.loads((out / 'MANIFEST.json').read_text())['files'])
     report = (out / 'report.md').read_text()
     assert '达上限无 EOS' in report and 'Holm' in report
-    # SFT geometry (no stage label): the amendment-005 rule is informational, delivery is decided at DPO2.
-    assert result['stage'] == 'sft' and d['stage'] == 'sft' and d['binding'] is False
-    assert '**交付：' not in report and '规则结果：P' in report and 'binding decision at DPO2, amendment 008' in report
+    # SFT geometry (no stage label): the amendment-005 rule is informational, delivery is between the dev-selected models.
+    assert result['stage'] == 'sft' and d['stage'] == 'sft' and d['binding'] is False and 'models' not in result
+    assert '**交付：' not in report and '规则结果：P' in report and '修订 010：交付比较为 dev 选定模型' in report
+    assert 'DPO2' not in report.split('## T1 ')[0] and 'selection' not in result['input_sha256']
     assert R.ROLE['sft'] in report and '主要（确认性）' in R.ROLE['sft']
     # House components per T2/T3/S1 scope; no CI below 10 components; few clusters / small n flagged.
     k = len({room['group'] for room in rooms.values()})
@@ -178,19 +179,65 @@ def test_t5_own_bias_and_rescaled_success_for_every_system(built):
 
 
 @pytest.mark.parametrize('stage', ['dpo1', 'dpo2'])
-def test_delivery_section_binding_only_at_dpo2(built, stage):
+def test_delivery_section_not_binding_at_dpo_stages(built, stage):
     root, _, runs = built
     geometry = root / 'geometry-v2'
     _reseal(geometry, {**json.loads((geometry / 'summary.json').read_text()), 'stage': stage})
     result = _build(root, runs, out='report-' + stage, fid=None, judge=None)  # Visual lineage binds the old MANIFEST.
     report = (root / ('report-' + stage) / 'report.md').read_text()
-    assert result['stage'] == stage and result['delivery']['binding'] is (stage == 'dpo2')
+    assert result['stage'] == stage and result['delivery']['binding'] is False  # Amendment 010: not DPO2 any more.
     assert R.ROLE[stage] in report and all(R.ROLE[s] not in report for s in R.ROLE if s != stage)
-    if stage == 'dpo2':
-        assert f"**交付：{result['delivery']['delivered']}**" in report and 'binding decision at DPO2' not in report
-        assert '次要的交付比较（修订 008）' in report
-    else:
-        assert '**交付：' not in report and '（dpo1 阶段，非交付决定；binding decision at DPO2, amendment 008）' in report
+    assert '**交付：' not in report and f'（{stage} 阶段，非交付决定；修订 010：交付比较为 dev 选定模型）' in report
+    assert f'{stage.upper()}：描述性' in report and '修订 008' not in report
+
+
+def _selected(root, runs, stages=('dpo1', 'sft'), inference=None):
+    """geometry-v2 relabelled as evaluate_pair --stage-label selected writes it, plus dev_select's selection.json."""
+    geometry = root / 'geometry-v2'
+    _reseal(geometry, {**json.loads((geometry / 'summary.json').read_text()), 'stage': 'selected',
+                       'stages': dict(zip(h.ARMS, stages)),
+                       'lora': {'joint': 'unmerged_fp32_stage_adapter_on_bf16_training_base', 'placement': 'merge_and_unload_bf16'}})
+    picked = {'joint': 'e1-dpo1', 'placement': 'sft'}
+    path = root / f'selection-{len(list(root.glob("selection-*")))}.json'
+    infer.write_once(path, {'protocol': 'amendment-010-dev-selection', 'selected': picked, 'test': {
+        arm: {'candidate': c, 'inference': str((inference or runs)[arm])} for arm, c in picked.items()}})
+    return path
+
+
+def test_selected_stage_is_the_binding_delivery_comparison(built):
+    root, _, runs = built
+    selection = _selected(root, runs)
+    result = _build(root, runs, out='report-selected', fid=None, judge=None, selection=selection)
+    d = result['delivery']
+    assert result['stage'] == d['stage'] == 'selected' and d['binding'] is True
+    assert result['models'] == {'joint': {'candidate': 'e1-dpo1', 'stage': 'dpo1', 'lora': 'unmerged_fp32_stage_adapter_on_bf16_training_base'},
+                                'placement': {'candidate': 'sft', 'stage': 'sft', 'lora': 'merge_and_unload_bf16'}}
+    assert result['input_sha256']['selection'] == h.sha256(selection) and result['tables']['T5']  # Agents re-paired.
+    report = (root / 'report-selected' / 'report.md').read_text()
+    assert R.ROLE['selected'] in report and all(R.ROLE[s] not in report for s in R.ROLE if s != 'selected')
+    assert f"**交付：{d['delivered']}**" in report and '## 交付决定（修正案 005 §1；修订 010：交付比较为 dev 选定模型）' in report
+    assert 'J = e1-dpo1（stage dpo1，LoRA unmerged_fp32_stage_adapter_on_bf16_training_base）；P = sft（stage sft' in report
+    assert '配对 J−P；dev 选定模型：有约束力的交付比较（修订 010）' in report
+    manifest = json.loads((root / 'report-selected' / 'MANIFEST.json').read_text())
+    assert manifest['input_sha256']['selection'] == h.sha256(selection)
+    with pytest.raises(ValueError, match='required for, and only for'):  # The selected stage needs its selection.
+        _build(root, runs, out='bad', fid=None, judge=None)
+    swapped = _selected(root, runs, inference={'joint': runs['placement'], 'placement': runs['joint']})
+    with pytest.raises(ValueError, match='does not name these selected test runs'):
+        _build(root, runs, out='bad', fid=None, judge=None, selection=swapped)
+    other_stage = _selected(root, runs, stages=('dpo2', 'sft'))  # Geometry says J is a DPO2 model; selection says e1-dpo1.
+    with pytest.raises(ValueError, match='does not name these selected test runs'):
+        _build(root, runs, out='bad', fid=None, judge=None, selection=other_stage)
+    assert not (root / 'bad').exists()
+
+
+def test_selection_only_for_the_selected_stage(built):
+    root, _, runs = built
+    selection = root / 'selection.json'
+    infer.write_once(selection, {'protocol': 'amendment-010-dev-selection'})
+    with pytest.raises(ValueError, match='required for, and only for'):
+        _build(root, runs, out='bad', selection=selection)
+    assert not (root / 'bad').exists()
 
 
 def test_component_counts_suppress_and_flag_intervals():
