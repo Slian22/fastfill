@@ -1,0 +1,598 @@
+{
+  "summary": "Agency audit of SFT-stage results: is the API agent validity advantage real, what drives J/P failures, which claims are supported",
+  "agentCount": 6,
+  "logs": [],
+  "result": [
+    {
+      "key": "agent-validity",
+      "summary": "EXPLORATORY (post hoc). Every number below is from the 1,454-room cohort, scored with the frozen gate. 1,451 rooms are complete for J, P and L (GT is always complete).\n\n**Short answer.** L's advantage over J and P is real. Its advantage over GT, and its 0.935 headline, are inflated by two things: L shrinks furniture, and GT itself fails the gate on noisy sources (3D-FRONT and scans).\n\n**Scoring path (no artifact found).**\n- J/P rows from evaluate_llm and evaluate_pair are identical (1,454/1,454 for each arm).\n- I re-scored L from the raw API text using J's request: 1,453/1,454 rows are byte-identical. The one difference is the last digit of a float in size_log_mae.\n- Re-running the gate on the stored layouts gives 0 mismatches for J, P and L. GT pass/fail agrees with the frozen reference for 1,454/1,454 rooms.\n- An independent hand check of 5 rooms × 4 systems matches every out-of-bounds, support and ceiling count.\n- L's first answers were all valid, so L-raw and L-harness are identical.\n\n**Size shrinkage.** L's footprints are on average 16% smaller than GT (log bias −0.175, 95% CI [−0.193, −0.159]); volumes are 25% smaller (−0.292). J is at −0.048 and P at −0.023 on the same rooms. Undoing each system's own average bias with the amendment-005 rule:\n\n| System | Success, own sizes | Success, bias removed (a′) |\n|---|---|---|\n| L | 0.935 | 0.765 |\n| J | 0.431 | 0.371 |\n| P | 0.510 | 0.515 |\n| GT | 0.725 | — |\n\n- After this correction L still leads J by +0.394 [0.359, 0.427] and P by +0.250 [0.214, 0.285], but leads GT by only +0.041 [0.009, 0.073].\n- Giving every system the true GT footprints at its own positions: L 0.420, J 0.246, P 0.281, against 0.725 for GT's own layouts. L still beats J and P, but its layouts only pass at its own shrunken sizes.\n\n**Beating GT depends on the source.** L only beats GT where GT itself fails the gate.\n\n| Rooms | n | GT | L | L after bias removal |\n|---|---|---|---|---|\n| Clean-GT sources (GT ≥ 0.8, excluding holodeck) | 150 | 0.920 | 0.793 | 0.667 |\n| Holodeck | 503 | 1.000 | 0.994 | 0.789 |\n| 3D-FRONT | 536 | 0.522 | 0.976 | 0.819 |\n| Other noisy-GT sources | 265 | 0.502 | 0.819 | 0.668 |\n\nOn the 400 rooms where GT fails, L passes 88.3%. Of the rooms where GT fails and L passes, 210 are 3D-FRONT rooms where GT has box-level collisions (some are overlapping duplicate bookcases).\n\n**How L gets its validity.**\n- **No overlaps at all:** 0.0055 chair-under-table overlaps per room vs 0.498 for GT; 0.0069 small-inside-large overlaps vs 0.161. Only 3.2% of L rooms have any overlap, vs 36.8% for GT.\n- **Keeps away from walls:** furniture sits 0.263 m from the wall on average vs 0.167 m for GT; 47.5% of floor objects are against a wall vs 63.4%.\n- **Covers less floor:** 0.292 of floor area vs 0.362.\n- It is not clustering objects: average spacing between objects equals GT's (difference −0.0016 [−0.0087, 0.0051]).\n\n**Suspected tricks that turned out false.**\n- Not everything is against walls; L is less wall-bound than GT.\n- Objects do not face walls: 2.0% vs 2.6% for GT.\n- Parent changes are mostly plausible: 24.8% of objects are on another object vs 18.4% for GT, and the most common moves are book on book (33), pillow on couch (25) and cup on table (17).\n- The ceiling check is skipped in 690 rooms with unknown height, but L puts no objects above 2.8 m there.\n- The only gate loophole L uses is minor: 431 objects predicted under 6 cm tall (which skips the collision check) where GT is taller, mostly books.\n\n**Errors in the findings draft (item 5).**\n- It compares L's OOR (0.031) with GT's all-test OOR (0.079). On this cohort GT's OOR is 0.048.\n- It reports L's raw success without L's size bias, which breaks the draft's own rule to always report success next to footprint bias.\n\nScripts and outputs are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-geomL/: prep.py, analyze.py, extra.py, split.py, results.json, extra.json, cohort.pkl. Run with PYTHONDONTWRITEBYTECODE=1 and PYTHONPATH set to the repo plus the script folder. Nothing in the repo or data was changed.",
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "high",
+          "claim": "L's headline validity (0.935) is inflated by systematic undersizing; the amendment-005 size guard was never applied to L.",
+          "evidence": "EXPLORATORY. Footprint log bias on 1,451 common-complete rooms: L −0.1754 [−0.1927, −0.1589]; volume −0.2924 [−0.3188, −0.2675]; per axis x −0.060, y −0.116, z −0.117. J −0.0478, P −0.0226, GT 0. L−J footprint −0.1276 [−0.1429, −0.1125]; L−P −0.1528 [−0.1682, −0.1380]. 43.7% of L objects have footprint below 0.8× GT (J 33.7%, P 29.4%). a′ factor for L = exp(0.1754/2) = 1.0916, which drops L from 0.9347 to 0.7655 (−16.9 pp). Scaling L by ×1.10 gives 0.728, about GT's 0.725. For reference, scaling GT by ×0.9 gives 0.800 and ×1.1 gives 0.207. The size log MAE gap (0.300 vs 0.243/0.238) is mostly this shrinkage: orientation-invariant MAE is 0.279, and x/y swaps are only 6.1% of objects (J 3.4%, P 3.0%).",
+          "recommendation": "Report B_L, volume bias and a′_L beside L's raw success in T5 and in the findings. Add a′ (own-bias rescale, same frozen gate) to evaluate_llm/report_v2 for every agent, using the J/P/L common-complete cohort rooms for B."
+        },
+        {
+          "id": "F2",
+          "severity": "medium",
+          "claim": "L 'beating GT' is mainly an artifact of GT failing the gate on 3D-FRONT and scan sources. Where GT is clean, L matches or trails GT.",
+          "evidence": "EXPLORATORY. Success as GT / L / L a′: clean-GT sources excluding holodeck (n=150) 0.920 / 0.793 / 0.667; holodeck (n=503) 1.000 / 0.994 / 0.789; 3D-FRONT (n=536) 0.522 / 0.976 / 0.819; other noisy-GT sources (n=265) 0.502 / 0.819 / 0.668. L is below GT in 5 of 18 sources (IL3D_synthetic, InternScenes_gen, MansionWorld, SAGE-10k, SceneSmith). L passes 88.3% of the 400 GT-failing rooms. GT failure causes: 255 only main collisions, 43 only OOB, 18 only fixed-blocking, 84 multiple. Of the L-pass/GT-fail rooms, 210 are 3D-FRONT main collisions; e.g. il3d:ba95538c has 36 GT main collisions between overlapping bookcases (50–83% overlap).",
+          "recommendation": "Never cite GT's 0.72 as a ceiling L exceeds. Report L−GT on the GT-pass stratum (L 0.954 vs GT 1.0, n=1,054) and per source group. Treat 3D-FRONT GT gate failures as label noise when interpreting."
+        },
+        {
+          "id": "F3",
+          "severity": "info",
+          "claim": "L's advantage over J and P is real: it survives size debiasing and GT-footprint substitution.",
+          "evidence": "EXPLORATORY, house-cluster bootstrap with 2,000 draws, seed 42. Raw: L−J +0.504 [0.478, 0.531], L−P +0.424 [0.398, 0.452]. a′ (J/P with full-test factors 1.0424/0.9925): L 0.7655, J 0.3714, P 0.5151; L−J +0.394 [0.359, 0.427], L−P +0.250 [0.214, 0.285], L−GT(raw) +0.041 [0.009, 0.073]. GT x/y footprint at each system's own pos/yaw/parent (long axis aligned): L 0.4195, J 0.2462, P 0.2806; L−J +0.173 [0.144, 0.203], L−P +0.139 [0.107, 0.171], L−GT −0.305 [−0.339, −0.273]. With GT footprints, L's rooms with OOB rise to 40.2%.",
+          "recommendation": "State it as: the agent's placements are more gate-consistent than J/P's even at equal sizes, but they pass at the agent's own shrunken sizes, not at true furniture sizes."
+        },
+        {
+          "id": "F4",
+          "severity": "info",
+          "claim": "Failure-mode breakdown of the frozen gate on the cohort (share of all 1,454 requests with at least one flagged item).",
+          "evidence": "EXPLORATORY.\n- OOB: GT 7.22%, J 13.41%, P 12.24%, L 0.55%.\n- Support failure: GT 0%, J 3.16%, P 1.24%, L 3.92%.\n- Ceiling: 0 / 0 / 0.41% / 0.\n- Main collisions: GT 23.04%, J 51.10%, P 44.09%, L 2.41%.\n- Severe collisions: 11.83 / 33.15 / 30.26 / 0.48%.\n- Fixed blocking: 3.71 / 3.71 / 4.54 / 0.07%.\n- Main pairs per complete room: GT 0.575, J 6.16, P 6.83, L 0.033.\n- Axis-aligned OOR on complete rooms: GT 0.0481, J 0.1107, P 0.1733, L 0.0310.\n- Sole-cause failures: GT {main 255, OOB 43, fixed 18, multiple 84}; J {main 557, OOB 59, fixed 14, support 5, multiple 191, plus 2 incomplete}; P {main 475, OOB 49, fixed 15, support 3, ceiling 2, multiple 167, plus 1 incomplete}; L {support 52, main 30, OOB 8, multiple 5}.\n- L support failures are 75 wrong-height-on-parent (26 pillows on beds/couches) and 44 unparented wall-hung items (shelf 10, picture 8, painting 6, light fixture 6), i.e. plausible choices the strict box rule rejects.",
+          "recommendation": "Add these per-flag rates to T5/T6 for all agents. Note that J/P failures are dominated by main collisions and L's by support strictness."
+        },
+        {
+          "id": "F5",
+          "severity": "medium",
+          "claim": "L gets its validity by never overlapping, standing furniture off walls, and covering less floor. These realism costs are invisible to the gate.",
+          "evidence": "EXPLORATORY, 1,451 rooms / 12,760 objects.\n- Chair/table and bed/nightstand overlaps per room: GT 0.498, J 0.649, P 0.667, L 0.0055.\n- Small-inside-large overlaps per room: 0.161 / 0.513 / 4.634 / 0.0069.\n- Rooms with any overlapping pair: GT 36.8%, J 66.0%, P 57.6%, L 3.2%.\n- Mean distance of floor objects to the wall: GT 0.167 m, J 0.142, P 0.133, L 0.263.\n- Floor objects against a wall: 0.634 / 0.709 / 0.744 / 0.475; wall-type furniture (bed, wardrobe, sofa, cabinet…) 0.866 / 0.923 / 0.881 / 0.796.\n- Floor coverage: 0.362 / 0.330 / 0.314 / 0.292; L−GT −0.0696 [−0.0757, −0.0639]. Convex-hull share: 0.715 / 0.679 / 0.692 / 0.659.\n- Average spacing between objects (normalised) is unchanged: GT 0.5826, L 0.5810; L−GT −0.0016 [−0.0087, 0.0051].\n- Objects off-centre: L 0.142 vs GT 0.174.",
+          "recommendation": "Use the pending FID/GPT-judge results to test whether these choices cost realism. Add tuck rate, wall standoff and coverage relative to GT as descriptive gate-blind columns for all agents."
+        },
+        {
+          "id": "F6",
+          "severity": "low",
+          "claim": "Suspected gate-blind violations are mostly not present: L does not put everything against walls, does not face walls, does not exploit exemptions, and its re-parenting is plausible.",
+          "evidence": "EXPLORATORY.\n- Front faces a wall within 0.30 m (and the back does not): GT 2.59%, J 1.86%, P 7.30%, L 2.00%. Facing-wall share of one-side-walled objects: 3.75 / 2.40 / 9.12 / 3.21%.\n- All floor objects against walls: GT 37.6% of rooms, J 46.0%, P 43.1%, L 26.1%.\n- Objects on a movable parent: GT 18.35%, J 19.60%, P 18.10%, L 24.84%. GT-floor objects put on a parent: J 5.14%, P 4.38%, L 9.14%. Parent category matches GT when both supported: J 0.604, P 0.612, L 0.532. Top L moves: book→book 33, pillow→couch 25, cup→table 17, box/lamp/plant→cabinet 16 each.\n- Supported objects on a seat/bed/toilet/lamp/plant: L 3.55% vs GT 0.38% (includes plausible pillows on beds). Child larger than parent: L 1.07% vs GT 1.92%.\n- Objects under 6 cm (skipped by the collision check): L 7.48% vs GT 5.66%; 431 L objects are under 6 cm where GT is not (books 150).\n- Ceiling is unchecked in 690/1,451 rooms with unknown height; L has 0 objects above 2.8 m there (GT 22). Window overlaps (exempt): L 0. Object centres outside the room: L 0.01%.",
+          "recommendation": "No gate change needed for these. Optionally report the under-6 cm and parent-category-match rates as descriptive diagnostics."
+        },
+        {
+          "id": "F7",
+          "severity": "medium",
+          "claim": "Findings item 5 compares L's cohort OOR with GT's all-test OOR and omits L's size bias.",
+          "evidence": "The draft says 'raw OOR 0.031 vs 0.111 / 0.173 (GT 0.079)'. 0.0787 is GT's all-8,647 value; GT OOR on the 1,454-room cohort is 0.0481 (paper strata 0.0256, non-strata 0.0992). The draft's own lesson ('Always report geometry success next to footprint bias') is not applied to L (B_L −0.175).",
+          "recommendation": "Replace with cohort GT OOR 0.048. Add B_L −0.175 (volume −0.292), a′_L 0.765 and the GT-footprint counterfactual (L 0.420 vs GT 0.725) to item 5."
+        },
+        {
+          "id": "F8",
+          "severity": "info",
+          "claim": "All systems were scored by the same code path on the same inputs. A local re-run reproduces the stored rows.",
+          "evidence": "- Code path: evaluate_llm._score_llm calls evaluate_pair._score with arm='joint' on requests['joint'][uid], i.e. geometry.score, the same function as J; P goes through evaluate_pair._score on its placement request.\n- Both summaries carry geometry.py sha 0d3f7bee…, matching the local file.\n- The server's evaluate_pair.py (ace47c4a…, commit 26a841a3c) differs from local only in DECODE_KEYS, a stage check and a report label.\n- The run receipt's joint_requests_sha256 (3574a825…) equals the eval manifest; rooms were rebuilt from the GT export with bind_room and hash-verified against rooms.jsonl (37a541e2…).\n- J/P cohort rows are identical between llm-eval-L-v1 and geometry-v2 (1,454/1,454 each); L-raw equals L-harness (1,454); receipt raw equals record raw (1,454).\n- Re-scoring L from the API text: 1,453/1,454 identical; HOLODECK-bathroom-651 differs in the last float digit (0.3259016321674955 vs …546). Re-running the gate on stored raw_layouts: 0 mismatches for J/P/L. GT pass agrees with the frozen gt_pass list for 1,454/1,454.\n- Hand check (independent footprint arithmetic, 5 rooms × GT/J/P/L) matches every OOB, support and ceiling count: il3d:bbf0b262 (L pass, J/P fail), ARKit 41126466 (L support fail obj_0003), MansionWorld consultation_room_3 (L 1 main + 1 support), il3d:ba95538c (GT 36 main, L pass), MP3D S9hNv5qa7GM/region12 (hull). Raw overlap pairs equal or exceed main collisions, with the difference coming from the chair/table and small-inside-large exemptions (e.g. P mp3d: 6 overlaps vs 1 main).",
+          "recommendation": "None needed for validity. Keep the 5-room check in the audit evidence."
+        },
+        {
+          "id": "F9",
+          "severity": "low",
+          "claim": "The scoring summaries do not hash validate.py (the gate's check), scene.py or anchors.py.",
+          "evidence": "llm-eval-L-v1 and geometry-v2 summary.json code_sha256 list only geometry.py, evaluate_pair.py, evaluate_llm.py and llm_agent.py. validate.py is unchanged in git since 5ab744d3d (2026-09-27), and the local re-score reproduces every row, so there is no observed impact.",
+          "recommendation": "Add validate.py, scene.py and anchors.py hashes to code_sha256 in evaluate_pair, evaluate_llm and report_v2, and check them fail-closed like geometry.py."
+        },
+        {
+          "id": "F10",
+          "severity": "info",
+          "claim": "The cohort headline is dominated by two paper strata where L is near ceiling.",
+          "evidence": "1,009 of 1,454 rooms (69%) are the six paper strata (3D-FRONT 536 + holodeck 503 in the cohort). Strata: GT 0.759, J 0.449, P 0.581, L 0.985 (a′ 0.809). Non-strata (n=445): GT 0.647, J 0.389, P 0.351, L 0.820 (a′ 0.667).",
+          "recommendation": "Show strata and non-strata L results separately in T5 next to the pooled cohort."
+        }
+      ],
+      "verification": {
+        "verdicts": [
+          {
+            "id": "F1",
+            "verdict": "CONFIRMED (one sub-claim REFUTED)",
+            "note": "EXPLORATORY (post hoc). I rebuilt the work independently: GT rooms rebuilt from the export with bind_room, GT scored by g.score through the reference_rows path, and every rescale re-run through g.geometry. Common-complete rooms = 1,451, with 12,760 objects. Reproduced: B_fp L −0.1754 (my simple house-cluster CI [−0.1947, −0.1551]), J −0.0478, P −0.0226; volume bias L −0.2924; per-axis bias L −0.0596/−0.1158/−0.1170; share of objects with footprint below 0.8× GT: L 43.7%, J 33.7%, P 29.4%. a′_L with factor 1.0916 gives 0.7655. L ×1.10 gives 0.7276. GT ×0.9 gives 0.7999 and ×1.1 gives 0.2070.\n\nREFUTED: 'the size log MAE gap is mostly this shrinkage'. Shifting L's log sizes by the best constant per-axis offset only moves its MAE from 0.2997 to 0.2904 (global median offset) or 0.2840 (per-source median offset). That is 16–28% of the +0.057 gap to J (0.2427). Swap-invariance alone removes more: 0.2997 to 0.2792. Swap-invariance plus per-source offset still leaves 0.2634, above J. Most of the gap is per-object scatter, not bias.\n\nQUALIFY 1: the bias is not uniform. L's mean bias is +0.074 on the clean-GT sources (L oversizes there), −0.207 on holodeck, −0.181 on 3D-FRONT and −0.245 on the rest. On holodeck the train prior is itself −0.132 against GT, so holodeck GT assets are larger than corpus norms.\n\nQUALIFY 2: amendment 005 §4 does not pre-register B or a′ for agents, so 'never applied' is a reporting gap against the findings' own lesson, not a protocol breach.\n\nSensitivity: debiasing with per-source factors gives L 0.7084, below GT's 0.7249. The inflation is therefore 17–23 pp, not just 17."
+          },
+          {
+            "id": "F2",
+            "verdict": "CONFIRMED core; two over-claims",
+            "note": "EXPLORATORY.\n\nReproduced, as GT / L / L a′ (pooled factor):\n- clean-GT sources, n=150: 0.920 / 0.793 / 0.667\n- holodeck, n=503: 1.000 / 0.994 / 0.789\n- 3D-FRONT, n=536: 0.522 / 0.976 / 0.819\n- other sources, n=265: 0.502 / 0.819 / 0.668\n\nAlso reproduced: L passes 0.9545 of the GT-pass stratum (n=1,054) and 0.8825 of the 400 GT-fail rooms. GT failure causes: main 255, OOB 43, fixed 18, multiple 84. Of the 247 3D-FRONT rooms where L passes and GT fails, 210 have a GT main collision (163 have main collisions only). il3d:ba95538c has 36 bookcase×bookcase main pairs, and L passes it.\n\nCorrections:\n(i) L is below GT in 6 of 18 sources, not 5. Holodeck is 0.994 vs 1.000.\n(ii) The a′ column applies the pooled factor 1.0916 to every group. With each group's own L bias the results change: clean group factor 0.964 gives a′ 0.833, not 0.667; holodeck 1.109 gives 0.710, not 0.789; 3D-FRONT 0.802; other 0.580. The clean-group 0.667 is an over-correction.\n(iii) 'Treat 3D-FRONT GT gate failures as label noise' is overstated. In failing 3D-FRONT GT rooms there are 462 main pairs. Only 99 (21%) are same-category duplicates; their median overlap is 52% of the smaller footprint. The other 363 (79%) are cross-category adjacencies with a median overlap of 22%: side table×king bed 32, TV stand×potted plant 23, dressing table×bed 18, nightstand×wardrobe 15, desk×bed 13. Many of these are plausible tight arrangements that fall outside the gate's tuck list ('Corner/Side Table' does not match 'night/bedside'). That is gate strictness, not label noise.\n\nThe room-level statement 'L only beats GT where GT fails' is true by construction; only the source-level version carries information."
+          },
+          {
+            "id": "F3",
+            "verdict": "PARTLY CONFIRMED; interpretation REFUTED",
+            "note": "EXPLORATORY.\n\nReproduced, with J/P a′ using the full-test factors:\n- L a′ − J a′ = +0.3941 [0.356, 0.427]\n- L a′ − P a′ = +0.2503 [0.214, 0.283]\n- L a′ − GT = +0.0406 [0.005, 0.076]\n- GT footprints at each system's own positions: L 0.4195, J 0.2462, P 0.2806. With GT footprints, 40.17% of L rooms have an OOB object.\n\nREFUTED: 'they pass at the agent's own shrunken sizes, not at true furniture sizes' and the comparison 'L 0.420 vs GT 0.725'. The test is not symmetric: GT is scored at its own sizes. The reverse counterfactual shows this:\n- GT positions with L's footprints: 0.4904.\n- GT positions with L's per-object size ratios, room mean bias removed: 0.2916.\nSwapping in another system's sizes breaks any layout, GT included. The substitution measures per-object mismatch, not shrinkage; a′ is the shrinkage test.\n\nAlso:\n- The factor choice is inconsistent: L uses cohort B but J/P use full-test factors. With cohort factors (J 1.0242, P 1.0114): a′ J 0.3941, P 0.4945; L−J +0.371, L−P +0.271.\n- The +0.041 lead over GT is not robust: with per-source factors L a′ is 0.708 < GT 0.725.\n\nThe L > J/P conclusion stands."
+          },
+          {
+            "id": "F4",
+            "verdict": "CONFIRMED (minor qualification)",
+            "note": "Every rate in F4 reproduced exactly on the 1,454 requests:\n- OOB: GT 7.22%, J 13.41%, P 12.24%, L 0.55%\n- support: 0% / 3.16% / 1.24% / 3.92%\n- ceiling: P 0.41%\n- main collisions: 23.04% / 51.10% / 44.09% / 2.41%\n- severe collisions: 11.83% / 33.15% / 30.26% / 0.48%\n- fixed blocking: 3.71% / 3.71% / 4.54% / 0.07%\n- main pairs per complete room: 0.575 / 6.164 / 6.834 / 0.033\n\nSole-cause counts also match exactly for all four systems.\n\nL support failures under geometry's rule: 75 objects whose height does not match the parent top (all 75 sit below it), 44 unparented floating objects and 3 off the parent's footprint. For the 44 floating wall items (shelf 10, picture 8, …), GT puts 32 on the floor (z=0, no parent) and 12 on a movable parent. L's output also breaks the prompt contract, which says to omit 'on' only for floor support (floor z=0). So these are a contract and data-convention mismatch, not only gate strictness."
+          },
+          {
+            "id": "F5",
+            "verdict": "PLAUSIBLE (descriptive numbers reproduce; one mechanism double-counted)",
+            "note": "EXPLORATORY.\n\nReproduced exactly:\n- tuck pairs per room: GT 0.4983, J 0.6485, P 0.6671, L 0.0055\n- contained pairs per room: 0.1606 / 0.5127 / 4.634 / 0.0069\n- rooms with any overlap: 36.8% / 66.0% / 57.6% / 3.1% (the claim says 3.2%)\n\nWall and coverage values depend on the definition, but my own versions agree in direction:\n- floor-object distance to the wall: GT 0.286 m, L 0.391 m\n- floor objects within 0.1 m of a wall: GT 66.8%, L 47.2%\n- floor coverage: GT 0.347, L 0.283\n\nOver-claim: 'covers less floor' is not a separate mechanism. The L/GT coverage ratio is 0.82, close to exp(B_L) = 0.84, so it restates F1's shrinkage. Also, 'gets its validity by…' is causal language. Only shrinkage has a causal estimate (about 17–23 pp via a′); no-tuck and wall standoff are correlational. The 'realism cost' stays a hypothesis until FID and the judge report."
+          },
+          {
+            "id": "F6",
+            "verdict": "PLAUSIBLE (spot-checked)",
+            "note": "Confirmed: 690 of the 1,451 rooms have unknown height, and GT has 22 objects above 2.8 m in them versus 0 for L. My objects-under-6 cm share differs by denominator (L 8.13% vs GT 6.28%; claim 7.48% vs 5.66%), but the direction is the same. I did not re-derive facing-wall, re-parenting or parent-category-match rates. Low severity is appropriate."
+          },
+          {
+            "id": "F7",
+            "verdict": "CONFIRMED (recommendation partly REJECTED)",
+            "note": "findings.md item 5 reads 'raw OOR 0.031 vs 0.111 / 0.173 (GT 0.079)'. 0.0787 is the all-test GT OOR from T2. Cohort GT OOR is 0.0481: strata 0.0256, non-strata 0.0992; 0.0479 on common-complete rooms. L 0.0310, J 0.1107, P 0.1733 reproduce. Against the right GT value, 'OOR well below GT' weakens to 0.031 vs 0.048. Item 5 indeed omits B_L, against the draft's own lesson.\n\nAdd to item 5: B_L −0.175 (volume −0.292), a′_L 0.765, and the per-source a′ sensitivity of 0.708. Do NOT add 'GT-footprint counterfactual L 0.420 vs GT 0.725'; it is an asymmetric comparison (see F3: GT given L's footprints scores 0.490)."
+          },
+          {
+            "id": "F8",
+            "verdict": "CONFIRMED",
+            "note": "Independently reproduced:\n- J and P cohort rows are identical in llm-eval-L-v1 and geometry-v2 (1,454/1,454 each).\n- L-raw equals L-harness on all 1,454 rows.\n- Re-running g.geometry on the stored raw_layouts with each request's fixed items, boundary and height gives 0 flag mismatches for J, P and L (8 fields including oor).\n- GT pass agrees with the frozen gt_pass list for 1,454/1,454.\n- Re-scoring L from the llm-agent-001 records via evaluate_llm._score_llm gives 1,453/1,454 identical rows. The one difference is optiscene:HOLODECK-bathroom-651, in size_log_mae only.\n- The local geometry.py sha is 0d3f7bee…, matching both summaries.\n\nI did not check the server evaluate_pair diff or the receipt and request hash chain myself."
+          },
+          {
+            "id": "F9",
+            "verdict": "CONFIRMED (low; partly mitigated)",
+            "note": "code_sha256 in the summaries covers only evaluate_llm, evaluate_pair, geometry and llm_agent (llm-eval-L-v1), and evaluate_pair and geometry (geometry-v2). Mitigation: the amendment-005 reference-rows JSON does hash validate.py (ddaff1e5…) and scene.py (91712134…), and both match the local files. validate.py was last changed in 5ab744d3d. report_v2 checks only that the reference and the geometry run used the same geometry.py. Low severity is right."
+          },
+          {
+            "id": "F10",
+            "verdict": "CONFIRMED",
+            "note": "Strata n=1,009: GT 0.759, J 0.449, P 0.581, L 0.985, L a′ 0.809. Non-strata n=445: GT 0.647, J 0.389, P 0.351, L 0.820, L a′ 0.667. L's bias is −0.192 in the strata and −0.137 outside them."
+          }
+        ],
+        "overall": "EXPLORATORY (post hoc) independent re-check. I rebuilt the cohort from the GT export and the J/P/L rows, re-ran the frozen gate locally, and changed nothing in the repo or data.\n\n**Numbers.** Almost every number in the agent-validity report reproduces to 3–4 decimals: B_L, a′_L 0.7655, the scaling tests, the per-group success rates, the flag rates, the sole-cause counts, the GT-pass stratum, the strata split, the cohort GT OOR of 0.0481, and the scoring-path identity (0 re-gate mismatches; 1,453/1,454 rows identical on re-score).\n\n**Over-claims to fix before anything goes into findings:**\n1. **F1:** 'the size log MAE gap is mostly shrinkage' is refuted. Optimal per-axis debiasing cuts L's MAE only from 0.2997 to 0.2904–0.2840, versus J at 0.2427. Swap-invariance explains more than debiasing does. The gap is mainly per-object scatter.\n2. **F3/F7:** the GT-footprint counterfactual 'L 0.420 vs GT 0.725' is asymmetric. GT layouts given L's footprints score 0.490, and given L's de-biased per-object scatter only 0.292. Size substitution breaks any layout; only a′ isolates shrinkage. Do not put this comparison into item 5.\n3. **F2:** the per-group a′ uses the pooled factor, but L oversizes on the clean-GT group (B +0.074). The group's own a′ there is 0.833, not 0.667, and on holodeck it is 0.710, not 0.789. 'Label noise' is overstated: 79% of the GT main pairs in failing 3D-FRONT rooms are cross-category adjacencies with a median overlap of 22%, which is largely gate strictness. Also, 6 of 18 sources are below GT, not 5.\n4. **'L still leads GT after debiasing' (+0.041) is not robust.** With per-source debias factors L a′ is 0.708, below GT's 0.725. The inflation of L's 0.935 is 17–23 pp.\n5. **Minor:** J/P a′ used full-test factors while L used cohort B (with cohort factors, L−J is +0.371 and L−P +0.271). F5's 'covers less floor' restates the shrinkage. F4's wall-item support failures are output-contract violations: GT puts 32 of those 44 items at z=0.\n\n**Conclusions that hold.**\n- L is far more gate-valid than J and P, even after size debiasing: a′ gaps of +0.37 to +0.39 versus J and +0.25 to +0.27 versus P.\n- L's raw 0.935 is inflated by undersizing, and the bias varies by source.\n- GT's 0.72 is not a ceiling; where GT is clean (n=150) L trails it, 0.793 vs 0.920.\n- findings item 5 compares L with the wrong GT OOR (0.079; the cohort value is 0.048) and omits B_L.\n\nScripts and outputs are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-rcL/: prep.py, check.py, check2.py, check3.py, with results in check.json, check2.json, check.out and check2.out. Run them with PYTHONDONTWRITEBYTECODE=1 and PYTHONPATH set to the repo."
+      }
+    },
+    {
+      "key": "jp-failures",
+      "summary": "EXPLORATORY (post hoc). Scored on all 8,647 test rooms. The gate failure rates are J 0.6118, P 0.6104 and GT 0.2770, so the gap to GT is 0.3348 for J and 0.3334 for P.\n\nI split the gap across gate parts with a Shapley split (each part's average contribution over all orders of switching parts off). Overlaps between movable objects (\"main\" collisions) account for 0.239 of J's gap (71%) and 0.225 of P's (67%). Out-of-bounds (OOB) accounts for 0.040 (J) and 0.066 (P). Support, ceiling and incomplete output together account for 0.032 and 0.020. Blocked fixed objects, mostly doors, account for 0.024 and 0.022. Nothing is left over.\n\nTop 3 drivers:\n1. **Floor-furniture overlaps that are mostly severe.** Main collisions occur in 52.2% (J) and 52.4% (P) of rooms vs 21.2% for GT. 80% (J) and 92% (P) of colliding pairs are severe, meaning the overlap covers more than 30% of the smaller footprint. Ignoring only floor-vs-floor pairs raises success from 0.388 to 0.628 for J and from 0.390 to 0.583 for P.\n2. **Object count, concentrated in four synthetic sources.** Failure climbs from 0.333 to 0.980 (J) and from 0.312 to 1.000 (P) between 1–5 and 51+ objects, while GT stays between 0.21 and 0.35. Rooms with more than 10 objects are 35.4% of rooms but hold 63.8% (J) and 68.9% (P) of the excess failures. MansionWorld, InternScenes_gen, SAGE-10k and OptiScene_holodeck are 34.3% of rooms, where GT fails 0–13%, but they hold 75.0% (J) and 72.4% (P) of the excess.\n3. **Out-of-bounds placement in large rooms.** OOB rates are J 14.9%, P 19.9% and GT 6.8%. In rooms of 60 m² or more they reach 0.397 (J) and 0.505 (P), against 0.032 for GT.\n\nSmaller factors:\n- **Doors.** Blocked fixed objects occur in 11.9% (J) and 13.0% (P) of rooms vs 7.2% for GT, with doors about half of the blocked pairs. This ranks fourth.\n- **Support failures.** These occur in 5.5% (J) and 3.3% (P) of rooms vs 0 for GT. They are the only failure in just 0.44% (J) and 0.28% (P) of rooms.\n- **Boundary type.** It is not a driver: the excess on scanned-hull boundaries (0.25–0.27) is smaller than on wall polygons (0.34).\n\nThe audit's \"lossless\" claim holds. The cm and integer-degree rounding in the request changes no numbers here, because the reference export is already stored at that precision: 0 of 24,955 fixed boxes and 0 of 108,253 GT objects differ. Boundary and height are copied verbatim. Scored both ways, GT gives the same 6,252 passing rooms, identical to the frozen pass list, with 0 disagreements on any gate part. Rescoring J and P against the room's own unrounded fixed objects changes 0 gate results.\n\nAbout 66% of J and P failures happen in rooms where GT passes. The API agent shows the gate can be passed: on the 1,454-room cohort it has main collisions in 2.4% of rooms, vs 23.0% for GT, 51.1% for J and 44.1% for P.\n\nScripts, outputs and a per-scope CSV are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-gatefail/: perroom.py, perroom.jsonl, agg.py/.out, agg2.py/.out, agg3.py/.out, fixedcf.py/.out and gate_components_by_scope.csv.",
+      "findings": [
+        {
+          "id": "F0-method",
+          "severity": "info",
+          "claim": "EXPLORATORY (post hoc). I re-derived every gate part for J, P and GT and checked the result against the frozen artifacts; everything matches. The gate fails a room on any of: out-of-bounds (OOB, polygon or hull boundary, 10 cm tolerance), support failure, ceiling, a main collision (severe collisions are a subset of main), or blocking a non-window fixed object.",
+          "evidence": "The rebuilt bound rooms reproduce the frozen rooms.jsonl hash 37a541e2…. The recomputed per-part counts match the frozen J and P geometry-v2 rows on all 8,647 rooms with 0 mismatches. The recomputed GT pass set has 6,252 rooms and its UIDs are identical to gt_pass in evidence/amendment-005-reference-rows-20261013.json. Fail rates: J 0.6118, P 0.6104, GT 0.2770, giving gaps of 0.3348 (J) and 0.3334 (P). Rooms with each failure (J / P / GT): main 0.5224 / 0.5241 / 0.2119; severe 0.3945 / 0.4140 / 0.1069; OOB 0.1490 / 0.1991 / 0.0677; fixed blocking 0.1190 / 0.1296 / 0.0717; support 0.0550 / 0.0326 / 0; ceiling 0.0042 / 0.0069 / 0; incomplete 0.0029 / 0.0015 / 0. Per-source and per-paper-stratum rates for every part are in sftaudit-gatefail/gate_components_by_scope.csv.",
+          "recommendation": "Use gate_components_by_scope.csv as the per-part appendix table, labelled EXPLORATORY."
+        },
+        {
+          "id": "F1-driver1-main-collisions",
+          "severity": "high",
+          "claim": "Driver #1: overlaps between movable objects (main collisions), mostly floor furniture against floor furniture, and mostly gross rather than near misses. They account for about 70% of the gap to GT.",
+          "evidence": "Shapley split of the gap (GT minus arm) over four parts:\n- J (gap 0.3348): main 0.2390, OOB 0.0402, support/ceiling/incomplete 0.0315, fixed blocking 0.0241.\n- P (gap 0.3334): main 0.2250, OOB 0.0661, fixed blocking 0.0219, support/ceiling/incomplete 0.0204.\n\nSuccess if a class of collision is ignored (J / P / GT):\n- All main collisions: 0.7198 / 0.6965 / 0.8772.\n- Only floor-vs-floor pairs: 0.6281 / 0.5829 / 0.8512.\n\nMain collision is the only failure in 33.2% of J rooms and 30.7% of P rooms.\n\nColliding pairs (J / P / GT):\n- Total: 44,102 / 90,814 / 3,940.\n- Severe (overlap over 30% of the smaller footprint): 79.9% / 91.8% / 41.8%.\n- Floor-vs-floor share: 60.8% / 41.8% / 89.0%.\n\nWhere GT passes but the arm fails, main collisions are present in 87.3% (J) and 86.6% (P) of those rooms.\n\nMost common pairs:\n- J: chair-chair 1,249, cabinet-cabinet 551, sofa-table 422.\n- GT: sofa-table 289, chair-chair 160, bed-table 122.",
+          "recommendation": "State in findings.md that the J/P vs GT gap is mainly a collision-avoidance failure, not a size or rounding effect. Target main collisions directly, for example a collision penalty in the DPO reward or a separation pass that does not resize objects. The current 10 cm boundary snap does not address collisions."
+        },
+        {
+          "id": "F2-driver2-object-count",
+          "severity": "high",
+          "claim": "Driver #2: object count. The models fail almost always in rooms with many objects, while GT failure stays flat. The excess is concentrated in four synthetic sources where GT nearly always passes.",
+          "evidence": "Fail rate by object count (J / P / GT):\n- 1–5 objects (n=3,713): 0.333 / 0.312 / 0.234\n- 6–10 (n=1,877): 0.706 / 0.667 / 0.342\n- 11–15 (n=1,040): 0.813 / 0.857 / 0.351\n- 16–20 (n=584): 0.889 / 0.945 / 0.334\n- 21–30 (n=609): 0.911 / 0.987 / 0.240\n- 31–50 (n=477): 0.985 / 1.000 / 0.218\n- 51+ (n=347): 0.980 / 1.000 / 0.210\n\nMain-collision pairs per room at 21–50 objects: J 11.34, P 24.96, GT 0.87.\n\nRooms with more than 10 objects are 35.4% of rooms but hold 63.8% of J's excess failures and 68.9% of P's.\n\nExcess failed rooms vs GT (J / P), with share of the total excess of 2,895 (J) and 2,883 (P):\n- MansionWorld (n=1,313; fail J 0.796, P 0.765, GT 0.024): 1,014 / 973, 35.0% / 33.7%\n- InternScenes_gen (n=660; J 0.697, P 0.788, GT 0.038): 435 / 495, 15.0% / 17.2%\n- SAGE-10k (n=489; J 0.945, P 0.971, GT 0.131): 398 / 411, 13.7% / 14.3%\n- OptiScene_holodeck (n=503; J 0.652, P 0.412, GT 0.000): 328 / 207, 11.3% / 7.2%\n- Together these four are 34.3% of rooms and 75.0% (J) / 72.4% (P) of the excess.\n\nThe gradient holds within a source. MansionWorld, 1–5 to 6–10 to 11–20 to 21+ objects:\n- J: 0.358, 0.745, 0.889, 0.990\n- P: 0.398, 0.644, 0.842, 0.985\n- GT: 0.004, 0.003, 0.022, 0.051\n\nCrowding is not the cause; object count is. By quartile of GT floor-footprint density, GT failure rises from 0.093 to 0.537, but J's excess over GT falls from 0.354 in Q1 to 0.068 in Q4.\n\nPaper strata (J / P / GT fail):\n- Holodeck kitchen: 0.860 / 0.512 / 0\n- Holodeck living room: 0.786 / 0.618 / 0\n- Holodeck bedroom: 0.487 / 0.243 / 0\n- Holodeck bathroom: 0.453 / 0.250 / 0\n- IL3D_3dfront bedroom: 0.387 / 0.365 / 0.444\n- IL3D_3dfront living room: 0.759 / 0.724 / 0.655\n\nIL3D_3dfront overall shows no excess: J 0.499, P 0.476, GT 0.506.",
+          "recommendation": "Report geometry success stratified by object count (and by source) next to the headline number; a single pooled rate hides that the models fail almost every room above 20 objects. Training or eval changes should target many-object synthetic rooms (MansionWorld, InternScenes_gen, SAGE-10k, Holodeck)."
+        },
+        {
+          "id": "F3-driver3-oob-large-rooms",
+          "severity": "medium",
+          "claim": "Driver #3: out-of-bounds placement, which grows with room area and is worse for P.",
+          "evidence": "OOB rooms: J 0.1490, P 0.1991, GT 0.0677. Shapley share of the gap: J 0.0402 (12%), P 0.0661 (20%). OOB is the only failure in 3.09% (J) and 3.77% (P) of rooms.\n\nOOB rate by room area (J / P / GT):\n- Under 10 m² (n=2,438): 0.059 / 0.100 / 0.072\n- 10–20 m² (n=2,881): 0.104 / 0.144 / 0.065\n- 20–35 m² (n=1,655): 0.214 / 0.261 / 0.062\n- 35–60 m² (n=1,210): 0.251 / 0.330 / 0.087\n- 60 m² or more (n=463): 0.397 / 0.505 / 0.032\n\nOverall fail rate at 60 m² or more: J 0.853, P 0.860, GT 0.186.\n\nWhere GT passes but the arm fails, OOB is present in 24.2% (J) and 30.6% (P) of those rooms.",
+          "recommendation": "Look at whether large or non-convex boundaries are under-represented or truncated in training contexts. A boundary-aware repair that moves rather than resizes objects would recover part of this."
+        },
+        {
+          "id": "F4-colocated-supported-clutter",
+          "severity": "medium",
+          "claim": "The models often stack several same-category objects on exactly the same spot, especially small items on a shared surface. This inflates collision pair counts, but on its own it decides few rooms, because those rooms also have floor-vs-floor collisions.",
+          "evidence": "Share of main-collision pairs (J / P / GT):\n- Centres within 1 cm: 54.2% / 74.4% / 0.6%\n- Both objects supported (not on the floor): 36.4% / 55.9% / 6.4%\n- Same parent: 35.8% / 55.6% / 6.1%\n- Same category: 40.5% / 45.6% / 19.1%\n\nMost common P pairs: book-book 2,807, cup-cup 1,486, chair-chair 1,120, candle-candle 821. Among floor-vs-floor pairs, 34.9% (J), 47.2% (P) and 0.4% (GT) are co-located.\n\nRooms with 11+ supported objects in GT (n=937) fail J 0.952, P 0.999, GT 0.216. Rooms with none (n=5,165) fail 0.478 / 0.450 / 0.309.\n\nRoom-level effect when a pair class is ignored (J / P):\n- Both-supported pairs: 0.388 to 0.413 / 0.390 to 0.420\n- Co-located pairs: 0.388 to 0.406 / 0.390 to 0.417\n\nSupport failures themselves: J 5.50% of rooms (child centre off the parent footprint 4.26%, height mismatch 1.40%), P 3.26%, GT 0. Support failure is the only failure in 0.44% (J) and 0.28% (P) of rooms.",
+          "recommendation": "Treat co-located duplicates as a separate decoding failure: one placement copied to several instances. Check it with a cheap per-output co-location count. Fixing it alone will not close the gap unless floor collisions are also fixed (F1)."
+        },
+        {
+          "id": "F5-fixed-door-conflicts",
+          "severity": "low",
+          "claim": "Conflicts with fixed objects, mostly doors, contribute but rank only fourth (about 7% of the gap).",
+          "evidence": "Fixed-blocking rooms: J 0.1190, P 0.1296, GT 0.0717. Shapley share: J 0.0241, P 0.0219. It is the only failure in 4.16% (J), 3.21% (P) and 3.41% (GT) of rooms.\n\nRooms with a blocked door: J 637, P 734, GT 361. Door pairs are 837 of 1,748 blocked pairs for J (47.9%), 1,037 of 2,007 for P (51.7%) and 408 of 870 for GT (46.9%).\n\nRooms with 3 or more doors (n=1,172) fail J 0.839, P 0.847, GT 0.555, with fixed-blocking rates 0.367 / 0.416 / 0.198. Rooms with no doors (n=2,103) fail 0.597 / 0.559 / 0.226.\n\nInteriorGS (fixed blocking J 0.305, P 0.338, GT 0.238) and Structured3D (0.264 / 0.245 / 0.177) carry the most.",
+          "recommendation": "Low priority compared with F1–F3. If addressed, add door-clearance awareness, for example a door swing keep-out zone in the request or the repair step."
+        },
+        {
+          "id": "F6-rounding-projection-lossless",
+          "severity": "info",
+          "claim": "Verified: the request projection (cm rounding, integer-degree yaw, fixed objects taken from the request) does not change the geometry. It cannot explain J or P failing where GT passes, and the audit's \"lossless\" claim is confirmed. Note it is lossless trivially, because the reference export is already stored at cm and integer-degree precision.",
+          "evidence": "- 0 of 24,955 fixed boxes and 0 of 108,253 GT movable objects differ numerically between the bound room data and the request or label projection (maximum position, size and yaw differences are all 0).\n- Boundary and height are copied verbatim in all 8,647 rooms.\n- GT scored through the request projection and GT scored on its own unprojected fixed objects give the same 6,252 passing rooms (crosstab 2,395 / 0 / 0 / 6,252). Every part matches room for room: OOB 585, main 1,832, severe 924, fixed blocking 620 (870 pairs).\n- Rescoring the J and P layouts against the room's own unrounded fixed objects changes 0 gate results in either arm.\n- 80% (J) and 92% (P) of the colliding pairs are severe, so cm-level effects cannot explain them.\n- Limitation: rounding upstream of the export (raw scene to prepared room data) cannot be tested from these files. It applies equally to GT and the models.",
+          "recommendation": "Drop rounding and fixed-object projection as an explanation in findings.md, and cite this check. If precision before the export matters, audit it separately in the export pipeline."
+        },
+        {
+          "id": "F7-not-drivers",
+          "severity": "low",
+          "claim": "Boundary type, known ceiling height and the ceiling check do not drive the gap.",
+          "evidence": "- Scanned-hull rooms (n=428) fail J 0.850, P 0.871, GT 0.598, an excess of 0.252 / 0.273. Wall-polygon rooms (n=8,219) fail 0.599 / 0.597 / 0.260, an excess of 0.339 / 0.337, so the excess is smaller on hulls. No proxy boundaries appear in the test set.\n- Height known (n=6,693) fails J 0.601, P 0.606, GT 0.310. Height unknown (n=1,954) fails 0.649 / 0.626 / 0.164.\n- Ceiling failures occur in 0.42% (J) and 0.69% (P) of rooms.",
+          "recommendation": "No action. Mention these as ruled out."
+        },
+        {
+          "id": "F8-gt-pass-rooms-and-agent",
+          "severity": "info",
+          "claim": "About two thirds of J and P failures happen in rooms where GT passes. The API agent shows a model can pass this gate on the same rooms.",
+          "evidence": "- P(fail | GT passes): J 0.5605, P 0.5529. P(fail | GT fails): J 0.7457, P 0.7603.\n- 3,504 of J's 5,290 failures (66.2%) and 3,457 of P's 5,278 (65.5%) are in GT-pass rooms.\n- Both arms fail in 4,307 rooms, 2,774 of them GT-pass rooms.\n- J passes in about 609 rooms where GT fails.\n- In GT-pass rooms where the arm fails, the only failure is a main collision in 59.5% (J) and 55.4% (P) of rooms.\n\nRooms with each failure on the 1,454-room cohort:\n- API agent (L, harness): main 2.41%, severe 0.48%, OOB 0.55%, fixed blocking 0.07%, support 3.92% (its main failure); success 0.9347\n- GT: main 23.04%, OOB 7.22%, fixed blocking 3.71%; success 0.7249\n- J: main 51.1%, OOB 13.4%; success 0.4305\n- P: main 44.1%, OOB 12.2%; success 0.5103",
+          "recommendation": "Present GT's 0.72 as a reference, not an upper bound: the agent avoids collisions better than the GT layouts do. The SFT models' gap is a learned collision-avoidance weakness; DPO with geometry-based preferences is the natural lever to measure next."
+        }
+      ],
+      "verification": {
+        "verdicts": [
+          {
+            "id": "F0-method",
+            "verdict": "CONFIRMED",
+            "note": "EXPLORATORY (post hoc). I recomputed this independently (sftaudit-rc-jpfail/rooms.py). Against the frozen geometry-v2 rows, J and P show 0 mismatches on all 8,647 rooms. The GT pass set has 6,252 rooms and is identical to amendment-005 gt_pass. Every part rate matches to 4 dp.\n- J: main 0.5224, severe 0.3945, OOB 0.1490, fixed blocking 0.1190, support 0.0550, ceiling 0.0042, incomplete 0.0029.\n- P: 0.5241 / 0.4140 / 0.1991 / 0.1296 / 0.0326 / 0.0069 / 0.0015.\n- GT: 0.2119 / 0.1069 / 0.0677 / 0.0717 / 0 / 0 / 0.\n- Fail rates: J 0.6118, P 0.6104, GT 0.2770."
+          },
+          {
+            "id": "F1-driver1-main-collisions",
+            "verdict": "CONFIRMED WITH CORRECTIONS",
+            "note": "Reproduced exactly:\n- Shapley split. J: main 0.2390, OOB 0.0402, support/ceiling/incomplete 0.0315, fixed blocking 0.0241 (sum 0.3348). P: 0.2250 / 0.0661 / 0.0204 / 0.0219 (sum 0.3334).\n- Success with all main collisions ignored: 0.7198 / 0.6965 / 0.8772 (J / P / GT). With floor-vs-floor pairs ignored: 0.6281 / 0.5829 / 0.8512.\n- Main collision is the only failure in 33.16% (J) and 30.69% (P) of rooms.\n- Pair counts 44,102 / 90,814 / 3,940. Severe share 79.87% / 91.78% / 41.80%. Floor-vs-floor share 60.84% / 41.76% / 88.96%.\n- In GT-pass rooms where the arm fails, main collisions are present in 87.3% (J) and 86.6% (P).\n\nCORRECTION (a): the J top-pair list is wrong. perroom.py stores main_pairs sorted and truncated to [:50] per room. That truncation hits 125 J rooms and 362 P rooms, dropping 17,210 J pairs and 46,753 P pairs. Full J counts:\n- appliance-appliance 1,689, of which 1,688 are in one HSSD200 room\n- chair-chair 1,679\n- plant-plant 1,310\n- candle-candle 1,300\n- fruit-plant 1,164\n\nsofa-table is not near the top by pairs. Counted by rooms the order is chair-chair 333, sofa-table 332, cabinet-cabinet 305. The GT list is correct (at most 36 pairs per room).\n\nCORRECTION (b): pair-weighted shares are heavy-tailed. Colliding rooms have a median of 2 (J) and 3 (P) pairs. One InteriorGS J room has 3,787 pairs, 8.6% of all J pairs. Rooms with more than 50 pairs hold 53.2% (J) and 71.4% (P) of all pairs. Room-weighted figures are different:\n- Severe share 58.4% (J) and 66.2% (P). 75.5% and 79.0% of colliding rooms have at least one severe pair.\n- Floor-vs-floor share 81.1% (J) and 72.7% (P).\n\nSo 'mostly floor-vs-floor' holds at room level, including for P (only 41.8% by pairs). '80% / 92% severe' overstates the room picture. The core conclusion stands: main collisions are about 70% of the gap and are not a rounding effect, and P with prior sizes collides as often as J."
+          },
+          {
+            "id": "F2-driver2-object-count",
+            "verdict": "PARTIALLY REFUTED (numbers correct, causal claims and recommendation over-reach)",
+            "note": "Reproduced exactly:\n- All object-count-bin fail rates.\n- Rooms with more than 10 objects: 35.35% of rooms, holding 63.8% (J) and 68.85% (P) of the excess.\n- Source excesses (J / P): MansionWorld 1,014 / 973, InternScenes_gen 435 / 495, SAGE-10k 398 / 411, OptiScene_holodeck 328 / 207. The four sources are 34.29% of rooms and hold 75.13% / 72.36% of the net excess, or 74.9% / 71.7% of the gross positive excess, so negative sources do not inflate the share.\n- The MansionWorld gradient, the paper strata and IL3D_3dfront (0.499 / 0.476 / 0.506).\n- Main-collision pairs per room at 21–50 objects: 11.34 / 24.96 / 0.87 on complete rows. The medians are 5 / 12 / 0.\n\nREFUTED: 'Crowding is not the cause; object count is.'\n- J's excess over GT is not monotone across density quartiles: Q1 0.354, Q2 0.564, Q3 0.353, Q4 0.068. The report quotes only the endpoints.\n- Within object-count bins, J failure still rises with GT density: 1–5 objects 0.182 to 0.446; 6–10 objects 0.600 to 0.745; 11–20 objects 0.768 to 0.861.\n- The excess shrinks in Q4 only because GT itself fails more there (0.437–0.767 within bins).\n\nMISDIRECTED: 'target MansionWorld / InternScenes_gen / SAGE-10k / Holodeck'. Within object-count bins, J fails about equally in those four sources and elsewhere, while GT does not (four sources vs rest):\n- 6–10 objects: J 0.684 vs 0.718; GT 0.002 vs 0.522\n- 11–15 objects: J 0.775 vs 0.846; GT 0.017 vs 0.637\n- 21–30 objects: J 0.892 vs 0.945; GT 0.036 vs 0.600\n\nThe four sources are simply many-object (median 14 vs 5 objects) and GT-clean. The fix should target many-object rooms in every source.\n\nCAVEAT: the gradient is partly mechanical, because the gate fails a room on any colliding pair. Main pairs per candidate pair, n(n−1)/2:\n- J falls from 0.069 (2–5 objects) to 0.022–0.025 (16+).\n- P goes from 0.061 to 0.050.\n- GT falls from 0.042 to 0.0002.\n\nPer pair the models do not get worse in large rooms. The real gap is that GT gets far sparser while the models do not."
+          },
+          {
+            "id": "F3-driver3-oob-large-rooms",
+            "verdict": "CONFIRMED WITH CAVEAT (partly confounded with object count)",
+            "note": "All numbers reproduce with right-closed bins (pd.cut). 401 rooms have an area of exactly 10, 20, 35 or 60 m², so half-open bins give different n.\n- Bin sizes: 2,438 / 2,881 / 1,655 / 1,210 / 463.\n- OOB rate. J: 0.059 / 0.104 / 0.214 / 0.251 / 0.397. P: 0.100 / 0.144 / 0.261 / 0.330 / 0.505. GT: 0.072 / 0.065 / 0.062 / 0.087 / 0.032.\n- Fail rate at 60 m² or more: J 0.853, P 0.860, GT 0.186.\n- OOB is the only failure in 3.09% (J) and 3.77% (P) of rooms. In GT-pass rooms where the arm fails, OOB is present in 24.2% (J) and 30.6% (P).\n- Shapley share 12% (J) and 20% (P).\n\nCAVEAT: area tracks object count; the median object count rises from 3 to 30 across the bins.\n- Per-object OOB rate is flat below 60 m² and rises only at 60 m² or more. J: 0.0125–0.0233, then 0.0592. P: 0.018–0.030, then 0.050.\n- Within object-count bins the area gradient holds for 6 or more objects. At 21+ objects, J goes 0.034 to 0.479 and P 0.241 to 0.675.\n- It does not hold for 1–5 objects: J 0.050–0.150, not monotone; P flat at 0.078–0.115.\n\nThe statement should be scoped to rooms of 60 m² or more with many objects."
+          },
+          {
+            "id": "F4-colocated-supported-clutter",
+            "verdict": "NUMBERS CONFIRMED, CHARACTERIZATION OVER-CLAIMED, P TOP PAIRS WRONG",
+            "note": "Reproduced:\n- Share of main pairs (J / P / GT): co-located 54.17% / 74.36% / 0.61%; both supported 36.39% / 55.86% / 6.45%; same non-null parent 35.8% / 55.6% / 6.1%; same category 40.49% / 45.63% / 19.14%. Co-located share of floor-vs-floor pairs: 34.88% / 47.18% / 0.40%.\n- GT with 11+ supported objects (n=937) fails 0.952 / 0.999 / 0.216. GT with none (n=5,165) fails 0.478 / 0.450 / 0.309.\n- Success with both-supported pairs ignored: 0.4129 (J), 0.4201 (P). With co-located pairs ignored: 0.4063, 0.4174.\n- Support failures: J 5.50% of rooms (off parent footprint 4.26%, height mismatch 1.40%, floor 0.10%). P 3.26% (2.35%, 0.99%). Support is the only failure in 0.44% (J) and 0.28% (P).\n\nCORRECTION (a): the P top pairs are wrong because of the [:50] truncation. The real counts are book-book 5,772 (draft 2,807), cup-cup 4,036 (1,486), chair-chair 2,981 (1,120), plant-plant 2,312 (missing from the draft), candle-candle 2,261 (821) and mug-mug 1,582.\n\nCORRECTION (b): the shares are pair-weighted and dominated by extreme rooms. Room-weighted, the co-located share is 13.8% (J) and 26.6% (P). Only 25.3% (J) and 40.2% (P) of colliding rooms have any co-located pair.\n\nCORRECTION (c): 'several same-category objects on exactly the same spot' fits only about half the cases. Of co-located pairs:\n- Same category: 50.7% (J), 54.5% (P).\n- Both supported: 60.6%, 73.3%.\n- Floor-vs-floor: 39.2%, 26.5%.\n\nA better description is 'objects, mostly small supported items, placed at an identical XY centre'. The conclusion that this alone decides few rooms stands (+0.018 for J, +0.027 for P)."
+          },
+          {
+            "id": "F5-fixed-door-conflicts",
+            "verdict": "CONFIRMED (minor nits)",
+            "note": "Reproduced:\n- Rooms with a blocked door: 637 / 734 / 361 (J / P / GT).\n- Door pairs: 837 of 1,748 (47.9%), 1,037 of 2,007 (51.7%), 408 of 870 (46.9%).\n- 3+ doors (n=1,172): fail 0.839 / 0.847 / 0.555, fixed blocking 0.367 / 0.416 / 0.198.\n- No doors (n=2,103): fail 0.597 / 0.559 / 0.226.\n- Shapley shares: 0.0241 (J), 0.0219 (P).\n\nNits:\n- 'Ranks fourth' is true for J only. For P, fixed blocking (0.0219) ranks third, ahead of support/ceiling/incomplete (0.0204).\n- Rooms with 3+ doors have a median of 11 objects vs 7 in rooms with no doors, so the door contrast is confounded with object count."
+          },
+          {
+            "id": "F6-rounding-projection-lossless",
+            "verdict": "CONFIRMED",
+            "note": "Independent check (lossless.py):\n- 0 of 24,955 fixed boxes and 0 of 108,253 GT objects differ. The maximum |Δpos|, |Δsize| and |Δyaw| are exactly 0.\n- Boundary and height differ in 0 of 8,647 rooms.\n- The GT pass set (6,252) is identical to amendment-005.\n\nI did not rerun the J/P rescoring against unrounded fixed objects; with zero numeric difference in the fixed boxes it follows trivially. The limitation the report states (rounding upstream of the export cannot be tested) stands."
+          },
+          {
+            "id": "F7-not-drivers",
+            "verdict": "CONFIRMED (wording)",
+            "note": "Reproduced (fail J / P / GT):\n- Hull (n=428): 0.850 / 0.871 / 0.598\n- Polygon (n=8,219): 0.599 / 0.597 / 0.260\n- Height known (n=6,693): 0.601 / 0.606 / 0.310\n- Height unknown (n=1,954): 0.649 / 0.626 / 0.164\n- Ceiling failures: 0.42% (J), 0.69% (P)\n\nWording: hull rooms fail far more in absolute terms and have a median of 13 objects vs 6. Say 'not a driver of the excess over GT', not 'not a driver'."
+          },
+          {
+            "id": "F8-gt-pass-rooms-and-agent",
+            "verdict": "NUMBERS CONFIRMED, AGENT INTERPRETATION NEEDS A SIZE CAVEAT",
+            "note": "Reproduced:\n- Fail given GT passes: J 0.5605, P 0.5529. Fail given GT fails: J 0.7457, P 0.7603.\n- Failures in GT-pass rooms: 3,504 of 5,290 (J), 3,457 of 5,278 (P). Both arms fail in 4,307 rooms, 2,774 of them GT-pass. J passes 609 GT-fail rooms (P 574). Main collision is the only failure in 59.5% (J) and 55.4% (P) of GT-pass rooms where the arm fails.\n- Cohort: agent success 0.9347; main 2.41%, severe 0.48%, OOB 0.55%, fixed blocking 0.07%, support 3.92%. GT 0.7249 with main 23.04%, OOB 7.22%, fixed blocking 3.71%. J 0.4305 (main 51.10%, OOB 13.41%). P 0.5103 (main 44.09%, OOB 12.24%).\n- The cohort J/P rows equal the full-run rows (1,454 of 1,454).\n- L-raw equals L-harness: all 1,454 first answers were valid and the repair feedback contains parser errors only, so the agent got no geometric feedback.\n\nCAVEAT: the agent systematically shrinks footprints. Median log(pred/GT footprint) is −0.145 (mean −0.131; volume −0.229), against J −0.021 and P −0.010. I scaled the agent's footprints up 7.5% per axis to remove the median bias, keeping positions (gtfoot2.py):\n- Agent: main-collision rooms 2.41% → 14.51%; any of main/OOB/fixed 2.96% → 15.13%.\n- J under the same de-biasing: 56.54% → 58.75%.\n\nThe agent still beats GT (23.04% main) and J/P, so 'the gate can be passed' holds. But a large part of its collision margin is bought with undersizing, consistent with its size log MAE of 0.300 vs 0.243.\n\nThe cohort is also small-room heavy: 698 of 1,454 rooms have 5 or fewer objects. At 21+ objects (n=102), success is 0.578 for the agent vs GT 0.539, J 0.059, P 0.010.\n\n'Learned collision-avoidance weakness' and 'DPO is the natural lever' are hypotheses, not findings."
+          }
+        ],
+        "overall": "EXPLORATORY (post hoc) reality check of jp-failures. Status: NEEDS WORK. The arithmetic is sound, but four findings need text corrections.\n\nI recomputed independently from the frozen rows. Main script: rooms.py, which reran validate.check through the request projection for J, P and GT on all 8,647 rooms. J and P show 0 mismatches against the frozen geometry-v2 counts, and the GT pass set (6,252) is identical to amendment-005. All headline rates match to 4 dp: fail J 0.6118, P 0.6104, GT 0.2770, and the Shapley split is exact (J main 0.2390, P 0.2250). The core conclusion holds: about 70% of the J/P gap to GT is main collisions, and rounding or projection is ruled out.\n\nCorrections required:\n1. Top-pair lists are wrong in F1 (J) and F4 (P). perroom.py truncates main_pairs to the first 50 sorted pairs per room, dropping 17,210 J pairs and 46,753 P pairs. The real J top pair is appliance-appliance with 1,689 pairs, 1,688 of them in one room. P has book-book 5,772 (not 2,807) and cup-cup 4,036 (not 1,486).\n2. Pair-weighted shares in F1 and F4 are dominated by a handful of extreme rooms. Rooms with more than 50 pairs hold 53.2% (J) and 71.4% (P) of all pairs. Room-weighted figures are much smaller: severe 58% / 66%, co-located 13.8% / 26.6%. Only about half of co-located pairs are the same category.\n3. F2 'crowding is not the cause; object count is' is refuted:\n   - J's excess over GT by density quartile runs 0.354 / 0.564 / 0.353 / 0.068, not monotone.\n   - J failure still rises with density within object-count bins.\n   - The four-source concentration reflects GT being clean there. J fails equally in those sources and in the rest at matched object count, so targeting those four sources is misdirected.\n   - Part of the object-count gradient is mechanical, from the any-pair gate. J's collision rate per candidate pair falls from 0.069 to about 0.023 as object count rises.\n4. F3: the area effect is partly object count. Per-object OOB rate is flat below 60 m².\n5. F8: the agent's gate advantage is partly bought by shrinking footprints, with a median log footprint ratio of −0.145. Removing that bias raises its main-collision rate from 2.41% to 14.51%, which is still below GT's 23.04%.\n\nMinor: fixed blocking ranks third, not fourth, for P.\n\nScripts and output are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-rc-jpfail/: rooms.py and rooms.jsonl, agg.py, agg2.py and agg2.out, area.py, perpair.py, cohort.py, gtfoot.py, gtfoot2.py, lossless.py, support.py."
+      }
+    },
+    {
+      "key": "claims",
+      "summary": "I reproduced the SFT-stage primary analysis exactly from the server per-room rows. Local report_v2.py and geometry.py hash-match results.json, and the T1 'all' estimates, CIs and p-values are identical. The arithmetic and the Holm adjustment are correct. Most of findings.md's subgroup and mechanism prose goes beyond what the data show, though. The report also prints CIs that the bootstrap design cannot support for the sources with very few house components.\n\nWHAT THE SFT RESULTS SUPPORT (confirmatory, locked primary endpoint J0 vs P0, Holm across (a),(b), single seed, historical test split): neither co-primary shows an advantage for joint size prediction. (a) J 0.3882 vs P 0.3896, Δ −0.0014 [−0.0122, +0.0091], Holm p 0.793. (b) J 0.2861 vs P 0.2817, Δ +0.0044 [+0.0005, +0.0084], unadjusted p 0.033, Holm p 0.066; the Holm-consistent 97.5% CI is [−0.0001, +0.0089]. So J was not more size-accurate than the train-only prior. J being worse is not confirmed, and the gap is about 0.4% either way.\n\nSupported as estimation only: J undersizes (B_J −0.0831 [−0.0945, −0.0725]). Δ(a′) is −0.0508 [−0.0605, −0.0412], but it is a sensitivity analysis with positions held fixed, not the measured performance of an unbiased J. The agent contrasts are supported as CIs only.\n\nThe amendment-005 rule computed at SFT would select P (both conditions fail). Amendment 008 makes DPO2 the binding delivery point, so the report's '交付：P' header at SFT is mislabelled.\n\nWHAT IS NOT SUPPORTED:\n- \"J helps on low-reuse / real scans\": SceneSmith supplies +0.0645 of the low-reuse +0.0693. On real scans J's sizes are worse than the prior, Δ(b) +0.0778 [+0.0644, +0.0910].\n- \"P helps where the prior is near-exact\": on holodeck J's sizes are more accurate, and the prior undersizes (B_P −0.132).\n- The agent's \"conservative placement\" story: the agent undersizes far more than J, B_L −0.175 on the cohort vs J −0.048. The GT OOR it is compared against (0.079) is from the wrong population; GT OOR on the cohort is 0.0481.\n- \"GT-pass leaves conclusions unchanged\": (b) reverses sign there, −0.0050 [−0.0088, −0.0010].\n- The mechanism claims (imitation caps validity, explicit constraint optimisation, shrinkage learned because the loss ignores collisions) have no supporting evidence in these data.\n\nCI ANOMALIES:\n- mp3d has 18 rooms in only 2 house components (16 + 2). Its 'CIs' are the extreme points of a 3-point bootstrap distribution: −0.0625 / +0.0556 / +1.0 with probabilities 1/4, 1/2, 1/4. The +1.0000 bound is the 2-room component drawn twice.\n- Scan2CAD is 1 room / 1 component, which gives zero-width CIs. results.json carries a singleton warning, but report.md never prints it.\n- MultiScan has 6 rooms in 4 components, and its Δ(a) −0.5 [−1.0, −0.1429] 'excludes zero' anyway.\n- MansionWorld (1,313 rooms) and HSSD200 (138 rooms) have only 15 and 14 components.\n- The report has no small-n or few-cluster flag in T2, T3 or S1; the only 'N<50' flag is for FID.\n- The per-source Δ(a′) column applies the global B scale in every scope.\n- The Holm p for (b) is Monte-Carlo-fragile: 0.066 at the locked 2,000 draws, but 0.0496 and 0.0524 at 20,000 draws (seeds 42 and 7).\n\nScratch scripts and outputs (EXPLORATORY) are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-a1/: load.py, a1_clusters.py, a2_subgroups.py (a2_out.txt), a3_boot.py (a3_out.txt), a4_agent.py (a4_out.txt), a5_pos.py. Files reviewed: /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/findings.md and results/report-v2-JPL-001/{report.md,results.json}.",
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "info",
+          "claim": "Supported confirmatory claim (locked primary endpoint): at the SFT stage, joint size prediction J0 shows no advantage over the train-only size prior P0 on either co-primary.",
+          "evidence": "Reproduced exactly from geometry-v2 rows with the frozen jp_scope (2,000 draws, seed 42). (a) all-request raw geometry success: J 0.3882, P 0.3896, Δ −0.0014 [−0.0122, +0.0091], bootstrap p 0.793, Holm 0.793, n 8,647. (b) size log MAE on 8,610 common-complete rooms: J 0.2861, P 0.2817, Δ +0.0044 [+0.0005, +0.0084], p 0.033, Holm 0.066. EXPLORATORY: the Holm-consistent 97.5% CI from the same draws is [−0.0001, +0.0089].",
+          "recommendation": "Use this wording: 'Primary endpoint (locked; matched SFT J0 vs P0; Holm across (a),(b); single training seed; historical, non-blind test split): neither co-primary shows an advantage for joint size prediction. (a) J 0.3882 vs P 0.3896, Δ −0.0014 (95% CI −0.0122 to +0.0091; Holm p 0.79). No difference was detected, and the data are inconsistent with differences larger than about 1.2 points against J or 0.9 points in its favour (no equivalence margin was pre-specified). (b) J 0.2861 vs P 0.2817, Δ +0.0044 (95% CI +0.0005 to +0.0084; Holm p 0.066; Holm-consistent 97.5% CI −0.0001 to +0.0089). J was not more size-accurate than the category × room-type median prior. That J is worse is not confirmed after Holm correction, and the gap (about 0.4% multiplicative size error) is negligible either way.' Do not write 'equivalent', 'J is worse on size' or 'significant' for (b)."
+        },
+        {
+          "id": "F2",
+          "severity": "high",
+          "claim": "findings.md overclaims 'Value of J is concentrated where priors are weak (unseen categories, real scans)'. On real scans J's sizes are worse than the prior's, and J's (a) gain there disappears once its undersizing is removed.",
+          "evidence": "T3: every real-scan source has Δ(b) J−P > 0: 3rscan +0.0993, arkit +0.0526, mp3d +0.0909, scannet +0.1207, MultiScan +0.0362, Scan2CAD +0.0427. EXPLORATORY pooled real scans (6 sources, 428 rooms, 155 components): Δ(b) +0.0778 [+0.0644, +0.0910]; Δ(a) +0.0210 [−0.0263, +0.0679]; B_J −0.2882 [−0.3416, −0.2365] vs B_P +0.0432; within-scope rescaled Δ(a′) −0.0654 [−0.0993, −0.0321].",
+          "recommendation": "Replace with: 'In these data J's advantage is confined to SceneSmith, the held-out source where the prior falls back to a constant box for 45% of objects. On real scans J is less size-accurate than the prior (exploratory pooled Δ(b) +0.078 [+0.064, +0.091]) and strongly undersizes (B_J −0.29). One held-out source cannot establish a benefit for out-of-catalogue deployment.'"
+        },
+        {
+          "id": "F3",
+          "severity": "high",
+          "claim": "Finding 3's 'Where J helps: long-tail and low-reuse data' rests almost entirely on SceneSmith. Its 'rooms with global-fallback objects' comparison mostly pits J against a constant 0.40×0.50×0.65 m box.",
+          "evidence": "S1 low-reuse Δ(a) +0.0693 [+0.0382, +0.1007]. EXPLORATORY decomposition: SceneSmith contributes +0.0645 of the +0.0693 (364 of 837 rooms). Low-reuse without SceneSmith: Δ(a) +0.0085 [−0.0333, +0.0526], Δ(b) +0.0697 [+0.0563, +0.0827] (J worse), B_J −0.2731. The S1 low-reuse Δ(a′) is already null in the report: +0.0084 [−0.0195, +0.0353]. Fallback rooms (1,403) are 44.5% MansionWorld, 24.9% SceneSmith and 22.0% SAGE-10k. Without SceneSmith (1,053 rooms): Δ(b) −0.0046 [−0.0183, +0.0109] and Δ(a) −0.0408 [−0.0610, −0.0187] (J worse). S2: on G objects J 0.5586 vs P 1.2324 (8,062 objects, 44% SceneSmith); on N objects (98,459, 92%) J 0.3466 vs P 0.2818.",
+          "recommendation": "Rewrite as: 'J's clearest advantage is on SceneSmith, which is held out of fine-tuning and prior fitting. There, 45.4% of objects get the prior's constant fallback box and the prior oversizes footprints (B_P +1.01). Δ(b) −0.3683 [−0.4039, −0.3357] and Δ(a) +0.1484 [+0.1061, +0.1926], and the gain survives rescaling (Δ(a′) +0.0604 [+0.0243, +0.0994]). SceneSmith supplies +0.065 of the pooled low-reuse Δ(a) +0.069; without it the low-reuse Δ(a) is +0.009 [−0.033, +0.053] and J's sizes are worse (Δ(b) +0.070, exploratory). By prior level, J beats the constant fallback (object log MAE 0.559 vs 1.232) but is worse where the prior has a category estimate (0.347 vs 0.282, 92% of objects).' Label all of these subgroups descriptive."
+        },
+        {
+          "id": "F4",
+          "severity": "high",
+          "claim": "Finding 5 (API agent) misses the agent's own strong undersizing, compares its OOR with a GT value from a different population, and gives no CIs or J−P cohort contrast. Amendment 005 §4 requires both.",
+          "evidence": "Cohort (1,454 rooms) GT reference, EXPLORATORY and computed as in reference_rows: success 0.7249, OOR 0.0481; on the strata 0.7592 / 0.0256, which matches T2. The 0.079 quoted is GT OOR over all 8,647 rooms. Footprint bias on all-complete cohort rooms (n 1,451): L −0.1754 (volume −0.2924), J −0.0478, P −0.0226; on the strata L −0.1922 vs J −0.0013. Rescaling each system by its own cohort bias (positions fixed) gives success L 0.9347→0.7655, J 0.4305→0.3941, P 0.5103→0.4945. T5 contrasts: J−L Δ(a) −0.5041 [−0.5305, −0.4783], P−L −0.4243 [−0.4523, −0.3983]; Δ(b) J−L −0.0570 [−0.0631, −0.0507]; cohort J−P Δ(a) −0.0798 [−0.1069, −0.0537] vs −0.0014 on the full test. The cohort is 69% paper strata (1,009/1,454). Category-matched position error vs GT is similar for all three (J 1.835 m, P 1.866 m, L 1.945 m), so 'not by matching GT layouts' does not set the agent apart.",
+          "recommendation": "Replace with: 'API agent (gpt-6.1-sol, medium reasoning, same J input; estimation only) on the frozen 1,454-room cohort (1,009 strata + 445 others; not representative of the test set, where cohort J−P Δ(a) is −0.080 vs −0.001 overall). Geometry success: L 0.935 vs J 0.431 / P 0.510 (J−L −0.504 [−0.531, −0.478]; P−L −0.424 [−0.452, −0.398]); GT reference on this cohort 0.725. OOR: L 0.031 vs J 0.111 / P 0.173; GT on this cohort 0.048. Size log MAE: L 0.300 vs J 0.243 / P 0.239 (J−L −0.057 [−0.063, −0.051]). All first answers were schema-valid (raw = harness; 1,469 calls = 1,454 + 15 transient transport retries, no repair rounds). The agent undersizes more than J (cohort footprint bias −0.175 vs −0.048, exploratory). Under own-bias rescaling its success falls to 0.766, still above J 0.394 / P 0.495. Part of its validity advantage goes with smaller furniture, and the mechanism is not identified.' Drop 'placing conservatively ... not by matching GT layouts'."
+        },
+        {
+          "id": "F5",
+          "severity": "medium",
+          "claim": "Finding 3's 'Where P helps ... the prior is near-exact' is contradicted on holodeck: J's sizes are more accurate there, and P's (a) advantage partly reflects the prior undersizing. The report's per-source Δ(a′) column overstates P's advantage because it applies the global B scale in every scope.",
+          "evidence": "T3 holodeck: Δ(b) −0.0177 [−0.0240, −0.0116] in J's favour; B_J +0.0128 vs B_P −0.1317; raw Δ(a) −0.2406; reported Δ(a′) −0.3241, which scales J ×1.0424 and P ×0.9925 everywhere. EXPLORATORY within-source rescaling (J ×0.9936, P ×1.0681): holodeck Δ(a′) −0.1014 [−0.1480, −0.0521]; strata pooled −0.0942 [−0.1285, −0.0606] vs reported −0.2061; SceneSmith +0.1209 [+0.0752, +0.1689] vs reported +0.0604.",
+          "recommendation": "Use: 'In the paper strata P has higher raw geometry success (pooled Δ(a) −0.132 [−0.168, −0.097]; holodeck strata −0.17 to −0.35). There J's sizes are not worse (holodeck Δ(b) −0.018 in J's favour), but the prior undersizes holodeck furniture (B_P −0.13). With within-source rescaling the holodeck gap shrinks to −0.10 [−0.15, −0.05] (exploratory): P's advantage remains, but over half of it goes with size bias.' In report_v2, label the per-scope Δ(a′) as 'global-B rescale', or add a scope-B variant marked exploratory."
+        },
+        {
+          "id": "F6",
+          "severity": "medium",
+          "claim": "Finding 6's 'GT-pass stratum leaves the conclusions unchanged' is false for (b): the sign reverses in this pre-declared sensitivity analysis.",
+          "evidence": "S1 GT-pass (6,252 rooms): Δ(a) −0.0075 [−0.0205, +0.0054] (unchanged) but Δ(b) −0.0050 [−0.0088, −0.0010] (J better), with B_J −0.0406 (half the overall value) and B_P +0.0391. Excluding the 3 known-defect rooms gives Δ(b) +0.0044 [+0.0002, +0.0082]; excluding the 47 correction rooms gives +0.0045 [+0.0006, +0.0083], both unchanged. EXPLORATORY composition: GT-pass over-represents MansionWorld (20.5% vs 15.2%), InternScenes_gen (10.2% vs 7.6%) and holodeck (8.0% vs 5.8%) and under-represents real scans (3rscan 12/70, scannet 14/104). The no-fallback rooms show the same dependence: Δ(b) +0.0244 [+0.0212, +0.0276]; with-fallback rooms −0.0990 [−0.1199, −0.0812].",
+          "recommendation": "Replace with: 'Excluding the 3 known-defect rooms or the 47 source-correction rooms changes nothing material (Δ(a) −0.0013 / −0.0008; Δ(b) +0.0044 / +0.0045). In the pre-declared GT-pass stratum (6,252 rooms) (a) stays null, but (b) reverses: −0.0050 [−0.0088, −0.0010]. The sign of (b) depends on test-set composition (share of fallback-heavy and real-scan rooms); only its small size is robust.'"
+        },
+        {
+          "id": "F7",
+          "severity": "medium",
+          "claim": "report.md prints bootstrap CIs for sources with 1–4 house components as if they were valid intervals. It has no small-n or few-cluster flag in T2/T3/S1 and drops the warnings that results.json carries.",
+          "evidence": "EXPLORATORY component counts. InternScenes_mp3d: 18 rooms in 2 components (16 + 2); the 2-room component has J=1/P=0 in both rooms. Within-source resampling of 2 clusters gives 3 atoms: −0.0625 (prob 1/4), +0.0556 (1/2), +1.0 (1/4). So Δ(a) [−0.0625, +1.0000] are just the extremes, and so are J log MAE [0.5532, 1.1260] (1.1260 = mean of 0.909 and 1.343), B_J [−0.2589, −0.2332] and Δ(a′). Scan2CAD: 1 room / 1 component, so every draw is identical and CIs are zero-width (e.g. +0.0000 [+0.0000, +0.0000]); results.json has 'singleton_source_signature_strata', report.md shows nothing. MultiScan: 6 rooms / 4 components; Δ(a) −0.5000 [−1.0000, −0.1429] nominally excludes zero; B_J +0.5006 [−0.3462, +1.2783]. Few clusters behind large n: MansionWorld 1,313 rooms in 15 components (largest 252), HSSD200 138 in 14, 3rscan 70 in 24. The only flag in the report is FID 'N<50' in T4. The 'all' and S1 rows also carry the Scan2CAD singleton warning, which is numerically harmless but undisclosed.",
+          "recommendation": "In report_v2: add a 'house components' column to T2/T3/S1. Print '— (k components)' instead of a CI when k < 10 (mp3d, MultiScan, Scan2CAD). Flag k < 30 as 'few clusters; percentile cluster bootstrap may under-cover' (HSSD200, MansionWorld, 3rscan). Flag rooms < 50. Render results.json warnings in report.md. In findings/paper text, never cite per-source estimates for mp3d, MultiScan or Scan2CAD; mention them only inside pooled groups."
+        },
+        {
+          "id": "F8",
+          "severity": "medium",
+          "claim": "The report's '交付决定 … 交付：P' header presents the amendment-005 rule at SFT as the delivery decision. Amendment 008 moved the binding delivery decision to J-DPO2 vs P-DPO2.",
+          "evidence": "Amendment 008: 'Delivery: the amendment 005 rule is applied to J-DPO2 vs P-DPO2'. Commit 1f47fc4cb: 'SFT J0/P0 stays the confirmatory endpoint; DPO2 J-P is the secondary delivery comparison'. At SFT, condition (i) fails (Δ(b) +0.0044 [+0.0005, +0.0084], not below 0) and condition (ii) fails (Δ(a′) lower bound −0.0605 < −0.02).",
+          "recommendation": "Retitle the section as an informational SFT-stage application of the amendment-005 rule: both conditions fail, so P would be selected; the binding delivery decision is made at DPO2 (amendment 008). Keep findings.md free of any delivery claim until DPO2 is scored."
+        },
+        {
+          "id": "F9",
+          "severity": "medium",
+          "claim": "The 'Patterns and insights' mechanism claims are not supported: 'imitation target caps validity', 'a reasoning agent optimises constraints explicitly', and 'J learns shrinkage under a loss that does not penalise collisions'.",
+          "evidence": "J/P all-request success is 0.388/0.390 against a GT reference of 0.723, so a 72% cap is not binding. On holodeck strata GT is 1.000 yet J reaches 0.14–0.55 and P 0.38–0.76, so imperfect GT does not explain the gap. J's bias is strongly source-dependent: scannet −0.4835, InternScenes_gen −0.3131, SAGE −0.3009, MansionWorld +0.0357, holodeck +0.0128, SceneSmith +0.1893. The untrained API agent undersizes more (cohort −0.1754), so shrinkage is not specific to SFT. No experiment varies the loss or measures the agent's reasoning.",
+          "recommendation": "Replace with observations: 'J/P fall far short of the GT reference even where GT is fully valid; why SFT outputs fail the gate is not identified here. J's sizes are biased small on average, but the bias varies by source (−0.48 to +0.19) and the untrained agent undersizes more, so the cause is unknown. Because raw (a) rewards undersizing, report (a) next to B and (a′) for every system, agents included.' Keep the 'six strata differ from all-source' lesson. Reword the DPO lesson to: 'at lr 5e-7 the LoRA update is predicted (amendment 009 simulation) to be largely erased by BF16 merging; at lr 5e-6 the measured merges change 11–19% of projection weights'."
+        },
+        {
+          "id": "F10",
+          "severity": "low",
+          "claim": "The (b) Holm verdict 'not confirmatory at α 0.05' sits on the boundary under bootstrap Monte Carlo error. The report also pairs a 95% CI that excludes zero with Holm p 0.066 without explaining the difference.",
+          "evidence": "EXPLORATORY, same design and draw code: (b) p = 0.0330 at R=2,000 seed 42 (MC SE about 0.0057); 0.0248 at R=20,000 seed 42; 0.0262 at R=20,000 seed 7. Holm p = 2p, i.e. 0.066 / 0.0496 / 0.0524. 97.5% CI: [−0.0001, +0.0089] (2k), [+0.0000, +0.0088] (20k, seed 42). (a) is stable: p 0.793 / 0.809 / 0.803.",
+          "recommendation": "Keep the locked verdict (2,000 draws, Holm p 0.066, not confirmatory), but add: 'Holm p is at the 0.05 boundary under Monte Carlo error (0.050–0.052 with 20,000 draws, exploratory); the effect size (+0.0044 log, about 0.4%) is negligible either way.' Report the Holm-consistent 97.5% interval for (b) beside the 95% CI. For future locked analyses, use ≥10,000 draws for p-values near thresholds."
+        },
+        {
+          "id": "F11",
+          "severity": "low",
+          "claim": "Finding 2's (a′) sentence ('J's apparent parity on (a) is partly bought by shrinking footprints') is reasonable, but (a′) is a counterfactual stress test, not a measured outcome. The same test applied to the agent would change the agent narrative.",
+          "evidence": "(a′) rescales J's x/y sizes by exp(+0.0831/2) = 1.0424 and P's by 0.9925 about object centres, with positions and yaw fixed (report_v2._derive). J's positions were generated for its own smaller sizes. Δ(a′) −0.0508 [−0.0605, −0.0412]; J 0.3882→0.3439, P 0.3896→0.3947. On the cohort, the same treatment costs the agent 0.169 (0.9347→0.7655, exploratory).",
+          "recommendation": "Use: 'J undersizes footprints by about 8% (B_J −0.083 [−0.095, −0.073]; volume −0.121) while P is near-unbiased overall (+0.015), though the prior's bias varies by source (+1.01 SceneSmith, −0.23 Structured3D, −0.13 holodeck). In the pre-specified (a′) sensitivity analysis (sizes rescaled, positions fixed), J's success is 5.1 points below P's (−0.0508 [−0.0605, −0.0412]). J's raw parity therefore depends on its undersizing. This is a stress test, not the performance of an unbiased J.'"
+        },
+        {
+          "id": "F12",
+          "severity": "low",
+          "claim": "T5 lacks the GT reference and size-bias rows for the agent cohort. Its per-system log MAE is over each system's own complete outputs, not over common-complete rooms, and that is not stated.",
+          "evidence": "T5 shows J/P/L success, log MAE and OOR with no GT row. The GT cohort reference is 0.7249 success / 0.0481 OOR (strata 0.7592 / 0.0256; 445 non-strata rooms 0.6472 / 0.0992), EXPLORATORY. report_v2 builds T5 from g.aggregate(srows) per system. Findings item 4/5 then borrowed the full-test GT OOR 0.079.",
+          "recommendation": "Add to T5 a GT reference row per scope (cohort, strata_pooled), footprint and volume bias per system on all-complete cohort rooms, and own-bias rescaled success (exploratory). State that per-system log MAE uses each system's complete outputs (paired Δ(b) uses common-complete rooms)."
+        },
+        {
+          "id": "F13",
+          "severity": "info",
+          "claim": "Verified facts that the findings state correctly.",
+          "evidence": "All quoted numbers in findings items 1–5 match report.md: 0.3882/0.3896; Δ(b) +0.0044 [+0.0005, +0.0084]; B_J −0.083 [−0.095, −0.073]; volume −0.121; (a′) −0.051 [−0.061, −0.041]; fallback rooms 0.384 vs 0.483; object level 0.559 vs 1.232; SceneSmith Δ(b) −0.368; low-reuse Δ(a) +0.069 [+0.038, +0.101]; holodeck strata −0.17 to −0.35; GT 72.3%; J holodeck strata 14–55%, P 38–76%; L 0.935 / 0.431 / 0.510, OOR 0.031 / 0.111 / 0.173, log MAE 0.300 / 0.243 / 0.239. raw = harness verified: 1,454 identical layouts, calls.jsonl 1,469 rows all round 0 (1,441 rooms with 1 call, 11 with 2, 2 with 3), result.json transient_errors 15, repair rounds 0. J cohort rows in llm-eval-L-v1 match geometry-v2. Cohort = 1,009 strata + 445 others (30 per source; mp3d 18, MultiScan 6, Scan2CAD 1).",
+          "recommendation": "No change needed to these numbers. Adopt the corrected interpretation in F1–F11."
+        },
+        {
+          "id": "F14",
+          "severity": "info",
+          "claim": "Reproducibility note: the local working copy of evaluate_pair.py differs from the hash recorded in results.json. report_v2.py and geometry.py match, and the server data files match their MANIFEST.",
+          "evidence": "results.json code_sha256: report_v2.py and geometry.py equal local; evaluate_pair.py not equal (local file edited after the report run). geometry-v2 joint/placement jsonl sha256 equal MANIFEST (5a85a840…, e66cc5e3…). Rebuilt GT rooms (contract.bind_room, SEED) reproduce B_J −0.08308 and B_P +0.01496 exactly.",
+          "recommendation": "Record the evaluate_pair.py revision used for report-v2-JPL-001 (git hash or archived copy) next to the report, so the run can be re-executed byte-identically."
+        }
+      ],
+      "verification": {
+        "verdicts": [
+          {
+            "id": "F1",
+            "verdict": "CONFIRMED",
+            "note": "I rebuilt this independently from the geometry-v2 rows (my own loader; bootstrap uses the same design and RNG use as report_v2.contrasts, 3,056 components, R=2,000, seed 42). (a) J 0.38823 vs P 0.38961, Δ −0.0014 [−0.0122, +0.0091], p 0.793. (b) +0.0044 [+0.0005, +0.0084], p 0.0330, Holm [0.793, 0.066]. Holm-consistent 97.5% CI for (b): [−0.00015, +0.00893]; for (a): [−0.0135, +0.0114]. B_J −0.0831 [−0.0945, −0.0725], B_P +0.0150 [+0.0032, +0.0270], volume B_J −0.1208. (a′) J 0.3439 vs P 0.3947, Δ −0.0508 [−0.0605, −0.0412]. GT reference success 0.7230 and OOR 0.0787 reproduced. The recommended wording is sound."
+          },
+          {
+            "id": "F2",
+            "verdict": "CONFIRMED (one wording fix)",
+            "note": "EXPLORATORY. Real scans pooled (6 sources, 428 rooms, 155 components): Δ(b) +0.0778 [+0.0644, +0.0910]; Δ(a) +0.0210 [−0.0263, +0.0679]; B_J −0.2882 [−0.3416, −0.2365]; B_P +0.0432. Scope-B rescale (J ×1.1550, P ×0.9786): Δ(a′) −0.0654 [−0.0993, −0.0321]. Every per-source Δ(b) point estimate is >0. Wording fix: 'J's (a) gain disappears' assumes a gain that the pooled data do not show, since raw pooled Δ(a) is null. Only 3rscan is nominally positive (+0.143 [+0.015, +0.284]; 70 rooms in 24 components, GT success 0.17). With the report's global-B rescale the pooled real-scan Δ(a′) is −0.0117 [−0.0543, +0.0291], which is null rather than negative. So write 'no pooled (a) gain; J's sizes are worse'."
+          },
+          {
+            "id": "F3",
+            "verdict": "CONFIRMED",
+            "note": "EXPLORATORY. Low reuse (837 rooms, 410 components): Δ(a) +0.0693 [+0.0382, +0.1007]. SceneSmith contributes 364/837 × 0.14835 = +0.0645. Low reuse without SceneSmith (473 rooms, 200 components): Δ(a) +0.0085 [−0.0333, +0.0526], Δ(b) +0.0697 [+0.0563, +0.0827], B_J −0.2731. Fallback rooms (1,403): MansionWorld 625 (44.5%), SceneSmith 350 (24.9%), SAGE-10k 308 (22.0%). Fallback rooms without SceneSmith (1,053): Δ(a) −0.0408 [−0.0610, −0.0187], Δ(b) −0.0046 [−0.0183, +0.0109]. Objects at level G: 8,062, J 0.5586 vs P 1.2324, SceneSmith share 44.2%. Level N: 98,459 (92.4%), J 0.3466 vs P 0.2818. The protocol confirms SceneSmith and SpatialGen are held out of fine-tuning and size-prior fitting."
+          },
+          {
+            "id": "F4",
+            "verdict": "CONFIRMED (one nuance)",
+            "note": "EXPLORATORY. Cohort GT success 0.7249 and OOR 0.0481; strata 0.7592/0.0256; non-strata 0.6472/0.0992. The 0.079 quoted in findings is GT OOR over the full test set (0.0787). Footprint bias on all-complete cohort rooms (n 1,451): L −0.1754 (volume −0.2924), J −0.0478, P −0.0226; on strata L −0.1922 vs J −0.0013. Own-bias rescaled success: L 0.9347→0.7655, J 0.4305→0.3941, P 0.5103→0.4945. Contrasts: J−L Δ(a) −0.5041 [−0.5305, −0.4783], Δ(b) −0.0570 [−0.0631, −0.0507]; cohort J−P −0.0798 [−0.1069, −0.0537]. Cohort is 1,009 strata + 445 others (69.4% strata). Category-matched nearest xy position error: J 1.835 m, P 1.866 m, L 1.945 m. raw = harness on all 1,454 layouts. Nuance: against the correct cohort GT the agent's OOR is still below GT (0.031 vs 0.048; strata 0.011 vs 0.026). So 'OOR below GT' holds and only 'well below' is overstated. Supporting context: on complete cohort rooms main collisions occur in 51.2% (J), 44.1% (P) and 2.4% (L) of rooms, and OOB in 13.4%, 12.3% and 0.55%. The agent's validity edge is mostly avoided collisions and OOB. Its main residual failure is support (3.9%)."
+          },
+          {
+            "id": "F5",
+            "verdict": "CONFIRMED (numbers); recommended wording needs a caveat",
+            "note": "EXPLORATORY. Holodeck (503 rooms, 475 components): Δ(b) −0.0177 [−0.0240, −0.0116]; B_J +0.0128, B_P −0.1317; global-B Δ(a′) −0.3241. Scope-B rescale (J ×0.9936, P ×1.0681): −0.1014 [−0.1480, −0.0521] (J 0.3678, P 0.4692). Strata pooled scope-B: −0.0942 [−0.1285, −0.0606] vs global −0.2061. SceneSmith scope-B: +0.1209 [+0.0752, +0.1689] vs global +0.0604. Code check: _derive applies one global factor to every scope. That follows amendment 005 as written (B_arm), so it is a labelling issue, not a bug. Caveat: the scope-B variant enlarges P with positions fixed, so it is a post hoc stress test. Write 'over half of the gap coincides with size bias under a fixed-position rescale', not 'goes with'."
+          },
+          {
+            "id": "F6",
+            "verdict": "PARTIALLY CONFIRMED: the sign reversal is real, but the proposed composition explanation is refuted",
+            "note": "Reproduced exactly. GT-pass (6,252 rooms, 2,684 components): Δ(a) −0.0075 [−0.0205, +0.0054]; Δ(b) −0.0050 [−0.0088, −0.0010]; B_J −0.0406; B_P +0.0391. GT-pass is pre-declared in amendment 005 §2. The composition shifts quoted are correct: MansionWorld 20.5% vs 15.2%, InternScenes_gen 10.2% vs 7.6%, holodeck 8.0% vs 5.8%, 3rscan 12/70, scannet 14/104. EXPLORATORY decomposition: reweighting GT-pass per-source Δ(b) to the full-test source mix gives −0.0029, still negative, and GT-fail rooms give +0.0290. Within almost every source, J−P size error is lower on GT-pass rooms than on GT-fail rooms (SpatialLM +0.010 vs +0.026; InteriorGS +0.033 vs +0.152; Structured3D −0.050 vs −0.013; SAGE +0.040 vs +0.093; scannet +0.051 vs +0.131). So the flip is mainly within-source. Replace the recommended clause 'depends on test-set composition (share of fallback-heavy and real-scan rooms)' with 'depends on which rooms are included: within most sources J's relative size error is lower in rooms whose GT passes the gate'."
+          },
+          {
+            "id": "F7",
+            "verdict": "CONFIRMED",
+            "note": "Components per source: mp3d 18 rooms in 2 (16 + 2). The 16-room component has a summed Δ(a) of −1, and the 2-room component +2. Resampled atoms are −0.0625, +0.0556 and +1.0 with probabilities 1/4, 1/2 and 1/4, so the T3 CI [−0.0625, +1.0000] is just the extremes. Other counts: MultiScan 6 rooms / 4 components; Scan2CAD 1 / 1; MansionWorld 1,313 / 15 (largest 252); HSSD200 138 / 14; 3rscan 70 / 24. results.json carries 'singleton_source_signature_strata' on 5 T1, 18 T3, 63 S1 and 10 T5_contrasts entries, and report.md prints none of them. Its only warning line is the prior-level one, and its only small-n flag is FID 'N<50'. There are also 2 multi-source components, which form their own singleton strata in 'all' (harmless)."
+          },
+          {
+            "id": "F8",
+            "verdict": "CONFIRMED",
+            "note": "Amendment 008 line 18: 'Delivery: the amendment 005 rule is applied to J-DPO2 vs P-DPO2'. The report header '交付决定 … 交付：P' at SFT is therefore informational. Report code is dd390623f (21:23), after amendment 008 was locked (~21:20). Both conditions fail at SFT: (i) Δ(b) +0.0044 [+0.0005, +0.0084]; (ii) the (a′) lower bound −0.0605 < −0.02. Practical severity is low-medium, because findings.md makes no delivery claim."
+          },
+          {
+            "id": "F9",
+            "verdict": "MOSTLY CONFIRMED; 'no supporting evidence' is slightly overstated for the first sub-claim",
+            "note": "Confirmed: GT 0.723 vs J/P 0.388/0.390; holodeck GT 1.000 vs J 0.14–0.55 and P 0.38–0.76; J's bias depends on source (scannet −0.4835 … SceneSmith +0.1893); the untrained agent undersizes more (cohort −0.1754). No data bear on 'reasoning agent optimises constraints explicitly' or on the loss mechanism. The 5e-7 erasure is a simulation (amendment 009 line 7), not a measurement. The 11–19% merge figure comes from a single merge (P DPO1: q 12.7, k 10.9, v 16.5, o 18.1, gate 19.3, up 18.6, down 15.3%), not from 'merges'. Nuance (EXPLORATORY): there is correlational evidence for 'reproduces GT habits'. J success is 0.4395 on GT-pass vs 0.2543 on GT-fail rooms, and P is 0.4471 vs 0.2397. But the untrained agent also drops on the cohort (0.9545 → 0.8825; J 0.4649 → 0.3400; P 0.5750 → 0.3400), so room difficulty confounds it. Call it unidentified, not unsupported."
+          },
+          {
+            "id": "F10",
+            "verdict": "CONFIRMED",
+            "note": "Same design and draw code. (b) p 0.0330 at R=2,000 seed 42; 0.0248 at R=20,000 seed 42 (Holm 0.0496); 0.0262 at R=20,000 seed 7 (Holm 0.0524). 97.5% CI at 20k seed 42: [+0.000012, +0.00879]; seed 7: [−0.000041, +0.00882]. (a) p is 0.8085 and 0.8032. The locked verdict stands (R=2,000, Holm 0.066), but at 20k draws it falls on either side of 0.05 depending on seed."
+          },
+          {
+            "id": "F11",
+            "verdict": "CONFIRMED",
+            "note": "Code (report_v2._derive) rescales x/y by exp(−B/2) with one global factor, keeping pos and yaw: J ×1.042416, P ×0.992549. J 0.3882→0.3439, P 0.3896→0.3947. Agent cohort own-bias rescale costs 0.1692 (0.9347→0.7655). Per-source B_P values (+1.0097 SceneSmith, −0.2315 Structured3D, −0.1317 holodeck) match T3."
+          },
+          {
+            "id": "F12",
+            "verdict": "CONFIRMED (low)",
+            "note": "T5 uses g.aggregate per system, so log MAE is over each system's own complete rows. J cohort: 0.2430 on its own complete rows vs 0.2427 on all-complete rows. The difference is immaterial but should be stated. There is no GT row in T5. Cohort GT reference values are in F4."
+          },
+          {
+            "id": "F13",
+            "verdict": "CONFIRMED",
+            "note": "calls.jsonl has 1,469 rows, all round 0. Calls per room: 1,441 rooms with 1, 11 with 2, 2 with 3. result.json: transient_errors 15, rounds_histogram {1: 1454}, valid_first 1454, api_failed_rooms 0, reached_token_cap 0. The llm-eval-L-v1 joint rows equal the geometry-v2 rows on complete, success, log MAE, OOR and raw_layout for all 1,454 rooms."
+          },
+          {
+            "id": "F14",
+            "verdict": "PARTIALLY REFUTED (overstated)",
+            "note": "The hash mismatch is real: local evaluate_pair.py is 076f4ad1, while results.json records ace47c4a. But the exact revision is recoverable: commit dd390623f (the server snapshot named in research-log) contains report_v2 1fcb363a, geometry 0d3f7bee and evaluate_pair ace47c4a, matching all three recorded hashes. The later diff (dd390623f→3cdfcc90e) only adds a 'lora' decode key, a stage-mismatch check and a stage label, with no scoring change. The geometry-v2 jsonl sha256 match MANIFEST (5a85a840…, e66cc5e3…). The run is reproducible today by checking out dd390623f; just note that commit next to the report."
+          },
+          {
+            "id": "N1 (new, missed by auditor)",
+            "verdict": "NEW ISSUE: medium",
+            "note": "findings item 3 says 'Where P helps: high-reuse synthetic sources … where catalogue sizes repeat'. On raw (a) this is not supported. reuse/high Δ(a) is −0.0090 [−0.0199, +0.0020], which is null. Several high-reuse synthetic sources favour J: InternScenes_gen +0.0909 [+0.0496, +0.1304], InteriorGS +0.0868 [+0.0484, +0.1319], SAGE-10k +0.0266 [+0.0082, +0.0470], with IL3D_synthetic and SpatialLM null. Gains in InternScenes_gen and SAGE coincide with strong J undersizing (B_J −0.31 and −0.30). P's clear (a) advantage is specific to holodeck and the strata, plus Structured3D −0.0402 [−0.0780, −0.0013]. What does hold for high reuse is (b): Δ(b) +0.0179 [+0.0146, +0.0215], so the prior's sizes are more accurate there. Rewrite as 'on high-reuse sources the prior's sizes are more accurate (Δ(b) +0.018); raw geometry success is source-dependent, and P's advantage is concentrated in holodeck and the paper strata'."
+          },
+          {
+            "id": "N2 (new)",
+            "verdict": "NEW ISSUE: low",
+            "note": "F4's suggested replacement drops the 'OOR below GT' observation entirely. On the correct population it still holds (cohort L 0.0310 vs GT 0.0481; strata 0.0111 vs 0.0256). Keep it with the correct GT values, next to the −0.175 undersizing."
+          }
+        ],
+        "overall": "I re-ran the core analyses independently from the server per-room rows. I rebuilt the GT rooms from the reference export with contract.bind_room and recomputed bias, (a′) and GT per room. The bootstrap uses the same design and RNG use as report_v2.contrasts. Every number the auditor cites that I re-ran reproduced to 4 decimals, including T1, Holm, the subgroups, the cohort GT reference, agent bias, own-bias rescaling, the cluster counts, the mp3d atoms and the Monte Carlo p-values.\n\nVerdicts:\n- **Confirmed:** F1, F3, F4, F7, F8, F10, F11, F12, F13.\n- **Confirmed with one wording fix:** F2. The pooled real-scan Δ(a) is null, so there is no J gain on real scans that rescaling could remove.\n- **Confirmed numbers, needs a caveat:** F5. The scope-B rescale is a post hoc stress test. The per-scope global-B column follows amendment 005 as written, so that part is a labelling issue, not a bug.\n\nThree auditor claims I refute or weaken:\n1. **F6:** the sign reversal of (b) in GT-pass is real, but the auditor's composition explanation is wrong (exploratory). Reweighting GT-pass to the full-test source mix still gives −0.0029, and GT-fail rooms give +0.0290. In most sources, J−P size error is lower on GT-pass rooms, so the flip is mainly within-source.\n2. **F9:** 'no supporting evidence' is slightly too strong for 'imitation reproduces GT habits'. J success is 0.4395 on GT-pass rooms vs 0.2543 on GT-fail rooms. But the untrained agent also drops (cohort 0.9545 → 0.8825), so room difficulty confounds it and the claim is unidentified. Also, 5e-7 erasure is a simulation, and the 11–19% figure comes from a single merge (P DPO1).\n3. **F14:** the run is reproducible. Commit dd390623f matches all three recorded code hashes, and the later evaluate_pair changes do not touch scoring.\n\nThe auditor missed one item (N1, medium). findings.md says P helps on high-reuse synthetic sources, but on raw (a) reuse/high is null (−0.0090 [−0.0199, +0.0020]). J is better on InternScenes_gen (+0.091), InteriorGS (+0.087) and SAGE-10k (+0.027). Only (b) favours P there (+0.0179 [+0.0146, +0.0215]).\n\nN2 (low): the agent's OOR is still below GT on the correct cohort (0.031 vs 0.048). The direction of 'OOR below GT' holds, and only its size was overstated.\n\nBottom line: findings.md is NEEDS WORK. The confirmatory statement is correct: no J advantage at SFT, (b) Holm p 0.066 sitting at the boundary under Monte Carlo error. But items 3, 5 and 6 and the 'Patterns' section overclaim and should be rewritten as the auditor proposes, with the F6 and N1 corrections above. report.md also needs component counts and CI suppression for mp3d, MultiScan and Scan2CAD, rendered warnings, and a relabelled delivery header.\n\nAll new analyses are EXPLORATORY (post hoc). Scripts and outputs are in /private/tmp/claude-501/-Users-slian-Desktop-3D-Worldedge-OptiScene/f2530c85-f966-4ee4-9e65-58f0d9e9e62c/scratchpad/sftaudit-rc/: load.py, common.py, c1_t1.py (c1_out.txt, c1_mc_out.txt), c2_sub.py (c2_out.txt), c3_agent.py (c3_out.txt, c3_tail.txt), c4_gtpass.py (c4_out.txt). Repo and data were untouched."
+      }
+    }
+  ],
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Audit"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "audit:agent-validity",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "af9fe4ce85d31b11b",
+      "agentType": "Model QA Specialist",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791939256307,
+      "queuedAt": 1791939256294,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "EXPLORATORY (post hoc). Every number below is from the 1,45…",
+      "promptPreview": "Is the API agent's geometry-validity advantage real or an artifact? On the 1,454-room cohort compute for L (harness), J, P and GT: footprint/volume bias vs GT (log ratio), size-debiased success (a') for L with the same rescaling rule as amendment 005, failure-mode breakdown of the frozen gate (out-of-bounds, main collisions, severe, fixed_blocking, support/ceiling) per system, number of objects pl…",
+      "promptFramed": true,
+      "lastProgressAt": 1791939915916,
+      "tokens": 227091,
+      "toolCalls": 40,
+      "durationMs": 659609,
+      "resultPreview": "{\"summary\":\"EXPLORATORY (post hoc). Every number below is from the 1,454-room cohort, scored with the frozen gate. 1,451 rooms are complete for J, P and L (GT is always complete).\\n\\n**Short answer.** L's advantage over J and P is real. Its advantage over GT, and its 0.935 headline, are inflated by two things: L shrinks furniture, and GT itself fails the gate on noisy sources (3D-FRONT and scans).…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "audit:jp-failures",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "a5bf09645afe179f6",
+      "agentType": "Data Engineer",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791939256307,
+      "queuedAt": 1791939256294,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "EXPLORATORY (post hoc). Scored on all 8,647 test rooms. The…",
+      "promptPreview": "Why do J and P fail the gate in ~61 % of test rooms when GT fails only 28 %? On all 8,647 rooms break down failures per gate component for J, P and GT, per source and per paper stratum; check whether failures concentrate in large rooms (object count), in fixed-object conflicts (doors/windows), in supported objects, or in boundary type; check whether cm rounding / fixed-object projection in the req…",
+      "promptFramed": true,
+      "lastProgressAt": 1791939990890,
+      "tokens": 167367,
+      "toolCalls": 34,
+      "durationMs": 734582,
+      "resultPreview": "{\"summary\":\"EXPLORATORY (post hoc). Scored on all 8,647 test rooms. The gate failure rates are J 0.6118, P 0.6104 and GT 0.2770, so the gap to GT is 0.3348 for J and 0.3334 for P.\\n\\nI split the gap across gate parts with a Shapley split (each part's average contribution over all orders of switching parts off). Overlaps between movable objects (\\\"main\\\" collisions) account for 0.239 of J's gap (71…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "audit:claims",
+      "phaseIndex": 1,
+      "phaseTitle": "Audit",
+      "agentId": "aeb543abc8f5f3411",
+      "agentType": "Statistician",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791939256307,
+      "queuedAt": 1791939256294,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "I reproduced the SFT-stage primary analysis exactly from th…",
+      "promptPreview": "Given the locked protocol (primary endpoint = SFT J0 vs P0; Holm across (a),(b); agent contrasts estimation-only; delivery rule from amendment 005 applied at DPO2), state exactly which claims the SFT results support, with wording, and which they do not. Check the CI/bootstrap outputs for anomalies (e.g. InternScenes_mp3d CI +1.0000 bounds, Scan2CAD n=1 zero-width CI, MultiScan n=6) and whether the…",
+      "promptFramed": true,
+      "lastProgressAt": 1791940064526,
+      "tokens": 181449,
+      "toolCalls": 39,
+      "durationMs": 808218,
+      "resultPreview": "{\"summary\":\"I reproduced the SFT-stage primary analysis exactly from the server per-room rows. Local report_v2.py and geometry.py hash-match results.json, and the T1 'all' estimates, CIs and p-values are identical. The arithmetic and the Holm adjustment are correct. Most of findings.md's subgroup and mechanism prose goes beyond what the data show, though. The report also prints CIs that the bootst…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "verify:agent-validity",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a50eeda961b2a8c3f",
+      "agentType": "Reality Checker",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791939915934,
+      "queuedAt": 1791939915923,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "EXPLORATORY (post hoc) independent re-check. I rebuilt the …",
+      "promptPreview": "Reality Checker: re-check every critical/high/medium finding below from the data yourself and give verdicts; refute over-claims.\nCONTEXT: SFT-stage results of the unknown-size J/P study are measured. Report: /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/report.md (+ results.json, CSVs). Findings draft: /Users/slian/Desktop/3D/W…",
+      "promptFramed": true,
+      "lastProgressAt": 1791940420495,
+      "tokens": 172657,
+      "toolCalls": 28,
+      "durationMs": 504561,
+      "resultPreview": "{\"verdicts\":[{\"id\":\"F1\",\"verdict\":\"CONFIRMED (one sub-claim REFUTED)\",\"note\":\"EXPLORATORY (post hoc). I rebuilt the work independently: GT rooms rebuilt from the export with bind_room, GT scored by g.score through the reference_rows path, and every rescale re-run through g.geometry. Common-complete rooms = 1,451, with 12,760 objects. Reproduced: B_fp L −0.1754 (my simple house-cluster CI [−0.1947,…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "verify:jp-failures",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a1545e8d93f65e4e5",
+      "agentType": "Reality Checker",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791939990907,
+      "queuedAt": 1791939990894,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "EXPLORATORY (post hoc) reality check of jp-failures. Status…",
+      "promptPreview": "Reality Checker: re-check every critical/high/medium finding below from the data yourself and give verdicts; refute over-claims.\nCONTEXT: SFT-stage results of the unknown-size J/P study are measured. Report: /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/report.md (+ results.json, CSVs). Findings draft: /Users/slian/Desktop/3D/W…",
+      "promptFramed": true,
+      "lastProgressAt": 1791940580435,
+      "tokens": 153000,
+      "toolCalls": 29,
+      "durationMs": 589526,
+      "resultPreview": "{\"verdicts\":[{\"id\":\"F0-method\",\"verdict\":\"CONFIRMED\",\"note\":\"EXPLORATORY (post hoc). I recomputed this independently (sftaudit-rc-jpfail/rooms.py). Against the frozen geometry-v2 rows, J and P show 0 mismatches on all 8,647 rooms. The GT pass set has 6,252 rooms and is identical to amendment-005 gt_pass. Every part rate matches to 4 dp.\\n- J: main 0.5224, severe 0.3945, OOB 0.1490, fixed blocking …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "verify:claims",
+      "phaseIndex": 2,
+      "phaseTitle": "Verify",
+      "agentId": "a7132289c86ac0cd7",
+      "agentType": "Reality Checker",
+      "model": "claude-opus-5-5",
+      "state": "done",
+      "startedAt": 1791940064538,
+      "queuedAt": 1791940064529,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "I re-ran the core analyses independently from the server pe…",
+      "promptPreview": "Reality Checker: re-check every critical/high/medium finding below from the data yourself and give verdicts; refute over-claims.\nCONTEXT: SFT-stage results of the unknown-size J/P study are measured. Report: /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/report.md (+ results.json, CSVs). Findings draft: /Users/slian/Desktop/3D/W…",
+      "promptFramed": true,
+      "lastProgressAt": 1791940566203,
+      "tokens": 166022,
+      "toolCalls": 37,
+      "durationMs": 501665,
+      "resultPreview": "{\"verdicts\":[{\"id\":\"F1\",\"verdict\":\"CONFIRMED\",\"note\":\"I rebuilt this independently from the geometry-v2 rows (my own loader; bootstrap uses the same design and RNG use as report_v2.contrasts, 3,056 components, R=2,000, seed 42). (a) J 0.38823 vs P 0.38961, Δ −0.0014 [−0.0122, +0.0091], p 0.793. (b) +0.0044 [+0.0005, +0.0084], p 0.0330, Holm [0.793, 0.066]. Holm-consistent 97.5% CI for (b): [−0.000…"
+    }
+  ],
+  "totalTokens": 1067586,
+  "totalToolCalls": 207
+}
