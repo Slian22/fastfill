@@ -69,6 +69,32 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
   - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
   - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
 
+## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
+
+**Corrected comparison**
+
+- Fair single-shot checker success on the size-fixed pilot: P 0.513, O2 raw (one attempt) 0.793 (its completion rate is 0.80), L 0.947. O2's 0.920 includes up to 3 harness attempts.
+- With S1 applied to both: P + S1 0.827 vs O2-raw + S1 0.797, a difference of +0.030 [−0.020, +0.081], i.e. parity.
+- Gaps that remain:
+  - vs O2-harness + S1: −0.097;
+  - vs L + S1: −0.150.
+
+**Verified about P**
+
+- Training targets are size-consistent: P targets are GT poses repaired under the prior sizes and admitted only if they pass.
+- Survival is a constant ≈ 0.887 per object.
+- 96 % of co-located same-category colliding pairs are exact copies of position and yaw.
+- P copies the preceding record's coordinates. A parent listed just before its child makes a collision more likely.
+
+**Verified about reasoning**
+
+- Reasoning length does not predict success: L uses about 311 reasoning tokens per room, O2 15.6k, O7 7.1k, O6 5.2k, O4 3.3k.
+
+**Missed cause**
+
+- The matched J/P design dropped 19,135 train rooms that had a valid P target, because J's GT target failed.
+- Test rooms whose GT fails (27.7 %) are where P is weakest: 0.238 vs 0.460.
+
 ## Size-fixed regeneration, PILOT (amendment 016 §2, 300 pilot rooms; L and O2 only so far; EXPLORATORY)
 
 Every system gets P's input (train-prior sizes, enforced); rates over all 300 requests, harness variants.
