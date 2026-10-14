@@ -15,6 +15,19 @@ Why this trainer instead of `trl.DPOTrainer` from old OptiScene (`scripts/dpo_tr
 5. `--sft_only` (amendment 016 RFT ablation): the loss is the chosen response's mean token NLL alone (RPO's NLL term,
    no DPO term); neither the reference nor the rejected response is run. Works with `--init_adapter`. Without the
    flag nothing changes.
+6. Amendment 021 (the 27B student), each optional; without them nothing changes:
+   `--sft_token_mean` (with --sft_only): loss = summed answer-token NLL of the optimizer window over all ranks /
+   that window's supervised-token count (all-reduced), instead of the mean of per-sequence means.
+   `--lora_regex R`: LoRA targets = the modules whose full name matches R (PEFT fullmatch), e.g. the language model's
+   linear layers only; after the first optimizer step every trainable parameter must have a gradient.
+   `--answer_logits`: the LM head runs only from the position before the first supervised token (logits_to_keep).
+   `--check_render`: tok.eos_token must be the inference stop token <|im_end|> and every row's training prompt
+   render must be infer.prompt_ids (thinking off) token for token and a prefix of its sequences (raise, never skip).
+   `--base_receipt`: rank 0 rehashes --model against its pinned receipt (a021_train.base_receipt: 27B or 8B).
+   `--image_text_model`: load --model with AutoModelForImageTextToText (a multimodal checkpoint's own class and
+   module names, so adapter keys match the checkpoint; inputs stay text only).
+   `--perf_out DIR`: per rank, per optimizer step wall seconds and input tokens plus peak CUDA memory (the smoke).
+   `--warmup_ratio F`: cosine warmup steps = max(1, int(F x total steps)) instead of 5% (P's SFT used 3%).
 """
 from __future__ import annotations
 
@@ -23,6 +36,7 @@ import contextlib
 import json
 import math
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -41,10 +55,14 @@ POLICY, REFERENCE = "default", "reference"  # PEFT saves the "default" adapter i
 TARGET_MODULES = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 INIT_FIELDS = ("peft_type", "task_type", "r", "lora_alpha", "lora_dropout", "bias", "use_rslora", "use_dora",
                "modules_to_save", "layers_to_transform", "rank_pattern", "alpha_pattern")
+STOP = "<|im_end|>"  # The inference stop token (infer / sample_vllm stop on it only).
+OPTIONAL = ("sft_token_mean", "lora_regex", "answer_logits", "check_render", "base_receipt", "image_text_model",
+            "perf_out", "warmup_ratio")  # Amendment 021: absent from run_manifest unless set.
 
 
-def lora_config(r: int, alpha: int) -> LoraConfig:
-    return LoraConfig(task_type="CAUSAL_LM", r=r, lora_alpha=alpha, lora_dropout=0.05, target_modules=TARGET_MODULES)
+def lora_config(r: int, alpha: int, regex: str | None = None) -> LoraConfig:
+    return LoraConfig(task_type="CAUSAL_LM", r=r, lora_alpha=alpha, lora_dropout=0.05,
+                      target_modules=TARGET_MODULES if regex is None else regex)
 
 
 def init_policy(base: Any, path: Path, expected: LoraConfig) -> Any:
@@ -81,8 +99,24 @@ def reference_policy(model: Any, init_adapter: Path | None) -> Any:
     return model.disable_adapter() if init_adapter is None else _reference_adapter(model)
 
 
+def check_render(tok: Any, lines: list[dict], p_ids_list: list, c_ids_list: list, r_ids_list: list) -> None:
+    """--check_render: the appended EOS is the inference stop token, and each training prompt render is infer.prompt_ids
+    (chat template, thinking off) token for token and a prefix of both sequences, which end on that token."""
+    from fastfill.comparison.infer import prompt_ids
+
+    if tok.eos_token != STOP:
+        raise ValueError(f"training EOS {tok.eos_token!r} is not the inference stop token {STOP}")
+    stop = tok([STOP], add_special_tokens=False)["input_ids"][0]
+    if len(stop) != 1:
+        raise ValueError(f"{STOP} is not a single token")
+    for row, p_ids, c_ids, r_ids in zip(lines, p_ids_list, c_ids_list, r_ids_list):
+        if (prompt_ids(tok, {"messages": row["prompt"]}) != p_ids
+                or any(ids[:len(p_ids)] != p_ids or ids[-1] != stop[0] for ids in (c_ids, r_ids))):
+            raise ValueError(f"training render differs from infer.prompt_ids or is not a prefix: {row.get('uid')}")
+
+
 class DPOPairDataset(Dataset):
-    def __init__(self, tok: Any, path: Path, max_len: int = 8192) -> None:
+    def __init__(self, tok: Any, path: Path, max_len: int = 8192, render_check: bool = False) -> None:
         self.rows: list[dict[str, list[int]]] = []
         skipped = 0
         lines = [json.loads(line) for line in open(path, encoding="utf-8") if line.strip()]
@@ -93,6 +127,8 @@ class DPOPairDataset(Dataset):
         p_ids_list = tok(prompts, add_special_tokens=False)["input_ids"]
         c_ids_list = tok(chosen_full, add_special_tokens=False)["input_ids"]
         r_ids_list = tok(rejected_full, add_special_tokens=False)["input_ids"]
+        if render_check:
+            check_render(tok, lines, p_ids_list, c_ids_list, r_ids_list)
 
         for p_ids, c_ids, r_ids in zip(p_ids_list, c_ids_list, r_ids_list):
             plen = len(p_ids)
@@ -139,10 +175,21 @@ def collate_dpo(batch: list[dict[str, list[int]]], pad_id: int) -> dict[str, tor
     }
 
 
-def sequence_logps(model: Any, input_ids: torch.Tensor, attention_mask: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
-    """Compute summed token log-probabilities over non-masked (`labels != -100`) completion tokens in FP32."""
-    logits = model(input_ids=input_ids, attention_mask=attention_mask, use_cache=False).logits[:, :-1, :]
-    target = labels[:, 1:]
+def sequence_logps(model: Any, input_ids: torch.Tensor, attention_mask: torch.Tensor, labels: torch.Tensor,
+                   answer_only: bool = False) -> torch.Tensor:
+    """Compute summed token log-probabilities over non-masked (`labels != -100`) completion tokens in FP32.
+
+    answer_only (--answer_logits): logits only for the positions that predict a supervised token of some row, i.e.
+    from the position before the batch's first supervised label (logits_to_keep); the sum is the same."""
+    if answer_only:
+        first = max(1, int((labels != -100).int().argmax(dim=1).min()))
+        keep = input_ids.shape[1] - first + 1
+        logits = model(input_ids=input_ids, attention_mask=attention_mask, use_cache=False,
+                       logits_to_keep=keep).logits[:, :-1, :]
+        target = labels[:, first:]
+    else:
+        logits = model(input_ids=input_ids, attention_mask=attention_mask, use_cache=False).logits[:, :-1, :]
+        target = labels[:, 1:]
     bsz, seq_len, vocab = logits.shape
     total = torch.zeros(bsz, dtype=torch.float32, device=logits.device)
     chunk_t = 1024
@@ -178,6 +225,23 @@ def dpo_loss(pol_c, pol_r, ref_c, ref_r, beta, rpo_alpha=0.0, chosen_tokens=None
 def sft_loss(pol_c, chosen_tokens):
     """--sft_only: the chosen response's mean token NLL per sequence, then the batch mean (dpo_loss's NLL term)."""
     return (-pol_c / chosen_tokens).mean()
+
+
+def token_mean_loss(pol_c, window_tokens, world_size):
+    """--sft_token_mean: this micro-batch's summed answer NLL x world_size / the supervised tokens of the whole optimizer
+    window on all ranks (all-reduced). DDP averages the rank gradients, so the update is the gradient of
+    (sum of answer-token NLL over the window on every rank) / (their supervised-token count)."""
+    return -pol_c.sum() * world_size / window_tokens
+
+
+def window_tokens(batch_tokens, grad_accum):
+    """Per micro-batch of one rank's epoch: the supervised tokens of its whole accumulation window on this rank."""
+    return [sum(batch_tokens[b - b % grad_accum:b - b % grad_accum + grad_accum]) for b in range(len(batch_tokens))]
+
+
+def missing_grads(model):
+    """--lora_regex: trainable parameters that got no gradient (checked after the first optimizer step)."""
+    return [n for n, p in model.named_parameters() if p.requires_grad and p.grad is None]
 
 
 def save_epoch_adapter(target: Path, raw_peft: Any, tok: Any, state: dict[str, int]) -> None:
@@ -336,11 +400,21 @@ def main() -> None:
     ap.add_argument("--save_every_epoch", action="store_true", help="also save the adapter to OUT/epoch-NN at each epoch end")
     ap.add_argument("--init_adapter", type=Path, help="continue this trained adapter of --model; it is also the frozen reference")
     ap.add_argument("--sft_only", action="store_true", help="loss = chosen mean token NLL only (no DPO term, no reference pass)")
+    ap.add_argument("--sft_token_mean", action="store_true", help="with --sft_only: window answer NLL sum / its token count, all ranks")
+    ap.add_argument("--lora_regex", help="LoRA targets: modules whose full name matches this regex; all trainable params need a grad")
+    ap.add_argument("--answer_logits", action="store_true", help="LM head only on answer-predicting positions (logits_to_keep)")
+    ap.add_argument("--check_render", action="store_true", help="EOS = <|im_end|>; prompt render = infer.prompt_ids and a prefix")
+    ap.add_argument("--base_receipt", action="store_true", help="rank 0 rehashes --model against its pinned base receipt")
+    ap.add_argument("--image_text_model", action="store_true", help="load --model with AutoModelForImageTextToText (text inputs)")
+    ap.add_argument("--perf_out", type=Path, help="per-rank step wall seconds, input tokens and peak CUDA memory")
+    ap.add_argument("--warmup_ratio", type=float, help="cosine warmup share of the total steps (default 0.05)")
     args = ap.parse_args()
     if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
         raise ValueError("--rpo_alpha must be finite and >= 0")
     if args.sft_only and args.rpo_alpha:
         raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
+    if args.sft_token_mean and not args.sft_only:
+        raise ValueError("--sft_token_mean is the --sft_only loss normalisation")
 
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
@@ -353,10 +427,17 @@ def main() -> None:
     set_seed(args.seed)
 
     if rank == 0:
+        receipt = {}
+        if args.base_receipt:  # Amendment 021: the pinned 27B (or generic 8B) base, weights rehashed.
+            from fastfill.comparison import a021_train
+            from fastfill.comparison.infer import _hash
+            base = a021_train.base_receipt(args.model)
+            receipt = {"base_receipt": {"path": base["path"], "files_sha256": _hash(base["files"])}}
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "run_manifest.json").write_text(
             json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
-                                 if not (k == "init_adapter" and v is None) and not (k == "sft_only" and not v)}},
+                                 if not (k == "init_adapter" and v is None) and not (k == "sft_only" and not v)
+                                 and not (k in OPTIONAL and v in (None, False))}, **receipt},
                        indent=1) + "\n",
             encoding="utf-8",
         )
@@ -365,7 +446,7 @@ def main() -> None:
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
 
-    ds = DPOPairDataset(tok, args.pairs, max_len=args.max_len)
+    ds = DPOPairDataset(tok, args.pairs, max_len=args.max_len, render_check=args.check_render)
     if len(ds) == 0:
         raise ValueError("No valid DPO pairs remain after tokenization; refusing an empty training run")
     # Also for one process: the epoch order is a function of (seed, epoch), so a resumed epoch replays it.
@@ -378,14 +459,18 @@ def main() -> None:
         collate_fn=lambda b: collate_dpo(b, tok.pad_token_id),
     )
 
-    base = AutoModelForCausalLM.from_pretrained(
+    if args.image_text_model:
+        from transformers import AutoModelForImageTextToText as model_class
+    else:
+        model_class = AutoModelForCausalLM
+    base = model_class.from_pretrained(
         args.model,
         dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
         attn_implementation="sdpa",
     )
     base.config.use_cache = False
     base.enable_input_require_grads()
-    config = lora_config(args.lora_r, args.lora_alpha)
+    config = lora_config(args.lora_r, args.lora_alpha, args.lora_regex)
     peft_model = get_peft_model(base, config) if args.init_adapter is None else init_policy(base, args.init_adapter, config)
     peft_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     peft_model.to(device)
@@ -395,7 +480,8 @@ def main() -> None:
     opt = torch.optim.AdamW([p for p in peft_model.parameters() if p.requires_grad], lr=args.lr, weight_decay=0.0)
     steps_per_epoch = max(1, math.ceil(len(loader) / args.grad_accum))
     total_steps = max(1, steps_per_epoch * args.epochs)
-    sched = get_cosine_schedule_with_warmup(opt, num_warmup_steps=max(1, int(0.05 * total_steps)), num_training_steps=total_steps)
+    warmup = 0.05 if args.warmup_ratio is None else args.warmup_ratio
+    sched = get_cosine_schedule_with_warmup(opt, num_warmup_steps=max(1, int(warmup * total_steps)), num_training_steps=total_steps)
 
     ckpt_dir = args.out / "ckpt_latest"
     if rank == 0:
@@ -420,11 +506,22 @@ def main() -> None:
     model = DDP(peft_model, device_ids=[local_rank], find_unused_parameters=False) if is_ddp else peft_model
     raw_peft = model.module if is_ddp else model
 
+    def logps(*tensors):  # --answer_logits; the module-level sequence_logps is looked up per call.
+        return sequence_logps(*tensors, answer_only=True) if args.answer_logits else sequence_logps(*tensors)
+
+    if args.sft_token_mean:
+        supervised = [sum(v != -100 for v in r["c_labels"][1:]) for r in ds.rows]
+    grads_checked = not args.lora_regex
+    perf, last = [], None
     model.train()
     opt.zero_grad(set_to_none=True)
     for epoch in range(resume_epoch, args.epochs):
         if sampler is not None:
             sampler.set_epoch(epoch)
+        if args.sft_token_mean:  # This rank's epoch order is the sampler's (the loader iterates it once per epoch).
+            order = list(sampler)
+            counts = [sum(supervised[i] for i in order[b * args.bs:(b + 1) * args.bs]) for b in range(len(loader))]
+            windows = window_tokens(counts, args.grad_accum)
         for it, batch in enumerate(loader):
             if epoch == resume_epoch and it <= resume_it:
                 continue
@@ -432,36 +529,62 @@ def main() -> None:
             sync_step = ((it + 1) % args.grad_accum == 0) or ((it + 1) == len(loader))
             window_size = accumulation_window_size(it, len(loader), args.grad_accum)
             sync_ctx = contextlib.nullcontext if (not is_ddp or sync_step) else model.no_sync
+            if args.perf_out and last is None:
+                last, window_input = time.monotonic(), 0
+            if args.perf_out:
+                window_input += int(batch["c_attention_mask"].sum())
 
             if args.sft_only:  # One forward: the chosen response under the policy; no reference, no rejected.
                 with sync_ctx():
-                    pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
-                    total = sft_loss(pol_c, (batch["c_labels"][:, 1:] != -100).sum(dim=-1))
-                    backward_finite_loss(total / window_size)
+                    pol_c = logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                    if args.sft_token_mean:
+                        if int((batch["c_labels"][:, 1:] != -100).sum()) != counts[it]:
+                            raise ValueError("loader batch differs from the sampler order used for the token counts")
+                        tokens = torch.tensor(windows[it], dtype=torch.long, device=device)
+                        if is_ddp:
+                            dist.all_reduce(tokens)
+                        total = token_mean_loss(pol_c, tokens, world_size)
+                        shown = (-pol_c.sum() / counts[it]).detach()
+                        backward_finite_loss(total)
+                    else:
+                        total = sft_loss(pol_c, (batch["c_labels"][:, 1:] != -100).sum(dim=-1))
+                        shown = total
+                        backward_finite_loss(total / window_size)
             else:
                 with torch.no_grad(), reference_policy(raw_peft, args.init_adapter):
-                    ref_c = sequence_logps(raw_peft, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
-                    ref_r = sequence_logps(raw_peft, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
+                    ref_c = logps(raw_peft, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                    ref_r = logps(raw_peft, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
 
                 # Forward on raw_peft under no_sync first for chosen, then sync on rejected at sync_step
                 with (model.no_sync() if is_ddp else contextlib.nullcontext()):
-                    pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                    pol_c = logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
                 with sync_ctx():
-                    pol_r = sequence_logps(model, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
+                    pol_r = logps(model, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
                     chosen_tokens = (batch["c_labels"][:, 1:] != -100).sum(dim=-1)
                     total, dpo_term, nll, logits_diff = dpo_loss(pol_c, pol_r, ref_c, ref_r, args.beta, args.rpo_alpha, chosen_tokens)
                     loss = total / window_size
                     backward_finite_loss(loss)
 
             if sync_step:
+                if not grads_checked:  # --lora_regex: every trainable parameter is on the loss path.
+                    missing = missing_grads(model)
+                    if missing:
+                        raise ValueError(f"{len(missing)} trainable parameters have no gradient after step 1: {missing[:3]}")
+                    grads_checked = True
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
                 opt.step()
                 sched.step()
                 opt.zero_grad(set_to_none=True)
                 step += 1
+                if args.perf_out:
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize(device)
+                    now = time.monotonic()
+                    perf.append({"step": step, "seconds": now - last, "input_tokens": window_input})
+                    last, window_input = now, 0
                 if rank == 0 and args.sft_only and (step == 1 or step % 10 == 0 or step == total_steps):
                     print(json.dumps({"epoch": epoch + 1, "step": step, "total_steps": total_steps,
-                                      "chosen_nll": round(float(total.item()), 4), "loss": round(float(total.item()), 4)}),
+                                      "chosen_nll": round(float(shown.item()), 4), "loss": round(float(shown.item()), 4)}),
                           flush=True)
                 elif rank == 0 and (step == 1 or step % 10 == 0 or step == total_steps):
                     acc = float((logits_diff > 0).float().mean().item())
@@ -495,6 +618,16 @@ def main() -> None:
                             _save_dpo_ckpt(ckpt_dir, raw_peft, opt, sched, {"epoch": epoch, "it": it, "step": step})
                     if is_ddp:
                         dist.barrier()
+
+    if args.perf_out:  # Every rank: its steps and its peak CUDA memory.
+        cuda = torch.cuda.is_available()
+        args.perf_out.mkdir(parents=True, exist_ok=True)
+        (args.perf_out / f"perf-rank{rank}.json").write_text(json.dumps({
+            "rank": rank, "world_size": world_size, "steps": perf,
+            "max_memory_allocated": torch.cuda.max_memory_allocated(device) if cuda else None,
+            "max_memory_reserved": torch.cuda.max_memory_reserved(device) if cuda else None,
+            "device_total_memory": torch.cuda.get_device_properties(device).total_memory if cuda else None,
+            "device_name": torch.cuda.get_device_name(device) if cuda else None}) + "\n", encoding="utf-8")
 
     if rank == 0:
         final_dir = args.out / "final"

@@ -25,7 +25,9 @@ run       Per room k = 0 is greedy (temperature 0) and k = 1..N are sampled (T, 
           min_p, repetition_penalty, ...) is logged per invocation and lands in result.json. The model must be trained
           on the data's training_manifest_sha256. Model: an SFT adapter on the generic base
           (infer.training_identity), or a DPO stage's exact policy (dpo_stages.inference_identity): its adapter on
-          its BF16 training base; both rehash what vLLM loads. vLLM applies LoRA in BF16, so outputs are NOT
+          its BF16 training base, or (amendment 021) --model RUN/a021/27b|8b --exact-policy (a021_train: the adapter on
+          its pinned base; the 27B adds MULTIMODAL_ENGINE, image/video inputs 0); all rehash what vLLM loads. vLLM
+          applies LoRA in BF16, so outputs are NOT
           bit-identical to the HF runs of amendment 009/010: the k = 0 pass is the S2 baseline, and best_of_n
           --reference measures its agreement with the HF records on dev-select-v1.
           Rooms sort by (-movable objects, uid); a shard takes [index::count], then --limit (the smoke: the largest).
@@ -61,6 +63,7 @@ from fastfill.comparison.llm_open import CAP_BASE, CAP_PER_OBJECT, _append, outp
 N, TEMPERATURE, TOP_P, SEED_SALT, MAX_MODEL_LEN, CHUNK_TOKENS = 8, 0.7, 0.95, 's2-bo-v1:', 40960, 2_000_000
 ENGINE = {'enable_lora': True, 'max_lora_rank': 32, 'max_loras': 1, 'max_model_len': MAX_MODEL_LEN,
           'dtype': 'bfloat16', 'seed': 0, 'tensor_parallel_size': 1}
+MULTIMODAL_ENGINE = {'limit_mm_per_prompt': {'image': 0, 'video': 0}}  # Amendment 021: the pinned 27B is multimodal.
 PROTOCOL = 's2-best-of-n-sampling-v1'
 EOS = '<|im_end|>'
 PROMPT = ('infer.prompt_ids: the HF tokenizer of the loaded adapter dir, its chat template with add_generation_prompt '
@@ -183,7 +186,9 @@ def run(args, load=load_vllm):
     if model['training_data']['manifest_sha256'] != h.strict_json(
             (Path(args.data) / 'MANIFEST.json').read_text()).get('training_manifest_sha256'):
         raise ValueError('model training data differs from the data training_manifest_sha256')
-    engine = {**ENGINE, 'model': str(base)}
+    # Amendment 021: an a021 policy on the pinned 27B (dpo_stages.inference_identity -> a021_train) runs text only.
+    engine = {**ENGINE, **(MULTIMODAL_ENGINE if model.get('base', {}).get('model_type') == 'qwen3_5' else {}),
+              'model': str(base)}
     identity = {'protocol': PROTOCOL, 'arm': args.arm, 'model': model,
                 'loaded': {'base': str(base), 'adapter': str(adapter), 'lora_request': [args.arm, 1, str(adapter)],
                            'lora_dtype': 'engine dtype (bfloat16)'},

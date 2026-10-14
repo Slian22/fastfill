@@ -348,8 +348,12 @@ def inference_identity(run):
     """infer_shard shard --model: base_sha256 is the generic Qwen3-8B lineage root, not this model.
 
     With run.exact_policy the identity binds the loaded training base and adapter (policy) instead
-    of the merged model's bytes (model_sha256)."""
+    of the merged model's bytes (model_sha256). Amendment 021: run.model = RUN/a021/27b|8b (an a021_train policy
+    receipt) with run.exact_policy is that adapter unmerged on its pinned base (the 27B or the generic 8B)."""
     if getattr(run, 'exact_policy', False):
+        from fastfill.comparison import a021_train
+        if a021_train.is_policy(run.model):
+            return a021_train.inference_identity(run)
         receipt, loaded = exact_policy(run.model, run.arm)
         loaded = {'policy': loaded}
     else:

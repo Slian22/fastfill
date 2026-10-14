@@ -46,6 +46,11 @@ and the subset only when given: the default (joint) identity is unchanged.
 --all-rooms (amendment 018 teacher, distill_018): the cohort is every request of --data in its expected_uids order
 (all_rooms_cohort; the teacher plan is a train set run whole in --uids shards) instead of L.build_cohort's test sample;
 recorded as config cohort_rule 'all_rooms' only when given.
+
+--system O2nt (amendment 021 section 1.4, reference rows only): O2 (same model files, engine, TP, harness, sampling and
+repairs) with enable_thinking False and so the non-thinking cap. It must reason 0 tokens: an answer with any reasoning
+raises before its receipt is written (config reasoning_tokens 'asserted_zero'). O2nt is in SPECS, not SYSTEMS: the
+amendment 003-007 status table (llm-open-status.json), scripts and every existing identity are unchanged.
 """
 import argparse
 import importlib.metadata
@@ -101,6 +106,12 @@ SYSTEMS = {
            'thinking': True, 'template': {}, 'effort': 'model default (no "Reasoning strength:" system line)',
            'engine': {}},
 }
+# Amendment 021 section 1.4: run / slurm accept these too; status, scripts and SYSTEMS identities ignore them.
+EXTRA_SYSTEMS = {
+    'O2nt': {**SYSTEMS['O2'], 'name': 'qwen3.8-27b-nothink', 'hours': 3, 'thinking': False,
+             'template': {'enable_thinking': False}, 'effort': 'thinking off (amendment 021)', 'no_reasoning': True},
+}
+SPECS = {**SYSTEMS, **EXTRA_SYSTEMS}
 _TOO_LARGE = 'not run (exceeds one 4xGH200 node in a Hopper precision)'
 _NOT_SELECTED = 'not run (fits; not selected: lower adoption/scores or a custom vLLM build)'
 NOT_RUN = {  # Amendment 007.
@@ -151,7 +162,7 @@ def out_name(system, mode):
 
 
 def slurm_flags(system, mode):
-    spec = SYSTEMS[system]
+    spec = SPECS[system]
     minutes = SMOKE_MINUTES if mode == 'smoke' else 60 * spec['hours']
     return (f"--gpus-per-node={spec['tp']} --cpus-per-task={16 * spec['tp']} --mem={100 * spec['tp']}G "
             f'--time={minutes // 60:02d}:{minutes % 60:02d}:00')
@@ -236,6 +247,8 @@ def _chunk(llm, params, tok, spec, records, log, arm):
         active = []
         for (uid, precount, cap), output in zip(jobs, outputs):
             answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs), arm)
+            if spec.get('no_reasoning') and (answer['reasoning'] or answer['usage']['reasoning_tokens']):
+                raise ValueError(f'{uid}: reasoning tokens in a no-reasoning system')  # Amendment 021: asserted 0.
             answers[uid].append(answer)
             if not answer['schema']['valid'] and round_ < L.REPAIRS:
                 conversations[uid] = [*conversations[uid], {'role': 'assistant', 'content': answer['raw']},
@@ -255,7 +268,7 @@ def _cost(out, system, identity, receipts):
         spans[event['invocation']] = max(spans.get(event['invocation'], 0), event['elapsed_seconds'])
     calls = [e for e in events if e['event'] == 'call']
     answers = [a for r in receipts.values() for a in r['answers']]
-    gpus = SYSTEMS[system]['tp']
+    gpus = SPECS[system]['tp']
     return {'system': system, 'model': identity['config']['model'], 'model_path': identity['config']['engine']['model'],
             'config_sha256': identity['config_sha256'], 'versions': identity['config']['versions'], 'gpus': gpus,
             'invocations': len(spans), 'slurm_job_ids': sorted({e['slurm_job_id'] for e in events if e['slurm_job_id']}),
@@ -275,7 +288,7 @@ def _cost(out, system, identity, receipts):
 
 def run(args, load=load_vllm):
     started = time.monotonic()
-    spec = SYSTEMS[args.system]
+    spec = SPECS[args.system]
     rows, data = infer.load_eval(args.data, args.arm)
     cohort = h.strict_json(Path(args.cohort).read_text())
     if cohort != (all_rooms_cohort(args.data) if args.all_rooms else L.build_cohort(args.data)):
@@ -306,7 +319,8 @@ def run(args, load=load_vllm):
               'repair_message': 'parser_error_text_only', 'limit': args.limit, 'versions': _versions(),
               **({'request_arm': 'placement'} if args.arm == 'placement' else {}),  # Joint identity unchanged.
               **({'request_sizes': 'gt'} if gt else {}),
-              **({'cohort_rule': 'all_rooms'} if args.all_rooms else {})}  # Amendment 018 teacher plan.
+              **({'cohort_rule': 'all_rooms'} if args.all_rooms else {}),  # Amendment 018 teacher plan.
+              **({'reasoning_tokens': 'asserted_zero'} if spec.get('no_reasoning') else {})}  # Amendment 021 O2nt.
     identity = {'arm': 'llm_open', 'variants': list(L.VARIANTS), 'config': config, 'config_sha256': infer._hash(config),
                 'data': {'manifest_sha256': data['manifest_sha256'],
                          f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl'],
@@ -417,7 +431,7 @@ def main(argv=None, load=load_vllm):
     for flag in ('data', 'cohort', 'model-root', 'out'):
         run_parser.add_argument('--' + flag, type=Path, required=True)
     for sub in (run_parser, slurm):
-        sub.add_argument('--system', choices=SYSTEMS, required=True)
+        sub.add_argument('--system', choices=SPECS, required=True)
     run_parser.add_argument('--limit', type=positive)
     run_parser.add_argument('--chunk', type=positive, default=256)
     run_parser.add_argument('--smoke-gate', action='store_true')

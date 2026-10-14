@@ -118,6 +118,7 @@ def test_without_init_adapter_training_is_bit_identical_to_before(tiny, monkeypa
     assert [{k: v for k, v in m.items() if k != 'out'} for m in manifests][0] == {
         k: v for k, v in manifests[1].items() if k != 'out'}  # No init_adapter key: byte-identical apart from --out.
     assert not {'init_adapter', 'sft_only'} & manifests[1].keys()  # Amendment 016: --sft_only off leaves no trace.
+    assert not set(train_dpo.OPTIONAL) & manifests[1].keys()  # Amendment 021 flags off: none of them either.
 
 
 def test_init_adapter_policy_equals_frozen_reference_at_step_zero_in_fp32(tiny):

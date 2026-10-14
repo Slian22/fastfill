@@ -1,0 +1,6619 @@
+{
+  "status": "ERROR",
+  "error": "Traceback (most recent call last):\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py\", line 724, in main\n    run(audit, root)\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py\", line 687, in run\n    remaining_payloads(audit, path, manifests[key], entries, populations)\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py\", line 600, in remaining_payloads\n    for _, row, _ in audit.rows(path, expected):\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py\", line 149, in rows\n    before, h, fields, sources = signature(path), hashlib.sha256(), Counter(), Counter()\n                                 ^^^^^^^^^^^^^^^\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py\", line 83, in signature\n    s = path.stat()\n        ^^^^^^^^^^^\n  File \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/lib/python3.12/pathlib.py\", line 840, in stat\n    return os.stat(self, follow_symlinks=follow_symlinks)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_constrained_rooms.jsonl'\n",
+  "utc": "2026-10-13T07:39:48.615382+00:00",
+  "slurm_job_id": "7368003",
+  "python": "3.12.15 (main, Oct  6 2026, 23:51:47) [GCC 15.3.0]",
+  "elapsed_seconds": 156.15128559799632,
+  "max_rss_bytes": 1399586816,
+  "checks": {
+    "file_stable_during_read": {
+      "passed": 75,
+      "failed": 0,
+      "examples": []
+    },
+    "file_sha256": {
+      "passed": 75,
+      "failed": 0,
+      "examples": []
+    },
+    "implementation_inventory_pin": {
+      "passed": 27,
+      "failed": 0,
+      "examples": []
+    },
+    "release_manifest_chain": {
+      "passed": 2,
+      "failed": 0,
+      "examples": []
+    },
+    "release_files_chain": {
+      "passed": 2,
+      "failed": 0,
+      "examples": []
+    },
+    "IR_hash_chain": {
+      "passed": 2,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_manifest_chain": {
+      "passed": 2,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_identity_chain": {
+      "passed": 2,
+      "failed": 0,
+      "examples": []
+    },
+    "eval_training_manifest_chain": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_scope": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "frozen_prep_args": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "release_uid_unique": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "release_record_count": {
+      "passed": 3,
+      "failed": 0,
+      "examples": []
+    },
+    "frozen_release_population": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "all_18_IR_inventory": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "IR_disk_inventory": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "known_raw_source": {
+      "passed": 188670,
+      "failed": 0,
+      "examples": []
+    },
+    "raw_uid_unique": {
+      "passed": 188670,
+      "failed": 0,
+      "examples": []
+    },
+    "raw_release_source": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "released_UIDs_found_in_raw": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "frozen_raw_population": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "frozen_unreleased_population": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_uid_unique": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_released_uid": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_original_identity": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_raw_order": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_object_ids_unique": {
+      "passed": 124843,
+      "failed": 0,
+      "examples": []
+    },
+    "prepared_full_release_coverage": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "component_split_closure": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_uid_unique": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_uid_sorted": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_uid_released": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:release_line": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:original_group": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:raw_line": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:layout_key": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:raw_file": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:prepared_sha256": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:split": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:component": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:training_flags": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:raw_sha256": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:source": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:release_row_sha256": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:uid": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:prepared_flags": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_field:content_key": {
+      "passed": 160964,
+      "failed": 0,
+      "examples": []
+    },
+    "identity_complete_UID_coverage": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_split_counts": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_source_counts": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_component_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "raw_release_unreleased_reconciliation": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_audit_count:raw_rows": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_audit_count:release_rows": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_audit_count:prepared_rows": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_audit_count:unreleased_raw_rows": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:rejects": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:duplicate_release_uids": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:duplicate_raw_uids": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:unmatched_uids": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:source_mismatches": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "corpus_recorded_failures:cross_split_components": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "frozen_eligible_population": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool_schema": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:uids": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:uid_hashes": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:components": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:component_hashes": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:by_source": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:members": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_pool:frozen_before_decoder_admission": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_fold_assignment": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_five_prior_keys": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_schema": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_version": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_estimator": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_min_count": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_conditioning": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_fallback": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_provenance": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "bucket_schema": {
+      "passed": 776848,
+      "failed": 0,
+      "examples": []
+    },
+    "bucket_count": {
+      "passed": 776848,
+      "failed": 0,
+      "examples": []
+    },
+    "median_shape": {
+      "passed": 776848,
+      "failed": 0,
+      "examples": []
+    },
+    "median_values": {
+      "passed": 2330544,
+      "failed": 0,
+      "examples": []
+    },
+    "bucket_category_keys": {
+      "passed": 12,
+      "failed": 0,
+      "examples": []
+    },
+    "bucket_room_type_keys": {
+      "passed": 207829,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_excluded_UID_disjoint": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_excluded_component_disjoint": {
+      "passed": 6,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:components": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:held_out_fold": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fitted_uid_sha256": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:conditioning": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fold_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:frozen_before_decoder_admission": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:training_contract": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:component_hashes": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fixed_excluded_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:category_room_type_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:component_source": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:hash_algorithm": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:room_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fallback": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:component_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:object_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fold_algorithm": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:category_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:seed": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "OOF_provenance:fitted_uid_hashes": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_uid_unique": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_only_train": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_identity": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_historical_eligibility": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_fold": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_paired_qualification": {
+      "passed": 144150,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_exclusion_reasons": {
+      "passed": 19307,
+      "failed": 0,
+      "examples": []
+    },
+    "ineligible_unqualified": {
+      "passed": 19307,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_all_historical_train": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "admission_source_counts": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "all_dev_retained_policy": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "main_dataset_counts": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "main_counts": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "prior_exposure_exact": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "main_split_uid_unique": {
+      "passed": 107090,
+      "failed": 0,
+      "examples": []
+    },
+    "main_split_record": {
+      "passed": 107090,
+      "failed": 0,
+      "examples": []
+    },
+    "main_split_complete_coverage": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "eval_exact_test_UIDs": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "eval_prior_fit_count": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "payload_referenced_sha256": {
+      "passed": 1,
+      "failed": 0,
+      "examples": []
+    },
+    "fatal_error": {
+      "passed": 0,
+      "failed": 1,
+      "examples": [
+        {
+          "type": "FileNotFoundError",
+          "message": "[Errno 2] No such file or directory: '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_constrained_rooms.jsonl'"
+        }
+      ]
+    }
+  },
+  "files": {
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py": {
+      "sha256": "d48071aa3b008ad77a56a23d6e30f3ea23ccad10ac7af6dd361f1a438f7c3374",
+      "expected_sha256": null,
+      "bytes": 40867,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/MANIFEST.json": {
+      "sha256": "664eecdcdaea593bc7f8653ea544b46e415f1c0bc8bf7e09065fbe89796caf6e",
+      "expected_sha256": "664eecdcdaea593bc7f8653ea544b46e415f1c0bc8bf7e09065fbe89796caf6e",
+      "bytes": 11319,
+      "records": 1,
+      "fields": {
+        "args": 1,
+        "files": 1,
+        "code_sha256": 1,
+        "ir_sha256": 1,
+        "build_start_code_sha256": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/MANIFEST.json": {
+      "sha256": "bf6444ae51f21e8f944168d985576f14029a5ecf9400f6e625ffa62ee5f636c6",
+      "expected_sha256": "bf6444ae51f21e8f944168d985576f14029a5ecf9400f6e625ffa62ee5f636c6",
+      "bytes": 5838,
+      "records": 1,
+      "fields": {
+        "version": 1,
+        "scope": 1,
+        "source_release_manifest_sha256": 1,
+        "source_release_files": 1,
+        "ir_sha256": 1,
+        "implementation_sha256": 1,
+        "dependencies": 1,
+        "prep_args": 1,
+        "counts": 1,
+        "audit": 1,
+        "by_source": 1,
+        "split_policy": 1,
+        "training_flags_policy": 1,
+        "component_policy": 1,
+        "id_policy": 1,
+        "row_order": 1,
+        "files": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/MANIFEST.json": {
+      "sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "expected_sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "bytes": 1272009,
+      "records": 1,
+      "fields": {
+        "version": 1,
+        "scope": 1,
+        "seed": 1,
+        "target_policy": 1,
+        "quality_claim_allowed": 1,
+        "corpus_manifest_sha256": 1,
+        "corpus_identity_manifest_sha256": 1,
+        "input_consumed_sha256": 1,
+        "implementation_sha256": 1,
+        "source_release_manifest_sha256": 1,
+        "source_release_files": 1,
+        "ir_sha256": 1,
+        "counts": 1,
+        "dataset_counts": 1,
+        "by_source": 1,
+        "excluded_sources": 1,
+        "prior_exposure": 1,
+        "input_policy": 1,
+        "prior_policy": 1,
+        "estimated_size_precision": 1,
+        "split_policy": 1,
+        "component_policy": 1,
+        "dev_policy": 1,
+        "devlimit": 1,
+        "test_policy": 1,
+        "repair_limits": 1,
+        "files": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/MANIFEST.json": {
+      "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+      "expected_sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+      "bytes": 429063,
+      "records": 1,
+      "fields": {
+        "version": 1,
+        "scope": 1,
+        "seed": 1,
+        "expected_uids": 1,
+        "corpus_manifest_sha256": 1,
+        "corpus_identity_manifest_sha256": 1,
+        "training_manifest_sha256": 1,
+        "training_corpus_identity_manifest_sha256": 1,
+        "input_consumed_sha256": 1,
+        "implementation_sha256": 1,
+        "counts": 1,
+        "by_source": 1,
+        "source_heldout": 1,
+        "prior_fit_count": 1,
+        "audit": 1,
+        "new_blind_test_claim": 1,
+        "geometry_policy": 1,
+        "size_policy": 1,
+        "input_policy": 1,
+        "files": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/scene.py": {
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "expected_sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "bytes": 21001,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/anchors.py": {
+      "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "expected_sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "bytes": 17733,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/validate.py": {
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "expected_sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "bytes": 11838,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/build.py": {
+      "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "expected_sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "bytes": 35292,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/split.py": {
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "expected_sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "bytes": 5289,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/requirements.txt": {
+      "sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "expected_sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "bytes": 483,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/__init__.py": {
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "expected_sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "bytes": 203,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/contract.py": {
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "expected_sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "bytes": 13793,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/size_prior.py": {
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "expected_sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "bytes": 11001,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/data.py": {
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "expected_sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "bytes": 12802,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/corpus.py": {
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "expected_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "bytes": 15194,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/main_data.py": {
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "expected_sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "bytes": 21463,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/pose_targets.py": {
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "expected_sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "bytes": 15302,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/eval_data.py": {
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "expected_sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "bytes": 15289,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/train_pair_helpers.py": {
+      "sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+      "expected_sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+      "bytes": 19717,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/__init__.py": {
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "expected_sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "bytes": 203,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/corpus.py": {
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "expected_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "bytes": 15194,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/data.py": {
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "expected_sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "bytes": 12802,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/build.py": {
+      "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "expected_sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "bytes": 35292,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/split.py": {
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "expected_sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "bytes": 5289,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/scene.py": {
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "expected_sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "bytes": 21001,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/anchors.py": {
+      "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "expected_sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "bytes": 17733,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/validate.py": {
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "expected_sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "bytes": 11838,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/requirements.txt": {
+      "sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "expected_sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "bytes": 483,
+      "records": null,
+      "fields": {},
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/train.jsonl": {
+      "sha256": "4663157aeed9b5919a77471f971d730a1b6ec228f5e1ec7d145b4d4ebf4f0217",
+      "expected_sha256": "4663157aeed9b5919a77471f971d730a1b6ec228f5e1ec7d145b4d4ebf4f0217",
+      "bytes": 535618763,
+      "records": 144150,
+      "fields": {
+        "uid": 144150,
+        "source": 144150,
+        "flags": 144150,
+        "messages": 144150
+      },
+      "by_source": {
+        "HSSD200": 1876,
+        "IL3D_3dfront": 18054,
+        "IL3D_synthetic": 6277,
+        "InteriorGS": 4877,
+        "InternScenes_3rscan": 1200,
+        "InternScenes_arkit": 4528,
+        "InternScenes_gen": 12552,
+        "InternScenes_mp3d": 1258,
+        "InternScenes_scannet": 1309,
+        "Scan2CAD": 18,
+        "MansionWorld": 19396,
+        "MultiScan": 114,
+        "OptiScene_holodeck": 8946,
+        "SAGE-10k": 8977,
+        "SpatialLM": 42068,
+        "Structured3D": 12700
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev.jsonl": {
+      "sha256": "1e7739941f2385aeaf42c68fecff9a6fed83eb120cfbbba7d12f6f9d4b41c147",
+      "expected_sha256": "1e7739941f2385aeaf42c68fecff9a6fed83eb120cfbbba7d12f6f9d4b41c147",
+      "bytes": 32524325,
+      "records": 8167,
+      "fields": {
+        "uid": 8167,
+        "source": 8167,
+        "flags": 8167,
+        "messages": 8167
+      },
+      "by_source": {
+        "HSSD200": 86,
+        "IL3D_3dfront": 939,
+        "IL3D_synthetic": 349,
+        "InteriorGS": 268,
+        "InternScenes_3rscan": 61,
+        "InternScenes_arkit": 280,
+        "InternScenes_gen": 828,
+        "InternScenes_mp3d": 89,
+        "InternScenes_scannet": 80,
+        "MansionWorld": 1153,
+        "MultiScan": 2,
+        "OptiScene_holodeck": 497,
+        "SAGE-10k": 503,
+        "SpatialLM": 2239,
+        "Structured3D": 793
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test.jsonl": {
+      "sha256": "12a9268b6ffb6a26d647e566a279168e55e0d78add606a42c019bde37335db98",
+      "expected_sha256": "12a9268b6ffb6a26d647e566a279168e55e0d78add606a42c019bde37335db98",
+      "bytes": 34194647,
+      "records": 8647,
+      "fields": {
+        "uid": 8647,
+        "source": 8647,
+        "flags": 8647,
+        "messages": 8647
+      },
+      "by_source": {
+        "HSSD200": 138,
+        "IL3D_3dfront": 872,
+        "IL3D_synthetic": 316,
+        "InteriorGS": 311,
+        "InternScenes_3rscan": 70,
+        "InternScenes_arkit": 229,
+        "InternScenes_gen": 660,
+        "InternScenes_mp3d": 18,
+        "InternScenes_scannet": 104,
+        "Scan2CAD": 1,
+        "MansionWorld": 1313,
+        "MultiScan": 6,
+        "OptiScene_holodeck": 503,
+        "SAGE-10k": 489,
+        "SceneSmith": 364,
+        "SpatialGen": 45,
+        "SpatialLM": 2461,
+        "Structured3D": 747
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/HSSD200.jsonl": {
+      "sha256": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
+      "expected_sha256": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
+      "bytes": 13320988,
+      "records": 2351,
+      "fields": {
+        "uid": 2351,
+        "source": 2351,
+        "subset": 2351,
+        "group": 2351,
+        "room_type": 2351,
+        "boundary": 2351,
+        "boundary_type": 2351,
+        "height": 2351,
+        "objects": 2351,
+        "meta": 2351
+      },
+      "by_source": {
+        "HSSD200": 2351
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/IL3D_3dfront.jsonl": {
+      "sha256": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
+      "expected_sha256": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
+      "bytes": 104673139,
+      "records": 21832,
+      "fields": {
+        "uid": 21832,
+        "source": 21832,
+        "subset": 21832,
+        "group": 21832,
+        "room_type": 21832,
+        "boundary": 21832,
+        "boundary_type": 21832,
+        "height": 21832,
+        "objects": 21832,
+        "meta": 21832
+      },
+      "by_source": {
+        "IL3D_3dfront": 21832
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/IL3D_synthetic.jsonl": {
+      "sha256": "2f021ea40220b96ea69a29b9bba42151866938832ff1bd807a6f660a29e70df2",
+      "expected_sha256": "2f021ea40220b96ea69a29b9bba42151866938832ff1bd807a6f660a29e70df2",
+      "bytes": 24833593,
+      "records": 6954,
+      "fields": {
+        "uid": 6954,
+        "source": 6954,
+        "subset": 6954,
+        "group": 6954,
+        "room_type": 6954,
+        "boundary": 6954,
+        "boundary_type": 6954,
+        "height": 6954,
+        "objects": 6954,
+        "meta": 6954
+      },
+      "by_source": {
+        "IL3D_synthetic": 6954
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InteriorGS.jsonl": {
+      "sha256": "612c3afb3b80ae2fbee01b8930d05e7cec89831538d88d0308d0dbafda5c7b73",
+      "expected_sha256": "612c3afb3b80ae2fbee01b8930d05e7cec89831538d88d0308d0dbafda5c7b73",
+      "bytes": 134884013,
+      "records": 6607,
+      "fields": {
+        "uid": 6607,
+        "source": 6607,
+        "subset": 6607,
+        "group": 6607,
+        "room_type": 6607,
+        "boundary": 6607,
+        "boundary_type": 6607,
+        "height": 6607,
+        "objects": 6607,
+        "meta": 6607
+      },
+      "by_source": {
+        "InteriorGS": 6607
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_3rscan.jsonl": {
+      "sha256": "bae023a964ec08795feb25b8a36ea6da0fc826ab44ccaa508da369d57a67a992",
+      "expected_sha256": "bae023a964ec08795feb25b8a36ea6da0fc826ab44ccaa508da369d57a67a992",
+      "bytes": 12953429,
+      "records": 1334,
+      "fields": {
+        "uid": 1334,
+        "source": 1334,
+        "subset": 1334,
+        "group": 1334,
+        "room_type": 1334,
+        "boundary": 1334,
+        "boundary_type": 1334,
+        "height": 1334,
+        "objects": 1334,
+        "meta": 1334
+      },
+      "by_source": {
+        "InternScenes_3rscan": 1334
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_arkit.jsonl": {
+      "sha256": "f90f2ccc4870fdf8f5c11df34d21f78a63b9917885371c0bcf3b17391b563c29",
+      "expected_sha256": "f90f2ccc4870fdf8f5c11df34d21f78a63b9917885371c0bcf3b17391b563c29",
+      "bytes": 37095038,
+      "records": 5040,
+      "fields": {
+        "uid": 5040,
+        "source": 5040,
+        "subset": 5040,
+        "group": 5040,
+        "room_type": 5040,
+        "boundary": 5040,
+        "boundary_type": 5040,
+        "height": 5040,
+        "objects": 5040,
+        "meta": 5040
+      },
+      "by_source": {
+        "InternScenes_arkit": 5040
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_gen.jsonl": {
+      "sha256": "75387e2527997ed051c71fad75c3e472a5efe7a128bae18dd3efe5d7ba4dd772",
+      "expected_sha256": "75387e2527997ed051c71fad75c3e472a5efe7a128bae18dd3efe5d7ba4dd772",
+      "bytes": 170273967,
+      "records": 14089,
+      "fields": {
+        "uid": 14089,
+        "source": 14089,
+        "subset": 14089,
+        "group": 14089,
+        "room_type": 14089,
+        "boundary": 14089,
+        "boundary_type": 14089,
+        "height": 14089,
+        "objects": 14089,
+        "meta": 14089
+      },
+      "by_source": {
+        "InternScenes_gen": 14089
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_mp3d.jsonl": {
+      "sha256": "3685a34f5406a7dd3c93de3c4d2ff8f5d051a5ef5a4183038ece4d54e7b6a84b",
+      "expected_sha256": "3685a34f5406a7dd3c93de3c4d2ff8f5d051a5ef5a4183038ece4d54e7b6a84b",
+      "bytes": 9801996,
+      "records": 1601,
+      "fields": {
+        "uid": 1601,
+        "source": 1601,
+        "subset": 1601,
+        "group": 1601,
+        "room_type": 1601,
+        "boundary": 1601,
+        "boundary_type": 1601,
+        "height": 1601,
+        "objects": 1601,
+        "meta": 1601
+      },
+      "by_source": {
+        "InternScenes_mp3d": 1601
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_scannet.jsonl": {
+      "sha256": "994b9edbba489599940323947dd42e5fba8da0157346e48940e45c5ab095aa3a",
+      "expected_sha256": "994b9edbba489599940323947dd42e5fba8da0157346e48940e45c5ab095aa3a",
+      "bytes": 14749102,
+      "records": 1513,
+      "fields": {
+        "uid": 1513,
+        "source": 1513,
+        "subset": 1513,
+        "group": 1513,
+        "room_type": 1513,
+        "boundary": 1513,
+        "boundary_type": 1513,
+        "height": 1513,
+        "objects": 1513,
+        "meta": 1513
+      },
+      "by_source": {
+        "InternScenes_scannet": 1513
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/MansionWorld.jsonl": {
+      "sha256": "3b91f38162f1b2f19e6580d3437dc853b590802291bbd008727319f7274bd40c",
+      "expected_sha256": "3b91f38162f1b2f19e6580d3437dc853b590802291bbd008727319f7274bd40c",
+      "bytes": 225746308,
+      "records": 27884,
+      "fields": {
+        "uid": 27884,
+        "source": 27884,
+        "subset": 27884,
+        "group": 27884,
+        "room_type": 27884,
+        "boundary": 27884,
+        "boundary_type": 27884,
+        "height": 27884,
+        "objects": 27884,
+        "meta": 27884
+      },
+      "by_source": {
+        "MansionWorld": 27884
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/MultiScan.jsonl": {
+      "sha256": "3fcd69d2a9363453cbeeb8b9aa6f681b1e7c3b622774ccad8d7d791c370124ca",
+      "expected_sha256": "3fcd69d2a9363453cbeeb8b9aa6f681b1e7c3b622774ccad8d7d791c370124ca",
+      "bytes": 3094772,
+      "records": 273,
+      "fields": {
+        "uid": 273,
+        "source": 273,
+        "subset": 273,
+        "group": 273,
+        "room_type": 273,
+        "boundary": 273,
+        "boundary_type": 273,
+        "height": 273,
+        "objects": 273,
+        "meta": 273
+      },
+      "by_source": {
+        "MultiScan": 273
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/OptiScene_holodeck.jsonl": {
+      "sha256": "6b50155b6c71838f8f8267c20e17cc67f49f37746ed6b92d950602d84fb31b2a",
+      "expected_sha256": "6b50155b6c71838f8f8267c20e17cc67f49f37746ed6b92d950602d84fb31b2a",
+      "bytes": 23366829,
+      "records": 9977,
+      "fields": {
+        "uid": 9977,
+        "source": 9977,
+        "subset": 9977,
+        "group": 9977,
+        "room_type": 9977,
+        "boundary": 9977,
+        "boundary_type": 9977,
+        "height": 9977,
+        "objects": 9977,
+        "meta": 9977
+      },
+      "by_source": {
+        "OptiScene_holodeck": 9977
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SAGE-10k.jsonl": {
+      "sha256": "8a1e03dddc5baa770752ae14e77298b0d3b42aab77113c119008d6ee978d06b6",
+      "expected_sha256": "8a1e03dddc5baa770752ae14e77298b0d3b42aab77113c119008d6ee978d06b6",
+      "bytes": 385524104,
+      "records": 10027,
+      "fields": {
+        "uid": 10027,
+        "source": 10027,
+        "subset": 10027,
+        "group": 10027,
+        "room_type": 10027,
+        "boundary": 10027,
+        "boundary_type": 10027,
+        "height": 10027,
+        "objects": 10027,
+        "meta": 10027
+      },
+      "by_source": {
+        "SAGE-10k": 10027
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/Scan2CAD.jsonl": {
+      "sha256": "8dd7b1b766ee884b7ee7d3f8657c42a18fa7af4bd3671d87ab0380c6a18eea36",
+      "expected_sha256": "8dd7b1b766ee884b7ee7d3f8657c42a18fa7af4bd3671d87ab0380c6a18eea36",
+      "bytes": 5517688,
+      "records": 1506,
+      "fields": {
+        "uid": 1506,
+        "source": 1506,
+        "subset": 1506,
+        "group": 1506,
+        "room_type": 1506,
+        "boundary": 1506,
+        "boundary_type": 1506,
+        "height": 1506,
+        "objects": 1506,
+        "meta": 1506
+      },
+      "by_source": {
+        "Scan2CAD": 1506
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SceneSmith.jsonl": {
+      "sha256": "0d58aae78ff6061bf41f7d0abc2f508028940a087e10b0c04a779f5e8d92d432",
+      "expected_sha256": "0d58aae78ff6061bf41f7d0abc2f508028940a087e10b0c04a779f5e8d92d432",
+      "bytes": 6250766,
+      "records": 364,
+      "fields": {
+        "uid": 364,
+        "source": 364,
+        "subset": 364,
+        "group": 364,
+        "room_type": 364,
+        "boundary": 364,
+        "boundary_type": 364,
+        "height": 364,
+        "objects": 364,
+        "meta": 364
+      },
+      "by_source": {
+        "SceneSmith": 364
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SpatialGen.jsonl": {
+      "sha256": "5390fd84350a3d6070842bc3c49b75fa88031f645e4c06312c7c1fe57e4096d8",
+      "expected_sha256": "5390fd84350a3d6070842bc3c49b75fa88031f645e4c06312c7c1fe57e4096d8",
+      "bytes": 259667,
+      "records": 48,
+      "fields": {
+        "uid": 48,
+        "source": 48,
+        "subset": 48,
+        "group": 48,
+        "room_type": 48,
+        "boundary": 48,
+        "boundary_type": 48,
+        "height": 48,
+        "objects": 48,
+        "meta": 48
+      },
+      "by_source": {
+        "SpatialGen": 48
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SpatialLM.jsonl": {
+      "sha256": "f582b46d45b38e59b7b593d045f946f889d08942c10147bf4f077b7f33ef4410",
+      "expected_sha256": "f582b46d45b38e59b7b593d045f946f889d08942c10147bf4f077b7f33ef4410",
+      "bytes": 209941269,
+      "records": 54376,
+      "fields": {
+        "uid": 54376,
+        "source": 54376,
+        "subset": 54376,
+        "group": 54376,
+        "room_type": 54376,
+        "boundary": 54376,
+        "boundary_type": 54376,
+        "height": 54376,
+        "objects": 54376,
+        "meta": 54376
+      },
+      "by_source": {
+        "SpatialLM": 54376
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/Structured3D.jsonl": {
+      "sha256": "c4b66c25ea6385de7a738311f8ee92866c12e23706e439389248bdfbaef386a4",
+      "expected_sha256": "c4b66c25ea6385de7a738311f8ee92866c12e23706e439389248bdfbaef386a4",
+      "bytes": 118260455,
+      "records": 22894,
+      "fields": {
+        "uid": 22894,
+        "source": 22894,
+        "subset": 22894,
+        "group": 22894,
+        "room_type": 22894,
+        "boundary": 22894,
+        "boundary_type": 22894,
+        "height": 22894,
+        "objects": 22894,
+        "meta": 22894
+      },
+      "by_source": {
+        "Structured3D": 22894
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/prepared_rooms.jsonl": {
+      "sha256": "6a56dfaa425cd9b48605cc892a9466b67debbf1324999b0ab6f6f8647caf0189",
+      "expected_sha256": "6a56dfaa425cd9b48605cc892a9466b67debbf1324999b0ab6f6f8647caf0189",
+      "bytes": 756383070,
+      "records": 160964,
+      "fields": {
+        "uid": 160964,
+        "source": 160964,
+        "subset": 160964,
+        "group": 160964,
+        "room_type": 160964,
+        "boundary": 160964,
+        "boundary_type": 160964,
+        "height": 160964,
+        "objects": 160964,
+        "meta": 160964,
+        "fixed": 160964,
+        "split": 160964
+      },
+      "by_source": {
+        "HSSD200": 2100,
+        "IL3D_3dfront": 19865,
+        "IL3D_synthetic": 6942,
+        "InteriorGS": 5456,
+        "InternScenes_3rscan": 1331,
+        "InternScenes_arkit": 5037,
+        "InternScenes_gen": 14040,
+        "InternScenes_mp3d": 1365,
+        "InternScenes_scannet": 1493,
+        "MansionWorld": 21862,
+        "MultiScan": 122,
+        "OptiScene_holodeck": 9946,
+        "SAGE-10k": 9969,
+        "Scan2CAD": 19,
+        "SceneSmith": 364,
+        "SpatialGen": 45,
+        "SpatialLM": 46768,
+        "Structured3D": 14240
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/identity-manifest.json": {
+      "sha256": "83f61680e491f7af6447bc6a58e37a3308c3fbd2a9b651401e5d447544686cdb",
+      "expected_sha256": "83f61680e491f7af6447bc6a58e37a3308c3fbd2a9b651401e5d447544686cdb",
+      "bytes": 114007685,
+      "records": 160964,
+      "fields": {
+        "uid": 160964,
+        "source": 160964,
+        "split": 160964,
+        "training_flags": 160964,
+        "release_line": 160964,
+        "release_row_sha256": 160964,
+        "original_group": 160964,
+        "raw_file": 160964,
+        "raw_line": 160964,
+        "raw_sha256": 160964,
+        "content_key": 160964,
+        "layout_key": 160964,
+        "prepared_flags": 160964,
+        "prepared_sha256": 160964,
+        "component": 160964
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/prior-fit-pool.json": {
+      "sha256": "366611c684661d018d4c29978d49b44710b5ce2f494aac9d6b0a7348b0fea870",
+      "expected_sha256": "366611c684661d018d4c29978d49b44710b5ce2f494aac9d6b0a7348b0fea870",
+      "bytes": 53908886,
+      "records": 1,
+      "fields": {
+        "uids": 1,
+        "uid_hashes": 1,
+        "components": 1,
+        "component_hashes": 1,
+        "by_source": 1,
+        "members": 1,
+        "frozen_before_decoder_admission": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json": {
+      "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+      "expected_sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+      "bytes": 241067473,
+      "records": 1,
+      "fields": {
+        "fold_by_uid": 1,
+        "priors": 1,
+        "full_prior": 1,
+        "provenance": 1
+      },
+      "by_source": {},
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/common-admission.jsonl": {
+      "sha256": "d33581f64819be8d69329ff0c17eb0acbeaf297f7237cf235dcd71fe87c3f3fe",
+      "expected_sha256": "d33581f64819be8d69329ff0c17eb0acbeaf297f7237cf235dcd71fe87c3f3fe",
+      "bytes": 289323207,
+      "records": 144150,
+      "fields": {
+        "accepted": 144150,
+        "component": 144150,
+        "eligible": 144150,
+        "fold": 144150,
+        "joint": 144150,
+        "placement": 144150,
+        "reasons": 144150,
+        "source": 144150,
+        "uid": 144150,
+        "repair": 124843
+      },
+      "by_source": {
+        "HSSD200": 1876,
+        "InternScenes_3rscan": 1200,
+        "InternScenes_arkit": 4528,
+        "InternScenes_gen": 12552,
+        "InternScenes_mp3d": 1258,
+        "InternScenes_scannet": 1309,
+        "MansionWorld": 19396,
+        "MultiScan": 114,
+        "SAGE-10k": 8977,
+        "Scan2CAD": 18,
+        "IL3D_synthetic": 6277,
+        "IL3D_3dfront": 18054,
+        "InteriorGS": 4877,
+        "SpatialLM": 42068,
+        "Structured3D": 12700,
+        "OptiScene_holodeck": 8946
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/split-manifest.json": {
+      "sha256": "48e60337748c1699f98d93b4b4747247004737aba1c0b95e9baad442287500dc",
+      "expected_sha256": "48e60337748c1699f98d93b4b4747247004737aba1c0b95e9baad442287500dc",
+      "bytes": 18253069,
+      "records": 107090,
+      "fields": {
+        "component": 107090,
+        "fold": 107090,
+        "source": 107090,
+        "split": 107090,
+        "uid": 107090
+      },
+      "by_source": {},
+      "complete_scan": true
+    }
+  },
+  "summary": {
+    "address_space_limit_bytes": 25769803776,
+    "normalizers_source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/size_prior.py",
+    "raw_profiles": {
+      "HSSD200/room/uid": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/source": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/subset": {
+        "count": 2351,
+        "types": {
+          "NoneType": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/group": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/room_type": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/boundary": {
+        "count": 2351,
+        "types": {
+          "list": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/boundary_type": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {
+          "\"polygon\"": 2351
+        },
+        "other_values": 0
+      },
+      "HSSD200/room/height": {
+        "count": 2351,
+        "types": {
+          "float": 2351
+        },
+        "values": {
+          "2.8": 1871,
+          "3.3": 34,
+          "2.44": 22,
+          "3.657": 23,
+          "3.7": 33
+        },
+        "other_values": 368
+      },
+      "HSSD200/room/objects": {
+        "count": 2351,
+        "types": {
+          "list": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room/meta": {
+        "count": 2351,
+        "types": {
+          "dict": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/n_tilted": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {
+          "0": 2310,
+          "1": 14,
+          "2": 19,
+          "4": 5,
+          "8": 2
+        },
+        "other_values": 1
+      },
+      "HSSD200/room.meta/n_incomplete": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/room_id": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/region_name": {
+        "count": 2351,
+        "types": {
+          "str": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/floor_height": {
+        "count": 2351,
+        "types": {
+          "float": 2351
+        },
+        "values": {
+          "0.0": 2225,
+          "2.5001": 7,
+          "3.0541": 1,
+          "3.23179": 7,
+          "2.8066": 5
+        },
+        "other_values": 106
+      },
+      "HSSD200/room.meta/n_architectural_dropped": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/n_below_floor_dropped": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/n_articulated_twin_dropped": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/n_opening_no_mesh_bounds": {
+        "count": 2351,
+        "types": {
+          "int": 2351
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/room.meta/front_known": {
+        "count": 2351,
+        "types": {
+          "bool": 2351
+        },
+        "values": {
+          "true": 2351
+        },
+        "other_values": 0
+      },
+      "HSSD200/objects/id": {
+        "count": 52471,
+        "types": {
+          "str": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/category": {
+        "count": 52471,
+        "types": {
+          "str": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/size": {
+        "count": 52471,
+        "types": {
+          "list": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/pos": {
+        "count": 52471,
+        "types": {
+          "list": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/yaw": {
+        "count": 52471,
+        "types": {
+          "float": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/anchor": {
+        "count": 52471,
+        "types": {
+          "NoneType": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/parent": {
+        "count": 52471,
+        "types": {
+          "NoneType": 52471
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/tilted": {
+        "count": 52471,
+        "types": {
+          "bool": 52471
+        },
+        "values": {
+          "false": 52377,
+          "true": 94
+        },
+        "other_values": 0
+      },
+      "HSSD200/objects/structure": {
+        "count": 3565,
+        "types": {
+          "bool": 3565
+        },
+        "values": {
+          "true": 3565
+        },
+        "other_values": 0
+      },
+      "HSSD200/objects/box_src": {
+        "count": 326,
+        "types": {
+          "str": 326
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/rot_wxyz_yup": {
+        "count": 94,
+        "types": {
+          "list": 94
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "HSSD200/objects/front_known": {
+        "count": 51,
+        "types": {
+          "bool": 51
+        },
+        "values": {
+          "false": 51
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/uid": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/source": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/subset": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/group": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/room_type": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/boundary": {
+        "count": 21832,
+        "types": {
+          "list": 21816,
+          "NoneType": 16
+        },
+        "values": {
+          "null": 16
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/boundary_type": {
+        "count": 21832,
+        "types": {
+          "str": 21816,
+          "NoneType": 16
+        },
+        "values": {
+          "\"polygon\"": 21771,
+          "\"hull\"": 45,
+          "null": 16
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/height": {
+        "count": 21832,
+        "types": {
+          "float": 21774,
+          "NoneType": 47,
+          "int": 11
+        },
+        "values": {
+          "2.8": 5077,
+          "2.6": 13318,
+          "2.7": 761,
+          "3.3": 54,
+          "2.58": 11
+        },
+        "other_values": 2611
+      },
+      "IL3D_3dfront/room/objects": {
+        "count": 21832,
+        "types": {
+          "list": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room/meta": {
+        "count": 21832,
+        "types": {
+          "dict": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/n_tilted": {
+        "count": 21832,
+        "types": {
+          "int": 21832
+        },
+        "values": {
+          "0": 21793,
+          "1": 36,
+          "4": 1,
+          "2": 2
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/n_incomplete": {
+        "count": 21832,
+        "types": {
+          "int": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/room_id": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/house": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/source_room_id": {
+        "count": 21832,
+        "types": {
+          "str": 21821,
+          "NoneType": 11
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/il3d_room_id": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/il3d_scene_id": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/split_from_il3d_room": {
+        "count": 21832,
+        "types": {
+          "bool": 21832
+        },
+        "values": {
+          "false": 18974,
+          "true": 2858
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/boundary_from": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {
+          "\"3dfront_floor_mesh_polygon\"": 21771,
+          "\"3dfront_export_floor_hull\"": 61
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/front_known": {
+        "count": 21832,
+        "types": {
+          "bool": 21832
+        },
+        "values": {
+          "true": 21832
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/n_openings": {
+        "count": 21832,
+        "types": {
+          "int": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/n_openings_skipped": {
+        "count": 21832,
+        "types": {
+          "int": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/n_doors_listed_on_neighbour": {
+        "count": 21832,
+        "types": {
+          "int": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/room.meta/size_from": {
+        "count": 21832,
+        "types": {
+          "str": 21832
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/id": {
+        "count": 213246,
+        "types": {
+          "str": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/category": {
+        "count": 213246,
+        "types": {
+          "str": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/size": {
+        "count": 213246,
+        "types": {
+          "list": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/pos": {
+        "count": 213246,
+        "types": {
+          "list": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/yaw": {
+        "count": 213246,
+        "types": {
+          "float": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/anchor": {
+        "count": 213246,
+        "types": {
+          "str": 159574,
+          "NoneType": 53672
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/parent": {
+        "count": 213246,
+        "types": {
+          "NoneType": 213246
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/tilted": {
+        "count": 213246,
+        "types": {
+          "bool": 213246
+        },
+        "values": {
+          "false": 213202,
+          "true": 44
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/desc": {
+        "count": 170152,
+        "types": {
+          "str": 170152
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/structure": {
+        "count": 43094,
+        "types": {
+          "bool": 43094
+        },
+        "values": {
+          "true": 43094
+        },
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/listed_on": {
+        "count": 10768,
+        "types": {
+          "str": 10768
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_3dfront/objects/tilt_deg": {
+        "count": 44,
+        "types": {
+          "float": 44
+        },
+        "values": {
+          "7.905106030266731": 5,
+          "7.999999999823098": 5,
+          "17.187772830001656": 2,
+          "44.99999999996334": 2,
+          "9.000000000050447": 3
+        },
+        "other_values": 27
+      },
+      "IL3D_synthetic/room/uid": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/source": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/subset": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/group": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/room_type": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/boundary": {
+        "count": 6954,
+        "types": {
+          "list": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/boundary_type": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {
+          "\"polygon\"": 6954
+        },
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/height": {
+        "count": 6954,
+        "types": {
+          "NoneType": 6954
+        },
+        "values": {
+          "null": 6954
+        },
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/objects": {
+        "count": 6954,
+        "types": {
+          "list": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room/meta": {
+        "count": 6954,
+        "types": {
+          "dict": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/n_tilted": {
+        "count": 6954,
+        "types": {
+          "int": 6954
+        },
+        "values": {
+          "0": 6954
+        },
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/n_incomplete": {
+        "count": 6954,
+        "types": {
+          "int": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/room_id": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/il3d_scene_id": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/front_known": {
+        "count": 6954,
+        "types": {
+          "bool": 6954
+        },
+        "values": {
+          "true": 6954
+        },
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/position_from": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/room.meta/size_from": {
+        "count": 6954,
+        "types": {
+          "str": 6954
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/id": {
+        "count": 47837,
+        "types": {
+          "str": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/category": {
+        "count": 47837,
+        "types": {
+          "str": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/size": {
+        "count": 47837,
+        "types": {
+          "list": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/pos": {
+        "count": 47837,
+        "types": {
+          "list": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/yaw": {
+        "count": 47837,
+        "types": {
+          "float": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/anchor": {
+        "count": 47837,
+        "types": {
+          "str": 45745,
+          "NoneType": 2092
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/parent": {
+        "count": 47837,
+        "types": {
+          "NoneType": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/tilted": {
+        "count": 47837,
+        "types": {
+          "bool": 47837
+        },
+        "values": {
+          "false": 47837
+        },
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/desc": {
+        "count": 47837,
+        "types": {
+          "str": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/layout_name": {
+        "count": 47837,
+        "types": {
+          "str": 47837
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "IL3D_synthetic/objects/asset_category": {
+        "count": 988,
+        "types": {
+          "str": 988
+        },
+        "values": {
+          "\"furniture\"": 988
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room/uid": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/source": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/subset": {
+        "count": 6607,
+        "types": {
+          "NoneType": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/group": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/room_type": {
+        "count": 6607,
+        "types": {
+          "NoneType": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/boundary": {
+        "count": 6607,
+        "types": {
+          "list": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/boundary_type": {
+        "count": 6607,
+        "types": {
+          "str": 6605,
+          "NoneType": 2
+        },
+        "values": {
+          "\"polygon\"": 6605,
+          "null": 2
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room/height": {
+        "count": 6607,
+        "types": {
+          "float": 6607
+        },
+        "values": {
+          "3.2": 20,
+          "3.4": 30,
+          "4.5": 18,
+          "3.0": 216,
+          "3.8000000000000003": 17
+        },
+        "other_values": 6306
+      },
+      "InteriorGS/room/objects": {
+        "count": 6607,
+        "types": {
+          "list": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room/meta": {
+        "count": 6607,
+        "types": {
+          "dict": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/n_tilted": {
+        "count": 6607,
+        "types": {
+          "int": 6607
+        },
+        "values": {
+          "0": 6505,
+          "1": 59,
+          "5": 1,
+          "39": 1,
+          "160": 1
+        },
+        "other_values": 40
+      },
+      "InteriorGS/room.meta/n_incomplete": {
+        "count": 6607,
+        "types": {
+          "int": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/room_id": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/scene_id": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/front_known": {
+        "count": 6607,
+        "types": {
+          "bool": 6607
+        },
+        "values": {
+          "true": 6607
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/front_source": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {
+          "\"bbox corner order\"": 6607
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/room_type_available": {
+        "count": 6607,
+        "types": {
+          "bool": 6607
+        },
+        "values": {
+          "false": 6607
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/view": {
+        "count": 6607,
+        "types": {
+          "str": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/n_permuted_axes": {
+        "count": 6607,
+        "types": {
+          "int": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/n_openings_repeated": {
+        "count": 6607,
+        "types": {
+          "int": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/membership_recovery": {
+        "count": 6607,
+        "types": {
+          "dict": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/n_openings_dropped": {
+        "count": 6607,
+        "types": {
+          "int": 6607
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/id": {
+        "count": 437370,
+        "types": {
+          "str": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/category": {
+        "count": 437370,
+        "types": {
+          "str": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/size": {
+        "count": 437370,
+        "types": {
+          "list": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/pos": {
+        "count": 437370,
+        "types": {
+          "list": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/yaw": {
+        "count": 437370,
+        "types": {
+          "float": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/anchor": {
+        "count": 437370,
+        "types": {
+          "NoneType": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/parent": {
+        "count": 437370,
+        "types": {
+          "NoneType": 437370
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InteriorGS/objects/tilted": {
+        "count": 437370,
+        "types": {
+          "bool": 437370
+        },
+        "values": {
+          "false": 433752,
+          "true": 3618
+        },
+        "other_values": 0
+      },
+      "InteriorGS/objects/front_known": {
+        "count": 11320,
+        "types": {
+          "bool": 11320
+        },
+        "values": {
+          "false": 11320
+        },
+        "other_values": 0
+      },
+      "InteriorGS/objects/structure": {
+        "count": 16462,
+        "types": {
+          "bool": 16462
+        },
+        "values": {
+          "true": 16462
+        },
+        "other_values": 0
+      },
+      "InteriorGS/objects/tilt_deg": {
+        "count": 3618,
+        "types": {
+          "float": 3618
+        },
+        "values": {
+          "6.7489607405961936": 1,
+          "8.000001682609023": 1,
+          "10.00000301835261": 3,
+          "10.000003396369255": 2,
+          "44.99999567513692": 1
+        },
+        "other_values": 3610
+      },
+      "InteriorGS/room.meta/boundary_repaired": {
+        "count": 169,
+        "types": {
+          "str": 169
+        },
+        "values": {
+          "\"buffer(0)\"": 169
+        },
+        "other_values": 0
+      },
+      "InteriorGS/room.meta/boundary_area_change_m2": {
+        "count": 169,
+        "types": {
+          "float": 169
+        },
+        "values": {
+          "-0.0": 27,
+          "0.0": 95,
+          "0.0003": 7,
+          "0.0008": 7,
+          "0.0001": 1
+        },
+        "other_values": 32
+      },
+      "InteriorGS/room.meta/boundary_invalid": {
+        "count": 2,
+        "types": {
+          "bool": 2
+        },
+        "values": {
+          "true": 2
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/uid": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/source": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/subset": {
+        "count": 1334,
+        "types": {
+          "NoneType": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/group": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/room_type": {
+        "count": 1334,
+        "types": {
+          "NoneType": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/boundary": {
+        "count": 1334,
+        "types": {
+          "list": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/boundary_type": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {
+          "\"hull\"": 1334
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/height": {
+        "count": 1334,
+        "types": {
+          "NoneType": 1334
+        },
+        "values": {
+          "null": 1334
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/objects": {
+        "count": 1334,
+        "types": {
+          "list": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room/meta": {
+        "count": 1334,
+        "types": {
+          "dict": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/n_tilted": {
+        "count": 1334,
+        "types": {
+          "int": 1334
+        },
+        "values": {
+          "9": 70,
+          "8": 57,
+          "6": 90,
+          "14": 28,
+          "12": 28
+        },
+        "other_values": 1061
+      },
+      "InternScenes_3rscan/room.meta/n_incomplete": {
+        "count": 1334,
+        "types": {
+          "int": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/room_id": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/scene_id": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/source_layout": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/source_dataset": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/is_true_room": {
+        "count": 1334,
+        "types": {
+          "bool": 1334
+        },
+        "values": {
+          "false": 1334
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/tilt_tol_deg": {
+        "count": 1334,
+        "types": {
+          "float": 1334
+        },
+        "values": {
+          "5.0": 1334
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/front_known": {
+        "count": 1334,
+        "types": {
+          "bool": 1334
+        },
+        "values": {
+          "true": 1334
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/n_permuted_axes": {
+        "count": 1334,
+        "types": {
+          "int": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/scan_id": {
+        "count": 1334,
+        "types": {
+          "str": 1334
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/room.meta/is_reference_scan": {
+        "count": 1334,
+        "types": {
+          "bool": 1334
+        },
+        "values": {
+          "false": 902,
+          "true": 432
+        },
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/id": {
+        "count": 38867,
+        "types": {
+          "str": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/category": {
+        "count": 38867,
+        "types": {
+          "str": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/size": {
+        "count": 38867,
+        "types": {
+          "list": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/pos": {
+        "count": 38867,
+        "types": {
+          "list": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/yaw": {
+        "count": 38867,
+        "types": {
+          "float": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/anchor": {
+        "count": 38867,
+        "types": {
+          "NoneType": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/parent": {
+        "count": 38867,
+        "types": {
+          "NoneType": 38867
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_3rscan/objects/tilted": {
+        "count": 38867,
+        "types": {
+          "bool": 38867
+        },
+        "values": {
+          "false": 29045,
+          "true": 9822
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/uid": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/source": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/subset": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/group": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/room_type": {
+        "count": 5040,
+        "types": {
+          "NoneType": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/boundary": {
+        "count": 5040,
+        "types": {
+          "list": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/boundary_type": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {
+          "\"hull\"": 5040
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/height": {
+        "count": 5040,
+        "types": {
+          "NoneType": 5040
+        },
+        "values": {
+          "null": 5040
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/objects": {
+        "count": 5040,
+        "types": {
+          "list": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room/meta": {
+        "count": 5040,
+        "types": {
+          "dict": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/n_tilted": {
+        "count": 5040,
+        "types": {
+          "int": 5040
+        },
+        "values": {
+          "0": 907,
+          "12": 37,
+          "10": 76,
+          "6": 272,
+          "11": 47
+        },
+        "other_values": 3701
+      },
+      "InternScenes_arkit/room.meta/n_incomplete": {
+        "count": 5040,
+        "types": {
+          "int": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/room_id": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/scene_id": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/source_layout": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/source_dataset": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/is_true_room": {
+        "count": 5040,
+        "types": {
+          "bool": 5040
+        },
+        "values": {
+          "false": 5040
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/tilt_tol_deg": {
+        "count": 5040,
+        "types": {
+          "float": 5040
+        },
+        "values": {
+          "5.0": 5040
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/front_known": {
+        "count": 5040,
+        "types": {
+          "bool": 5040
+        },
+        "values": {
+          "true": 5040
+        },
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/n_permuted_axes": {
+        "count": 5040,
+        "types": {
+          "int": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/video_id": {
+        "count": 5040,
+        "types": {
+          "str": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/visit_id": {
+        "count": 5040,
+        "types": {
+          "NoneType": 8,
+          "str": 5032
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/room.meta/group_aliases": {
+        "count": 5040,
+        "types": {
+          "list": 5040
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/id": {
+        "count": 111968,
+        "types": {
+          "str": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/category": {
+        "count": 111968,
+        "types": {
+          "str": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/size": {
+        "count": 111968,
+        "types": {
+          "list": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/pos": {
+        "count": 111968,
+        "types": {
+          "list": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/yaw": {
+        "count": 111968,
+        "types": {
+          "float": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/anchor": {
+        "count": 111968,
+        "types": {
+          "NoneType": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/parent": {
+        "count": 111968,
+        "types": {
+          "NoneType": 111968
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_arkit/objects/tilted": {
+        "count": 111968,
+        "types": {
+          "bool": 111968
+        },
+        "values": {
+          "false": 95344,
+          "true": 16624
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room/uid": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/source": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/subset": {
+        "count": 14089,
+        "types": {
+          "NoneType": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/group": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/room_type": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/boundary": {
+        "count": 14089,
+        "types": {
+          "list": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/boundary_type": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {
+          "\"polygon\"": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room/height": {
+        "count": 14089,
+        "types": {
+          "NoneType": 14089
+        },
+        "values": {
+          "null": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room/objects": {
+        "count": 14089,
+        "types": {
+          "list": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room/meta": {
+        "count": 14089,
+        "types": {
+          "dict": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/n_tilted": {
+        "count": 14089,
+        "types": {
+          "int": 14089
+        },
+        "values": {
+          "0": 13567,
+          "1": 370,
+          "2": 86,
+          "3": 32,
+          "4": 11
+        },
+        "other_values": 23
+      },
+      "InternScenes_gen/room.meta/n_incomplete": {
+        "count": 14089,
+        "types": {
+          "int": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/room_id": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/scene_id": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/source_layout": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/source_dataset": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/is_true_room": {
+        "count": 14089,
+        "types": {
+          "bool": 14089
+        },
+        "values": {
+          "true": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/tilt_tol_deg": {
+        "count": 14089,
+        "types": {
+          "float": 14089
+        },
+        "values": {
+          "5.0": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/front_known": {
+        "count": 14089,
+        "types": {
+          "bool": 14089
+        },
+        "values": {
+          "true": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/n_permuted_axes": {
+        "count": 14089,
+        "types": {
+          "int": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/asset_source": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {
+          "\"Infinigen\"": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/boundary_simplify_m": {
+        "count": 14089,
+        "types": {
+          "float": 14089
+        },
+        "values": {
+          "0.01": 14089
+        },
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/floor_z": {
+        "count": 14089,
+        "types": {
+          "float": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/room.meta/floor_z_source": {
+        "count": 14089,
+        "types": {
+          "str": 14089
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/id": {
+        "count": 568601,
+        "types": {
+          "str": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/category": {
+        "count": 568601,
+        "types": {
+          "str": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/size": {
+        "count": 568601,
+        "types": {
+          "list": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/pos": {
+        "count": 568601,
+        "types": {
+          "list": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/yaw": {
+        "count": 568601,
+        "types": {
+          "float": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/anchor": {
+        "count": 568601,
+        "types": {
+          "NoneType": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/parent": {
+        "count": 568601,
+        "types": {
+          "NoneType": 568601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_gen/objects/tilted": {
+        "count": 568601,
+        "types": {
+          "bool": 568601
+        },
+        "values": {
+          "false": 567758,
+          "true": 843
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/uid": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/source": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/subset": {
+        "count": 1601,
+        "types": {
+          "NoneType": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/group": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/room_type": {
+        "count": 1601,
+        "types": {
+          "NoneType": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/boundary": {
+        "count": 1601,
+        "types": {
+          "list": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/boundary_type": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {
+          "\"hull\"": 1601
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/height": {
+        "count": 1601,
+        "types": {
+          "NoneType": 1601
+        },
+        "values": {
+          "null": 1601
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/objects": {
+        "count": 1601,
+        "types": {
+          "list": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room/meta": {
+        "count": 1601,
+        "types": {
+          "dict": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/n_tilted": {
+        "count": 1601,
+        "types": {
+          "int": 1601
+        },
+        "values": {
+          "6": 72,
+          "1": 289,
+          "0": 542,
+          "2": 171,
+          "3": 125
+        },
+        "other_values": 402
+      },
+      "InternScenes_mp3d/room.meta/n_incomplete": {
+        "count": 1601,
+        "types": {
+          "int": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/room_id": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/scene_id": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/source_layout": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/source_dataset": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/is_true_room": {
+        "count": 1601,
+        "types": {
+          "bool": 1601
+        },
+        "values": {
+          "false": 1601
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/tilt_tol_deg": {
+        "count": 1601,
+        "types": {
+          "float": 1601
+        },
+        "values": {
+          "5.0": 1601
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/front_known": {
+        "count": 1601,
+        "types": {
+          "bool": 1601
+        },
+        "values": {
+          "true": 1601
+        },
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/n_permuted_axes": {
+        "count": 1601,
+        "types": {
+          "int": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/room.meta/region": {
+        "count": 1601,
+        "types": {
+          "str": 1601
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/id": {
+        "count": 29637,
+        "types": {
+          "str": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/category": {
+        "count": 29637,
+        "types": {
+          "str": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/size": {
+        "count": 29637,
+        "types": {
+          "list": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/pos": {
+        "count": 29637,
+        "types": {
+          "list": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/yaw": {
+        "count": 29637,
+        "types": {
+          "float": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/anchor": {
+        "count": 29637,
+        "types": {
+          "NoneType": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/parent": {
+        "count": 29637,
+        "types": {
+          "NoneType": 29637
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_mp3d/objects/tilted": {
+        "count": 29637,
+        "types": {
+          "bool": 29637
+        },
+        "values": {
+          "true": 5072,
+          "false": 24565
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/uid": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/source": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/subset": {
+        "count": 1513,
+        "types": {
+          "NoneType": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/group": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/room_type": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/boundary": {
+        "count": 1513,
+        "types": {
+          "list": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/boundary_type": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {
+          "\"hull\"": 1513
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/height": {
+        "count": 1513,
+        "types": {
+          "NoneType": 1513
+        },
+        "values": {
+          "null": 1513
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/objects": {
+        "count": 1513,
+        "types": {
+          "list": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room/meta": {
+        "count": 1513,
+        "types": {
+          "dict": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/n_tilted": {
+        "count": 1513,
+        "types": {
+          "int": 1513
+        },
+        "values": {
+          "31": 4,
+          "32": 5,
+          "22": 10,
+          "0": 243,
+          "2": 133
+        },
+        "other_values": 1118
+      },
+      "InternScenes_scannet/room.meta/n_incomplete": {
+        "count": 1513,
+        "types": {
+          "int": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/room_id": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/scene_id": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/source_layout": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/source_dataset": {
+        "count": 1513,
+        "types": {
+          "str": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/is_true_room": {
+        "count": 1513,
+        "types": {
+          "bool": 1513
+        },
+        "values": {
+          "false": 1513
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/tilt_tol_deg": {
+        "count": 1513,
+        "types": {
+          "float": 1513
+        },
+        "values": {
+          "5.0": 1513
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/front_known": {
+        "count": 1513,
+        "types": {
+          "bool": 1513
+        },
+        "values": {
+          "true": 1513
+        },
+        "other_values": 0
+      },
+      "InternScenes_scannet/room.meta/n_permuted_axes": {
+        "count": 1513,
+        "types": {
+          "int": 1513
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/id": {
+        "count": 48866,
+        "types": {
+          "str": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/category": {
+        "count": 48866,
+        "types": {
+          "str": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/size": {
+        "count": 48866,
+        "types": {
+          "list": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/pos": {
+        "count": 48866,
+        "types": {
+          "list": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/yaw": {
+        "count": 48866,
+        "types": {
+          "float": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/anchor": {
+        "count": 48866,
+        "types": {
+          "NoneType": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/parent": {
+        "count": 48866,
+        "types": {
+          "NoneType": 48866
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "InternScenes_scannet/objects/tilted": {
+        "count": 48866,
+        "types": {
+          "bool": 48866
+        },
+        "values": {
+          "false": 37539,
+          "true": 11327
+        },
+        "other_values": 0
+      },
+      "MansionWorld/room/uid": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/source": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/subset": {
+        "count": 27884,
+        "types": {
+          "NoneType": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/group": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/room_type": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/boundary": {
+        "count": 27884,
+        "types": {
+          "list": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/boundary_type": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {
+          "\"polygon\"": 27884
+        },
+        "other_values": 0
+      },
+      "MansionWorld/room/height": {
+        "count": 27884,
+        "types": {
+          "float": 27884
+        },
+        "values": {
+          "3.2": 12906,
+          "3.0": 14269,
+          "3.3": 274,
+          "3.5": 287,
+          "2.8": 32
+        },
+        "other_values": 116
+      },
+      "MansionWorld/room/objects": {
+        "count": 27884,
+        "types": {
+          "list": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room/meta": {
+        "count": 27884,
+        "types": {
+          "dict": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/n_tilted": {
+        "count": 27884,
+        "types": {
+          "int": 27884
+        },
+        "values": {
+          "0": 27884
+        },
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/n_incomplete": {
+        "count": 27884,
+        "types": {
+          "int": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/room_id": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/building": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/room_type_src": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/geometry_hash": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/front_known": {
+        "count": 27884,
+        "types": {
+          "bool": 27884
+        },
+        "values": {
+          "true": 27884
+        },
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/n_openings_dropped": {
+        "count": 27884,
+        "types": {
+          "int": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/surface_objects_excluded": {
+        "count": 27884,
+        "types": {
+          "int": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/n_permuted_axes": {
+        "count": 27884,
+        "types": {
+          "int": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/room.meta/license_note": {
+        "count": 27884,
+        "types": {
+          "str": 27884
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/id": {
+        "count": 670130,
+        "types": {
+          "str": 670130
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/category": {
+        "count": 670130,
+        "types": {
+          "str": 670130
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/size": {
+        "count": 670130,
+        "types": {
+          "list": 670130
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/pos": {
+        "count": 670130,
+        "types": {
+          "list": 670130
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/yaw": {
+        "count": 670130,
+        "types": {
+          "float": 670130
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/anchor": {
+        "count": 670130,
+        "types": {
+          "str": 572532,
+          "NoneType": 97598
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/parent": {
+        "count": 670130,
+        "types": {
+          "NoneType": 502851,
+          "str": 167279
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/tilted": {
+        "count": 670130,
+        "types": {
+          "bool": 670130
+        },
+        "values": {
+          "false": 670130
+        },
+        "other_values": 0
+      },
+      "MansionWorld/objects/desc": {
+        "count": 572532,
+        "types": {
+          "NoneType": 87016,
+          "str": 485516
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MansionWorld/objects/structure": {
+        "count": 97598,
+        "types": {
+          "bool": 97598
+        },
+        "values": {
+          "true": 97598
+        },
+        "other_values": 0
+      },
+      "MultiScan/room/uid": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/source": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/subset": {
+        "count": 273,
+        "types": {
+          "NoneType": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/group": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/room_type": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/boundary": {
+        "count": 273,
+        "types": {
+          "list": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/boundary_type": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {
+          "\"proxy\"": 151,
+          "\"hull\"": 122
+        },
+        "other_values": 0
+      },
+      "MultiScan/room/height": {
+        "count": 273,
+        "types": {
+          "float": 253,
+          "NoneType": 20
+        },
+        "values": {
+          "2.532151937484741": 1,
+          "2.5071909427642827": 1,
+          "2.5346280932426453": 1,
+          "2.5364235043525696": 1,
+          "2.325102925300598": 1
+        },
+        "other_values": 268
+      },
+      "MultiScan/room/objects": {
+        "count": 273,
+        "types": {
+          "list": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room/meta": {
+        "count": 273,
+        "types": {
+          "dict": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/n_tilted": {
+        "count": 273,
+        "types": {
+          "int": 273
+        },
+        "values": {
+          "0": 251,
+          "1": 15,
+          "2": 1,
+          "9": 1,
+          "20": 2
+        },
+        "other_values": 3
+      },
+      "MultiScan/room.meta/n_incomplete": {
+        "count": 273,
+        "types": {
+          "int": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/room_id": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/scan_id": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/scene_id": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/device": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/floor_z": {
+        "count": 273,
+        "types": {
+          "float": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/floor_z_source": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/floor_height": {
+        "count": 273,
+        "types": {
+          "float": 273
+        },
+        "values": {
+          "-1.2302119731903072": 1,
+          "-1.2088259458541866": 1,
+          "-1.2445360422134395": 1,
+          "-1.216403007507324": 1,
+          "-1.1067340373992913": 1
+        },
+        "other_values": 268
+      },
+      "MultiScan/room.meta/poly_source": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/boundary_source": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {
+          "\"convex hull of floor slabs + wall segments + floor objects outside it\"": 151,
+          "\"convex hull of floor slabs + wall segments\"": 122
+        },
+        "other_values": 0
+      },
+      "MultiScan/room.meta/n_floor_objects_outside_structure": {
+        "count": 273,
+        "types": {
+          "int": 273
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/room.meta/height_reliable": {
+        "count": 273,
+        "types": {
+          "bool": 273
+        },
+        "values": {
+          "true": 253,
+          "false": 20
+        },
+        "other_values": 0
+      },
+      "MultiScan/room.meta/front_known": {
+        "count": 273,
+        "types": {
+          "bool": 273
+        },
+        "values": {
+          "true": 273
+        },
+        "other_values": 0
+      },
+      "MultiScan/room.meta/front_source": {
+        "count": 273,
+        "types": {
+          "str": 273
+        },
+        "values": {
+          "\"annotated front vector\"": 273
+        },
+        "other_values": 0
+      },
+      "MultiScan/room.meta/tilt_tol_deg": {
+        "count": 273,
+        "types": {
+          "float": 273
+        },
+        "values": {
+          "5.0": 273
+        },
+        "other_values": 0
+      },
+      "MultiScan/room.meta/n_front_vertical": {
+        "count": 273,
+        "types": {
+          "int": 273
+        },
+        "values": {
+          "0": 202,
+          "1": 11,
+          "4": 9,
+          "5": 11,
+          "3": 21
+        },
+        "other_values": 19
+      },
+      "MultiScan/objects/id": {
+        "count": 10957,
+        "types": {
+          "str": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/category": {
+        "count": 10957,
+        "types": {
+          "str": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/size": {
+        "count": 10957,
+        "types": {
+          "list": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/pos": {
+        "count": 10957,
+        "types": {
+          "list": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/yaw": {
+        "count": 10957,
+        "types": {
+          "float": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/anchor": {
+        "count": 10957,
+        "types": {
+          "NoneType": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/parent": {
+        "count": 10957,
+        "types": {
+          "NoneType": 10957
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "MultiScan/objects/tilted": {
+        "count": 10957,
+        "types": {
+          "bool": 10957
+        },
+        "values": {
+          "false": 10837,
+          "true": 120
+        },
+        "other_values": 0
+      },
+      "MultiScan/objects/structure": {
+        "count": 2673,
+        "types": {
+          "bool": 2673
+        },
+        "values": {
+          "true": 2673
+        },
+        "other_values": 0
+      },
+      "MultiScan/objects/front_known": {
+        "count": 283,
+        "types": {
+          "bool": 283
+        },
+        "values": {
+          "false": 283
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/uid": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/source": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/subset": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/group": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/room_type": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/boundary": {
+        "count": 9977,
+        "types": {
+          "list": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/boundary_type": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {
+          "\"polygon\"": 9977
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/height": {
+        "count": 9977,
+        "types": {
+          "NoneType": 9977
+        },
+        "values": {
+          "null": 9977
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/objects": {
+        "count": 9977,
+        "types": {
+          "list": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room/meta": {
+        "count": 9977,
+        "types": {
+          "dict": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/n_tilted": {
+        "count": 9977,
+        "types": {
+          "int": 9977
+        },
+        "values": {
+          "0": 9977
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/n_incomplete": {
+        "count": 9977,
+        "types": {
+          "int": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/room_id": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/source_file": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/front_known": {
+        "count": 9977,
+        "types": {
+          "bool": 9977
+        },
+        "values": {
+          "true": 9977
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/room.meta/size_note": {
+        "count": 9977,
+        "types": {
+          "str": 9977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/id": {
+        "count": 66855,
+        "types": {
+          "str": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/category": {
+        "count": 66855,
+        "types": {
+          "str": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/size": {
+        "count": 66855,
+        "types": {
+          "list": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/pos": {
+        "count": 66855,
+        "types": {
+          "list": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/yaw": {
+        "count": 66855,
+        "types": {
+          "float": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/anchor": {
+        "count": 66855,
+        "types": {
+          "NoneType": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/parent": {
+        "count": 66855,
+        "types": {
+          "NoneType": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/tilted": {
+        "count": 66855,
+        "types": {
+          "bool": 66855
+        },
+        "values": {
+          "false": 66855
+        },
+        "other_values": 0
+      },
+      "OptiScene_holodeck/objects/desc": {
+        "count": 66855,
+        "types": {
+          "str": 66855
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/uid": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/source": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/subset": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/group": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/room_type": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/boundary": {
+        "count": 10027,
+        "types": {
+          "list": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/boundary_type": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {
+          "\"polygon\"": 10027
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/room/height": {
+        "count": 10027,
+        "types": {
+          "float": 10027
+        },
+        "values": {
+          "2.7": 10027
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/room/objects": {
+        "count": 10027,
+        "types": {
+          "list": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room/meta": {
+        "count": 10027,
+        "types": {
+          "dict": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/n_tilted": {
+        "count": 10027,
+        "types": {
+          "int": 10027
+        },
+        "values": {
+          "0": 935,
+          "4": 731,
+          "11": 317,
+          "5": 672,
+          "9": 441
+        },
+        "other_values": 6931
+      },
+      "SAGE-10k/room.meta/n_incomplete": {
+        "count": 10027,
+        "types": {
+          "int": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/room_id": {
+        "count": 10027,
+        "types": {
+          "NoneType": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/scene_id": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/room_index": {
+        "count": 10027,
+        "types": {
+          "int": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/front_known": {
+        "count": 10027,
+        "types": {
+          "bool": 10027
+        },
+        "values": {
+          "true": 10027
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/tilt_threshold_deg": {
+        "count": 10027,
+        "types": {
+          "float": 10027
+        },
+        "values": {
+          "2.0": 10027
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/n_tilt_noise_zeroed": {
+        "count": 10027,
+        "types": {
+          "int": 10027
+        },
+        "values": {
+          "19": 211,
+          "16": 189,
+          "40": 156,
+          "35": 176,
+          "23": 224
+        },
+        "other_values": 9071
+      },
+      "SAGE-10k/room.meta/anchor_source": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/room.meta/building_style": {
+        "count": 10027,
+        "types": {
+          "str": 10027
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/id": {
+        "count": 863484,
+        "types": {
+          "str": 863484
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/category": {
+        "count": 863484,
+        "types": {
+          "str": 863484
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/size": {
+        "count": 863484,
+        "types": {
+          "list": 863484
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/pos": {
+        "count": 863484,
+        "types": {
+          "list": 863484
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/yaw": {
+        "count": 863484,
+        "types": {
+          "float": 863484
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/anchor": {
+        "count": 863484,
+        "types": {
+          "str": 853251,
+          "NoneType": 10233
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/parent": {
+        "count": 863484,
+        "types": {
+          "NoneType": 440633,
+          "str": 422851
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/tilted": {
+        "count": 863484,
+        "types": {
+          "bool": 863484
+        },
+        "values": {
+          "false": 782138,
+          "true": 81346
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/objects/desc": {
+        "count": 853428,
+        "types": {
+          "str": 853428
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/structure": {
+        "count": 10056,
+        "types": {
+          "bool": 10056
+        },
+        "values": {
+          "true": 10056
+        },
+        "other_values": 0
+      },
+      "SAGE-10k/objects/tilt_deg": {
+        "count": 81346,
+        "types": {
+          "float": 81346
+        },
+        "values": {
+          "2.3896112148462847": 1,
+          "2.1255545850651933": 1,
+          "7.600952535919309": 1,
+          "3.99416413307215": 1,
+          "14.375319512153183": 1
+        },
+        "other_values": 81341
+      },
+      "SAGE-10k/objects/rot_src": {
+        "count": 82583,
+        "types": {
+          "dict": 82583
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SAGE-10k/objects/z_lift": {
+        "count": 76836,
+        "types": {
+          "float": 76836
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/uid": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/source": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/subset": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/group": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/room_type": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/boundary": {
+        "count": 1506,
+        "types": {
+          "list": 1500,
+          "NoneType": 6
+        },
+        "values": {
+          "null": 6
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/room/boundary_type": {
+        "count": 1506,
+        "types": {
+          "str": 1500,
+          "NoneType": 6
+        },
+        "values": {
+          "\"polygon\"": 994,
+          "\"proxy\"": 506,
+          "null": 6
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/room/height": {
+        "count": 1506,
+        "types": {
+          "float": 636,
+          "NoneType": 870
+        },
+        "values": {
+          "3.0232274187146686": 1,
+          "3.0769095311407": 1,
+          "3.13458646601066": 1,
+          "null": 870,
+          "3.1680210679769516": 1
+        },
+        "other_values": 632
+      },
+      "Scan2CAD/room/objects": {
+        "count": 1506,
+        "types": {
+          "list": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room/meta": {
+        "count": 1506,
+        "types": {
+          "dict": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/n_tilted": {
+        "count": 1506,
+        "types": {
+          "int": 1506
+        },
+        "values": {
+          "1": 228,
+          "4": 14,
+          "2": 70,
+          "5": 9,
+          "0": 1145
+        },
+        "other_values": 40
+      },
+      "Scan2CAD/room.meta/n_incomplete": {
+        "count": 1506,
+        "types": {
+          "int": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/room_id": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/scene_id": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/front_known": {
+        "count": 1506,
+        "types": {
+          "bool": 1506
+        },
+        "values": {
+          "true": 1506
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/is_true_room": {
+        "count": 1506,
+        "types": {
+          "bool": 1506
+        },
+        "values": {
+          "false": 1506
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/boundary_source": {
+        "count": 1506,
+        "types": {
+          "str": 1500,
+          "NoneType": 6
+        },
+        "values": {
+          "\"scenecad_floor_plane\"": 994,
+          "\"scannet_floor_vertex_convex_hull\"": 506,
+          "null": 6
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/source_coverage": {
+        "count": 1506,
+        "types": {
+          "str": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/floor_z": {
+        "count": 1506,
+        "types": {
+          "float": 1468,
+          "NoneType": 38
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/room.meta/n_floor_snapped": {
+        "count": 1506,
+        "types": {
+          "int": 1506
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/id": {
+        "count": 14149,
+        "types": {
+          "str": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/category": {
+        "count": 14149,
+        "types": {
+          "str": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/size": {
+        "count": 14149,
+        "types": {
+          "list": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/pos": {
+        "count": 14149,
+        "types": {
+          "list": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/yaw": {
+        "count": 14149,
+        "types": {
+          "float": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/anchor": {
+        "count": 14149,
+        "types": {
+          "NoneType": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/parent": {
+        "count": 14149,
+        "types": {
+          "NoneType": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Scan2CAD/objects/tilted": {
+        "count": 14149,
+        "types": {
+          "bool": 14149
+        },
+        "values": {
+          "false": 13509,
+          "true": 640
+        },
+        "other_values": 0
+      },
+      "Scan2CAD/objects/sym": {
+        "count": 14149,
+        "types": {
+          "str": 14149
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/uid": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/source": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/subset": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/group": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/room_type": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/boundary": {
+        "count": 364,
+        "types": {
+          "list": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/boundary_type": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {
+          "\"polygon\"": 364
+        },
+        "other_values": 0
+      },
+      "SceneSmith/room/height": {
+        "count": 364,
+        "types": {
+          "float": 364
+        },
+        "values": {
+          "2.70000005": 107,
+          "2.5999999": 26,
+          "2.79999995": 69,
+          "2.9000001": 1,
+          "3.20000005": 46
+        },
+        "other_values": 115
+      },
+      "SceneSmith/room/objects": {
+        "count": 364,
+        "types": {
+          "list": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room/meta": {
+        "count": 364,
+        "types": {
+          "dict": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/n_tilted": {
+        "count": 364,
+        "types": {
+          "int": 364
+        },
+        "values": {
+          "1": 43,
+          "5": 23,
+          "0": 57,
+          "2": 39,
+          "9": 12
+        },
+        "other_values": 190
+      },
+      "SceneSmith/room.meta/n_incomplete": {
+        "count": 364,
+        "types": {
+          "int": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/room_id": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/eval_only": {
+        "count": 364,
+        "types": {
+          "bool": 364
+        },
+        "values": {
+          "true": 364
+        },
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/front_known": {
+        "count": 364,
+        "types": {
+          "bool": 364
+        },
+        "values": {
+          "true": 364
+        },
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/file": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/scene_id": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/parent_scene_id": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/tilt_threshold_deg": {
+        "count": 364,
+        "types": {
+          "float": 364
+        },
+        "values": {
+          "2.0": 364
+        },
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/n_tilt_noise_zeroed": {
+        "count": 364,
+        "types": {
+          "int": 364
+        },
+        "values": {
+          "22": 14,
+          "24": 8,
+          "18": 8,
+          "12": 7,
+          "14": 7
+        },
+        "other_values": 320
+      },
+      "SceneSmith/room.meta/room_type_source": {
+        "count": 364,
+        "types": {
+          "str": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/room.meta/n_windows_unlocated": {
+        "count": 364,
+        "types": {
+          "int": 364
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/id": {
+        "count": 19360,
+        "types": {
+          "str": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/category": {
+        "count": 19360,
+        "types": {
+          "str": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/size": {
+        "count": 19360,
+        "types": {
+          "list": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/pos": {
+        "count": 19360,
+        "types": {
+          "list": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/yaw": {
+        "count": 19360,
+        "types": {
+          "float": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/anchor": {
+        "count": 19360,
+        "types": {
+          "str": 7884,
+          "NoneType": 11476
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/parent": {
+        "count": 19360,
+        "types": {
+          "NoneType": 19360
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SceneSmith/objects/tilted": {
+        "count": 19360,
+        "types": {
+          "bool": 19360
+        },
+        "values": {
+          "false": 16507,
+          "true": 2853
+        },
+        "other_values": 0
+      },
+      "SceneSmith/objects/asset_group": {
+        "count": 19360,
+        "types": {
+          "str": 19360
+        },
+        "values": {
+          "\"furniture\"": 2935,
+          "\"wall_mounted\"": 3011,
+          "\"ceiling_mounted\"": 1938,
+          "\"manipuland\"": 11476
+        },
+        "other_values": 0
+      },
+      "SceneSmith/objects/tilt_deg": {
+        "count": 2853,
+        "types": {
+          "float": 2853
+        },
+        "values": {
+          "4.931600731617475": 1,
+          "2.341580811704355": 1,
+          "2.9339931072858763": 1,
+          "3.61775102540792": 1,
+          "23.996779712075654": 1
+        },
+        "other_values": 2848
+      },
+      "SceneSmith/objects/rot_src": {
+        "count": 3016,
+        "types": {
+          "dict": 3016
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/uid": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/source": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/subset": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/group": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/room_type": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/boundary": {
+        "count": 48,
+        "types": {
+          "list": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/boundary_type": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {
+          "\"polygon\"": 48
+        },
+        "other_values": 0
+      },
+      "SpatialGen/room/height": {
+        "count": 48,
+        "types": {
+          "float": 48
+        },
+        "values": {
+          "2.7": 15,
+          "2.8": 30,
+          "2.605": 1,
+          "2.5": 1,
+          "2.87": 1
+        },
+        "other_values": 0
+      },
+      "SpatialGen/room/objects": {
+        "count": 48,
+        "types": {
+          "list": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room/meta": {
+        "count": 48,
+        "types": {
+          "dict": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room.meta/n_tilted": {
+        "count": 48,
+        "types": {
+          "int": 48
+        },
+        "values": {
+          "0": 40,
+          "1": 8
+        },
+        "other_values": 0
+      },
+      "SpatialGen/room.meta/n_incomplete": {
+        "count": 48,
+        "types": {
+          "int": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room.meta/room_id": {
+        "count": 48,
+        "types": {
+          "str": 48
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/room.meta/eval_only": {
+        "count": 48,
+        "types": {
+          "bool": 48
+        },
+        "values": {
+          "true": 48
+        },
+        "other_values": 0
+      },
+      "SpatialGen/room.meta/front_known": {
+        "count": 48,
+        "types": {
+          "bool": 48
+        },
+        "values": {
+          "true": 48
+        },
+        "other_values": 0
+      },
+      "SpatialGen/objects/id": {
+        "count": 977,
+        "types": {
+          "str": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/category": {
+        "count": 977,
+        "types": {
+          "str": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/size": {
+        "count": 977,
+        "types": {
+          "list": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/pos": {
+        "count": 977,
+        "types": {
+          "list": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/yaw": {
+        "count": 977,
+        "types": {
+          "float": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/anchor": {
+        "count": 977,
+        "types": {
+          "NoneType": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/parent": {
+        "count": 977,
+        "types": {
+          "NoneType": 977
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialGen/objects/tilted": {
+        "count": 977,
+        "types": {
+          "bool": 977
+        },
+        "values": {
+          "false": 969,
+          "true": 8
+        },
+        "other_values": 0
+      },
+      "SpatialLM/room/uid": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/source": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/subset": {
+        "count": 54376,
+        "types": {
+          "NoneType": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/group": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/room_type": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/boundary": {
+        "count": 54376,
+        "types": {
+          "list": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/boundary_type": {
+        "count": 54376,
+        "types": {
+          "str": 54304,
+          "NoneType": 72
+        },
+        "values": {
+          "\"polygon\"": 54304,
+          "null": 72
+        },
+        "other_values": 0
+      },
+      "SpatialLM/room/height": {
+        "count": 54376,
+        "types": {
+          "float": 54376
+        },
+        "values": {
+          "2.5999": 1037,
+          "2.6": 1096,
+          "2.8": 14077,
+          "2.75": 446,
+          "2.7499": 508
+        },
+        "other_values": 37212
+      },
+      "SpatialLM/room/objects": {
+        "count": 54376,
+        "types": {
+          "list": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room/meta": {
+        "count": 54376,
+        "types": {
+          "dict": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/n_tilted": {
+        "count": 54376,
+        "types": {
+          "int": 54376
+        },
+        "values": {
+          "0": 54376
+        },
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/n_incomplete": {
+        "count": 54376,
+        "types": {
+          "int": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/room_id": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/scene_id": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/front_known": {
+        "count": 54376,
+        "types": {
+          "bool": 54376
+        },
+        "values": {
+          "true": 54376
+        },
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/source_splits": {
+        "count": 54376,
+        "types": {
+          "list": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/view": {
+        "count": 54376,
+        "types": {
+          "str": 54376
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/id": {
+        "count": 679114,
+        "types": {
+          "str": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/category": {
+        "count": 679114,
+        "types": {
+          "str": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/size": {
+        "count": 679114,
+        "types": {
+          "list": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/pos": {
+        "count": 679114,
+        "types": {
+          "list": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/yaw": {
+        "count": 679114,
+        "types": {
+          "float": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/anchor": {
+        "count": 679114,
+        "types": {
+          "NoneType": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/parent": {
+        "count": 679114,
+        "types": {
+          "NoneType": 679114
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/objects/tilted": {
+        "count": 679114,
+        "types": {
+          "bool": 679114
+        },
+        "values": {
+          "false": 679114
+        },
+        "other_values": 0
+      },
+      "SpatialLM/objects/structure": {
+        "count": 170994,
+        "types": {
+          "bool": 170994
+        },
+        "values": {
+          "true": 170994
+        },
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/boundary_repaired": {
+        "count": 2080,
+        "types": {
+          "dict": 2080
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "SpatialLM/room.meta/boundary_invalid": {
+        "count": 72,
+        "types": {
+          "bool": 72
+        },
+        "values": {
+          "true": 72
+        },
+        "other_values": 0
+      },
+      "Structured3D/room/uid": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/source": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/subset": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/group": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/room_type": {
+        "count": 22894,
+        "types": {
+          "str": 19147,
+          "NoneType": 3747
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/boundary": {
+        "count": 22894,
+        "types": {
+          "list": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/boundary_type": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {
+          "\"polygon\"": 22894
+        },
+        "other_values": 0
+      },
+      "Structured3D/room/height": {
+        "count": 22894,
+        "types": {
+          "float": 22894
+        },
+        "values": {
+          "2.8": 19155,
+          "2.7": 821,
+          "3.2": 132,
+          "3.0": 433,
+          "6.0": 120
+        },
+        "other_values": 2233
+      },
+      "Structured3D/room/objects": {
+        "count": 22894,
+        "types": {
+          "list": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room/meta": {
+        "count": 22894,
+        "types": {
+          "dict": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room.meta/n_tilted": {
+        "count": 22894,
+        "types": {
+          "int": 22894
+        },
+        "values": {
+          "0": 20031,
+          "9": 165,
+          "8": 229,
+          "6": 237,
+          "16": 136
+        },
+        "other_values": 2096
+      },
+      "Structured3D/room.meta/n_incomplete": {
+        "count": 22894,
+        "types": {
+          "int": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room.meta/room_id": {
+        "count": 22894,
+        "types": {
+          "str": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room.meta/front_known": {
+        "count": 22894,
+        "types": {
+          "bool": 22894
+        },
+        "values": {
+          "true": 22894
+        },
+        "other_values": 0
+      },
+      "Structured3D/room.meta/room_origin_house_m": {
+        "count": 22894,
+        "types": {
+          "dict": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room.meta/n_nearest_assigned": {
+        "count": 22894,
+        "types": {
+          "int": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/room.meta/n_unknown_category": {
+        "count": 22894,
+        "types": {
+          "int": 22894
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/id": {
+        "count": 452717,
+        "types": {
+          "str": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/category": {
+        "count": 452717,
+        "types": {
+          "str": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/size": {
+        "count": 452717,
+        "types": {
+          "list": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/pos": {
+        "count": 452717,
+        "types": {
+          "list": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/yaw": {
+        "count": 452717,
+        "types": {
+          "float": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/anchor": {
+        "count": 452717,
+        "types": {
+          "NoneType": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/parent": {
+        "count": 452717,
+        "types": {
+          "NoneType": 452717
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/tilted": {
+        "count": 452717,
+        "types": {
+          "bool": 452717
+        },
+        "values": {
+          "false": 421009,
+          "true": 31708
+        },
+        "other_values": 0
+      },
+      "Structured3D/objects/structure": {
+        "count": 65707,
+        "types": {
+          "bool": 65707
+        },
+        "values": {
+          "true": 65707
+        },
+        "other_values": 0
+      },
+      "Structured3D/objects/raw_basis": {
+        "count": 31708,
+        "types": {
+          "list": 31708
+        },
+        "values": {},
+        "other_values": 0
+      },
+      "Structured3D/objects/front_known": {
+        "count": 1834,
+        "types": {
+          "bool": 1834
+        },
+        "values": {
+          "false": 1834
+        },
+        "other_values": 0
+      }
+    },
+    "split_counts": {
+      "train": 144150,
+      "dev": 8167,
+      "test": 8647
+    },
+    "component_count": 56352,
+    "priors": {
+      "full": {
+        "room_count": 124843,
+        "object_count": 1580249,
+        "component_count": 49163,
+        "fixed_excluded_count": 344030,
+        "fitted_uid_sha256": "65e4abfeba4eb8219d9bda5aac8625eef78bdfe3a4e67a23b28f07bd0bdae5e2",
+        "held_out_rooms": 0,
+        "held_out_uid_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "component_sha256": "87fa9089ddde1624ba255c22893f9cf4cfd3cff01c4da4d347fd7dcbb0cc0923"
+      },
+      "0": {
+        "room_count": 100139,
+        "object_count": 1274032,
+        "component_count": 39330,
+        "fixed_excluded_count": 275474,
+        "fitted_uid_sha256": "ee02e6d69c5dc12cb9493c667bc75b9f89084d260507c8e125da0e6e59347849",
+        "held_out_rooms": 24704,
+        "held_out_uid_sha256": "5fc8d55740f4bcfe3ec01df25dca311490ee684f8358e80bac95bc211f22240e",
+        "component_sha256": "ac7a726137640982790d79424de0734d94d068674e76f70310eace2e77347c15"
+      },
+      "1": {
+        "room_count": 100241,
+        "object_count": 1248226,
+        "component_count": 39330,
+        "fixed_excluded_count": 274801,
+        "fitted_uid_sha256": "ff0fbcb916e4f1db36b9f3db94425bcbf26732a71fc1534b47cf5551395bffd6",
+        "held_out_rooms": 24602,
+        "held_out_uid_sha256": "76069ae279360022f6e6353311937d01b0ad0f26f481c2b51bc96ffe24bd3130",
+        "component_sha256": "2062f139ecae3e815afc68496de26374d8195ba90182110e7c2b0ce5eb312cf8"
+      },
+      "2": {
+        "room_count": 100384,
+        "object_count": 1267636,
+        "component_count": 39330,
+        "fixed_excluded_count": 276053,
+        "fitted_uid_sha256": "ee80344bb294cbc545c0fd2543119ba2ba13d49ca9000d2eb4e16903b46741d0",
+        "held_out_rooms": 24459,
+        "held_out_uid_sha256": "d2255718b16ca73c4ae3405f07d5ed647b5dffe409068d603489b76cc8163424",
+        "component_sha256": "3b37261d4c747bc91f4d322370fa4ee640fd1fb2689118ec008b09100eb78739"
+      },
+      "3": {
+        "room_count": 98061,
+        "object_count": 1250911,
+        "component_count": 39331,
+        "fixed_excluded_count": 272589,
+        "fitted_uid_sha256": "b09378e794049983ce8ce1c0f092857325d8f47dc04b8959f56e18639946972f",
+        "held_out_rooms": 26782,
+        "held_out_uid_sha256": "7701568db743a685204a34618099d4a4d1b6f3910d5b701ce12ca58bb18210f9",
+        "component_sha256": "ea7d379ac34c3868ed9af3b61ac3849180ed26e22c620db10581d5c115cec0fc"
+      },
+      "4": {
+        "room_count": 100547,
+        "object_count": 1280191,
+        "component_count": 39331,
+        "fixed_excluded_count": 277203,
+        "fitted_uid_sha256": "214613f95bb7ecee7c6e1de4ae5d48e90e5841e2f4e88c86bde869b0a0cea788",
+        "held_out_rooms": 24296,
+        "held_out_uid_sha256": "16c3cc540e41f03e71319bba53457d1b4ca55abe8bc98d20ecf6521f50f58975",
+        "component_sha256": "5b15dfaf7ec5642a8fa0816b3ce78d7cc4cf7af9396deeb27c69cd1778adf35d"
+      }
+    },
+    "admission_counts": {
+      "train_identities": 144150,
+      "dev_identities": 8167,
+      "test_identities": 8647,
+      "prior_fit_rooms": 124843,
+      "eligible_candidates": 124843,
+      "ineligible_train": 19307,
+      "common_decoder_train": 98923,
+      "failed_candidates": 25920,
+      "dev_retained": 8167,
+      "joint_qualified": 103316,
+      "placement_qualified": 118058
+    }
+  },
+  "median_max_delta": {
+    "absolute": 0.0,
+    "relative": 0.0
+  },
+  "median_tolerance": {
+    "abs": 1e-12,
+    "rel": 1e-12
+  }
+}
