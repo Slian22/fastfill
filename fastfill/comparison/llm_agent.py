@@ -33,6 +33,13 @@ gate, exits 1 if any UID ended API_FAILED). Completion publishes
 llm_raw/records.jsonl and llm_harness/records.jsonl (inference records shape),
 result.json and MANIFEST.json.
 The API key is never logged or printed; stored receipts are redacted.
+
+Amendment 016 (size-fixed regeneration; EXPLORATORY): run --arm placement sends P's system+user messages (train-prior
+sizes) instead of J's, with the same suffix and harness; answers go through enforce_sizes (addendum B2: returned sizes
+are replaced by the request's, supported z recomputed, a size-only difference is not invalid) and then
+infer.parse_prediction(..., 'placement'). --uids FILE runs a subset of the cohort (subset(); the addendum-B pilot
+written by agents_016 pilot). Both are recorded in the identity only when given: the default identity is unchanged.
+gt_request builds P's request with GT sizes (addendum A1 supplementary, llm_open --sizes gt).
 """
 import argparse
 from collections import Counter, defaultdict
@@ -56,6 +63,7 @@ import urllib.request
 
 from fastfill.comparison import infer
 from fastfill.comparison import train_pair_helpers as h
+from fastfill.comparison.contract import messages as contract_messages
 from fastfill.comparison.eval_data import PAPER_STRATA
 from fastfill.scene import norm_room_type
 
@@ -75,6 +83,7 @@ USER_AGENT = 'fastfill-evaluation/1.0'  # The API proxy refused urllib's default
 MAX_STREAM_BYTES = 16 * 1024 * 1024
 CONFIG_KEYS = ('OPENAI_API_KEY', 'OPENAI_BASE_URL', 'OPENAI_MODEL')
 NOT_GENERATED = {'valid': False, 'error': 'NOT_GENERATED', 'placements': None}
+SIZE_TOL = 1e-3  # m: a returned size or z within 1 mm of the request's is not counted as a change (rounding).
 
 
 def _digest(text):
@@ -108,6 +117,86 @@ def build_cohort(data):
                        'sampled_by_source': {s: len(v) for s, v in sampled.items()},
                        'by_source': dict(sorted(Counter(m['source'] for m in meta if m['uid'] in chosen).items()))},
             'uids_sha256': _digest(json.dumps(uids)), 'uids': uids}
+
+
+def subset(cohort, path):
+    """The uids of a --uids FILE (a JSON list, or an object with 'uids') in cohort order; each must be a cohort uid."""
+    value = h.strict_json(Path(path).read_text())
+    uids = value.get('uids') if isinstance(value, dict) else value
+    if (not isinstance(uids, list) or not uids or any(not isinstance(u, str) for u in uids)
+            or len(set(uids)) != len(uids) or not set(uids) <= set(cohort['uids'])):
+        raise ValueError('--uids must list unique cohort uids')
+    chosen = set(uids)
+    return [u for u in cohort['uids'] if u in chosen]
+
+
+def _vec(value):
+    return (isinstance(value, list) and len(value) == 3
+            and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value))
+
+
+def enforce_sizes(text, record):
+    """Addendum B2: (answer with every returned size dropped and each supported object's z set to its parent's top
+    under the request sizes, counts). Floor objects keep their z. Text that is not a placements object, and an answer
+    with nothing to change, come back unchanged (counts None for the former); the parser judges everything else."""
+    try:
+        value, req = h.strict_json(text), h.request(infer._schema_record(record))
+        items = value['placements']
+        if not isinstance(items, list) or not all(isinstance(o, dict) for o in items):
+            raise TypeError('placements')
+    except (ValueError, KeyError, TypeError, AttributeError, RecursionError):
+        return text, None
+    sizes = {o['id']: o['size'] for o in req['objects']}
+    fixed = {o['id']: o for o in req.get('fixed', [])}
+    counts = {'objects': len(items), 'size_returned': 0, 'size_changed': 0, 'z_changed': 0}
+    for o in items:
+        if 'size' in o:
+            size, want = o.pop('size'), sizes.get(o.get('id')) if isinstance(o.get('id'), str) else None
+            counts['size_returned'] += 1
+            counts['size_changed'] += not (_vec(size) and want is not None
+                                           and all(abs(a - b) <= SIZE_TOL for a, b in zip(size, want)))
+    movable = {o['id']: o for o in items if isinstance(o.get('id'), str) and o['id'] in sizes and _vec(o.get('pos'))}
+    bottoms = {}
+
+    def bottom(i, seen):
+        """z after the recompute; None when undefined (bad parent, cycle: left for the parser)."""
+        if i in fixed:
+            return fixed[i]['pos'][2]
+        if i not in movable or i in seen:
+            return None
+        if i not in bottoms:
+            parent = movable[i].get('on')
+            if 'on' not in movable[i]:
+                bottoms[i] = movable[i]['pos'][2]
+            else:
+                below = bottom(parent, seen | {i}) if isinstance(parent, str) else None
+                height = (sizes.get(parent) or fixed.get(parent, {}).get('size')) if below is not None else None
+                bottoms[i] = below + height[2] if height else None
+        return bottoms[i]
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+             if 'on' in movable[i] and z is not None and abs(z - movable[i]['pos'][2]) > 1e-9}
+    for i, z in moved.items():  # After every bottom() call: parents are read before any z is written.
+        counts['z_changed'] += abs(z - movable[i]['pos'][2]) > SIZE_TOL
+        movable[i]['pos'] = [*movable[i]['pos'][:2], z]
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+
+
+def parse(text, record, arm):
+    """infer.parse_prediction; a size-fixed (placement) answer goes through enforce_sizes first (addendum B2)."""
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+
+
+def gt_request(record, room):
+    """P's request with GT sizes in place of the prior (addendum A1 supplementary), built as eval_data builds P's
+    (contract.messages); everything but the sizes must equal P's request."""
+    gt = {**record, 'messages': contract_messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+
+    def sizeless(r):
+        value = h.request(infer._schema_record(r))
+        return {**value, 'objects': [{k: v for k, v in o.items() if k != 'size'} for o in value['objects']]}
+    if gt['messages'][0] != record['messages'][0] or sizeless(gt) != sizeless(record):
+        raise ValueError('GT-size request differs from the P request beyond its sizes')
+    return gt
 
 
 class ApiError(Exception):
@@ -370,7 +459,7 @@ def _solve(run, record, attempt):
             run.halt('API_FAILURE', {'uid': uid, 'attempt': attempt, 'round': round_, 'errors': exc.errors})
             return
         errors += failed
-        schema = infer.parse_prediction(reply['text'], record, 'joint')
+        schema = parse(reply['text'], record, run.args.arm)
         answers.append({'raw': reply['text'], 'schema': schema,
                         **{k: reply[k] for k in ('status', 'incomplete_reason', 'usage', 'latency_seconds', 'tries')}})
         if schema['valid']:
@@ -438,11 +527,11 @@ def _finalize(out, records, receipts, run_hash, calls):
 
 
 def run(args, post=call_api):
-    rows, data = infer.load_eval(args.data, 'joint')
+    rows, data = infer.load_eval(args.data, args.arm)
     cohort = h.strict_json(Path(args.cohort).read_text())
     if cohort != build_cohort(args.data):
         raise ValueError('cohort file differs from its deterministic rebuild')
-    uids = cohort['uids'][:args.limit]
+    uids = (subset(cohort, args.uids) if args.uids else cohort['uids'])[:args.limit]
     by_uid = h._by_uid(rows)
     records = [by_uid[uid] for uid in uids]
     config = load_config(args.env_file)
@@ -451,12 +540,16 @@ def run(args, post=call_api):
     identity = {'arm': 'llm_agent', 'variants': list(VARIANTS),
                 'config': {'model': args.expected_model, 'reasoning_effort': EFFORT,
                            'max_output_tokens': args.max_output_tokens, 'repair_rounds': REPAIRS,
-                           'suffix': SUFFIX, 'input': 'joint_system_user_verbatim_then_suffix_user',
-                           'parser': 'infer.parse_prediction(raw, joint_request, joint)',
-                           'repair_message': 'parser_error_text_only', 'limit': args.limit},
+                           'suffix': SUFFIX, 'input': f'{args.arm}_system_user_verbatim_then_suffix_user',
+                           'parser': ('infer.parse_prediction(raw, joint_request, joint)' if args.arm == 'joint' else
+                                      'infer.parse_prediction(enforce_sizes(raw), placement_request, placement)'),
+                           'repair_message': 'parser_error_text_only', 'limit': args.limit,
+                           **({'request_arm': args.arm} if args.arm != 'joint' else {})},  # Joint identity unchanged.
                 'data': {'manifest_sha256': data['manifest_sha256'],
-                         'joint_requests_sha256': data['files']['joint/requests.jsonl']},
-                'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids)},
+                         f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl']},
+                'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids),
+                           **({'subset': {'sha256': h.sha256(args.uids), 'uids_sha256': _digest(json.dumps(uids))}}
+                              if args.uids else {})},
                 'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(infer.__file__), Path(h.__file__))}}
     run_hash = infer._hash(identity)
     out = Path(args.out)
@@ -509,6 +602,8 @@ def main(argv=None):
         run_parser.add_argument('--' + flag, type=positive, default=default)
     run_parser.add_argument('--limit', type=positive)
     run_parser.add_argument('--require-no-api-failed', action='store_true')
+    run_parser.add_argument('--arm', choices=h.ARMS, default='joint')  # placement: amendment 016 section 2.
+    run_parser.add_argument('--uids', type=Path)  # A subset of the cohort (amendment 016 pilot).
     args = parser.parse_args(argv)
     if args.command == 'cohort':
         value = build_cohort(args.data)

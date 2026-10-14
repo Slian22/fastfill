@@ -1,7 +1,8 @@
 """Open-weight agents O1a-O7 (amendments 003/004/006/007): the API agent's input and harness on offline vLLM.
 
   python -m fastfill.comparison.llm_open run --system O4 --data EVAL --cohort COHORT.json \
-      --model-root MODELS --out RUN [--limit 2 --smoke-gate] [--chunk 256]
+      --model-root MODELS --out RUN [--limit 2 --smoke-gate] [--chunk 256] [--arm placement [--sizes gt]] \
+      [--uids FILE]
   python -m fastfill.comparison.llm_open slurm --system O4 --mode smoke|full   (sbatch resource flags)
   python -m fastfill.comparison.llm_open status --run-root ROOT    (writes ROOT/llm-open-status.json)
 
@@ -32,6 +33,15 @@ Receipts (write-once, one per UID) make reruns resume; invocations.jsonl (fsynce
 llm.chat call and the process wall time for GPU-hours; cost.json summarises them. The run identity
 binds data, cohort, code, the system config (model path, model file hashes, engine and sampling
 settings, chat_template_kwargs) and the vllm/torch/transformers versions.
+
+--arm placement (amendment 016 section 2, size-fixed regeneration): the P request (P's system prompt, user
+JSON with the train-prior sizes) replaces the J request, parsed by llm_agent.parse (addendum B2: returned sizes are
+replaced by the request's and supported z recomputed by llm_agent.enforce_sizes, then
+infer.parse_prediction(..., 'placement')), so sizes come only from the request and a size-only difference is not
+invalid; everything else above is unchanged. --sizes gt (addendum A1 supplementary: O2 on the pilot) sends P's
+request with GT sizes instead (llm_agent.gt_request on rooms.jsonl). --uids FILE runs that subset of the cohort
+(llm_agent.subset; the pilot of addendum A6/B1). The identity records request_arm, request_sizes, the rooms hash
+and the subset only when given: the default (joint) identity is unchanged.
 """
 import argparse
 import importlib.metadata
@@ -170,13 +180,13 @@ def _prompt_tokens(tok, conversation, kwargs):
     return len(prompt) if isinstance(prompt, list) else len(tok.encode(prompt, add_special_tokens=False))
 
 
-def _answer(output, cap, precount, spec, tok, record, latency):
+def _answer(output, cap, precount, spec, tok, record, latency, arm):
     completion = output.outputs[0]
     stopped, capped = completion.finish_reason == 'stop', completion.finish_reason == 'length'
     reasoning, text = split_reasoning(completion.text, spec['split'], spec['thinking'], stopped)
     prompt, generated = len(output.prompt_token_ids), len(completion.token_ids)
     answer_tokens = len(tok.encode(text, add_special_tokens=False)) if text else 0
-    return {'raw': text, 'schema': infer.parse_prediction(text, record, 'joint'), 'reasoning': reasoning,
+    return {'raw': text, 'schema': L.parse(text, record, arm), 'reasoning': reasoning,
             'finish_reason': completion.finish_reason, 'status': 'incomplete' if capped else 'completed',
             'incomplete_reason': 'max_output_tokens' if capped else None,
             'reached_token_cap': capped, 'stopped_on_eos': stopped,
@@ -186,7 +196,7 @@ def _answer(output, cap, precount, spec, tok, record, latency):
             'latency_seconds': latency}
 
 
-def _chunk(llm, params, tok, spec, records, log):
+def _chunk(llm, params, tok, spec, records, log, arm):
     """All rounds for one chunk; returns {uid: receipt body}."""
     by_uid = {r['uid']: r for r in records}
     conversations = {uid: [*r['messages'], {'role': 'user', 'content': L.SUFFIX}] for uid, r in by_uid.items()}
@@ -212,7 +222,7 @@ def _chunk(llm, params, tok, spec, records, log):
         log({'event': 'call', 'round': round_, 'requests': len(jobs), 'wall_seconds': wall})
         active = []
         for (uid, precount, cap), output in zip(jobs, outputs):
-            answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs))
+            answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs), arm)
             answers[uid].append(answer)
             if not answer['schema']['valid'] and round_ < L.REPAIRS:
                 conversations[uid] = [*conversations[uid], {'role': 'assistant', 'content': answer['raw']},
@@ -253,13 +263,19 @@ def _cost(out, system, identity, receipts):
 def run(args, load=load_vllm):
     started = time.monotonic()
     spec = SYSTEMS[args.system]
-    rows, data = infer.load_eval(args.data, 'joint')
+    rows, data = infer.load_eval(args.data, args.arm)
     cohort = h.strict_json(Path(args.cohort).read_text())
     if cohort != L.build_cohort(args.data):
         raise ValueError('cohort file differs from its deterministic rebuild')
-    uids = cohort['uids'][:args.limit]
+    uids = (L.subset(cohort, args.uids) if args.uids else cohort['uids'])[:args.limit]
     by_uid = h._by_uid(rows)
     records = [by_uid[uid] for uid in uids]
+    gt = args.sizes == 'gt'
+    if gt:
+        if args.arm != 'placement':
+            raise ValueError('--sizes gt needs --arm placement')
+        rooms = h._by_uid(h._rows(Path(args.data), 'rooms.jsonl', data['files']['rooms.jsonl']))
+        records = [L.gt_request(record, rooms[record['uid']]) for record in records]
     model = (Path(args.model_root) / spec['model']).resolve()
     files = {p.name: h.sha256(p) for p in sorted(model.iterdir()) if p.is_file() and not p.name.endswith(WEIGHTS)}
     if 'config.json' not in files:
@@ -271,13 +287,19 @@ def run(args, load=load_vllm):
               'sampling': SAMPLING, 'cap': {'base': CAP_BASE, 'per_object': CAP_PER_OBJECT,
                                             'thinking_allowance': THINKING_ALLOWANCE if spec['thinking'] else 0},
               'reasoning_split': spec['split'], 'repair_rounds': L.REPAIRS,
-              'suffix': L.SUFFIX, 'input': 'joint_system_user_verbatim_then_suffix_user',
-              'parser': 'infer.parse_prediction(answer_after_reasoning, joint_request, joint)',
-              'repair_message': 'parser_error_text_only', 'limit': args.limit, 'versions': _versions()}
+              'suffix': L.SUFFIX, 'input': f'{args.arm}_system_user_verbatim_then_suffix_user',
+              'parser': ('infer.parse_prediction(answer_after_reasoning, joint_request, joint)' if args.arm == 'joint'
+                         else 'infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, placement)'),
+              'repair_message': 'parser_error_text_only', 'limit': args.limit, 'versions': _versions(),
+              **({'request_arm': 'placement'} if args.arm == 'placement' else {}),  # Joint identity unchanged.
+              **({'request_sizes': 'gt'} if gt else {})}
     identity = {'arm': 'llm_open', 'variants': list(L.VARIANTS), 'config': config, 'config_sha256': infer._hash(config),
                 'data': {'manifest_sha256': data['manifest_sha256'],
-                         'joint_requests_sha256': data['files']['joint/requests.jsonl']},
-                'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids)},
+                         f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl'],
+                         **({'rooms_sha256': data['files']['rooms.jsonl']} if gt else {})},
+                'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids),
+                           **({'subset': {'sha256': h.sha256(args.uids), 'uids_sha256': L._digest(json.dumps(uids))}}
+                              if args.uids else {})},
                 'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(L.__file__), Path(infer.__file__),
                                                               Path(h.__file__))}}
     run_hash = infer._hash(identity)
@@ -305,7 +327,7 @@ def run(args, load=load_vllm):
         log({'event': 'loaded'})
         for start in range(0, len(pending), args.chunk):
             chunk = pending[start:start + args.chunk]
-            bodies = _chunk(llm, params, tok, spec, chunk, log)
+            bodies = _chunk(llm, params, tok, spec, chunk, log, args.arm)
             for record in chunk:
                 infer.write_once(path(record['uid']), {**{k: record[k] for k in ('uid', 'source', 'group')},
                                                        'run_sha256': run_hash, **bodies[record['uid']]})
@@ -385,6 +407,9 @@ def main(argv=None, load=load_vllm):
     run_parser.add_argument('--limit', type=positive)
     run_parser.add_argument('--chunk', type=positive, default=256)
     run_parser.add_argument('--smoke-gate', action='store_true')
+    run_parser.add_argument('--arm', choices=h.ARMS, default='joint')  # placement: amendment 016 section 2.
+    run_parser.add_argument('--sizes', choices=('prior', 'gt'), default='prior')  # gt: addendum A1 supplementary.
+    run_parser.add_argument('--uids', type=Path)  # A subset of the cohort (amendment 016 pilot).
     slurm.add_argument('--mode', choices=('smoke', 'full'), required=True)
     status.add_argument('--run-root', type=Path, required=True)
     args = parser.parse_args(argv)

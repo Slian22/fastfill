@@ -1,5 +1,6 @@
 """Open-weight agent runner (amendments 003/004); vLLM is replaced by a fake LLM object (no GPU, no network)."""
 import copy
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -36,16 +37,20 @@ class FakeTokenizer:
 
 
 class FakeLLM:
-    """vLLM LLM stand-in: per-UID scripted texts ('{valid}' = the GT answer), or (text, finish_reason)."""
-    def __init__(self, rooms, script=None, default='{valid}', prompt_tokens=100, fail_on_call=None):
-        self.rooms, self.script, self.default = rooms, script or {}, default
+    """vLLM LLM stand-in: per-UID scripted texts ('{valid}' = the GT answer), or (text, finish_reason).
+
+    arm='placement' answers P's request (amendment 016 section 2): '{valid}' is then P's GT answer (no size).
+    """
+    def __init__(self, rooms, script=None, default='{valid}', prompt_tokens=100, fail_on_call=None, arm='joint'):
+        self.rooms, self.script, self.default, self.arm = rooms, script or {}, default, arm
         self.tok, self.fail_on_call, self.calls = FakeTokenizer(prompt_tokens), fail_on_call, []
+        self.key = '_request' if arm == 'joint' else '_placement'
 
     def get_tokenizer(self):
         return self.tok
 
     def uid(self, conversation):
-        matches = [uid for uid, room in self.rooms.items() if conversation[:2] == room['_request']['messages']]
+        matches = [uid for uid, room in self.rooms.items() if conversation[:2] == room[self.key]['messages']]
         assert len(matches) == 1
         return matches[0]
 
@@ -60,7 +65,7 @@ class FakeLLM:
             queue = self.script.setdefault(uid, [])
             item = queue.pop(0) if queue else self.default
             text, finish = item if isinstance(item, tuple) else (item, 'stop')
-            text = text.replace('{valid}', base.target(None, 'joint', self.rooms[uid]))
+            text = text.replace('{valid}', base.target(None, self.arm, self.rooms[uid]))
             outputs.append(SimpleNamespace(prompt_token_ids=[1] * self.tok.length(conversation), outputs=[
                 SimpleNamespace(text=text, token_ids=[1] * (len(text) + 1), finish_reason=finish)]))
         return outputs
@@ -73,6 +78,8 @@ def world(tmp_path):
     rooms = {r['uid']: r for r in map(json.loads, (data / 'rooms.jsonl').read_text().splitlines())}
     for request in map(json.loads, (data / 'joint/requests.jsonl').read_text().splitlines()):
         rooms[request['uid']]['_request'] = request
+    for request in map(json.loads, (data / 'placement/requests.jsonl').read_text().splitlines()):
+        rooms[request['uid']]['_placement'] = request
     for spec in O.SYSTEMS.values():
         model = tmp_path / 'models' / spec['model']
         model.mkdir(parents=True, exist_ok=True)
@@ -449,3 +456,229 @@ def test_submit_refuses_while_an_open_model_chain_is_in_slurm(tmp_path):
     assert run.returncode == 1 and not (tmp_path / 'log').exists()  # Fails closed when Slurm can't be asked.
     subprocess.run(['bash', str(script), str(code), '-', 'O5'], env=env, check=True, capture_output=True)
     assert len((tmp_path / 'log').read_text().splitlines()) == 3  # Empty queue: smoke, full, status.
+
+
+def _identity_shape(receipt):
+    """sha256 of a run identity with its environment-bound values blanked: keys, key order and constants only."""
+    r = copy.deepcopy(receipt)
+    r['config'].update(versions=None, engine={**r['config']['engine'], 'model': None})
+    r['config_sha256'] = r['run_sha256'] = None
+    r['data'] = dict.fromkeys(r['data'])
+    r['cohort'].update(sha256=None, uids_sha256=None)
+    r['code_sha256'] = dict.fromkeys(r['code_sha256'])
+    return hashlib.sha256(json.dumps(r).encode()).hexdigest()
+
+
+# _identity_shape of each system's joint run (--limit 2, this fixture) under llm_open before amendment 016
+# (affcc1fea). The full outputs were also compared then: identical except llm_open.py's own code hash.
+JOINT_IDENTITY_SHAPE = {
+    'O1a': '12c892c4cd65ee883b2d3e4e5db393e3db9d68f00f73c0cd18d259edc8e5d5ff',
+    'O1b': 'e0bfb59630afc9ea34bf80b6dd430f2c97a730e8687fc5043406971119ad19cf',
+    'O2': 'a3e5e1564632f18ee8aa2942d8219fbfb242e506e11d3ed5c3f02c03d2272531',
+    'O3': '4c7b787f1b25f4963f051507e03029805b4bee15a39d59adf7be15a1fb6a3d25',
+    'O4': '3dd84096fb244b850514d8490832d7ec4c99c990012ee73e90fc95e64b6d822c',
+    'O5': 'f77b5de92ab4441c7622016bc42bbef8a3b5c5d68fbd6146aaec773fb4a26153',
+    'O6': 'e2aff6047049a08270ea0c268fee4252f1a1a7951bff27955a4966eb7a75511b',
+    'O7': 'fcc02762ae20d8e42f16de046c6d8322d693dc0dbb79932ad858191177184233',
+}
+
+
+def test_default_joint_identity_is_unchanged_by_the_placement_arm(world):
+    root, rooms = world
+    assert list(JOINT_IDENTITY_SHAPE) == list(O.SYSTEMS)
+    for system, shape in JOINT_IDENTITY_SHAPE.items():
+        for out, extra in ((system, ()), (system + '-explicit', ('--arm', 'joint'))):
+            assert O.main(argv(root, system, out, '--limit', '2', *extra), loader(FakeLLM(rooms))) == 0
+        receipt = (root / system / 'run_receipt.json').read_bytes()
+        assert receipt == (root / (system + '-explicit') / 'run_receipt.json').read_bytes()
+        identity = json.loads(receipt)
+        assert _identity_shape(identity) == shape, system
+        assert 'request_arm' not in identity['config']
+        assert identity['data'] == {'manifest_sha256': h.sha256(root / 'data/MANIFEST.json'),
+                                    'joint_requests_sha256': h.sha256(root / 'data/joint/requests.jsonl')}
+
+
+def test_placement_arm_sends_p_request_and_enforces_its_sizes(world):
+    """Amendment 016 section 2 + addendum B2: P's system+user messages, the same suffix, harness and cap; returned sizes
+    are replaced by the request's before the parser judges, so a size-only difference is not invalid."""
+    root, rooms = world
+    joint_answer = base.target(None, 'joint', rooms['y-0'])  # GT sizes (not the prior): P's own parser rejects it.
+    fake = FakeLLM(rooms, {'y-0': [joint_answer], 'il-bed-1': ['<think>a</think>bad', '<think>b</think>{valid}']},
+                   default='<think>plan</think>{valid}', arm='placement')
+    assert O.main(argv(root, 'O2', 'p', '--arm', 'placement', '--chunk', '10'), loader(fake)) == 0
+    first = [c for c in fake.calls if len(c['messages'][0]) == 3]
+    assert sum(len(c['uids']) for c in first) == 36
+    for call in first:
+        assert call['messages'] == [[*rooms[u]['_placement']['messages'], {'role': 'user', 'content': L.SUFFIX}]
+                                    for u in call['uids']]
+        assert call['kwargs'] == {'enable_thinking': True}
+        assert all(p == {'max_tokens': 1024 + 128 * 2 + 16384, **O.SAMPLING} for p in call['params'])
+    request = rooms['y-0']['_placement']
+    assert 'Use the supplied object sizes' in request['messages'][0]['content']
+    sizes = [o['size'] for o in json.loads(request['messages'][1]['content'])['objects']]
+    assert sizes != [o['size'] for o in rooms['y-0']['objects']]  # The fixture's prior is GT + 0.1, not GT.
+    assert not infer.parse_prediction(joint_answer, request, 'placement')['valid']
+    assert L.parse(joint_answer, request, 'placement')['valid']
+    repairs = [c for c in fake.calls if len(c['messages'][0]) > 3]
+    assert [c['uids'] for c in repairs] == [['il-bed-1']]  # y-0 is valid at once; only the bad answer is repaired.
+    bed = rooms['il-bed-1']['_placement']
+    assert repairs[0]['messages'][0] == [*bed['messages'], {'role': 'user', 'content': L.SUFFIX},
+                                         {'role': 'assistant', 'content': 'bad'},
+                                         {'role': 'user', 'content': L.parse('bad', bed, 'placement')['error']}]
+    result = json.loads((root / 'p/result.json').read_text())
+    assert result['valid_first'] == 35 and result['valid_final'] == 36
+    harness = {r['uid']: r for r in rows(root / 'p/llm_harness/records.jsonl')}
+    assert [p['size'] for p in harness['y-0']['schema']['placements']] == sizes  # Sizes from the request.
+    assert harness['y-0']['raw'] == joint_answer  # The receipt keeps the model's answer as returned.
+    identity = json.loads((root / 'p/run_receipt.json').read_text())
+    config = identity['config']
+    assert config['request_arm'] == 'placement' and config['input'] == 'placement_system_user_verbatim_then_suffix_user'
+    assert config['parser'] == ('infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, '
+                                'placement)')
+    assert 'request_sizes' not in config and 'subset' not in identity['cohort']
+    assert identity['data'] == {'manifest_sha256': h.sha256(root / 'data/MANIFEST.json'),
+                                'placement_requests_sha256': h.sha256(root / 'data/placement/requests.jsonl')}
+    with pytest.raises(ValueError, match='resume identity'):  # A joint invocation never resumes a P run.
+        O.main(argv(root, 'O2', 'p', '--chunk', '10'), loader(FakeLLM(rooms)))
+
+
+def test_pilot_subset_and_gt_sizes_enter_the_identity_only_when_given(world):
+    """Addenda A6/B1 (--uids: a cohort subset, run in cohort order) and A1 (--sizes gt: P's request with GT sizes)."""
+    root, rooms = world
+    cohort = json.loads((root / 'cohort.json').read_text())['uids']
+    (root / 'pilot.json').write_text(json.dumps({'uids': [cohort[7], cohort[2], cohort[30]]}))
+    for uid, room in rooms.items():
+        room['_gt'] = L.gt_request(room['_placement'], room)
+    fake = FakeLLM(rooms, arm='placement')
+    fake.key = '_gt'  # The fake answers only GT-size requests.
+    gt = ('--arm', 'placement', '--sizes', 'gt', '--uids', str(root / 'pilot.json'))
+    assert O.main(argv(root, 'O2', 'gt', *gt), loader(fake)) == 0
+    assert sorted(u for c in fake.calls for u in c['uids']) == sorted([cohort[2], cohort[7], cohort[30]])
+    request = json.loads(rooms[cohort[2]]['_gt']['messages'][1]['content'])
+    assert [o['size'] for o in request['objects']] == [o['size'] for o in rooms[cohort[2]]['objects']]
+    assert rooms[cohort[2]]['_gt']['messages'][0] == rooms[cohort[2]]['_placement']['messages'][0]
+    manifest = json.loads((root / 'gt/MANIFEST.json').read_text())
+    assert manifest['expected_uids'] == [cohort[2], cohort[7], cohort[30]]  # Cohort order.
+    identity = json.loads((root / 'gt/run_receipt.json').read_text())
+    assert identity['config']['request_sizes'] == 'gt' and identity['data']['rooms_sha256'] == h.sha256(
+        root / 'data/rooms.jsonl')
+    assert identity['cohort']['rooms'] == 3 and identity['cohort']['subset'] == {
+        'sha256': h.sha256(root / 'pilot.json'), 'uids_sha256': L._digest(json.dumps(manifest['expected_uids']))}
+    with pytest.raises(ValueError, match='needs --arm placement'):
+        O.main(argv(root, 'O2', 'bad', '--sizes', 'gt'), loader(FakeLLM(rooms)))
+    (root / 'pilot.json').write_text(json.dumps(['not-in-cohort']))
+    with pytest.raises(ValueError, match='unique cohort uids'):
+        O.main(argv(root, 'O2', 'bad2', '--arm', 'placement', '--uids', str(root / 'pilot.json')), loader(fake))
+
+
+def _submit_016(tmp_path):
+    """submit_016_agents.sh with PROJECT_ROOT = tmp_path (inputs made) and stub sbatch/squeue/scontrol in tmp_path/bin;
+    the env python is a stub that prints llm_open's slurm flags and records the agents_016 pilot call."""
+    code, run_root, tmp_path = Path(O.__file__).resolve().parents[2], tmp_path, tmp_path / 'bin'
+    tmp_path.mkdir()
+    helper = (code / 'fastfill/comparison/submit_016_agents.sh').read_text()
+    pin = 'PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill\n'
+    assert helper.count(pin) == 1
+    script = tmp_path / 'submit_016_agents.sh'
+    script.write_text(helper.replace(pin, f'PROJECT_ROOT={run_root}\n'))
+    python = run_root / 'env/bin/python'
+    python.parent.mkdir(parents=True)
+    python.write_text(f'#!/bin/sh\ncase "$*" in *agents_016*) echo "$@" >> "$PILOT_LOG"; exit "${{PILOT_RC:-0}}" ;; esac\n'
+                      f'exec {sys.executable} "$@"\n')
+    python.chmod(0o755)
+    stub = tmp_path / 'sbatch'
+    stub.write_text('#!/bin/sh\necho "$@" >> "$SBATCH_LOG"\nn=$(wc -l < "$SBATCH_LOG")\n'
+                    'if [ "$n" -eq "${FAIL_ON:-0}" ]; then exit 1; fi\necho "$((100 + n));cluster"\n')
+    (tmp_path / 'scontrol').write_text('#!/bin/sh\necho "$@" >> "$SCONTROL_LOG"\n')
+    (tmp_path / 'squeue').write_text('#!/bin/sh\ntest -z "$SQUEUE_FAIL" || exit 1\n'
+                                     'test "$*" = "-h -u me -o %i %j" || exit 3\nprintf "%s" "$SQUEUE_OUT"\n')
+    for name in ('sbatch', 'scontrol', 'squeue'):
+        (tmp_path / name).chmod(0o755)
+    run = run_root / 'runs/unknownsize-20261013'
+    for name in ('eval-data-v1/MANIFEST.json', 'eval-data-v1/placement/requests.jsonl', 'llm-cohort-v1.json',
+                 'infer-joint-002/MANIFEST.json', 'infer-placement-005/MANIFEST.json'):
+        (run / name).parent.mkdir(parents=True, exist_ok=True)
+        (run / name).write_text('{}')
+    env = {'PATH': f'{tmp_path}:/usr/bin:/bin', 'SBATCH_LOG': str(tmp_path / 'log'), 'USER': 'me',
+           'SCONTROL_LOG': str(tmp_path / 'scontrol.log'), 'PILOT_LOG': str(tmp_path / 'pilot.log')}
+    return code, script, run, env
+
+
+def test_submit_016_runs_pilots_first_then_fulls_under_a_gpu_ceiling(tmp_path):
+    code, script, run, env = _submit_016(tmp_path)
+    out = subprocess.run(['bash', str(script), str(code), 'O2', 'O6', 'L'], env=env, capture_output=True, text=True,
+                         check=True)
+    log = (tmp_path / 'bin/log').read_text().splitlines()
+    sb, s = f'{code}/fastfill/comparison/isambard_llm_open.sbatch {code}', f'{code}/fastfill/comparison'
+    pilot, cohort = f'{run}/a016-pilot-v1.json', f'{run}/llm-cohort-v1.json'
+    o2 = O.slurm_flags('O2', 'full').rsplit(' --time=', 1)[0]
+    o6 = O.slurm_flags('O6', 'full').rsplit(' --time=', 1)[0]
+    assert (tmp_path / 'bin/pilot.log').read_text().split()[-6:] == [
+        '--data', f'{run}/eval-data-v1', '--cohort', cohort, '--out', pilot]
+    # O2: pilot (held, gated, budgeted), its eval and S1 on the pilot, then the same for O6 and L.
+    assert log[0] == f'--parsable --hold --dependency=singleton {o2} --time=01:30:00 {sb} O2 pilot placement'
+    assert '--dependency=afterok:101 ' in log[1] and f'--llm {run}/llm-open-O2-P-pilot-001 ' in log[1]
+    assert log[1].endswith(f'--out {run}/llm-eval-O2-P-pilot-v1 --workers 16 --uids {pilot}')
+    assert '--joint ' + f'{run}/infer-joint-002 --placement {run}/infer-placement-005' in log[1]
+    for line, v in zip(log[2:4], ('harness', 'raw')):
+        assert '--dependency=afterok:102 ' in line and '--cpus-per-task=72' in line and line.endswith(
+            f'--geometry {run}/llm-eval-O2-P-pilot-v1/llm_{v}-geometry.jsonl --requests-arm placement --uids {pilot} '
+            f'--out {run}/s1-016-size-fixed/agent-O2-P-pilot-{v}')
+        assert '--max-trials 2000 --time-limit 60' in line
+    assert log[4] == f'--parsable --hold --dependency=singleton {o6} --time=00:45:00 {sb} O6 pilot placement'
+    assert log[8] == f'--parsable --hold --time=04:00:00 {s}/isambard_llm_agent.sbatch {code} pilot-placement'
+    assert f'--llm {run}/llm-agent-P-pilot-001 ' in log[9] and f'llm-eval-L-P-pilot-v1 --workers 16 --uids {pilot}' in log[9]
+    assert log[10].endswith(f'--out {run}/s1-016-size-fixed/agent-L-P-pilot-harness')
+    # Fulls wait for their own pilot (afterok) and every other GPU pilot (afterany): pilots first (A6).
+    assert log[12] == (f'--parsable --kill-on-invalid-dep=yes --dependency=afterok:101,afterany:105,singleton {o2} '
+                       f'--time=05:00:00 {sb} O2 full placement')
+    assert log[13].endswith(f'--out {run}/llm-eval-O2-P-v1 --workers 16') and '--uids' not in log[13]
+    assert log[14].endswith(f'--uids {cohort} --out {run}/s1-016-size-fixed/agent-O2-P-harness')
+    assert '--dependency=afterok:105,afterany:101,singleton' in log[16] and '--time=01:30:00' in log[16]
+    # O2 with GT sizes on the pilot (A1 supplementary), submitted last.
+    assert log[20] == (f'--parsable --kill-on-invalid-dep=yes --dependency=afterok:101,singleton {o2} --time=01:30:00 '
+                       f'{sb} O2 pilot placement-gt')
+    assert f'--llm {run}/llm-open-O2-PGT-pilot-001 ' in log[21] and log[23].endswith('agent-O2-PGT-pilot-raw')
+    assert len(log) == 24 and (tmp_path / 'bin/scontrol.log').read_text() == 'release 101,105,109\n'
+    # Ceiling: O2 (90 + 300 + GT 90 min) x 2 GPUs + O6 (45 + 90) x 4 = 1,500 GPU-minutes; L uses no GPU.
+    assert out.stdout.splitlines()[-1] == 'released 101,105,109 (GPU ceiling 1500 GPU-minutes)'
+    # The sbatch writes exactly the folders the chain refuses, evaluates and repairs.
+    sbatch = (code / 'fastfill/comparison/isambard_llm_open.sbatch').read_text()
+    assert 'pilot) OUT="llm-open-$SYSTEM-pilot-001"; EXTRA=(--uids "$PAIR_RUN_ROOT/a016-pilot-v1.json" --smoke-gate)' in sbatch
+    assert 'OUT="llm-open-$SYSTEM-PGT-${OUT#llm-open-$SYSTEM-}"; EXTRA+=(--arm placement --sizes gt)' in sbatch
+    agent = (code / 'fastfill/comparison/isambard_llm_agent.sbatch').read_text()
+    assert 'pilot-placement) OUT=llm-agent-P-pilot-001' in agent and '--arm placement --uids "$PAIR_RUN_ROOT/a016-pilot-v1.json"' in agent
+    for name in ('submit_016_agents.sh', 'isambard_llm_open.sbatch', 'isambard_llm_agent.sbatch'):
+        subprocess.run(['bash', '-n', str(code / 'fastfill/comparison' / name)], check=True)
+    # Default systems (O2 O6 O4 O7 L) fit the cap: 33.5 GPU-h; a failed sbatch aborts with the ids to cancel.
+    (tmp_path / 'bin/log').unlink()
+    bad = subprocess.run(['bash', str(script), str(code)], env={**env, 'FAIL_ON': '5'}, capture_output=True, text=True)
+    assert bad.returncode == 1 and 'scancel 101 102 103 104' in bad.stderr
+    (tmp_path / 'bin/log').unlink()
+    ok = subprocess.run(['bash', str(script), str(code)], env=env, capture_output=True, text=True, check=True)
+    assert ok.stdout.splitlines()[-1].endswith('(GPU ceiling 2010 GPU-minutes)')
+
+
+def test_submit_016_refuses_existing_outputs_queued_chains_missing_inputs_and_old_code(tmp_path):
+    code, script, run, env = _submit_016(tmp_path)
+    for setup, extra_env, message in (
+            (lambda: (run / 's1-016-size-fixed/agent-O7-P-pilot-raw').mkdir(parents=True), {}, 'agent-O7-P-pilot-raw exists'),
+            (lambda: (run / 's1-016-size-fixed/agent-O7-P-pilot-raw').rmdir(), {'SQUEUE_OUT': '7400001 unknownsize-llm-agent\n'},
+             'scancel 7400001'),
+            (lambda: None, {'SQUEUE_OUT': '7400002 other-job\n', 'PILOT_RC': '1'}, 'agents_016 pilot'),
+            (lambda: (run / 'infer-placement-005/MANIFEST.json').unlink(), {}, 'missing')):
+        setup()
+        bad = subprocess.run(['bash', str(script), str(code)], env={**env, **extra_env}, capture_output=True, text=True)
+        assert bad.returncode == 1 and message in bad.stderr and 'nothing submitted' in bad.stderr, bad.stderr
+        assert not (tmp_path / 'bin/log').exists()
+    for system in ('O9', 'O3'):  # unknown, and no amendment-016 GPU budget
+        assert subprocess.run(['bash', str(script), str(code), system], env=env, capture_output=True).returncode == 2
+    old = tmp_path / 'old'  # A CODE_ROOT whose evaluate_llm cannot score size-fixed runs.
+    (old / 'fastfill').mkdir(parents=True)
+    import shutil
+    shutil.copytree(code / 'fastfill/comparison', old / 'fastfill/comparison',
+                    ignore=shutil.ignore_patterns('tests', '__pycache__'))
+    target = old / 'fastfill/comparison/evaluate_llm.py'
+    target.write_text(target.read_text().replace('enforce_sizes', 'enforce'))
+    bad = subprocess.run(['bash', str(script), str(old)], env=env, capture_output=True, text=True)
+    assert bad.returncode == 1 and 'cannot score size-fixed runs' in bad.stderr

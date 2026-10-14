@@ -1,5 +1,6 @@
 """Amendment 013: train_dpo --init_adapter on a tiny random Qwen3 on CPU (the policy continues a trained adapter and
-a frozen copy of it is the DPO reference); without the flag training is bit-identical to the pre-013 train_dpo."""
+a frozen copy of it is the DPO reference); amendment 016: --sft_only (chosen mean token NLL, no reference or rejected
+pass). Without either flag training is bit-identical to the pre-013 train_dpo."""
 import json
 import math
 from pathlib import Path
@@ -116,6 +117,7 @@ def test_without_init_adapter_training_is_bit_identical_to_before(tiny, monkeypa
     manifests = [json.loads((tiny.root / name / 'run_manifest.json').read_text())['args'] for name in ('before', 'after')]
     assert [{k: v for k, v in m.items() if k != 'out'} for m in manifests][0] == {
         k: v for k, v in manifests[1].items() if k != 'out'}  # No init_adapter key: byte-identical apart from --out.
+    assert not {'init_adapter', 'sft_only'} & manifests[1].keys()  # Amendment 016: --sft_only off leaves no trace.
 
 
 def test_init_adapter_policy_equals_frozen_reference_at_step_zero_in_fp32(tiny):
@@ -184,3 +186,32 @@ def test_init_adapter_step_moves_only_the_policy_and_saves_one_plain_adapter(tin
     shutil.rmtree(out / 'final')  # A rerun resumes ckpt_latest (the last step) into the policy, not the reference.
     assert run(train_dpo, monkeypatch, capsys, tiny, out, '--init_adapter', str(tiny.init)) == []
     assert (out / 'final/adapter_model.safetensors').read_bytes() == final
+
+
+def test_sft_only_trains_the_chosen_mean_token_nll_without_reference_or_rejected_pass(tiny, monkeypatch, capsys):
+    pol_c, tokens = torch.tensor([-6.0, -2.0]), torch.tensor([3, 2])
+    zero = torch.zeros(2)  # sft_loss is exactly dpo_loss's NLL term (RPO without the DPO term).
+    assert torch.equal(train_dpo.sft_loss(pol_c, tokens), train_dpo.dpo_loss(pol_c, zero, zero, zero, 0.1, 1.0, tokens)[2])
+    assert math.isclose(train_dpo.sft_loss(pol_c, tokens).item(), (6 / 3 + 2 / 2) / 2)
+    calls, real = [], train_dpo.sequence_logps
+
+    def logps(model, input_ids, attention_mask, labels):
+        calls.append((torch.is_grad_enabled(), input_ids.tolist()))
+        return real(model, input_ids, attention_mask, labels)
+
+    def no_reference(*args):
+        raise AssertionError('--sft_only must not run the reference')
+    monkeypatch.setattr(train_dpo, 'sequence_logps', logps)
+    monkeypatch.setattr(train_dpo, 'reference_policy', no_reference)
+    out = tiny.root / 'rft'
+    logs = run(train_dpo, monkeypatch, capsys, tiny, out, '--init_adapter', str(tiny.init), '--rpo_alpha', '0', '--sft_only')
+    assert [x['step'] for x in logs] == [1, 4] and all(set(x) == {'epoch', 'step', 'total_steps', 'chosen_nll', 'loss'}
+                                                       and x['loss'] == x['chosen_nll'] > 0 for x in logs)
+    chosen = [b['c_input_ids'] for b in train_dpo.DPOPairDataset(Tok(), tiny.pairs).rows]
+    assert len(calls) == 2 * 3 and all(grad and ids[0] in chosen for grad, ids in calls)  # One chosen pass per row.
+    init, final = (load_file(str(p / 'adapter_model.safetensors')) for p in (tiny.init, out / 'final'))
+    assert final.keys() == init.keys() and any(not torch.equal(final[k], init[k]) for k in init)
+    args = json.loads((out / 'run_manifest.json').read_text())['args']
+    assert args['sft_only'] is True and args['init_adapter'] == str(tiny.init) and args['rpo_alpha'] == 0
+    with pytest.raises(ValueError, match='--rpo_alpha must be 0'):  # No hidden DPO term.
+        run(train_dpo, monkeypatch, capsys, tiny, tiny.root / 'bad', '--sft_only')

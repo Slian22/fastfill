@@ -12,6 +12,9 @@ Why this trainer instead of `trl.DPOTrainer` from old OptiScene (`scripts/dpo_tr
    on `--model` (its own training base), as the trainable policy (PEFT "default", initial weights = PATH) and as a
    frozen "reference" (= PATH, dropout off) that replaces the disabled-adapter reference. Only the policy is saved, in
    the plain adapter layout, so the result is again "training base + one FP32 adapter". Without the flag nothing changes.
+5. `--sft_only` (amendment 016 RFT ablation): the loss is the chosen response's mean token NLL alone (RPO's NLL term,
+   no DPO term); neither the reference nor the rejected response is run. Works with `--init_adapter`. Without the
+   flag nothing changes.
 """
 from __future__ import annotations
 
@@ -172,6 +175,11 @@ def dpo_loss(pol_c, pol_r, ref_c, ref_r, beta, rpo_alpha=0.0, chosen_tokens=None
     return (dpo + rpo_alpha * nll if rpo_alpha else dpo), dpo, nll, logits_diff
 
 
+def sft_loss(pol_c, chosen_tokens):
+    """--sft_only: the chosen response's mean token NLL per sequence, then the batch mean (dpo_loss's NLL term)."""
+    return (-pol_c / chosen_tokens).mean()
+
+
 def save_epoch_adapter(target: Path, raw_peft: Any, tok: Any, state: dict[str, int]) -> None:
     """Amendment 010: the adapter at an epoch end, published by rename (a resumed epoch replaces it)."""
     import shutil
@@ -327,9 +335,12 @@ def main() -> None:
     ap.add_argument("--rpo_alpha", type=float, default=0.0, help="RPO: + alpha x chosen mean token NLL (0 = plain DPO)")
     ap.add_argument("--save_every_epoch", action="store_true", help="also save the adapter to OUT/epoch-NN at each epoch end")
     ap.add_argument("--init_adapter", type=Path, help="continue this trained adapter of --model; it is also the frozen reference")
+    ap.add_argument("--sft_only", action="store_true", help="loss = chosen mean token NLL only (no DPO term, no reference pass)")
     args = ap.parse_args()
     if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
         raise ValueError("--rpo_alpha must be finite and >= 0")
+    if args.sft_only and args.rpo_alpha:
+        raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
 
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
@@ -345,7 +356,8 @@ def main() -> None:
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "run_manifest.json").write_text(
             json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
-                                 if not (k == "init_adapter" and v is None)}}, indent=1) + "\n",
+                                 if not (k == "init_adapter" and v is None) and not (k == "sft_only" and not v)}},
+                       indent=1) + "\n",
             encoding="utf-8",
         )
 
@@ -421,19 +433,25 @@ def main() -> None:
             window_size = accumulation_window_size(it, len(loader), args.grad_accum)
             sync_ctx = contextlib.nullcontext if (not is_ddp or sync_step) else model.no_sync
 
-            with torch.no_grad(), reference_policy(raw_peft, args.init_adapter):
-                ref_c = sequence_logps(raw_peft, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
-                ref_r = sequence_logps(raw_peft, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
+            if args.sft_only:  # One forward: the chosen response under the policy; no reference, no rejected.
+                with sync_ctx():
+                    pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                    total = sft_loss(pol_c, (batch["c_labels"][:, 1:] != -100).sum(dim=-1))
+                    backward_finite_loss(total / window_size)
+            else:
+                with torch.no_grad(), reference_policy(raw_peft, args.init_adapter):
+                    ref_c = sequence_logps(raw_peft, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                    ref_r = sequence_logps(raw_peft, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
 
-            # Forward on raw_peft under no_sync first for chosen, then sync on rejected at sync_step
-            with (model.no_sync() if is_ddp else contextlib.nullcontext()):
-                pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
-            with sync_ctx():
-                pol_r = sequence_logps(model, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
-                chosen_tokens = (batch["c_labels"][:, 1:] != -100).sum(dim=-1)
-                total, dpo_term, nll, logits_diff = dpo_loss(pol_c, pol_r, ref_c, ref_r, args.beta, args.rpo_alpha, chosen_tokens)
-                loss = total / window_size
-                backward_finite_loss(loss)
+                # Forward on raw_peft under no_sync first for chosen, then sync on rejected at sync_step
+                with (model.no_sync() if is_ddp else contextlib.nullcontext()):
+                    pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
+                with sync_ctx():
+                    pol_r = sequence_logps(model, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
+                    chosen_tokens = (batch["c_labels"][:, 1:] != -100).sum(dim=-1)
+                    total, dpo_term, nll, logits_diff = dpo_loss(pol_c, pol_r, ref_c, ref_r, args.beta, args.rpo_alpha, chosen_tokens)
+                    loss = total / window_size
+                    backward_finite_loss(loss)
 
             if sync_step:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
@@ -441,7 +459,11 @@ def main() -> None:
                 sched.step()
                 opt.zero_grad(set_to_none=True)
                 step += 1
-                if rank == 0 and (step == 1 or step % 10 == 0 or step == total_steps):
+                if rank == 0 and args.sft_only and (step == 1 or step % 10 == 0 or step == total_steps):
+                    print(json.dumps({"epoch": epoch + 1, "step": step, "total_steps": total_steps,
+                                      "chosen_nll": round(float(total.item()), 4), "loss": round(float(total.item()), 4)}),
+                          flush=True)
+                elif rank == 0 and (step == 1 or step % 10 == 0 or step == total_steps):
                     acc = float((logits_diff > 0).float().mean().item())
                     margin = float((args.beta * logits_diff).mean().item())
                     print(

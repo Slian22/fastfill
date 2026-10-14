@@ -75,7 +75,7 @@ def env_file(root, mode=0o600, model=L.EXPECTED_MODEL):
 def args(root, **extra):
     values = {'data': root / 'data', 'cohort': root / 'cohort.json', 'out': root / 'run', 'env_file': root / 'api.env',
               'expected_model': L.EXPECTED_MODEL, 'concurrency': 2, 'max_calls': 4800, 'max_output_tokens': 65536,
-              'timeout': 900, 'max_attempts': 2, 'limit': None}
+              'timeout': 900, 'max_attempts': 2, 'limit': None, 'arm': 'joint', 'uids': None}
     return argparse.Namespace(**{**values, **extra})
 
 
