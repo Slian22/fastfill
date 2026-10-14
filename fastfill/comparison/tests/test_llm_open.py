@@ -257,7 +257,7 @@ MODES = {
     'O4': ('gpt-oss-120b', 2, True, {'reasoning_effort': 'medium'}, {}),
     'O5': ('DeepSeek-V4-Flash-0731', 4, True, {'thinking': True, 'reasoning_effort': 'high'},
            {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8', 'block_size': 256,
-            'trust_remote_code': True}),
+            'trust_remote_code': True, 'moe_backend': 'marlin'}),
     'O6': ('Qwen3.8-Flash-Next-FP8', 4, True, {'enable_thinking': True, 'reasoning_effort': 'medium'},
            {'enable_expert_parallel': True, 'moe_backend': 'triton', 'limit_mm_per_prompt': {'image': 0, 'video': 0}}),
     'O7': ('Muse-Glimmer-30B', 2, True, {}, {}),  # Model default: no kwargs, no 'Reasoning strength:' line.

@@ -70,9 +70,11 @@ SYSTEMS = {
     'O5': {'name': 'deepseek-v4-flash-0731', 'model': 'DeepSeek-V4-Flash-0731', 'tp': 4, 'hours': 6, 'split': 'think',
            'thinking': True, 'template': {'thinking': True, 'reasoning_effort': 'high'},
            'effort': 'thinking on, high (amendment 007; the model offers low/high/max)',
-           # vLLM recipe: built-in DeepSeek-V4 encoding (no Jinja template), EP MoE, FP8 KV, block 256.
+           # vLLM recipe: built-in DeepSeek-V4 encoding (no Jinja template), EP MoE, FP8 KV, block 256. The Hopper
+           # (H200) recipe uses the Marlin MoE backend; DeepGEMM JIT cannot build here (nvcc/CCCL header mismatch),
+           # so the sbatch disables DeepGEMM for O5.
            'engine': {'tokenizer_mode': 'deepseek_v4', 'enable_expert_parallel': True, 'kv_cache_dtype': 'fp8',
-                      'block_size': 256, 'trust_remote_code': True}},
+                      'block_size': 256, 'trust_remote_code': True, 'moe_backend': 'marlin'}},
     'O6': {'name': 'qwen3.8-flash-next-fp8', 'model': 'Qwen3.8-Flash-Next-FP8', 'tp': 4, 'hours': 6, 'split': 'think',
            'thinking': True, 'template': {'enable_thinking': True, 'reasoning_effort': 'medium'},
            'effort': 'thinking on, medium (amendment 007; the model offers xhigh/medium/low)',
