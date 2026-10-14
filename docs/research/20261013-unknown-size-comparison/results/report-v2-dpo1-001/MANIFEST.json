@@ -1,0 +1,26 @@
+{
+  "input_sha256": {
+    "data_MANIFEST": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+    "geometry_MANIFEST": "dccd2d393dcced53ac85db1d023df8bf8deaffe3ea03cc82a6db265a8ececa75",
+    "reference": "08a4e939bd3e6e2b317916e406bcaa84921eccd04d65d5b5b88abb05ebbcb2eb",
+    "inference_run_sha256": {
+      "joint": "2085c962457e20e8b980d8c8f374c36bbc6ff53c77cf936d799b393f4f36f8ea",
+      "placement": "128f812d10fc3561834782c9029de4ef48d148d9e56a97146599315e0bca5093"
+    },
+    "corrections": "0e073313bbe32af4a1d32e35fdd34d7582f211f84723d8a1467e7aeca42ba815"
+  },
+  "files": {
+    "S1.csv": "560f554142f6b6b8171f1e0b855a571e13d0b1e1c00a24a26f0feec3256fa124",
+    "S2.csv": "5f815c30f36db24416dbfdf677aef5f3695dc3941a89054df2ccaf8cc615e222",
+    "T1.csv": "a25e4647149593d7ced7f7747008e55d242ea34ab295a93a7bc72a0aa89e11c0",
+    "T1_bias.csv": "be8b96e68099086ce66acfb5836dc01d4e47fa572e033536e225db95024a4b86",
+    "T1b.csv": "38f9253d2a6ebe06b8e56830d2f3186bc22e50a2473cb7e4145bfbc0e9e822c2",
+    "T2.csv": "145a06277e2e9afd2b910d2670cff026f0fcb2a80532b7ba60486cee2c11d046",
+    "T3.csv": "512e77fe497f055ea9c4fca6b72dd9e843fb5685854b80729a789483ae196ad9",
+    "T4.csv": "20e9cd6d1a0ac43795b3ab282be8323ebee3339b4d69acdde2de5a1b0f44552f",
+    "T4_paper.csv": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156",
+    "T6.csv": "b629cd00b53f226d71d7c1684ae4c68cff7cffd6d0071db5cbe52d859d24412f",
+    "report.md": "6444c285ac1f89571af5397c584515a1d22c182d05c74c6d4e2fbd01100f43de",
+    "results.json": "aea2755f54f3dcff62b66fd435aa8d16cc75b44650b101b906ce816f9c6ec7dd"
+  }
+}
