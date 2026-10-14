@@ -36,3 +36,9 @@ All test numbers come from the evaluated exact policy (rpo-dpo1 adapter, unmerge
 ## 6. Corrections to wording (findings, research log, model card)
 
 As listed in `audit-final-20261014/summary.md` (M2–M5, M12, M13 and minors 2–6, 15, 16): the rpo-dpo1 test gain (+0.0084) comes from MansionWorld and is not a replication of the dev gain; 3 of 4 J DPO candidates shrink sizes further (e1-dpo2 does not); stale statements are removed; superseded reports get a README notice.
+
+## Clarification (same day, before any new output)
+
+- "Equal-size control" means: for every complete room of every system (including J and P), each object's predicted x/y size is replaced by the ground-truth x/y size of that same object (height, position, yaw and support unchanged) and the room is re-scored with the frozen checker. It isolates placement quality from size choices.
+- The output-side improvement experiments (repair, local re-generation, best-of-N) become amendment 012 (not yet written).
+- The final reports are regenerated once with the corrected code from one snapshot: SFT stage (all 8 SFT-paired agents), DPO1 stage, selected stage (all 8 selected-paired agents), then the stage table and the delivery package. Numbers for J/P do not change; superseded report directories stay as archived.
