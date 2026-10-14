@@ -22,6 +22,7 @@ SFT stage (J0/P0) fully measured on all 8,647 test requests (`results/report-v2-
 - DPO1 (lr 5e-6, 10 epochs, 2,200 pairs, 5,500 steps) degraded both arms on all 8,647 test requests: J geometry success 0.388 → 0.213, size log MAE 0.286 → 0.590, B_J −0.08 → −0.36; P 0.390 → 0.093 with only 4,291 complete outputs (2,532 invalid JSON).
 - Training logs: reward margin saturated, DPO loss ≈ 0 by epoch 8, reward accuracy 1.0 — over-optimisation / likelihood displacement. Only the final step was saved.
 - Amendment 010 (disclosed as made after viewing DPO1 test): 1-epoch (e1) and 3-epoch + NLL-on-chosen (rpo, α 1.0) candidates, selected on dev only; SFT wins unless a DPO candidate keeps completeness and size accuracy and improves dev a′ by > 0.005.
+- Dev selection (600 rooms, amendment 010 rule; dev only): **J keeps SFT** — every J DPO candidate shrinks sizes further (dev B: SFT −0.087, e1-dpo1 −0.127, rpo-dpo1 −0.211, rpo-dpo2 −0.139), so raw success rises (rpo-dpo2 0.435 vs 0.380) but size-debiased a′ falls; e1-dpo2 has higher a′ (0.377 vs 0.357) but only 84 % complete. **P selects rpo-dpo1** — P's sizes come from the prior, so DPO only moves positions: a′ 0.435 vs 0.382, raw 0.470 vs 0.408, completeness and log MAE unchanged. DPO2 stages hurt completeness (P e1-dpo2 43 % complete). Interpretation (EXPLORATORY): on this task DPO on J trades size fidelity for geometric validity; the a′ guard catches it.
 
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
