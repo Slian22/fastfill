@@ -1,8 +1,8 @@
-# Current findings (updated 2026-10-14 02:00 UTC, after the Agency SFT-results audit wf_b7ae99d6-8df)
+# Current findings (updated 2026-10-14 05:10 UTC; SFT part after the Agency SFT-results audit wf_b7ae99d6-8df)
 
 ## Status
 
-SFT stage (J0/P0) fully measured on all 8,647 test requests (`results/report-v2-JPL-001`). DPO1/DPO2 (OptiScene recipe, amendments 008/009) in progress; open-model agents running one by one; visual metrics pending. Everything marked EXPLORATORY is post hoc.
+SFT stage (J0/P0) fully measured on all 8,647 test requests (`results/report-v2-JPL-001`). Amendment-009 DPO1 measured and collapsed (`results/report-v2-dpo1-001`); amendment-009 DPO2 test run stopped before viewing (amendment 010 addendum). Amendment 010: regularised DPO candidates (e1, rpo) selected per arm on a 600-room dev set; the selected J vs P on test decide delivery. Open-model agents running one by one; visual metrics pending. Everything marked EXPLORATORY is post hoc.
 
 ## Confirmatory (locked primary endpoint: matched SFT J0 vs P0, Holm over (a), (b); single seed; historical test split)
 
@@ -16,6 +16,12 @@ SFT stage (J0/P0) fully measured on all 8,647 test requests (`results/report-v2-
 - Paper strata (pooled 1,009): P has higher raw geometry success, Δ(a) −0.132 [−0.168, −0.097]; on holodeck J's sizes are *more* accurate (Δ(b) −0.018) while the prior undersizes holodeck furniture (B_P −0.13). EXPLORATORY within-source rescaling shrinks the holodeck gap to −0.10 [−0.15, −0.05].
 - J's clearest advantage is SceneSmith (held out of fine-tuning and prior fitting; 45 % of objects get the prior's constant fallback box, B_P +1.01): Δ(b) −0.368 [−0.404, −0.336], Δ(a) +0.148 [+0.106, +0.193]. It supplies most of the low-reuse gain (+0.065 of +0.069). On real scans J is *less* size-accurate than the prior (EXPLORATORY pooled Δ(b) +0.078 [+0.064, +0.091]) and strongly undersizes (B_J −0.29). One held-out source cannot establish a general out-of-catalogue benefit.
 - Per-source CIs for sources with < 10 house components (InternScenes_mp3d, MultiScan, Scan2CAD) are not valid intervals and are not cited.
+
+## DPO with the official OptiScene hyper-parameters collapsed (amendment 009, measured; descriptive)
+
+- DPO1 (lr 5e-6, 10 epochs, 2,200 pairs, 5,500 steps) degraded both arms on all 8,647 test requests: J geometry success 0.388 → 0.213, size log MAE 0.286 → 0.590, B_J −0.08 → −0.36; P 0.390 → 0.093 with only 4,291 complete outputs (2,532 invalid JSON).
+- Training logs: reward margin saturated, DPO loss ≈ 0 by epoch 8, reward accuracy 1.0 — over-optimisation / likelihood displacement. Only the final step was saved.
+- Amendment 010 (disclosed as made after viewing DPO1 test): 1-epoch (e1) and 3-epoch + NLL-on-chosen (rpo, α 1.0) candidates, selected on dev only; SFT wins unless a DPO candidate keeps completeness and size accuracy and improves dev a′ by > 0.005.
 
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
@@ -36,9 +42,10 @@ SFT stage (J0/P0) fully measured on all 8,647 test requests (`results/report-v2-
 - Compare against GT on the same population (cohort vs full test differ: GT OOR 0.048 vs 0.079).
 - Do not write mechanism stories without evidence; label post hoc analyses EXPLORATORY.
 - lr 5e-7 LoRA DPO is erased by BF16 merging; official README hparams (lr 5e-6) leave 11–19 % of projection weights changed after merge.
+- 10-epoch DPO on 2,200 pairs over-optimises (loss → 0, margin saturates) and collapses generation; save every epoch and select on dev, never on test.
 
 ## Open questions
 
-- Does DPO2 (out-of-bounds/overlap hard negatives) reduce the collision-driven gap without more undersizing? (DPO2 training loss reaches ~0 quickly — watch for over-optimisation.)
+- Does a regularised DPO candidate (e1/rpo) beat SFT on dev a′ without losing completeness or size accuracy, and does that hold on test?
 - Do open-weight agents show the same validity-vs-size trade-off as gpt-6.1-sol?
 - Visual realism (FID) and GPT judge scores, J/P vs agents.
