@@ -41,6 +41,12 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
 - On the 445 cohort rooms outside the six paper strata the order flips for some pairs: J 0.389 > P 0.339 and O2 0.843 > L 0.820.
 - gpt-6.1-sol vs GT: it exceeds GT mainly where GT itself fails the gate (3D-FRONT box-level collisions); with per-source size factors its a′ (0.708) is below GT's 0.725, so it has no robust lead over GT.
 
+## Output-side repair and best-of-N (amendment 012, dev 8,167 rooms; decisions per the locked rule)
+
+- **S1 deterministic repair is adopted** (XY moves of support subtrees only; categories, sizes, yaw, parents unchanged). Downstream acceptance (EmbodiedGen path-A port) G → G+S1: J 0.173 → 0.253 (+0.080 [0.074, 0.086]), P 0.199 → 0.292 (+0.093 [0.086, 0.100]); checker success roughly doubles (J 0.388 → 0.711, P 0.400 → 0.708); median displacement of moved objects 0.21–0.23 m.
+- **S2 best-of-8 is not adopted**: it raises raw checker success strongly for P (0.400 → 0.600) but after repair adds only +0.020 [0.015, 0.026] downstream acceptance for P (threshold 0.03) and +0.003 for J (size guards block most J alternatives).
+- Reference: the GT layouts of the same dev rooms reach 0.293 downstream acceptance (checker 0.722): the downstream rules (every object reachable from the door, AABB collisions incl. tucked chairs, 1 mm envelope) reject most real layouts; P + S1 matches GT on this metric. vLLM greedy (the S2 engine) is not the HF exact policy (P 0.432 vs 0.470 checker success on the 600 dev-select rooms).
+
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
 - Gate failure J 0.612, P 0.610 vs GT 0.277. Shapley split of the gap: main (movable–movable) collisions ≈ 70 % (J 0.239, P 0.225 of 0.335), out-of-bounds 0.040 / 0.066, support/ceiling/incomplete 0.032 / 0.020, blocked fixed objects (≈ half doors) 0.024 / 0.022.

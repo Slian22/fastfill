@@ -1,0 +1,263 @@
+{
+  "status": "DECISION_012_COMPLETE",
+  "protocol": "amendment-012 §4",
+  "rates": {
+    "joint-greedy-raw": {
+      "downstream": 0.17325823435778132,
+      "checker": 0.3879025345904249,
+      "complete": 0.9980408962899473
+    },
+    "joint-greedy-s1": {
+      "downstream": 0.25309171054242685,
+      "checker": 0.7112770907309905,
+      "complete": 0.9980408962899473
+    },
+    "joint-bo8-raw": {
+      "downstream": 0.18562507652748866,
+      "checker": 0.43528835557732337,
+      "complete": 0.9980408962899473
+    },
+    "joint-bo8-s1": {
+      "downstream": 0.2560303661075058,
+      "checker": 0.7287865801395862,
+      "complete": 0.9980408962899473
+    },
+    "placement-greedy-raw": {
+      "downstream": 0.19884902657034406,
+      "checker": 0.40026937676013224,
+      "complete": 0.9979184523080691
+    },
+    "placement-greedy-s1": {
+      "downstream": 0.2915391208522101,
+      "checker": 0.7084608791477899,
+      "complete": 0.9979184523080691
+    },
+    "placement-bo8-raw": {
+      "downstream": 0.25039794294110446,
+      "checker": 0.6003428431492592,
+      "complete": 0.9990204481449737
+    },
+    "placement-bo8-s1": {
+      "downstream": 0.3118648218440064,
+      "checker": 0.7977225419370638,
+      "complete": 0.9990204481449737
+    }
+  },
+  "contrasts": [
+    {
+      "comparison": "joint: G+S1 - G",
+      "downstream": {
+        "estimate": 0.07983347618464552,
+        "ci95": [
+          0.0743492268275151,
+          0.08575085609529016
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "checker": {
+        "estimate": 0.3233745561405657,
+        "ci95": [
+          0.31265367852393317,
+          0.33409990764739594
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "complete": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    },
+    {
+      "comparison": "placement: G+S1 - G",
+      "downstream": {
+        "estimate": 0.09269009428186605,
+        "ci95": [
+          0.08606959350221043,
+          0.09955752554316823
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "checker": {
+        "estimate": 0.30819150238765763,
+        "ci95": [
+          0.2934509750226549,
+          0.32371244659628307
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "complete": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    },
+    {
+      "comparison": "joint: (B8+S1) - (G+S1)",
+      "downstream": {
+        "estimate": 0.0029386555650789763,
+        "ci95": [
+          0.0004902217054952401,
+          0.0054785832499529875
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "checker": {
+        "estimate": 0.017509489408595567,
+        "ci95": [
+          0.014087285469164226,
+          0.021016492418600475
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "complete": {
+        "estimate": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    },
+    {
+      "comparison": "placement: (B8+S1) - (G+S1)",
+      "downstream": {
+        "estimate": 0.020325700991796255,
+        "ci95": [
+          0.014754017754786198,
+          0.02611986140525276
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "checker": {
+        "estimate": 0.0892616627892739,
+        "ci95": [
+          0.08052242490971205,
+          0.09794393994869932
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "complete": {
+        "estimate": 0.001101995836904616,
+        "ci95": [
+          0.00046304653814649156,
+          0.0019179310441446355
+        ],
+        "n": 8167,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    }
+  ],
+  "displacement": {
+    "joint-greedy": {
+      "moved_objects": 31417,
+      "moved_median": 0.20999999999999996
+    },
+    "joint-bo8": {
+      "moved_objects": 31138,
+      "moved_median": 0.20499999999999996
+    },
+    "placement-greedy": {
+      "moved_objects": 40903,
+      "moved_median": 0.2250000000000001
+    },
+    "placement-bo8": {
+      "moved_objects": 26440,
+      "moved_median": 0.11099999999999977
+    }
+  },
+  "decisions": {
+    "s1_joint": {
+      "passed": true,
+      "ci_low_downstream": 0.0743492268275151,
+      "moved_median_m": 0.20999999999999996,
+      "checker_ci_high": 0.33409990764739594
+    },
+    "s1_placement": {
+      "passed": true,
+      "ci_low_downstream": 0.08606959350221043,
+      "moved_median_m": 0.2250000000000001,
+      "checker_ci_high": 0.32371244659628307
+    },
+    "s1_adopted": true,
+    "s2_joint": {
+      "passed": false,
+      "estimate": 0.0029386555650789763,
+      "ci95": [
+        0.0004902217054952401,
+        0.0054785832499529875
+      ],
+      "bias_check": "not evaluated here (B8 guard keeps footprint bias within 0.03 of greedy by construction for J; see best_of_n summary)",
+      "smaller_m_fallback": "not evaluable: only B8 was repaired by S1"
+    },
+    "s2_placement": {
+      "passed": false,
+      "estimate": 0.020325700991796255,
+      "ci95": [
+        0.014754017754786198,
+        0.02611986140525276
+      ],
+      "bias_check": "P sizes are the prior: not applicable",
+      "smaller_m_fallback": "not evaluable: only B8 was repaired by S1"
+    }
+  },
+  "gt_reference": {
+    "rooms": 8167,
+    "downstream": 0.29325333659850616,
+    "checker": 0.721562385208767,
+    "note": "GT layouts of the same dev rooms; descriptive only (not a decision input)"
+  },
+  "inputs": {
+    "data_MANIFEST": "c3c030ae3d75e804aa0ed300a7703834af0ceead87e3dc0f501159e0261f0180",
+    "joint-greedy": "f0fdf6dfe489601c63a241c775e00d48cdc1c450f7c101dc8dbe7048d6809083",
+    "joint-bo8": "e75636b0bf538d14cdc4e57e04fed389e7bef6023934c7e64ff1aad36da77291",
+    "placement-greedy": "b68f4abbedadf0a5f49ef28c796e969735ca840810cd6a37aa5cd65cad7772a0",
+    "placement-bo8": "73d97f0ae0774dad1db5bd79fedac955d70d80650b62ac82ab68652367cadd58"
+  },
+  "code_sha256": {
+    "decide_012.py": "fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea",
+    "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+    "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6"
+  }
+}
