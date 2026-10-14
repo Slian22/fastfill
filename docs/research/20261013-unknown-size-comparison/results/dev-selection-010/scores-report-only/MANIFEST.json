@@ -1,0 +1,11 @@
+{
+  "files": {
+    "joint-a009-dpo1-geometry.jsonl": "e0888457d9812557f2394340bff0c3432bc12e00c80c5ab6e05fe772336a7631",
+    "joint-a009-dpo2-geometry.jsonl": "23da944367adc422af11780a0182d1ffba07b2ec46b1d6d292ed7725f9cc6345",
+    "joint-sft-geometry.jsonl": "004565db667ac6bede7e4753fec0a2a4159d87c76bce089f9d281ab218f4d7ea",
+    "placement-a009-dpo1-geometry.jsonl": "11539f838c222b7a5d7ad42b152fb4bcf1a1dd3a69c7e2b779ffacf5587677f7",
+    "placement-a009-dpo2-geometry.jsonl": "95cdf693e4ee30e9c02f44eb290c9ea903ac65c1ddb2269e28fb78e6482f8460",
+    "placement-sft-geometry.jsonl": "30f86020294793b6766e2e27289d849a0b12b26d837f11841e1ec4e3bf332442",
+    "scores.json": "5e7e0b428119dacf95c4b8c807c06557b93e0442e32067d22599d4e987b9b50e"
+  }
+}

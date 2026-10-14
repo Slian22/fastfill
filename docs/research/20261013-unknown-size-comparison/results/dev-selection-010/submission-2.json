@@ -1,0 +1,140 @@
+{
+ "reason": "NODE_FAIL of all 6 test shards (nodes not responding) 2026-10-14 07:53-07:55Z; same argv, shards with --resume",
+ "previous_jobs": {
+  "test shard placement 0": "7398937",
+  "test shard placement 1": "7398938",
+  "test shard placement 2": "7398939",
+  "test shard placement 3": "7398940",
+  "test shard placement 4": "7398941",
+  "test shard placement 5": "7398942",
+  "test merge placement": "7398943",
+  "selected geometry": "7398944"
+ },
+ "selection_sha256": "f094395f3be366930a39dec66c141410f2f6db560b18dd32448de35602114e13",
+ "jobs": [
+  {
+   "label": "test shard placement 0",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "0",
+    "6",
+    "--resume"
+   ],
+   "id": "7400117"
+  },
+  {
+   "label": "test shard placement 1",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "1",
+    "6",
+    "--resume"
+   ],
+   "id": "7400119"
+  },
+  {
+   "label": "test shard placement 2",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "2",
+    "6",
+    "--resume"
+   ],
+   "id": "7400121"
+  },
+  {
+   "label": "test shard placement 3",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "3",
+    "6",
+    "--resume"
+   ],
+   "id": "7400123"
+  },
+  {
+   "label": "test shard placement 4",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "4",
+    "6",
+    "--resume"
+   ],
+   "id": "7400125"
+  },
+  {
+   "label": "test shard placement 5",
+   "after": [],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "test",
+    "placement",
+    "rpo-dpo1",
+    "5",
+    "6",
+    "--resume"
+   ],
+   "id": "7400127"
+  },
+  {
+   "label": "test merge placement",
+   "after": [
+    "test shard placement 0",
+    "test shard placement 1",
+    "test shard placement 2",
+    "test shard placement 3",
+    "test shard placement 4",
+    "test shard placement 5"
+   ],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_infer_merge.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "placement",
+    "6",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/infer-v2-005",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/infer-placement-005"
+   ],
+   "id": "7400129"
+  },
+  {
+   "label": "selected geometry",
+   "after": [
+    "test merge placement"
+   ],
+   "argv": [
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b/fastfill/comparison/isambard_010_cpu.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-791d0f03b",
+    "selected-geometry",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/infer-joint-002",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/infer-placement-005"
+   ],
+   "id": "7400131"
+  }
+ ]
+}

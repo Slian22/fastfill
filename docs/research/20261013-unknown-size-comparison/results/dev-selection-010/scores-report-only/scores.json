@@ -1,0 +1,145 @@
+{
+ "protocol": "amendment-010-dev-scores",
+ "data_manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a",
+ "uids_sha256": "2f04f2246315de81359447ae0b9d4ccb16bfd90a7de2a38923ce3b7e1104c4df",
+ "plan_sha256": "2a798b1909f23a92be46b84bd49c5759d1d6a144e4e8a0fe15c853947021be19",
+ "candidates": {
+  "joint": {
+   "sft": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/sft/infer-joint",
+     "run_sha256": "8470fef0be0290c1b6d06875db07d3155e8ed737c9f0cb8b40017c183b474bcd",
+     "manifest_sha256": "65e4d662b3ecfc3d4dae56d68673108097272e2c2650a14ab3e9315aac5ee9fd",
+     "stage": "sft",
+     "lora": "merge_and_unload_bf16"
+    },
+    "token_cap_failures": 0,
+    "requests": 600,
+    "complete_rate": 1.0,
+    "geometry_success_rate": 0.38,
+    "size_log_mae_common_with_sft": 0.2496752575137839,
+    "sft_size_log_mae_common": 0.2496752575137839,
+    "common_with_sft": 600,
+    "size_log_mae_own": 0.2496752575137839,
+    "footprint_bias": -0.0869640267807733,
+    "scale_factor": 1.0444412081868015,
+    "a_prime": 0.3566666666666667
+   }
+  },
+  "placement": {
+   "sft": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/sft/infer-placement",
+     "run_sha256": "891d0ff7cff5054e16dbb57a30bd7173837b3da0d23a6daf7227a180173de3ad",
+     "manifest_sha256": "84da8cbdc1fedf9b6770d4ddc99381cac1d7f993b7e134ef15eaa4f81f5f1c56",
+     "stage": "sft",
+     "lora": "merge_and_unload_bf16"
+    },
+    "token_cap_failures": 0,
+    "requests": 600,
+    "complete_rate": 0.9983333333333333,
+    "geometry_success_rate": 0.4083333333333333,
+    "size_log_mae_common_with_sft": 0.23396453317762048,
+    "sft_size_log_mae_common": 0.23396453317762048,
+    "common_with_sft": 599,
+    "size_log_mae_own": 0.23396453317762048,
+    "footprint_bias": -0.05558287629317416,
+    "scale_factor": 1.0281812226764873,
+    "a_prime": 0.38166666666666665
+   }
+  }
+ },
+ "report_only": {
+  "joint": {
+   "a009-dpo1": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/a009-dpo1/infer-joint",
+     "run_sha256": "1f2f351dd811a14274ada476531b9280bed059f75aa5c8b6db5f901a32612527",
+     "manifest_sha256": "4989ae29bd32065f7630df9ec8c2660e3f309bc1b8a643c675a7b4bba704e74a",
+     "stage": "dpo1",
+     "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+    },
+    "token_cap_failures": 0,
+    "requests": 600,
+    "complete_rate": 0.8816666666666667,
+    "geometry_success_rate": 0.18166666666666667,
+    "size_log_mae_common_with_sft": 0.572862439016029,
+    "sft_size_log_mae_common": 0.25099340901264827,
+    "common_with_sft": 529,
+    "size_log_mae_own": 0.572862439016029,
+    "footprint_bias": -0.2878538975797907,
+    "scale_factor": 1.1547997459246877,
+    "a_prime": 0.11666666666666667
+   },
+   "a009-dpo2": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/a009-dpo2/infer-joint",
+     "run_sha256": "c5535f2a653611e6c4712680760e01d917e000f9fbc98a9f044d9cfa83e17662",
+     "manifest_sha256": "058a26a8e49927369241956ed5cb2e9bcd94672b5b2fc2f6dfe312b15080d9ce",
+     "stage": "dpo2",
+     "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+    },
+    "token_cap_failures": 209,
+    "requests": 600,
+    "complete_rate": 0.0,
+    "geometry_success_rate": 0.0,
+    "size_log_mae_common_with_sft": null,
+    "sft_size_log_mae_common": null,
+    "common_with_sft": 0,
+    "size_log_mae_own": null,
+    "footprint_bias": null,
+    "scale_factor": null,
+    "a_prime": 0.0
+   }
+  },
+  "placement": {
+   "a009-dpo1": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/a009-dpo1/infer-placement",
+     "run_sha256": "b6d674259fd4b1ccf0b8ccce20132a01b8eab6bf947aa8b034abd6178d9da581",
+     "manifest_sha256": "03c8361673db4898d233fe063a14845e5c12371c9bde2b21e216786e841b11f9",
+     "stage": "dpo1",
+     "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+    },
+    "token_cap_failures": 8,
+    "requests": 600,
+    "complete_rate": 0.4766666666666667,
+    "geometry_success_rate": 0.08166666666666667,
+    "size_log_mae_common_with_sft": 0.22341825752915356,
+    "sft_size_log_mae_common": 0.22341825752915356,
+    "common_with_sft": 286,
+    "size_log_mae_own": 0.22341825752915356,
+    "footprint_bias": -0.05992936297755577,
+    "scale_factor": 1.030418140476181,
+    "a_prime": 0.07333333333333333
+   },
+   "a009-dpo2": {
+    "inference": {
+     "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/a009-dpo2/infer-placement",
+     "run_sha256": "f980c08d561f87e71ccbab0df1869cd64986c78d7ae388b73e8cd812be952c6c",
+     "manifest_sha256": "5c04474f08b39ad394cb8ecd7c64c0a180a3d09bb186c62be68ef100c567c0a7",
+     "stage": "dpo2",
+     "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+    },
+    "token_cap_failures": 14,
+    "requests": 600,
+    "complete_rate": 0.05,
+    "geometry_success_rate": 0.041666666666666664,
+    "size_log_mae_common_with_sft": 0.17430663924493564,
+    "sft_size_log_mae_common": 0.17430663924493564,
+    "common_with_sft": 30,
+    "size_log_mae_own": 0.17430663924493564,
+    "footprint_bias": -0.07030318097256841,
+    "scale_factor": 1.0357767107945894,
+    "a_prime": 0.03833333333333333
+   }
+  }
+ },
+ "only": "report-only",
+ "code_sha256": {
+  "dev_select.py": "482cfa1c9c354115353a43c2440405b0a8554e8deaa2d6f94d37ee31f073d65d",
+  "evaluate_pair.py": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+  "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+  "report_v2.py": "9bc9e0837d120ccf28325b897947c4fdfeb2c81e13d05adc30d47b9770ec3105"
+ }
+}

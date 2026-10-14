@@ -1,0 +1,15 @@
+{
+  "files": {
+    "joint-e1-dpo1-geometry.jsonl": "64f1dd516650c0a645b7b08f5e97783a67626641098d70f350367c8121d2d138",
+    "joint-e1-dpo2-geometry.jsonl": "7a7dd6c4039f47f5725c5722f66473108be7e3a157b0ea6d56298a3b9fc7f4a3",
+    "joint-rpo-dpo1-geometry.jsonl": "b8649d48bbdd226f774dd0e1db2ad250961a1bd585cdc7030f76e86967bf349e",
+    "joint-rpo-dpo2-geometry.jsonl": "f3f3b88c9e73508b753fd312cb49712384b6d26ebad487f9942eb44ef01285f6",
+    "joint-sft-geometry.jsonl": "004565db667ac6bede7e4753fec0a2a4159d87c76bce089f9d281ab218f4d7ea",
+    "placement-e1-dpo1-geometry.jsonl": "ffc7a8f4c410a325b426c277eb2cb3c01a0606dae4548347a01c9fb895812f96",
+    "placement-e1-dpo2-geometry.jsonl": "737f2fe99a86db70b7dc065d95e1372d1871bf53ce55efa7f857ea700a4a71ca",
+    "placement-rpo-dpo1-geometry.jsonl": "984242b51bd134e80f9733b1d39da7a673114faa34253fd939544ce1972493d1",
+    "placement-rpo-dpo2-geometry.jsonl": "27925419531e0df371f051794b87d0ac6b0f7f39dff99ec59eeb59a92121542c",
+    "placement-sft-geometry.jsonl": "30f86020294793b6766e2e27289d849a0b12b26d837f11841e1ec4e3bf332442",
+    "scores.json": "6bbb7d7eedcd0958ad8e7d2ae106013932ef6e066121fd2b84f1567ccbd6ad4f"
+  }
+}
