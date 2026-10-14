@@ -165,6 +165,13 @@ def test_dev_scores_rule_selection_and_test_chain_submission(dev, monkeypatch):
     assert joint['e1-dpo1']['size_log_mae_common_with_sft'] == joint['sft']['size_log_mae_common_with_sft'] > 0
     assert scores['candidates']['placement']['e1-dpo1']['footprint_bias'] == 0  # P sizes = request sizes = GT here.
     assert joint['e1-dpo1']['inference']['stage'] == 'dpo1' and joint['sft']['inference']['stage'] == 'sft'
+    # Amendment 010 addendum 2: selectable and report-only rows scored apart give the same numbers.
+    for only in ('selectable', 'report-only'):
+        ds.score(ns(data=dev.out, root=root / 'dev-eval-010', out=root / f'dev-eval-010/scores-{only}', workers=1, only=only))
+    part = {k: h.strict_json((root / f'dev-eval-010/scores-{k}/scores.json').read_text()) for k in ('selectable', 'report-only')}
+    assert part['selectable']['candidates'] == scores['candidates'] and part['selectable']['report_only'] == {'joint': {}, 'placement': {}}
+    assert part['report-only']['report_only'] == scores['report_only'] and part['report-only']['only'] == 'report-only'
+    assert all(part['report-only']['candidates'][a] == {'sft': scores['candidates'][a]['sft']} for a in h.ARMS)
     # The SFT test inference this run reuses, and the plan the selected DPO test shards copy.
     sft_plan = plan_for(T.make_data(root), root / 'infer-v2-002/plan')
     log = []
@@ -173,6 +180,14 @@ def test_dev_scores_rule_selection_and_test_chain_submission(dev, monkeypatch):
     assert selected['selected'] == {'joint': 'e1-dpo1', 'placement': 'e1-dpo1'}  # Tie with e1-dpo2: fewer stages.
     # (a009-dpo1 ties too, with fewer stages than e1-dpo2, but it is report-only and never considered.)
     value = h.strict_json((root / 'dev-eval-010/selection.json').read_text())
+    from fastfill.comparison import stage_table as S  # Addendum 2: the stage table binds the separate a009 rows.
+    picked = S.load_selection(root / 'dev-eval-010/selection.json', root / 'dev-eval-010/scores-report-only')
+    assert picked['report_only'] == scores['report_only']
+    with pytest.raises(ValueError, match='same dev data'):
+        S.load_selection(root / 'dev-eval-010/selection.json', root / 'dev-eval-010/scores-selectable')
+    unscored = {(r['arm'], r['candidate']): r for r in S.dev_rows({**picked, 'report_only': {a: {} for a in h.ARMS}})}
+    assert unscored['J', 'a009-dpo2']['a_prime'] is None and unscored['J', 'a009-dpo2']['missing']['a_prime'] == S.UNSCORED
+    assert unscored['J', 'e1-dpo1']['a_prime'] == 1.0
     assert value['arms']['joint']['eligible'] == ['sft', 'e1-dpo1', 'e1-dpo2', 'rpo-dpo2']
     assert value['arms']['joint']['tied'] == ['e1-dpo1', 'e1-dpo2'] and set(value['arms']['joint']['candidates']) == set(ds.CANDIDATES)
     assert (root / 'infer-v2-005/plan/plan.json').read_bytes() == (sft_plan / 'plan.json').read_bytes()

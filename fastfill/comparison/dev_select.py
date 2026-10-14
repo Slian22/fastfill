@@ -9,7 +9,7 @@ build   --data MAIN --sft-runs SFT_J SFT_P --out RUN/dev-select-v1
     requests.jsonl = the dev rows' system + user turns (no target), rooms.jsonl = GT rooms for scoring,
     size-estimates.jsonl = the P request sizes, MANIFEST.json with expected_uids (sorted), the frozen
     uids_sha256 and training_manifest_sha256 = MAIN. Built before any candidate is scored.
-score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--workers N]
+score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--workers N] [--only selectable|report-only]
     Each candidate's merged dev inference ROOT/CANDIDATE/infer-ARM (shared length-sorted dev plan,
     amendment 002 caps) is verified (evaluate_pair._inference) and bound to its model (SFT adapter run, or
     the dpo-002/dpo-003 stage's exact policy), then scored by the frozen geometry.score; reached_token_cap
@@ -19,6 +19,8 @@ score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--work
     and a' = all-request geometry success after rescaling its x/y sizes about object centres by exp(-B/2)
     (report_v2._derive, amendment 005). The amendment-009 stages a009-dpo1/a009-dpo2 (dpo-001 exact
     policy; amendment 010 addendum) are scored the same way under 'report_only': never selectable.
+    Addendum 2: --only selectable scores the five candidates (what select reads, RUN/dev-eval-010/scores);
+    --only report-only scores sft + a009-* into RUN/dev-eval-010/scores-report-only for the stage table.
 select  --scores SCORES --out RUN/dev-eval-010/selection.json --code-root CODE [--shards 6] [--no-submit]
     Eligible: SFT always; a DPO candidate iff complete rate >= SFT's - 0.01 and its log MAE <= SFT's log
     MAE on the same common rooms + 0.01. Selected: the eligible candidate with the highest a'; candidates
@@ -197,10 +199,13 @@ def score(args):
     rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
     requests = {arm: h._by_uid(h._rows(data, f'{arm}/requests.jsonl', manifest['files'][f'{arm}/requests.jsonl']))
                 for arm in ARMS}
+    only = getattr(args, 'only', None)  # Amendment 010 addendum 2: selection does not wait for report-only rows.
+    selectable, report = only != 'report-only', only != 'selectable'
+    names = (CANDIDATES if selectable else ('sft',)) + (REPORT_ONLY if report else ())
     plans, result, files = set(), {}, {}
     for arm in ARMS:
         rows, result[arm] = {}, {}
-        for candidate in CANDIDATES + REPORT_ONLY:
+        for candidate in names:
             path = root / candidate / f'infer-{arm}'
             records, receipt = e._inference(path, data, expected)
             if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
@@ -215,7 +220,7 @@ def score(args):
                                                     'manifest_sha256': h.sha256(path / 'MANIFEST.json'),
                                                     'stage': receipt.get('stage', 'sft'), 'lora': receipt['config']['lora']},
                                       'token_cap_failures': sum(caps)}
-        for candidate in CANDIDATES + REPORT_ONLY:
+        for candidate in names:
             value = metrics(rows[candidate], rows['sft'])
             tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], value['scale_factor']) for r in rows[candidate]]
             derived = r2._map(r2._derive, tasks, args.workers)
@@ -227,8 +232,9 @@ def score(args):
         raise ValueError('candidates were not run on one shared dev plan')
     value = {'protocol': 'amendment-010-dev-scores', 'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
              'uids_sha256': manifest['uids_sha256'], 'plan_sha256': plans.pop(),
-             'candidates': {arm: {c: result[arm][c] for c in CANDIDATES} for arm in ARMS},
-             'report_only': {arm: {c: result[arm][c] for c in REPORT_ONLY} for arm in ARMS},
+             'candidates': {arm: {c: result[arm][c] for c in (CANDIDATES if selectable else ('sft',))} for arm in ARMS},
+             'report_only': {arm: {c: result[arm][c] for c in (REPORT_ONLY if report else ())} for arm in ARMS},
+             **({'only': only} if only else {}),
              'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(e.__file__), Path(g.__file__),
                                                            Path(r2.__file__))}}
     if _digest(expected) != value['uids_sha256']:
@@ -395,8 +401,9 @@ def final(args):
     r2.build(run / 'eval-data-v1', run / GEOMETRY, {arm: test[arm]['inference'] for arm in ARMS}, args.reference,
              outs['report'], agents, corrections=args.corrections, repeats=args.repeats, workers=args.workers,
              selection=selection)
+    report_only = run / 'dev-eval-010' / 'scores-report-only'  # Amendment 010 addendum 2; absent = a009 rows 未测.
     stage_table.build(run, {**{s: run / n for s, n in STAGE_REPORTS.items()}, 'selected': outs['report']},
-                      outs['table'], selection)
+                      outs['table'], selection, report_only if report_only.exists() else None)
     value = delivery.build(run, outs['report'], outs['delivery'])
     return {'status': 'FINAL_010_COMPLETE', 'agents': sorted(agents), 'agents_excluded': excluded,
             'delivered': value['chosen_arm'], 'candidate': value['candidate'], **{k: str(p) for k, p in outs.items()}}
@@ -413,6 +420,7 @@ def parse_args(argv=None):
     for flag in ('data', 'root', 'out'):
         step.add_argument('--' + flag, type=Path, required=True)
     step.add_argument('--workers', type=int, default=1)
+    step.add_argument('--only', choices=('selectable', 'report-only'))  # Amendment 010 addendum 2; default both.
     step = sub.add_parser('select')
     for flag in ('scores', 'out', 'code-root'):
         step.add_argument('--' + flag, type=Path, required=True)

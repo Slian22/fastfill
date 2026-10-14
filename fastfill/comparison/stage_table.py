@@ -23,7 +23,8 @@ amendment 010 chain (submit_dev_selection.sh):
 - RUN/dpo-001/stage{1,2}-pairs/summary.json (MANIFEST-checked) bound to each DPO receipt's pairs;
 - --selection: dev_select's selection.json, bound to its scores dir (MANIFEST sha256 =
   scores_manifest_sha256) and reproduced by dev_select.choose; it renders the dev table (every candidate
-  plus the report-only a009 rows) and is required for the selected row.
+  plus the report-only a009 rows) and is required for the selected row; --report-only-scores (amendment
+  010 addendum 2) gives the separately scored a009 rows, bound to the same dev data, plan and SFT rows.
 Every stage report must share data, reference, repeats, seed, geometry.py and report_v2.py (or two
 report_v2.py versions in SAME_NUMBERS, audited to compute identical numbers).
 A stage without a report is 'not run' (the amendment-009 DPO2 test run: stopped, amendment 010
@@ -58,6 +59,7 @@ T1B = ('complete', 'geometry_success_repaired', 'oor', 'oor_repaired', 'size_iou
 NOT_RUN = '未运行：未提供该阶段的 report_v2 输出'
 STOPPED = '已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析'
 REPORT_ONLY = '仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选'
+UNSCORED = '未测：修订 010 补充 2，仅报告行单独评分，本表未提供其评分'
 # protocol.md: matched SFT J0/P0 stays the primary endpoint; the dev-selected models decide delivery (amendment
 # 010), secondary, never confirmatory; DPO1/DPO2 are descriptive. Holm in report_v2 runs within one stage's (a), (b).
 ROLE = {'sft': (('(a)', '(b)'), '主要（确认性，protocol.md）'), 'selected': (ENDPOINTS, '次要（交付比较，修订 010）')}
@@ -99,8 +101,9 @@ def candidate_stage(candidate):
     return candidate.rsplit('-', 1)[-1]
 
 
-def load_selection(path):
-    """dev_select's selection.json, bound to its scores dir and reproduced by dev_select.choose."""
+def load_selection(path, report_only=None):
+    """dev_select's selection.json, bound to its scores dir and reproduced by dev_select.choose; report_only
+    (amendment 010 addendum 2) = the separately scored a009 rows, bound to the same dev data, plan and SFT rows."""
     path = Path(path)
     value, scores_dir = _read(path), path.parent / 'scores'
     d._verified_dir(scores_dir)
@@ -114,7 +117,16 @@ def load_selection(path):
         if ({k: arm_value[k] for k in again} != again or arm_value['candidates'] != scores['candidates'][arm]
                 or value['selected'][arm] != again['selected'] or value['test'][arm]['candidate'] != again['selected']):
             raise ValueError(f'{arm}: selection.json does not reproduce from its dev scores')
-    return {'path': path, 'sha256': h.sha256(path), 'value': value, 'scores': scores}
+    extra = {}
+    if report_only:
+        d._verified_dir(Path(report_only))
+        other = _read(Path(report_only) / 'scores.json')
+        if (other.get('only') != 'report-only' or other.get('protocol') != scores.get('protocol')
+                or any(other.get(k) != scores.get(k) for k in ('data_manifest_sha256', 'uids_sha256', 'plan_sha256'))
+                or any(other['candidates'][arm] != {'sft': scores['candidates'][arm]['sft']} for arm in h.ARMS)):
+            raise ValueError(f'{report_only} is not scored on the same dev data, plan and SFT rows')
+        extra = {'report_only': other['report_only'], 'report_only_sha256': h.sha256(Path(report_only) / 'MANIFEST.json')}
+    return {'path': path, 'sha256': h.sha256(path), 'value': value, 'scores': scores, **extra}
 
 
 def dev_rows(selection):
@@ -124,7 +136,13 @@ def dev_rows(selection):
         chosen = selection['value']['arms'][arm]
         for name in ds.CANDIDATES + ds.REPORT_ONLY:
             selectable = name in ds.CANDIDATES
-            m = selection['scores']['candidates' if selectable else 'report_only'][arm][name]
+            m = (selection['scores']['candidates'] if selectable else
+                 selection.get('report_only') or selection['scores'].get('report_only', {}))[arm].get(name)
+            if m is None:  # Amendment 010 addendum 2: report-only rows scored separately; not given = 未测.
+                keys = ('requests', 'complete_rate', 'geometry_success', 'size_log_mae', 'sft_size_log_mae',
+                        'common_with_sft', 'footprint_bias', 'a_prime', 'eligible', 'selected')
+                rows.append({'arm': label, 'candidate': name, **dict.fromkeys(keys), 'missing': dict.fromkeys(keys, UNSCORED)})
+                continue
             row = {'arm': label, 'candidate': name, 'requests': m['requests'], 'complete_rate': m['complete_rate'],
                    'geometry_success': m['geometry_success_rate'], 'size_log_mae': m['size_log_mae_common_with_sft'],
                    'sft_size_log_mae': m['sft_size_log_mae_common'], 'common_with_sft': m['common_with_sft'],
@@ -360,7 +378,7 @@ def lineage_rows(stage, chain, pair_summaries):
     return rows
 
 
-def build(run, reports, out, selection=None):
+def build(run, reports, out, selection=None, report_only=None):
     run, out = Path(run), Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -368,7 +386,7 @@ def build(run, reports, out, selection=None):
         raise ValueError('reports must map sft (required), dpo1, dpo2, selected to report_v2 dirs')
     if 'selected' in reports and selection is None:
         raise ValueError('the selected row needs --selection (amendment 010)')
-    picked = load_selection(selection) if selection else None
+    picked = load_selection(selection, report_only) if selection else None
     stages = [load_stage(run, s, reports[s], picked) for s in ROWS if s in reports]
     check_shared(stages)
     chain = {arm: lineage(run, arm, [s for s in reports if s in STAGES]) for arm in h.ARMS}
@@ -413,7 +431,8 @@ def build(run, reports, out, selection=None):
     warnings = sorted({w for s in stages for w in s['results'].get('warnings', [])})
     dev = picked and {'selection': str(picked['path']), 'selection_sha256': picked['sha256'], 'rule': ds.RULE,
                       'rooms': picked['scores']['candidates']['joint']['sft']['requests'], 'selected': picked['value']['selected'],
-                      **{k: picked['value'][k] for k in ('scores_manifest_sha256', 'data_manifest_sha256', 'uids_sha256')}}
+                      **{k: picked['value'][k] for k in ('scores_manifest_sha256', 'data_manifest_sha256', 'uids_sha256')},
+                      **({'report_only_scores_manifest_sha256': picked['report_only_sha256']} if 'report_only_sha256' in picked else {})}
     result = {'status': 'STAGE_TABLE_COMPLETE', 'stages_run': [s['stage'] for s in stages],
               'not_run': not_run, 'tables': tables, **({'dev_selection': dev} if dev else {}),
               'context_plan_sha256': stages[0]['receipts']['joint']['context_plan_sha256'],
@@ -526,11 +545,12 @@ def main(argv=None):
     parser.add_argument('--report', action='append', required=True, metavar='STAGE=DIR')
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--selection', type=Path)  # Amendment 010: RUN/dev-eval-010/selection.json.
+    parser.add_argument('--report-only-scores', type=Path)  # Addendum 2: RUN/dev-eval-010/scores-report-only.
     args = parser.parse_args(argv)
     reports = dict(item.split('=', 1) for item in args.report)
     if len(reports) != len(args.report):
         raise ValueError('one --report per stage')
-    result = build(args.run_root, reports, args.out, args.selection)
+    result = build(args.run_root, reports, args.out, args.selection, args.report_only_scores)
     print(json.dumps({'status': result['status'], 'stages_run': result['stages_run']}))
 
 
