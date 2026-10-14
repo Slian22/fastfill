@@ -123,10 +123,84 @@ def test_end_to_end_report_and_delivery(built):
     out = root / 'report'
     h.verify_artifacts(out, json.loads((out / 'MANIFEST.json').read_text())['files'])
     report = (out / 'report.md').read_text()
-    assert '交付：P' in report and '达上限无 EOS' in report and 'Holm' in report
+    assert '达上限无 EOS' in report and 'Holm' in report
+    # SFT geometry (no stage label): the amendment-005 rule is informational, delivery is decided at DPO2.
+    assert result['stage'] == 'sft' and d['stage'] == 'sft' and d['binding'] is False
+    assert '**交付：' not in report and '规则结果：P' in report and 'binding decision at DPO2, amendment 008' in report
+    assert R.ROLE['sft'] in report and '主要（确认性）' in R.ROLE['sft']
+    # House components per T2/T3/S1 scope; no CI below 10 components; few clusters / small n flagged.
+    k = len({room['group'] for room in rooms.values()})
+    t3 = {r['scope']: r for r in t['T3']}
+    assert (t3['all']['components'], t3['all']['flags']) == (k, 'small n') and k >= R.NO_CI
+    assert (t3['source/IL3D_3dfront']['components'], t3['source/IL3D_3dfront']['flags']) == (2, 'few clusters; small n')
+    assert all({'components', 'flags'} <= set(r) for name in ('T2', 'S1') for r in t[name]) and t['T2'][0]['components'] == k
+    lines = report.splitlines()
+    il3d = [x for x in lines if x.startswith('| source/IL3D_3dfront | 4 | 2 | few clusters; small n |')]
+    assert len(il3d) == 2 and all('[' not in x for x in il3d) and '+0.0000 — (2 components)' in il3d[1]
+    assert any('[' in x for x in lines if x.startswith(f'| all | {n} | {k} | small n |'))
+    # Every warning results.json carries (report level and inside table cells) is rendered.
+    cells = {w for rows in t.values() for r in rows for v in r.values() if isinstance(v, dict) for w in v.get('warnings', [])}
+    assert 'singleton_source_signature_strata' in cells
+    assert all(f'区间级 `{w}`' in report for w in cells) and all(w in report for w in result['warnings'])
     assert (out / 'T1.csv').read_text().splitlines()[0].startswith('endpoint,J,')
     with pytest.raises(FileExistsError):
         _build(root, runs)
+
+
+def test_t5_own_bias_and_rescaled_success_for_every_system(built):
+    """EXPLORATORY T5: B on the cohort's all-system common-complete rooms, (a') through _derive with own B."""
+    root, rooms, runs = built
+    t5 = {(r['scope'], r['system']): r for r in _build(root, runs)['tables']['T5']}
+    cohort = [r['uid'] for r in _jsonl(root / 'llm-eval' / 'llm_harness-geometry.jsonl')]
+    failed = {'x-05', 'x-06', 'y-0', 'il-bed-1'}  # J (cap, truncated, schema) and L-raw (il-bed-1, y-0).
+    systems = ('J', 'P', 'L-raw', 'L-harness')
+    assert {t5['cohort', s]['bias_fp']['n'] for s in systems} == {len(set(cohort) - failed)}
+    assert {t5['strata_pooled', s]['bias_vol']['n'] for s in systems} == {3}
+    # J and L answer GT sizes: B = 0, factor 1, (a') = raw (a). P sizes are GT + 0.1 m in every room.
+    for s in ('J', 'L-raw', 'L-harness'):
+        row = t5['cohort', s]
+        assert row['bias_fp']['estimate'] == 0 and row['scale_factor'] == 1
+        assert row['success_debiased_rate'] == row['geometry_success_rate']
+    p = t5['cohort', 'P']
+    b_fp = statistics.mean([math.log(1.1 * 1.1), math.log(1.1 * 2.1 / 2)])
+    assert p['bias_fp']['estimate'] == pytest.approx(b_fp) and p['bias_fp']['ci95'] == pytest.approx([b_fp, b_fp])
+    assert p['bias_vol']['estimate'] == pytest.approx(statistics.mean([3 * math.log(1.1), math.log(1.1 * 2.1 * 1.1 / 2)]))
+    assert p['scale_factor'] == pytest.approx(math.exp(-b_fp / 2))
+    stored = {r['uid']: r for r in _jsonl(root / 'data' / 'rooms.jsonl')}
+    requests = {r['uid']: r for r in _jsonl(root / 'data' / 'placement' / 'requests.jsonl')}
+    rows = {r['uid']: r for r in _jsonl(root / 'geometry-v2' / 'placement-geometry.jsonl')}
+    again = [R._derive((rows[u], stored[u], requests[u], p['scale_factor']))['success_debiased'] for u in cohort]
+    assert p['success_debiased_rate'] == sum(again) / len(again)
+    report = (root / 'report' / 'report.md').read_text()
+    assert "(a′) 自身 B 去偏成功率（EXPLORATORY）" in report and '各系统在自身完整输出上的均值' in report
+
+
+@pytest.mark.parametrize('stage', ['dpo1', 'dpo2'])
+def test_delivery_section_binding_only_at_dpo2(built, stage):
+    root, _, runs = built
+    geometry = root / 'geometry-v2'
+    _reseal(geometry, {**json.loads((geometry / 'summary.json').read_text()), 'stage': stage})
+    result = _build(root, runs, out='report-' + stage, fid=None, judge=None)  # Visual lineage binds the old MANIFEST.
+    report = (root / ('report-' + stage) / 'report.md').read_text()
+    assert result['stage'] == stage and result['delivery']['binding'] is (stage == 'dpo2')
+    assert R.ROLE[stage] in report and all(R.ROLE[s] not in report for s in R.ROLE if s != stage)
+    if stage == 'dpo2':
+        assert f"**交付：{result['delivery']['delivered']}**" in report and 'binding decision at DPO2' not in report
+        assert '次要的交付比较（修订 008）' in report
+    else:
+        assert '**交付：' not in report and '（dpo1 阶段，非交付决定；binding decision at DPO2, amendment 008）' in report
+
+
+def test_component_counts_suppress_and_flag_intervals():
+    value = {'estimate': .1, 'ci95': [0., .2]}
+    assert R._cell(value, 9) == '+0.1000 — (9 components)'
+    assert R._cell(value, 10) == R._cell(value) == '+0.1000 [+0.0000, +0.2000]'
+    assert R._design([{'group': i % 30} for i in range(50)]) == {'components': 30, 'flags': None}
+    assert R._design([{'group': i % 30} for i in range(49)]) == {'components': 30, 'flags': 'small n'}
+    assert R._design([{'group': i % 29} for i in range(60)]) == {'components': 29, 'flags': 'few clusters'}
+    lines = R._md([{'scope': 's', 'components': 2, 'delta': value}, {'scope': 't', 'components': 12, 'delta': value}],
+                  [('scope', 'scope'), ('components', 'k'), ('delta', 'Δ')])
+    assert lines[2] == '| s | 2 | +0.1000 — (2 components) |' and lines[3] == '| t | 12 | +0.1000 [+0.0000, +0.2000] |'
 
 
 def test_debias_rescoring_matches_frozen_score_and_cap_rule(built):
