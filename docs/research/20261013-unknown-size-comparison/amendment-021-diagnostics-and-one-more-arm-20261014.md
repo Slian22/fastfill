@@ -127,3 +127,14 @@ The pilot rooms are a subset of the test cohort. They motivated this arm and are
 6. **Guards with missing values.** Missing on both sides passes; missing on one side fails.
 7. **Tie order inside the band.** 8B before 27B, then R, then higher checker success, then candidate order.
 8. **018 test run.** If 018 adopts a candidate, its own pre-registered HF test run (018 §4) is the run of record that 021 §4 uses for 018's candidate. 013's test is deferred here (013 addendum A).
+
+## Addendum B (locked 2026-10-14 ~23:30 UTC, before any amendment-021 candidate, confirm or test output exists)
+
+1. **27B vLLM engine: `max_num_seqs` = 256.**
+   - Why: the hybrid (Mamba-style) layers allow at most 641 cached sequences on one GH200, and vLLM's default of 1024 failed engine start (smoke-vllm 7417626).
+   - Scope: this affects throughput only, not decoding.
+   - Gate: the smoke passed beforehand — peak reserved 73.8 GB, 4.96 s/step, 3.9 h projected for N = 40,000, so N = 40,000.
+2. **O2nt reference rows.**
+   - Rule: an answer with any reasoning text or reasoning tokens is a failure of that room. It is marked `reasoning_in_no_reasoning_system`, is never repaired, and the count is reported. It no longer aborts the run.
+   - Why: the cohort run 7417981 was aborted by one such room; its outputs were not used.
+   - The dev-select O2nt run (7417975) finished under the earlier abort-on-reasoning rule, i.e. with zero violations, and is kept.
