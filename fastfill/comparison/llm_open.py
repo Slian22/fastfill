@@ -2,7 +2,7 @@
 
   python -m fastfill.comparison.llm_open run --system O4 --data EVAL --cohort COHORT.json \
       --model-root MODELS --out RUN [--limit 2 --smoke-gate] [--chunk 256] [--arm placement [--sizes gt]] \
-      [--uids FILE]
+      [--uids FILE] [--all-rooms]
   python -m fastfill.comparison.llm_open slurm --system O4 --mode smoke|full   (sbatch resource flags)
   python -m fastfill.comparison.llm_open status --run-root ROOT    (writes ROOT/llm-open-status.json)
 
@@ -42,6 +42,10 @@ invalid; everything else above is unchanged. --sizes gt (addendum A1 supplementa
 request with GT sizes instead (llm_agent.gt_request on rooms.jsonl). --uids FILE runs that subset of the cohort
 (llm_agent.subset; the pilot of addendum A6/B1). The identity records request_arm, request_sizes, the rooms hash
 and the subset only when given: the default (joint) identity is unchanged.
+
+--all-rooms (amendment 018 teacher, distill_018): the cohort is every request of --data in its expected_uids order
+(all_rooms_cohort; the teacher plan is a train set run whole in --uids shards) instead of L.build_cohort's test sample;
+recorded as config cohort_rule 'all_rooms' only when given.
 """
 import argparse
 import importlib.metadata
@@ -151,6 +155,15 @@ def slurm_flags(system, mode):
     minutes = SMOKE_MINUTES if mode == 'smoke' else 60 * spec['hours']
     return (f"--gpus-per-node={spec['tp']} --cpus-per-task={16 * spec['tp']} --mem={100 * spec['tp']}G "
             f'--time={minutes // 60:02d}:{minutes % 60:02d}:00')
+
+
+def all_rooms_cohort(data):
+    """--all-rooms: every request uid of DATA in expected_uids order, in L.build_cohort's format."""
+    rows, identity = infer.load_eval(data, 'joint')
+    uids = [r['uid'] for r in rows]
+    return {'version': 1, 'data_manifest_sha256': identity['manifest_sha256'], 'fields_used': ['uid'],
+            'algorithm': 'every request uid of the data, expected_uids order (llm_open --all-rooms, amendment 018)',
+            'counts': {'total': len(uids)}, 'uids_sha256': L._digest(json.dumps(uids)), 'uids': uids}
 
 
 def load_vllm(engine):
@@ -265,7 +278,7 @@ def run(args, load=load_vllm):
     spec = SYSTEMS[args.system]
     rows, data = infer.load_eval(args.data, args.arm)
     cohort = h.strict_json(Path(args.cohort).read_text())
-    if cohort != L.build_cohort(args.data):
+    if cohort != (all_rooms_cohort(args.data) if args.all_rooms else L.build_cohort(args.data)):
         raise ValueError('cohort file differs from its deterministic rebuild')
     uids = (L.subset(cohort, args.uids) if args.uids else cohort['uids'])[:args.limit]
     by_uid = h._by_uid(rows)
@@ -292,7 +305,8 @@ def run(args, load=load_vllm):
                          else 'infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, placement)'),
               'repair_message': 'parser_error_text_only', 'limit': args.limit, 'versions': _versions(),
               **({'request_arm': 'placement'} if args.arm == 'placement' else {}),  # Joint identity unchanged.
-              **({'request_sizes': 'gt'} if gt else {})}
+              **({'request_sizes': 'gt'} if gt else {}),
+              **({'cohort_rule': 'all_rooms'} if args.all_rooms else {})}  # Amendment 018 teacher plan.
     identity = {'arm': 'llm_open', 'variants': list(L.VARIANTS), 'config': config, 'config_sha256': infer._hash(config),
                 'data': {'manifest_sha256': data['manifest_sha256'],
                          f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl'],
@@ -410,6 +424,7 @@ def main(argv=None, load=load_vllm):
     run_parser.add_argument('--arm', choices=h.ARMS, default='joint')  # placement: amendment 016 section 2.
     run_parser.add_argument('--sizes', choices=('prior', 'gt'), default='prior')  # gt: addendum A1 supplementary.
     run_parser.add_argument('--uids', type=Path)  # A subset of the cohort (amendment 016 pilot).
+    run_parser.add_argument('--all-rooms', action='store_true')  # Cohort = every request (amendment 018 teacher plan).
     slurm.add_argument('--mode', choices=('smoke', 'full'), required=True)
     status.add_argument('--run-root', type=Path, required=True)
     args = parser.parse_args(argv)

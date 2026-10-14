@@ -384,12 +384,15 @@ def _sampling(data, samples, manifest):
     return receipt, grouped
 
 
-def build_pairs(args):
+def build_pairs(args, scope=SUBSET_SCOPE, sampler=('dpo1', 'rpo'), short=None):
+    """scope / sampler (stage, candidate of the sampled policy's lineage receipt): amendment 018 runs this PAIR_RULE code
+    path on its own rooms and policy; short(summary, ledger), when given, is returned instead of raising below the
+    floors (nothing trainable is published either way). The defaults are amendment 013's."""
     data, samples, out, dry = Path(args.data), Path(args.samples), Path(args.out), args.dry_run
     if os.path.lexists(out):
         raise FileExistsError(out)
     manifest = e._verified(data)
-    if dry is None and manifest.get('scope') != SUBSET_SCOPE:
+    if dry is None and manifest.get('scope') != scope:
         raise ValueError('pairs are built on the amendment-013 training subset only')
     expected = manifest['expected_uids']
     def rows(name):
@@ -398,7 +401,7 @@ def build_pairs(args):
     receipt, grouped = _sampling(data, samples, manifest)
     model = Path(args.base_model).resolve()
     lineage, policy = d.exact_policy(model, ARM)
-    if (lineage['stage'] != 'dpo1' or lineage['training'].get('candidate') != 'rpo'
+    if (lineage['stage'] != sampler[0] or lineage['training'].get('candidate') != sampler[1]
             or receipt['model'].get('policy') != policy
             or receipt['model'].get('lineage_sha256') != h.sha256(d.receipt_path(model))):
         raise ValueError("samples are not of rpo-dpo1's exact policy (the DPO2 reference model)")
@@ -470,6 +473,8 @@ def build_pairs(args):
         return {'status': summary['status'], 'rooms': n, 'pairs': len(kept), 'rooms_with_pair': with_pair,
                 'projection': summary['projection']}
     if len(kept) < MIN_PAIRS or summary['rooms_with_pair'] < MIN_ROOMS:
+        if short is not None:
+            return short(summary, ledger)
         print(json.dumps({k: v for k, v in summary.items() if k != 'rule'}), file=sys.stderr)
         raise ValueError(f"too few on-policy pairs: {len(kept)} pairs in {summary['rooms_with_pair']} rooms "
                          f'(floors {MIN_PAIRS} and {MIN_ROOMS}); nothing published')
@@ -564,13 +569,13 @@ def _scored_rows(records, rooms, requests, workers):
     return [r2._with_bias(r2.cap_failure(s) if c else s, rooms[s['uid']]) for s, c in zip(scored, caps)], sum(caps)
 
 
-def _scored(root, candidate, data, manifest, rooms, requests, workers):
-    """dev_select._scored with this amendment's binding (requests: placement rows by uid)."""
+def _scored(root, candidate, data, manifest, rooms, requests, workers, bind=_bind):
+    """dev_select._scored with this amendment's binding (requests: placement rows by uid; bind: amendment 018's own)."""
     path = root / candidate / f'infer-{ARM}'
     records, receipt = e._inference(path, data, manifest['expected_uids'])
     if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
         raise ValueError('dev inference used other training data')
-    _bind(receipt, root.parent, candidate)
+    bind(receipt, root.parent, candidate)
     rows, caps = _scored_rows(records, rooms, requests, workers)
     info = {'inference': {'path': str(path.resolve()), 'run_sha256': receipt['run_sha256'],
                           'manifest_sha256': h.sha256(path / 'MANIFEST.json'), 'stage': receipt['stage'],
