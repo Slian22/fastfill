@@ -93,7 +93,11 @@ def _write_tables(out, summary):
     (out / 'report.md').write_text('\n'.join(lines) + '\n')
 
 
-def evaluate(data, runs, out, repeats=2000, workers=1):
+def evaluate(data, runs, out, repeats=2000, workers=1, stage_label=None):
+    """stage_label 'selected' (amendment 010): each arm's dev-selected model, whose stage and LoRA loading
+    may differ between arms (e.g. SFT runtime merge vs a DPO stage's exact policy); all else stays paired."""
+    if stage_label not in (None, 'selected'):
+        raise ValueError('stage label must be selected')
     data, out = Path(data), Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -123,16 +127,18 @@ def evaluate(data, runs, out, repeats=2000, workers=1):
     first, second = (receipts[arm] for arm in h.ARMS)
     if first['base_sha256'] != second['base_sha256']:  # Generic Qwen3-8B lineage root, also for merged stages.
         raise ValueError('base checkpoint mismatch between arms')
-    if first.get('stage') != second.get('stage'):  # Amendment 008: SFT (absent), dpo1 or dpo2.
+    if stage_label is None and first.get('stage') != second.get('stage'):  # Amendment 008: SFT (absent), dpo1 or dpo2.
         raise ValueError('model stage mismatch between arms')
     if first.get('context_plan_sha256') != second.get('context_plan_sha256'):
         raise ValueError('paired context budget plan mismatch')
-    if any(first['config'].get(k) != second['config'].get(k) for k in DECODE_KEYS):
+    if any(first['config'].get(k) != second['config'].get(k) for k in DECODE_KEYS if stage_label is None or k != 'lora'):
         raise ValueError('decoding protocol mismatch between arms')
     strata = {source + '/' + kind: {arm: g.aggregate([r for r in rows if r['source'] == source
                 and norm_room_type(r.get('room_type')) == kind]) for arm, rows in output_rows.items()}
               for source, kind in PAPER_STRATA}
-    summary = {'status': 'GEOMETRY_COMPLETE', 'stage': first.get('stage', 'sft'),  # Amendment 009 label.
+    summary = {'status': 'GEOMETRY_COMPLETE', 'stage': stage_label or first.get('stage', 'sft'),  # Amendment 009 label.
+               **({'stages': {arm: r.get('stage', 'sft') for arm, r in receipts.items()},
+                   'lora': {arm: r['config']['lora'] for arm, r in receipts.items()}} if stage_label else {}),
                'expected_rooms_per_arm': len(expected),
                'arms': {arm: g.summarize(rows) for arm, rows in output_rows.items()}, 'paper_strata': strata,
                'paired': g.paired_intervals(output_rows['joint'], output_rows['placement'], repeats=repeats),
@@ -161,8 +167,10 @@ def main():
         parser.add_argument('--' + flag, type=Path, required=True)
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--repeats', type=int, default=2000)
+    parser.add_argument('--stage-label', choices=('selected',))  # Amendment 010: the two dev-selected models.
     args = parser.parse_args()
-    result = evaluate(args.data, {arm: getattr(args, arm) for arm in h.ARMS}, args.out, args.repeats, args.workers)
+    result = evaluate(args.data, {arm: getattr(args, arm) for arm in h.ARMS}, args.out, args.repeats, args.workers,
+                      args.stage_label)
     print(json.dumps({'status': result['status'], 'rooms_per_arm': result['expected_rooms_per_arm']}))
 
 

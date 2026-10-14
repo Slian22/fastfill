@@ -15,15 +15,19 @@
 # batch 4; GPUs/CPUs as the v1.1 clean DPO job), then merge_lora on CPU, merge diagnostic and lineage receipt.
 # Expected ~2-3 h; resubmitting the same arguments resumes: training_guard refuses changed inputs, train_dpo
 # continues from ckpt_latest (every 100 optimizer steps and each epoch end), a finished stage is only re-verified.
+# Amendment 010: optional 4th argument CANDIDATE e1|rpo trains that regularised candidate in dpo-002|dpo-003
+# (dpo_stages train --candidate; pairs and SFT merges referenced from dpo-001), same GPUs/DDP/merge/lineage.
 set -euo pipefail
-test "$#" -eq 3
+test "$#" -eq 3 -o "$#" -eq 4
 PAIR_CODE_ROOT="$1"
 ARM="$2"
 STAGE="$3"
+CANDIDATE="${4:-}"
 case "$ARM" in joint|placement) ;; *) exit 2 ;; esac
 case "$STAGE" in dpo1|dpo2) ;; *) exit 2 ;; esac
+case "$CANDIDATE" in '') RUN=dpo-001 ;; e1) RUN=dpo-002 ;; rpo) RUN=dpo-003 ;; *) exit 2 ;; esac
 PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill
-DPO_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013/dpo-001"
+DPO_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013/$RUN"
 : "${SLURM_JOB_ID:?Slurm allocation required}"
 module load cudatoolkit/24.11_12.6
 export CUDA_HOME=/opt/nvidia/hpc_sdk/Linux_aarch64/24.11/cuda/12.6
@@ -41,4 +45,5 @@ nvidia-smi -L
 GPUS=$(nvidia-smi -L | grep -c '^GPU ' || true)
 test "$GPUS" -eq 4 || { echo "PREFLIGHT FAIL: need 4 GPUs for the DDP recipe, see $GPUS" >&2; exit 1; }
 timeout --signal=TERM --kill-after=120s 705m "$PROJECT_ROOT/env/bin/python" -B -u \
-  -m fastfill.comparison.dpo_stages train --arm "$ARM" --stage "$STAGE" --dpo-root "$DPO_ROOT"
+  -m fastfill.comparison.dpo_stages train --arm "$ARM" --stage "$STAGE" --dpo-root "$DPO_ROOT" \
+  ${CANDIDATE:+--candidate "$CANDIDATE"}

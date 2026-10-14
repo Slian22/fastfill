@@ -109,6 +109,37 @@ def sequence_logps(model: Any, input_ids: torch.Tensor, attention_mask: torch.Te
     return total
 
 
+def dpo_loss(pol_c, pol_r, ref_c, ref_r, beta, rpo_alpha=0.0, chosen_tokens=None):
+    """Sigmoid DPO; with rpo_alpha > 0 (RPO) plus alpha x the chosen response's mean token NLL under the policy.
+
+    Returns (loss, dpo term, chosen mean token NLL or None, logits_diff); rpo_alpha 0 is plain DPO, bit for bit.
+    """
+    logits_diff = (pol_c - ref_c) - (pol_r - ref_r)
+    dpo = -F.logsigmoid(beta * logits_diff).mean()
+    if chosen_tokens is None:
+        if rpo_alpha:
+            raise ValueError("RPO needs the chosen token counts")
+        return dpo, dpo, None, logits_diff
+    nll = (-pol_c / chosen_tokens).mean()
+    return (dpo + rpo_alpha * nll if rpo_alpha else dpo), dpo, nll, logits_diff
+
+
+def save_epoch_adapter(target: Path, raw_peft: Any, tok: Any, state: dict[str, int]) -> None:
+    """Amendment 010: the adapter at an epoch end, published by rename (a resumed epoch replaces it)."""
+    import shutil
+
+    tmp = target.with_name(f"{target.name}.tmp.{os.getpid()}")
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    tmp.mkdir(parents=True)
+    raw_peft.save_pretrained(tmp)
+    tok.save_pretrained(tmp)
+    (tmp / "epoch.json").write_text(json.dumps(state) + "\n", encoding="utf-8")
+    if target.exists():
+        shutil.rmtree(target)
+    os.replace(tmp, target)
+
+
 def accumulation_window_size(batch_index: int, batches: int, grad_accum: int) -> int:
     """Normalize the final partial window by its actual microbatch count.
 
@@ -245,7 +276,11 @@ def main() -> None:
     ap.add_argument("--lora_alpha", type=int, default=64)
     ap.add_argument("--save_steps", type=int, default=150)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--rpo_alpha", type=float, default=0.0, help="RPO: + alpha x chosen mean token NLL (0 = plain DPO)")
+    ap.add_argument("--save_every_epoch", action="store_true", help="also save the adapter to OUT/epoch-NN at each epoch end")
     args = ap.parse_args()
+    if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
+        raise ValueError("--rpo_alpha must be finite and >= 0")
 
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
@@ -353,8 +388,9 @@ def main() -> None:
                 pol_c = sequence_logps(model, batch["c_input_ids"], batch["c_attention_mask"], batch["c_labels"])
             with sync_ctx():
                 pol_r = sequence_logps(model, batch["r_input_ids"], batch["r_attention_mask"], batch["r_labels"])
-                logits_diff = (pol_c - ref_c) - (pol_r - ref_r)
-                loss = -F.logsigmoid(args.beta * logits_diff).mean() / window_size
+                chosen_tokens = (batch["c_labels"][:, 1:] != -100).sum(dim=-1)
+                total, dpo_term, nll, logits_diff = dpo_loss(pol_c, pol_r, ref_c, ref_r, args.beta, args.rpo_alpha, chosen_tokens)
+                loss = total / window_size
                 backward_finite_loss(loss)
 
             if sync_step:
@@ -372,18 +408,27 @@ def main() -> None:
                                 "epoch": epoch + 1,
                                 "step": step,
                                 "total_steps": total_steps,
-                                "dpo_loss": round(float(loss.item() * window_size), 4),
+                                "dpo_loss": round(float(dpo_term.item()), 4),
+                                "chosen_nll": round(float(nll.item()), 4),
+                                "loss": round(float(total.item()), 4),
                                 "reward_acc": round(acc, 4),
                                 "reward_margin": round(margin, 4),
                             }
                         ),
                         flush=True,
                     )
-                if args.save_steps > 0 and (step % args.save_steps == 0 or (it + 1) == len(loader)):
+                epoch_end = (it + 1) == len(loader)
+                save_ckpt = args.save_steps > 0 and (step % args.save_steps == 0 or epoch_end)
+                save_epoch = args.save_every_epoch and epoch_end
+                if save_ckpt or save_epoch:
                     if is_ddp:
                         dist.barrier()
                     if rank == 0:
-                        _save_dpo_ckpt(ckpt_dir, raw_peft, opt, sched, {"epoch": epoch, "it": it, "step": step})
+                        if save_epoch:  # Before the checkpoint: a resume after it never skips this epoch's adapter.
+                            save_epoch_adapter(args.out / f"epoch-{epoch + 1:02d}", raw_peft, tok,
+                                               {"epoch": epoch + 1, "step": step})
+                        if save_ckpt:
+                            _save_dpo_ckpt(ckpt_dir, raw_peft, opt, sched, {"epoch": epoch, "it": it, "step": step})
                     if is_ddp:
                         dist.barrier()
 
