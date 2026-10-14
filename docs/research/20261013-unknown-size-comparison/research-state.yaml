@@ -77,6 +77,8 @@ handoff_20261014:
     a014_optiscene_reproduction: {snapshot: main-785ae6a74, sft: 7406351, merge_sft: 7406352, gen_sft: 7406353, dpo1: [7406354, 7406355], merge_dpo1: 7406356, gen_dpo1: 7406357, dpo2: [7406358, 7406359], merge_dpo2: 7406360, gen_dpo2: 7406361, gen_8b: '7406362 FAILED (template check) -> 7409172 (main-849ea51cd)', score: '7406363 cancelled -> 7409174', out: RUN/optiscene-014, note: 'paper-comparable model = DPO2 stage; SFT/DPO1 are stage rows'}
     a015_e3_generation: {snapshot: main-6a48ccd32, gen_sft: 7408059, gen_dpo1: 7408060, gen_dpo2: 7408061, score: 7408062, gen_8b: 'resubmit after 014 8B smoke'}
   a016_submitted: {tooling: ab2548d0d, addendum_C: 8a832aa95, snapshot: main-8a832aa95, pilots: {O2: 7409061, O6: 7409065, O4: 7409069, O7: 7409073, L_api: 7409077}, fulls: {O2: 7409081, O6: 7409085, O4: 7409089, O7: 7409093}, O2_gt_pilot: 7409103, range: 7409061-7409106, outputs: 'RUN/llm-open-SYS-P[-pilot]-001, RUN/llm-eval-SYS-P[-pilot]-v1, RUN/s1-016-size-fixed/', gpu_ceiling_min: 2010}
+  a016_ablation: {snapshot: main-4a92e2f57, after: 7409993, train: {rft: 7410434, rft_s43: 7410439, pert: 7410443, op_dpo2_s43: 7410447}, dev: '7410436-7410450', score: 7410451, out: RUN/dev-eval-016}
+  a013_pairs: {rooms: 3000, rooms_with_pair: 1514, pairs: 4496, meets_floors: true}
   a016_local: {scale_curve: 'running locally (6 workers) -> H/scale-curve-016; no cap-rule inputs locally (T6: 0 flips)', seeds_workflow: wz2dlyjv4}
   not_started:
     a016: '§2 compare (agents_016 compare, local) after pilot S1; §3 ablation after 7407094 + seeds build; §4 OptiScene+S1 after 7406363/7408062'
