@@ -78,3 +78,21 @@ Locked 2026-10-14 (UTC), before any amendment-018 sample, pair, training step or
 | DPO2-D sampling | ~2 |
 | dev | ~12 |
 | test | ~70 (only if adopted) |
+
+## Addendum A (locked before any amendment-018 output exists; implementation details from the tooling at the commit before this one)
+
+1. **GPU caps.** The user has authorised more GPUs, so:
+   - the teacher cap is raised from 35 to **50 GPU-h**;
+   - the amendment-018 total cap is raised from 150 to **170 GPU-h** (the teacher's own GPU-h count toward it).
+
+   The teacher time limit per shard is 1.5 × (load + per-token rate × that bin's mean output tokens per room), with both the rate and the token means taken from the O2 size-fixed pilot. A shard that times out resumes from its receipts, and the rerun counts toward the cap.
+2. **T-B shortfall.** If the > 50-object bin cannot fill its third and there is no denser bin to spill into, the shortfall is recorded and never refilled.
+3. **Teacher targets.**
+   - Targets are written in P's training format (cm positions, whole-degree yaw, `on`), then re-parsed and re-scored. A target whose verdict changes after rounding is dropped and counted (`rounding_broke`).
+   - An answer that hits the token cap without stopping is a failure (the report_v2 cap rule).
+   - Every shard's engine config must equal the O2 size-fixed pilot's, except for the train-room cohort rule.
+4. **`llm_open --all-rooms`** lets the teacher read train rooms. It enters a run's identity only when given, so every existing run identity is unchanged (tested).
+5. **DPO2-D floors.** If DPO2-D's pairs miss the amendment-013 floors (1,500 pairs, 600 rooms), DPO2-D is not trained, is not a candidate, and the selection report says so.
+6. **Receipt format.** Lineage receipts label every stage `dpo2`, with parent rpo-dpo1, because the existing lineage format allows nothing after `dpo2`. The true chain (SFT → rpo-dpo1 → SFT-D → DPO1-D → DPO2-D) and the start adapter's hash are recorded in `training.chain` and `training.init`.
+7. **§4 reports.** The §4 test reports (P's slot filled by the adopted candidate in the cohort comparison with the agents) must be implemented and locked by a further addendum before the test chain is submitted.
+8. **Bad node.** Every amendment-018 job excludes nid010216, a node whose GPUs failed.
