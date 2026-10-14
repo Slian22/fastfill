@@ -57,7 +57,15 @@ export TORCHINDUCTOR_CACHE_DIR="$SYSTEM_CACHE/torchinductor" TRITON_CACHE_DIR="$
 # FlashInfer's sampler JIT build fails on this GH200 image; large checkpoints may need a long engine start.
 export VLLM_USE_FLASHINFER_SAMPLER=0 VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1 VLLM_ENGINE_READY_TIMEOUT_S=3600
 # DeepSeek-V4 (O5): DeepGEMM JIT fails on this image (nvcc 13.4 vs pip CCCL headers); use non-DeepGEMM FP8 paths.
-if test "$SYSTEM" = O5; then export VLLM_USE_DEEP_GEMM=0 VLLM_MOE_USE_DEEP_GEMM=0; fi
+# Its hyper-connection layer still JIT-builds a DeepGEMM kernel: the image's default host compiler (gcc 7.5)
+# lacks the C++20 that DeepGEMM asks for, so nvcc uses the system g++-13; the pip nvcc is 13.4 while the cudart
+# headers torch cu130 ships are 13.0, which CCCL's same-version check rejects, so that check is disabled
+# (verified on the login node: the hc-prenorm kernel header compiles; the smoke gate checks the outputs).
+if test "$SYSTEM" = O5; then
+  export VLLM_USE_DEEP_GEMM=0 VLLM_MOE_USE_DEEP_GEMM=0
+  test -x /usr/bin/g++-13 || { echo "PREFLIGHT FAIL: /usr/bin/g++-13 missing" >&2; exit 1; }
+  export NVCC_PREPEND_FLAGS="-ccbin=/usr/bin/g++-13 -DCCCL_DISABLE_CTK_COMPATIBILITY_CHECK"
+fi
 mkdir -p "$VLLM_CACHE_ROOT" "$TORCHINDUCTOR_CACHE_DIR" "$TRITON_CACHE_DIR" "$XDG_CACHE_HOME"
 cd "$PAIR_CODE_ROOT"
 "$PYTHON" -B -c 'import shapely, fastfill.comparison.llm_open' || {
