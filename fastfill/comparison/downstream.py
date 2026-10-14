@@ -244,7 +244,8 @@ def accept(room, layout):
     if not representable:
         v.append(('R1_KEEPOUT_NOT_REPRESENTABLE', [], None, False))
     pl = {o['id']: {'pos': list(o['pos']), 'yaw': o['yaw'], 'on': o.get('parent')} for o in layout}
-    snap_inside(pl, {'objects': layout, 'fixed': []}, floor, (), room['boundary'])
+    if not floor.is_empty:  # The endpoint refuses an unrepresentable keep-out (R1) before it would snap.
+        snap_inside(pl, {'objects': layout, 'fixed': []}, floor, (), room['boundary'])
     lay = [{**o, 'pos': pl[o['id']]['pos']} for o in layout]
     c = check({**room, 'objects': lay})
     if not c['valid']:

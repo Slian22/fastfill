@@ -602,7 +602,9 @@ def repair(room, *, keepouts=None, constraints=(), max_trials=2000, time_limit=6
         if not progress:
             break
     after_a = state
-    if ctx['strict'] and not timed_out:                                      # stage b: strict downstream stage
+    # An empty usable floor (keep-outs cover the room; downstream R1 refuses it anyway) has nothing to snap into.
+    strict_skipped = 'empty_floor' if ctx['strict'] and ctx['strict']['floor'].is_empty else None
+    if ctx['strict'] and not timed_out and not strict_skipped:               # stage b: strict downstream stage
         strict_bad = lambda: [i for i in ctx['ids'] if _still(state, 'strict', (i,))]
         if strict_bad():
             pl = {i: {'pos': list(state['cur'][i]['pos']), 'yaw': state['cur'][i]['yaw'], 'on': ctx['parent'][i]}
@@ -653,7 +655,7 @@ def repair(room, *, keepouts=None, constraints=(), max_trials=2000, time_limit=6
                             'before_lists': before['lists'], 'trials': trials, 'steps': steps,
                             'runtime_s': time.monotonic() - started, 'timed_out': timed_out,
                             'budget_exhausted': budget, 'rolled_back': rolled, 'keepout_source': source,
-                            'keepouts': keepouts, 'downstream': verdict}}
+                            'keepouts': keepouts, 'downstream': verdict, 'strict_skipped': strict_skipped}}
 
 
 # ------------------------------------------------------------------ rows, summary, CLI

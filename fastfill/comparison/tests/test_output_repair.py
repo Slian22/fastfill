@@ -52,6 +52,16 @@ class RepairTests(unittest.TestCase):
         self.assertTrue(all(b <= a for a, b in zip(before['v'], after['v'])), (before['v'], after['v']))
         return before, after
 
+    def test_door_keepout_covering_the_whole_floor_skips_the_strict_stage(self):
+        # structured3d_00488_room_4256 (dev): a 2.5 x 1 m room whose 2.38 m door strip covers the floor.
+        wide = {'id': 'door_1', 'category': 'door', 'size': [2.38, 0.1, 2.57], 'pos': [1.24, 1.12, 0], 'yaw': 0.0}
+        raw = room([obj('unknown_1', 'cabinet', (.64, .64, .5), (.9, .49, 0))], [wide],
+                   boundary=[[0, 0], [2.5, 0], [2.5, 1], [0, 1]])
+        result = r.repair(copy.deepcopy(raw))
+        self.assertEqual(result['diagnostics']['strict_skipped'], 'empty_floor')
+        self.assertFalse(result['diagnostics']['downstream']['raw']['accepted'])
+        self.assert_invariants(raw, result)
+
     def test_colocated_duplicate_wardrobes_separated_deterministically(self):
         raw = room([obj('wardrobe_a', 'wardrobe', (.6, 1.2, 2), (4.6, 2.0, 0), math.pi),
                     obj('wardrobe_b', 'wardrobe', (.6, 1.2, 2), (4.6, 2.0, 0), math.pi),
