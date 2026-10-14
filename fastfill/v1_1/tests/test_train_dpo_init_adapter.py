@@ -216,3 +216,16 @@ def test_sft_only_trains_the_chosen_mean_token_nll_without_reference_or_rejected
     assert args['sft_only'] is True and args['init_adapter'] == str(tiny.init) and args['rpo_alpha'] == 0
     with pytest.raises(ValueError, match='--rpo_alpha must be 0'):  # No hidden DPO term.
         run(train_dpo, monkeypatch, capsys, tiny, tiny.root / 'bad', '--sft_only')
+
+
+def test_init_policy_loads_both_adapters_on_cpu(tiny, monkeypatch):
+    """A bare 'cuda' becomes cuda:0 in safetensors: every DDP rank would open GPU 0 (busy on exclusive-process nodes)."""
+    import peft.peft_model as pm
+    seen, real = [], pm.load_peft_weights
+
+    def spy(model_id, device=None, **kw):
+        seen.append(device)
+        return real(model_id, device=device, **kw)
+    monkeypatch.setattr(pm, 'load_peft_weights', spy)
+    train_dpo.init_policy(base(tiny), tiny.init, train_dpo.lora_config(R, ALPHA))
+    assert seen == ['cpu', 'cpu']

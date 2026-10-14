@@ -77,8 +77,10 @@ def init_policy(base: Any, path: Path, expected: LoraConfig) -> Any:
     if (any(getattr(found, k, None) != getattr(expected, k) for k in INIT_FIELDS)
             or set(found.target_modules) != set(expected.target_modules)):
         raise ValueError(f"--init_adapter LoRA config differs from this run's (r, alpha, dropout, targets): {path}")
-    model = PeftModel.from_pretrained(base, str(path), adapter_name=POLICY, is_trainable=True)
-    model.load_adapter(str(path), adapter_name=REFERENCE, is_trainable=False)
+    # torch_device='cpu': safetensors maps a bare 'cuda' to cuda:0, so every DDP rank would open GPU 0 and ranks 1-3 fail
+    # with 'device busy' on nodes in exclusive-process mode (013/018 trains); the model moves to its rank's GPU later.
+    model = PeftModel.from_pretrained(base, str(path), adapter_name=POLICY, is_trainable=True, torch_device="cpu")
+    model.load_adapter(str(path), adapter_name=REFERENCE, is_trainable=False, torch_device="cpu")
     for module in model.modules():
         if isinstance(module, LoraLayer):
             module.lora_dropout[REFERENCE] = torch.nn.Identity()
