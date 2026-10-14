@@ -139,3 +139,8 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 
 - DPO2 训练 J 7389123（1:51:24）、P 7389125（1:57:08）完成；训练后期 dpo_loss≈0、reward_acc 1.0、margin 13–15（硬负样本易分，需在评测中检查是否过度优化）。合并诊断（投影层 BF16 改变比例）：J dpo1 9–19%、dpo2 5–11%；P dpo1 11–19%、dpo2 5–10%；非 LoRA 层 0%。
 - DPO2 测试分片 12 个已启动（infer-v2-004）；DPO1 分片完成约 35–47%。O2 全量运行中；O5 第三次（Marlin，关闭 DeepGEMM）排队中。
+
+## 2026-10-14 04:10–04:40 UTC — DPO1（官方超参）测试结果：崩坏；修订 010
+
+- DPO1 几何 7389141、报告 7394713（results/report-v2-dpo1-001）：J 几何成功 0.388→0.213、log MAE 0.286→0.590、足迹偏差 −0.08→−0.36；P 几何成功 0.390→0.093，完整输出仅 4,291/8,647（JSON 无效 2,532）。训练日志 reward margin 震荡并饱和（第 8 epoch 起 loss≈0）——DPO 过度优化/似然位移崩坏；仅保存最终步，无法回溯早停。
+- 修订 010（3437401e1，查看 DPO1 测试后制定，已披露；DPO2 测试未查看）：两组正则化候选 e1（官方超参但每阶段 1 epoch）与 rpo（lr 5e-6、3 epoch、RPO α=1），以 600 间 dev 房间（从未用于训练/测试决策）选模：资格 = dev 完整率 ≥ SFT−0.01 且 log MAE ≤ SFT+0.01，取 dev (a′) 最高者，SFT 为兜底；交付规则改为在两臂各自选中的模型间应用。实现 workflow w0sm1g31g 进行中。
