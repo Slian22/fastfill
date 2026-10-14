@@ -115,3 +115,15 @@ GT pass rates and failure reasons per source, and the sensitivity of GT / J / P 
 6. **§5 source split:** the list fixed in §5 is used as is. The stratum is labelled "real-world or curated sources (as listed)" because SpatialLM, HSSD200, InteriorGS and Structured3D are designer-made rather than scanned. IL3D_3dfront stays in the synthetic stratum, as listed.
 7. **§6 tucked chairs:** a downstream-acceptance variant that does not count tucked chairs is not computed, because `downstream.accept` has no switch for it and the rules must not be copied. The share of rooms failing on A4_COLLISION is reported instead.
 8. **A5 seeds:** a second seed (43) for the RFT and op-dpo2 arms is still to be built. The seed changes only the data order and the LoRA initialisation; data, steps, init adapter, training base and reference stay as in the seed-42 arms. A §3 interpretation claim requires both seeds to agree.
+
+## Addendum D (locked before any §3 output exists; corrects addendum C item 8)
+
+- **What the seed changes.** `train_dpo --seed` sets two things:
+  - the DistributedSampler's data order, including the ≤ 3 duplicated rows that pad each epoch when N is not a multiple of 4;
+  - the random stream for LoRA dropout (`transformers.set_seed`).
+- **What it does not change.**
+  - The LoRA starting weights are fixed by `--init_adapter`, the rpo-dpo1 adapter, so they do not depend on the seed.
+  - The training file, step count, training base and reference policy are the same for both seeds.
+- **Correction.** Addendum C8's "data order and LoRA initialisation" is wrong on the second point and is corrected here.
+- **(b) vs (d) at the same seed.** The data order is the same, but the losses differ by more than the DPO term: the dropout streams diverge, because the DPO path runs two policy forwards per batch.
+- **Applicability.** The §3 rule that a claim needs both seeds to agree is unchanged. The ablation chain waits for the restarted amendment-013 train job 7409993.
