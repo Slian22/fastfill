@@ -1,7 +1,7 @@
 """S1: deterministic minimum-displacement repair of predicted layouts; raw is always kept and reported beside it.
 
 python -m fastfill.comparison.output_repair --data EVAL --geometry RUN/joint-geometry.jsonl \
-    --requests-arm joint|placement --out NEW_DIR [--workers N] [--max-trials 2000] [--time-limit 60]
+    --requests-arm joint|placement --out NEW_DIR [--workers N] [--max-trials 2000] [--time-limit 60] [--uids FILE]
 
 Only XY translations of whole support subtrees. ids, order, categories, size, yaw, parent, z and the object count
 never change; nothing is dropped, merged or resized. Unmoved objects keep their raw pos bit for bit; a moved object
@@ -39,8 +39,10 @@ beside it). Stages a and b have max_trials trials each (deterministic limit); ti
 and marks the room timed_out (not reproducible). Deployed, S1 must run inside serve.py before its validation.
 Keep-outs: the request's, else downstream.door_strips (keepout_source). Rows: <geometry stem>-s1.jsonl = the original
 row + s1_layout + s1 (raw and S1 metrics side by side, downstream.accept before and after); repaired_layout is left as
-is. Rates use every frozen request as denominator (the geometry file must cover every request); an incomplete row
-passes through and counts as a failure. Summary strata: object count, rectangle / not, doorless / with doors, source.
+is. Rates use every frozen request as denominator (the geometry file must cover every request); with --uids FILE (a
+JSON list of uids, or a cohort JSON with 'uids', e.g. RUN/llm-cohort-v1.json) exactly those uids instead (the geometry
+file must cover exactly them). An incomplete row passes through and counts as a failure. Summary strata: object count,
+rectangle / not, doorless / with doors, source.
 """
 import argparse
 import collections
@@ -785,13 +787,24 @@ def summarize(rows):
             'by_source': {k: _aggregate([r for r in rows if r['source'] == k]) for k in sources}}
 
 
-def _report(out, summary):
+def load_uids(path):
+    """--uids FILE: a JSON list of uids, or a cohort JSON with 'uids'."""
+    value = h.strict_json(Path(path).read_text())
+    uids = value.get('uids') if isinstance(value, dict) else value
+    if not isinstance(uids, list) or not uids or not all(isinstance(u, str) and u for u in uids) \
+            or len(set(uids)) != len(uids):
+        raise ValueError('uids: expected a nonempty list of unique uid strings')
+    return uids
+
+
+def _report(out, summary, given=None):
     fmt = lambda v: '—' if v is None else f'{v:.3f}'
+    denominator = '全部冻结请求' if given is None else f'--uids 给定的全部 {given} 个请求'
     lines = ['# S1 输出修复：raw 与 S1 并列', '',
              'S1 只平移整棵支撑子树；类别、物体集合、id、尺寸、朝向、父物体和 z 都不变，修不好只标记。S1 不替换 raw。', '',
              '几何成功 = geometry_success（冻结检查器）。下游接受 = downstream.accept（EmbodiedGen Path A 规则的 FastFill 移植；'
              '门禁区按后端规则由门的固定框合成，属近似，详见 downstream.py）。两者都过 = 同时满足。'
-             '比率分母为全部冻结请求，未完成输出与无法修复的房间都计为失败。', '',
+             f'比率分母为{denominator}，未完成输出与无法修复的房间都计为失败。', '',
              '| 范围 | 请求 | 几何成功 raw → S1 | 下游接受 raw → S1 | 两者都过 raw → S1 | 位移中位 / p95，全部物体 (m) '
              '| 位移中位 / p95，仅被移动物体 (m) | 超时 |',
              '|---|---:|---:|---:|---:|---:|---:|---:|']
@@ -811,7 +824,7 @@ def _report(out, summary):
     (out / 'report.md').write_text('\n'.join(lines) + '\n')
 
 
-def run(data, geometry, requests_arm, out, workers=1, max_trials=2000, time_limit=60.0):
+def run(data, geometry, requests_arm, out, workers=1, max_trials=2000, time_limit=60.0, uids=None):
     data, geometry, out = Path(data), Path(geometry), Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -822,8 +835,11 @@ def run(data, geometry, requests_arm, out, workers=1, max_trials=2000, time_limi
     name = requests_arm + '/requests.jsonl'
     requests = h._by_uid(h._rows(data, name, manifest['files'][name]))
     rows = h._rows(geometry.parent, geometry.name, e._verified(geometry.parent)['files'][geometry.name])
-    if {x['uid'] for x in rows} != set(requests):             # else the rate denominator silently shrinks
+    given = None if uids is None else load_uids(uids)
+    if given is None and {x['uid'] for x in rows} != set(requests):   # else the rate denominator silently shrinks
         raise ValueError('geometry rows must cover every frozen request')
+    if given is not None and {x['uid'] for x in rows} != set(given):
+        raise ValueError('geometry rows must cover exactly the given uids')
     tasks = []
     for row in rows:
         room, request = rooms.get(row['uid']), requests.get(row['uid'])
@@ -851,12 +867,15 @@ def run(data, geometry, requests_arm, out, workers=1, max_trials=2000, time_limi
                                    'strict_ok': 'downstream.accept_path_a_strict_every_door_entry',
                                    'accepted': 'geometry_success_and_strict_ok', 'windows': 'not_gated'},
                'summary': summarize(results), 'code_sha256': code}
+    if given is not None:
+        summary['inputs']['uids'] = {'file': Path(uids).name, 'sha256': h.sha256(uids), 'count': len(given)}
+        summary['metric_contract']['rate_denominator'] = 'given_uids'
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.' + out.name + '-', dir=out.parent) as tmp:
         dest = Path(tmp)
         (dest / (geometry.stem + '-s1.jsonl')).write_text(''.join(json.dumps(r, allow_nan=False) + '\n' for r in results))
         h.write_json(dest / 'summary.json', summary)
-        _report(dest, summary['summary'])
+        _report(dest, summary['summary'], None if given is None else len(given))
         h.write_json(dest / 'MANIFEST.json', {'files': h.artifact_manifest(dest), 'code_sha256': code})
         _publish(dest, out)
     return summary
@@ -870,8 +889,10 @@ def main():
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--max-trials', type=int, default=2000)
     parser.add_argument('--time-limit', type=float, default=60.0)
+    parser.add_argument('--uids', type=Path)
     args = parser.parse_args()
-    result = run(args.data, args.geometry, args.requests_arm, args.out, args.workers, args.max_trials, args.time_limit)
+    result = run(args.data, args.geometry, args.requests_arm, args.out, args.workers, args.max_trials, args.time_limit,
+                 args.uids)
     print(json.dumps({'status': result['status'], 'rows': result['rows']}))
 
 

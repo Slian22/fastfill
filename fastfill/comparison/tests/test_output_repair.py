@@ -359,6 +359,38 @@ class RowTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'cover every frozen request'):
                 r.run(wider, run / 'joint-geometry.jsonl', 'joint', root / 'out3')
 
+    def test_uids_restrict_the_denominator_to_exactly_those_requests(self):
+        bound, request, row = self.fixture()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data, run = root / 'data', root / 'run'
+            (data / 'joint').mkdir(parents=True)
+            run.mkdir()
+            (data / 'rooms.jsonl').write_text(json.dumps(bound) + '\n' + json.dumps({**bound, 'uid': 'r2'}) + '\n')
+            (data / 'joint' / 'requests.jsonl').write_text(json.dumps(request) + '\n'
+                                                           + json.dumps({**request, 'uid': 'r2'}) + '\n')
+            h.write_json(data / 'MANIFEST.json', {'files': h.artifact_manifest(data)})
+            (run / 'llm_harness-geometry.jsonl').write_text(json.dumps({**row, 'arm': 'llm_harness'}) + '\n')
+            h.write_json(run / 'MANIFEST.json', {'files': h.artifact_manifest(run)})
+            geometry = run / 'llm_harness-geometry.jsonl'
+            cohort, plain = root / 'cohort.json', root / 'uids.json'
+            cohort.write_text(json.dumps({'version': 1, 'uids': ['r']}))
+            plain.write_text(json.dumps(['r']))
+            summary = r.run(data, geometry, 'joint', root / 'out', uids=cohort)
+            self.assertEqual((summary['rows'], summary['summary']['all']['requests']), (1, 1))
+            self.assertEqual(summary['inputs']['uids'], {'file': 'cohort.json', 'sha256': h.sha256(cohort), 'count': 1})
+            self.assertEqual(summary['metric_contract']['rate_denominator'], 'given_uids')
+            self.assertIn('--uids 给定的全部 1 个请求', (root / 'out' / 'report.md').read_text())
+            self.assertEqual(r.run(data, geometry, 'joint', root / 'out2', uids=plain)['rows'], 1)
+            with self.assertRaisesRegex(ValueError, 'cover every frozen request'):
+                r.run(data, geometry, 'joint', root / 'out3')
+            for bad, match in ((['r', 'r2'], 'cover exactly the given uids'), (['r', 'r'], 'unique uid strings'),
+                               ({'uids': []}, 'unique uid strings'), ({'x': ['r']}, 'unique uid strings')):
+                plain.write_text(json.dumps(bad))
+                with self.assertRaisesRegex(ValueError, match):
+                    r.run(data, geometry, 'joint', root / 'out4', uids=plain)
+            self.assertFalse((root / 'out3').exists() or (root / 'out4').exists())
+
 
 if __name__ == '__main__':
     unittest.main()
