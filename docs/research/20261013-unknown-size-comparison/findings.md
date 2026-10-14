@@ -69,6 +69,23 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
   - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
   - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
 
+## Size-fixed regeneration, PILOT (amendment 016 §2, 300 pilot rooms; L and O2 only so far; EXPLORATORY)
+
+Every system gets P's input (train-prior sizes, enforced); rates over all 300 requests, harness variants.
+
+| System | complete | checker raw → S1 | admission strict raw → S1 | admission required={} raw → S1 |
+|---|---|---|---|---|
+| P (rpo-dpo1) | 1.000 | 0.513 → 0.827 | 0.367 → 0.490 | 0.720 → 0.803 |
+| L size-fixed | 1.000 | 0.947 → 0.977 | 0.677 → 0.723 | 0.787 → 0.850 |
+| O2 size-fixed | 0.930 | 0.920 → 0.923 | 0.640 → 0.690 | 0.707 → 0.767 |
+| L size-free (own sizes) | 1.000 | 0.933 → 0.960 | 0.690 → 0.727 | 0.797 → 0.863 |
+| O2 size-free (own sizes) | 0.970 | 0.953 → 0.967 | 0.713 → 0.750 | 0.817 → 0.873 |
+
+- **The size confound does NOT explain the agents' lead.** Given realistic sizes, gpt-6.1-sol and O2 re-plan and still pass the checker at 0.92–0.95, against P's 0.51. Their size-free scores barely change (L) or fall a little (O2 checker −0.03, admission −0.07 to −0.11).
+- **The substitution result was misleading as a ranking.** "Under prior sizes P ≥ L" held only for layouts planned around small furniture. Read as a ranking it was wrong, and it is withdrawn as ranking evidence. It still shows that self-chosen sizes are undersized and would yield miniature furniture in RoomGenBench.
+- **Where P is closest.** Only on admission with required = {} after S1: P 0.803 vs O2-fixed 0.767 vs L-fixed 0.850. On the checker, P + S1 (0.827) stays well below both (0.92–0.98).
+- **Unauthorised size changes:** L returned no sizes in 300 / 300 answers, and one object's z was recomputed.
+
 ## Size confound: size substitution (amendment 016 §1, addendum A3; EXPLORATORY; `results/scale-curve-016/`)
 
 Each system keeps its own positions, yaw and support; only the sizes are replaced (x/y/z, primary per addendum C3; supported children follow their parent). Shown: downstream acceptance on the 1,454-room cohort, raw outputs, with house-cluster CIs (2,000 draws).
@@ -84,7 +101,7 @@ Each system keeps its own positions, yaw and support; only the sizes are replace
 | O6 | 0.536 | 0.107 | 0.087 | −0.346 |
 | O7 harness | 0.410 | 0.156 | 0.104 | −0.323 |
 
-- **Agents' scores depend on undersizing.** With realistic sizes the agents' acceptance falls by 0.39–0.52 (L, O2) and 0.32–0.45 (O4, O6, O7). The GT layout falls by only 0.18 under the prior. Under the same prior sizes, P (0.354) is at least as high as L (0.339) and above every open model (0.11–0.20). The checker shows the same pattern: own → prior is L 0.935 → 0.550, O2 0.928 → 0.382, P 0.519, GT 0.725 → 0.433.
+- **Agents' self-chosen sizes are undersized** (superseded as ranking evidence by the size-fixed pilot above). With realistic sizes the agents' acceptance falls by 0.39–0.52 (L, O2) and 0.32–0.45 (O4, O6, O7). The GT layout falls by only 0.18 under the prior. Under the same prior sizes, P (0.354) is at least as high as L (0.339) and above every open model (0.11–0.20). The checker shows the same pattern: own → prior is L 0.935 → 0.550, O2 0.928 → 0.382, P 0.519, GT 0.725 → 0.433.
 - **Caveat.** Substitution keeps a layout that was planned for the agent's own (smaller) sizes, so it measures how much of the pass rate rests on those sizes, not how well the agent would place furniture of the given size. The fair placement test is the size-fixed regeneration (§2, running).
 - **Scale curves are sensitivity only, as the protocol says.** GT has the steepest checker curve (slope −0.69 over s 0.80–1.00). Agents are flat below s = 1 and drop sharply above it: they already sit at the knee. Steepness is therefore not evidence of gaming.
 - **The downstream rules are strict even for GT** (rule table, all test). GT fails:
