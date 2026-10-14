@@ -18,7 +18,7 @@ from shapely.geometry import Polygon
 from fastfill import scene
 from fastfill.adapters.optiscene_holodeck import raw_furniture
 from fastfill.adapters.unified import convert_room
-from fastfill.comparison import contract, geometry
+from fastfill.comparison import contract, geometry, report_v2
 from fastfill.comparison import optiscene_eval as oe
 from fastfill.comparison.tests import test_infer_shard as T
 from fastfill.validate import check
@@ -556,6 +556,21 @@ def publish_gen(gen, name, plan, records):
                       {'plan_manifest_sha256': oe._sha(plan / 'MANIFEST.json'), 'limit': None})
 
 
+def publish_p(tmp, e2world):
+    """P's geometry-v5 rows (its answer = the GT placement) and inference records; the IL3D output hit the token cap."""
+    p_rows, p_records = [], []
+    for r in e2world.labels:
+        request = contract.messages(r, 'placement', estimated_sizes=e2world.prior[r['uid']])
+        p_rows.append(geometry.score(r, request[:2], request[2]['content'], 'placement'))
+        p_records.append({'uid': r['uid'], 'reached_token_cap': r['source'] == 'IL3D_3dfront', 'stopped_on_eos': False})
+    oe._publish_files(tmp / 'geometry-v5', {'placement-geometry.jsonl': oe._jsonl_bytes(p_rows),
+                                            'summary.json': json.dumps({'inference_run_sha256': {
+                                                'placement': 'r' * 64}}).encode()}, {})
+    oe._publish_files(tmp / 'infer-placement-005', {'records.jsonl': oe._jsonl_bytes(p_records),
+                                                    'run_receipt.json': json.dumps({'run_sha256': 'r' * 64}).encode()},
+                      {})
+
+
 def test_score_end_to_end_with_fake_generations_and_p(world, e2world):
     tmp = world.tmp
     oe.plan_e1(world.hf, world.data, tmp / 'e1')
@@ -575,17 +590,7 @@ def test_score_end_to_end_with_fake_generations_and_p(world, e2world):
                 text = gt_design({'room': rooms[r['uid']], **r}) if r['mode'] == 'gt' or model != 'sft' else '[Design]{[/Design]'
             records.append({'key': r['key'], 'uid': r['uid'], 'text': text, 'finish_reason': 'stop', 'error': None})
         publish_gen(tmp / 'gen', f'{model}-{plan}-{prompt}', tmp / plan, records)
-    p_rows, p_records = [], []
-    for r in e2world.labels:
-        request = contract.messages(r, 'placement', estimated_sizes=e2world.prior[r['uid']])
-        p_rows.append(geometry.score(r, request[:2], request[2]['content'], 'placement'))
-        p_records.append({'uid': r['uid'], 'reached_token_cap': r['source'] == 'IL3D_3dfront', 'stopped_on_eos': False})
-    oe._publish_files(tmp / 'geometry-v5', {'placement-geometry.jsonl': oe._jsonl_bytes(p_rows),
-                                            'summary.json': json.dumps({'inference_run_sha256': {
-                                                'placement': 'r' * 64}}).encode()}, {})
-    oe._publish_files(tmp / 'infer-placement-005', {'records.jsonl': oe._jsonl_bytes(p_records),
-                                                    'run_receipt.json': json.dumps({'run_sha256': 'r' * 64}).encode()},
-                      {})
+    publish_p(tmp, e2world)
     m = oe.score(tmp / 'e1', tmp / 'e2', tmp / 'gen', e2world.data, tmp / 'geometry-v5', tmp / 'infer-placement-005',
                  tmp / 'score', workers=1, repeats=2)
     summary = json.loads((tmp / 'score' / 'summary.json').read_text())
@@ -611,6 +616,115 @@ def test_score_end_to_end_with_fake_generations_and_p(world, e2world):
     with pytest.raises(ValueError, match='another e1 plan'):
         oe.score(e1_stub(tmp / 'e1-other', {}), tmp / 'e2', tmp / 'gen', e2world.data, tmp / 'geometry-v5',
                  tmp / 'infer-placement-005', tmp / 'score-2', workers=1, repeats=2)
+
+
+# ---- E3 (amendment 015): room families outside the paper's four -----------------------------------------------------
+
+PAPER = ('bedroom', 'living', 'kitchen', 'bathroom')
+
+
+def toy_families(monkeypatch, mapping):
+    """room_families.family stand-in: mapping, None -> none, anything else -> other."""
+    monkeypatch.setattr(oe, 'families', lambda: (lambda raw: 'none' if raw is None else mapping.get(raw, 'other'),
+                                                 PAPER, 'f' * 64))
+
+
+def test_plan_e3_samples_non_paper_families_with_plan_e2_requests_and_exposure(e2world, monkeypatch):
+    e1 = e1_stub(e2world.tmp / 'e1', {'HOLODECK-bedroom-7': 0.0})
+    oe.plan_e2(e2world.data, e2world.official, e1, e2world.tmp / 'e2')
+    toy_families(monkeypatch, {'bedroom': 'office', 'LivingRoom': 'living'})
+    m = oe.plan_e3(e2world.data, e2world.official, e1, e2world.tmp / 'e3')
+    holo = 'optiscene:HOLODECK-bedroom-7'
+    e2rows, e3rows = (oe._jsonl(e2world.tmp / k / 'requests.jsonl') for k in ('e2', 'e3'))
+    assert e3rows == [{**r, 'population': 'e3', 'stratum': 'office'} for r in e2rows if r['uid'] == holo]
+    exposure = {k: json.loads((e2world.tmp / k / 'exposure.json').read_text()) for k in ('e2', 'e3')}
+    assert exposure['e3'] == {holo: exposure['e2'][holo]} and exposure['e3'][holo]['seen'] is True
+    assert m['families'] == {'office': {'population': 1, 'selected': 1, 'sources': {'OptiScene_holodeck': 1},
+                                        'room_types': {'bedroom': 1}, 'seen': {'True': 1}}}
+    assert m['skipped_families'] == {'living': 1} and m['protocol'] == 'amendment-015' and m['plan'] == 'e3'
+    assert m['implementation_sha256']['room_families.py'] == 'f' * 64
+    assert m['training_families'] == {s: {'office': 5} for s in oe.DATA_FILES}  # 5 SFT rows, 5 pairs per DPO stage
+    toy_families(monkeypatch, {'bedroom': 'office', 'LivingRoom': 'office'})
+    capped = oe.plan_e3(e2world.data, e2world.official, e1, e2world.tmp / 'capped', cap=1)
+    first = min(e2world.labels, key=lambda r: hashlib.sha256(('optiscene-015-e3:' + r['uid']).encode()).hexdigest())
+    assert capped['families']['office']['population'] == 2 and capped['rooms'] == 1
+    assert {r['uid'] for r in oe._jsonl(e2world.tmp / 'capped' / 'requests.jsonl')} == {first['uid']}
+    toy_families(monkeypatch, {'bedroom': 'study_office'})  # LivingRoom -> other: skipped like none
+    other = oe.plan_e3(e2world.data, e2world.official, e1, e2world.tmp / 'other')
+    assert set(other['families']) == {'study_office'} and other['skipped_families'] == {'other': 1}
+
+
+def test_plan_e3_structured3d_uid_without_colon_falls_back_to_xywd(e2world, monkeypatch):
+    holo = e2world.labels[0]
+    s3d = {**holo, 'uid': 'structured3d_00001_room_1', 'source': 'Structured3D', 'room_type': 'garage'}
+    data = e2world.data
+    with open(data / 'rooms.jsonl', 'a') as f:
+        f.write(json.dumps(s3d) + '\n')
+    with open(data / 'size-estimates.jsonl', 'a') as f:
+        f.write(json.dumps({'uid': s3d['uid'], 'estimated_sizes': e2world.prior[holo['uid']]}) + '\n')
+    files = json.loads((data / 'MANIFEST.json').read_text())['files']
+    (data / 'MANIFEST.json').write_text(json.dumps({'files': {n: oe._sha(data / n) for n in files}}))
+    toy_families(monkeypatch, {'garage': 'garage'})
+    e1 = e1_stub(e2world.tmp / 'e1', {'HOLODECK-bedroom-7': 0.0})
+    m = oe.plan_e3(data, e2world.official, e1, e2world.tmp / 'e3')
+    entry = json.loads((e2world.tmp / 'e3' / 'exposure.json').read_text())[s3d['uid']]
+    assert entry['hf_scene_coverage'] is None and entry['coverage'] == 1.0 and entry['seen'] is True  # holo's copy
+    assert m['hf_scene_missing'] == 1 and m['families']['garage']['sources'] == {'Structured3D': 1}
+
+
+def test_score_e3_per_family_pooled_paired_and_unpublished_arms(e2world, monkeypatch):
+    tmp = e2world.tmp
+    toy_families(monkeypatch, {'bedroom': 'office', 'LivingRoom': 'study'})
+    oe.plan_e3(e2world.data, e2world.official, e1_stub(tmp / 'e1', {}), tmp / 'e3')
+    rows, rooms = oe._jsonl(tmp / 'e3' / 'requests.jsonl'), {r['uid']: r for r in e2world.labels}
+    for name in ('sft-e3-sft', '8b-e3-v1'):
+        publish_gen(tmp / 'gen', name, tmp / 'e3', [
+            {'key': r['key'], 'uid': r['uid'], 'finish_reason': 'stop', 'error': None,
+             'text': v1_text(r, rooms[r['uid']]) if r['format'] == 'v1' else gt_design({'room': rooms[r['uid']], **r})}
+            for r in rows if name.rsplit('-', 1)[1] in r['messages']])
+    publish_p(tmp, e2world)
+    monkeypatch.setattr(oe, 'TRAIN_MAX_OBJECTS', 3)
+    m = oe.score_e3(tmp / 'e3', tmp / 'gen', e2world.data, tmp / 'geometry-v5', tmp / 'infer-placement-005',
+                    tmp / 'score-e3', repeats=2)
+    summary = json.loads((tmp / 'score-e3' / 'summary.json').read_text())
+    assert summary['not_published'] == ['dpo1-e3-sft', 'dpo2-e3-sft'] and set(summary['e3']) == {
+        'sft-e3-sft', '8b-e3-v1', 'P'} and summary['status'] == 'EXPLORATORY'
+    for arm in ('sft-e3-sft', '8b-e3-v1'):
+        full = summary['e3'][arm]['prior']['all']['full']
+        assert set(full) == {'pooled', 'office', 'study'} and full['pooled']['requests'] == 2
+        assert full['pooled']['geometry_success_rate'] == full['study']['complete_rate'] == 1.0
+        assert summary['e3'][arm]['prior']['unseen']['full']['pooled']['requests'] == 1  # the 3D-FRONT house is unseen
+        paired = summary['paired_vs_P'][arm]
+        assert set(paired) == {'all', 'unseen'} and set(paired['all']) == {'pooled', 'office', 'study'}
+        assert paired['all']['pooled']['geometry_success']['replicates'] == 2
+        assert (paired['all']['pooled']['components'], paired['all']['pooled']['flags']) == (2, 'few clusters; small n')
+        assert paired['unseen']['pooled']['complete']['paired_rooms'] == 1
+        assert paired['unseen']['office']['components'] == 0
+        small = summary['e3_le3'][arm]['prior']['all']['full']  # TRAIN_MAX_OBJECTS 3: the 2-object IL3D room only
+        assert set(small) == {'pooled', 'study'} and small['pooled']['requests'] == 1
+        assert summary['paired_vs_P_le3'][arm]['all']['pooled']['complete']['paired_rooms'] == 1
+    p = summary['e3']['P']['prior']['all']['full']
+    assert p['study']['complete_rate'] == 0.0 and p['office']['complete_rate'] == 1.0  # IL3D P hit the token cap
+    assert summary['e3_le3']['P']['prior']['all']['full']['pooled']['requests'] == 1
+    assert summary['training_families'] == {s: {'office': 5} for s in oe.DATA_FILES}
+    p_rows = oe._jsonl(tmp / 'score-e3' / 'p-rows.jsonl')
+    assert oe._paired_flagged(p_rows, p_rows, 200)['complete']['ci95'] is None  # 2 components < report_v2.NO_CI
+    monkeypatch.setattr(report_v2, 'NO_CI', 2)
+    assert oe._paired_flagged(p_rows, p_rows, 200)['complete']['ci95'] == [0.0, 0.0]
+    assert summary['training_exposure']['8b-e3-v1'] == oe.EIGHT_B_EXPOSURE
+    assert set(m['gens']) == {'sft-e3-sft', '8b-e3-v1'} and m['protocol'] == 'amendment-015'
+    oe._publish_files(tmp / 'model', {'model.safetensors': b'w'}, {})
+    monkeypatch.setattr(oe, '_engine', lambda engine: (FakeLLM(lambda p: 'no'), lambda **kw: kw))
+    assert oe.generate(tmp / 'e3', 'sft', tmp / 'model', tmp / 'g')['protocol'] == 'amendment-015'
+    with pytest.raises(FileExistsError):
+        oe.score_e3(tmp / 'e3', tmp / 'gen', e2world.data, tmp / 'geometry-v5', tmp / 'infer-placement-005',
+                    tmp / 'score-e3', repeats=2)
+    with pytest.raises(ValueError, match='not a plan-e3'):
+        oe.score_e3(tmp / 'e1', tmp / 'gen', e2world.data, tmp / 'geometry-v5', tmp / 'infer-placement-005',
+                    tmp / 'other', repeats=2)
+    with pytest.raises(ValueError, match='no E3 generation'):
+        oe.score_e3(tmp / 'e3', tmp / 'nothing', e2world.data, tmp / 'geometry-v5', tmp / 'infer-placement-005',
+                    tmp / 'other', repeats=2)
 
 
 # ---- generation (fake vLLM) ----------------------------------------------------------------------------------------
@@ -806,7 +920,7 @@ def test_merge_applies_the_checkpoint_rule_and_publishes_once(trainer, monkeypat
 # ---- shell scripts -------------------------------------------------------------------------------------------------
 
 def test_scripts_parse():
-    for name in ('isambard_014.sbatch', 'submit_014.sh', 'setup_optiscene_env.sh'):
+    for name in ('isambard_014.sbatch', 'submit_014.sh', 'setup_optiscene_env.sh', 'submit_015.sh'):
         subprocess.run(['bash', '-n', str(SCRIPTS / name)], check=True)
     setup = (SCRIPTS / 'setup_optiscene_env.sh').read_text()
     assert 'trl==0.15.2 transformers==4.49.0 peft==0.14.0 accelerate==1.4.0 datasets==3.3.2 modelscope==1.23.2' in setup
@@ -947,3 +1061,92 @@ def test_submit_chain_holds_releases_and_refuses(tmp_path):
     novllm = subprocess.run(['bash', str(script), str(CODE)], env=env, capture_output=True, text=True)
     assert novllm.returncode == 1 and 'no executable' in novllm.stderr
     assert len((tmp_path / 'log').read_text().splitlines()) == 14  # Nothing new was submitted.
+
+
+@pytest.mark.parametrize('args, ok', [
+    (['job', 'plan-e3'], True), (['job', 'score-e3'], True), (['job', 'gen', 'dpo1'], True), (['job', 'gen', '8b'], True),
+    (['job', 'gen', 'base'], False), (['job', 'gen'], False), (['job', 'plan-e3', 'x'], False), (['job', 'other'], False),
+    (['1', '2'], False), (['x1', '-', '-'], False), (['', '-', '-'], False)])
+def test_submit_015_argument_checks(tmp_path, args, ok):
+    run = subprocess.run(['bash', str(SCRIPTS / 'submit_015.sh'), str(CODE), *args],
+                         env=T.stub_sbatch(tmp_path), capture_output=True, text=True)
+    assert (run.returncode, 'Slurm allocation required' in run.stderr) == ((1, True) if ok else (2, False))
+
+
+def test_submit_015_chain_skips_unmerged_stages_holds_releases_and_refuses(tmp_path):
+    project, code = tmp_path / 'project', tmp_path / 'code'
+    run = project / 'runs/unknownsize-20261013'
+    for path in [run / p for p in ('eval-data-v1/MANIFEST.json', 'geometry-v5/MANIFEST.json',
+                                   'dev-eval-010/selection.json', 'optiscene-014/sft-merged/MANIFEST.json',
+                                   'optiscene-014/gen/8b-dev-smoke-v1/MANIFEST.json')] + [
+            project / p for p in ('data/optiscene-014-e1/MANIFEST.json', 'data/optiscene-014-e1/hf-coverage.json',
+                                  'models/OptiScene-Qwen-8B-Final/config.json')] + [
+            project / 'data/optiscene-official' / n for n, _ in oe.DATA_FILES.values()] + [
+            code / 'fastfill/comparison' / n for n in ('optiscene_eval.py', 'room_families.py', 'submit_015.sh')]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{}')
+    for py in ('env/bin/python', 'vllm/bin/python'):  # Only the preflight import check runs: its exit code.
+        (project / py).parent.mkdir(parents=True, exist_ok=True)
+        (project / py).write_text('#!/bin/sh\nexit "${PY_EXIT:-0}"\n')
+        (project / py).chmod(0o755)
+    text = (SCRIPTS / 'submit_015.sh').read_text()
+    for line, new in (('PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill\n', f'PROJECT_ROOT={project}\n'),
+                      ('VLLM_PY=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python\n',
+                       f'VLLM_PY={project}/vllm/bin/python\n')):
+        assert text.count(line) == 1
+        text = text.replace(line, new)
+    script = tmp_path / 'submit_015.sh'
+    script.write_text(text)
+    (tmp_path / 'squeue').write_text(
+        '#!/bin/sh\ncase "$1 $2" in\n  "-h -u") test "$*" = "-h -u me -o %i %j" || exit 3; printf "%s" "$SQUEUE_OUT" ;;\n'
+        '  "-h -j") test "$4 $5" = "-o %j" || exit 3; for e in $IN_SLURM; do test "${e%%=*}" = "$3" && { echo "${e#*=}"; '
+        'exit 0; }; done; echo "Invalid job id specified" >&2; exit 1 ;;\n'
+        '  *) exit 3 ;;\nesac\n')
+    (tmp_path / 'squeue').chmod(0o755)
+    env = {**T.stub_sbatch(tmp_path), 'USER': 'me', 'IN_SLURM': '7001=optiscene-014-merge-dpo1 7002=optiscene-014-merge-dpo1'}
+    submit = lambda *ids, **kw: subprocess.run(['bash', str(script), str(code), *(ids or ('7001', '7002', '7003'))],
+                                               env={**env, **kw}, capture_output=True, text=True)
+    done = submit()
+    assert done.returncode == 0, done.stderr
+    assert 'skip gen-dpo2' in done.stdout and 'released 101' in done.stdout
+    log = [x.replace(f'{code}/fastfill/comparison/submit_015.sh {code} job ', 'B ')
+           for x in (tmp_path / 'log').read_text().splitlines()]
+    kill = '--parsable --kill-on-invalid-dep=yes --dependency='
+    gpu = '--gpus-per-node=1 --cpus-per-task=16 --mem=110G'
+    cpu = '--cpus-per-task=16 --mem=64G'
+    assert log == [
+        f'--parsable --hold --job-name=optiscene-015-plan-e3 {cpu} --time=02:00:00 B plan-e3',
+        f'{kill}afterok:101 --job-name=optiscene-015-gen-sft {gpu} --time=02:00:00 B gen sft',  # merged: no merge dep
+        f'{kill}afterok:7002:101 --job-name=optiscene-015-gen-dpo1 {gpu} --time=02:00:00 B gen dpo1',
+        f'{kill}afterok:101 --job-name=optiscene-015-gen-8b {gpu} --time=02:00:00 B gen 8b',
+        f'{kill}afterany:102:103:104 --job-name=optiscene-015-score-e3 {cpu} --time=04:00:00 B score-e3']
+    assert (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101\n'
+    failed = tmp_path / 'failed'
+    failed.mkdir()
+    (failed / 'squeue').write_bytes((tmp_path / 'squeue').read_bytes())
+    (failed / 'squeue').chmod(0o755)
+    bad = subprocess.run(['bash', str(script), str(code), '-', '7002', '-'],
+                         env={**T.stub_sbatch(failed, fail_on=3), 'USER': 'me',
+                              'IN_SLURM': '7002=optiscene-014-merge-dpo1'},
+                         capture_output=True, text=True)
+    assert bad.returncode == 1 and "sbatch failed for 'gen-dpo1'" in bad.stderr and 'scancel 101 102' in bad.stderr
+    assert not (failed / 'log.scontrol').exists()
+    for kw, message in (({'PY_EXIT': '1'}, 'cannot import'), ({'SQUEUE_OUT': '9001 optiscene-015-gen-8b\n'}, 'scancel 9001')):
+        refused = submit(**kw)
+        assert refused.returncode == 1 and message in refused.stderr and 'nothing submitted' in refused.stderr
+    for name in ('sft-merged', 'gen/8b-dev-smoke-v1'):
+        (run / 'optiscene-014' / name / 'MANIFEST.json').unlink()
+    dpo1 = submit('-', '7001', '-')  # nothing published: only dpo1, whose merge job 7001 is still in Slurm
+    assert dpo1.returncode == 0 and dpo1.stdout.count('skip gen-') == 3 and 'skip gen-8b' in dpo1.stdout
+    assert [x.replace(f'{code}/fastfill/comparison/submit_015.sh {code} job ', 'B ')
+            for x in (tmp_path / 'log').read_text().splitlines()[5:]] == [
+        f'--parsable --hold --job-name=optiscene-015-plan-e3 {cpu} --time=02:00:00 B plan-e3',
+        f'{kill}afterok:7001:106 --job-name=optiscene-015-gen-dpo1 {gpu} --time=02:00:00 B gen dpo1',
+        f'{kill}afterany:107 --job-name=optiscene-015-score-e3 {cpu} --time=04:00:00 B score-e3']
+    wrong = submit('7002', '-', '7002')  # a merge-dpo1 id given for sft and dpo2: not their merge job
+    assert wrong.returncode == 1 and 'no arm to generate' in wrong.stderr and 'nothing submitted' in wrong.stderr
+    assert "'7002' is no optiscene-014-merge-sft" in wrong.stdout
+    (run / 'optiscene-015').mkdir()
+    exists = submit()
+    assert exists.returncode == 1 and 'optiscene-015 exists' in exists.stderr
+    assert len((tmp_path / 'log').read_text().splitlines()) == 8  # Only the dpo1-only chain was added (3 jobs).

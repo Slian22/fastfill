@@ -29,6 +29,12 @@ Our env / the vLLM env (python -m fastfill.comparison.optiscene_eval ...):
   score --e1 PLAN_E1 --e2 OUT/e2 --gen OUT/gen --eval-data RUN/eval-data-v1 --p-geometry RUN/geometry-v5
         --p-run SELECTED_P_INFER --out OUT/score    E1 Table-6 analogue, E2 (gt/prior x full/floor x all/unseen), P
         rows with the amendment-005 cap rule, paired OptiScene(prior) - P
+Amendment 015 (EXPLORATORY), E3 = our test rooms whose room_families.family is not a paper family (bedroom, living,
+kitchen, bathroom) nor none/other, at most 100 per family by sha256('optiscene-015-e3:' + uid):
+  plan-e3 --eval-data RUN/eval-data-v1 --data DATA --e1 PLAN_E1 --out OUT15/e3    plan-e2's requests and exposure audit
+  score-e3 --e3 OUT15/e3 --gen OUT15/gen --eval-data ... --p-geometry ... --p-run ... --out OUT15/score-e3
+          every published E3_GENS arm and P per family and pooled, paired OptiScene(prior) - P per family and pooled
+          (all and unseen, report_v2 small-sample flags); all of it again on rooms with <= 14 objects (SFT maximum)
 
 Frames. Their text frame T (gprompt): x_T = raw.x, y_T = raw.z, z_T = raw.y, angle a = rad(rotation.y), box (h, w, d)
 = extents along mesh (y, x, z), origin = floor area centroid. IR: pos = (x_T + c_x, y_T + c_y, z_T), size = (d, w, h),
@@ -93,6 +99,9 @@ EIGHT_B_EXPOSURE = ('unknown: the training rooms of OptiScene-Qwen-8B-Final (Fas
 README_SAMPLING = ('not used: the README inference samples with generation_config (temperature 0.7, top-p 0.8, top-k 20, '
                    'repetition penalty 1.05); amendment 014 decodes greedily')
 WAITING = (None, 'PENDING', 'RUNNING', 'COMPLETING')  # sacct can still show these just after an afterany start
+E3_SEED, E3_CAP = 'optiscene-015-e3:', 100
+E3_GENS = ('sft-e3-sft', 'dpo1-e3-sft', 'dpo2-e3-sft', '8b-e3-v1')
+TRAIN_MAX_OBJECTS = 14  # sft_prompts.json: median 7, max 14 objects per room (dpo: max 17; dpo2: median 8, max 32)
 
 
 # ---- io ------------------------------------------------------------------------------------------------------------
@@ -645,11 +654,36 @@ def exposure_index(rows):
     return houses, holo
 
 
-def plan_e2(eval_data, data, e1, out, limit=None):
-    from fastfill import scene
-    from fastfill.comparison.eval_data import PAPER_STRATA
-    eval_data, e1, out = Path(eval_data), Path(e1), Path(out)
-    _refuse(out)
+def room_requests(room, prior, instr, population, stratum):
+    """One room's requests (plan-e2 and plan-e3): their input and the FastFill v1 request, gt and prior sizes."""
+    uid, rows = room['uid'], []
+    for mode, size in (('gt', {o['id']: o['size'] for o in room['objects']}), ('prior', prior)):
+        base = {'uid': uid, 'population': population, 'mode': mode, 'stratum': stratum, 'source': room['source']}
+        req = optiscene_request(room, size, instr)
+        rows.append({**base, 'key': f'{uid}|{mode}|optiscene', 'format': 'optiscene',
+                     **{k: req[k] for k in ('groups', 'ids', 'boxes', 'center')}, 'messages': {'sft': req['messages']}})
+        v1 = v1_request(room, size)
+        rows.append({**base, 'key': f'{uid}|{mode}|v1', 'format': 'v1', 'id_map': v1['id_map'],
+                     'order': v1['order'], 'messages': {'v1': v1['messages']}})
+    return rows
+
+
+def room_exposure(room, instr, sidecar, houses, holo, hf_cover):
+    """OptiScene training exposure of one room: 3D-FRONT house rule, else Holodeck xywd / HF scene coverage."""
+    uid = room['uid']
+    if room['source'] == 'IL3D_3dfront':
+        group = (sidecar.get(uid) or {}).get('original_group') or ''
+        house = group.split(':', 1)[1].lower() if group.startswith('3dfront:') else None
+        return {'rule': 'house', 'house': house, 'seen': None if house is None else house in houses}
+    center = optiscene_request(room, {o['id']: o['size'] for o in room['objects']}, instr)['center']
+    best = holo.best(holodeck_keys(room['objects'], center))
+    hf = hf_cover.get(uid.split(':', 1)[-1])  # None: no HF prompt row (Structured3D uids have no ':'), xywd decides
+    return {'rule': 'xywd_0.1m_cover_0.5 or hf_scene_cover_0.5', 'coverage': best, 'hf_scene_coverage': hf,
+            'seen': max(best, hf or 0.0) >= COVER}
+
+
+def plan_inputs(eval_data, e1):
+    """Verified eval-data rooms, prior sizes, inventory sidecar and plan-e1's HF scene coverage (plan-e2/e3)."""
     manifest = _verified(eval_data)
     if _verified(e1).get('plan') != 'e1':
         raise ValueError(f'{e1} is not a plan-e1 output')
@@ -658,6 +692,15 @@ def plan_e2(eval_data, data, e1, out, limit=None):
     sizes = {r['uid']: r['estimated_sizes'] for r in _jsonl(eval_data / 'size-estimates.jsonl')}
     sidecar = json.loads((eval_data / 'inventory-sidecar.json').read_text()) \
         if 'inventory-sidecar.json' in manifest['files'] else {}
+    return rooms, sizes, sidecar, hf_cover
+
+
+def plan_e2(eval_data, data, e1, out, limit=None):
+    from fastfill import scene
+    from fastfill.comparison.eval_data import PAPER_STRATA
+    eval_data, e1, out = Path(eval_data), Path(e1), Path(out)
+    _refuse(out)
+    rooms, sizes, sidecar, hf_cover = plan_inputs(eval_data, e1)
     stratum = lambda r: f"{r['source']}/{scene.norm_room_type(r.get('room_type'))}"
     wanted = {f'{s}/{k}' for s, k in PAPER_STRATA}
     picked = [r for r in rooms if stratum(r) in wanted]
@@ -674,31 +717,61 @@ def plan_e2(eval_data, data, e1, out, limit=None):
     houses, holo = exposure_index(rows)
     plan, exposure = [], {}
     for room in picked:
-        uid = room['uid']
-        gt_sizes = {o['id']: o['size'] for o in room['objects']}
-        for mode, size in (('gt', gt_sizes), ('prior', sizes[uid])):
-            base = {'uid': uid, 'population': 'e2', 'mode': mode, 'stratum': stratum(room), 'source': room['source']}
-            req = optiscene_request(room, size, instr)
-            plan.append({**base, 'key': f'{uid}|{mode}|optiscene', 'format': 'optiscene',
-                         **{k: req[k] for k in ('groups', 'ids', 'boxes', 'center')}, 'messages': {'sft': req['messages']}})
-            v1 = v1_request(room, size)
-            plan.append({**base, 'key': f'{uid}|{mode}|v1', 'format': 'v1', 'id_map': v1['id_map'],
-                         'order': v1['order'], 'messages': {'v1': v1['messages']}})
-        if room['source'] == 'IL3D_3dfront':
-            group = (sidecar.get(uid) or {}).get('original_group') or ''
-            house = group.split(':', 1)[1].lower() if group.startswith('3dfront:') else None
-            exposure[uid] = {'rule': 'house', 'house': house, 'seen': None if house is None else house in houses}
-        else:
-            center = optiscene_request(room, gt_sizes, instr)['center']
-            best = holo.best(holodeck_keys(room['objects'], center))
-            hf = hf_cover.get(uid.split(':', 1)[1])  # None: no HF prompt row, the xywd rule alone decides
-            exposure[uid] = {'rule': 'xywd_0.1m_cover_0.5 or hf_scene_cover_0.5', 'coverage': best,
-                             'hf_scene_coverage': hf, 'seen': max(best, hf or 0.0) >= COVER}
+        plan += room_requests(room, sizes[room['uid']], instr, 'e2', stratum(room))
+        exposure[room['uid']] = room_exposure(room, instr, sidecar, houses, holo, hf_cover)
     meta = {'protocol': 'amendment-014', 'plan': 'e2', 'seed': SEED, 'limit': limit,
             'eval_data_manifest_sha256': _sha(eval_data / 'MANIFEST.json'),
             'e1_plan_manifest_sha256': _sha(e1 / 'MANIFEST.json'),
             'inputs': {DATA_FILES[s][0]: rows[s][1] for s in DATA_FILES}, 'implementation_sha256': _code(),
             'population_by_stratum': dict(sorted(counts.items())), 'rooms': len(picked),
+            'exposure_counts': collections.Counter(str(v['seen']) for v in exposure.values()),
+            'hf_scene_missing': sum(v.get('hf_scene_coverage', 0) is None for v in exposure.values()),
+            'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio'}
+    return _publish_files(out, {'requests.jsonl': _jsonl_bytes(plan),
+                                'exposure.json': (_dumps(exposure, indent=1) + '\n').encode('utf-8')}, meta)
+
+
+# ---- E3 (amendment 015): our room families outside the paper's four -----------------------------------------------
+
+def families():
+    """room_families.family (raw room_type -> family), its PAPER_FAMILIES and the file's sha256 (lazy; tests patch)."""
+    from fastfill.comparison import room_families
+    return room_families.family, room_families.PAPER_FAMILIES, _sha(room_families.__file__)
+
+
+def plan_e3(eval_data, data, e1, out, cap=E3_CAP):
+    from fastfill import scene  # its norm_room_type decides every family
+    eval_data, e1, out = Path(eval_data), Path(e1), Path(out)
+    _refuse(out)
+    rooms, sizes, sidecar, hf_cover = plan_inputs(eval_data, e1)
+    family, paper, family_sha = families()
+    skip = (*paper, 'none', 'other')
+    by = collections.defaultdict(list)
+    for r in rooms:
+        by[family(r.get('room_type'))].append(r)
+    rank = lambda r: (hashlib.sha256((E3_SEED + r['uid']).encode('utf-8')).hexdigest(), r['uid'])
+    picked = [(f, r) for f in sorted(set(by) - set(skip)) for r in sorted(by[f], key=rank)[:cap]]
+    rows = official(data)
+    instr = instruction(rows['sft'][0])
+    houses, holo = exposure_index(rows)
+    plan, exposure = [], {}
+    for f, room in picked:
+        plan += room_requests(room, sizes[room['uid']], instr, 'e3', f)
+        exposure[room['uid']] = room_exposure(room, instr, sidecar, houses, holo, hf_cover)
+    count = lambda f, key: dict(collections.Counter(key(r) for g, r in picked if g == f))
+    receipt = {f: {'population': len(by[f]), 'selected': min(cap, len(by[f])),
+                   'sources': count(f, lambda r: r['source']), 'room_types': count(f, lambda r: r['room_type']),
+                   'seen': count(f, lambda r: str(exposure[r['uid']]['seen']))} for f in sorted(set(by) - set(skip))}
+    meta = {'protocol': 'amendment-015', 'plan': 'e3', 'status': 'EXPLORATORY', 'seed': E3_SEED, 'cap': cap,
+            'eval_data_manifest_sha256': _sha(eval_data / 'MANIFEST.json'),
+            'e1_plan_manifest_sha256': _sha(e1 / 'MANIFEST.json'),
+            'inputs': {DATA_FILES[s][0]: rows[s][1] for s in DATA_FILES},
+            'implementation_sha256': {**_code(), 'room_families.py': family_sha, 'scene.py': _sha(scene.__file__)},
+            'families': receipt,
+            'training_families': {s: dict(collections.Counter(  # training rows: SFT rows, DPO pairs (chosen input)
+                family(_TAG['Task Room Type'].search(r['input']).group(1)) for r in chosen(rows[s][0], s)))
+                for s in DATA_FILES},
+            'skipped_families': {f: len(by[f]) for f in skip if f in by}, 'rooms': len(picked),
             'exposure_counts': collections.Counter(str(v['seen']) for v in exposure.values()),
             'hf_scene_missing': sum(v.get('hf_scene_coverage', 0) is None for v in exposure.values()),
             'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio'}
@@ -737,7 +810,7 @@ def parse_ok(row, text):
 def generate(plan, prompt, model, out, gate_parse=None, limit=None):
     plan, model, out = Path(plan), Path(model), Path(out)
     _refuse(out)
-    _verified(plan)
+    protocol = _verified(plan).get('protocol', 'amendment-014')  # amendment 015 for plan-e3
     rows = [r for r in _jsonl(plan / 'requests.jsonl') if prompt in r['messages']][:limit]
     identity = check_eight_b(model) if prompt == 'v1' else {'path': str(model), 'manifest': _verified(model)}
     engine = {'model': str(model), 'max_model_len': MAX_MODEL_LEN, 'seed': 0, 'dtype': 'bfloat16',
@@ -761,7 +834,7 @@ def generate(plan, prompt, model, out, gate_parse=None, limit=None):
     if gate_parse is not None and (rate is None or rate < gate_parse):
         raise ValueError(f'strict parse rate {rate} < {gate_parse}: nothing published')
     versions = {p: _version(p) for p in ('vllm', 'torch', 'transformers')}
-    meta = {'protocol': 'amendment-014', 'prompt': prompt, 'plan_manifest_sha256': _sha(plan / 'MANIFEST.json'),
+    meta = {'protocol': protocol, 'prompt': prompt, 'plan_manifest_sha256': _sha(plan / 'MANIFEST.json'),
             'model': identity, 'engine': engine, 'sampling': {'temperature': 0, 'seed': 0, 'max_tokens': (
                 'max_model_len - prompt' if prompt == 'v1' else f'min({MAX_TOKENS}, max_model_len - prompt)')},
             **({} if prompt == 'v1' else {'readme_sampling': README_SAMPLING}),
@@ -925,12 +998,7 @@ def score(e1, e2, gen, eval_data, p_geometry, p_run, out, workers=1, repeats=200
         raise ValueError('e2 exposure was audited against another e1 plan')
     plan_rows = {k: _jsonl(path / 'requests.jsonl') for k, (path, _) in plans.items()}
     exposure = json.loads((Path(e2) / 'exposure.json').read_text())
-    rooms = {r['uid']: r for r in _jsonl(Path(eval_data) / 'rooms.jsonl') if r['uid'] in exposure}
-    requests = {r['uid']: r['messages'] for r in _jsonl(Path(eval_data) / 'placement/requests.jsonl')
-                if r['uid'] in exposure}
-    from fastfill.comparison.contract import messages
-    gt_requests = {u: messages(r, 'placement', estimated_sizes={o['id']: o['size'] for o in r['objects']})[:2]
-                   for u, r in rooms.items()}
+    rooms, requests, gt_requests = room_inputs(eval_data, exposure)
     e1_rows, e2_rows, summary = [], [], {'label': LABEL, 'e1': {}, 'e2': {}, 'paired_vs_P': {}, 'training_exposure': {
         f'{m}-{p}-{q}': EIGHT_B_EXPOSURE if m == '8b' else 'OptiScene release: e2/exposure.json'
         for m, p, q in GENS if p == 'e2'}}
@@ -944,16 +1012,10 @@ def score(e1, e2, gen, eval_data, p_geometry, p_run, out, workers=1, repeats=200
             summary['e1'][name] = {pop: _by_stratum([s for s in scored if s['population'] == pop], _rates)
                                    for pop in ('e1-unseen', 'e1-heldout20')}
             continue
-        tasks = [(rooms[r['uid']], requests[r['uid']] if r['mode'] == 'prior' else gt_requests[r['uid']], r,
-                  records[r['key']], name) for r in rows]
-        scored = _map(score_e2, tasks, workers)
+        scored = score_arm(rows, records, name, rooms, requests, gt_requests, workers)
         e2_rows += scored
         summary['e2'][name] = _e2_summary(scored, exposure)
-    p_rows = [r for r in p_test_rows(p_geometry, p_run) if r['uid'] in exposure]
-    if {r['uid'] for r in p_rows} != set(exposure) or len(p_rows) != len(exposure):
-        raise ValueError('P geometry rows do not cover the E2 rooms exactly')
-    strata = {r['uid']: r['stratum'] for r in plan_rows['e2']}
-    p_scored = _map(_p_extras, [(rooms[r['uid']], requests[r['uid']], r, strata[r['uid']]) for r in p_rows], workers)
+    p_scored = p_extras(p_geometry, p_run, {r['uid']: r['stratum'] for r in plan_rows['e2']}, rooms, requests, workers)
     summary['e2']['P'] = _e2_summary(p_scored, exposure)
     for model, plan, prompt in GENS:
         if plan == 'e2':
@@ -972,6 +1034,93 @@ def score(e1, e2, gen, eval_data, p_geometry, p_run, out, workers=1, repeats=200
     return _publish_files(out, {'e1-rows.jsonl': _jsonl_bytes(e1_rows), 'e2-rows.jsonl': _jsonl_bytes(e2_rows),
                                 'p-rows.jsonl': _jsonl_bytes(p_scored),
                                 'summary.json': (_dumps(summary, indent=1) + '\n').encode('utf-8')}, meta)
+
+
+def score_e3(e3, gen, eval_data, p_geometry, p_run, out, workers=1, repeats=2000):
+    """E3 per family and pooled (EXPLORATORY): every published E3_GENS arm, P, paired OptiScene(prior) - P; again on the
+    rooms within OptiScene's SFT size range (<= TRAIN_MAX_OBJECTS objects)."""
+    e3, gen, out = Path(e3), Path(gen), Path(out)
+    _refuse(out)
+    plan = _verified(e3)
+    _verified(eval_data)
+    if plan.get('plan') != 'e3' or plan['eval_data_manifest_sha256'] != _sha(Path(eval_data) / 'MANIFEST.json'):
+        raise ValueError(f'{e3} is not a plan-e3 built from this eval-data')
+    rows = _jsonl(e3 / 'requests.jsonl')
+    exposure = json.loads((e3 / 'exposure.json').read_text())
+    rooms, requests, gt_requests = room_inputs(eval_data, exposure)
+    arms = [n for n in E3_GENS if (gen / n / 'MANIFEST.json').is_file()]
+    if not arms:
+        raise ValueError(f'no E3 generation under {gen}')
+    summary = {'label': LABEL, 'status': 'EXPLORATORY', 'families': plan['families'],
+               'training_families': plan['training_families'], 'not_published': [n for n in E3_GENS if n not in arms],
+               'training_exposure': {n: EIGHT_B_EXPOSURE if n.startswith('8b') else 'OptiScene release: e3/exposure.json'
+                                     for n in arms}}
+    e3_rows = []
+    for name in arms:
+        sel = [r for r in rows if name.rsplit('-', 1)[1] in r['messages']]
+        e3_rows += score_arm(sel, _load_gen(gen, name, e3, [r['key'] for r in sel]), name, rooms, requests,
+                             gt_requests, workers)
+    p_scored = p_extras(p_geometry, p_run, {r['uid']: r['stratum'] for r in rows}, rooms, requests, workers)
+    small = {u for u, r in rooms.items() if len(r['objects']) <= TRAIN_MAX_OBJECTS}
+    pick = lambda r, scope, f: f in ('pooled', r['stratum']) and (scope == 'all' or exposure[r['uid']]['seen'] is False)
+    for suffix, keep in (('', set(rooms)), (f'_le{TRAIN_MAX_OBJECTS}', small)):
+        mine, p = [r for r in e3_rows if r['uid'] in keep], [r for r in p_scored if r['uid'] in keep]
+        summary['e3' + suffix] = {**{n: _e2_summary([r for r in mine if r['arm'] == n], exposure) for n in arms},
+                                  'P': _e2_summary(p, exposure)}
+        summary['paired_vs_P' + suffix] = {n: {scope: {f: _paired_flagged(
+            [r for r in mine if r['arm'] == n and r['mode'] == 'prior' and pick(r, scope, f)],
+            [r for r in p if pick(r, scope, f)], repeats) for f in ('pooled', *plan['families'])}
+            for scope in ('all', 'unseen')} for n in arms}
+    meta = {'protocol': 'amendment-015', 'status': 'EXPLORATORY',
+            'plan_e3_manifest_sha256': _sha(e3 / 'MANIFEST.json'), 'eval_data_manifest_sha256': _sha(Path(eval_data) / 'MANIFEST.json'),
+            'p_geometry_manifest_sha256': _sha(Path(p_geometry) / 'MANIFEST.json'),
+            'p_run_manifest_sha256': _sha(Path(p_run) / 'MANIFEST.json'),
+            'gens': {n: _sha(gen / n / 'MANIFEST.json') for n in arms}, 'implementation_sha256': _code(),
+            'repeats': repeats, 'parse_rate': 'complete_rate (strict parse + output contract); errors break it down',
+            'paired': 'estimate_joint_minus_placement = OptiScene arm (prior sizes) - P (house-cluster bootstrap); '
+                      'unseen = exposure seen is False; components/flags = report_v2._design (audit F7), ci95 None '
+                      'below report_v2.NO_CI components',
+            'pooled': 'sampled rooms (<= cap per family): family-balanced, not weighted to the test-set population',
+            f'le{TRAIN_MAX_OBJECTS}': f'rooms with <= {TRAIN_MAX_OBJECTS} objects (the SFT training maximum; their '
+                                      f'output cap {MAX_TOKENS} tokens): family not confounded with size/truncation',
+            'p_rows': 'geometry-v5 placement rows with report_v2.cap_rule (amendment 005) on the selected P run'}
+    return _publish_files(out, {'e3-rows.jsonl': _jsonl_bytes(e3_rows), 'p-rows.jsonl': _jsonl_bytes(p_scored),
+                                'summary.json': (_dumps(summary, indent=1) + '\n').encode('utf-8')}, meta)
+
+
+def _paired_flagged(arm, p, repeats):
+    """paired_intervals(arm, P) with report_v2's small-sample design (audit F7): flags, no CI below NO_CI components."""
+    from fastfill.comparison import geometry, report_v2 as r2
+    design, result = r2._design(p), geometry.paired_intervals(arm, p, repeats=repeats, seed=42)
+    if design['components'] < r2.NO_CI:
+        result = {f: {**v, 'ci95': None, 'source_macro': {**v['source_macro'], 'ci95': None}}
+                  for f, v in result.items()}
+    return {**design, **result}
+
+
+def room_inputs(eval_data, uids):
+    """Eval-data rooms, P's prior-size requests and GT-size requests of the plan's rooms (score, score-e3)."""
+    from fastfill.comparison.contract import messages
+    rooms = {r['uid']: r for r in _jsonl(Path(eval_data) / 'rooms.jsonl') if r['uid'] in uids}
+    requests = {r['uid']: r['messages'] for r in _jsonl(Path(eval_data) / 'placement/requests.jsonl')
+                if r['uid'] in uids}
+    gt_requests = {u: messages(r, 'placement', estimated_sizes={o['id']: o['size'] for o in r['objects']})[:2]
+                   for u, r in rooms.items()}
+    return rooms, requests, gt_requests
+
+
+def score_arm(rows, records, name, rooms, requests, gt_requests, workers):
+    tasks = [(rooms[r['uid']], requests[r['uid']] if r['mode'] == 'prior' else gt_requests[r['uid']], r,
+              records[r['key']], name) for r in rows]
+    return _map(score_e2, tasks, workers)
+
+
+def p_extras(p_geometry, p_run, strata, rooms, requests, workers):
+    """P's scored test rows of exactly the plan's rooms ({uid: stratum}), with the E2 extras."""
+    p_rows = [r for r in p_test_rows(p_geometry, p_run) if r['uid'] in strata]
+    if {r['uid'] for r in p_rows} != set(strata) or len(p_rows) != len(strata):
+        raise ValueError('P geometry rows do not cover the plan rooms exactly')
+    return _map(_p_extras, [(rooms[r['uid']], requests[r['uid']], r, strata[r['uid']]) for r in p_rows], workers)
 
 
 def p_test_rows(p_geometry, p_run):
@@ -1241,6 +1390,9 @@ def main(argv=None):
     for name in ('eval-data', 'data', 'e1', 'out'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--limit', type=int)
+    p = sub.add_parser('plan-e3')
+    for name in ('eval-data', 'data', 'e1', 'out'):
+        p.add_argument('--' + name, type=Path, required=True)
     p = sub.add_parser('generate')
     for name in ('plan', 'model', 'out'):
         p.add_argument('--' + name, type=Path, required=True)
@@ -1249,6 +1401,11 @@ def main(argv=None):
     p.add_argument('--limit', type=int)
     p = sub.add_parser('score')
     for name in ('e1', 'e2', 'gen', 'eval-data', 'p-geometry', 'p-run', 'out'):
+        p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--workers', type=int, default=1)
+    p.add_argument('--repeats', type=int, default=2000)
+    p = sub.add_parser('score-e3')
+    for name in ('e3', 'gen', 'eval-data', 'p-geometry', 'p-run', 'out'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--workers', type=int, default=1)
     p.add_argument('--repeats', type=int, default=2000)
@@ -1266,6 +1423,11 @@ def main(argv=None):
     elif a.command == 'plan-e2':
         m = plan_e2(a.eval_data, a.data, a.e1, a.out, a.limit)
         print(_dumps({k: m[k] for k in ('rooms', 'population_by_stratum', 'exposure_counts')}, indent=1))
+    elif a.command == 'plan-e3':
+        m = plan_e3(a.eval_data, a.data, a.e1, a.out)
+        print(_dumps({k: m[k] for k in ('rooms', 'families', 'skipped_families', 'exposure_counts')}, indent=1))
+    elif a.command == 'score-e3':
+        score_e3(a.e3, a.gen, a.eval_data, a.p_geometry, a.p_run, a.out, a.workers, a.repeats)
     elif a.command == 'generate':
         m = generate(a.plan, a.prompt, a.model, a.out, a.gate_parse, a.limit)
         print(_dumps({k: m[k] for k in ('requests', 'strict_parse_rate')}))
