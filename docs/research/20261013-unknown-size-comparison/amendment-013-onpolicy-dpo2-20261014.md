@@ -56,3 +56,17 @@ The adopted checkpoint runs once on all 8,647 test rooms (exact policy; infer-v2
 ## 5. Budget
 
 GPU cap 150 GPU-h: sampling ≤ 30, training ~15–20, dev ~4, test ~60–80 only if adopted.
+
+## Addendum A (locked 2026-10-14 ~21:20 UTC, after the §3 dev selection, before any amendment-013 test output exists)
+
+**Dev result** (`RUN/dev-eval-013/selection.json`): op-dpo2-e1 is adopted.
+
+| Candidate | Checker success | a′ | Downstream acceptance | Complete |
+|---|---|---|---|---|
+| rpo-dpo1 | 0.470 | 0.435 | 0.252 | 0.998 |
+| op-dpo2-e1 | 0.515 | 0.488 | 0.332 | 0.995 |
+| op-dpo2-e2 | 0.475 | 0.443 | 0.328 | 0.942 (fails the complete guard) |
+
+op-dpo2-e1's a′ gain is positive in both dev halves.
+
+**Test step.** The §4 test run is **deferred to amendment 021 §4**, which was locked later. That rule selects the delivered model across amendments 013, 018 and 021 on one engine, confirms it on a disjoint 3,000-room dev slice, and runs only the confirmed winner once on test. op-dpo2-e1 enters 021 §4 as 013's adopted candidate. If it wins and is confirmed, it runs on test exactly once there; no separate 013 test run is made.
