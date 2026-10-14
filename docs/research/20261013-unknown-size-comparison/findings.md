@@ -47,6 +47,28 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
 - **S2 best-of-8 is not adopted**: it raises raw checker success strongly for P (0.400 → 0.600) but after repair adds only +0.020 [0.015, 0.026] downstream acceptance for P (threshold 0.03) and +0.003 for J (size guards block most J alternatives).
 - Reference: the GT layouts of the same dev rooms reach 0.293 downstream acceptance (checker 0.722): the downstream rules (every object reachable from the door, AABB collisions incl. tucked chairs, 1 mm envelope) reject most real layouts; P + S1 matches GT on this metric. vLLM greedy (the S2 engine) is not the HF exact policy (P 0.432 vs 0.470 checker success on the 600 dev-select rooms).
 
+### Test application (amendment 012 §4, EXPLORATORY; `results/test-apply-012/`, 2,000 house-cluster draws)
+
+- Full test (8,647): downstream acceptance raw → S1: J 0.172 → 0.258, P 0.200 → 0.288, GT 0.295 (checker P 0.398 → 0.701, GT 0.723). P+S1 − J+S1 = +0.030 [+0.020, +0.039]. The dev effect of S1 replicates on test.
+- Cohort (1,454), all systems given the same S1, downstream acceptance raw → S1 (footprint bias B):
+
+  | System | raw → S1 | B |
+  |---|---|---|
+  | GT | 0.448 | 0 |
+  | P | 0.354 → 0.472 | −0.022 |
+  | J | 0.234 → 0.372 | −0.048 |
+  | L (gpt-6.1-sol) | 0.728 → 0.754 | −0.175 |
+  | O2 harness | 0.723 → 0.752 | −0.311 |
+  | O6 | 0.536 → 0.633 | −0.346 |
+  | O4 | 0.479 → 0.597 | −0.296 |
+  | O7 | 0.410 → 0.500 | −0.323 |
+  | O3 | 0.159 → 0.223 | −0.450 |
+  | O1b harness | 0.069 → 0.171 | −0.313 |
+  | O1a | 0 | −0.421 |
+
+  - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
+  - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
+
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
 - Gate failure J 0.612, P 0.610 vs GT 0.277. Shapley split of the gap: main (movable–movable) collisions ≈ 70 % (J 0.239, P 0.225 of 0.335), out-of-bounds 0.040 / 0.066, support/ceiling/incomplete 0.032 / 0.020, blocked fixed objects (≈ half doors) 0.024 / 0.022.
@@ -67,4 +89,4 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
 
 - Visual realism (FID/KID) and GPT judge scores of J/P vs agents (amendment 011 populations).
 - Does the delivered BF16 merge behave like the evaluated policy on dev (amendment 011 §5)?
-- Output-side improvements (amendment 012, not yet written): deterministic repair, local re-generation, best-of-N with a size gate, on-policy DPO — measured by downstream acceptance (1 mm / 1 cm) with open models given the same repair.
+- Does the agents' lead survive fixed sizes (amendment 016 §1–2), and does on-policy DPO2 add beyond its repaired data (amendment 013, 016 §3)?
