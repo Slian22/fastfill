@@ -1,0 +1,4 @@
+system,model,gpu_hours_full_test_generation,output_tokens,input_tokens,reasoning,calls,gpu_hours,reasoning_tokens,latency_p50_s,answers_reaching_cap
+J,Qwen3-8B + LoRA,9.122209139196169,608259,730499,,,,,,
+P,Qwen3-8B + LoRA,6.947968166599878,391392,956719,,,,,,
+L,gpt-6.1-sol,,862939,7235552,medium,1469,,345132,13.538433659996372,0

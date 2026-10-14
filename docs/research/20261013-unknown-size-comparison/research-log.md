@@ -116,3 +116,10 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - DPO 偏好对：stage1 2,200/2,200 两臂均通过验证（IL3D_3dfront 1,100 + OptiScene_holodeck 1,100，负样本均为自身 SFT 采样）；stage2 已构建。
 - P DPO1 训练 7389124 完成（1:52:12）；合并诊断：投影层 BF16 权重改变比例 q 12.7% / k 10.9% / v 16.5% / o 18.1% / gate 19.3% / up 18.6% / down 15.3%，other 0%——修订 009 的超参使更新在合并中大部分保留。P DPO2 训练 7389125 与 P DPO1 测试分片 7389134–39 已开始。
 - SFT 推理：J 完成并合并（infer-joint-002）；P 剩分片 0（1,280/2,167）。
+
+## 2026-10-14 00:52–01:05 UTC — SFT 阶段主结果（协议主要终点）
+
+- SFT 推理两臂完成（P 分片 0 用时 2:21:42），geometry-v2 7383122、L 评估 7385871、报告 7385880 完成；报告拷至 results/report-v2-JPL-001。
+- 主要终点：(a) J 0.3882 vs P 0.3896，Δ −0.0014 [−0.0122, +0.0091]；(b) log MAE J 0.2861 vs P 0.2817，Δ +0.0044 [+0.0005, +0.0084]，Holm p 0.066。J 足迹偏差 −0.083，(a′) Δ −0.051。按修订 005 规则 SFT 阶段会交付 P（正式交付在 DPO2 阶段决定）。
+- gpt-6.1-sol（队列 1,454）：几何成功 0.935 vs J 0.431 / P 0.510；尺寸 log MAE 0.300 vs 0.243 / 0.239。
+- 综合见 findings.md。O6（Qwen3.8-Flash-Next）冒烟通过，全量运行中；J DPO1 完成，DPO2 训练与 DPO1 测试分片运行中。
