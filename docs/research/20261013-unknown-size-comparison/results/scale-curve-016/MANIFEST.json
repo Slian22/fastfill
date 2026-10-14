@@ -1,0 +1,22 @@
+{
+  "files": {
+    "curves.csv": "f7e206a67580490b8c4c7934ee5192637efa3eb52475410fee0780b9155e0e1a",
+    "curves.png": "1e21544f0a8bf1f7555c2795cf357644f8dd654d26bb18cda4d232ae88a3c3c0",
+    "reasons.csv": "07b35cab2ae106d662dfb138780357f2f68813bc132faa4e90e10f1ae7115cab",
+    "report.md": "bf5ef0db61aa9cdbb632162d9ebbb1a48bd67456d3488d801e2a54e31514a002",
+    "results.json": "169dcd32bc4c1f3e5998890731b5c78e44066b8d4c29acc80f126522be997ff1",
+    "rows.jsonl": "b37177564f2856cf1864e9826c8da72732d884c989f7cfffca10ae8861399d27",
+    "rules.csv": "3bf8b32221d1cc489b885b2a3fe1dc8680a09e81accb8eb53a32e0e75bdc8a0e",
+    "summary.csv": "1c5c30c558671934069653fe9f10596cc3506f6c724c37f74f3e8a85d530139e",
+    "validity.csv": "028ede375a277ce26f0fb58de72f224d10a264b14ffc51885f5bbab81dde5b31"
+  },
+  "code_sha256": {
+    "scale_curve.py": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413",
+    "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+    "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+    "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+    "report_v2.py": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0",
+    "room_families.py": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c",
+    "validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158"
+  }
+}

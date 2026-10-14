@@ -1,0 +1,1 @@
+rows.jsonl (44 MB) and results.json (19 MB) are listed in MANIFEST.json and kept at /Volumes/harddisk/fastfillout/unknownsize-20261013/scale-curve-016 (not in git).

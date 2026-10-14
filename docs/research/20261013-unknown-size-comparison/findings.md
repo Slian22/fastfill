@@ -69,6 +69,32 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
   - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
   - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
 
+## Size confound: size substitution (amendment 016 §1, addendum A3; EXPLORATORY; `results/scale-curve-016/`)
+
+Each system keeps its own positions, yaw and support; only the sizes are replaced (x/y/z, primary per addendum C3; supported children follow their parent). Shown: downstream acceptance on the 1,454-room cohort, raw outputs, with house-cluster CIs (2,000 draws).
+
+| System | own sizes | train-prior sizes | GT sizes | B |
+|---|---|---|---|---|
+| GT layout | 0.448 | 0.270 [0.246, 0.294] | 0.448 | 0 |
+| P (delivered) | 0.354 | 0.354 (= own) | 0.176 [0.154, 0.199] | −0.022 |
+| J | 0.234 | 0.226 | 0.138 | −0.048 |
+| L gpt-6.1-sol | 0.728 | 0.339 [0.315, 0.363] | 0.206 | −0.175 |
+| O2 harness | 0.723 | 0.203 [0.183, 0.224] | 0.129 | −0.311 |
+| O4 | 0.479 | 0.151 | 0.112 | −0.296 |
+| O6 | 0.536 | 0.107 | 0.087 | −0.346 |
+| O7 harness | 0.410 | 0.156 | 0.104 | −0.323 |
+
+- **Agents' scores depend on undersizing.** With realistic sizes the agents' acceptance falls by 0.39–0.52 (L, O2) and 0.32–0.45 (O4, O6, O7). The GT layout falls by only 0.18 under the prior. Under the same prior sizes, P (0.354) is at least as high as L (0.339) and above every open model (0.11–0.20). The checker shows the same pattern: own → prior is L 0.935 → 0.550, O2 0.928 → 0.382, P 0.519, GT 0.725 → 0.433.
+- **Caveat.** Substitution keeps a layout that was planned for the agent's own (smaller) sizes, so it measures how much of the pass rate rests on those sizes, not how well the agent would place furniture of the given size. The fair placement test is the size-fixed regeneration (§2, running).
+- **Scale curves are sensitivity only, as the protocol says.** GT has the steepest checker curve (slope −0.69 over s 0.80–1.00). Agents are flat below s = 1 and drop sharply above it: they already sit at the knee. Steepness is therefore not evidence of gaming.
+- **The downstream rules are strict even for GT** (rule table, all test). GT fails:
+  - A4 AABB collisions (incl. tucked chairs) in 51 % of rooms;
+  - R2 1 mm envelope in 37 %;
+  - A3 unreachable required objects in 33 %;
+  - A2 door keep-out in 32 %.
+
+  This is why GT downstream acceptance is 0.295; the metric definition drives the absolute level.
+
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
 - Gate failure J 0.612, P 0.610 vs GT 0.277. Shapley split of the gap: main (movable–movable) collisions ≈ 70 % (J 0.239, P 0.225 of 0.335), out-of-bounds 0.040 / 0.066, support/ceiling/incomplete 0.032 / 0.020, blocked fixed objects (≈ half doors) 0.024 / 0.022.
