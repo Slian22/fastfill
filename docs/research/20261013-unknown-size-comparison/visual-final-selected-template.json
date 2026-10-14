@@ -1,41 +1,37 @@
 {
-  "_comment": "Final N-system visual run (amendments 005 section 5, 007, 010): the dev-selected models J = sft (infer-joint-002) and P = rpo-dpo1 (infer-placement-005) from geometry-v5, plus every agent whose selected-paired evaluation completed. Filled by python -m fastfill.comparison.visual_final; job ids from research-state.yaml dev_selection_result / final_chain. Fixed resources as visual-final-dpo2-template.json (automation-config-run004).",
+  "_comment": "Final N-system visual run (amendments 005 section 5, 007, 010): the dev-selected models J = sft (infer-joint-002) and P = rpo-dpo1 (infer-placement-005) from geometry-v5, plus every agent whose selected-paired evaluation completed. Filled by python -m fastfill.comparison.visual_final; job ids from research-state.yaml final_chain_2 (after the 07:53Z NODE_FAIL resubmission); O5 not run (engine build failure). Fixed resources as visual-final-dpo2-template.json (automation-config-run004).",
   "candidate_agents": {
     "L": {
       "dir": "llm-eval-L-selected-v1",
-      "job_id": "7399405"
+      "job_id": "7400136"
     },
     "O1a": {
       "dir": "llm-eval-O1a-selected-v1",
-      "job_id": "7399412"
+      "job_id": "7400142"
     },
     "O1b": {
       "dir": "llm-eval-O1b-selected-v1",
-      "job_id": "7399413"
+      "job_id": "7400143"
     },
     "O2": {
       "dir": "llm-eval-O2-selected-v1",
-      "job_id": "7399409"
+      "job_id": "7400139"
     },
     "O3": {
       "dir": "llm-eval-O3-selected-v1",
-      "job_id": "7399410"
+      "job_id": "7400140"
     },
     "O4": {
       "dir": "llm-eval-O4-selected-v1",
-      "job_id": "7399408"
-    },
-    "O5": {
-      "dir": "llm-eval-O5-selected-v1",
-      "job_id": "7399414"
+      "job_id": "7400138"
     },
     "O6": {
       "dir": "llm-eval-O6-selected-v1",
-      "job_id": "7399406"
+      "job_id": "7400137"
     },
     "O7": {
       "dir": "llm-eval-O7-selected-v1",
-      "job_id": "7399411"
+      "job_id": "7400141"
     }
   },
   "config": {
@@ -48,7 +44,7 @@
       "main-data-v1": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6"
     },
     "final_tables": true,
-    "geometry_job_id": "7398944",
+    "geometry_job_id": "7400131",
     "geometry_name": "geometry-v5",
     "local_code_root": "<FILL: frozen local code snapshot (contains fastfill/comparison) whose judge_batch.py equals the server snapshot's>",
     "local_python": "/usr/local/bin/python3",
@@ -56,7 +52,7 @@
     "poll_seconds": 120,
     "prerequisite_job_ids": [
       "7397540",
-      "7398943"
+      "7400129"
     ],
     "read_retries": 3,
     "receipt_paths": [
