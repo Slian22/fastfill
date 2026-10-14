@@ -88,3 +88,30 @@ GT pass rates and failure reasons per source, and the sensitivity of GT / J / P 
 2. **Size-fixed runs enforce sizes.** Before scoring, the harness overwrites any size in an answer with the request size, and recomputes the z of every supported object as its parent's top under the request sizes; floor objects keep z = 0 if the answer put them on the floor. The share of answers (and of objects) whose returned sizes differ from the request is reported per model ("unauthorised size changes"), as evidence in itself. An answer that only differs in sizes is not counted as invalid.
 3. **Size substitution recomputes support heights.** In §1 (own vs prior vs GT sizes, and the scale curves), after replacing sizes, the z of every supported object is recomputed from its parent's new height before re-scoring, so a lamp is never left floating or embedded by the substitution itself.
 4. **Visual metrics caveats.** The GPT judge is gpt-6.1-sol, which is also a compared system (L); its scores are reported as a secondary metric with this conflict stated (no claim rests on them). FID is also size-sensitive (rendered furniture scale), which is stated next to the size-substitution results; no extra experiment.
+
+## Addendum C (locked 2026-10-14 ~17:10 UTC, before any amendment-016 output exists; implementation details fixed by the tooling at ab2548d0d)
+
+**Disclosure.** During tooling checks, agents ran the §1 code on local copies of real rows to test identities: 150 test rooms for GT/J/P, and 30 cohort rooms for L/O2/O1a. Only identities were reported to the decision maker: s = 1 reproduces the stored verdicts; P own − prior = 0; GT own − GT = 0. One sensitivity reading was also reported: the GT checker passes on those 150 rooms fall from 129 to 51 across s = 0.70 → 1.10. No system-level substitution, ranking or ablation number has been seen.
+
+1. **Pilot allocation (B1):**
+   - The 300 rooms are split across the object-count bins (≤ 20, 21–50, > 50) in proportion to the cohort's bin counts; leftover places go to the bins with the largest remainders.
+   - Within each bin, rooms are ranked by `sha256('a016-pilot:' + uid)` ascending.
+   - Written once to `RUN/a016-pilot-v1.json`; later builds must reproduce it exactly.
+2. **Support under size changes (§1, B3):**
+   - A supported child follows its parent. Its offset from the parent's centre is measured in the parent's own rotated frame and scaled per axis by the parent's size change.
+   - The child's z is the parent's new top plus the child's original support gap.
+   - With unchanged sizes, the layout is identical; a fixed parent never moves.
+   - This departs from "positions fixed" only for supported children. Without it, an object near a table's edge falls off when the table shrinks, which would be an artefact of the intervention.
+3. **Size substitution (A3):**
+   - Primary: all three dimensions replaced (x/y/z).
+   - Sensitivity: x/y only.
+   - Prior sizes come from P's request; GT sizes come from the eval room.
+4. **Size-fixed runs (B2):**
+   - For agent answers, every supported object's z is set to its parent's top under the request sizes, exactly as locked.
+   - P's own outputs are scored as produced. This asymmetry can only help the agents, so it is conservative for any claim that P does better. The per-model counts of recomputed z are reported.
+5. **Budgets:**
+   - **API:** L's size-fixed pilot falls under amendment 002's cap of ≤ 4,800 LLM-agent calls. Addendum A2's reference to amendment 006 is a misreference: 006 only covers the GPT judge. The job also refuses to run beyond 1,200 calls (300 rooms × 1 + 2 repairs, plus margin).
+   - **GPU:** open-model §2 runs are capped at 33.5 GPU-h by per-job time limits (§2 cap: 40). For each system, the 300-room pilot replaces the 2-room smoke as the gate; full runs start only after every pilot has finished.
+6. **§5 source split:** the list fixed in §5 is used as is. The stratum is labelled "real-world or curated sources (as listed)" because SpatialLM, HSSD200, InteriorGS and Structured3D are designer-made rather than scanned. IL3D_3dfront stays in the synthetic stratum, as listed.
+7. **§6 tucked chairs:** a downstream-acceptance variant that does not count tucked chairs is not computed, because `downstream.accept` has no switch for it and the rules must not be copied. The share of rooms failing on A4_COLLISION is reported instead.
+8. **A5 seeds:** a second seed (43) for the RFT and op-dpo2 arms is still to be built. The seed changes only the data order and the LoRA initialisation; data, steps, init adapter, training base and reference stay as in the seed-42 arms. A §3 interpretation claim requires both seeds to agree.
