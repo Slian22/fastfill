@@ -1,0 +1,321 @@
+table,name,scope,rooms,components,flags,field,estimate,ci_low,ci_high,n,warnings
+level,GT,all,1877,1177,,complete,1.0,1.0,1.0,1877,
+level,GT,all,1877,1177,,size_log_mae,0.0,0.0,0.0,1877,
+level,GT,all,1877,1177,,size_iou,1.0,1.0,1.0,1877,
+level,GT,all,1877,1177,,bias_fp,0.0,0.0,0.0,1877,
+level,prior,all,1877,1177,,complete,1.0,1.0,1.0,1877,
+level,prior,all,1877,1177,,size_log_mae,0.2674447797790806,0.25889613930025934,0.2762505616224237,1877,
+level,prior,all,1877,1177,,size_iou,0.5770105099688142,0.5690755561633587,0.5843511766444494,1877,
+level,prior,all,1877,1177,,bias_fp,-0.004259317248179004,-0.020883513247078347,0.012847775877194082,1877,
+level,L-joint,all,1063,714,,complete,1.0,1.0,1.0,1063,singleton_source_signature_strata
+level,L-joint,all,1063,714,,size_log_mae,0.26203833964093837,0.25588690386510476,0.26868645364466626,1063,singleton_source_signature_strata
+level,L-joint,all,1063,714,,size_iou,0.5320552582025353,0.5254702068316457,0.5386003769057444,1063,singleton_source_signature_strata
+level,L-joint,all,1063,714,,bias_fp,-0.18236631421949967,-0.20073486966760049,-0.16384824825775465,1063,singleton_source_signature_strata
+level,L-size,all,1877,1177,,complete,1.0,1.0,1.0,1877,
+level,L-size,all,1877,1177,,size_log_mae,0.32726948470255346,0.31841337183736385,0.3357384914977461,1877,
+level,L-size,all,1877,1177,,size_iou,0.48675615382529497,0.4800085286217422,0.4932579737208604,1877,
+level,L-size,all,1877,1177,,bias_fp,-0.1981856671494844,-0.22264653477009655,-0.17304101992364945,1877,
+level,O2-size,all,1877,1177,,complete,0.9994672349493873,0.9983127109111362,1.0,1877,
+level,O2-size,all,1877,1177,,size_log_mae,0.40800978390376447,0.3984301260002771,0.4175742778601724,1876,
+level,O2-size,all,1877,1177,,size_iou,0.42015664148027276,0.4134890198566901,0.4266079433318662,1876,
+level,O2-size,all,1877,1177,,bias_fp,-0.2802545688456494,-0.30515712659514826,-0.2547785536932075,1876,
+level,GT,E2,1009,665,,complete,1.0,1.0,1.0,1009,
+level,GT,E2,1009,665,,size_log_mae,0.0,0.0,0.0,1009,
+level,GT,E2,1009,665,,size_iou,1.0,1.0,1.0,1009,
+level,GT,E2,1009,665,,bias_fp,0.0,0.0,0.0,1009,
+level,prior,E2,1009,665,,complete,1.0,1.0,1.0,1009,
+level,prior,E2,1009,665,,size_log_mae,0.18829748299350002,0.1820352242116328,0.19489984625032344,1009,
+level,prior,E2,1009,665,,size_iou,0.631879776581751,0.6230490028553491,0.6404003984422106,1009,
+level,prior,E2,1009,665,,bias_fp,-0.05150595037901605,-0.06858372118907996,-0.03431899627830037,1009,
+level,L-joint,E2,1009,665,,complete,1.0,1.0,1.0,1009,
+level,L-joint,E2,1009,665,,size_log_mae,0.25513721226099184,0.2487922837238559,0.261388337917833,1009,
+level,L-joint,E2,1009,665,,size_iou,0.5372507272558068,0.5306856541027428,0.5441992766419562,1009,
+level,L-joint,E2,1009,665,,bias_fp,-0.1921591503881416,-0.20951507066570876,-0.17456716052736568,1009,
+level,L-size,E2,1009,665,,complete,1.0,1.0,1.0,1009,
+level,L-size,E2,1009,665,,size_log_mae,0.265585618721933,0.25953145928413773,0.2723222589277439,1009,
+level,L-size,E2,1009,665,,size_iou,0.5211171757662368,0.5140737160278668,0.5280494047938424,1009,
+level,L-size,E2,1009,665,,bias_fp,-0.2886702231458681,-0.3059864559249925,-0.27167494767129347,1009,
+level,O2-size,E2,1009,665,,complete,1.0,1.0,1.0,1009,
+level,O2-size,E2,1009,665,,size_log_mae,0.3450009517107884,0.33499604877688294,0.35516808341968714,1009,
+level,O2-size,E2,1009,665,,size_iou,0.4456304688510321,0.4372227337938148,0.454029115060333,1009,
+level,O2-size,E2,1009,665,,bias_fp,-0.356513058423532,-0.3793362354742122,-0.33451458578561866,1009,
+level,GT,E3,868,536,,complete,1.0,1.0,1.0,868,
+level,GT,E3,868,536,,size_log_mae,0.0,0.0,0.0,868,
+level,GT,E3,868,536,,size_iou,1.0,1.0,1.0,868,
+level,GT,E3,868,536,,bias_fp,0.0,0.0,0.0,868,
+level,prior,E3,868,536,,complete,1.0,1.0,1.0,868,
+level,prior,E3,868,536,,size_log_mae,0.3594489531162358,0.3435865483975968,0.375820710739036,868,
+level,prior,E3,868,536,,size_iou,0.5132281482033153,0.4986763015910389,0.5276024957306383,868,
+level,prior,E3,868,536,,bias_fp,0.05066217218616959,0.014761098617140663,0.0900932175652536,868,
+level,L-joint,E3,54,51,,complete,1.0,1.0,1.0,54,singleton_source_signature_strata
+level,L-joint,E3,54,51,,size_log_mae,0.3909871827217899,0.348038789114084,0.43766138557115564,54,singleton_source_signature_strata
+level,L-joint,E3,54,51,,size_iou,0.4349769568182599,0.40098138897596963,0.4668482355194089,54,singleton_source_signature_strata
+level,L-joint,E3,54,51,,bias_fp,0.000614643079754209,-0.12026139186328694,0.12345530509639217,54,singleton_source_signature_strata
+level,L-size,E3,868,536,,complete,1.0,1.0,1.0,868,
+level,L-size,E3,868,536,,size_log_mae,0.3989734256869385,0.38482203087486505,0.413306050652074,868,
+level,L-size,E3,868,536,,size_iou,0.44681344514049065,0.43378721660406033,0.4582834701264634,868,
+level,L-size,E3,868,536,,bias_fp,-0.09300258304769737,-0.13100554872597636,-0.05837622392608148,868,
+level,O2-size,E3,868,536,,complete,0.9988479262672811,0.996249765037594,1.0,868,
+level,O2-size,E3,868,536,,size_log_mae,0.48133840176156495,0.4674987019412582,0.49606740873385075,867,
+level,O2-size,E3,868,536,,size_iou,0.3905106301572091,0.3792028842720319,0.4004070821385514,867,
+level,O2-size,E3,868,536,,bias_fp,-0.19150622284324628,-0.23451624473248658,-0.15191303307457282,867,
+level,GT,bedroom,534,300,,complete,1.0,1.0,1.0,534,
+level,GT,bedroom,534,300,,size_log_mae,0.0,0.0,0.0,534,
+level,GT,bedroom,534,300,,size_iou,1.0,1.0,1.0,534,
+level,GT,bedroom,534,300,,bias_fp,0.0,0.0,0.0,534,
+level,prior,bedroom,534,300,,complete,1.0,1.0,1.0,534,
+level,prior,bedroom,534,300,,size_log_mae,0.1999892224394849,0.19063821611837964,0.20923817647046283,534,
+level,prior,bedroom,534,300,,size_iou,0.6111564207175098,0.5998979182412931,0.6231931468112677,534,
+level,prior,bedroom,534,300,,bias_fp,-0.01648217714267613,-0.04448533711643253,0.01042011871636685,534,
+level,L-joint,bedroom,534,300,,complete,1.0,1.0,1.0,534,
+level,L-joint,bedroom,534,300,,size_log_mae,0.25986602594316377,0.25041860879953365,0.2698995595784409,534,
+level,L-joint,bedroom,534,300,,size_iou,0.5295056851325175,0.5193448868752428,0.5407335134541126,534,
+level,L-joint,bedroom,534,300,,bias_fp,-0.15807055488713428,-0.1896651540606491,-0.12518209025652602,534,
+level,L-size,bedroom,534,300,,complete,1.0,1.0,1.0,534,
+level,L-size,bedroom,534,300,,size_log_mae,0.25862329545871243,0.24935992114479977,0.267813325407784,534,
+level,L-size,bedroom,534,300,,size_iou,0.5281760025088247,0.5172504731048218,0.5399503235270089,534,
+level,L-size,bedroom,534,300,,bias_fp,-0.2257442196965627,-0.25529577945125786,-0.195152793927567,534,
+level,O2-size,bedroom,534,300,,complete,1.0,1.0,1.0,534,
+level,O2-size,bedroom,534,300,,size_log_mae,0.3574076590479458,0.34157964131638535,0.3728842195351192,534,
+level,O2-size,bedroom,534,300,,size_iou,0.4396245971673386,0.42713271806908126,0.4529349445571179,534,
+level,O2-size,bedroom,534,300,,bias_fp,-0.25457931070447926,-0.2841975754881812,-0.22582285386916678,534,
+level,GT,living,218,194,,complete,1.0,1.0,1.0,218,
+level,GT,living,218,194,,size_log_mae,0.0,0.0,0.0,218,
+level,GT,living,218,194,,size_iou,1.0,1.0,1.0,218,
+level,GT,living,218,194,,bias_fp,0.0,0.0,0.0,218,
+level,prior,living,218,194,,complete,1.0,1.0,1.0,218,
+level,prior,living,218,194,,size_log_mae,0.16837659903296087,0.16021080576837574,0.17658644460856837,218,
+level,prior,living,218,194,,size_iou,0.661893575865501,0.6509346578132997,0.6732013907837509,218,
+level,prior,living,218,194,,bias_fp,-0.027113206480040723,-0.056268462929585934,-0.0003680768091061399,218,
+level,L-joint,living,218,194,,complete,1.0,1.0,1.0,218,
+level,L-joint,living,218,194,,size_log_mae,0.21936333513188785,0.21007016865228245,0.22882299612716028,218,
+level,L-joint,living,218,194,,size_iou,0.5799630033442003,0.5687799123645926,0.5911606790249058,218,
+level,L-joint,living,218,194,,bias_fp,-0.25144525653367833,-0.28190922826244424,-0.2186428696920594,218,
+level,L-size,living,218,194,,complete,1.0,1.0,1.0,218,
+level,L-size,living,218,194,,size_log_mae,0.23721225329103762,0.22626136734026842,0.24832958942251226,218,
+level,L-size,living,218,194,,size_iou,0.5543567700003538,0.5423353287609144,0.5660966721006371,218,
+level,L-size,living,218,194,,bias_fp,-0.33573835299445315,-0.3697954166854769,-0.30224111991975344,218,
+level,O2-size,living,218,194,,complete,1.0,1.0,1.0,218,
+level,O2-size,living,218,194,,size_log_mae,0.32776948651077853,0.31075666539165747,0.34518603835443773,218,
+level,O2-size,living,218,194,,size_iou,0.46362509287458203,0.44961375861281205,0.47770530581644555,218,
+level,O2-size,living,218,194,,bias_fp,-0.44021512392181056,-0.48193123168577784,-0.40134608252138637,218,
+level,GT,dining,100,99,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,dining,100,99,,size_log_mae,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,GT,dining,100,99,,size_iou,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,dining,100,99,,bias_fp,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,prior,dining,100,99,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,prior,dining,100,99,,size_log_mae,0.3166683550112285,0.29910847720024,0.33587429708761923,100,singleton_source_signature_strata
+level,prior,dining,100,99,,size_iou,0.5354417848774436,0.5205208941272038,0.5507263241766154,100,singleton_source_signature_strata
+level,prior,dining,100,99,,bias_fp,-0.007919734436625064,-0.05104975370244827,0.039824687766417684,100,singleton_source_signature_strata
+level,L-joint,dining,6,6,few clusters; small n,complete,1.0,,,6,singleton_source_signature_strata
+level,L-joint,dining,6,6,few clusters; small n,size_log_mae,0.386321987288581,,,6,singleton_source_signature_strata
+level,L-joint,dining,6,6,few clusters; small n,size_iou,0.46360098595059496,,,6,singleton_source_signature_strata
+level,L-joint,dining,6,6,few clusters; small n,bias_fp,-0.07211853969528954,,,6,singleton_source_signature_strata
+level,L-size,dining,100,99,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,L-size,dining,100,99,,size_log_mae,0.3458736834899272,0.32702234064618785,0.3659478872236242,100,singleton_source_signature_strata
+level,L-size,dining,100,99,,size_iou,0.47495509816923437,0.4579860985571407,0.4934440218378503,100,singleton_source_signature_strata
+level,L-size,dining,100,99,,bias_fp,-0.06490202353382057,-0.11024573575591774,-0.015246731469451533,100,singleton_source_signature_strata
+level,O2-size,dining,100,99,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,O2-size,dining,100,99,,size_log_mae,0.38710147833939884,0.36343515372576846,0.41008427501978484,100,singleton_source_signature_strata
+level,O2-size,dining,100,99,,size_iou,0.4455838095888259,0.4273916096436203,0.4654117149837558,100,singleton_source_signature_strata
+level,O2-size,dining,100,99,,bias_fp,-0.20851857389720652,-0.2651303995142063,-0.14998855802520158,100,singleton_source_signature_strata
+level,GT,kitchen,129,129,,complete,1.0,1.0,1.0,129,
+level,GT,kitchen,129,129,,size_log_mae,0.0,0.0,0.0,129,
+level,GT,kitchen,129,129,,size_iou,1.0,1.0,1.0,129,
+level,GT,kitchen,129,129,,bias_fp,0.0,0.0,0.0,129,
+level,prior,kitchen,129,129,,complete,1.0,1.0,1.0,129,
+level,prior,kitchen,129,129,,size_log_mae,0.20555917244608155,0.19083561424689066,0.22175608054351997,129,
+level,prior,kitchen,129,129,,size_iou,0.6246993069825488,0.604010474996175,0.6436424424658205,129,
+level,prior,kitchen,129,129,,bias_fp,-0.12423729175489977,-0.16619746772033317,-0.08601596519534038,129,
+level,L-joint,kitchen,129,129,,complete,1.0,1.0,1.0,129,
+level,L-joint,kitchen,129,129,,size_log_mae,0.2412002702425007,0.22744688054778042,0.2564747116916398,129,
+level,L-joint,kitchen,129,129,,size_iou,0.5507177134179988,0.5362871760997124,0.5646861946942321,129,
+level,L-joint,kitchen,129,129,,bias_fp,-0.120969944170039,-0.1554006446916497,-0.08599368317066007,129,
+level,L-size,kitchen,129,129,,complete,1.0,1.0,1.0,129,
+level,L-size,kitchen,129,129,,size_log_mae,0.26375583128925584,0.25008807768660485,0.2785042636095241,129,
+level,L-size,kitchen,129,129,,size_iou,0.5174802636656523,0.5048251063964766,0.5304476792356301,129,
+level,L-size,kitchen,129,129,,bias_fp,-0.31292876885172016,-0.34613983086303207,-0.2794661459921205,129,
+level,O2-size,kitchen,129,129,,complete,1.0,1.0,1.0,129,
+level,O2-size,kitchen,129,129,,size_log_mae,0.32853099967493127,0.3109725427402157,0.347881296738174,129,
+level,O2-size,kitchen,129,129,,size_iou,0.45133627599500753,0.4364810030584671,0.46584166417930795,129,
+level,O2-size,kitchen,129,129,,bias_fp,-0.4805620925994196,-0.5168365128410815,-0.4425880429802213,129,
+level,GT,bathroom,128,100,,complete,1.0,1.0,1.0,128,
+level,GT,bathroom,128,100,,size_log_mae,0.0,0.0,0.0,128,
+level,GT,bathroom,128,100,,size_iou,1.0,1.0,1.0,128,
+level,GT,bathroom,128,100,,bias_fp,0.0,0.0,0.0,128,
+level,prior,bathroom,128,100,,complete,1.0,1.0,1.0,128,
+level,prior,bathroom,128,100,,size_log_mae,0.15605221658614546,0.14126835174402264,0.1728229256740133,128,
+level,prior,bathroom,128,100,,size_iou,0.6744543419406898,0.6502970040824227,0.6961200507717867,128,
+level,prior,bathroom,128,100,,bias_fp,-0.16586509132193097,-0.20435865758366378,-0.1321761471608825,128,
+level,L-joint,bathroom,128,100,,complete,1.0,1.0,1.0,128,
+level,L-joint,bathroom,128,100,,size_log_mae,0.31038240154419644,0.29784384087616567,0.3239839114670278,128,
+level,L-joint,bathroom,128,100,,size_iou,0.4832455326592766,0.46487639807211834,0.5000615520181285,128,
+level,L-joint,bathroom,128,100,,bias_fp,-0.3051462321064702,-0.3453295382102312,-0.2698200569964435,128,
+level,L-size,bathroom,128,100,,complete,1.0,1.0,1.0,128,
+level,L-size,bathroom,128,100,,size_log_mae,0.3447990317321698,0.32762862337444826,0.3633048239495632,128,
+level,L-size,bathroom,128,100,,size_iou,0.4387227744958937,0.4164212796237193,0.4590261878968551,128,
+level,L-size,bathroom,128,100,,bias_fp,-0.4465786695433871,-0.4940729442971017,-0.4071883163840193,128,
+level,O2-size,bathroom,128,100,,complete,1.0,1.0,1.0,128,
+level,O2-size,bathroom,128,100,,size_log_mae,0.3391876822434879,0.3200028436493055,0.360465257348637,128,
+level,O2-size,bathroom,128,100,,size_iou,0.43428873697904313,0.41394837380520505,0.45327111470690984,128,
+level,O2-size,bathroom,128,100,,bias_fp,-0.5141946646318126,-0.5688685566604802,-0.46727059869022775,128,
+level,GT,study_office,100,57,,complete,1.0,1.0,1.0,100,
+level,GT,study_office,100,57,,size_log_mae,0.0,0.0,0.0,100,
+level,GT,study_office,100,57,,size_iou,1.0,1.0,1.0,100,
+level,GT,study_office,100,57,,bias_fp,0.0,0.0,0.0,100,
+level,prior,study_office,100,57,,complete,1.0,1.0,1.0,100,
+level,prior,study_office,100,57,,size_log_mae,0.27272641145682025,0.24791497252251396,0.30751300608226545,100,
+level,prior,study_office,100,57,,size_iou,0.5785429520796708,0.5380296342120983,0.6088928498046338,100,
+level,prior,study_office,100,57,,bias_fp,0.015163559701784821,-0.04446030314482511,0.06869432096644591,100,
+level,L-joint,study_office,3,3,few clusters; small n,complete,1.0,,,3,singleton_source_signature_strata
+level,L-joint,study_office,3,3,few clusters; small n,size_log_mae,0.38846380969743094,,,3,singleton_source_signature_strata
+level,L-joint,study_office,3,3,few clusters; small n,size_iou,0.45835646351937265,,,3,singleton_source_signature_strata
+level,L-joint,study_office,3,3,few clusters; small n,bias_fp,-0.4088925404494374,,,3,singleton_source_signature_strata
+level,L-size,study_office,100,57,,complete,1.0,1.0,1.0,100,
+level,L-size,study_office,100,57,,size_log_mae,0.3846427742828445,0.3538102417820058,0.4225800737855075,100,
+level,L-size,study_office,100,57,,size_iou,0.469037262449335,0.4347403671427462,0.49407645654447624,100,
+level,L-size,study_office,100,57,,bias_fp,-0.19634400472371985,-0.3128211113418396,-0.12087755521474,100,
+level,O2-size,study_office,100,57,,complete,1.0,1.0,1.0,100,
+level,O2-size,study_office,100,57,,size_log_mae,0.46874150290613803,0.42274352923005115,0.5111040860860413,100,
+level,O2-size,study_office,100,57,,size_iou,0.40752431818645213,0.37541477357824565,0.43615493666417354,100,
+level,O2-size,study_office,100,57,,bias_fp,-0.29740383137725795,-0.41803001435241993,-0.21427629689989763,100,
+level,GT,meeting,100,19,few clusters,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,meeting,100,19,few clusters,size_log_mae,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,GT,meeting,100,19,few clusters,size_iou,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,meeting,100,19,few clusters,bias_fp,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,prior,meeting,100,19,few clusters,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,prior,meeting,100,19,few clusters,size_log_mae,0.24508097518449065,0.22870861155982478,0.2711002043532816,100,singleton_source_signature_strata
+level,prior,meeting,100,19,few clusters,size_iou,0.6241630072535203,0.6048947149044875,0.6410960812376147,100,singleton_source_signature_strata
+level,prior,meeting,100,19,few clusters,bias_fp,0.06450865783295473,0.02684349416255549,0.1020345853904661,100,singleton_source_signature_strata
+level,L-joint,meeting,5,4,few clusters; small n,complete,1.0,,,5,singleton_source_signature_strata
+level,L-joint,meeting,5,4,few clusters; small n,size_log_mae,0.3816059862586384,,,5,singleton_source_signature_strata
+level,L-joint,meeting,5,4,few clusters; small n,size_iou,0.4700550313256569,,,5,singleton_source_signature_strata
+level,L-joint,meeting,5,4,few clusters; small n,bias_fp,-0.02729514810567083,,,5,singleton_source_signature_strata
+level,L-size,meeting,100,19,few clusters,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,L-size,meeting,100,19,few clusters,size_log_mae,0.3734822364690944,0.3533073879048417,0.38547412017633875,100,singleton_source_signature_strata
+level,L-size,meeting,100,19,few clusters,size_iou,0.506758257126191,0.49535922148327083,0.5272565945446248,100,singleton_source_signature_strata
+level,L-size,meeting,100,19,few clusters,bias_fp,0.05333542373009423,-0.035460575925651605,0.09551032322676979,100,singleton_source_signature_strata
+level,O2-size,meeting,100,19,few clusters,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,O2-size,meeting,100,19,few clusters,size_log_mae,0.42593394971642257,0.398365951464908,0.4441384492017579,100,singleton_source_signature_strata
+level,O2-size,meeting,100,19,few clusters,size_iou,0.45984060810507854,0.4444081352936622,0.48234930744598986,100,singleton_source_signature_strata
+level,O2-size,meeting,100,19,few clusters,bias_fp,-0.04417012079107291,-0.13062392234945983,-0.0029967977220683255,100,singleton_source_signature_strata
+level,GT,balcony,100,85,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,balcony,100,85,,size_log_mae,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,GT,balcony,100,85,,size_iou,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,balcony,100,85,,bias_fp,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,prior,balcony,100,85,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,prior,balcony,100,85,,size_log_mae,0.372113838868046,0.336349761688158,0.40951726903228325,100,singleton_source_signature_strata
+level,prior,balcony,100,85,,size_iou,0.4569230229771443,0.4256105137895973,0.4870441103755987,100,singleton_source_signature_strata
+level,prior,balcony,100,85,,bias_fp,-0.22433769599602002,-0.3346182671262253,-0.13060627129992983,100,singleton_source_signature_strata
+level,L-joint,balcony,3,3,few clusters; small n,complete,1.0,,,3,singleton_source_signature_strata
+level,L-joint,balcony,3,3,few clusters; small n,size_log_mae,0.6931255590962282,,,3,singleton_source_signature_strata
+level,L-joint,balcony,3,3,few clusters; small n,size_iou,0.22461017831264737,,,3,singleton_source_signature_strata
+level,L-joint,balcony,3,3,few clusters; small n,bias_fp,-0.5390666806027419,,,3,singleton_source_signature_strata
+level,L-size,balcony,100,85,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,L-size,balcony,100,85,,size_log_mae,0.46831924685098186,0.4268204179436448,0.5177454923340011,100,singleton_source_signature_strata
+level,L-size,balcony,100,85,,size_iou,0.35217782794257013,0.31599635954550354,0.3831289719380621,100,singleton_source_signature_strata
+level,L-size,balcony,100,85,,bias_fp,-0.34759637283988165,-0.46482363991887443,-0.2356180353493785,100,singleton_source_signature_strata
+level,O2-size,balcony,100,85,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,O2-size,balcony,100,85,,size_log_mae,0.5310115635035046,0.49012530999505083,0.5795594078730243,100,singleton_source_signature_strata
+level,O2-size,balcony,100,85,,size_iou,0.31663471467216125,0.2874908227342358,0.343395134375219,100,singleton_source_signature_strata
+level,O2-size,balcony,100,85,,bias_fp,-0.5061785676194483,-0.6536755222319613,-0.36266688635955785,100,singleton_source_signature_strata
+level,GT,laundry_utility,100,85,,complete,1.0,1.0,1.0,100,
+level,GT,laundry_utility,100,85,,size_log_mae,0.0,0.0,0.0,100,
+level,GT,laundry_utility,100,85,,size_iou,1.0,1.0,1.0,100,
+level,GT,laundry_utility,100,85,,bias_fp,0.0,0.0,0.0,100,
+level,prior,laundry_utility,100,85,,complete,1.0,1.0,1.0,100,
+level,prior,laundry_utility,100,85,,size_log_mae,0.220596409759201,0.19535757341344198,0.24791493659021271,100,
+level,prior,laundry_utility,100,85,,size_iou,0.6328493625421959,0.597872258908162,0.6672060732117872,100,
+level,prior,laundry_utility,100,85,,bias_fp,-0.004901256401957507,-0.05497499184223088,0.05132479983789261,100,
+level,L-joint,laundry_utility,7,7,few clusters; small n,complete,1.0,,,7,singleton_source_signature_strata
+level,L-joint,laundry_utility,7,7,few clusters; small n,size_log_mae,0.3051582109658077,,,7,singleton_source_signature_strata
+level,L-joint,laundry_utility,7,7,few clusters; small n,size_iou,0.460318733131259,,,7,singleton_source_signature_strata
+level,L-joint,laundry_utility,7,7,few clusters; small n,bias_fp,0.023640064123109036,,,7,singleton_source_signature_strata
+level,L-size,laundry_utility,100,85,,complete,1.0,1.0,1.0,100,
+level,L-size,laundry_utility,100,85,,size_log_mae,0.348158950612132,0.31388175878877633,0.3820467727309525,100,
+level,L-size,laundry_utility,100,85,,size_iou,0.4814268328230944,0.4470094486120374,0.5172517583597162,100,
+level,L-size,laundry_utility,100,85,,bias_fp,-0.12757959879322897,-0.20438179345889682,-0.0564935348392365,100,
+level,O2-size,laundry_utility,100,85,,complete,1.0,1.0,1.0,100,
+level,O2-size,laundry_utility,100,85,,size_log_mae,0.3875770488636334,0.34990385172633615,0.42629708667900645,100,
+level,O2-size,laundry_utility,100,85,,size_iou,0.45449969583377253,0.41798440561610806,0.49207050468076274,100,
+level,O2-size,laundry_utility,100,85,,bias_fp,-0.27820795376161406,-0.3543047198887947,-0.20700455952399965,100,
+level,GT,garage,68,68,,complete,1.0,1.0,1.0,68,singleton_source_signature_strata
+level,GT,garage,68,68,,size_log_mae,0.0,0.0,0.0,68,singleton_source_signature_strata
+level,GT,garage,68,68,,size_iou,1.0,1.0,1.0,68,singleton_source_signature_strata
+level,GT,garage,68,68,,bias_fp,0.0,0.0,0.0,68,singleton_source_signature_strata
+level,prior,garage,68,68,,complete,1.0,1.0,1.0,68,singleton_source_signature_strata
+level,prior,garage,68,68,,size_log_mae,0.33291283615517353,0.3024909018771624,0.36461441572434,68,singleton_source_signature_strata
+level,prior,garage,68,68,,size_iou,0.5415152950189323,0.5154357158930057,0.5694067411724503,68,singleton_source_signature_strata
+level,prior,garage,68,68,,bias_fp,0.08985952827324799,0.02052023371987561,0.1566872736410766,68,singleton_source_signature_strata
+level,L-joint,garage,8,8,few clusters; small n,complete,1.0,,,8,singleton_source_signature_strata
+level,L-joint,garage,8,8,few clusters; small n,size_log_mae,0.4049930356903081,,,8,singleton_source_signature_strata
+level,L-joint,garage,8,8,few clusters; small n,size_iou,0.40422115308498713,,,8,singleton_source_signature_strata
+level,L-joint,garage,8,8,few clusters; small n,bias_fp,0.5191930202264085,,,8,singleton_source_signature_strata
+level,L-size,garage,68,68,,complete,1.0,1.0,1.0,68,singleton_source_signature_strata
+level,L-size,garage,68,68,,size_log_mae,0.42338363305782084,0.3874751627173476,0.46093825394521337,68,singleton_source_signature_strata
+level,L-size,garage,68,68,,size_iou,0.4301433314109158,0.4020236671257119,0.458574863365362,68,singleton_source_signature_strata
+level,L-size,garage,68,68,,bias_fp,0.14754695156208714,0.05893551334947192,0.23193644483923676,68,singleton_source_signature_strata
+level,O2-size,garage,68,68,,complete,0.9852941176470589,0.9558823529411765,1.0,68,singleton_source_signature_strata
+level,O2-size,garage,68,68,,size_log_mae,0.49272895719548127,0.4542814028130095,0.5313583399614319,67,singleton_source_signature_strata
+level,O2-size,garage,68,68,,size_iou,0.3627704981056185,0.33942438997896635,0.38880202311534123,67,singleton_source_signature_strata
+level,O2-size,garage,68,68,,bias_fp,-0.0551905019110727,-0.15027426013652917,0.03298996648110573,67,singleton_source_signature_strata
+level,GT,circulation,100,81,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,circulation,100,81,,size_log_mae,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,GT,circulation,100,81,,size_iou,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,circulation,100,81,,bias_fp,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,prior,circulation,100,81,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,prior,circulation,100,81,,size_log_mae,0.48816271663232835,0.44451562037112635,0.5370054071942421,100,singleton_source_signature_strata
+level,prior,circulation,100,81,,size_iou,0.42504423497579474,0.39512317042355766,0.4545230686764966,100,singleton_source_signature_strata
+level,prior,circulation,100,81,,bias_fp,0.3100462373125253,0.23812880749900958,0.38872408592697466,100,singleton_source_signature_strata
+level,L-joint,circulation,12,11,few clusters; small n,complete,1.0,1.0,1.0,12,singleton_source_signature_strata
+level,L-joint,circulation,12,11,few clusters; small n,size_log_mae,0.4756243129986648,0.4322024418322612,0.5262572117607421,12,singleton_source_signature_strata
+level,L-joint,circulation,12,11,few clusters; small n,size_iou,0.3672390485725882,0.3242941543852103,0.4101839427599661,12,singleton_source_signature_strata
+level,L-joint,circulation,12,11,few clusters; small n,bias_fp,-0.024780222648293052,-0.12135809114516705,0.07179764584858093,12,singleton_source_signature_strata
+level,L-size,circulation,100,81,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,L-size,circulation,100,81,,size_log_mae,0.44429160765764314,0.4059184854130363,0.48808089332539395,100,singleton_source_signature_strata
+level,L-size,circulation,100,81,,size_iou,0.41126803375161275,0.38772779974613564,0.4340532385482679,100,singleton_source_signature_strata
+level,L-size,circulation,100,81,,bias_fp,-0.08221479917719755,-0.15814838690151778,0.0006670421730861439,100,singleton_source_signature_strata
+level,O2-size,circulation,100,81,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,O2-size,circulation,100,81,,size_log_mae,0.5802880083250042,0.5310957728714643,0.6361448392910422,100,singleton_source_signature_strata
+level,O2-size,circulation,100,81,,size_iou,0.33543357167563415,0.3085754147011508,0.3600752679509925,100,singleton_source_signature_strata
+level,O2-size,circulation,100,81,,bias_fp,-0.01775480217710991,-0.09727170142429736,0.07555985647662729,100,singleton_source_signature_strata
+level,GT,storage_closet,100,51,,complete,1.0,1.0,1.0,100,
+level,GT,storage_closet,100,51,,size_log_mae,0.0,0.0,0.0,100,
+level,GT,storage_closet,100,51,,size_iou,1.0,1.0,1.0,100,
+level,GT,storage_closet,100,51,,bias_fp,0.0,0.0,0.0,100,
+level,prior,storage_closet,100,51,,complete,1.0,1.0,1.0,100,
+level,prior,storage_closet,100,51,,size_log_mae,0.4750708111671614,0.4324159220577263,0.5121112479741478,100,
+level,prior,storage_closet,100,51,,size_iou,0.3895295448041978,0.35228428836621145,0.43041963817133533,100,
+level,prior,storage_closet,100,51,,bias_fp,-0.059760197518061824,-0.21677945863324133,0.12676533720989966,100,
+level,L-joint,storage_closet,3,3,few clusters; small n,complete,1.0,,,3,singleton_source_signature_strata
+level,L-joint,storage_closet,3,3,few clusters; small n,size_log_mae,0.2806538826979401,,,3,singleton_source_signature_strata
+level,L-joint,storage_closet,3,3,few clusters; small n,size_iou,0.4973791333593042,,,3,singleton_source_signature_strata
+level,L-joint,storage_closet,3,3,few clusters; small n,bias_fp,0.035353914351440974,,,3,singleton_source_signature_strata
+level,L-size,storage_closet,100,51,,complete,1.0,1.0,1.0,100,
+level,L-size,storage_closet,100,51,,size_log_mae,0.3838722300080705,0.3519511405502788,0.4269237253354878,100,
+level,L-size,storage_closet,100,51,,size_iou,0.43756941546189315,0.40666871026590073,0.46144790526754886,100,
+level,L-size,storage_closet,100,51,,bias_fp,-0.09891032956793006,-0.21545434795051407,-0.00086327864592836,100,
+level,O2-size,storage_closet,100,51,,complete,1.0,1.0,1.0,100,
+level,O2-size,storage_closet,100,51,,size_log_mae,0.5718678667125379,0.5188011894136434,0.6172153231856707,100,
+level,O2-size,storage_closet,100,51,,size_iou,0.31323554486705324,0.2912559123343363,0.33993958754993453,100,
+level,O2-size,storage_closet,100,51,,bias_fp,-0.16831081782478063,-0.29168659365237454,-0.059619157755756096,100,
+level,GT,public_commercial,100,72,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,public_commercial,100,72,,size_log_mae,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,GT,public_commercial,100,72,,size_iou,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,GT,public_commercial,100,72,,bias_fp,0.0,0.0,0.0,100,singleton_source_signature_strata
+level,prior,public_commercial,100,72,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,prior,public_commercial,100,72,,size_log_mae,0.5032166663841324,0.4517057825612851,0.5595223590402717,100,singleton_source_signature_strata
+level,prior,public_commercial,100,72,,size_iou,0.44409601628193535,0.4181780802469291,0.4659209200477485,100,singleton_source_signature_strata
+level,prior,public_commercial,100,72,,bias_fp,0.28584360485554305,0.17407673882722113,0.40598237759619477,100,singleton_source_signature_strata
+level,L-joint,public_commercial,7,6,few clusters; small n,complete,1.0,,,7,singleton_source_signature_strata
+level,L-joint,public_commercial,7,6,few clusters; small n,size_log_mae,0.2452961056014405,,,7,singleton_source_signature_strata
+level,L-joint,public_commercial,7,6,few clusters; small n,size_iou,0.5647097615443484,,,7,singleton_source_signature_strata
+level,L-joint,public_commercial,7,6,few clusters; small n,bias_fp,-0.09735261625492596,,,7,singleton_source_signature_strata
+level,L-size,public_commercial,100,72,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,L-size,public_commercial,100,72,,size_log_mae,0.426547735112614,0.38837984313260787,0.47058095441296155,100,singleton_source_signature_strata
+level,L-size,public_commercial,100,72,,size_iou,0.4526505107361046,0.42874324272860115,0.47326198888383875,100,singleton_source_signature_strata
+level,L-size,public_commercial,100,72,,bias_fp,-0.043382643010548116,-0.11133691505110031,0.02466692239621504,100,singleton_source_signature_strata
+level,O2-size,public_commercial,100,72,,complete,1.0,1.0,1.0,100,singleton_source_signature_strata
+level,O2-size,public_commercial,100,72,,size_log_mae,0.4905541235851556,0.44840888276656327,0.5421233872872483,100,singleton_source_signature_strata
+level,O2-size,public_commercial,100,72,,size_iou,0.40991866680326083,0.3811434847179823,0.4336382561637772,100,singleton_source_signature_strata
+level,O2-size,public_commercial,100,72,,bias_fp,-0.10283664832203623,-0.18827815465256484,0.0016815010325112484,100,singleton_source_signature_strata

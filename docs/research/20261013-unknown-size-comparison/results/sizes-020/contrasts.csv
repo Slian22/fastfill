@@ -1,0 +1,257 @@
+table,name,scope,rooms,components,flags,field,estimate,ci_low,ci_high,n,warnings
+contrast,L-size − prior,all,1877,1177,,complete,0.0,0.0,0.0,1877,
+contrast,L-size − prior,all,1877,1177,,size_log_mae,0.0598247049234729,0.05002374158088938,0.06923269522459345,1877,
+contrast,L-size − prior,all,1877,1177,,size_iou,-0.09025435614351919,-0.09847063947978345,-0.08149125874384008,1877,
+contrast,L-size − prior,all,1877,1177,,bias_fp,-0.19392634990130536,-0.2209653417126811,-0.16472679874061785,1877,
+contrast,L-size − prior,E2,1009,665,,complete,0.0,0.0,0.0,1009,
+contrast,L-size − prior,E2,1009,665,,size_log_mae,0.07728813572843282,0.06960464582088649,0.08529768384070172,1009,
+contrast,L-size − prior,E2,1009,665,,size_iou,-0.11076260081551403,-0.12016919599565225,-0.1011713176178913,1009,
+contrast,L-size − prior,E2,1009,665,,bias_fp,-0.23716427276685192,-0.24879563572729654,-0.22471407302386937,1009,
+contrast,L-size − prior,E3,868,536,,complete,0.0,0.0,0.0,868,
+contrast,L-size − prior,E3,868,536,,size_log_mae,0.03952447257070266,0.02029214803811224,0.057660965394430774,868,
+contrast,L-size − prior,E3,868,536,,size_iou,-0.06641470306282474,-0.08041374917529621,-0.052424432773319964,868,
+contrast,L-size − prior,E3,868,536,,bias_fp,-0.143664755233867,-0.19771976357457133,-0.09563347334499445,868,
+contrast,L-size − prior,bedroom,534,300,,complete,0.0,0.0,0.0,534,
+contrast,L-size − prior,bedroom,534,300,,size_log_mae,0.058634073019227295,0.0493813999830248,0.06865044260565191,534,
+contrast,L-size − prior,bedroom,534,300,,size_iou,-0.0829804182086852,-0.09590646880954427,-0.07098932221141595,534,
+contrast,L-size − prior,bedroom,534,300,,bias_fp,-0.2092620425538867,-0.2277149599974899,-0.1885850306153763,534,
+contrast,L-size − prior,living,218,194,,complete,0.0,0.0,0.0,218,
+contrast,L-size − prior,living,218,194,,size_log_mae,0.06883565425807668,0.05901742174424015,0.07905971567548362,218,
+contrast,L-size − prior,living,218,194,,size_iou,-0.10753680586514751,-0.11906035953759037,-0.09627083267247105,218,
+contrast,L-size − prior,living,218,194,,bias_fp,-0.3086251465144126,-0.3295096156681496,-0.2901730004846273,218,
+contrast,L-size − prior,dining,100,99,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − prior,dining,100,99,,size_log_mae,0.02920532847869877,0.008996277766672882,0.04703740217795639,100,singleton_source_signature_strata
+contrast,L-size − prior,dining,100,99,,size_iou,-0.060486686708209315,-0.07077614478032247,-0.04893450770855101,100,singleton_source_signature_strata
+contrast,L-size − prior,dining,100,99,,bias_fp,-0.05698228909719547,-0.09476914903802673,-0.019199311132291254,100,singleton_source_signature_strata
+contrast,L-size − prior,kitchen,129,129,,complete,0.0,0.0,0.0,129,
+contrast,L-size − prior,kitchen,129,129,,size_log_mae,0.05819665884317426,0.04227810437180596,0.0752532678520334,129,
+contrast,L-size − prior,kitchen,129,129,,size_iou,-0.10721904331689638,-0.1244855551507482,-0.08972575731653301,129,
+contrast,L-size − prior,kitchen,129,129,,bias_fp,-0.1886914770968204,-0.22452540832432513,-0.14915114140372218,129,
+contrast,L-size − prior,bathroom,128,100,,complete,0.0,0.0,0.0,128,
+contrast,L-size − prior,bathroom,128,100,,size_log_mae,0.18874681514602443,0.17690067724383837,0.20071901873325612,128,
+contrast,L-size − prior,bathroom,128,100,,size_iou,-0.23573156744479587,-0.2506733073091058,-0.22139173978551835,128,
+contrast,L-size − prior,bathroom,128,100,,bias_fp,-0.2807135782214562,-0.30348711310562854,-0.2613043182600711,128,
+contrast,L-size − prior,study_office,100,57,,complete,0.0,0.0,0.0,100,
+contrast,L-size − prior,study_office,100,57,,size_log_mae,0.11191636282602425,0.08664788797603158,0.1326199476171271,100,
+contrast,L-size − prior,study_office,100,57,,size_iou,-0.10950568963033573,-0.1266621783999482,-0.08670963823142858,100,
+contrast,L-size − prior,study_office,100,57,,bias_fp,-0.21150756442550467,-0.3081629262761637,-0.14643239108857445,100,
+contrast,L-size − prior,meeting,100,19,few clusters,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − prior,meeting,100,19,few clusters,size_log_mae,0.12840126128460375,0.09680168632806493,0.14149037247106488,100,singleton_source_signature_strata
+contrast,L-size − prior,meeting,100,19,few clusters,size_iou,-0.11740475012732933,-0.1298982242542494,-0.09662750579667566,100,singleton_source_signature_strata
+contrast,L-size − prior,meeting,100,19,few clusters,bias_fp,-0.01117323410286048,-0.0964242753105908,0.03417526086483248,100,singleton_source_signature_strata
+contrast,L-size − prior,balcony,100,85,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − prior,balcony,100,85,,size_log_mae,0.09620540798293593,0.05917527131558097,0.13652417480104087,100,singleton_source_signature_strata
+contrast,L-size − prior,balcony,100,85,,size_iou,-0.10474519503457422,-0.13756826910030218,-0.07274125376471918,100,singleton_source_signature_strata
+contrast,L-size − prior,balcony,100,85,,bias_fp,-0.12325867684386167,-0.1960106952609427,-0.042438965206100056,100,singleton_source_signature_strata
+contrast,L-size − prior,laundry_utility,100,85,,complete,0.0,0.0,0.0,100,
+contrast,L-size − prior,laundry_utility,100,85,,size_log_mae,0.127562540852931,0.08802243473879376,0.16828862778089332,100,
+contrast,L-size − prior,laundry_utility,100,85,,size_iou,-0.15142252971910153,-0.19345267958126564,-0.11028659752186173,100,
+contrast,L-size − prior,laundry_utility,100,85,,bias_fp,-0.12267834239127146,-0.20591699620416193,-0.04828731922270719,100,
+contrast,L-size − prior,garage,68,68,,complete,0.0,0.0,0.0,68,singleton_source_signature_strata
+contrast,L-size − prior,garage,68,68,,size_log_mae,0.09047079690264721,0.057685378960060416,0.124338174001028,68,singleton_source_signature_strata
+contrast,L-size − prior,garage,68,68,,size_iou,-0.11137196360801649,-0.14112770780289083,-0.08341774400862434,68,singleton_source_signature_strata
+contrast,L-size − prior,garage,68,68,,bias_fp,0.057687423288839135,-0.012022595914734476,0.12834001258719127,68,singleton_source_signature_strata
+contrast,L-size − prior,circulation,100,81,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − prior,circulation,100,81,,size_log_mae,-0.04387110897468527,-0.09335453535602495,0.0032147247381623073,100,singleton_source_signature_strata
+contrast,L-size − prior,circulation,100,81,,size_iou,-0.013776201224181944,-0.04367890071630461,0.018867763094538133,100,singleton_source_signature_strata
+contrast,L-size − prior,circulation,100,81,,bias_fp,-0.39226103648972277,-0.4853926231449992,-0.29826550037335864,100,singleton_source_signature_strata
+contrast,L-size − prior,storage_closet,100,51,,complete,0.0,0.0,0.0,100,
+contrast,L-size − prior,storage_closet,100,51,,size_log_mae,-0.09119858115909091,-0.1434770239712574,-0.027463504249665927,100,
+contrast,L-size − prior,storage_closet,100,51,,size_iou,0.04803987065769531,-0.007094611293207747,0.09758563014457093,100,
+contrast,L-size − prior,storage_closet,100,51,,bias_fp,-0.039150132049868204,-0.2720055564670418,0.17063586920286156,100,
+contrast,L-size − prior,public_commercial,100,72,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − prior,public_commercial,100,72,,size_log_mae,-0.07666893127151847,-0.11957818189334438,-0.03591300533205824,100,singleton_source_signature_strata
+contrast,L-size − prior,public_commercial,100,72,,size_iou,0.008554494454169215,-0.009166951563949853,0.02617394004759284,100,singleton_source_signature_strata
+contrast,L-size − prior,public_commercial,100,72,,bias_fp,-0.3292262478660912,-0.4384148449960471,-0.2374959376570796,100,singleton_source_signature_strata
+contrast,O2-size − prior,all,1877,1177,,complete,-0.0005327650506126798,-0.001687289088863892,0.0,1877,
+contrast,O2-size − prior,all,1877,1177,,size_log_mae,0.1406285721058494,0.1303654734505194,0.1507182627283503,1876,
+contrast,O2-size − prior,all,1877,1177,,size_iou,-0.15693163060426496,-0.1644605870548459,-0.1489641036191902,1876,
+contrast,O2-size − prior,all,1877,1177,,bias_fp,-0.2761052174780561,-0.30293652449610253,-0.24997446187109562,1876,
+contrast,O2-size − prior,E2,1009,665,,complete,0.0,0.0,0.0,1009,
+contrast,O2-size − prior,E2,1009,665,,size_log_mae,0.15670346871728813,0.14634266846424013,0.16717034835726435,1009,
+contrast,O2-size − prior,E2,1009,665,,size_iou,-0.18624930773071885,-0.19558593123204626,-0.17669054385855226,1009,
+contrast,O2-size − prior,E2,1009,665,,bias_fp,-0.30500710804451586,-0.3191942420547523,-0.28966737771438045,1009,
+contrast,O2-size − prior,E3,868,536,,complete,-0.001152073732718894,-0.003750234962406015,0.0,868,
+contrast,O2-size − prior,E3,868,536,,size_log_mae,0.12192087812552443,0.10278230503375026,0.1406278837339047,867,
+contrast,O2-size − prior,E3,868,536,,size_iou,-0.12281221166471248,-0.13520151277959455,-0.10994144463960716,867,
+contrast,O2-size − prior,E3,868,536,,bias_fp,-0.24246968393531337,-0.29604846968300397,-0.19369953485016625,867,
+contrast,O2-size − prior,bedroom,534,300,,complete,0.0,0.0,0.0,534,
+contrast,O2-size − prior,bedroom,534,300,,size_log_mae,0.15741843660846078,0.14150054309364113,0.17478580599813665,534,
+contrast,O2-size − prior,bedroom,534,300,,size_iou,-0.17153182355017121,-0.18620826234732343,-0.1574986225003854,534,
+contrast,O2-size − prior,bedroom,534,300,,bias_fp,-0.238097133561803,-0.2567951983294682,-0.21841768438909615,534,
+contrast,O2-size − prior,living,218,194,,complete,0.0,0.0,0.0,218,
+contrast,O2-size − prior,living,218,194,,size_log_mae,0.15939288747781766,0.14296659019009628,0.17729335819701264,218,
+contrast,O2-size − prior,living,218,194,,size_iou,-0.19826848299091906,-0.21395315437093965,-0.18340328167784195,218,
+contrast,O2-size − prior,living,218,194,,bias_fp,-0.41310191744176983,-0.4329562613554628,-0.39362611801569153,218,
+contrast,O2-size − prior,dining,100,99,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,O2-size − prior,dining,100,99,,size_log_mae,0.07043312332817035,0.047464398735954046,0.09131601386612571,100,singleton_source_signature_strata
+contrast,O2-size − prior,dining,100,99,,size_iou,-0.08985797528861783,-0.10239657188423942,-0.07598548522185283,100,singleton_source_signature_strata
+contrast,O2-size − prior,dining,100,99,,bias_fp,-0.20059883946058146,-0.24429920341730385,-0.1572821602787367,100,singleton_source_signature_strata
+contrast,O2-size − prior,kitchen,129,129,,complete,0.0,0.0,0.0,129,
+contrast,O2-size − prior,kitchen,129,129,,size_log_mae,0.12297182722884972,0.10318662856376971,0.14319818054283248,129,
+contrast,O2-size − prior,kitchen,129,129,,size_iou,-0.173363030987541,-0.19376962066557982,-0.15217083080474397,129,
+contrast,O2-size − prior,kitchen,129,129,,bias_fp,-0.3563248008445201,-0.39843734687736465,-0.3132843324945444,129,
+contrast,O2-size − prior,bathroom,128,100,,complete,0.0,0.0,0.0,128,
+contrast,O2-size − prior,bathroom,128,100,,size_log_mae,0.18313546565734246,0.16861831112394518,0.19790552447235168,128,
+contrast,O2-size − prior,bathroom,128,100,,size_iou,-0.24016560496164685,-0.2566837851499911,-0.22282585476245048,128,
+contrast,O2-size − prior,bathroom,128,100,,bias_fp,-0.34832957330988135,-0.38018700054401067,-0.3223101920136947,128,
+contrast,O2-size − prior,study_office,100,57,,complete,0.0,0.0,0.0,100,
+contrast,O2-size − prior,study_office,100,57,,size_log_mae,0.19601509144931786,0.15249695641785724,0.23051412324189877,100,
+contrast,O2-size − prior,study_office,100,57,,size_iou,-0.17101863389321864,-0.19250072659998907,-0.14125504967480026,100,
+contrast,O2-size − prior,study_office,100,57,,bias_fp,-0.3125673910790428,-0.41781283103710765,-0.2415865771382317,100,
+contrast,O2-size − prior,meeting,100,19,few clusters,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,O2-size − prior,meeting,100,19,few clusters,size_log_mae,0.18085297453193186,0.14702713010974153,0.1952311629810543,100,singleton_source_signature_strata
+contrast,O2-size − prior,meeting,100,19,few clusters,size_iou,-0.1643223991484418,-0.17509089578915848,-0.1425672464778151,100,singleton_source_signature_strata
+contrast,O2-size − prior,meeting,100,19,few clusters,bias_fp,-0.10867877862402762,-0.1877475066744177,-0.07212817614015336,100,singleton_source_signature_strata
+contrast,O2-size − prior,balcony,100,85,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,O2-size − prior,balcony,100,85,,size_log_mae,0.15889772463545865,0.11525039400700003,0.20577027321454608,100,singleton_source_signature_strata
+contrast,O2-size − prior,balcony,100,85,,size_iou,-0.14028830830498307,-0.17630180362636477,-0.10617897499054679,100,singleton_source_signature_strata
+contrast,O2-size − prior,balcony,100,85,,bias_fp,-0.28184087162342836,-0.38332234534311865,-0.17885184809135865,100,singleton_source_signature_strata
+contrast,O2-size − prior,laundry_utility,100,85,,complete,0.0,0.0,0.0,100,
+contrast,O2-size − prior,laundry_utility,100,85,,size_log_mae,0.16698063910443245,0.12597898185869613,0.21089200782657078,100,
+contrast,O2-size − prior,laundry_utility,100,85,,size_iou,-0.17834966670842337,-0.22318257337729014,-0.1373997642941103,100,
+contrast,O2-size − prior,laundry_utility,100,85,,bias_fp,-0.2733066973596565,-0.3556128769275586,-0.19846971803503285,100,
+contrast,O2-size − prior,garage,68,68,,complete,-0.014705882352941176,-0.04411764705882353,0.0,68,singleton_source_signature_strata
+contrast,O2-size − prior,garage,68,68,,size_log_mae,0.16061888934314997,0.12748340224377436,0.19588220778108217,67,singleton_source_signature_strata
+contrast,O2-size − prior,garage,68,68,,size_iou,-0.18039235682595928,-0.21129066466056257,-0.15256791068581727,67,singleton_source_signature_strata
+contrast,O2-size − prior,garage,68,68,,bias_fp,-0.14953383372909995,-0.23762463241616522,-0.07881167393550849,67,singleton_source_signature_strata
+contrast,O2-size − prior,circulation,100,81,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,O2-size − prior,circulation,100,81,,size_log_mae,0.09212529169267572,0.035353075298878794,0.1475868909753741,100,singleton_source_signature_strata
+contrast,O2-size − prior,circulation,100,81,,size_iou,-0.08961066330016065,-0.11844560632645317,-0.058258245111729855,100,singleton_source_signature_strata
+contrast,O2-size − prior,circulation,100,81,,bias_fp,-0.32780103948963524,-0.40730174641241823,-0.24106911382407925,100,singleton_source_signature_strata
+contrast,O2-size − prior,storage_closet,100,51,,complete,0.0,0.0,0.0,100,
+contrast,O2-size − prior,storage_closet,100,51,,size_log_mae,0.09679705554537645,0.04780206957213615,0.15065673448580327,100,
+contrast,O2-size − prior,storage_closet,100,51,,size_iou,-0.07629399993714463,-0.11786244080931806,-0.038705626223622676,100,
+contrast,O2-size − prior,storage_closet,100,51,,bias_fp,-0.10855062030671882,-0.30372009457843774,0.049712111981405856,100,
+contrast,O2-size − prior,public_commercial,100,72,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,O2-size − prior,public_commercial,100,72,,size_log_mae,-0.01266254279897691,-0.0626150280394255,0.037361498529479995,100,singleton_source_signature_strata
+contrast,O2-size − prior,public_commercial,100,72,,size_iou,-0.03417734947867456,-0.05685687401628798,-0.011253690196092646,100,singleton_source_signature_strata
+contrast,O2-size − prior,public_commercial,100,72,,bias_fp,-0.3886802531775793,-0.49615577444917697,-0.28659381851353655,100,singleton_source_signature_strata
+contrast,L-size − O2-size,all,1877,1177,,complete,0.0005327650506126798,0.0,0.001687289088863892,1877,
+contrast,L-size − O2-size,all,1877,1177,,size_log_mae,-0.08086976791194259,-0.08813528610321321,-0.073610279826488,1876,
+contrast,L-size − O2-size,all,1877,1177,,size_iou,0.06669138346086462,0.061817376332851934,0.07162472130002157,1876,
+contrast,L-size − O2-size,all,1877,1177,,bias_fp,0.08168723435494739,0.07030781675600466,0.09319556000502267,1876,
+contrast,L-size − O2-size,E2,1009,665,,complete,0.0,0.0,0.0,1009,
+contrast,L-size − O2-size,E2,1009,665,,size_log_mae,-0.07941533298885531,-0.08860773543307546,-0.07020651084418672,1009,
+contrast,L-size − O2-size,E2,1009,665,,size_iou,0.07548670691520488,0.06873219838658388,0.08156816485211517,1009,
+contrast,L-size − O2-size,E2,1009,665,,bias_fp,0.06784283527766391,0.0546890742336854,0.08132337266591178,1009,
+contrast,L-size − O2-size,E3,868,536,,complete,0.001152073732718894,0.0,0.0037502349624060137,868,
+contrast,L-size − O2-size,E3,868,536,,size_log_mae,-0.08256241478321716,-0.09480868702376324,-0.07101027789114625,867,
+contrast,L-size − O2-size,E3,868,536,,size_iou,0.056455534135109925,0.04821981823939762,0.06472907545128508,867,
+contrast,L-size − O2-size,E3,868,536,,bias_fp,0.09779911286588056,0.0801671530128572,0.11459611679653563,867,
+contrast,L-size − O2-size,bedroom,534,300,,complete,0.0,0.0,0.0,534,
+contrast,L-size − O2-size,bedroom,534,300,,size_log_mae,-0.09878436358923347,-0.11127210910645927,-0.08630522501057283,534,
+contrast,L-size − O2-size,bedroom,534,300,,size_iou,0.08855140534148585,0.08008869175468207,0.09666902910510443,534,
+contrast,L-size − O2-size,bedroom,534,300,,bias_fp,0.028835091007916442,0.012218596626769542,0.04446782074547018,534,
+contrast,L-size − O2-size,living,218,194,,complete,0.0,0.0,0.0,218,
+contrast,L-size − O2-size,living,218,194,,size_log_mae,-0.09055723321974095,-0.10885700889237152,-0.07294244704515099,218,
+contrast,L-size − O2-size,living,218,194,,size_iou,0.09073167712577157,0.07520925905080279,0.10647389134833837,218,
+contrast,L-size − O2-size,living,218,194,,bias_fp,0.10447677092735722,0.08635978006780076,0.12209577659250398,218,
+contrast,L-size − O2-size,dining,100,99,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − O2-size,dining,100,99,,size_log_mae,-0.04122779484947163,-0.057165327122077954,-0.024456948592295302,100,singleton_source_signature_strata
+contrast,L-size − O2-size,dining,100,99,,size_iou,0.029371288580408494,0.019985529052073233,0.03856345657343414,100,singleton_source_signature_strata
+contrast,L-size − O2-size,dining,100,99,,bias_fp,0.143616550363386,0.11508176580963492,0.17404566538188443,100,singleton_source_signature_strata
+contrast,L-size − O2-size,kitchen,129,129,,complete,0.0,0.0,0.0,129,
+contrast,L-size − O2-size,kitchen,129,129,,size_log_mae,-0.06477516838567549,-0.07861109433920091,-0.05137534836337079,129,
+contrast,L-size − O2-size,kitchen,129,129,,size_iou,0.06614398767064462,0.05329634743837285,0.07952193307838677,129,
+contrast,L-size − O2-size,kitchen,129,129,,bias_fp,0.1676333237476996,0.14175379694320447,0.19472722351045346,129,
+contrast,L-size − O2-size,bathroom,128,100,,complete,0.0,0.0,0.0,128,
+contrast,L-size − O2-size,bathroom,128,100,,size_log_mae,0.005611349488682006,-0.009240921063126503,0.020187099712822208,128,
+contrast,L-size − O2-size,bathroom,128,100,,size_iou,0.004434037516850909,-0.010449791602904138,0.018895934901145554,128,
+contrast,L-size − O2-size,bathroom,128,100,,bias_fp,0.06761599508842518,0.050075449499490825,0.08680432634334945,128,
+contrast,L-size − O2-size,study_office,100,57,,complete,0.0,0.0,0.0,100,
+contrast,L-size − O2-size,study_office,100,57,,size_log_mae,-0.08409872862329358,-0.10960641562924076,-0.05314481972515569,100,
+contrast,L-size − O2-size,study_office,100,57,,size_iou,0.06151294426288285,0.041209282773360174,0.07718166638165229,100,
+contrast,L-size − O2-size,study_office,100,57,,bias_fp,0.1010598266535381,0.06590884734395845,0.13716932022379452,100,
+contrast,L-size − O2-size,meeting,100,19,few clusters,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − O2-size,meeting,100,19,few clusters,size_log_mae,-0.052451713247328086,-0.06846509688397387,-0.03711683387927072,100,singleton_source_signature_strata
+contrast,L-size − O2-size,meeting,100,19,few clusters,size_iou,0.04691764902111247,0.03510323979842999,0.059582228541550875,100,singleton_source_signature_strata
+contrast,L-size − O2-size,meeting,100,19,few clusters,bias_fp,0.09750554452116714,0.07134114411859364,0.119987262467656,100,singleton_source_signature_strata
+contrast,L-size − O2-size,balcony,100,85,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − O2-size,balcony,100,85,,size_log_mae,-0.06269231665252274,-0.08840547630029415,-0.03717870044579587,100,singleton_source_signature_strata
+contrast,L-size − O2-size,balcony,100,85,,size_iou,0.035543113270408815,0.018080999615995914,0.05172901343336262,100,singleton_source_signature_strata
+contrast,L-size − O2-size,balcony,100,85,,bias_fp,0.15858219477956667,0.11049356084381055,0.21478188539063622,100,singleton_source_signature_strata
+contrast,L-size − O2-size,laundry_utility,100,85,,complete,0.0,0.0,0.0,100,
+contrast,L-size − O2-size,laundry_utility,100,85,,size_log_mae,-0.03941809825150146,-0.057881472551905656,-0.022295467597168585,100,
+contrast,L-size − O2-size,laundry_utility,100,85,,size_iou,0.026927136989321872,0.013133127466875932,0.04097220660443211,100,
+contrast,L-size − O2-size,laundry_utility,100,85,,bias_fp,0.1506283549683851,0.10970151054973426,0.19295962351807544,100,
+contrast,L-size − O2-size,garage,68,68,,complete,0.014705882352941176,0.0,0.04411764705882353,68,singleton_source_signature_strata
+contrast,L-size − O2-size,garage,68,68,,size_log_mae,-0.07153590851045574,-0.1024131478630024,-0.03978560486202107,67,singleton_source_signature_strata
+contrast,L-size − O2-size,garage,68,68,,size_iou,0.06910025705015846,0.041828208763771135,0.09570182987589308,67,singleton_source_signature_strata
+contrast,L-size − O2-size,garage,68,68,,bias_fp,0.1972109562580455,0.14822313998979042,0.2492240821373494,67,singleton_source_signature_strata
+contrast,L-size − O2-size,circulation,100,81,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − O2-size,circulation,100,81,,size_log_mae,-0.135996400667361,-0.1697680568010087,-0.10694228274630128,100,singleton_source_signature_strata
+contrast,L-size − O2-size,circulation,100,81,,size_iou,0.0758344620759787,0.056178639821715205,0.09739538277848607,100,singleton_source_signature_strata
+contrast,L-size − O2-size,circulation,100,81,,bias_fp,-0.0644599970000876,-0.12346268981296749,-0.010759306045301804,100,singleton_source_signature_strata
+contrast,L-size − O2-size,storage_closet,100,51,,complete,0.0,0.0,0.0,100,
+contrast,L-size − O2-size,storage_closet,100,51,,size_log_mae,-0.18799563670446734,-0.23833887501246767,-0.12474670882369704,100,
+contrast,L-size − O2-size,storage_closet,100,51,,size_iou,0.12433387059483994,0.08560202941703758,0.15297856420509787,100,
+contrast,L-size − O2-size,storage_closet,100,51,,bias_fp,0.06940048825685051,-0.01666708413350577,0.15312285583502278,100,
+contrast,L-size − O2-size,public_commercial,100,72,,complete,0.0,0.0,0.0,100,singleton_source_signature_strata
+contrast,L-size − O2-size,public_commercial,100,72,,size_log_mae,-0.06400638847254154,-0.08867991129667589,-0.0407176086624345,100,singleton_source_signature_strata
+contrast,L-size − O2-size,public_commercial,100,72,,size_iou,0.04273184393284377,0.026097264920762243,0.060409982627001035,100,singleton_source_signature_strata
+contrast,L-size − O2-size,public_commercial,100,72,,bias_fp,0.059454005311488096,-0.01397020427420669,0.11902530805107128,100,singleton_source_signature_strata
+contrast,L-size − L-joint,all,1063,714,,complete,0.0,0.0,0.0,1063,singleton_source_signature_strata
+contrast,L-size − L-joint,all,1063,714,,size_log_mae,0.00937906737057797,0.005899644150255994,0.012765837232124344,1063,singleton_source_signature_strata
+contrast,L-size − L-joint,all,1063,714,,size_iou,-0.014384765763308877,-0.018061965269128455,-0.010682564199672917,1063,singleton_source_signature_strata
+contrast,L-size − L-joint,all,1063,714,,bias_fp,-0.09435749436108552,-0.10287992830618237,-0.08559666414462623,1063,singleton_source_signature_strata
+contrast,L-size − L-joint,E2,1009,665,,complete,0.0,0.0,0.0,1009,
+contrast,L-size − L-joint,E2,1009,665,,size_log_mae,0.010448406460941096,0.006777145188591891,0.014183443430066498,1009,
+contrast,L-size − L-joint,E2,1009,665,,size_iou,-0.016133551489570137,-0.020311074698772535,-0.011891494353504669,1009,
+contrast,L-size − L-joint,E2,1009,665,,bias_fp,-0.09651107275772647,-0.10566980895608735,-0.08750311324594703,1009,
+contrast,L-size − L-joint,E3,54,51,,complete,0.0,0.0,0.0,54,singleton_source_signature_strata
+contrast,L-size − L-joint,E3,54,51,,size_log_mae,-0.01060173155861452,-0.023442229488352066,0.0031328699175918935,54,singleton_source_signature_strata
+contrast,L-size − L-joint,E3,54,51,,size_iou,0.01829161938109132,0.0036142747938190303,0.032589303110908845,54,singleton_source_signature_strata
+contrast,L-size − L-joint,E3,54,51,,bias_fp,-0.054117483209035026,-0.09135521499541704,-0.016985232462157954,54,singleton_source_signature_strata
+contrast,L-size − L-joint,bedroom,534,300,,complete,0.0,0.0,0.0,534,
+contrast,L-size − L-joint,bedroom,534,300,,size_log_mae,-0.001242730484451449,-0.006389439531078413,0.0033958480146314904,534,
+contrast,L-size − L-joint,bedroom,534,300,,size_iou,-0.0013296826236929148,-0.007436067810302046,0.0044912593938973115,534,
+contrast,L-size − L-joint,bedroom,534,300,,bias_fp,-0.06767366480942848,-0.07706095392743884,-0.05865374527326245,534,
+contrast,L-size − L-joint,living,218,194,,complete,0.0,0.0,0.0,218,
+contrast,L-size − L-joint,living,218,194,,size_log_mae,0.017848918159149657,0.010562315915447143,0.026540865393520376,218,
+contrast,L-size − L-joint,living,218,194,,size_iou,-0.02560623334384652,-0.033471452485801925,-0.018753881923137528,218,
+contrast,L-size − L-joint,living,218,194,,bias_fp,-0.08429309646077494,-0.10030016112659126,-0.06997895843708604,218,
+contrast,L-size − L-joint,dining,6,6,few clusters; small n,complete,0.0,,,6,singleton_source_signature_strata
+contrast,L-size − L-joint,dining,6,6,few clusters; small n,size_log_mae,0.004665201310038373,,,6,singleton_source_signature_strata
+contrast,L-size − L-joint,dining,6,6,few clusters; small n,size_iou,0.019220414032408973,,,6,singleton_source_signature_strata
+contrast,L-size − L-joint,dining,6,6,few clusters; small n,bias_fp,0.07485190755876117,,,6,singleton_source_signature_strata
+contrast,L-size − L-joint,kitchen,129,129,,complete,0.0,0.0,0.0,129,
+contrast,L-size − L-joint,kitchen,129,129,,size_log_mae,0.02255556104675517,0.015158998170317434,0.030353688919039286,129,
+contrast,L-size − L-joint,kitchen,129,129,,size_iou,-0.0332374497523467,-0.04240182996993535,-0.02430904934157584,129,
+contrast,L-size − L-joint,kitchen,129,129,,bias_fp,-0.1919588246816811,-0.21011079444301975,-0.1730037998952442,129,
+contrast,L-size − L-joint,bathroom,128,100,,complete,0.0,0.0,0.0,128,
+contrast,L-size − L-joint,bathroom,128,100,,size_log_mae,0.03441663018797337,0.022497425156407083,0.04748522110417375,128,
+contrast,L-size − L-joint,bathroom,128,100,,size_iou,-0.04452275816338272,-0.056454010079315435,-0.033257225572787714,128,
+contrast,L-size − L-joint,bathroom,128,100,,bias_fp,-0.14143243743691702,-0.15545985258134665,-0.12997891838494816,128,
+contrast,L-size − L-joint,study_office,3,3,few clusters; small n,complete,0.0,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,study_office,3,3,few clusters; small n,size_log_mae,0.043348479829768506,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,study_office,3,3,few clusters; small n,size_iou,-0.03101289003260611,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,study_office,3,3,few clusters; small n,bias_fp,-0.04645845344752431,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,meeting,5,4,few clusters; small n,complete,0.0,,,5,singleton_source_signature_strata
+contrast,L-size − L-joint,meeting,5,4,few clusters; small n,size_log_mae,-0.004353056473074213,,,5,singleton_source_signature_strata
+contrast,L-size − L-joint,meeting,5,4,few clusters; small n,size_iou,0.05738339781025287,,,5,singleton_source_signature_strata
+contrast,L-size − L-joint,meeting,5,4,few clusters; small n,bias_fp,-0.010942626003574558,,,5,singleton_source_signature_strata
+contrast,L-size − L-joint,balcony,3,3,few clusters; small n,complete,0.0,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,balcony,3,3,few clusters; small n,size_log_mae,-0.12484042053590566,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,balcony,3,3,few clusters; small n,size_iou,0.0656590627566778,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,balcony,3,3,few clusters; small n,bias_fp,0.051738941308857526,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,laundry_utility,7,7,few clusters; small n,complete,0.0,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,laundry_utility,7,7,few clusters; small n,size_log_mae,0.028122168985854946,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,laundry_utility,7,7,few clusters; small n,size_iou,-0.009737562848221606,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,laundry_utility,7,7,few clusters; small n,bias_fp,-0.1611702551328196,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,garage,8,8,few clusters; small n,complete,0.0,,,8,singleton_source_signature_strata
+contrast,L-size − L-joint,garage,8,8,few clusters; small n,size_log_mae,-0.024245151305312185,,,8,singleton_source_signature_strata
+contrast,L-size − L-joint,garage,8,8,few clusters; small n,size_iou,0.01434500641780636,,,8,singleton_source_signature_strata
+contrast,L-size − L-joint,garage,8,8,few clusters; small n,bias_fp,-0.3062390919406958,,,8,singleton_source_signature_strata
+contrast,L-size − L-joint,circulation,12,11,few clusters; small n,complete,0.0,0.0,0.0,12,singleton_source_signature_strata
+contrast,L-size − L-joint,circulation,12,11,few clusters; small n,size_log_mae,-0.015506269015394933,-0.03504273209301523,0.004223191109356768,12,singleton_source_signature_strata
+contrast,L-size − L-joint,circulation,12,11,few clusters; small n,size_iou,0.01882085682293254,0.0032852011870334965,0.034518104128879436,12,singleton_source_signature_strata
+contrast,L-size − L-joint,circulation,12,11,few clusters; small n,bias_fp,0.05029343127151673,-0.02872575002189569,0.12016297935271351,12,singleton_source_signature_strata
+contrast,L-size − L-joint,storage_closet,3,3,few clusters; small n,complete,0.0,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,storage_closet,3,3,few clusters; small n,size_log_mae,-0.042114223319451055,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,storage_closet,3,3,few clusters; small n,size_iou,0.04699628953214376,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,storage_closet,3,3,few clusters; small n,bias_fp,0.14703776301562257,,,3,singleton_source_signature_strata
+contrast,L-size − L-joint,public_commercial,7,6,few clusters; small n,complete,0.0,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,public_commercial,7,6,few clusters; small n,size_log_mae,-0.003531383122432365,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,public_commercial,7,6,few clusters; small n,size_iou,0.009733313326353799,,,7,singleton_source_signature_strata
+contrast,L-size − L-joint,public_commercial,7,6,few clusters; small n,bias_fp,-0.11415911643662138,,,7,singleton_source_signature_strata

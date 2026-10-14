@@ -199,6 +199,20 @@ The agents' rows use their own, smaller sizes (size-free runs), and that confoun
 - Some counted collisions are only a flush contact layer, e.g. 27 % of GT's colliding pairs.
 - Collision-free rates computed without that layer: GT 0.848, P 0.604, L 0.995, O2 0.998.
 
+## Size-only LLM sizers (amendment 020 table A; 1,877 E2 ∪ E3 test rooms; EXPLORATORY; `results/sizes-020/`)
+
+| Size source | Size log MAE vs GT | Footprint bias B |
+|---|---|---|
+| train prior (P's input) | 0.267 | −0.004 |
+| gpt-6.1-sol size-only (L-size; 2,010 calls) | 0.327 | −0.198 |
+| O2 size-only | 0.408 | −0.280 |
+| L-joint (cohort rooms only) | 0.262 | −0.182 |
+
+- **Paired difference, L-size − prior:** log MAE +0.060 [+0.050, +0.069].
+- **LLMs undersize even when asked only for real-world dimensions** (no fitting instruction). The agents' undersizing is therefore partly a size-knowledge bias, not only shrinking to fit.
+- **The prior is better in most families.** L-size beats it only in sparse non-paper families: storage_closet −0.091 and public_commercial −0.077 log MAE.
+- **Consequence for amendment 022:** the delivered system keeps the train prior. A sizer must beat the prior on a dev measurement before it can replace it; table A, measured on test rooms, does not select it.
+
 ## Size confound: size substitution (amendment 016 §1, addendum A3; EXPLORATORY; `results/scale-curve-016/`)
 
 Each system keeps its own positions, yaw and support; only the sizes are replaced (x/y/z, primary per addendum C3; supported children follow their parent). Shown: downstream acceptance on the 1,454-room cohort, raw outputs, with house-cluster CIs (2,000 draws).
