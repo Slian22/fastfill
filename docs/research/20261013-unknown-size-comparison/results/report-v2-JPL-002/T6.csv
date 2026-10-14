@@ -1,0 +1,5 @@
+system,requests,complete,token_cap_without_eos,invalid_json,invalid_schema_or_geometry,generation_or_api_failure,missing_output,incomplete,cap_rule_flipped_complete,invalid_output,answers_reaching_cap
+J,8647,8622,2,1,22,0,0,25,0,,
+P,8647,8634,0,3,10,0,0,13,0,,
+L-raw,1454,1454,,,,0,0,0,,0,0
+L-harness,1454,1454,,,,0,0,0,,0,0
