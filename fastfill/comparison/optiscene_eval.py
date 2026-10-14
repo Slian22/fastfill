@@ -35,6 +35,10 @@ kitchen, bathroom) nor none/other, at most 100 per family by sha256('optiscene-0
   score-e3 --e3 OUT15/e3 --gen OUT15/gen --eval-data ... --p-geometry ... --p-run ... --out OUT15/score-e3
           every published E3_GENS arm and P per family and pooled, paired OptiScene(prior) - P per family and pooled
           (all and unseen, report_v2 small-sample flags); all of it again on rooms with <= 14 objects (SFT maximum)
+Amendment 020 (EXPLORATORY): plan-e2 / plan-e3 --size-mode llm-L|llm-O2 --estimates RUN/sizes-020-{L,O2} build the same
+requests in that one size mode from the sizer's estimates.jsonl (load_estimates); a room whose sizer answer failed keeps
+its rows with the reason (size_error) and no messages, so generate skips it and scoring counts it as a failure. Without
+--size-mode both commands are unchanged.
 
 Frames. Their text frame T (gprompt): x_T = raw.x, y_T = raw.z, z_T = raw.y, angle a = rad(rotation.y), box (h, w, d)
 = extents along mesh (y, x, z), origin = floor area centroid. IR: pos = (x_T + c_x, y_T + c_y, z_T), size = (d, w, h),
@@ -102,6 +106,7 @@ WAITING = (None, 'PENDING', 'RUNNING', 'COMPLETING')  # sacct can still show the
 E3_SEED, E3_CAP = 'optiscene-015-e3:', 100
 E3_GENS = ('sft-e3-sft', 'dpo1-e3-sft', 'dpo2-e3-sft', '8b-e3-v1')
 TRAIN_MAX_OBJECTS = 14  # sft_prompts.json: median 7, max 14 objects per room (dpo: max 17; dpo2: median 8, max 32)
+SIZE_MODES_020 = ('llm-L', 'llm-O2')
 
 
 # ---- io ------------------------------------------------------------------------------------------------------------
@@ -654,11 +659,16 @@ def exposure_index(rows):
     return houses, holo
 
 
-def room_requests(room, prior, instr, population, stratum):
-    """One room's requests (plan-e2 and plan-e3): their input and the FastFill v1 request, gt and prior sizes."""
+def room_requests(room, prior, instr, population, stratum, modes=None):
+    """One room's requests (plan-e2 and plan-e3): their input and the FastFill v1 request, gt and prior sizes; amendment
+    020 passes modes ((mode, sizes),) instead, where sizes may be a failure reason (rows kept, no messages)."""
     uid, rows = room['uid'], []
-    for mode, size in (('gt', {o['id']: o['size'] for o in room['objects']}), ('prior', prior)):
+    for mode, size in modes or (('gt', {o['id']: o['size'] for o in room['objects']}), ('prior', prior)):
         base = {'uid': uid, 'population': population, 'mode': mode, 'stratum': stratum, 'source': room['source']}
+        if isinstance(size, str):
+            rows += [{**base, 'key': f'{uid}|{mode}|{fmt}', 'format': fmt, 'size_error': size, 'messages': {}}
+                     for fmt in ('optiscene', 'v1')]
+            continue
         req = optiscene_request(room, size, instr)
         rows.append({**base, 'key': f'{uid}|{mode}|optiscene', 'format': 'optiscene',
                      **{k: req[k] for k in ('groups', 'ids', 'boxes', 'center')}, 'messages': {'sft': req['messages']}})
@@ -695,7 +705,58 @@ def plan_inputs(eval_data, e1):
     return rooms, sizes, sidecar, hf_cover
 
 
-def plan_e2(eval_data, data, e1, out, limit=None):
+def load_estimates(root, rooms):
+    """Amendment 020 sizer output (sizers_020: published dir, estimates.jsonl rows {uid, estimated_sizes: {id: [x, y,
+    z]}} for the answered rooms, result.json failed {uid: reason}) -> {uid: sizes at the eval-data prior's rounding
+    (max(0.01, cm)) | failure reason} for every room. Failures (carried, never dropped): no row (result.json's reason,
+    else missing_row), null sizes (the row's error), not exactly the room's object ids, or a size that is not three
+    finite positive numbers below scene.MAX_COORD after rounding (the request contract's bound). Refused unless the run
+    is SIZES_COMPLETE and its manifest's expected_uids cover every room (no --limit smoke run, no missing result)."""
+    from fastfill import scene
+    manifest, result = _verified(root), Path(root) / 'result.json'
+    result = json.loads(result.read_text()) if result.is_file() else {}
+    if result.get('status') != 'SIZES_COMPLETE' or not {r['uid'] for r in rooms} <= set(
+            manifest.get('expected_uids') or ()):
+        raise ValueError(f'{root}: not a complete sizer run over these rooms')
+    failed = result.get('failed') or {}
+    by = {}
+    for r in _jsonl(Path(root) / 'estimates.jsonl'):
+        if r['uid'] in by:
+            raise ValueError(f'duplicate estimate row: {r["uid"]}')
+        by[r['uid']] = r
+    out = {}
+    for room in rooms:
+        uid, ids = room['uid'], [o['id'] for o in room['objects']]
+        row = by.get(uid)
+        sizes = (row or {}).get('estimated_sizes')
+        if row is None:
+            out[uid] = str(failed.get(uid) or 'missing_row')
+        elif not isinstance(sizes, dict):
+            out[uid] = str(row.get('error') or 'no_sizes')
+        elif set(sizes) != set(ids):
+            out[uid] = 'missing_object' if set(ids) - set(sizes) else 'extra_object'
+        elif not all(isinstance(v, list) and len(v) == 3 and all(_finite(x) and x > 0 for x in v) for v in sizes.values()):
+            out[uid] = 'bad_size'
+        else:
+            rounded = {i: [max(.01, round(float(x), 2)) for x in sizes[i]] for i in ids}
+            out[uid] = rounded if all(x < scene.MAX_COORD for v in rounded.values() for x in v) else 'bad_size'
+    return out
+
+
+def _size_source(size_mode, estimates, rooms):
+    """plan-e2/e3 size modes: (None, {}) = the amendment 014/015 plan; amendment 020: ({uid: ((mode, sizes),)}, meta)."""
+    if (size_mode is None) != (estimates is None) or size_mode not in (None, *SIZE_MODES_020):
+        raise ValueError(f'size mode {size_mode!r} needs --estimates (and the reverse); modes: {SIZE_MODES_020}')
+    if size_mode is None:
+        return None, {}
+    sizes = load_estimates(estimates, rooms)
+    return {u: ((size_mode, v),) for u, v in sizes.items()}, {
+        'protocol': 'amendment-020', 'size_mode': size_mode, 'size_estimates': str(estimates),
+        'size_estimates_manifest_sha256': _sha(Path(estimates) / 'MANIFEST.json'),
+        'size_failures': {u: v for u, v in sizes.items() if isinstance(v, str)}}
+
+
+def plan_e2(eval_data, data, e1, out, limit=None, size_mode=None, estimates=None):
     from fastfill import scene
     from fastfill.comparison.eval_data import PAPER_STRATA
     eval_data, e1, out = Path(eval_data), Path(e1), Path(out)
@@ -712,12 +773,13 @@ def plan_e2(eval_data, data, e1, out, limit=None):
         expected = {k: v['population'] for k, v in selection['strata'].items() if v['population']}
         if dict(counts) != expected:
             raise ValueError(f'paper-strata rooms {dict(counts)} differ from gpt-selection populations {expected}')
+    modes, extra = _size_source(size_mode, estimates, picked)
     rows = official(data)
     instr = instruction(rows['sft'][0])
     houses, holo = exposure_index(rows)
     plan, exposure = [], {}
     for room in picked:
-        plan += room_requests(room, sizes[room['uid']], instr, 'e2', stratum(room))
+        plan += room_requests(room, sizes[room['uid']], instr, 'e2', stratum(room), modes and modes[room['uid']])
         exposure[room['uid']] = room_exposure(room, instr, sidecar, houses, holo, hf_cover)
     meta = {'protocol': 'amendment-014', 'plan': 'e2', 'seed': SEED, 'limit': limit,
             'eval_data_manifest_sha256': _sha(eval_data / 'MANIFEST.json'),
@@ -726,7 +788,7 @@ def plan_e2(eval_data, data, e1, out, limit=None):
             'population_by_stratum': dict(sorted(counts.items())), 'rooms': len(picked),
             'exposure_counts': collections.Counter(str(v['seen']) for v in exposure.values()),
             'hf_scene_missing': sum(v.get('hf_scene_coverage', 0) is None for v in exposure.values()),
-            'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio'}
+            'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio', **extra}
     return _publish_files(out, {'requests.jsonl': _jsonl_bytes(plan),
                                 'exposure.json': (_dumps(exposure, indent=1) + '\n').encode('utf-8')}, meta)
 
@@ -739,7 +801,7 @@ def families():
     return room_families.family, room_families.PAPER_FAMILIES, _sha(room_families.__file__)
 
 
-def plan_e3(eval_data, data, e1, out, cap=E3_CAP):
+def plan_e3(eval_data, data, e1, out, cap=E3_CAP, size_mode=None, estimates=None):
     from fastfill import scene  # its norm_room_type decides every family
     eval_data, e1, out = Path(eval_data), Path(e1), Path(out)
     _refuse(out)
@@ -751,12 +813,13 @@ def plan_e3(eval_data, data, e1, out, cap=E3_CAP):
         by[family(r.get('room_type'))].append(r)
     rank = lambda r: (hashlib.sha256((E3_SEED + r['uid']).encode('utf-8')).hexdigest(), r['uid'])
     picked = [(f, r) for f in sorted(set(by) - set(skip)) for r in sorted(by[f], key=rank)[:cap]]
+    modes, extra = _size_source(size_mode, estimates, [r for _, r in picked])
     rows = official(data)
     instr = instruction(rows['sft'][0])
     houses, holo = exposure_index(rows)
     plan, exposure = [], {}
     for f, room in picked:
-        plan += room_requests(room, sizes[room['uid']], instr, 'e3', f)
+        plan += room_requests(room, sizes[room['uid']], instr, 'e3', f, modes and modes[room['uid']])
         exposure[room['uid']] = room_exposure(room, instr, sidecar, houses, holo, hf_cover)
     count = lambda f, key: dict(collections.Counter(key(r) for g, r in picked if g == f))
     receipt = {f: {'population': len(by[f]), 'selected': min(cap, len(by[f])),
@@ -774,7 +837,7 @@ def plan_e3(eval_data, data, e1, out, cap=E3_CAP):
             'skipped_families': {f: len(by[f]) for f in skip if f in by}, 'rooms': len(picked),
             'exposure_counts': collections.Counter(str(v['seen']) for v in exposure.values()),
             'hf_scene_missing': sum(v.get('hf_scene_coverage', 0) is None for v in exposure.values()),
-            'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio'}
+            'fairness_flag': 'their prompt carries only the room area: no polygon, doors or aspect ratio', **extra}
     return _publish_files(out, {'requests.jsonl': _jsonl_bytes(plan),
                                 'exposure.json': (_dumps(exposure, indent=1) + '\n').encode('utf-8')}, meta)
 
@@ -1388,13 +1451,14 @@ def main(argv=None):
     p = sub.add_parser('plan-e1')
     for name in ('hf', 'data', 'out'):
         p.add_argument('--' + name, type=Path, required=True)
-    p = sub.add_parser('plan-e2')
-    for name in ('eval-data', 'data', 'e1', 'out'):
-        p.add_argument('--' + name, type=Path, required=True)
-    p.add_argument('--limit', type=int)
-    p = sub.add_parser('plan-e3')
-    for name in ('eval-data', 'data', 'e1', 'out'):
-        p.add_argument('--' + name, type=Path, required=True)
+    for name in ('plan-e2', 'plan-e3'):
+        p = sub.add_parser(name)
+        for flag in ('eval-data', 'data', 'e1', 'out'):
+            p.add_argument('--' + flag, type=Path, required=True)
+        if name == 'plan-e2':
+            p.add_argument('--limit', type=int)
+        p.add_argument('--size-mode', choices=SIZE_MODES_020)  # Amendment 020, with --estimates.
+        p.add_argument('--estimates', type=Path)
     p = sub.add_parser('generate')
     for name in ('plan', 'model', 'out'):
         p.add_argument('--' + name, type=Path, required=True)
@@ -1423,10 +1487,10 @@ def main(argv=None):
         m = plan_e1(a.hf, a.data, a.out)
         print(_dumps({k: m[k] for k in ('counts', 'strata', 'heldout20', 'gate', 'gt_by_stratum')}, indent=1))
     elif a.command == 'plan-e2':
-        m = plan_e2(a.eval_data, a.data, a.e1, a.out, a.limit)
+        m = plan_e2(a.eval_data, a.data, a.e1, a.out, a.limit, a.size_mode, a.estimates)
         print(_dumps({k: m[k] for k in ('rooms', 'population_by_stratum', 'exposure_counts')}, indent=1))
     elif a.command == 'plan-e3':
-        m = plan_e3(a.eval_data, a.data, a.e1, a.out)
+        m = plan_e3(a.eval_data, a.data, a.e1, a.out, size_mode=a.size_mode, estimates=a.estimates)
         print(_dumps({k: m[k] for k in ('rooms', 'families', 'skipped_families', 'exposure_counts')}, indent=1))
     elif a.command == 'score-e3':
         score_e3(a.e3, a.gen, a.eval_data, a.p_geometry, a.p_run, a.out, a.workers, a.repeats)
