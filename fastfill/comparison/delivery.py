@@ -74,7 +74,8 @@ def _files(root, files, dest):
     return [{'source': str(Path(root) / n), 'dest': f'{dest}/{n}', 'sha256': h._expected_hash(v)} for n, v in sorted(files.items())]
 
 
-def build(run, report, out):
+def build(run, report, out, agents=None):
+    """agents (dev_select final): {'included': [names], 'excluded': {name: reason}}, recorded in the package."""
     run, report, out = Path(run), Path(report), Path(out)
     if out.exists():
         raise FileExistsError(out)
@@ -145,7 +146,8 @@ def build(run, report, out):
                                                                'enable_thinking', 'padding_side')},
              'report': {'path': str(report.resolve()), 'results_sha256': h.sha256(report / 'results.json'),
                         'manifest_sha256': h.sha256(report / 'MANIFEST.json')},
-             'example_request_uid': example['uid'], 'files_to_copy': copies}
+             'example_request_uid': example['uid'], 'files_to_copy': copies,
+             **({'agents': agents} if agents is not None else {})}
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.' + out.name + '-', dir=out.parent) as tmp:
         dest = Path(tmp)
@@ -242,6 +244,13 @@ def card(value, results, link, kept, example):
               f"{cfg['cap_base']} + {cfg['cap_per_object']} * objects)",
               'out = model.generate(ids, max_new_tokens=cap, do_sample=False, num_beams=1)',
               "placements = json.loads(tok.decode(out[0, ids.shape[1]:], skip_special_tokens=True))['placements']",
+              '```', '', 'The evaluated policy itself (the numbers above), from the listed adapter and base:', '', '```python',
+              'from peft import PeftModel',
+              ("base = AutoModelForCausalLM.from_pretrained('base', torch_dtype=torch.bfloat16, device_map='auto')\n"
+               "model = PeftModel.from_pretrained(base, 'sft-adapter').merge_and_unload()  # runtime merge, as evaluated"
+               if sft else
+               "base = AutoModelForCausalLM.from_pretrained('training-base', torch_dtype=torch.bfloat16, device_map='auto')\n"
+               "model = PeftModel.from_pretrained(base, 'adapter')  # unmerged FP32 adapter, as evaluated (amendment 009)"),
               '```', '', 'vLLM (same prompt token ids, greedy):', '', '```python',
               'from vllm import LLM, SamplingParams',
               f"llm = LLM(model='model', dtype='bfloat16', max_model_len={cfg['context_budget']})",
@@ -305,8 +314,13 @@ def card(value, results, link, kept, example):
     lines += (_table(['stratum', 'system', 'FID', 'shared N', 'flag'],
                      [[r['stratum'], r['system'], _fmt(r['fid']), _fmt(r['fid_n']), r['fid_flag'] or ''] for r in fid])
               if fid else ['FID/KID: not measured in this report.', ''])
-    lines += ['Human user rating (UR): not measured.', '',
-              '## Limitations', '',
+    lines += ['Human user rating (UR): not measured.', '']
+    if 'agents' in value:  # Amendment 010: every agent re-paired with the selected models; exclusions stated, never substituted.
+        a = value['agents']
+        lines += [f"Same-input agents compared in the report: {', '.join(a['included']) or 'none'}."
+                  + (' Excluded (evaluation incomplete; never substituted): '
+                     + '; '.join(f'{k} ({v})' for k, v in sorted(a['excluded'].items())) + '.' if a['excluded'] else ''), '']
+    lines += ['## Limitations', '',
               '- Single training seed; intervals reflect test-room sampling only.',
               '- DPO preferences are programmatic (geometry gate, own SFT samples, position perturbations), not human preferences.',
               '- The test split is historical and was used for earlier diagnostics; it is not a fresh blind test.',

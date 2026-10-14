@@ -11,8 +11,8 @@
 # be complete (LLM_DIR/MANIFEST.json), else nothing is submitted.
 # CPU jobs (16 cores, 64G, no GPU), each held until the whole chain is submitted (an ABORT lists the ids for
 # scancel, so nothing ran):
-#   eval NAME   <- afterok geometry-v5 job (submission.json 'selected geometry'; dropped once RUN/geometry-v5 is
-#                  published) [+ afterok JOBID]: evaluate_llm on RUN/llm-cohort-v1.json with the selected J/P test
+#   eval NAME   <- afterok geometry-v5 job (submission.json 'selected geometry', or GEOMETRY_JOB=ID; dropped once
+#                  RUN/geometry-v5 is published) [+ afterok JOBID]: evaluate_llm on RUN/llm-cohort-v1.json with the selected J/P test
 #                  runs (selection.json test.*.inference) -> RUN/llm-eval-NAME-selected-v1
 #   final       <- afterany every eval, afterok geometry-v5: dev_select final = agents whose evaluation is
 #                  complete (the others logged with the reason, never substituted), report_v2 stage selected ->
@@ -20,7 +20,7 @@
 #                  selected, dev table) -> RUN/stage-table-010-001, delivery -> RUN/delivery-010-001
 # Refuses if any output dir exists. Logs: PROJECT_ROOT/runs/isambard/unknownsize-010-{eval-NAME,final}-JOB.out.
 set -euo pipefail
-test "$#" -ge 1
+test "$#" -ge 1 || { echo "usage: submit_final_010.sh CODE_ROOT [NAME=LLM_DIR[:JOBID] ...]" >&2; exit 2; }
 CODE_ROOT="$1"
 shift
 PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill
@@ -39,23 +39,30 @@ if test "$#" -eq 0; then
   for NAME in O6 O4 O2 O3 O7 O1a O1b O5; do set -- "$@" "$NAME=$RUN_ROOT/llm-open-$NAME-001"; done
 fi
 READ_CHAIN='
-import hashlib, json, sys
+import hashlib, json, os, sys
 root = sys.argv[1] + "/dev-eval-010/"
-submission = json.load(open(root + "submission.json"))
 selection = open(root + "selection.json", "rb").read()
-if submission["selection_sha256"] != hashlib.sha256(selection).hexdigest():
-    sys.exit("submission.json does not bind selection.json")
+job = "-"  # No submission.json: the select job could not sbatch and the chain was submitted by hand.
+if os.path.exists(root + "submission.json"):
+    submission = json.load(open(root + "submission.json"))
+    if submission["selection_sha256"] != hashlib.sha256(selection).hexdigest():
+        sys.exit("submission.json does not bind selection.json")
+    job = next((j["id"] for j in submission["jobs"] if j["label"] == "selected geometry"), "-")
 test = json.loads(selection)["test"]
-print(*[j["id"] for j in submission["jobs"] if j["label"] == "selected geometry"],
-      test["joint"]["inference"], test["placement"]["inference"])'
+print(job, test["joint"]["inference"], test["placement"]["inference"])'
 CHAIN=$("$PYTHON" -I -B -c "$READ_CHAIN" "$RUN_ROOT") || { echo "ABORT: cannot read $RUN_ROOT/dev-eval-010" >&2; exit 1; }
 read -r GEOMETRY JOINT PLACEMENT EXTRA <<< "$CHAIN"
-case "$GEOMETRY" in ''|*[!0-9]*) echo "ABORT: no 'selected geometry' job id in submission.json" >&2; exit 1 ;; esac
+test -z "${EXTRA:-}" || { echo "ABORT: unexpected selection output: $CHAIN" >&2; exit 1; }
+GEOMETRY="${GEOMETRY_JOB:-$GEOMETRY}"  # GEOMETRY_JOB=ID overrides a hand-resubmitted geometry-v5 job.
 case "$JOINT" in "$RUN_ROOT"/infer-joint-00[25]) ;; *) echo "ABORT: unexpected J run $JOINT" >&2; exit 1 ;; esac
 case "$PLACEMENT" in "$RUN_ROOT"/infer-placement-00[25]) ;; *) echo "ABORT: unexpected P run $PLACEMENT" >&2; exit 1 ;; esac
-test -z "${EXTRA:-}"
-AFTER_GEOMETRY="$GEOMETRY"
-if test -e "$RUN_ROOT/geometry-v5/MANIFEST.json"; then AFTER_GEOMETRY=""; fi  # Published; the job may have left Slurm.
+AFTER_GEOMETRY=""  # Published geometry-v5: no wait (its job may have left Slurm).
+if ! test -e "$RUN_ROOT/geometry-v5/MANIFEST.json"; then
+  case "$GEOMETRY" in
+    ''|-|*[!0-9]*) echo "ABORT: geometry-v5 not published and no geometry job id (set GEOMETRY_JOB=ID)" >&2; exit 1 ;;
+  esac
+  AFTER_GEOMETRY="$GEOMETRY"
+fi
 NAMES=()  # Parallel arrays: bash 3 (macOS test host) has no associative arrays.
 DIRS=()
 JOBS=()

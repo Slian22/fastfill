@@ -345,7 +345,11 @@ def test_final_reports_tables_and_delivers_with_complete_agent_evaluations_only(
     assert report['input_sha256']['corrections'] == h.sha256(run / 'corrections.json')
     table = h.strict_json((run / ds.FINAL['table'] / 'stage_table.json').read_text())
     assert table['stages_run'] == ['sft', 'dpo1', 'selected'] and table['not_run'] == {'dpo2': stage_table.STOPPED}
-    assert h.strict_json((run / ds.FINAL['delivery'] / 'delivery.json').read_text())['candidate'] == 'sft'
+    package = h.strict_json((run / ds.FINAL['delivery'] / 'delivery.json').read_text())
+    assert package['candidate'] == 'sft' and package['agents'] == {'included': [], 'excluded': result['agents_excluded']}
+    card = (run / ds.FINAL['delivery'] / 'MODEL_CARD.md').read_text()
+    assert 'Excluded (evaluation incomplete; never substituted): O4 (' in card and "PeftModel.from_pretrained(base, 'sft-adapter')" in card
+    assert {r['candidate'] for r in table['tables']['dev']} == set(ds.CANDIDATES + ds.REPORT_ONLY)
     with pytest.raises(FileExistsError, match='refusing existing outputs'):
         ds.final(args)
     other = tmp_path / 'other'
@@ -410,7 +414,8 @@ def test_submit_final_chain_with_stub_sbatch(tmp_path):
 
 @pytest.mark.parametrize('case, match', [
     ('published', None), ('unfinished agent', 'O3 generation not complete'), ('existing output', 'refusing to reuse'),
-    ('sbatch fails', "sbatch failed for 'eval O6'.*scancel 101"), ('unbound selection', 'cannot read')])
+    ('sbatch fails', "sbatch failed for 'eval O6'.*scancel 101"), ('unbound selection', 'cannot read'),
+    ('no submission', 'set GEOMETRY_JOB'), ('override', None)])
 def test_submit_final_refusals(tmp_path, case, match):
     script, run = final_world(tmp_path, geometry_published=case == 'published')
     agents = [f'L={run}/llm-agent-001', f'O6={run}/llm-open-O6-001']
@@ -420,8 +425,15 @@ def test_submit_final_refusals(tmp_path, case, match):
         (run / 'llm-eval-O6-selected-v1').mkdir()
     if case == 'unbound selection':
         (run / 'dev-eval-010/selection.json').write_text('{"test": {}}\n')
-    done = subprocess.run(['bash', str(script), str(CODE), *agents], env=T.stub_sbatch(tmp_path, fail_on=2 if case == 'sbatch fails' else 0),
+    if case in ('no submission', 'override'):  # The select job could not sbatch; the chain was submitted by hand.
+        (run / 'dev-eval-010/submission.json').unlink()
+    env = T.stub_sbatch(tmp_path, fail_on=2 if case == 'sbatch fails' else 0)
+    done = subprocess.run(['bash', str(script), str(CODE), *agents], env={**env, **({'GEOMETRY_JOB': '999'} if case == 'override' else {})},
                           capture_output=True, text=True)
+    if case == 'override':
+        assert done.returncode == 0, done.stderr
+        assert '--dependency=afterok:999 ' in (tmp_path / 'log').read_text().splitlines()[0]
+        return
     if match is None:  # geometry-v5 already published: the evaluations wait for nothing, the final job only for them.
         log = (tmp_path / 'log').read_text().splitlines()
         assert done.returncode == 0 and log[0].startswith('--parsable --hold --account=') and \
@@ -439,6 +451,7 @@ def test_submit_final_refusals(tmp_path, case, match):
     ('isambard_010_infer_shard.sbatch', ['dev', 'placement', 'a009-dpo2', '1', '2'], True),
     ('isambard_010_infer_shard.sbatch', ['test', 'placement', 'a009-dpo2', '0', '6'], False),  # Dev-only report row.
     ('isambard_010_cpu.sbatch', ['dev-merge', 'placement', 'a009-dpo1', '2'], True),
+    ('isambard_010_cpu.sbatch', ['score-report-only'], True),
     ('isambard_dpo_train.sbatch', ['joint', 'dpo1', 'rpo'], True),
     ('isambard_dpo_train.sbatch', ['joint', 'dpo1', 'official'], False),
     ('isambard_010_cpu.sbatch', ['selected-geometry', f'{RUN}/infer-joint-002', f'{RUN}/infer-placement-005'], True),

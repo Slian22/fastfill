@@ -401,10 +401,11 @@ def final(args):
     r2.build(run / 'eval-data-v1', run / GEOMETRY, {arm: test[arm]['inference'] for arm in ARMS}, args.reference,
              outs['report'], agents, corrections=args.corrections, repeats=args.repeats, workers=args.workers,
              selection=selection)
+    # The binding package first, so it never depends on the stage table (review 2026-10-14).
+    value = delivery.build(run, outs['report'], outs['delivery'], {'included': sorted(agents), 'excluded': excluded})
     report_only = run / 'dev-eval-010' / 'scores-report-only'  # Amendment 010 addendum 2; absent = a009 rows 未测.
     stage_table.build(run, {**{s: run / n for s, n in STAGE_REPORTS.items()}, 'selected': outs['report']},
                       outs['table'], selection, report_only if report_only.exists() else None)
-    value = delivery.build(run, outs['report'], outs['delivery'])
     return {'status': 'FINAL_010_COMPLETE', 'agents': sorted(agents), 'agents_excluded': excluded,
             'delivered': value['chosen_arm'], 'candidate': value['candidate'], **{k: str(p) for k, p in outs.items()}}
 
