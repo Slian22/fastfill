@@ -790,6 +790,12 @@ def test_eight_b_identity_checks(tmp_path):
     (model / 'README.md').write_text('card')
     with pytest.raises(ValueError, match='README'):
         oe.check_eight_b(model)
+    (model / 'README.md').unlink()
+    (model / 'tokenizer_config.json').write_text('{}')
+    with pytest.raises(ValueError, match='enable_thinking'):
+        oe.check_eight_b(model)
+    (model / 'chat_template.jinja').write_text('{% if enable_thinking %}')
+    assert 'chat_template.jinja' in oe.check_eight_b(model)['files']
 
 
 # ---- training: checkpoint rule, train, merge -----------------------------------------------------------------------

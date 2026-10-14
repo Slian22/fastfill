@@ -785,7 +785,9 @@ def check_eight_b(model):
     """Read-only identity checks of OptiScene-Qwen-8B-Final (FastFill v1.0 final): hashes every file."""
     model = Path(model)
     config = json.loads((model / 'config.json').read_text())
-    template = json.loads((model / 'tokenizer_config.json').read_text()).get('chat_template') or ''
+    jinja = model / 'chat_template.jinja'  # newer tokenizers keep the template here, not in tokenizer_config.json
+    template = json.loads((model / 'tokenizer_config.json').read_text()).get('chat_template') or \
+        (jinja.read_text() if jinja.is_file() else '')
     problems = [k for k, v in EIGHT_B.items() if config.get(k) != v]
     problems += ['chat_template lacks enable_thinking'] if 'enable_thinking' not in template else []
     problems += ['no generation_config.json'] if not (model / 'generation_config.json').is_file() else []
