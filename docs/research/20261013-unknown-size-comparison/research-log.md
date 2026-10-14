@@ -129,3 +129,8 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - Agency 审计（wf_b7ae99d6-8df，3 审计 + 3 Reality Check）：评分路径无伪影；API agent 强烈缩小尺寸（B_L −0.175），去偏后 L 0.765 仍高于 J 0.371 / P 0.515，但仅略高于 GT；J/P 与 GT 的差距约 70% 来自可移动物体重叠，集中于多物体合成房间与大房间越界；J 的优势主要来自 SceneSmith；GT-pass 层 (b) 反号。findings 重写（adc3a35be），审计记录入库。
 - report_v2 修正（7e433e779、281257f25）：房屋组件数与 CI 抑制/标记、所有系统的足迹偏差与 (a′)（EXPLORATORY，按系统自身完整掩码）、交付规则仅 DPO2 有约束力、警告渲染、阶段感知标题。旧 DPO 报告作业 7389197/7389198 取消；以同一快照 main-281257f25 重新生成 SFT 报告 7394712（report-v2-JPL-002）、DPO1 7394713、DPO2+L 7394714。
 - O5（DeepSeek-V4-Flash）冒烟 7385474 失败：DeepGEMM JIT 断言 nvcc ≥ 12.9，集群模块为 12.6；改用 vLLM 环境内 pip CUDA 13.4 nvcc（79b049733），重提 O5 冒烟 7394628 / 全量 7394629（singleton 排队）与评估 7394641 / 7394642。O6 全量与评估完成；O4 全量运行中。
+
+## 2026-10-14 02:10–02:30 UTC — scratch 文件数配额、开源模型重提
+
+- O2/O3/O7/O1a/O1b 冒烟失败：scratch 项目文件数配额 1,023,915/1,024,000（容量仅 2.1T/5T）。普查：colmap-build 51 万、particulate-hinge 31 万等为用户其他项目；本研究的缓存约 5.7 万（uv-vlm、llm-open、dpo-generate），已清理（作业 7394871）。开源模型编译缓存改放 $PROJECTDIR/fastfill/.cache-jobs（6ffa6a9f7）。
+- O5 重提 7394628 因旧失败目录的运行身份不一致被拒（infer.py 已变）；旧目录改名保留。用快照 main-6ffa6a9f7 重新提交 O5、O2、O3、O7、O1a、O1b（singleton 串行）及其 SFT / DPO2 配对评估。O4 全量与 SFT 评估完成。
