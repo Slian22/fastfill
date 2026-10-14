@@ -25,6 +25,11 @@ room micro); p = 2 min(P(d<=0), P(d>=0)); Holm only across the co-primaries (a),
 contrasts are estimation only. --corrections is a JSON list of UIDs changed by the final
 source-correction candidate (separate sensitivity row). Outputs: report.md (Chinese), one CSV per
 table, results.json and MANIFEST.json.
+Audit 2026-10-14 reporting: results.json records the geometry summary's stage (absent = sft); the
+delivery section is binding only at dpo2 (amendment 008), else an informational application of the
+rule. T2/T3/S1 carry house components k: report.md prints no CI when k < 10 and flags k < 30 and
+rooms < 50. T5 adds each system's own B on the cohort's all-system common-complete rooms and its
+own-B (a') via _derive (EXPLORATORY). report.md renders report- and interval-level warnings.
 """
 import argparse
 import collections
@@ -64,6 +69,15 @@ JP_FIELDS = ('geometry_success', 'size_log_mae', 'debiased', *(k + s for k in LE
 P_RULE = ('category × room-type median, then category median, with constant fallback (0.40, 0.50, 0.65 m) '
           'when neither bucket has ≥ 5 training observations')  # Amendment 006, verbatim.
 P_LABEL = f'P（{P_RULE}）'
+NO_CI, FEW_CLUSTERS, SMALL_N = 10, 30, 50  # Audit 2026-10-14 F7: house components k and rooms per scope.
+INTERVAL_WARNINGS = {'singleton_source_signature_strata': '某来源签名层只有一个房屋连通组，组间不确定性无法识别',
+                     'undefined_bootstrap_draws': '部分自举抽样无定义（区间以有定义的抽样为条件）',
+                     'too_few_valid_bootstrap_draws': '有定义的自举抽样不足，不给区间'}
+ROLE = {'sft': 'SFT 阶段：(a)、(b) 的 J−P 为方案锁定的主要（确认性）比较（protocol.md），两终点间做 Holm 校正；其余均为描述或估计。',
+        'dpo1': 'DPO1 阶段：全部 J−P 均为描述性估计，Holm p 只作记录、不作确认性陈述；'
+                '主要（确认性）比较为 SFT J0/P0（protocol.md），交付比较为 DPO2（修订 008）。',
+        'dpo2': 'DPO2 阶段：(a)、(b) 的 J−P 为次要的交付比较（修订 008），Holm 只在本阶段 (a)、(b) 内校正，不作确认性陈述；'
+                '主要（确认性）比较为 SFT J0/P0（protocol.md）。'}
 
 
 def stratum(row):
@@ -205,6 +219,19 @@ def jp_scope(joint, placement, repeats):
             **contrasts(first, second, JP_FIELDS, repeats)}
 
 
+def _design(rows):
+    """House components k (the bootstrap clusters) of a scope and its small-sample flags."""
+    k = len({r['group'] for r in rows})
+    flags = [f for f, hit in (('few clusters', k < FEW_CLUSTERS), ('small n', len(rows) < SMALL_N)) if hit]
+    return {'components': k, 'flags': '; '.join(flags) or None}
+
+
+def own_bias(rows, keep, repeats):
+    """One system's B (footprint, volume) on the kept rooms, house-cluster CI as a level against 0.0."""
+    levels = [{**r, **{k: r[k] if c else None for k in ('bias_fp', 'bias_vol')}} for r, c in zip(rows, keep)]
+    return contrasts(levels, [{**r, 'bias_fp': 0., 'bias_vol': 0.} for r in rows], ('bias_fp', 'bias_vol'), repeats)
+
+
 def _json(path):
     return h.strict_json(Path(path).read_text())
 
@@ -242,7 +269,7 @@ def _geometry(root, data, expected, receipts, ref):
         rows[arm] = h._rows(root, name, manifest['files'][name])
         if [r['uid'] for r in rows[arm]] != expected or any(r['arm'] != arm for r in rows[arm]):
             raise ValueError('geometry rows do not match the frozen inventory')
-    return rows
+    return rows, summary.get('stage', 'sft')  # Amendment 009 label; pre-009 SFT summaries carry none.
 
 
 def _agent(root, data_sha, run_hashes):
@@ -384,12 +411,14 @@ def _object_levels(joint, placement, rooms, levels):
                     for arm in 'JP' for i, k in enumerate(('size_iou', 'size_log_mae'))}} for level, v in sorted(acc.items())}
 
 
-def _cell(value):
+def _cell(value, components=None):
     if value is None:
         return '—'
     if isinstance(value, dict):
         if value.get('estimate') is None:
             return '—'
+        if components is not None and components < NO_CI:
+            return f"{value['estimate']:+.4f} — ({components} components)"
         ci = value.get('ci95')
         return f"{value['estimate']:+.4f} " + (f'[{ci[0]:+.4f}, {ci[1]:+.4f}]' if ci else '[CI —]')
     if isinstance(value, bool):
@@ -401,7 +430,8 @@ def _cell(value):
 
 def _md(rows, columns):
     lines = ['| ' + ' | '.join(title for _, title in columns) + ' |', '|' + '---|' * len(columns)]
-    return lines + ['| ' + ' | '.join(_cell(r.get(key)) for key, _ in columns) + ' |' for r in rows] + ['']
+    return lines + ['| ' + ' | '.join(_cell(r.get(key), r.get('components')) for key, _ in columns) + ' |'
+                    for r in rows] + ['']
 
 
 def _flat(row):
@@ -425,7 +455,9 @@ def _csv(path, rows):
         writer.writerows(flat)
 
 
-JP_COLUMNS = [('scope', '范围'), ('requests', '请求'), ('gt_success', 'GT成功 原始'), ('gt_success_snapped', 'GT成功 贴边'),
+DESIGN_COLUMNS = [('components', '房屋连通组 k'), ('flags', '标记')]
+JP_COLUMNS = [('scope', '范围'), ('requests', '请求'), *DESIGN_COLUMNS, ('gt_success', 'GT成功 原始'),
+              ('gt_success_snapped', 'GT成功 贴边'),
               ('J_a', 'J (a)'), ('P_a', 'P (a)'), ('geometry_success', 'Δ(a) J−P [95% CI]'),
               ('size_log_mae_J', 'J log MAE'), ('size_log_mae_P', 'P log MAE'), ('size_log_mae', 'Δ(b) J−P'),
               ('bias_fp_J', 'B_J 足迹'), ('bias_fp_P', 'B_P 足迹'), ('debiased', "Δ(a′) J−P"),
@@ -434,7 +466,7 @@ JP_COLUMNS = [('scope', '范围'), ('requests', '请求'), ('gt_success', 'GT成
 
 def _jp_row(name, joint, placement, ref_scope, repeats):
     ref_scope = ref_scope or {}
-    return {'scope': name, **jp_scope(joint, placement, repeats),
+    return {'scope': name, **jp_scope(joint, placement, repeats), **_design(joint),
             'gt_success': ref_scope.get('gt', {}).get('gt_success'),
             'gt_success_snapped': ref_scope.get('gt', {}).get('gt_success_snapped'),
             'prior_size_log_mae': ref_scope.get('prior', {}).get('prior_size_log_mae')}
@@ -461,7 +493,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         records[arm], receipts[arm] = e._inference(Path(runs[arm]), data, expected)
     run_hashes = {arm: r['run_sha256'] for arm, r in receipts.items()}
     ref = _reference(reference, data, expected, rooms)
-    scored, geometry_sha = _geometry(geometry, data, expected, receipts, ref), h.sha256(geometry / 'MANIFEST.json')
+    (scored, stage), geometry_sha = _geometry(geometry, data, expected, receipts, ref), h.sha256(geometry / 'MANIFEST.json')
     rows, cap_complete = {}, {}
     for arm in h.ARMS:
         caps = [r['reached_token_cap'] and not r['stopped_on_eos'] for r in records[arm]]
@@ -488,7 +520,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
             caps = [row_cap[name] and r.get('reached_token_cap', False) and not r.get('stopped_on_eos', True)
                     for r in vrows]
             flipped[label] = sum(c and r['complete'] for c, r in zip(caps, vrows)) if row_cap[name] else None
-            vrows = [cap_failure(r) if c else r for r, c in zip(vrows, caps)]
+            vrows = [_with_bias(cap_failure(r) if c else r, rooms[r['uid']]) for r, c in zip(vrows, caps)]
             derived = _map(_derive, [(r, rooms[r['uid']], None, None) for r in vrows], workers)
             systems[label] = [{**r, **d} for r, d in zip(vrows, derived)]
     visual_pipeline.check_labels(agent_meta)
@@ -504,7 +536,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     # T1: co-primaries, bias guard, debiased success and the delivery decision.
     t1 = _jp_row('all', J, P, rs['all'], repeats)
     p_holm = holm([t1['geometry_success']['p'], t1['size_log_mae']['p']])
-    decision = {**delivery(t1['size_log_mae'], t1['debiased']),
+    decision = {**delivery(t1['size_log_mae'], t1['debiased']), 'stage': stage, 'binding': stage == 'dpo2',  # Amendment 008.
                 'raw_a_joint_minus_placement': t1['geometry_success'], 'B_footprint': {'J': t1['bias_fp_J'], 'P': t1['bias_fp_P']},
                 'scale_factor': factor, 'gt_reference_success': t1['gt_success'],
                 'a_prime': {'J': t1['J_a1'], 'P': t1['P_a1']}, 'raw_a': {'J': t1['J_a'], 'P': t1['P_a']}}
@@ -526,7 +558,8 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
                                       ('macro', secondary[f]['source_macro'], secondary[f]['source_macro']['data_qualified_sources']))}}
                      for f in ('complete', 'geometry_success', 'geometry_success_repaired', 'oor', 'oor_repaired', 'size_iou', 'size_log_mae')]
     # T2: model-free reference rows.
-    tables['T2'] = [{'scope': name, 'requests': v['requests'], **v['gt'], **v['prior']} for name, v in rs.items()]
+    tables['T2'] = [{'scope': name, 'requests': v['requests'], **_design(sj[name]), **v['gt'], **v['prior']}
+                    for name, v in rs.items()]
     # T3: per source and paper stratum, GT reference beside each arm.
     t3_names = ['all', *(n for n in sj if n.startswith(('source/', 'stratum/'))), 'strata_pooled']
     tables['T3'] = [t1, *(_jp_row(n, sj[n], sp[n], rs.get(n), repeats) for n in t3_names[1:])]
@@ -569,12 +602,25 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
     if cohort is not None:
         index = {arm: {r['uid']: r for r in rows[arm]} for arm in h.ARMS}
         bench = {'J': [index['joint'][u] for u in cohort], 'P': [index['placement'][u] for u in cohort], **systems}
+        # EXPLORATORY (audit 2026-10-14): each system's own B on the cohort's all-system common-complete rooms
+        # and (a') rescaled by it through _derive; agents answer the J request (evaluate_llm).
+        common = [all(v[i]['complete'] for v in bench.values()) for i in range(len(cohort))]
+        own_factor = {}
+        for label, brows in bench.items():
+            b = statistics.mean(r['bias_fp'] for r, c in zip(brows, common) if c) if any(common) else None
+            own_factor[label] = None if b is None else math.exp(-b / 2)
+            arm = 'placement' if label == 'P' else 'joint'
+            tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], own_factor[label]) for r in brows]
+            bench[label] = [{**r, 'own_debiased': d['success_debiased']} for r, d in zip(brows, _map(_derive, tasks, workers))]
         for scope_name, keep in (('cohort', lambda r: True), ('strata_pooled', stratum)):
             subset = {k: [r for r in v if keep(r)] for k, v in bench.items()}
+            mask = [c for c, r in zip(common, bench['J']) if keep(r)]
             for label, srows in subset.items():
                 agg = g.aggregate(srows)
                 tables['T5'].append({'scope': scope_name, 'system': label, **{k: agg[k] for k in (
-                    'requests', 'complete_rate', 'geometry_success_rate', 'size_log_mae', 'size_iou', 'oor')}})
+                    'requests', 'complete_rate', 'geometry_success_rate', 'size_log_mae', 'size_iou', 'oor')},
+                    **own_bias(srows, mask, repeats), 'scale_factor': own_factor[label],
+                    'success_debiased_rate': _rate(srows, 'own_debiased')})
             pairs = [('J', 'P'), *((a, s) for s in systems for a in ('J', 'P'))]
             for a, b in pairs:
                 c = contrasts(subset[a], subset[b], ('geometry_success', 'size_log_mae'), repeats)
@@ -625,7 +671,7 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
         warnings.append('agent_answers_reached_output_cap_not_row_applied')
     if corrected is None:
         warnings.append('source_correction_sensitivity_not_provided')
-    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'delivery': decision, 'tables': tables,
+    result = {'status': 'REPORT_V2_COMPLETE', 'amendment': '006', 'stage': stage, 'delivery': decision, 'tables': tables,
               'holm_co_primaries': {'a': p_holm[0], 'b': p_holm[1]}, 'warnings': warnings,
               'agents': {k: {'model': v['llm']['config'].get('model'), 'cohort_sha256': v['cohort']['sha256'],
                              'cap_rule_per_row': row_cap[k]} for k, v in agent_meta.items()},
@@ -654,13 +700,17 @@ def build(data, geometry, runs, reference, out, agents=None, fid=None, judge=Non
 
 
 def _report(result, agent_meta):
-    t, d = result['tables'], result['delivery']
-    lines = ['# 未知尺寸 J／P 对比：修正案 005 报告与交付决定', '',
+    t, d, stage = result['tables'], result['delivery'], result['stage']
+    decision = (['## 交付决定（修正案 005 §1；修订 008：DPO2 为正式交付比较）', '',
+                 f"**交付：{d['delivered']}**。这是为用户管线选择的产物，不是科学上的优劣结论。", '']
+                if d['binding'] else
+                [f'## 修正案 005 §1 交付规则的参考性应用（{stage} 阶段，非交付决定；binding decision at DPO2, amendment 008）', '',
+                 f"规则结果：{d['delivered']}（仅供参考；正式交付决定只在 DPO2 阶段作出，修订 008）。", ''])
+    lines = [f"# 未知尺寸 J／P 对比（{stage} 阶段）：修正案 005 报告" + ('与交付决定' if d['binding'] else ''), '',
              f'J：联合预测尺寸、位置和朝向。{P_LABEL}：尺寸来自训练集先验（不是预测），再生成位置和朝向。'
              f"两者为同一 Qwen3-8B 基座、单一训练种子；区间只覆盖测试房间抽样（房屋连通组自举 {result['repeats']} 次，"
              f'种子 {SEED}；协议设定为 2,000 次），不覆盖训练随机性。历史测试集曾用于诊断，不是新盲测。缺失值一律显示为“—”，从不补值。', '',
-             '## 交付决定（修正案 005 §1）', '',
-             f"**交付：{d['delivered']}**。这是为用户管线选择的产物，不是科学上的优劣结论。", '',
+             *decision,
              f"- 条件 (i) J 的尺寸 log MAE 低于 P 且配对 95% CI 不含 0：{_cell(d['condition_i_size_log_mae'])}；"
              f"Δ(b) J−P = {_cell(d['inputs']['b_size_log_mae_joint_minus_placement'])}",
              f"- 条件 (ii) (a′) J−P 的 95% CI 下界 ≥ −0.02（−2.0 个百分点）：{_cell(d['condition_ii_debiased_success'])}；"
@@ -682,13 +732,16 @@ def _report(result, agent_meta):
     lines += _md(t['T1b'], [('field', '指标'), ('micro', '房间微平均 [95% CI]'), ('macro', '来源宏平均 [95% CI]')])
     lines += ['“repaired” 指“贴边（≤10 cm）；可能产生碰撞”：它不单调，在 GT 上反而降低成功率。原始结果为主。', '',
               '## T2 模型无关参考行（冻结）', '']
-    lines += _md(t['T2'], [('scope', '范围'), ('requests', '房间'), ('gt_success', 'GT成功 原始'),
+    lines += _md(t['T2'], [('scope', '范围'), ('requests', '房间'), *DESIGN_COLUMNS, ('gt_success', 'GT成功 原始'),
                            ('gt_success_snapped', 'GT成功 贴边'), ('gt_oor', 'GT OOR 轴对齐'), ('gt_oor_snapped', 'GT OOR 贴边'),
                            ('gt_oor_rotated', 'GT OOR 旋转'), ('prior_size_iou', '先验 尺寸IoU'),
                            ('prior_size_log_mae', '先验 log MAE'), ('prior_bias_fp', '先验 足迹偏差'),
                            ('global_fallback_object_rate', '全局回退 物体比例'),
                            ('rooms_with_global_fallback_rate', '含回退 房间比例')])
-    lines += ['GT 是参考，不是上限。先验行使用全部房间；J／P 行只在完成的输出上计算尺寸指标。', '',
+    lines += ['GT 是参考，不是上限。先验行使用全部房间；J／P 行只在完成的输出上计算尺寸指标。'
+              f'房屋连通组 k = 该范围内自举重抽样的聚类数（T2、T3、敏感性表同）：k < {NO_CI} 时不给区间，'
+              f'显示“— (k components)”；k < {FEW_CLUSTERS} 标记 few clusters（百分位聚类自举可能覆盖不足）；'
+              f'房间 < {SMALL_N} 标记 small n。', '',
               '## T3 按来源与论文六层（GT 参考并列）', '']
     lines += _md(t['T3'], JP_COLUMNS)
     lines += ['## T4 论文式六层', '']
@@ -713,8 +766,17 @@ def _report(result, agent_meta):
     if t['T5']:
         lines += _md(t['T5'], [('scope', '范围'), ('system', '系统'), ('requests', '请求'), ('complete_rate', '完整率'),
                                ('geometry_success_rate', '(a) 几何成功率'), ('size_log_mae', '(b) log MAE（完整输出）'),
-                               ('size_iou', '尺寸 IoU'), ('oor', '原始 OOR')])
-        lines += ['配对差只给估计与区间（仅全队列与六层合并），不作“显著”判断；harness 为主比较对象，raw 为单次回答敏感性。', '']
+                               ('size_iou', '尺寸 IoU'), ('oor', '原始 OOR'),
+                               ('bias_fp', 'B 足迹 [95% CI]（EXPLORATORY）'), ('bias_vol', 'B 体积 [95% CI]（EXPLORATORY）'),
+                               ('scale_factor', 'exp(−B/2)（全队列）'),
+                               ('success_debiased_rate', "(a′) 自身 B 去偏成功率（EXPLORATORY）")])
+        lines += ['(b) log MAE、尺寸 IoU 与 OOR 为各系统在自身完整输出上的均值（各系统房间集合不同）；'
+                  '配对 Δ(b) 只用两系统共同完整的房间。'
+                  'B 为各系统在本范围内全部系统共同完整房间上的 log(预测/GT)（足迹 x·y、体积），房屋连通组自举区间。'
+                  "(a′) 用全队列共同完整房间上的自身 B 将 x/y 尺寸乘以 exp(−B/2)，位置与朝向不变，经同一 _derive 用冻结几何重新评分，"
+                  '以全部请求为分母。代理的 B 与 (a′) 为 EXPLORATORY（修正案 005 §4 未预先登记）；'
+                  'J／P 此处用队列内自身 B，不同于 T1 预先登记的全测试 B，同属 EXPLORATORY。', '',
+                  '配对差只给估计与区间（仅全队列与六层合并），不作“显著”判断；harness 为主比较对象，raw 为单次回答敏感性。', '']
         lines += _md(t['T5_contrasts'], [('scope', '范围'), ('comparison', '比较'), ('geometry_success', 'Δ(a) [95% CI]'),
                                          ('size_log_mae', 'Δ(b) [95% CI]')])
         lines += _md(t['T5_cost'], [('system', '系统'), ('model', '模型'), ('reasoning', '推理强度'), ('calls', '调用／生成请求'),
@@ -740,10 +802,25 @@ def _report(result, agent_meta):
                            ('J_size_iou', 'J IoU'), ('P_size_iou', 'P IoU'), ('prior_objects', '先验 物体数')])
     lines += ['低复用来源 = 真实扫描、SceneSmith、SpatialGen；高复用 = 资产尺寸在各切分间重复的合成来源。', '',
               '## 说明', '',
-              '只有 (a)、(b) 的 J−P 作确认性陈述并做 Holm 校正；其余均为描述或估计。自举 p = 2·min(P(d≤0), P(d≥0))。',
-              f"警告：{', '.join(result['warnings']) or '无'}。", '',
-              'results.json 保存全部数值、区间和输入哈希；MANIFEST.json 固定本报告的文件哈希。']
+              ROLE[stage] + '自举 p = 2·min(P(d≤0), P(d≥0))。', '',
+              '## 警告（results.json）', '',
+              f"- 报告级：{', '.join(result['warnings']) or '无'}。"]
+    for warning, where in _interval_warnings(t).items():
+        lines.append(f'- 区间级 `{warning}`（{INTERVAL_WARNINGS.get(warning, warning)}）：'
+                     + '；'.join(f"{name} {', '.join(labels)}" for name, labels in where.items()) + '。')
+    lines += ['', 'results.json 保存全部数值、区间和输入哈希；MANIFEST.json 固定本报告的文件哈希。']
     return '\n'.join(lines) + '\n'
+
+
+def _interval_warnings(tables):
+    """Interval warnings results.json carries inside table cells: warning -> table -> row labels."""
+    found = collections.defaultdict(dict)
+    for name, rows in tables.items():
+        for r in rows:
+            label = ' '.join(str(r[k]) for k in ('scope', 'endpoint', 'comparison', 'system') if k in r)
+            for w in (w for v in r.values() if isinstance(v, dict) for w in v.get('warnings', [])):
+                found[w].setdefault(name, {})[label] = None
+    return {w: {name: list(labels) for name, labels in where.items()} for w, where in sorted(found.items())}
 
 
 def main():
@@ -761,7 +838,8 @@ def main():
         raise ValueError('agents need unique NAME=DIR with no "-" in NAME')
     result = build(args.data, args.geometry, {arm: getattr(args, arm) for arm in h.ARMS}, args.reference, args.out,
                    agents, args.fid, args.judge, args.corrections, args.repeats, args.workers)
-    print(json.dumps({'status': result['status'], 'delivered': result['delivery']['delivered']}))
+    print(json.dumps({'status': result['status'], 'stage': result['stage'], 'delivered': result['delivery']['delivered'],
+                      'binding': result['delivery']['binding']}))
 
 
 if __name__ == '__main__':
