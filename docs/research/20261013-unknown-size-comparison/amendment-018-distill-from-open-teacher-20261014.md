@@ -96,3 +96,12 @@ Locked 2026-10-14 (UTC), before any amendment-018 sample, pair, training step or
 6. **Receipt format.** Lineage receipts label every stage `dpo2`, with parent rpo-dpo1, because the existing lineage format allows nothing after `dpo2`. The true chain (SFT → rpo-dpo1 → SFT-D → DPO1-D → DPO2-D) and the start adapter's hash are recorded in `training.chain` and `training.init`.
 7. **§4 reports.** The §4 test reports (P's slot filled by the adopted candidate in the cohort comparison with the agents) must be implemented and locked by a further addendum before the test chain is submitted.
 8. **Bad node.** Every amendment-018 job excludes nid010216, a node whose GPUs failed.
+
+## Addendum B (locked before any amendment-018 output exists; after the submit-time cost estimate refused the plan)
+
+**Why.** The submit-time estimate was computed from the O2 size-fixed pilot's measured per-token rate and the mean output tokens per object-count bin (≤ 20: 13.3k; 21–50: 49.0k; > 50: 51.9k, almost all of it thinking). With §1's thirds, it put the teacher at 8 × 420 min × 2 GPUs ≈ 112 GPU-h of time limits (about 75 GPU-h expected). Dense rooms are also where O2's yield is lowest: it completes few rooms with more than 20 objects and is cut off by the token cap. The research memo puts about 80 % of the P-vs-O2 gap in rooms with 20 or fewer objects.
+
+**Changes**
+- **T-B** = 4,500 rooms, split over the object-count bins as 7 : 2 : 0. That is 3,500 rooms with ≤ 20 objects, 1,000 with 21–50 and none above 50. Within a bin the split is proportional to source and ranked by the same hash; spill to the next denser bin works as before. T-A (3,000 rooms) and T-C (3,000 rooms, thirds) are unchanged.
+- **Teacher cap.** 72 GPU-h of time limits (the 1.5× margin included); about 45 GPU-h are expected to be used. The amendment-018 total cap is 190 GPU-h.
+- These caps replace addendum A's 50 / 170.
