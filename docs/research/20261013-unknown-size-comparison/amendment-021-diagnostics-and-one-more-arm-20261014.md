@@ -102,3 +102,28 @@ The pilot rooms are a subset of the test cohort. They motivated this arm and are
 | Test on vLLM (winner + R) | ≈ 2–8 |
 | Probe and ledger | ≤ 1 |
 | **Cap** | **75** |
+
+## Addendum A (locked before any amendment-021 output exists; from the tooling and its review)
+
+1. **GPU cap: 200 GPU-h** for the whole amendment. The user said GPUs are sufficient.
+   - §5's cap of 75 contradicted §2's "N fits 10 h on 4 GPUs", which alone is ≤ 40 GPU-h of training.
+   - The split-engine path can need HF confirmation and HF test runs of up to about 72 and 84 GPU-h.
+   - Running and pending jobs count at their time limits; jobs pending on a dependency are looked up by id.
+2. **Memory stop rule:** peak reserved memory > 90 GiB on any rank (GH200: 95 GiB visible).
+3. **Training details**
+   - Arm A loads `Qwen3_5ForConditionalGeneration` (adapter keys `model.language_model.layers.*`, as vLLM maps them). LoRA targets are restricted to the language model by regex.
+   - Warmup ratio is 0.03, as in P's SFT.
+   - The bf16-autocast difference from P's HF Trainer is disclosed in the run receipt.
+   - fla-core is pinned at 0.5.2 in a job-local overlay; a strict kernel check in the GPU job is binding.
+   - Before the full run, a smoke-trained adapter must load and generate in vLLM (`smoke-vllm`).
+4. **Confirm slice**
+   - Pool: the SFT length-admitted dev pool, minus dev-select's UIDs and their house groups.
+   - Allocation: proportional over the object-count bins `scale_curve.BINS`.
+   - Within a bin: lowest `sha256('a021-confirm:' + uid)` first.
+   - The engine slice is the first 1,000 confirm rooms in hash order.
+5. **GT-relation hold rate**
+   - Relations: GT's `on` and `against_wall` (`build.extract_constraints`), checked with `validate.holds`.
+   - Rate: relations held / all relations; an incomplete room holds none.
+6. **Guards with missing values.** Missing on both sides passes; missing on one side fails.
+7. **Tie order inside the band.** 8B before 27B, then R, then higher checker success, then candidate order.
+8. **018 test run.** If 018 adopts a candidate, its own pre-registered HF test run (018 §4) is the run of record that 021 §4 uses for 018's candidate. 013's test is deferred here (013 addendum A).
