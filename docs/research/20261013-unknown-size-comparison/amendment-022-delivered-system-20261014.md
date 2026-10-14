@@ -45,3 +45,17 @@ Those pilot rooms are test-cohort rooms. Nothing below is selected on them.
 
 - **Package:** the placer (training base + adapter, or the 27B adapter), the prior-size table, the S1 code, the escalation code with its call caps, a CLI and RoomGenBench export, plus a model card with every measured number and its provenance.
 - **Interim package:** before 021 §4 finishes, the system with R = rpo-dpo1 is packaged and labelled "interim". It changes no decision.
+
+## Addendum A (locked before any amendment-022 output exists; from the tooling review)
+
+1. **Fallback stage**, implied by "never returns nothing".
+   - **When:** no candidate is complete after every step.
+   - **What:** every requested object is placed on the floor at one interior point of the boundary (shapely `representative_point`), yaw 0, then S1 at the same settings.
+   - **Ranking:** it is ranked by the same best-candidate rule and reported as stage `fallback`.
+2. **Engines.**
+   - The placer runs in a separate process, so its GPU memory is freed before O2 loads (tensor parallel 2).
+   - `--escalate o2|l+o2` needs two visible GPUs and refuses before any placer or API work.
+3. **Caps.**
+   - The cohort run passes `--api-max-rooms 600`; the system stops before any API call if more rooms would escalate.
+   - The amendment-005 cap rule applies to the placer's stages, not to the agents' or O2's answers, as in amendments 012 and 016.
+4. **Evaluation engine.** It is the 021 §3 serving engine of the selected placer and is printed on the model card.
