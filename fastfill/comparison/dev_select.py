@@ -475,7 +475,9 @@ def select(args, run=subprocess.run, which=shutil.which):
 # ---- final ---------------------------------------------------------------------------------------
 
 def complete_agents(items):
-    """NAME=DIR items -> ({name: Path} complete, {name: reason} excluded); also used by final_011."""
+    """NAME=DIR items -> ({name: Path} complete, {name: reason} excluded); also used by final_011. A complete
+    size-fixed evaluation (config request_arm other than 'joint', absent = 'joint'; amendment 016 section 2) raises:
+    it never enters a J-input agent table."""
     agents, excluded = {}, {}
     for item in items:
         name, root = item.split('=', 1)
@@ -483,12 +485,15 @@ def complete_agents(items):
             raise ValueError(f'agents need unique NAME=DIR with no "-" in NAME: {item}')
         try:  # Complete = every MANIFEST file verified and a complete summary; else excluded, never substituted.
             e._verified(Path(root))
-            status = h.strict_json((Path(root) / 'summary.json').read_text()).get('status')
-            if status != 'LLM_COMPARISON_COMPLETE':
-                raise ValueError(f'summary status {status}')
-            agents[name] = Path(root)
+            summary = h.strict_json((Path(root) / 'summary.json').read_text())
+            if summary.get('status') != 'LLM_COMPARISON_COMPLETE':
+                raise ValueError(f"summary status {summary.get('status')}")
         except (OSError, ValueError, KeyError) as exc:
             excluded[name] = f'{root}: {type(exc).__name__}: {exc}'
+            continue
+        if ((summary.get('llm') or {}).get('config') or {}).get('request_arm', 'joint') != 'joint':
+            raise ValueError(f'{name}={root}: a size-fixed (P input) evaluation never enters a J-input agent table')
+        agents[name] = Path(root)
     return agents, excluded
 
 

@@ -5,9 +5,10 @@
 # op-dpo2's step count, so it starts after amendment-013 training: without AFTER_JOB, dpo-004/placement/dpo2-merged.json
 # must exist; with AFTER_JOB the trains depend on it. AFTER_JOB must be the amendment-013 train job, still in Slurm:
 # named unknownsize-013 with submit_013.sh's train time limit 12:00:00 (no other submit_013.sh job has it).
-# All jobs run isambard_016.sbatch; dependencies are afterok with --kill-on-invalid-dep=yes and the roots (both trains)
+# All jobs run isambard_016.sbatch; dependencies are afterok with --kill-on-invalid-dep=yes and the roots (the trains)
 # are held until the whole chain is in, so an ABORT (it lists the ids for scancel) leaves nothing that ran:
-#   per CAND in rft (dpo-005), pert (dpo-006):
+#   per CAND in rft (dpo-005, seed 42), rft-s43 (dpo-005-s43, seed 43), pert (dpo-006, seed 42),
+#   op-dpo2-s43 (dpo-007-s43, seed 43; op-dpo2 seed 42's dev run is dev-eval-013's):
 #     train CAND (4 GPUs, 12 h)          [afterok AFTER_JOB]: from rpo-dpo1's exact policy, op-dpo2 e2's step count
 #     N=2 dev shards (1 GPU, 14 h)       <- its train: exact policy on dev-select-v1, shared dev-eval-010 plan
 #     dev merge (CPU)                    <- its shards -> dev-eval-016/CAND/infer-placement
@@ -16,9 +17,10 @@
 # anything and is resubmitted by hand (sbatch CODE_ROOT/fastfill/comparison/isambard_016.sbatch CODE_ROOT score).
 # A resubmit resumes: training resumes (training_guard, ckpt_latest) or only verifies a finished merge, and existing dev
 # shards get --resume; a candidate whose dev-eval-016/CAND/infer-placement/MANIFEST.json exists is skipped (score then
-# waits only on the other's merge, or is the held root itself); an infer-placement without MANIFEST.json or an existing
+# waits only on the other merges, or is the held root itself); an infer-placement without MANIFEST.json or an existing
 # ablation.json refuses.
 # Refuses while any unknownsize-016 job of this user is in Slurm.
+# GPU ceiling (Slurm time limits): 4 trains x 4 GPUs x 12 h + 8 dev shards x 1 GPU x 14 h = 192 + 112 = 304 GPU-h.
 set -euo pipefail
 test "$#" -ge 1 -a "$#" -le 2 || exit 2
 CODE_ROOT="$1"
@@ -55,7 +57,10 @@ if test -n "$AFTER"; then
     echo "ABORT: AFTER_JOB $AFTER is not the amendment-013 train job in Slurm (got '${NAME}'); once" \
       "dpo-004/placement/dpo2-merged.json exists, submit without AFTER_JOB; nothing submitted" >&2; exit 1; }
 fi
-for path in "$EVAL/ablation.json" "$EVAL/rft/infer-placement" "$EVAL/pert/infer-placement"; do
+CANDS=(rft rft-s43 pert op-dpo2-s43)
+REUSE=("$EVAL/ablation.json")
+for CAND in "${CANDS[@]}"; do REUSE+=("$EVAL/$CAND/infer-placement"); done
+for path in "${REUSE[@]}"; do
   if test -e "$path" -a ! -f "$path/MANIFEST.json"; then echo "refusing to reuse existing $path" >&2; exit 1; fi
 done
 QUEUED=$(squeue -h -u "$USER" -n unknownsize-016 -o %i) || { echo "ABORT: squeue failed; nothing submitted" >&2; exit 1; }
@@ -88,7 +93,7 @@ submit() {  # submit LABEL DEPENDENCY SBATCH_ARGS...; sets ID; no dependency = a
 J=("$S/isambard_016.sbatch" "$CODE_ROOT")
 SHARD=(--gpus-per-node=1 --cpus-per-task=8 --mem=96G --time=14:00:00)
 MERGES=""
-for CAND in rft pert; do
+for CAND in "${CANDS[@]}"; do
   if test -f "$EVAL/$CAND/infer-placement/MANIFEST.json"; then echo "skipped $CAND: dev inference merged"; continue; fi
   submit "train $CAND" "" --gpus-per-node=4 --cpus-per-task=72 --mem=0 --time=12:00:00 "${J[@]}" train "$CAND"
   TRAIN="$ID"

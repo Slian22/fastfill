@@ -117,11 +117,14 @@ def _systems(systems):
 
 def check_labels(summaries):
     """{label: evaluation summary}: L must record the API agent (gpt-6.1-sol, reasoning medium) and
-    O* the vLLM run of that system id and its model path; other labels are not agents."""
+    O* the vLLM run of that system id and its model path; other labels are not agents. A size-fixed evaluation
+    (config request_arm other than 'joint', absent = 'joint'; amendment 016 section 2) is refused under any label."""
     for label, summary in summaries.items():
+        config = (summary.get('llm') or {}).get('config') or {}
+        if config.get('request_arm', 'joint') != 'joint':
+            raise ValueError(f'system label {label}: a size-fixed (P input) evaluation never enters a J-input table')
         if label not in SYSTEMS or label in SYSTEM_ARMS:
             continue
-        config = (summary.get('llm') or {}).get('config') or {}
         if label == 'L':
             ok = (config.get('model'), config.get('reasoning_effort')) == (llm_agent.EXPECTED_MODEL, llm_agent.EFFORT)
         else:
