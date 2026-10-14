@@ -2,7 +2,10 @@
 
 Raw fields (source_fields.layout_object, see OptiScene/README.md and gprompt.py): Unity/AI2-THOR frame = y-up,
 LEFT-handed; position {x, y, z} m with y = 0 for every object (bottom) and x/z = box center; rotation.y = yaw in
-degrees (clockwise seen from above); bbox = [height, width, depth] cm along the mesh y, x, z.
+degrees (clockwise seen from above); bbox = [height, width, depth] cm along the mesh y, x, z, where width and depth
+include Holodeck's 0.10 m size buffer (official scenes: width / depth = Objathor mesh box + 0.10 m for 66,855 of 66,855
+objects, height exact; neither README says so). `unpad` subtracts it, as mansionworld.py does for its floor objects;
+the 14 sub-cm meshes (mirrors, dishwashers 3-5 mm deep, bbox 10 cm) keep MIN_DIM.
 LH (x, y, z) -> RH Z-up (x, z, y) is a proper change of frame (what the export stored), but the yaw sign flips:
 yaw of mesh +X in the IR = -rotation.y. Holodeck meshes face mesh -Z = IR local -Y -> front_offset_deg = -90.
 The export's furniture_rotation.z (= +rotation.y) and size mapping are therefore not used.
@@ -13,6 +16,7 @@ from fastfill.adapters.unified import convert_room, iter_records
 
 SOURCE = "OptiScene_holodeck"
 OPTI = "imChuling__3D_Room_Collections/OptiScene_exported"
+PAD, MIN_DIM = 0.10, 0.01
 
 
 def raw_furniture(f):
@@ -25,15 +29,21 @@ def raw_furniture(f):
             "furniture_size": {"width": b[1] / 100, "length": b[2] / 100, "height": b[0] / 100} if b and len(b) == 3 else None}
 
 
+def unpad(f):
+    """raw_furniture(f) without the 0.10 m padding of width / depth (module doc)."""
+    s = f["furniture_size"]
+    return {**f, "furniture_size": s and {**s, **{k: max(s[k] - PAD, MIN_DIM) for k in ("width", "length")}}}
+
+
 def load(root):
     for scene in iter_records(os.path.join(root, OPTI, "holodeck.json")):
         for room in scene["rooms"]:
-            yield convert_room({**room, "furniture": [raw_furniture(f) for f in room["furniture"]]},
+            yield convert_room({**room, "furniture": [unpad(raw_furniture(f)) for f in room["furniture"]]},
                                source=SOURCE, uid=f"optiscene:{scene['scene_id']}",
                                group=f"holodeck:{scene['scene_id']}", subset="HOLODECK", boundary_type="polygon",
                                front_offset_deg=-90, extra=lambda f: {"desc": f.get("description")},
                                meta={"source_file": scene["provenance"]["source_file"], "front_known": True,
-                                     "size_note": "Holodeck bbox, padded ~11 cm in width/depth (see report)"})
+                                     "size_note": "Holodeck bbox minus its 0.10 m width/depth padding (= Objathor mesh box)"})
 
 
 if __name__ == "__main__":
@@ -42,4 +52,7 @@ if __name__ == "__main__":
     g = raw_furniture(f)
     assert g["furniture_position"] == {"x": 1, "y": 2, "z": 0} and g["furniture_rotation"]["z"] == -90
     assert g["furniture_size"] == {"width": 0.77, "length": 1.74, "height": 0.75}
+    s = unpad(g)["furniture_size"]
+    assert abs(s["width"] - 0.67) < 1e-9 and abs(s["length"] - 1.64) < 1e-9 and s["height"] == 0.75, s
+    assert unpad({"furniture_size": {"width": 0.1, "length": 0.15, "height": 0.09}})["furniture_size"]["width"] == MIN_DIM
     print("optiscene_holodeck self-check ok")

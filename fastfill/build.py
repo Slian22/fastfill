@@ -12,10 +12,20 @@ stats.json counts every rejection reason, quality flag, dropped object and infer
 Rejections are only what makes a training target impossible (no verified front, missing boxes, bad numbers, no
 boundary, no placeable object); everything else (reference objects through walls, same-category overlaps, tiny rooms,
 unexplained dropped floor area, single-object rooms, snapped or tilted boxes) is a FLAG written next to the sample.
+
+Data v3.4 (source-fidelity audit 2026-10-14, synthesis section 4; DATA_VERSION is written to MANIFEST.json and to
+every room's meta). The text protocol (scene.num/shown_size, prompts, targets) is unchanged; only the rooms differ:
+  B1  cm rounding by faces (`_cm_candidates`, `_round_safely`): rounding alone no longer pushes a box through a wall or
+      into another box
+  B2  a floating box goes on the box under it instead of being snapped into it at z=0 (anchors.support_below)
+  B3  SAGE-10k doors only from structure records; its door-named props are furniture (anchors.structural)
+  B11 rooms with an object more than FAR_OOB_M outside the boundary are flagged oob_far, and every build rejects that
+      flag (main adds it to --reject_flagged, so MANIFEST args replay it)
 """
 import argparse
 import collections
 import hashlib
+import itertools
 import json
 import math
 import os
@@ -36,7 +46,9 @@ from fastfill.anchors import (DIVIDERS, FINISH, FLAT, FLOOR_Z, FURNITURE_SUNK_Z,
 from fastfill.scene import (GENERIC, canonical, clean_boundary, footprint, head, messages, norm_cat, num, rot90,
                             shown_size, slug)
 from fastfill.split import assign_splits
-from fastfill.validate import check, holds, support_ok
+from fastfill.validate import check, holds, support_contains, support_ok
+
+DATA_VERSION = "v3.4"
 
 # dropped boxes that do not block the floor: openings and wall/floor finishes (plant_floor -> plant is not exempt)
 FLUSH = re.compile(r"^(doors?|doorframes?|windows?|curtains?|drapes?|blinds?|frames?|openings?|baseboards?|rails?|"
@@ -48,6 +60,13 @@ WALL_BAND_M = 0.10       # a dropped box within this band of the boundary keeps 
 THICK_WALL_M = 0.30      # structure (doors, windows) may stand this far outside the floor polygon, inside the wall
 MIN_AREA_M2 = 0.5        # a floor smaller than this holds no furniture: a broken (mm-scale) boundary, rejected
 INTRUSION_M2 = 0.05      # ... unless more than this much of it stands further inside the room
+POKE_M = 1e-3            # B1: a footprint further than this outside the boundary pokes (downstream R5, ENTRY_TOL_M)
+# B11: an object reaching further than this outside the boundary flags the room oob_far, which main always rejects.
+# That is beyond a thick wall (THICK_WALL_M) plus the oob_objects tolerance (--oob_tol 0.10) with 10 cm to spare, so the
+# object stands in the next space (an incomplete scan floor, a neighbour's object, a corrupt box), not in a wall.
+# Rejected, not typed "proxy": the default --boundary_types drop proxy rooms anyway. 1-in-10 IR sample (v3.3 prep):
+# 1.3% of kept rooms reach >0.5 m (0.3 m: 2.4%, 1 m: 0.5%, 2 m: 0.2%); IL3D_3dfront 3.9%, HSSD200 7%, SpatialLM 1.4%.
+FAR_OOB_M = 0.5
 # GT duplicate rule: soft/decor heads, lamps and composites are exempt
 SOFT_HEADS = {"plant", "plants", "flower", "flowers", "pillow", "pillows", "cushion", "towel", "book", "books",
               "ornament", "decoration", "vase", "toy", "toys", "clothes", "bag", "lamp", "light"}
@@ -154,6 +173,116 @@ def _keep_fixed(fixed, objs, shell, cover=0.5, slab=0.5):
     return out
 
 
+# B1: nudges tried for a box that is not square to the room (cm offsets of the rounded centre, nearest first)
+NUDGES = sorted(itertools.product(range(-2, 3), repeat=2), key=lambda d: (d[0] ** 2 + d[1] ** 2, d))
+
+
+def _cm_faces(lo, hi):
+    """B1, one axis of a box square to the room with faces lo..hi in cm -> [(shift, grows, a, b)]: faces a..b on the
+    half-cm grid whose centre and width are whole cm (what the model is shown), smallest total face shift first.
+    grows: a face lies outside lo or hi rounded to the half cm. That rounding is monotone (a face flush with a cm-grid
+    wall or with another box stays flush and none crosses it), so only a growing face can touch something new, and
+    `_round_safely` refuses it when it does (without growing faces 30% of sizes lost a cm, mean -0.3 cm, on a 1-in-10
+    IR sample). Empty below 1 cm (the caller keeps the plain rounding)."""
+    l0, h0 = round(2 * lo), round(2 * hi)           # half cm
+    return sorted((abs(a - 2 * lo) + abs(b - 2 * hi), a < l0 or b > h0, a / 2, b / 2)
+                  for a in range(l0 - 2, l0 + 3) for b in range(h0 - 2, h0 + 3) if (a + b) % 4 == 0 and b - a >= 2)
+
+
+def _cm_candidates(o, grow=True):
+    """B1: displayed cm boxes (x, y, sx, sy, grows) for o under its integer-degree yaw, preferred first. Square to the
+    room (yaw a multiple of 90): both faces of each axis rounded (`_cm_faces`), centre and size derived from them
+    (grow=False: only boxes inside the rounded faces, when there are any). Other yaws: centre and size rounded on their
+    own as before v3.4, then that box nudged by up to 2 cm."""
+    deg = round(math.degrees(o["yaw"])) % 360
+    sx, sy = shown_size(o)[:2]
+    x, y = num(o["pos"][0]), num(o["pos"][1])
+    plain = [(num(x + i / 100), num(y + j / 100), sx, sy, False) for i, j in NUDGES]
+    if deg % 90:
+        return plain
+    swap = deg in (90, 270)                         # local X runs along room Y
+    ext = (o["size"][1], o["size"][0]) if swap else (o["size"][0], o["size"][1])
+    axes = [_cm_faces(100 * (c - e / 2), 100 * (c + e / 2)) for c, e in zip(o["pos"][:2], ext)]
+    if not all(axes):
+        return plain
+    out = []
+    for _, grows, (_, _, a, b), (_, _, c, d) in sorted((fx[0] + fy[0], fx[1] or fy[1], fx, fy)
+                                                       for fx, fy in itertools.product(*axes)):
+        ex, ey = num((b - a) / 100), num((d - c) / 100)
+        out.append((num((a + b) / 200), num((c + d) / 200), *((ey, ex) if swap else (ex, ey)), grows))
+    return out if grow else [c for c in out if not c[4]] or out
+
+
+def _snap(o, grow=True):
+    """The preferred displayed box: cm footprint (`_cm_candidates`), cm height, integer-degree yaw; z kept."""
+    x, y, sx, sy, _ = _cm_candidates(o, grow)[0]
+    return {**o, "pos": [x, y, o["pos"][2]], "size": [sx, sy, shown_size(o)[2]],
+            "yaw": math.radians(round(math.degrees(o["yaw"])) % 360)}
+
+
+def _counted(a, b, tol=0.05):
+    """validate.check counts an overlap of object a with b (an object, or a fixed box) as a collision."""
+    if a.get("parent") == b["id"] or b.get("parent") == a["id"] or \
+            min(a["pos"][2] + a["size"][2], b["pos"][2] + b["size"][2]) - max(a["pos"][2], b["pos"][2]) <= tol:
+        return False
+    if "fixed_kind" in b:
+        return head(a) not in FLAT and a["size"][2] >= 0.06
+    return not FLAT.intersection((head(a), head(b))) and min(a["size"][2], b["size"][2]) >= 0.06
+
+
+def _round_safely(objs, fixed, src, shell, boundary, min_area=0.01, eps=1e-6):
+    """B1: put each object on the first of its cm boxes (`_cm_candidates`, all within 2 cm) with which rounding alone
+    makes no wall poke (the footprint leaves the cleaned boundary by more than POKE_M while the source footprint stayed
+    within POKE_M of the source or the cleaned boundary), no collision over min_area with an object or fixed box (as validate.check
+    counts it) that the source boxes do not have, and no lost support; a growing box (see `_cm_faces`) must also
+    leave the boundary and every box it did not touch in the source untouched, unless no box does (a 3 mm straw in a
+    cup of straws is shown 1 cm wide). Objects are updated in place, one at a time against the current others.
+    Returns how many found no such box (they keep the preferred one)."""
+    env_src, env, exact = shell.buffer(POKE_M), Polygon(boundary).buffer(POKE_M), Polygon(boundary).buffer(eps)
+    boxes = objs + fixed
+    orig = [Polygon(footprint(src[o["id"]])) for o in boxes]       # source pose and size
+    cur = [Polygon(footprint(o)) for o in boxes]
+    tree = STRtree([p.buffer(0.1) for p in orig])                  # rounding and nudges move a face < 10 cm
+    byid = {o["id"]: o for o in objs}
+    kids = collections.defaultdict(list)
+    for o in objs:
+        if o.get("parent"):
+            kids[o["parent"]].append(o)
+
+    def bad(k, fp, cand, strict):
+        o, grows = boxes[k], strict and cand[4]
+        if (env_src.covers(orig[k]) or env.covers(orig[k])) and not (exact if grows else env).covers(fp):
+            return True
+        for j in tree.query(fp):
+            q = boxes[j]
+            if j == k:
+                continue
+            area, was = fp.intersection(cur[j]).area, orig[k].intersection(orig[j]).area
+            if _counted(o, q) and area > min_area >= was or grows and area > eps >= was and \
+                    min(o["pos"][2] + o["size"][2], q["pos"][2] + q["size"][2]) - max(o["pos"][2], q["pos"][2]) > eps:
+                return True
+        moved = {**o, "pos": [cand[0], cand[1], o["pos"][2]], "size": [cand[2], cand[3], o["size"][2]]}
+        p = byid.get(o.get("parent"))
+        return (p is not None and not support_contains(p, moved["pos"])) or \
+            any(not support_contains(moved, c["pos"]) for c in kids[o["id"]])
+
+    left = 0
+    for k, o in enumerate(objs):
+        for strict, cand in itertools.product((True, False), _cm_candidates(src[o["id"]])):
+            fp = Polygon(footprint({"pos": cand[:2], "size": cand[2:4], "yaw": o["yaw"]}))
+            if not bad(k, fp, cand, strict):
+                o["pos"], o["size"], cur[k] = [cand[0], cand[1], o["pos"][2]], [cand[2], cand[3], o["size"][2]], fp
+                break
+        else:
+            left += 1
+    return left
+
+
+def _poke_depth(o, poly):
+    """B11: how far o's footprint reaches outside poly (its farthest corner)."""
+    return max(poly.distance(Point(c)) for c in footprint(o))
+
+
 def prep(room, a):
     """IR room -> (clean room, None) or (None, reject reason). The clean room carries `fixed`: boxes the model is
     told about with their pose and never places (each tagged fixed_kind for stats):
@@ -186,9 +315,10 @@ def prep(room, a):
     sunk = {o["id"] for o in objs if not o.get("parent") and o["pos"][2] < -FURNITURE_SUNK_Z}
     objs = _drop_with_dependants(objs, generic | sunk)
     byid = {o["id"]: o for o in objs}                # keep only top-surface support
-    objs = _drop_with_dependants(objs, [
+    on_top = lambda o, p: {**o, "pos": [*o["pos"][:2], p["pos"][2] + p["size"][2]]} if o.get("support_gap") else o
+    objs = _drop_with_dependants(objs, [               # (B2: a floating box is judged where it is lowered to)
         o["id"] for o in objs if o.get("parent") and (
-            (p := byid.get(o["parent"])) is None or not support_ok(o, p))])
+            (p := byid.get(o["parent"])) is None or not support_ok(on_top(o, p), p))])
     nofront = {o["id"] for o in objs if o.get("front_known") is False}
     objs = _drop_with_dependants(objs, nofront)      # shown as fixed below (with what stands on them dropped)
     if any(min(o["size"]) < 0 for o in objs):        # only what is placed must have a size (0 = flat, shown as 1 cm)
@@ -226,12 +356,14 @@ def prep(room, a):
     if len(objs) < a.min_objects:
         return None, "object_count"
     # snap to the DISPLAYED numbers (cm, integer degrees) so checks, constraints and eval see what the model sees;
-    # z: floor 0, child = parent top; fixed boxes keep their own z (a window sill), floor-level ones go to 0
-    rounded = lambda o: {**o, "size": shown_size(o), "yaw": math.radians(round(math.degrees(o["yaw"])) % 360)}
-    objs = [{**rounded(o), **({"z_src": o["pos"][2]} if not o.get("parent") and abs(o["pos"][2]) > 1e-9 else {})}
+    # z: floor 0, child = parent top; fixed boxes keep their own z (a window sill), floor-level ones go to 0;
+    # x, y and size by faces (B1, `_snap`), then cleared of rounding-made pokes and collisions (`_round_safely`)
+    src = {o["id"]: o for o in room["objects"]}
+    objs = [{**_snap(o), **({"z_src": o["pos"][2]} if not o.get("parent") and abs(o["pos"][2]) > 1e-9 else {})}
             for o in objs]                            # provenance: the source z of a floor box snapped to 0
-    fixed = [{**rounded(o), "pos": [num(o["pos"][0]), num(o["pos"][1]),
-                                    0 if -FLOOR_Z <= o["pos"][2] <= FLOOR_Z else num(o["pos"][2])]} for o in fixed]
+    fixed = [{**(s := _snap(o, grow=False)), "pos": [*s["pos"][:2],      # (context: never grows into an object)
+                                                   0 if -FLOOR_Z <= o["pos"][2] <= FLOOR_Z else num(o["pos"][2])]}
+             for o in fixed]
     byid = {o["id"]: o for o in objs}
     done = set()
 
@@ -246,6 +378,7 @@ def prep(room, a):
     b = clean_boundary(room["boundary"])
     if b is None or (a.max_vertices and len(b) > a.max_vertices) or Polygon(b).area < MIN_AREA_M2:
         return None, "boundary_shape"
+    unrounded = _round_safely(objs, fixed, src, shell, b)
     out = {**room, "boundary": b, "objects": objs, "fixed": fixed}
     # quality FLAGS (the room is kept; every flag is counted in stats.json and written next to the sample so a
     # training sampler can weight or exclude it; --reject_flagged turns chosen flags back into rejections)
@@ -255,6 +388,11 @@ def prep(room, a):
     oob = geometry["oob"]
     if oob:                                          # reference objects crossing the walls by more than oob_tol
         flags["oob_objects"] = len(oob)
+        # B11: one reaching more than FAR_OOB_M out is not in this room (an incomplete scan floor, the neighbouring
+        # room's object): the boundary cannot be trusted; rejected by main (--reject_flagged), not typed proxy
+        far = max(_poke_depth(o, Polygon(b)) for o in objs)
+        if far > FAR_OOB_M:
+            flags["oob_far"] = round(far, 2)
     if hidden > 0:                                   # unexplained floor area of dropped boxes (see above)
         flags["hidden_m2"] = round(hidden, 2)
     if hidden >= a.hidden_max:
@@ -278,10 +416,15 @@ def prep(room, a):
         flags["tilted"] = sum(bool(o.get("tilted")) for o in objs)
     if nofront:
         flags["no_front_fixed"] = len(nofront)
+    lowered = sum(bool(o.get("support_gap")) for o in objs)      # B2: floating boxes put on the box under them
+    if lowered:
+        flags["support_lowered"] = lowered
+    if unrounded:                                    # B1: rounding-made poke/collision no 2 cm nudge could clear
+        flags["rounding_unresolved"] = unrounded
     hit = [k for k in a.reject_flagged if k in flags]
     if hit:
         return None, "flagged:" + hit[0]
-    out["meta"] = {**out.get("meta", {}), "flags": flags}
+    out["meta"] = {**out.get("meta", {}), "flags": flags, "data_version": DATA_VERSION}
     h = out.get("height")
     if h and any(o["pos"][2] + o["size"][2] > h + 0.05 for o in objs):   # height contradicts the boxes: unknown
         out = {**out, "height": None, "meta": {**out["meta"], "height_dropped": True}}
@@ -425,7 +568,8 @@ def main():
     ap.add_argument("--max_vertices", type=int, default=0, help="reject rooms with more boundary vertices (0: no limit)")
     ap.add_argument("--reject_flagged", nargs="*", default=[],
                     help="quality flags that reject a room instead of being recorded (oob_objects hidden_obstacle "
-                         "small_area_m2 room_filling_object overlapping_furniture single_object)")
+                         "small_area_m2 room_filling_object overlapping_furniture single_object); oob_far is always "
+                         "added (v3.4, B11)")
     ap.add_argument("--keep_duplicates", action="store_true", help="keep exact duplicate layouts inside a split")
     ap.add_argument("--boundary_types", nargs="*", default=["polygon", "hull"])
     ap.add_argument("--anchors", nargs="*", default=["floor", "object"], help="object anchors kept (see anchors.py)")
@@ -442,6 +586,8 @@ def main():
     ap.add_argument("--desc_dropout", type=float, default=0.5, help="train: drop all desc of a room with p")
     a = ap.parse_args()
     a.source_anchors = {k: v.split(",") for k, v in (x.split("=") for x in a.source_anchors)}
+    if "oob_far" not in a.reject_flagged:          # B11, recorded in MANIFEST args
+        a.reject_flagged.append("oob_far")
     caps = {k: int(v) for k, v in (x.split("=") for x in a.cap)}
 
     files = _input_files(a, ap)
@@ -560,7 +706,7 @@ def _write_dataset(rooms, splits, stats, a, directory, code_sha, ir_sha):
                                      ensure_ascii=False, allow_nan=False) + "\n")
     with open(directory / "stats.json", "w", encoding="utf-8") as f:
         json.dump({k: dict(v) for k, v in sorted(stats.items())}, f, indent=1, allow_nan=False)
-    manifest = {"args": vars(a),
+    manifest = {"data_version": DATA_VERSION, "args": vars(a),
                 "files": {p.name: {"sha256": _sha256(p), "lines": _line_count(p)}
                           for p in sorted(directory.iterdir()) if p.suffix == ".jsonl" or p.name == "stats.json"},
                 "code_sha256": code_sha, "ir_sha256": ir_sha}

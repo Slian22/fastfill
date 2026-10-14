@@ -9,7 +9,7 @@ Front = local +Y (wall-mounted assets extend into +Y; front test on beds/wardrob
 Boundary = floor-plan AABB; every room has exactly north/south/east/west walls, so it is the real rectangle.
 Free bodies are physics-settled: x/y tilt <= TILT_DEG is settling noise and is zeroed; an axis permutation within
 TILT_DEG is an exact upright box; a larger tilt (only furniture and manipulands, whose origin is the bottom centre)
-becomes the yaw-aligned upright bounding box of the 8 corners (sage10k.upright_box: same rotation order, origin and
+becomes the minimum-area upright box around the 8 corners (sage10k.upright_box: same rotation order, origin and
 front), flagged tilted, with tilt_deg and rot_src kept. Unlike SAGE the boxes rest on their lowest corner (1,135 tilted
 manipulands over furniture tops: lowest corner - top median -0.1..-1.1 cm in every lift bin), so they are not moved.
 Composite members are cut at the bottom of what holds them (scenesmith agent_utils/room.py to_drake_directive): a fill

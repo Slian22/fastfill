@@ -2,13 +2,13 @@
 
 objects.csv: obb_center (box CENTER), obb_half_extents (HALF sizes along the box axes), obb_axes = 9 floats =
 the three box axes one after another (world directions), plus annotated `front` / `up` vectors; `up` is box
-axis 1 for 10,957/10,957 objects and `front` is one of the box axes. Z-up meters, scan-local frame whose floor
+axis 1 for 10,887 of 10,957 objects and `front` is one of the box axes. Z-up meters, scan-local frame whose floor
 is NOT at z = 0. regions.csv floor_height is the TOP of the floor-slab AABB (slabs are 0.07-0.46 m thick scan
 noise) and furniture bottoms sit a median 0.09 m below it, so the floor level used is the median bottom of the
 objects that relations.csv marks rests_on_floor (>= 1 per scan; geometric relation of the repackaging).
 Boundary: regions.csv poly_loop is the convex hull of the floor-slab OBBs, but floors are annotated only where
 the scan saw them (22% of in-scope objects stick out of it by a median 0.24 m). The boundary used is the convex
-hull of poly_loop + the wall-segment endpoints (structure only) -> "hull" when every floor-standing
+hull of poly_loop + the wall-segment endpoints (structure only) -> "hull" when every floor-standing (bottom <= 0.5 m)
 non-architectural object fits inside it (+5 cm); otherwise the room gets boundary_type "proxy" with that hull
 extended by those objects' footprints (object extent, cannot prove in-bounds validity).
 height = ceiling_height - floor level, only when height_reliable. Group = multiscan:<scene_id> (rescans _NN share it).
@@ -54,15 +54,17 @@ def box(o):
             "structure": o["is_architectural"] == "True" or o["is_opening"] == "True"}
 
 
-def boundary(g, furn, tol=0.05):
-    """(polygon, type, n_outside) - see module docstring."""
+def boundary(g, furn, tol=0.05, floor_z=0.5):
+    """(polygon, type, n_outside) - see module docstring. Floor-standing = bottom <= floor_z above the floor level: build
+    snaps every unsupported object down, so a sofa whose box starts 6.9 cm up (scene_00054_00 sofa 25, 9.4 cm outside
+    the hull) is tested too (13 of the 122 "hull" rooms become "proxy")."""
     walls = json.loads(g["wall_segments"] or "[]")
     pts = json.loads(g["poly_loop"]) + [w[k] for w in walls for k in ("start", "end")]
     hull = MultiPoint([tuple(p) for p in pts]).convex_hull
     fps = [Polygon(footprint({"pos": [f["furniture_position"]["x"], f["furniture_position"]["y"]],
                               "size": [f["furniture_size"]["width"], f["furniture_size"]["length"]],
                               "yaw": math.radians(f["furniture_rotation"]["z"])}))
-           for f in furn if not f["structure"] and f["furniture_position"]["z"] < tol]
+           for f in furn if not f["structure"] and f["furniture_position"]["z"] <= floor_z]
     out = [fp for fp in fps if not hull.buffer(tol).contains(fp)]
     if out:
         hull = MultiPoint(list(hull.exterior.coords) + [c for fp in out for c in fp.exterior.coords]).convex_hull

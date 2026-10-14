@@ -16,7 +16,10 @@ Articulated instances (3,626 cabinets, wardrobes, fridges, ...) and 14 rigid row
 and no region in the rebuild; they are assigned to regions by their translation and boxed from their model (URDF, else
 asset_catalog / .glb bounds; see _rebuild, tagged box_src). 3,290 are the articulated copy of a boxed rigid row at the
 same place (_twin: 3,062 of the same template, 93 a sibling template of the same category, 135 of another category) ->
-dropped, counted in meta; 336 are kept. Only rows with no model stay incomplete, so build rejects their room: 1
+dropped, counted in meta; 336 are kept. A kept URDF box whose footprint lies >= COVER under rigid boxes overlapping it
+in height by > 5 cm (`_covered`) is a leftover copy the twin test misses (a "YOO OH Kitchen" unit under the cabinets it
+is made of, 98%): dropped, counted in meta (82 boxes in 54 rooms of the v3.2 IR). Only rows with no model stay
+incomplete, so build rejects their room: 1
 articulated (render path '.ao_config.json.glb', no URDF) and the 13 rigid rows of templates 3759 / 3760 / 5804 (absent
 from the source, outside every region). is_architectural instances (doors, windows, stairs ...) are kept as "structure"
 objects (never placed; a floor staircase rejects the room in build); boxless ones are dropped. Category 'unknown*'
@@ -39,6 +42,7 @@ from collections import defaultdict
 
 import numpy as np
 from shapely.geometry import MultiPoint, Point, Polygon
+from shapely.ops import unary_union
 
 from fastfill.adapters.internscenes import tilted_bbox
 from fastfill.adapters.unified import convert_room
@@ -46,6 +50,7 @@ from fastfill.adapters.unified import convert_room
 SOURCE = "HSSD200"
 T = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]])      # Y-up -> Z-up
 FRONT = {(1, 1): (2, 1), (2, -1): (1, 1)}              # (up axis, sign) -> (front axis, sign) in glb frame
+COVER = 0.7                                            # a URDF box this much under rigid boxes is a leftover copy
 
 
 def _rot(q):
@@ -222,6 +227,14 @@ def _twin(a, b, rel):
         (rel == "model" or vb >= va / 3 and (rel == "category" or vb <= 3 * va))
 
 
+def _covered(a, boxes):
+    """Share of rebuilt box a's footprint (from _box) under the union of the boxes (from _box) that overlap it in height
+    by > 5 cm (build's collision height). load drops a URDF box when it is >= COVER (module doc)."""
+    fa, a0, a1 = a
+    u = unary_union([fb for fb, b0, b1 in boxes if min(a1, b1) - max(a0, b0) > 0.05])
+    return u.intersection(fa).area / fa.area if fa.area > 0 else 0.0
+
+
 def _rel(r, o, kinds):
     """How boxed row o relates to boxless row r, for _twin (kinds: the categories of articulated rows). Not the asset
     name: collections share it ('Champagne' bed and nightstand, 'Kitchen Furniture Collection' modules)."""
@@ -282,13 +295,15 @@ def load(root):
             r["mesh_bounds"] = _glb_bounds(os.path.join(base, "meshes", r["render_asset"]))
         if r["obb_center"]:
             boxed[r["scene_id"]].append((_box(r), r))
-    furn, n_arch, n_below, n_nob, n_twin = defaultdict(list), *(defaultdict(int) for _ in range(4))
+    furn, n_arch, n_below, n_nob, n_twin, n_cov = defaultdict(list), *(defaultdict(int) for _ in range(5))
     for r in rows:
-        boxless, twin = not r["obb_center"], False
+        boxless, twin, covered = not r["obb_center"], False, False
         if boxless and (m := _model(r, base, bounds)):
             _rebuild(r, *m)
             a = _box(r)
             twin = any(_twin(a, b, _rel(r, o, kinds)) for b, o in boxed[r["scene_id"]])
+            covered = not twin and m[2] == "urdf" and _covered(
+                a, [b for b, o in boxed[r["scene_id"]] if o["is_architectural"] != "True"]) >= COVER
         if r["region_source"] in ("inside", "nearest"):
             keys = [(r["scene_id"], r["region_id"])]
             # the source assigns by XY only when one polygon matches: boxes wholly below this region's
@@ -305,6 +320,9 @@ def load(root):
         for key in keys:
             if twin:                                     # its rigid copy carries the box already
                 n_twin[key] += 1
+                continue
+            if covered:                                  # rigid boxes already fill its place
+                n_cov[key] += 1
                 continue
             n_nob[key] += "mesh_bounds" in r and r["mesh_bounds"] is None
             f = _furniture(r, float(regions[key]["floor_height"]))
@@ -329,7 +347,7 @@ def load(root):
                                             **({"front_known": False} if f.get("front_known") is False else {})},
                            meta={"region_name": g["region_name"], "floor_height": float(g["floor_height"]),
                                  "n_architectural_dropped": n_arch[key], "n_below_floor_dropped": n_below[key],
-                                 "n_articulated_twin_dropped": n_twin[key],
+                                 "n_articulated_twin_dropped": n_twin[key], "n_articulated_covered_dropped": n_cov[key],
                                  "n_opening_no_mesh_bounds": n_nob[key], "front_known": True})
 
 

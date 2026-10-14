@@ -8,7 +8,10 @@ source has it (placement flags, explicit parent ids); otherwise `infer_anchors` 
            floor furniture (bed, table, sofa, ...) at most FURNITURE_FLOOR_Z = 50 cm up with nothing under it
            (annotation z-noise, boxes that start above the legs; build.prep snaps them to the floor)
   object   bottom within 5 cm of the top of a floor/object box whose footprint contains its center;
-           seats, beds and rugs are never parents (bbox top = backrest / headboard; a rug is not a surface)
+           seats, beds and rugs are never parents (bbox top = backrest / headboard; a rug is not a surface).
+           v3.4 (B2): a box that the floor rules above would snap down to z=0 INTO a box below it goes on that box
+           instead (`support_below`): a wardrobe at 0.45-2.60 m over a 0.45 m sofa, a table on a 0.45 m bed
+           platform, an oven 14 cm above a cabinet (`support_gap` = how far it floats; build lowers it onto the top)
   wall     wall art (painting, mirror, ...) with no support below, or anything else elevated without one
   fixed    floor furniture that can hang (cabinet, shelf, vanity...) floating <= 50 cm with nothing below in a
            designer (polygon) room: a wall-hung unit, out of scope to place, shown to the model as a fixed box
@@ -16,6 +19,8 @@ Box-level contact is weak evidence of support; build.py counts evidence and infe
 `fixed_geometry` picks the structure boxes the model is told about (never placed): doors, windows, columns, stairs,
 fireplaces, radiators, partitions, low beams... below FIXED_MAX_Z; surface finishes, sockets/drains, curtains and
 slabs covering most of the room are left out, and a "wall" box only counts when it stands inside the room.
+v3.4 (B3): in SAGE-10k (STRUCTURE_RECORD_SOURCES), whose doors are structure records, a box merely NAMED door is
+furniture (door props standing 11-33 cm off the wall), never a door opening.
 """
 import math
 import re
@@ -65,6 +70,11 @@ DIVIDERS = {"partition", "divider", "screen"}   # a "partition panel" is an obst
 # scans: box z is noisy, so floating floor furniture is on the floor (not a wall-hung unit), whatever the boundary type
 SCANNED = {"Scan2CAD", "MultiScan", "InternScenes_arkit", "InternScenes_scannet", "InternScenes_mp3d",
            "InternScenes_3rscan"}
+# v3.4 (B3): sources whose doors come only from structure records (structure=True), so a box merely named door is a
+# prop. Only SAGE-10k is audited as such: elsewhere unflagged door boxes are real doors, door frames, shower doors,
+# door curtains (InteriorGS, IL3D, MultiScan, HSSD), which stay structure as in v3.3.
+STRUCTURE_RECORD_SOURCES = {"SAGE-10k"}
+DOOR = re.compile(r"\b(door|doorway|doorframe)s?\b")
 
 
 def hanging(category):
@@ -87,6 +97,24 @@ def is_structure(category):
                                          and not re.sub(rf"\b({SURFACE}|{ARCH})\b", " ", c).strip())
 
 
+def support_below(o, objs, fps, tol=0.05):
+    """v3.4 (B2): the box that snapping o down to z=0 would push it into, or None: the highest floor/object box
+    (seats and beds too, rugs not) under o's center and under at least half of o's footprint whose top is above tol
+    (so z=0 would sink o deeper than tol into it) and at most tol above o's bottom (o is not beside or inside it)."""
+    z, c, fp = o["pos"][2], Point(o["pos"][0], o["pos"][1]), fps[o["id"]]
+    under = [p for p in objs if p is not o and p.get("anchor") in ("floor", "object") and head(p) not in FLAT
+             and tol < p["pos"][2] + p["size"][2] <= z + tol and fps[p["id"]].contains(c)
+             and fps[p["id"]].intersection(fp).area >= 0.5 * fp.area]
+    return max(under, key=lambda p: p["pos"][2] + p["size"][2], default=None)
+
+
+def _put_on(o, p, tol=0.05):
+    o["anchor"], o["parent"], o["anchor_inferred"] = "object", p["id"], True
+    gap = o["pos"][2] - p["pos"][2] - p["size"][2]
+    if gap > tol:                        # floats above it: build.prep lowers it onto the top (kept as provenance)
+        o["support_gap"] = round(gap, 3)
+
+
 def infer_anchors(room, tol=0.05):
     objs = room["objects"]
     fps = {o["id"]: Polygon(footprint(o)) for o in objs}
@@ -100,7 +128,10 @@ def infer_anchors(room, tol=0.05):
             continue
         z, nc = o["pos"][2], norm_cat(o["category"])
         if z <= FLOOR_Z:                 # one-sided: sunk boxes stay floor so build.prep drops and counts them
-            o["anchor"] = "floor"
+            if p := support_below(o, objs, fps, tol):   # 7 chairs at z=0.10 on a 0.10 m platform box
+                _put_on(o, p, tol)
+            else:
+                o["anchor"] = "floor"
             continue
         c = Point(o["pos"][0], o["pos"][1])
         below = [p for p in objs if p is not o and p.get("anchor") in ("floor", "object") and head(p) not in NO_TOP
@@ -112,8 +143,14 @@ def infer_anchors(room, tol=0.05):
             o["anchor"] = "wall"
         elif z <= FURNITURE_FLOOR_Z and head(o) in FLOOR_FURNITURE:
             # nothing under it: on the floor with a noisy z (scans; anything that cannot hang), or a wall-hung
-            # unit in a designer room (vanity, floating TV console): shown as fixed, not placed
-            o["anchor"] = "floor" if hull or head(o) in GROUND_ONLY else "fixed"
+            # unit in a designer room (vanity, floating TV console): shown as fixed, not placed; a box the floor
+            # snap would push it into carries it instead (v3.4, B2)
+            if not (hull or head(o) in GROUND_ONLY):
+                o["anchor"] = "fixed"
+            elif p := support_below(o, objs, fps, tol):
+                _put_on(o, p, tol)
+            else:
+                o["anchor"] = "floor"
         elif height and z + o["size"][2] > height - 2 * tol and z > 1.0:
             o["anchor"] = "ceiling"
         else:
@@ -129,7 +166,7 @@ def fixed_geometry(room, band=0.10, intrusion=0.05):
     inner = shell.buffer(-band) if shell is not None else None
     hull = room.get("boundary_type") == "hull"
     for o in room["objects"]:
-        if not structural(o):
+        if not structural(o, room.get("source")):
             continue
         words, h = set(norm_cat(o["category"]).split()), head(o)
         finish = (h in FINISH or h.rstrip("s") in FINISH) and not words & DIVIDERS
@@ -146,15 +183,19 @@ def fixed_geometry(room, band=0.10, intrusion=0.05):
     return out
 
 
-def structural(o):
+def structural(o, source=None):
     """Source-flagged architecture, or a structure name on something that does not stand on another object (a
-    power 'outlet' strip or a lever 'arch' file on a desk is an object, not architecture)."""
-    return bool(o.get("structure")) or (is_structure(o["category"]) and not o.get("parent"))
+    power 'outlet' strip or a lever 'arch' file on a desk is an object, not architecture). A door name alone does
+    not make a door in a source that records its doors as structure (v3.4, B3: SAGE door props are furniture)."""
+    if o.get("structure"):
+        return True
+    return is_structure(o["category"]) and not o.get("parent") and not (
+        source in STRUCTURE_RECORD_SOURCES and DOOR.search(re.sub(r"[^a-z]+", " ", (o["category"] or "").lower())))
 
 
 def annotate(room):
     """Structure and soft covers removed, anchors inferred: every remaining box with anchor/parent set."""
-    objs = [dict(o) for o in room["objects"] if not (structural(o) or head(o) in SOFT_COVERS)]
+    objs = [dict(o) for o in room["objects"] if not (structural(o, room.get("source")) or head(o) in SOFT_COVERS)]
     return infer_anchors({**room, "objects": objs})["objects"]
 
 

@@ -1,7 +1,8 @@
 """InternScenes Real2Sim re-layout of Matterport3D regions (conventions: see internscenes.py).
 One record = one Matterport region (a room-level unit). Group = mp3d:<house hash>.
 InternScenes ships 96 regions twice within a house (e.g. 1LXtFkjw3qL region2 == region29: identical boundary,
-same object ids/categories, boxes within 1 cm); only the first copy is emitted (1696 -> 1600 records)."""
+same object ids/categories, boxes within 1 cm); only the first copy is emitted where boxes and boundary agree within
+1 cm (1696 -> 1601 records)."""
 import numpy as np
 
 from fastfill.adapters.internscenes import load_real

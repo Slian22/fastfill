@@ -13,7 +13,7 @@ furniture objects, which are kept as they are.
 Descriptions: every layout object has one ("description"); passed through as desc when the layout is id-aligned.
 Tilt: floor/wall objects are exactly upright; objects resting on objects carry x/y tilt from the physics check.
 Tilt <= TILT_DEG is treated as settling noise (zeroed); an axis permutation within TILT_DEG (1,237 objects turned
-90 deg onto a side) is an exact upright box. A larger tilt becomes the yaw-aligned upright bounding box of the 8
+90 deg onto a side) is an exact upright box. A larger tilt becomes the minimum-area upright box around the 8
 corners (`upright_box`), flagged tilted, with tilt_deg and the source rotation rot_src kept. The rotation is about the
 object origin = bottom centre of its local box (SAGE server code, EmbodiedGen/gentask_baseline/sage/server:
 objects/object_generation.py centres x/y and sets min z = 0; the physics check returns that origin's transform,
@@ -34,7 +34,7 @@ import os
 
 import numpy as np
 
-from fastfill.adapters.internscenes import tilted_bbox, upright
+from fastfill.adapters.internscenes import heading, min_area_yaw, tilted_bbox, upright
 from fastfill.adapters.unified import convert_room, iter_records
 
 SOURCE = "SAGE-10k"
@@ -57,10 +57,11 @@ def upright_box(f, cut=None):
     front = local +Y; SAGE and SceneSmith) -> the same dict as an upright box, front passed as local X to the
     internscenes rules (yaw = front heading, or local X heading when the front is the near-vertical axis):
     a local axis within TILT_DEG of vertical -> the exact box with permuted sizes (`upright`), rotation {0, 0, yaw - 90},
-    not tilted; otherwise the yaw-aligned bounding box of the 8 corners (as `tilted_bbox`) minus the part below `cut`
-    (the height below which the source says the object has nothing: its support), rotation {x: None, y: None,
-    z: yaw - 90} so that convert_room(front_offset_deg=90) gives yaw back and flags it tilted. Position = bottom centre
-    of the new box; "_tilt" = provenance (rot_src, and tilt_deg for tilted boxes)."""
+    not tilted; otherwise the minimum-area upright box (as `tilted_bbox`: yaw = front heading unless a rectangle turned
+    by < 45 deg is smaller) around the 8 corners minus the part below `cut` (the height below which the source says
+    the object has nothing: its support), rotation {x: None, y: None, z: yaw - 90} so that
+    convert_room(front_offset_deg=90) gives yaw back and flags it tilted. Position = bottom centre of the new box;
+    "_tilt" = provenance (rot_src, and tilt_deg for tilted boxes)."""
     r, p, s = f.get("furniture_rotation"), f.get("furniture_position"), f.get("furniture_size")
     if not (r and p and s):
         return f
@@ -72,12 +73,13 @@ def upright_box(f, cut=None):
         return {**f, "furniture_position": {"x": float(c[0]), "y": float(c[1]), "z": float(c[2]) - h / 2},
                 "furniture_rotation": {"x": 0, "y": 0, "z": yaw - 90},
                 "furniture_size": {"width": w, "length": l, "height": h}, "_tilt": {"rot_src": dict(r)}}
-    _, yaw, _, tilt = tilted_bbox(R, S)
+    tilt = tilted_bbox(R, S)[3]
     C = np.array([[x, y, z] for x in (-S[0] / 2, S[0] / 2) for y in (-S[1] / 2, S[1] / 2) for z in (0, S[2])]) @ R.T
     z0 = cut - o[2] if cut is not None and C[:, 2].min() < cut - o[2] < C[:, 2].max() else C[:, 2].min()
     edges = [(i, i | b) for i in range(8) for b in (1, 2, 4) if not i & b]
     P = [c for c in C if c[2] >= z0] + [C[i] + (C[j] - C[i]) * (z0 - C[i, 2]) / (C[j, 2] - C[i, 2])
                                         for i, j in edges if (C[i, 2] - z0) * (C[j, 2] - z0) < 0]
+    yaw = math.degrees(min_area_yaw(np.array(P)[:, :2], heading(R)))
     D = np.array([[math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), 0],
                   [-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0], [0, 0, 1]])        # u, v, z rows
     lo, hi = (np.array(P) @ D.T).min(0), (np.array(P) @ D.T).max(0)
@@ -229,8 +231,8 @@ if __name__ == "__main__":
     assert not o["tilted"] and "tilt_deg" not in o and o["rot_src"]["x"] == 90, o
     assert close(o["size"], [1.0, 0.1, 0.2]) and close(o["pos"], [1, 0.95, 0.4]) and abs(math.sin(o["yaw"])) < 1e-9, o
     # any rotation and cut: the IR box contains every point of the source box above the cut, is tight to it (points
-    # sampled on the 12 edges, where the clipped box's vertices lie), its bottom is the cut, and its +X is the front's
-    # heading unless the front (local Y) is the near-vertical axis
+    # sampled on the 12 edges, where the clipped box's vertices lie), its bottom is the cut, and its +X is within 45 deg
+    # of the front's heading unless the front (local Y) is the near-vertical axis
     rng = np.random.default_rng(0)
     edges = [(i, i | b) for i in range(8) for b in (1, 2, 4) if not i & b]
     t = np.linspace(0, 1, 401)[:, None]
@@ -250,6 +252,9 @@ if __name__ == "__main__":
         assert (L.min(0) > lo - 1e-9).all() and (L.max(0) < hi + 1e-9).all(), (r, S, cut, o)
         assert np.allclose(L.min(0), lo, atol=3e-3) and np.allclose(L.max(0), hi, atol=3e-3), (r, S, cut, o)
         assert cut is None or abs(o["pos"][2] - cut) < 1e-9, (r, S, cut, o)
-        if np.argmax(np.abs(R[2])) != 1:
-            assert abs((math.atan2(R[1, 1], R[0, 1]) - o["yaw"] + math.pi) % (2 * math.pi) - math.pi) < 1e-9, (r, o)
+        if np.argmax(np.abs(R[2])) != 1:              # +X within 45 deg of the front's heading, footprint no larger
+            h = math.atan2(R[1, 1], R[0, 1])           # than the box aligned to that heading (E's sampling slack)
+            assert abs((h - o["yaw"] + math.pi) % (2 * math.pi) - math.pi) <= math.pi / 4 + 1e-9, (r, o)
+            aligned = np.prod([np.ptp(E[:, :2] @ u) + 6e-3 for u in ([math.cos(h), math.sin(h)], [-math.sin(h), math.cos(h)])])
+            assert o["size"][0] * o["size"][1] <= aligned, (r, o, aligned)
     print("sage10k.py self-check ok")

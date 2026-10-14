@@ -7,19 +7,20 @@ pytorch3d convention). Floor is at z = 0.
 Boundary: Real2Sim = 2D convex hull of the floor mesh (-> "hull"); Gen = boundary_points.json floor polygon.
 Some boxes are stored with a 90/180 deg X/Y rotation (Y-up assets, books lying flat); they are upright boxes
 with permuted axes and are re-expressed as yaw-only boxes (`upright`). Boxes tilted by more than TILT_TOL_DEG
-are replaced by the yaw-aligned bounding box of their 8 corners (`tilted_bbox`: true footprint, height and bottom,
-yaw = heading of the local X axis) with rotation x/y = None so convert_room flags them tilted; "tilt_deg" keeps
-the angle between the local axis closest to vertical and world Z.
+are replaced by the minimum-area upright box around their 8 corners (`tilted_bbox`: true height and bottom, yaw =
+heading of the local X axis unless a rectangle turned by < 45 deg is smaller) with rotation x/y = None so
+convert_room flags them tilted; "tilt_deg" keeps the angle between the local axis closest to vertical and world Z.
 """
 import csv
 import io
+import itertools
 import json
 import math
 import os
 import zipfile
 
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPoint, Polygon
 
 from fastfill.adapters.unified import convert_room, iter_records
 
@@ -52,23 +53,50 @@ def upright(R, size, tol_deg=TILT_TOL_DEG):
     return [size[hx], size[hy], size[k]], math.degrees(math.atan2(v[1], v[0])), k
 
 
-def tilted_bbox(R, size):
-    """World-from-local rotation + local sizes of a box that is NOT upright within tolerance -> (sizes [w, l, h] of
-    the yaw-aligned bounding box of its 8 corners, yaw_deg, k, tilt_deg); k = local axis closest to vertical, tilt =
-    its angle from world Z; yaw = heading of local X, or of local Y when X is the near-vertical axis (as upright()
-    does: X's small horizontal part is then only the lean direction, and a box aligned to it is up to 3x too big)."""
+def heading(R):
+    """Yaw (rad) of local X, or of local Y when X is the near-vertical axis (as upright() does: X's small horizontal
+    part is then only the lean direction)."""
     R = np.asarray(R, dtype=float)
     k = int(np.argmax(np.abs(R[2])))
     a = next((c for c in ((R[:2, 1], R[:2, 0]) if k == 0 else (R[:2, 0], R[:2, 1])) if np.hypot(*c) >= 1e-6), (1.0, 0.0))
-    yaw = math.atan2(a[1], a[0])
+    return math.atan2(a[1], a[0])
+
+
+def min_area_yaw(xy, yaw):
+    """Yaw (rad) of the minimum-area rectangle around the points xy (n x 2), turned by a multiple of 90 deg to within
+    45 deg of `yaw` (the front heading); `yaw` itself unless that rectangle is smaller than the one aligned to `yaw`.
+    The rectangle aligned to the heading of a box tilted about two axes is larger than its true footprint (ScanNet
+    scene0051_00 towel 46 x vanity 13: 0.035 m2 vs 0.006 m2 between the official boxes; 22 of the 39 audited test
+    pairs shrink, 13 to <= 0.01 m2); one tilted about a single horizontal axis keeps its yaw and box (a rack leaning
+    48 deg over a bed still covers it: no upright box can avoid that)."""
+    xy = np.asarray(xy, dtype=float)
+    area = lambda a: np.ptp(xy @ [math.cos(a), math.sin(a)]) * np.ptp(xy @ [-math.sin(a), math.cos(a)])
+    hull = MultiPoint(xy.tolist()).convex_hull
+    best, smallest = yaw, area(yaw)
+    for dx, dy in np.diff(np.asarray(hull.exterior.coords), axis=0) if hull.geom_type == "Polygon" else ():
+        a = math.atan2(dy, dx)       # rotating calipers: the minimum rectangle has a side on a hull edge
+        if area(a) < smallest * (1 - 1e-9):
+            best, smallest = a, area(a)
+    return yaw + (best - yaw + math.pi / 4) % (math.pi / 2) - math.pi / 4
+
+
+def tilted_bbox(R, size):
+    """World-from-local rotation + local sizes of a box that is NOT upright within tolerance -> (sizes [w, l, h] of
+    the minimum-area upright box around its 8 corners, yaw_deg, k, tilt_deg); k = local axis closest to vertical,
+    tilt = its angle from world Z; yaw = `heading` (local X, else local Y), turned to the minimum-area rectangle of the
+    projected corners when that is smaller (`min_area_yaw`, so within 45 deg of the heading)."""
+    R, size = np.asarray(R, dtype=float), np.asarray(size, dtype=float)
+    k = int(np.argmax(np.abs(R[2])))
+    corners = np.array(list(itertools.product((-0.5, 0.5), repeat=3))) * size @ R.T
+    yaw = min_area_yaw(corners[:, :2], heading(R))
     D = np.array([[math.cos(yaw), math.sin(yaw), 0], [-math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])   # u, v, z
-    ext = np.abs(D @ R) @ np.asarray(size, dtype=float)      # max - min of the (origin-symmetric) corners along u, v, z
+    ext = np.abs(D @ R) @ size                               # max - min of the (origin-symmetric) corners along u, v, z
     return ext.tolist(), math.degrees(yaw), k, math.degrees(math.acos(min(1.0, abs(R[2, k]))))
 
 
 def canon(f):
     """Exported furniture -> same dict with an upright {x:0,y:0,z:yaw} rotation and permuted sizes when the box is
-    upright within tolerance; otherwise its yaw-aligned bounding box (`tilted_bbox`) with {x:None,y:None,z:yaw}
+    upright within tolerance; otherwise its minimum-area upright box (`tilted_bbox`) with {x:None,y:None,z:yaw}
     (convert_room flags it tilted) and "tilt_deg". The centre is unchanged either way."""
     b = f["source_fields"]["bbox"]
     if max(b[3:6]) > MAX_SIZE_M:                 # corrupt box (2 Gen beds are 1910 m / 803014 m tall)

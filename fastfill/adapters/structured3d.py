@@ -15,16 +15,25 @@ room_type 'undefined' -> None.
 Boundary = floor polygon traced from annotation_3d junctions/lines.
 Doors/windows: room_context.doors/windows (same room frame, position = opening centre on the wall centreline,
 ~0.1 m outside the floor polygon; width, height, no direction/thickness) -> structure boxes, see `openings`.
+Room membership: the export gives a room every object, door and window whose centre lies within 0.5 m of it when the
+centre is in no room (assignment_method "nearest"). Such objects (13,921 of 13,977 nearest-assigned have their centre
+outside the room; e.g. 00275_room_606054 bbox 20, a 4.76 x 0.00 x 4.40 m "table" poking 1.02 m) are dropped, and a door
+or window is kept only if the official topology links it to the room's walls (`topology_links`: 175 of 42,569 doors and
+408 of 23,138 windows are not, e.g. 01827_room_549 door semantic 15 of rooms 474 / 187); both counted in meta.
 """
+import json
 import math
 import os
+import tarfile
 
 import numpy as np
+from shapely.geometry import Point, Polygon
 
 from fastfill.adapters.internscenes import tilted_bbox
 from fastfill.adapters.unified import convert_room, iter_records
 
 SOURCE = "Structured3D"
+DIR = "imChuling__3D_Room_Collections/Structured3D_exported"
 
 
 def _furniture(o):
@@ -57,14 +66,17 @@ def _edge_deg(poly, x, y):
     return math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
 
 
-def openings(rc, objs):
+def openings(rc, objs, linked=None):
     """room_context doors/windows -> (structure furniture, objs without the boxes they replace). Box = [width along
     the wall, OPENING_T, height] centred at the given position (z = centre -> bottom = sill), yaw = nearest floor
     edge. ~15% of openings already carry an object box (unknown / otherstructure, same centre and size): that box is
-    replaced by the labelled opening instead of duplicated."""
+    replaced by the labelled opening instead of duplicated. linked (a set of source_semantic_id): only those
+    openings are kept; ids keep the source index."""
     out, dup = [], set()
     for kind in ("door", "window"):
         for k, d in enumerate(rc.get(kind + "s") or []):
+            if linked is not None and d.get("source_semantic_id") not in linked:
+                continue
             p, wh = d["position"], sorted([d["width"], d["height"]])
             for i, o in enumerate(objs):
                 q, ext = o["position"], sorted(2 * abs(c) / 1000 for c in o["raw_coeffs"])[1:]
@@ -78,9 +90,38 @@ def openings(rc, objs):
     return out, [o for i, o in enumerate(objs) if i not in dup]
 
 
-def convert(rec):
+def topology_links(path):
+    """structure_topology.tar.gz (the official annotation_3d per scene) -> {(scene id, room id): ids of the doors /
+    windows whose planes share a line with one of the room's wall planes}."""
+    out = {}
+    with tarfile.open(path) as t:
+        for m in t:
+            if not (m.isfile() and m.name.endswith(".json")) or m.name.rsplit("/", 1)[-1].startswith("._"):
+                continue
+            d = json.load(t.extractfile(m))
+            a = d["annotation_3d"]
+            pl = np.asarray(a["planeLineMatrix"], dtype=bool)
+            ops = {e["ID"]: pl[e["planeID"]].any(axis=0) for e in a["semantics"] if e["type"] in ("door", "window")}
+            for e in a["semantics"]:
+                if e["type"] not in ("door", "window"):
+                    walls = pl[[p for p in e["planeID"] if a["planes"][p]["type"] == "wall"]].any(axis=0)
+                    out[(d["scene_id"], str(e["ID"]))] = {i for i, ln in ops.items() if (ln & walls).any()}
+    return out
+
+
+def convert(rec, links=None):
+    """Export record -> IR room, without the nearest-assigned objects whose centre is outside the room (module doc).
+    links (topology_links): keep only the doors / windows the official topology puts on this room's walls; None keeps
+    all."""
     rc, prov = rec["room_context"], rec["provenance"]
-    ops, objs = openings(rc, rec["layout"]["floor_layout"]["objects"])
+    linked = None if links is None else links.get((prov["source_house_id"], str(rc["room_id"])), set())
+    n_unlinked = 0 if linked is None else sum(d.get("source_semantic_id") not in linked
+                                              for k in ("doors", "windows") for d in rc.get(k) or [])
+    floor = Polygon(rc["floor_polygon"])
+    objs = [o for o in rec["layout"]["floor_layout"]["objects"] if o.get("assignment_method") != "nearest"
+            or floor.covers(Point(o["position"]["x"], o["position"]["y"]))]
+    n_outside = len(rec["layout"]["floor_layout"]["objects"]) - len(objs)
+    ops, objs = openings(rc, objs, linked)
     room = {"room_id": rc["room_id"], "room_type": None if rc["room_type"] == "undefined" else rc["room_type"],
             "room_boundary": rc["floor_polygon"], "room_height": rc["ceiling_height_m"],
             "furniture": [_furniture(o) for o in objs] + ops}
@@ -91,13 +132,14 @@ def convert(rec):
                          **({"front_known": False} if f.get("front_known") is False else {})},
                         meta={"front_known": True, "room_origin_house_m": rec["room_origin_house_m"],
                               "n_nearest_assigned": sum(o.get("assignment_method") == "nearest" for o in objs),
+                              "n_nearest_outside_dropped": n_outside, "n_openings_unlinked_dropped": n_unlinked,
                               "n_unknown_category": sum(o["category"] == "unknown" for o in objs)})
 
 
 def load(root):
-    path = os.path.join(root, "imChuling__3D_Room_Collections/Structured3D_exported/structured3d.jsonl")
-    for rec in iter_records(path):
-        yield convert(rec)
+    links = topology_links(os.path.join(root, DIR, "structure_topology.tar.gz"))
+    for rec in iter_records(os.path.join(root, DIR, "structured3d.jsonl")):
+        yield convert(rec, links)
 
 
 if __name__ == "__main__":

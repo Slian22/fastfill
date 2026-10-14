@@ -19,7 +19,7 @@ Boxes whose top face is shifted from the bottom face or whose bottom is not leve
 through internscenes.upright / tilted_bbox as internscenes.canon does, with local X = c0 - c1 (front), Y = c2 - c1,
 Z = c4 - c0: 3,704 are upright boxes with permuted axes (corners 0-3 on a side face: strip lights, wall panels,
 lying boxes) and 33 lean < 5 deg, re-expressed as yaw-only boxes (yaw = heading of local X); the other 3,618 (cigars
-racked at 30 deg, leaning books, storage racks) become the yaw-aligned bounding box of their 8 corners, tilted
+racked at 30 deg, leaning books, storage racks) become the minimum-area upright box around their 8 corners, tilted
 (rotation x/y None) with "tilt_deg". Bottom = box centre - height / 2. When local X is the (near-)vertical axis (2,683
 boxes: vents, ceiling mouldings, wall designs, lying food boxes) yaw is the heading of local Y and front_known=False:
 the front points up or down, so the source gives no horizontal front.
@@ -92,7 +92,7 @@ def _pose(f):
 
 def _upright(f, c):
     """8 corners (array 8x3) of a box whose bottom face is not level -> the upright box (permuted axes) or the
-    yaw-aligned bounding box of the corners (tilted: rotation x/y None, "tilt_deg"), as internscenes.canon."""
+    minimum-area upright box around the corners (tilted: rotation x/y None, "tilt_deg"), as internscenes.canon."""
     e = np.array([c[0] - c[1], c[2] - c[1], c[4] - c[0]]).T          # local X (front), Y, Z edges as columns
     size = np.linalg.norm(e, axis=0)
     R = e / np.maximum(size, 1e-12)

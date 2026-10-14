@@ -4,13 +4,17 @@ Each module in this package defines
     SOURCE = "<name>"            # output file name <name>.jsonl
     def load(root) -> iterable   # yields IR room dicts; root = download dir of fastfill.download
 
-    python -m fastfill.adapters --root /Volumes/harddisk/3D_Room_Collections --out /Volumes/harddisk/fastfill_ir [--only IL3D]
+    python -m fastfill.adapters --root /Volumes/harddisk/3D_Room_Collections --out /Volumes/harddisk/fastfill_ir_v3.4 [--only IL3D]
+
+Never overwrites: /Volumes/harddisk/fastfill_ir is the frozen v3.2/v3.3 IR, so an --out that already holds
+<name>.jsonl for a selected source is refused before anything is written.
 """
 import argparse
 import importlib
 import json
 import os
 import pkgutil
+import sys
 
 
 def registry():
@@ -30,10 +34,12 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--only", nargs="*", default=None)
     a = ap.parse_args()
+    mods = {n: m for n, m in sorted(registry().items()) if not a.only or n in a.only}
+    taken = [f"{a.out}/{n}.jsonl" for n in mods if os.path.exists(f"{a.out}/{n}.jsonl")]
+    if taken:
+        sys.exit(f"refusing to overwrite existing IR (frozen releases live there); use a new --out: {taken}")
     os.makedirs(a.out, exist_ok=True)
-    for name, mod in sorted(registry().items()):
-        if a.only and name not in a.only:
-            continue
+    for name, mod in mods.items():
         n = 0
         tmp = f"{a.out}/{name}.jsonl.tmp"
         try:

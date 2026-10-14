@@ -7,7 +7,10 @@ Verified conventions (scratch checks against IL3D's own USDZ meshes and the 3D-F
 - size: the layout `bbox` is NOT usable as-is: for int-scale placements it is [x, z, y] of the mesh, otherwise
   [x, y, z] unscaled, and the IL3D export reads it as [w, h, l] for all. assets.json meta_data width/length/height
   equal the mesh extents along x / y(up) / z for all sampled assets, and the official USD script applies `scale` in
-  the asset frame, so the placed local extents are meta x |scale|.
+  the asset frame, so the placed local extents are meta x |scale|. Except where the assets.json extents are wrong
+  (165 assets, some unit-cube normalised; the layout bbox there equals the 3D-FRONT size): the bbox, read in the
+  order above, gives the size (`checked_size`, object flag size_from_bbox). That order holds for 102,092 of 104,176
+  int-scale and 29,035 of 31,046 other placements where both sources agree and length / height differ by > 10 cm.
 - rotation: the export's furniture_rotation.z = yaw of mesh +X (from the full rotateXYZ matrix; tilted -> x/y null).
   3D-FUTURE meshes face +Z (y-up) = IR local -Y, hence front_offset_deg = -90. Only x-mirrors (scale x < 0) occur,
   which do not flip the front.
@@ -15,7 +18,7 @@ Verified conventions (scratch checks against IL3D's own USDZ meshes and the 3D-F
   (source_fields.rotation_matrix_zup; = the raw 3D-FRONT quaternion within 0.014 for all 76, IL3D rounds to whole
   degrees), local X / Y / Z = mesh x / -z / y(up) = placed_size's width / length / height, origin = bottom centre.
   `untilt` turns them into upright boxes by the internscenes.canon rules (see there): 44 (tilt p10/p50/p90 7/11/31
-  deg) become the yaw-aligned bounding box of their 8 corners (flagged tilted, tilt_deg), 32 (22 lying on a side, 10
+  deg) become the minimum-area upright box around their 8 corners (flagged tilted, tilt_deg), 32 (22 lying on a side, 10
   tilted <= 3 deg) the exact box with permuted sizes; the 2 z-null ones (a 1 mm beam) no longer make 2 rooms incomplete.
 - rooms: IL3D groups a house's objects by room TYPE, so 1,300 IL3D "rooms" merge objects of 2-10 source rooms
   (e.g. three bedrooms in one), and its single floor rectangle may belong to yet another room. Every IL3D object is
@@ -73,6 +76,7 @@ OPENING_PLANE_TOL = 1e-5  # source export's Window/WallInner plane matching tole
 OPENING_ROUND_TOL = 2e-5  # export rounds coordinates and widths to five decimals (<= 5e-6 each): a span of two
 #                           rounded points vs the rounded width differs by < 1.92e-5 without a real change
 OPENING_AXIS_TOL = 1e-12  # normalized cross product: keep the exact prior angle on the same wall axis
+SIZE_TOL = 0.10       # assets.json extents this far from the layout bbox are the asset's error (checked_size)
 
 SOURCE = "IL3D_3dfront"
 IL3D = "imChuling__3D_Room_Collections/IL3D_exported"
@@ -94,6 +98,30 @@ def placed_size(f, asset):
     return {"width": m["width"] * abs(s[0]), "length": m["height"] * abs(s[2]), "height": m["length"] * abs(s[1])}
 
 
+def bbox_size(f):
+    """placed_size from the layout bbox: the unscaled mesh [x, z, y(up)] for integer scales, else [x, y(up), z] (module
+    doc); None if malformed."""
+    lo = f["source_fields"]["layout_object"]
+    b, s = lo.get("bbox"), lo.get("scale")
+    if not (b and s and len(b) == 3 and len(s) == 3 and all(isinstance(v, (int, float)) for v in (*b, *s))):
+        return None
+    x, up, z = (b[0], b[2], b[1]) if all(float(v).is_integer() for v in s) else b
+    return {"width": x * abs(s[0]), "length": z * abs(s[2]), "height": up * abs(s[1])}
+
+
+def checked_size(f, asset):
+    """(size, from_bbox): placed_size, or bbox_size where the assets.json extents are wrong: their sorted extents and
+    the layout bbox's (both unscaled) differ by > SIZE_TOL (2,141 placements of 165 assets; on all 35 audited ones the
+    3D-FRONT size equals the bbox, never assets.json). E.g. Dining Chair 6914bc9b, a unit-cube normalised mesh:
+    2.0 x 1.94 x 2.0 m in assets.json, 0.48 x 0.75 x 0.50 m in its bbox and in 3D-FRONT."""
+    size, bb = placed_size(f, asset), bbox_size(f)
+    if size and bb:
+        m, b = asset["meta_data"], f["source_fields"]["layout_object"]["bbox"]
+        if max(abs(u - v) for u, v in zip(sorted((m["width"], m["length"], m["height"])), sorted(b))) > SIZE_TOL:
+            return bb, True
+    return size, False
+
+
 def flag_anchor(f):
     fl = {k for k, v in (f.get("placement_flags") or {}).items() if v}
     z = (f.get("furniture_position") or {}).get("z")
@@ -112,13 +140,14 @@ def il3d_extra(f):
     if f.get("structure"):
         return {"structure": True, **({"listed_on": f["listed_on"]} if f.get("listed_on") else {})}
     return {"anchor": flag_anchor(f), "desc": f.get("description"),
-            **({"tilt_deg": f["tilt_deg"]} if "tilt_deg" in f else {})}
+            **({"tilt_deg": f["tilt_deg"]} if "tilt_deg" in f else {}),
+            **({"size_from_bbox": True} if f.get("size_from_bbox") else {})}
 
 
 def untilt(f):
     """Tilted placement (rotation x/y null) -> the same dict as an upright box (module doc for the matrix): a local axis
     within internscenes.TILT_TOL_DEG of vertical -> the exact box with permuted sizes, rotation {0, 0, yaw}; otherwise
-    the yaw-aligned bounding box of its 8 corners, rotation {None, None, yaw} (convert_room flags it tilted) and
+    the minimum-area upright box around its 8 corners, rotation {None, None, yaw} (convert_room flags it tilted) and
     tilt_deg. The box centre is kept; position = the new box's bottom centre."""
     r, p, s = f.get("furniture_rotation") or {}, f.get("furniture_position"), f.get("furniture_size")
     R = f["source_fields"].get("rotation_matrix_zup")
@@ -358,7 +387,7 @@ def load(root):
                 # pianos ...) the asset's own assets.json meta_data category
                 f["furniture_category"] = (f.get("asset_category") or ((a or {}).get("meta_data") or {}).get("category")
                                            or f.get("furniture_category"))
-                f["furniture_size"] = placed_size(f, a)
+                f["furniture_size"], f["size_from_bbox"] = checked_size(f, a)
                 furniture.append(f)
             rooms = exp.get(house, [])
             shift, parts, rest = split_by_source_room(furniture, rooms, sf.get("original_roomId"))
@@ -389,7 +418,9 @@ def load(root):
                                         "boundary_from": "3dfront_floor_mesh_polygon" if poly else "3dfront_export_floor_hull",
                                         "front_known": True, "n_openings": len(ops), "n_openings_skipped": n_skip,
                                         "n_doors_listed_on_neighbour": sum("listed_on" in o for o in ops),
-                                        "size_from": "assets.json mesh extents x layout scale"})
+                                        "size_from": "assets.json mesh extents x layout scale, layout bbox where "
+                                                     "they disagree (checked_size)",
+                                        "n_size_from_bbox": sum(bool(f.get("size_from_bbox")) for f in fl)})
                 if len(parts) > 1 and rest:  # objects whose source room is unknown: the split rooms are incomplete
                     ir["meta"]["n_incomplete"] += len(rest)
                 yield ir
