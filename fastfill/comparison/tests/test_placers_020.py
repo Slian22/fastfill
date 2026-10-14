@@ -376,6 +376,15 @@ def test_gpu_budget_charges_sizers_and_earlier_placer_jobs(tmp_path, monkeypatch
         pl.budget(30, 14, [], [tmp_path / 'missing'], run=receipt_only)
     with pytest.raises(ValueError, match='does not know'):
         pl.budget(30, 14, ['9999'], [], run=run)
+    # A job pending on a dependency is missed by the -S window; budget asks sacct for it by id.
+    window = [x for x in SACCT_LINES if not x.startswith('8005|')]
+    byid = [x for x in SACCT_LINES if x.startswith('8005|')]
+    seen = []
+    def pending(argv, **kw):
+        seen.append(argv)
+        return SimpleNamespace(stdout='\n'.join(byid if '-j' in argv else window) + '\n')
+    assert pl.budget(30, 14, ['8005'], [sizes], run=pending)['total_gpu_h'] == 21.5
+    assert seen[1][:6] == ['sacct', '-X', '-n', '-P', '-j', '8005'] and seen[1][6:] == list(pl.SACCT[2:])
 
 
 # ---- submit_020_placers.sh -----------------------------------------------------------------------------------------

@@ -382,6 +382,10 @@ def gpu_hours(lines, jobs, prefixes=(PLACERS, SIZERS)):
 def budget(cap, planned, jobs=(), sizes=(), run=subprocess.run):
     done = run(['sacct', '-X', '-n', '-P', '-u', os.environ['USER'], *SACCT], capture_output=True, text=True, check=True)
     charged = gpu_hours([x for x in done.stdout.splitlines() if x.strip()], set(jobs))
+    if set(jobs) - set(charged):  # A job pending on a dependency has no eligible time, so the -S window misses it.
+        more = run(['sacct', '-X', '-n', '-P', '-j', ','.join(sorted(set(jobs) - set(charged))), *SACCT[2:]],
+                   capture_output=True, text=True, check=True)
+        charged.update(gpu_hours([x for x in more.stdout.splitlines() if x.strip()], set(jobs)))
     if set(jobs) - set(charged):
         raise ValueError(f'sacct does not know the jobs {sorted(set(jobs) - set(charged))}')
     receipts = {str(d): float(json.loads((Path(d) / 'result.json').read_text()).get('gpu_hours') or 0) for d in sizes
