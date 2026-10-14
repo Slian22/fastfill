@@ -33,7 +33,7 @@ PYTHON="$PROJECT_ROOT/env/bin/python"
 S="$CODE_ROOT/fastfill/comparison"
 PLAN="$RUN/distill-018/plan"
 PILOT="$RUN/llm-open-O2-P-pilot-001"
-CAP_MINUTES=3000  # 50 GPU-h (amendment 018 addendum A)
+CAP_MINUTES=4320  # 72 GPU-h ceiling (amendment 018 addendum B)
 fail() { echo "ABORT: $*; nothing submitted" >&2; exit 1; }
 OUTS=(distill-018/plan distill-018/teacher)
 for ((k = 0; k < SHARDS; k++)); do OUTS+=("llm-open-O2-T018-s$(printf %02d "$k")-001"); done
@@ -72,7 +72,7 @@ print(value["minutes"], json.dumps(value))' "$PILOT" "$RUN/eval-data-v1" "$RUN/d
 MINUTES="${ESTIMATE%% *}"
 CEILING=$((SHARDS * MINUTES * GPUS))
 test "$CEILING" -le "$CAP_MINUTES" \
-  || fail "GPU ceiling $CEILING GPU-minutes ($SHARDS shards x $MINUTES min x $GPUS GPUs) exceeds the 50 GPU-h teacher cap (user decision: raise the cap or shrink T-B; estimate ${ESTIMATE#* })"
+  || fail "GPU ceiling $CEILING GPU-minutes ($SHARDS shards x $MINUTES min x $GPUS GPUs) exceeds the 72 GPU-h teacher cap (user decision: raise the cap or shrink T-B; estimate ${ESTIMATE#* })"
 TIME=$(printf '%02d:%02d:00' $((MINUTES / 60)) $((MINUTES % 60)))
 SUBMITTED=""
 submit() {  # submit LABEL SBATCH_ARGS...; sets ID. set -e does not reach $(...), so check here.

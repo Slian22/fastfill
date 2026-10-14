@@ -104,8 +104,10 @@ def test_plan_builds_ta_tb_tc_deterministically_disjoint_and_refuses_leaks(teach
     ta = h.strict_json((w.ta / 'MANIFEST.json').read_text())['expected_uids']
     positives = set(d.load_positives(w.positives)[0]['uids'])
     assert sets['T-A'] == ta and len(sets['T-B']) == 6
-    # 14 pool rooms; after T-B the > 50 bin cannot fill T-C's spilled quota: the densest bin's rest is the shortfall.
-    assert len(sets['T-C']) == 5 and manifest['selection']['T-C']['shortfall'] == 1
+    # 14 pool rooms; T-B (weights 7:2:0, addendum B) takes no > 50 room, so T-C fills.
+    assert len(sets['T-C']) == 6 and manifest['selection']['T-C']['shortfall'] == 0
+    assert ds.bin_quotas(4500, ds.TB_WEIGHTS) == dict(zip(ds.BINS, (3500, 1000, 0)))
+    assert ds.bin_quotas(3000) == dict(zip(ds.BINS, (1000, 1000, 1000))) and ds.bin_quotas(7) == dict(zip(ds.BINS, (3, 2, 2)))
     assert not (set(ta) & set(sets['T-B']) or set(ta) & set(sets['T-C']) or set(sets['T-B']) & set(sets['T-C']))
     assert not positives & set(manifest['expected_uids']) and 'x7' not in manifest['expected_uids']  # x7: not admitted.
     assert manifest['expected_uids'] == sorted([*ta, *sets['T-B'], *sets['T-C']]) == plan['cohort']['uids']
@@ -113,10 +115,11 @@ def test_plan_builds_ta_tb_tc_deterministically_disjoint_and_refuses_leaks(teach
     rooms = {r['uid']: r for r in ROOMS}
     cells = {u: (ds.bin_of(len(rooms[u]['objects'])), rooms[u]['source']) for u in D.ADMITTED}
     pool = {u: c for u, c in cells.items() if u not in positives | set(ta)}
-    assert (sets['T-B'], manifest['selection']['T-B']) == ds.draw(pool, 6, 'a018-distill:')
+    assert (sets['T-B'], manifest['selection']['T-B']) == ds.draw(pool, 6, 'a018-distill:', ds.TB_WEIGHTS)
     rest = {u: c for u, c in pool.items() if u not in set(sets['T-B'])}
     assert (sets['T-C'], manifest['selection']['T-C']) == ds.draw(rest, 6, 'a018-dpo2:')
-    assert [sum(cells[u][0] == b for u in sets['T-B']) for b in ds.BINS] == [2, 2, 2]
+    assert ds.draw(rest, len(rest) + 2, 'a018-dpo2:')[1]['shortfall'] == 2  # The densest bin's rest is the shortfall.
+    assert [sum(cells[u][0] == b for u in sets['T-B']) for b in ds.BINS] == [5, 1, 0]
     # The layout is the amendment-013 subset's: T-A rows are byte-identical to dpo-004/train-subset's.
     for name in ('joint/requests.jsonl', 'placement/requests.jsonl', 'rooms.jsonl', 'size-estimates.jsonl'):
         mine = [x for x in (out / name).read_text().splitlines() if json.loads(x)['uid'] in set(ta)]
@@ -437,27 +440,27 @@ def test_submit_018_teacher_chain_runs_shards_side_by_side_under_the_gpu_cap(tmp
     assert f'distill_018 plan --data {run}/main-data-v1 --sft-runs {run}/sft-joint-001 {run}/sft-placement-001 ' in log[0]
     assert f'--exclude {run}/dpo-001/positives --ta {run}/dpo-004/train-subset ' in log[0]
     # Pilot: 0.0015 s per output token, mean 1,000 / 3,000 / 6,000 tokens per room by bin, load 310 s. Teacher bins
-    # 3,667 / 2,267 / 2,066 (T-A + T-B thirds) -> at most 459 / 284 / 259 per shard: 1.5 x (310 + 4,297.5) / 60 =
-    # 115.2 -> 116 minutes on O2's 2 GPUs (the pilot's flat 2.55 s per room would have given 72).
+    # 5,500 / 1,600 / 400 (T-A + T-B at 7:2:0, addendum B) -> at most 688 / 200 / 50 per shard: 1.5 x (310 + 2,382) /
+    # 60 = 67.3 -> 68 minutes on O2's 2 GPUs.
     flags = O.slurm_flags('O2', 'full').rsplit(' --time=', 1)[0]
     for k, line in enumerate(log[1:9]):
         assert line == (f'--parsable --kill-on-invalid-dep=yes --dependency=afterok:101 --job-name=unknownsize-018-teacher '
-                        f'{flags} --time=01:56:00 {SCRIPTS}/isambard_llm_open.sbatch {CODE} O2 t018 s{k:02d}')
+                        f'{flags} --time=01:08:00 {SCRIPTS}/isambard_llm_open.sbatch {CODE} O2 t018 s{k:02d}')
         assert 'singleton' not in line
     assert '--dependency=afterok:102:103:104:105:106:107:108:109 ' in log[9] and '--job-name=unknownsize-018-filter' in log[9]
     assert log[9].endswith(f'distill_018 teacher --plan {plan} --run-root {run} --reference '
                            f'{run}/llm-open-O2-P-pilot-001 --out {run}/distill-018/teacher --workers 32')
     assert (tmp_path / 'bin/scontrol.log').read_text() == 'release 101\n'
-    assert 'released 101 (GPU ceiling 1856 GPU-minutes: 8 shards x 01:56:00 x 2 GPUs)' in out.stdout
+    assert 'released 101 (GPU ceiling 1088 GPU-minutes: 8 shards x 01:08:00 x 2 GPUs)' in out.stdout
     basis = json.loads(out.stdout.split('time estimate: ', 1)[1].splitlines()[0])
-    assert basis['teacher_rooms'] == dict(zip(ds.BINS, (3667, 2267, 2066))) and basis['minutes'] == 116
+    assert basis['teacher_rooms'] == dict(zip(ds.BINS, (5500, 1600, 400))) and basis['minutes'] == 68
     assert basis['pilot_rooms'] == dict(zip(ds.BINS, (8, 1, 1))) and basis['load_seconds'] == 310
     assert 'then the filter: sbatch --dependency=afterok:SHARD_JOB --account=brics.u6uv' in out.stdout
     assert '--workers 32"' in out.stdout and log[9].endswith('--workers 32')
     (tmp_path / 'bin/log').unlink()
     subprocess.run(['bash', str(script), str(CODE), '4'], env=env, capture_output=True, check=True)
-    log = (tmp_path / 'bin/log').read_text().splitlines()  # 917 / 567 / 517: 1.5 x (310 + 8,580) / 60 -> 223 min.
-    assert len(log) == 6 and all('--time=03:43:00' in line for line in log[1:5]) and log[4].endswith('O2 t018 s03')
+    log = (tmp_path / 'bin/log').read_text().splitlines()  # 1,375 / 400 / 100: 1.5 x (310 + 4,762.5) / 60 -> 127 min.
+    assert len(log) == 6 and all('--time=02:07:00' in line for line in log[1:5]) and log[4].endswith('O2 t018 s03')
     (tmp_path / 'bin/log').unlink()
     bad = subprocess.run(['bash', str(script), str(CODE)], env={**env, 'FAIL_ON': '4'}, capture_output=True, text=True)
     assert bad.returncode == 1 and 'scancel 101 102 103' in bad.stderr
@@ -465,11 +468,11 @@ def test_submit_018_teacher_chain_runs_shards_side_by_side_under_the_gpu_cap(tmp
 
 
 def test_submit_018_teacher_refuses_the_gpu_cap_outputs_queued_jobs_inputs_and_old_code(tmp_path):
-    script, run, env = submit_world(tmp_path, generation=45, wall=355)
-    # 1.5 x (310 + 7,583.8) / 60 -> 198 min; 8 x 198 x 2 = 3,168 > 3,000 GPU-minutes (the 50 GPU-h cap of amendment 018
-    # addendum A).
+    script, run, env = submit_world(tmp_path, generation=120, wall=430)
+    # 1.5 x (310 + 11,209.4) / 60 -> 288 min; 8 x 288 x 2 = 4,608 > 4,320 GPU-minutes (the 72 GPU-h ceiling cap of
+    # amendment 018 addendum B).
     bad = subprocess.run(['bash', str(script), str(CODE)], env=env, capture_output=True, text=True)
-    assert bad.returncode == 1 and 'GPU ceiling 3168 GPU-minutes (8 shards x 198 min x 2 GPUs) exceeds' in bad.stderr
+    assert bad.returncode == 1 and 'GPU ceiling 4608 GPU-minutes (8 shards x 288 min x 2 GPUs) exceeds' in bad.stderr
     assert 'raise the cap or shrink T-B' in bad.stderr
     assert 'nothing submitted' in bad.stderr and not (tmp_path / 'bin/log').exists()
     script, run, env = submit_world(tmp_path / 'ok')

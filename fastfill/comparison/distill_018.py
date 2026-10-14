@@ -4,14 +4,14 @@ python -m fastfill.comparison.distill_018 STEP ...   (teacher chain: submit_018_
 
 plan     --data RUN/main-data-v1 --sft-runs SFT_J SFT_P --exclude RUN/dpo-001/positives --ta RUN/dpo-004/train-subset
          --dev RUN/dev-select-v1 RUN/dev-full-v1 --test RUN/eval-data-v1 --out RUN/distill-018/plan
-         [--tb 5000] [--tc 3000] [--shards 8]
+         [--tb 4500] [--tc 3000] [--shards 8]
     Section 1 rooms. T-A = the amendment-013 train subset exactly: its manifest verifies (scope op_dpo2_train_subset,
     same main data) and its request / room / prior files and SFT prompt token counts equal the ones rebuilt here.
     Pool = the SFT common length-admitted train UIDs (dpo_stages._admitted) minus the 2,200 dpo-001 positives minus
     T-A, as onpolicy_dpo subset defines it; a pool or T-A UID or house group in any dev / test expected_uids /
     rooms.jsonl raises (onpolicy_dpo._held_out). T-B = draw(pool, --tb, 'a018-distill:'), then T-C = draw(pool - T-B,
-    --tc, 'a018-dpo2:'): n // 3 rooms per scale_curve.BINS object-count bin (<= 20, 21-50, > 50; the first n % 3 bins
-    take one more), a bin short of its quota passes the rest to the next denser bin (the densest bin's rest is the
+    --tc, 'a018-dpo2:'): T-B splits n over scale_curve.BINS (<= 20, 21-50, > 50) as TB_WEIGHTS 7:2:0 (addendum B), T-C
+    as n // 3 per bin (the first n % 3 bins take one more), both by bin_quotas, a bin short of its quota passes the rest to the next denser bin (the densest bin's rest is the
     recorded shortfall); within a bin quotas proportional to source (largest remainder, ties by source name), rooms by
     ascending sha256(salt + uid), uid tie-break. Written new-only in onpolicy_dpo subset's layout (split train, so
     infer.load_eval, llm_open and sample_vllm read it unchanged) for T-A + T-B + T-C: per arm requests.jsonl (the SFT
@@ -70,7 +70,8 @@ from fastfill.comparison.corpus import _publish
 
 ARMS, ARM, SYSTEM = h.ARMS, 'placement', 'O2'
 SALTS = {'T-B': 'a018-distill:', 'T-C': 'a018-dpo2:'}
-ROOMS = {'T-B': 5000, 'T-C': 3000}
+ROOMS = {'T-B': 4500, 'T-C': 3000}
+TB_WEIGHTS = (7, 2, 0)  # Addendum B: T-B = 3,500 / 1,000 / 0 rooms in BINS order (none with > 50 objects).
 SHARDS = 8
 SCOPE, PROTOCOL = 'distill_018_plan', 'amendment-018-teacher-v1'
 BINS = tuple(name for name, _, _ in sc.BINS)
@@ -126,14 +127,19 @@ def _proportional(cell, n, salt):
     return [u for s in sorted(quotas) for u in [x for x in ordered if cell[x] == s][:quotas[s]]], dict(sorted(quotas.items()))
 
 
-def bin_quotas(n):
-    """n // 3 rooms per object-count bin; the first n % 3 bins take one more."""
-    return {b: n // len(BINS) + (k < n % len(BINS)) for k, b in enumerate(BINS)}
+def bin_quotas(n, weights=(1, 1, 1)):
+    """n rooms split over the object-count bins in proportion to weights (largest remainder, ties by bin order);
+    equal weights give n // 3 per bin with the first n % 3 bins taking one more."""
+    share = [n * w / sum(weights) for w in weights]
+    out = [int(x) for x in share]
+    for k in sorted(range(len(BINS)), key=lambda k: (-(share[k] - out[k]), k))[:n - sum(out)]:
+        out[k] += 1
+    return dict(zip(BINS, out))
 
 
-def draw(pool, n, salt):
+def draw(pool, n, salt, weights=(1, 1, 1)):
     """pool {uid: (bin, source)} -> (sorted uids, info); pure and input-order independent (module docstring)."""
-    quotas = bin_quotas(n)
+    quotas = bin_quotas(n, weights)
     carry, uids, bins = 0, [], {}
     for b in BINS:
         cell = {u: source for u, (bb, source) in pool.items() if bb == b}
@@ -209,7 +215,7 @@ def plan(args):
                                                    for uids, groups, _ in held.values()))
     if leaked:
         raise ValueError(f'{len(leaked)} plan rooms share a UID or house group with dev/test: {leaked[:5]}')
-    tb, tb_info = draw(pool, args.tb, SALTS['T-B'])
+    tb, tb_info = draw(pool, args.tb, SALTS['T-B'], TB_WEIGHTS)
     taken = set(tb)
     tc, tc_info = draw({u: c for u, c in pool.items() if u not in taken}, args.tc, SALTS['T-C'])
     sets = {'T-A': sorted(ta), 'T-B': tb, 'T-C': tc, 'teacher': sorted([*ta, *tb])}
@@ -218,7 +224,7 @@ def plan(args):
         raise ValueError('T-A, T-B and T-C overlap')
     shards = shard_uids(sets['teacher'], cells, args.shards)
     rules = {'T-A': 'RUN/dpo-004/train-subset expected_uids (amendment 013)',
-             'T-B': f"draw(pool, {args.tb}, '{SALTS['T-B']}')", 'T-C': f"draw(pool - T-B, {args.tc}, '{SALTS['T-C']}')",
+             'T-B': f"draw(pool, {args.tb}, '{SALTS['T-B']}', weights {TB_WEIGHTS})", 'T-C': f"draw(pool - T-B, {args.tc}, '{SALTS['T-C']}')",
              'teacher': 'T-A + T-B'}
     selection = {'protocol': PROTOCOL, 'pool': {'length_admitted_train': len(admitted),
                                                 'excluded_positives': len(excluded & set(admitted)),
@@ -449,7 +455,7 @@ def teacher_minutes(pilot, pilot_data, ta, shards, tb=ROOMS['T-B']):
     per_token = cost['generation_seconds'] / sum(map(sum, tokens.values()))
     mean = {b: sum(v) / len(v) for b, v in tokens.items()}
     ta_bins = Counter(bin_of(n) for n in objects(Path(ta)).values())
-    need = {b: ta_bins[b] + q for b, q in bin_quotas(tb).items()}
+    need = {b: ta_bins[b] + q for b, q in bin_quotas(tb, TB_WEIGHTS).items()}
     shard = {b: -(-n // shards) for b, n in need.items()}
     load = cost['wall_seconds'] - cost['generation_seconds']
     return {'minutes': math.ceil(1.5 * (load + per_token * sum(shard[b] * mean[b] for b in BINS)) / 60),

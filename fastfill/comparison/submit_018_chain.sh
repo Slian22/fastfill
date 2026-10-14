@@ -43,7 +43,7 @@ PYTHON="$PROJECT_ROOT/env/bin/python"
 D18="$RUN_ROOT/distill-018"
 EVAL="$RUN_ROOT/dev-eval-018"
 S="$CODE_ROOT/fastfill/comparison"
-CAP=170 SAMPLES=4 N=2 TEST_CEILING=80  # TEST_CEILING: 6 x 1 x 12 test shards + 2 x 1 x 4 merged dev shards.
+CAP=190 SAMPLES=4 N=2 TEST_CEILING=80  # TEST_CEILING: 6 x 1 x 12 test shards + 2 x 1 x 4 merged dev shards.
 CANDS=(sft-d dpo1-d dpo2-d)
 for name in distill_018_chain.py onpolicy_dpo.py sample_vllm.py dpo_stages.py dev_select.py infer_shard.py \
     output_repair.py downstream.py isambard_018.sbatch isambard_infer_merge.sbatch; do

@@ -649,7 +649,7 @@ def test_submit_018_chain_dependencies_restart_gpu_cap_and_refusals(tmp_path):
     shard, J = '--gpus-per-node=1 --cpus-per-task=8 --mem=96G --time=04:00:00', 'isambard_018.sbatch CODE'
     done, log = submit(SACCT_OUT='unknownsize-018-teacher|36000|billing=72,gres/gpu=4\nunknownsize-016|360000|gres/gpu=4\n')
     assert done.returncode == 0, done.stderr
-    assert 'GPU-h: used 40.00 + ceiling 104 <= 170' in done.stdout  # Only unknownsize-018* jobs count.
+    assert 'GPU-h: used 40.00 + ceiling 104 <= 190' in done.stdout  # Only unknownsize-018* jobs count.
     assert log == [
         f'--parsable --hold {J} recheck',                                                            # 101
         f'{kill}101 {cpu} --time=04:00:00 {J} sft-data',                                              # 102
@@ -669,8 +669,8 @@ def test_submit_018_chain_dependencies_restart_gpu_cap_and_refusals(tmp_path):
         f'{kill}117:118 {J} dev-merge dpo2-d 2',                                                      # 119
         f'{kill}113:116:119 {J} dev-score', f'{kill}120 {J} select']
     assert (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101\n'
-    done, log = submit(SACCT_OUT='unknownsize-018-teacher|63000|gres/gpu=4\n')  # 70 + 104 > 170.
-    assert log == [] and done.returncode == 1 and 'GPU cap: used 70.00 + ceiling 104 > 170' in done.stderr
+    done, log = submit(SACCT_OUT='unknownsize-018-teacher|81000|gres/gpu=4\n')  # 90 + 104 > 190.
+    assert log == [] and done.returncode == 1 and 'GPU cap: used 90.00 + ceiling 104 > 190' in done.stderr
     # The teacher filter still running: sft-data waits on it, and its targets need not exist yet.
     for path in ('distill-018/teacher/MANIFEST.json', 'distill-018/teacher/targets.jsonl'):
         (run / path).unlink()
@@ -692,7 +692,7 @@ def test_submit_018_chain_dependencies_restart_gpu_cap_and_refusals(tmp_path):
     (run / 'dev-eval-018/sft-d/infer-placement/MANIFEST.json').write_text('{}')
     done, log = submit('train-dpo1')
     assert done.returncode == 0, done.stderr
-    assert 'GPU-h: used 0.00 + ceiling 72 <= 170' in done.stdout and 'skipped dev sft-d: merged' in done.stdout
+    assert 'GPU-h: used 0.00 + ceiling 72 <= 190' in done.stdout and 'skipped dev sft-d: merged' in done.stdout
     assert log == [  # Ids continue at 143: the held recheck root stands in for every skipped dependency.
         f'--parsable --hold {J} recheck', f'{kill}143 {train} {J} train dpo1-d',                     # 143, 144
         f'{kill}144 --gpus-per-node=1 --cpus-per-task=16 --mem=100G --time=02:00:00 --array=0-3 {J} sample 4',
@@ -747,8 +747,8 @@ def test_submit_018_chain_dependencies_restart_gpu_cap_and_refusals(tmp_path):
     done, log = submit('test')
     assert log == [] and done.returncode == 1 and 'no ' + str(run / 'dev-eval-018/selection.json') in done.stderr
     (run / 'dev-eval-018/selection.json').write_text('{}')
-    done, log = submit('test', SACCT_OUT='unknownsize-018|360000|gres/gpu=1\n')  # 100 + 80 > 170.
-    assert log == [] and done.returncode == 1 and 'GPU cap: used 100.00 + ceiling 80 > 170' in done.stderr
+    done, log = submit('test', SACCT_OUT='unknownsize-018|432000|gres/gpu=1\n')  # 120 + 80 > 190.
+    assert log == [] and done.returncode == 1 and 'GPU cap: used 120.00 + ceiling 80 > 190' in done.stderr
     done, log = submit('test', PYLOG=str(tmp_path / 'python.log'))
     eval_root = run / 'dev-eval-018'
     assert done.returncode == 0 and log == [] and (tmp_path / 'python.log').read_text().split() == [
