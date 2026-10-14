@@ -95,6 +95,25 @@ Each system keeps its own positions, yaw and support; only the sizes are replace
 
   This is why GT downstream acceptance is 0.295; the metric definition drives the absolute level.
 
+## Admission rule variants (amendment 017; cohort 1,454 rooms, from the S1 rows and GT recomputed with downstream.accept)
+
+Strict = our port (every category required, every door an entry); required = {} = no per-class reachability/collision (upper bound of the real infinite-task-world gate, whose required set is the task's named classes); one door changes almost nothing.
+
+| System | strict raw → S1 | required = {} raw → S1 | checker raw → S1 | B |
+|---|---|---|---|---|
+| GT | 0.448 | 0.758 | 0.725 | 0 |
+| P | 0.354 → 0.472 | 0.718 → 0.798 | 0.519 → 0.826 | −0.022 |
+| J | 0.234 → 0.372 | 0.688 → 0.786 | 0.431 → 0.797 | −0.048 |
+| L | 0.728 → 0.754 | 0.837 → 0.888 | 0.935 → 0.959 | −0.175 |
+| O2 harness | 0.723 → 0.752 | 0.812 → 0.865 | 0.928 → 0.947 | −0.311 |
+| O6 | 0.536 → 0.633 | 0.633 → 0.783 | 0.701 → 0.856 | −0.346 |
+| O4 | 0.479 → 0.597 | 0.620 → 0.765 | 0.687 → 0.862 | −0.296 |
+| O7 harness | 0.410 → 0.500 | 0.533 → 0.654 | 0.592 → 0.741 | −0.323 |
+| O3 harness | 0.159 → 0.223 | 0.257 → 0.325 | 0.241 → 0.350 | −0.450 |
+
+- Under the strict port even GT passes 0.448 here (0.295 on all test); the all-required assumption causes most GT refusals (all test: 0.295 → 0.605 with required = {}).
+- With required = {}, P + S1 (0.798) is above GT (0.758) and above O6/O4/O7 + S1; L and O2 stay higher but with 18–31 % smaller footprints (see size substitution).
+
 ## Why J/P fail the geometry gate (EXPLORATORY, all 8,647 rooms)
 
 - Gate failure J 0.612, P 0.610 vs GT 0.277. Shapley split of the gap: main (movable–movable) collisions ≈ 70 % (J 0.239, P 0.225 of 0.335), out-of-bounds 0.040 / 0.066, support/ceiling/incomplete 0.032 / 0.020, blocked fixed objects (≈ half doors) 0.024 / 0.022.
