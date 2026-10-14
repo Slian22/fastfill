@@ -27,6 +27,11 @@ train        --arm A --stage dpo1|dpo2 --dpo-root DPO   (4 GPUs, torchrun DDP; a
     stage with the official OptiScene README hyper-parameters (amendment 009: lr 5e-6, 10 epochs,
     LoRA r32 a16, effective batch 4 = 1 per device x 4 GPUs x accumulation 1), bound by
     v1_1.training_guard, then merged -> DPO/A/STAGE-merged (next stage's base, delivered artifact).
+train        --arm A --stage dpo1|dpo2 --dpo-root RUN/dpo-002|dpo-003 --candidate e1|rpo   (amendment 010)
+    regularised candidates: e1 = the amendment-009 recipe for 1 epoch (dpo-002); rpo = 3 epochs plus
+    rpo_alpha 1.0 x the chosen mean token NLL (dpo-003); both save the adapter every epoch. They reuse the
+    hash-verified dpo-001 stage1/stage2 pairs and dpo-001/A/sft-merged by reference (lineage receipts bind
+    their paths and hashes); dpo1 trains on dpo-001/A/sft-merged, dpo2 on the candidate's own dpo1-merged.
 copy-plan    --src RUN/infer-v2-002/plan --out RUN/infer-v2-003/plan RUN/infer-v2-004/plan
     byte-identical shared amendment-002 plan for the stage inference (infer_shard shard --model).
 
@@ -74,6 +79,9 @@ TRAIN_FIXED = {'world_size': WORLD_SIZE, 'effective_batch': WORLD_SIZE, 'launche
                'target_modules': 'q,k,v,o,gate,up,down_proj', 'scheduler': 'cosine, 5% warmup',
                'sampler': 'DistributedSampler: each epoch padded to a multiple of 4 by repeating pairs (as v1.1)',
                'loss': 'sigmoid DPO vs the frozen previous stage (adapter disabled)'}
+CANDIDATES = {'e1': ('dpo-002', {**RECIPE, 'epochs': 1, 'save_every_epoch': True}),  # Amendment 010.
+              'rpo': ('dpo-003', {**RECIPE, 'epochs': 3, 'rpo_alpha': 1.0, 'save_every_epoch': True})}
+SOURCE_RUN = 'dpo-001'  # Candidates' pairs and SFT merges, referenced with lineage, never copied.
 MERGE_PROTOCOL = 'amendment-008-merge-v1'
 CODE = ('comparison/dpo_stages.py', 'comparison/geometry.py', 'comparison/contract.py',
         'comparison/infer.py', 'comparison/train_pair_helpers.py', 'merge_lora.py',
@@ -157,7 +165,7 @@ def _gate(task):
             for arm in ARMS}
 
 
-def _admitted(runs, data):
+def _admitted(runs, data, split='train'):
     """The SFT common length admission, read from both completed runs (identical by construction)."""
     reports, digests = [], {}
     for arm, run in zip(ARMS, runs):
@@ -173,7 +181,7 @@ def _admitted(runs, data):
             raise ValueError(f'{arm} SFT run is not TRAINING_COMPLETE')
         if receipt['data']['manifest_sha256'] != data['manifest_sha256'] or receipt['config']['max_len'] != MAX_LEN:
             raise ValueError(f'{arm} SFT run used other data or another max length')
-        reports.append(h.strict_json((run / 'lengths.json').read_text())['train'])
+        reports.append(h.strict_json((run / 'lengths.json').read_text())[split])
         digests[arm] = inventory['lengths.json']
     if reports[0] != reports[1]:
         raise ValueError('SFT runs disagree on the common length admission')
@@ -661,15 +669,15 @@ def preflight(model, pairs, count):
         raise ValueError('train_dpo would drop pairs; refusing a partial-data DPO run')
 
 
-def _completion(out, count):
+def _completion(out, count, recipe=RECIPE):
     from fastfill.v1_1.evaluation_protocol import file_identity
     final = Path(out) / 'final'
     value = h.strict_json((final / 'completion.json').read_text())
-    batches = math.ceil(count / (RECIPE['bs'] * WORLD_SIZE))  # Per rank; DistributedSampler pads the last.
-    steps = RECIPE['epochs'] * math.ceil(batches / RECIPE['grad_accum'])
+    batches = math.ceil(count / (recipe['bs'] * WORLD_SIZE))  # Per rank; DistributedSampler pads the last.
+    steps = recipe['epochs'] * math.ceil(batches / recipe['grad_accum'])
     expected = {'kind': 'fastfill_v1.1_dpo_completion', 'admitted_pairs': count, 'loader_batches': batches,
-                'world_size': WORLD_SIZE, 'epochs': RECIPE['epochs'], 'expected_total_steps': steps,
-                'position': {'epoch': RECIPE['epochs'] - 1, 'it': batches - 1, 'step': steps},
+                'world_size': WORLD_SIZE, 'epochs': recipe['epochs'], 'expected_total_steps': steps,
+                'position': {'epoch': recipe['epochs'] - 1, 'it': batches - 1, 'step': steps},
                 'training_guard': file_identity(Path(out) / 'training_guard.json')}
     if (any(value.get(k) != v for k, v in expected.items()) or
             any(file_identity(final / n) != v for n, v in value['adapter_files'].items())):
@@ -677,35 +685,48 @@ def _completion(out, count):
     return {'sha256': h.sha256(final / 'completion.json'), 'steps': steps, 'admitted_pairs': count}
 
 
+def _flags(recipe):
+    """train_dpo arguments; switches (True) go last, after every --key value pair."""
+    values = [x for k, v in recipe.items() if not isinstance(v, bool) for x in ('--' + k, str(v))]
+    return values + ['--' + k for k, v in recipe.items() if v is True]
+
+
 def train(args):
     root, arm, stage = Path(args.dpo_root), args.arm, args.stage
+    candidate = getattr(args, 'candidate', None)
+    recipe, inputs = RECIPE, root
+    if candidate is not None:  # Amendment 010: fixed run directory per candidate, inputs from dpo-001.
+        run, recipe = CANDIDATES[candidate]
+        if root.name != run:
+            raise ValueError(f'candidate {candidate} trains in {run}, not {root.name}')
+        inputs = root.parent / SOURCE_RUN
     previous = STAGES[STAGES.index(stage) - 1]
-    parent = (root / arm / f'{previous}-merged').resolve()
+    parent = ((inputs if previous == 'sft' else root) / arm / f'{previous}-merged').resolve()
     out, merged = root / arm / stage, root / arm / f'{stage}-merged'
     if receipt_path(merged).exists():
         return verify_merged(merged, arm, stage)
     lineage = verify_merged(parent, arm, previous)
-    pairs_dir = root / PAIRS[stage]
+    pairs_dir = inputs / PAIRS[stage]
     files = _verified_dir(pairs_dir)
     pairs = (pairs_dir / f'{arm}.jsonl').resolve()
     count = len(h._rows(pairs_dir, pairs.name, files[pairs.name]))
     from fastfill import merge_lora
     from fastfill.v1_1 import train_dpo, training_guard
-    settings = {**RECIPE, **TRAIN_FIXED}
+    settings = {**recipe, **TRAIN_FIXED}
     training_guard.guard_training(parent, pairs, out, settings,
                                   [Path(train_dpo.__file__), Path(__file__), Path(merge_lora.__file__)])
     if not (out / 'final' / 'completion.json').exists():
         preflight(parent, pairs, count)
         command = [sys.executable, '-m', 'torch.distributed.run', '--standalone', f'--nproc_per_node={WORLD_SIZE}',
                    '-m', 'fastfill.v1_1.train_dpo', '--model', str(parent), '--pairs', str(pairs), '--out', str(out)]
-        subprocess.run(command + [x for k, v in RECIPE.items() for x in ('--' + k, str(v))], check=True)
-    completion = _completion(out, count)
+        subprocess.run(command + _flags(recipe), check=True)
+    completion = _completion(out, count, recipe)
     _merge(parent, out / 'final', merged, {'arm': arm, 'stage': stage,
         'parent': {'stage': previous, 'path': str(parent), 'lineage_sha256': h.sha256(receipt_path(parent))},
         'training': {'pairs': {'path': str(pairs), 'count': count, 'sha256': h._expected_hash(files[pairs.name]),
                                'manifest_sha256': h.sha256(pairs_dir / 'MANIFEST.json')},
                      'guard_sha256': h.sha256(out / 'training_guard.json'), 'completion': completion,
-                     'recipe': settings},
+                     'recipe': settings, **({'candidate': candidate} if candidate else {})},
         **{k: lineage[k] for k in ('base', 'base_sha256', 'training_data')}})
     return verify_merged(merged, arm, stage)
 
@@ -754,6 +775,7 @@ def parse_args(argv=None):
     step.add_argument('--dpo-root', type=Path, required=True)
     step.add_argument('--arm', choices=ARMS, required=True)
     step.add_argument('--stage', choices=('dpo1', 'dpo2'), required=True)
+    step.add_argument('--candidate', choices=tuple(CANDIDATES))  # Amendment 010; omitted = amendment 009 recipe.
     step = sub.add_parser('copy-plan')
     step.add_argument('--src', type=Path, required=True)
     step.add_argument('--out', type=Path, nargs='+', required=True)

@@ -77,9 +77,10 @@ def record(room, arm, split):
             'target_policy': h.MAIN_TARGET_POLICY, 'target_qualified': split == 'train'}
 
 
-def build_main(root, rooms=ROOMS):
+def build_main(root, rooms=ROOMS, dev=None):
     data = root / 'main-data-v1'
-    bound = {'train': [bind_room(r)[0] for r in rooms], 'dev': [bind_room(spaced('dev0', 'IL3D_3dfront'))[0]]}
+    bound = {'train': [bind_room(r)[0] for r in rooms],
+             'dev': [bind_room(r)[0] for r in (dev or [spaced('dev0', 'IL3D_3dfront')])]}
     for arm in h.ARMS:
         (data / arm).mkdir(parents=True)
         for split, values in bound.items():
@@ -95,7 +96,7 @@ def build_main(root, rooms=ROOMS):
     for split, values in bound.items():
         (data / f'{split}_rooms.jsonl').write_bytes(d._jsonl(values))
     h.write_json(data / 'MANIFEST.json', {'target_policy': h.MAIN_TARGET_POLICY, 'files': h.artifact_manifest(data),
-                                          'counts': {'train': len(rooms), 'dev': 1}})
+                                          'counts': {'train': len(rooms), 'dev': len(bound['dev'])}})
     return data
 
 
@@ -422,6 +423,42 @@ def test_train_both_stages_recipe_guard_merge_and_lineage(pipeline, monkeypatch)
     s.i.write_once(root / 'placement/sft-merged.json', {**receipt, 'training_data': {'manifest_sha256': 'f' * 64}})
     with pytest.raises(ValueError, match='parent lineage receipt changed'):
         d.verify_merged(root / 'placement/dpo2-merged', 'placement', 'dpo2')
+
+
+def test_train_candidates_reuse_dpo001_inputs_with_lineage(pipeline, monkeypatch):
+    """Amendment 010: e1 (1 epoch) in dpo-002, rpo (3 epochs + RPO) in dpo-003; inputs referenced from dpo-001."""
+    source, calls, commands = pipeline.root, [], []
+    inner = fake_train(calls)
+    monkeypatch.setattr(d.subprocess, 'run', lambda command, check: (commands.append(command), inner(command, check)))
+    for candidate in ('e1', 'rpo'):
+        root = source.parent / d.CANDIDATES[candidate][0]
+        for stage in ('dpo1', 'dpo2'):
+            for arm in h.ARMS:
+                assert d.train(args(dpo_root=root, arm=arm, stage=stage, candidate=candidate))['stage'] == stage
+    assert [c['--epochs'] for c in calls] == ['1'] * 4 + ['3'] * 4
+    assert [c.get('--rpo_alpha') for c in calls] == [None] * 4 + ['1.0'] * 4
+    assert all(c[-1] == '--save_every_epoch' for c in commands)  # Switch last, after every --key value pair.
+    assert all({k: v for k, v in c.items() if k not in ('--epochs', '--rpo_alpha', '--model', '--pairs', '--out')}
+               == {'--' + k: str(v) for k, v in d.RECIPE.items() if k != 'epochs'} for c in calls)
+    e1 = (source.parent / 'dpo-002').resolve()
+    assert [(Path(c['--model']), Path(c['--pairs'])) for c in calls[:4]] == [  # dpo1 both arms, then dpo2.
+        ((source / 'joint/sft-merged').resolve(), (source / 'stage1-pairs/joint.jsonl').resolve()),
+        ((source / 'placement/sft-merged').resolve(), (source / 'stage1-pairs/placement.jsonl').resolve()),
+        (e1 / 'joint/dpo1-merged', (source / 'stage2-pairs/joint.jsonl').resolve()),
+        (e1 / 'placement/dpo1-merged', (source / 'stage2-pairs/placement.jsonl').resolve())]
+    final = d.verify_merged(source.parent / 'dpo-003/placement/dpo2-merged', 'placement', 'dpo2')
+    assert final['training']['candidate'] == 'rpo' and final['training']['recipe']['rpo_alpha'] == 1.0
+    assert final['training']['completion']['steps'] == 3 * math.ceil(5 / 4)
+    assert final['parent']['path'] == str((source.parent / 'dpo-003/placement/dpo1-merged').resolve())
+    first = d.verify_merged(source.parent / 'dpo-003/placement/dpo1-merged', 'placement', 'dpo1')
+    assert first['parent']['path'] == str((source / 'placement/sft-merged').resolve())
+    assert first['training']['pairs']['manifest_sha256'] == h.sha256(source / 'stage1-pairs/MANIFEST.json')
+    guard = h.strict_json((source.parent / 'dpo-002/joint/dpo2/training_guard.json').read_text())
+    assert guard['settings'] == {**d.CANDIDATES['e1'][1], **d.TRAIN_FIXED}
+    assert not (source / 'joint/dpo1').exists()  # Nothing is written into dpo-001.
+    with pytest.raises(ValueError, match='trains in dpo-002'):
+        d.train(args(dpo_root=source.parent / 'dpo-003', arm='joint', stage='dpo1', candidate='e1'))
+    assert d.parse_args(['train', '--dpo-root', 'x', '--arm', 'joint', '--stage', 'dpo1']).candidate is None
 
 
 def test_train_refuses_incomplete_completion_and_dropped_pairs(pipeline, monkeypatch):
