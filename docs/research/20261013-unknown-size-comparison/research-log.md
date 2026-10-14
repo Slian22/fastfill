@@ -134,3 +134,8 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 
 - O2/O3/O7/O1a/O1b 冒烟失败：scratch 项目文件数配额 1,023,915/1,024,000（容量仅 2.1T/5T）。普查：colmap-build 51 万、particulate-hinge 31 万等为用户其他项目；本研究的缓存约 5.7 万（uv-vlm、llm-open、dpo-generate），已清理（作业 7394871）。开源模型编译缓存改放 $PROJECTDIR/fastfill/.cache-jobs（6ffa6a9f7）。
 - O5 重提 7394628 因旧失败目录的运行身份不一致被拒（infer.py 已变）；旧目录改名保留。用快照 main-6ffa6a9f7 重新提交 O5、O2、O3、O7、O1a、O1b（singleton 串行）及其 SFT / DPO2 配对评估。O4 全量与 SFT 评估完成。
+
+## 2026-10-14 02:35 UTC — DPO2 训练完成
+
+- DPO2 训练 J 7389123（1:51:24）、P 7389125（1:57:08）完成；训练后期 dpo_loss≈0、reward_acc 1.0、margin 13–15（硬负样本易分，需在评测中检查是否过度优化）。合并诊断（投影层 BF16 改变比例）：J dpo1 9–19%、dpo2 5–11%；P dpo1 11–19%、dpo2 5–10%；非 LoRA 层 0%。
+- DPO2 测试分片 12 个已启动（infer-v2-004）；DPO1 分片完成约 35–47%。O2 全量运行中；O5 第三次（Marlin，关闭 DeepGEMM）排队中。
