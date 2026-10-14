@@ -82,7 +82,24 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
 - Epoch 2 over-trains: complete falls to 0.942.
 - **Pair data.** 4,496 pairs from 1,514 train rooms. Each rejected sample is the model's own failure; its chosen is that same sample's S1 repair.
 - **Test.** No test number yet: the test run is deferred to amendment 021 §4 (013 addendum A).
-- **The attribution question stays open.** Whether the preference construction adds anything beyond the repaired data is the amendment 016 §3 ablation (RFT / perturbation / seeds), now running.
+- **Attribution (amendment 016 §3 ablation, `results/ablation-016/`; dev, 600 rooms; 2 seeds for the key arms).**
+  - All arms start from rpo-dpo1 and take the same number of optimiser steps. The pre-registered comparison uses op-dpo2 epoch 2.
+  - **(b) RFT** (continued SFT on the same repaired chosen texts) ≈ rpo-dpo1:
+    - a′ +0.002 / +0.010;
+    - acceptance +0.018 / +0.020;
+    - every CI includes 0.
+  - **(d) op-dpo2 vs (b) RFT, same data, preference loss.** Both seeds agree on acceptance:
+    - downstream acceptance +0.058 [+0.027, +0.091] (seed 42) and +0.053 [+0.021, +0.085] (seed 43);
+    - a′ +0.007 / +0.017, CIs include 0;
+    - checker ≈ 0;
+    - complete −0.05, the epoch-2 over-training also seen in 013.
+  - **(c) OptiScene-style synthetic-perturbation DPO2** (GT chosen vs perturbed GT) is worse than its start:
+    - a′ −0.055 [−0.091, −0.020];
+    - checker −0.063 [−0.102, −0.026].
+  - **(d) vs (c), both seeds:** a′ +0.063 / +0.082 and checker +0.068 / +0.083.
+  - **Reading.** None of the pre-fixed interpretation cases applies exactly (each requires both a′ and acceptance CIs above 0), so this is reported as measured:
+    - pairing the model's own failure against its own repair adds admission gains beyond the repaired data itself;
+    - synthetic negatives hurt.
 
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
