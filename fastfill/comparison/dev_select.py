@@ -9,7 +9,7 @@ build   --data MAIN --sft-runs SFT_J SFT_P --out RUN/dev-select-v1
     requests.jsonl = the dev rows' system + user turns (no target), rooms.jsonl = GT rooms for scoring,
     size-estimates.jsonl = the P request sizes, MANIFEST.json with expected_uids (sorted), the frozen
     uids_sha256 and training_manifest_sha256 = MAIN. Built before any candidate is scored.
-score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--workers N]
+score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--workers N] [--only selectable|report-only]
     Each candidate's merged dev inference ROOT/CANDIDATE/infer-ARM (shared length-sorted dev plan,
     amendment 002 caps) is verified (evaluate_pair._inference) and bound to its model (SFT adapter run, or
     the dpo-002/dpo-003 stage's exact policy), then scored by the frozen geometry.score; reached_token_cap
@@ -19,6 +19,8 @@ score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--work
     and a' = all-request geometry success after rescaling its x/y sizes about object centres by exp(-B/2)
     (report_v2._derive, amendment 005). The amendment-009 stages a009-dpo1/a009-dpo2 (dpo-001 exact
     policy; amendment 010 addendum) are scored the same way under 'report_only': never selectable.
+    Addendum 2: --only selectable scores the five candidates (what select reads, RUN/dev-eval-010/scores);
+    --only report-only scores sft + a009-* into RUN/dev-eval-010/scores-report-only for the stage table.
 select  --scores SCORES --out RUN/dev-eval-010/selection.json --code-root CODE [--shards 6] [--no-submit]
     Eligible: SFT always; a DPO candidate iff complete rate >= SFT's - 0.01 and its log MAE <= SFT's log
     MAE on the same common rooms + 0.01. Selected: the eligible candidate with the highest a'; candidates
@@ -28,6 +30,13 @@ select  --scores SCORES --out RUN/dev-eval-010/selection.json --code-root CODE [
     commands printed if sbatch is unavailable): for each selected DPO candidate, N exact-policy test shards
     on infer-v2-005/plan (byte copy of infer-v2-002/plan) -> merge infer-ARM-005; a selected SFT reuses
     infer-ARM-002. Then evaluate_pair --stage-label selected over the two selected models -> geometry-v5.
+final   --run-root RUN --reference REF.json --corrections UIDS.json [--agent NAME=EVAL_DIR ...] [--repeats 2000]
+        [--workers N]   (CPU job of submit_final_010.sh, after the agents' evaluations paired with the selected models)
+    Keeps the agents whose evaluation dir is MANIFEST-complete with a complete summary (the others are
+    printed with the reason and left out, never substituted), then report_v2 on geometry-v5 (stage selected,
+    --selection RUN/dev-eval-010/selection.json) -> report-v2-selected-001, stage_table (amendment-009 SFT and
+    DPO1 reports of record, the selected report, the dev table) -> stage-table-010-001, delivery ->
+    delivery-010-001. Refuses if any of the three outputs exists.
 """
 import argparse
 import hashlib
@@ -67,6 +76,8 @@ RULE = ("eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01
         "dev size log MAE + 0.01, both on the rooms complete in both it and SFT. selected: highest dev a' "
         "(own footprint bias rescale) among eligible; candidates within 0.005 of the best tie and go to fewer training stages, then higher a', then "
         "protocol order sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2")
+FINAL = {'report': 'report-v2-selected-001', 'table': 'stage-table-010-001', 'delivery': 'delivery-010-001'}
+STAGE_REPORTS = {'sft': 'report-v2-JPL-002', 'dpo1': 'report-v2-dpo1-001'}  # Amendment-009 test reports of record.
 
 
 def rank(uid):
@@ -188,10 +199,13 @@ def score(args):
     rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
     requests = {arm: h._by_uid(h._rows(data, f'{arm}/requests.jsonl', manifest['files'][f'{arm}/requests.jsonl']))
                 for arm in ARMS}
+    only = getattr(args, 'only', None)  # Amendment 010 addendum 2: selection does not wait for report-only rows.
+    selectable, report = only != 'report-only', only != 'selectable'
+    names = (CANDIDATES if selectable else ('sft',)) + (REPORT_ONLY if report else ())
     plans, result, files = set(), {}, {}
     for arm in ARMS:
         rows, result[arm] = {}, {}
-        for candidate in CANDIDATES + REPORT_ONLY:
+        for candidate in names:
             path = root / candidate / f'infer-{arm}'
             records, receipt = e._inference(path, data, expected)
             if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
@@ -206,7 +220,7 @@ def score(args):
                                                     'manifest_sha256': h.sha256(path / 'MANIFEST.json'),
                                                     'stage': receipt.get('stage', 'sft'), 'lora': receipt['config']['lora']},
                                       'token_cap_failures': sum(caps)}
-        for candidate in CANDIDATES + REPORT_ONLY:
+        for candidate in names:
             value = metrics(rows[candidate], rows['sft'])
             tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], value['scale_factor']) for r in rows[candidate]]
             derived = r2._map(r2._derive, tasks, args.workers)
@@ -218,8 +232,9 @@ def score(args):
         raise ValueError('candidates were not run on one shared dev plan')
     value = {'protocol': 'amendment-010-dev-scores', 'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
              'uids_sha256': manifest['uids_sha256'], 'plan_sha256': plans.pop(),
-             'candidates': {arm: {c: result[arm][c] for c in CANDIDATES} for arm in ARMS},
-             'report_only': {arm: {c: result[arm][c] for c in REPORT_ONLY} for arm in ARMS},
+             'candidates': {arm: {c: result[arm][c] for c in (CANDIDATES if selectable else ('sft',))} for arm in ARMS},
+             'report_only': {arm: {c: result[arm][c] for c in (REPORT_ONLY if report else ())} for arm in ARMS},
+             **({'only': only} if only else {}),
              'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(e.__file__), Path(g.__file__),
                                                            Path(r2.__file__))}}
     if _digest(expected) != value['uids_sha256']:
@@ -358,6 +373,42 @@ def select(args, run=subprocess.run, which=shutil.which):
     return {'status': 'TEST_CHAIN_SUBMITTED', 'selected': selected, 'jobs': ids}
 
 
+# ---- final ---------------------------------------------------------------------------------------
+
+def final(args):
+    from fastfill.comparison import delivery, stage_table  # Both import this module.
+    run = Path(args.run_root)
+    outs = {k: run / v for k, v in FINAL.items()}
+    taken = [str(p) for p in outs.values() if os.path.lexists(p)]
+    if taken:
+        raise FileExistsError(f'refusing existing outputs: {taken}')
+    selection = run / 'dev-eval-010' / 'selection.json'
+    test = h.strict_json(selection.read_text())['test']
+    agents, excluded = {}, {}
+    for item in args.agent:
+        name, root = item.split('=', 1)
+        if not name or '-' in name or name in agents or name in excluded:
+            raise ValueError(f'agents need unique NAME=DIR with no "-" in NAME: {item}')
+        try:  # Complete = every MANIFEST file verified and a complete summary; else excluded, never substituted.
+            e._verified(Path(root))
+            status = h.strict_json((Path(root) / 'summary.json').read_text()).get('status')
+            if status != 'LLM_COMPARISON_COMPLETE':
+                raise ValueError(f'summary status {status}')
+            agents[name] = Path(root)
+        except (OSError, ValueError, KeyError) as exc:
+            excluded[name] = f'{root}: {type(exc).__name__}: {exc}'
+    print(json.dumps({'agents_included': {k: str(v) for k, v in agents.items()}, 'agents_excluded': excluded}), flush=True)
+    r2.build(run / 'eval-data-v1', run / GEOMETRY, {arm: test[arm]['inference'] for arm in ARMS}, args.reference,
+             outs['report'], agents, corrections=args.corrections, repeats=args.repeats, workers=args.workers,
+             selection=selection)
+    report_only = run / 'dev-eval-010' / 'scores-report-only'  # Amendment 010 addendum 2; absent = a009 rows 未测.
+    stage_table.build(run, {**{s: run / n for s, n in STAGE_REPORTS.items()}, 'selected': outs['report']},
+                      outs['table'], selection, report_only if report_only.exists() else None)
+    value = delivery.build(run, outs['report'], outs['delivery'])
+    return {'status': 'FINAL_010_COMPLETE', 'agents': sorted(agents), 'agents_excluded': excluded,
+            'delivered': value['chosen_arm'], 'candidate': value['candidate'], **{k: str(p) for k, p in outs.items()}}
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
@@ -369,17 +420,24 @@ def parse_args(argv=None):
     for flag in ('data', 'root', 'out'):
         step.add_argument('--' + flag, type=Path, required=True)
     step.add_argument('--workers', type=int, default=1)
+    step.add_argument('--only', choices=('selectable', 'report-only'))  # Amendment 010 addendum 2; default both.
     step = sub.add_parser('select')
     for flag in ('scores', 'out', 'code-root'):
         step.add_argument('--' + flag, type=Path, required=True)
     step.add_argument('--shards', type=int, default=6)
     step.add_argument('--no-submit', action='store_true')
+    step = sub.add_parser('final')
+    for flag in ('run-root', 'reference', 'corrections'):
+        step.add_argument('--' + flag, type=Path, required=True)
+    step.add_argument('--agent', action='append', default=[], metavar='NAME=EVAL_LLM_DIR')
+    step.add_argument('--repeats', type=int, default=2000)
+    step.add_argument('--workers', type=int, default=1)
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv)
-    print(json.dumps({'build': build, 'score': score, 'select': select}[args.command](args)))
+    print(json.dumps({'build': build, 'score': score, 'select': select, 'final': final}[args.command](args)))
 
 
 if __name__ == '__main__':

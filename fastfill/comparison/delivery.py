@@ -1,15 +1,21 @@
-"""Amendment 008 delivery package: the merged DPO2 model of the arm the DPO2 report's amendment-005 rule chose.
+"""Amendment 010 delivery package: the dev-selected model of the arm the 'selected' report's amendment-005 rule chose.
 
-python -m fastfill.comparison.delivery --run-root RUN --report REPORT_V2_DPO2_DIR --out NEW_DIR
+python -m fastfill.comparison.delivery --run-root RUN --report REPORT_V2_SELECTED_DIR --out NEW_DIR
 
-Refuses unless the report is a complete report_v2 output bound (stage_table.load_stage) to geometry-v4
-and both DPO2 exact-policy inference receipts; carries a delivery decision that report_v2.delivery
-reproduces from the report's own recorded inputs; and both arms' lineage chains sft -> dpo1 -> dpo2
-bind the evaluated policies and the stage pair summaries. P also needs RUN/main-data-v1/size-priors.json
-with the hash RUN/eval-data-v1/MANIFEST.json recorded. The example prompt is the shortest frozen test
-request of the delivered arm. Writes MODEL_CARD.md, delivery.json, SHA256SUMS (files to copy, as
-package-relative destinations for `sha256sum -c` after copying) and MANIFEST.json. Weights are listed,
-never copied. Every number comes from the report or the receipts; anything absent is 'not measured'.
+Refuses unless the report is a complete report_v2 output of stage 'selected' bound (stage_table.load_stage)
+to geometry-v5, both arms' dev-selected test inference receipts and RUN/dev-eval-010/selection.json
+(stage_table.load_selection: bound to its dev scores, reproduced by dev_select.choose, sha256 = the
+report's); carries a delivery decision that report_v2.delivery reproduces from the report's own recorded
+inputs; and both arms' candidate lineage chains (dpo-001 SFT merge, then the candidate's dpo-002/dpo-003
+stages; stage_table.selected_lineage) bind the evaluated policies and the stage pair summaries. P also
+needs RUN/main-data-v1/size-priors.json with the hash RUN/eval-data-v1/MANIFEST.json recorded. The example
+prompt is the shortest frozen test request of the delivered arm. Delivered weights: a DPO candidate's
+merged stage checkpoint plus its stage adapter and BF16 training base (the evaluated exact policy,
+amendment 009); SFT: dpo-001/ARM/sft-merged (the DPO1 training base) plus the SFT adapter and the generic
+base (the SFT test inference merged the adapter at runtime on GPU). Writes MODEL_CARD.md, delivery.json,
+SHA256SUMS (files to copy, as package-relative destinations for `sha256sum -c` after copying) and
+MANIFEST.json. Weights are listed, never copied. Every number comes from the report, selection.json or
+the receipts; anything absent is 'not measured'.
 """
 import argparse
 import json
@@ -25,9 +31,10 @@ DATA_RELEASE = 'FastFill data v3.2'  # research-log 2026-10-13: the J/P models w
 ARM = {'J': 'joint', 'P': 'placement'}
 NAME = {'J': 'J (joint: predicts each object size, position and yaw)',
         'P': f'P (placement: predicts position and yaw; sizes come from the frozen training prior, {R.P_RULE})'}
-RULE = ('amendment 005 §1 rule applied to J-DPO2 vs P-DPO2 (amendment 008): deliver J iff J−P size log MAE on '
-        'common-complete rooms has its paired 95 % CI below zero and the size-debiased success (a′) J−P has '
-        '95 % CI lower bound ≥ −0.02; otherwise P; any undefined interval delivers P')
+RULE = ('amendment 005 §1 rule applied to J-selected vs P-selected (amendment 010: each arm\'s model selected on dev '
+        'only; replaces J-DPO2 vs P-DPO2 of amendment 008): deliver J iff J−P size log MAE on common-complete rooms '
+        'has its paired 95 % CI below zero and the size-debiased success (a′) J−P has 95 % CI lower bound ≥ −0.02; '
+        'otherwise P; any undefined interval delivers P')
 INPUT_KEYS = ('b_size_log_mae_joint_minus_placement', 'a_prime_debiased_success_joint_minus_placement')
 
 
@@ -35,13 +42,13 @@ def decision(results):
     """The report's delivery decision, refused when absent or not reproducible from its recorded inputs."""
     chosen = results.get('delivery')
     if not isinstance(chosen, dict) or chosen.get('delivered') not in ARM:
-        raise ValueError('DPO2 report carries no delivery decision; refusing to package a model')
+        raise ValueError('selected report carries no delivery decision; refusing to package a model')
     inputs = chosen.get('inputs') or {}
     if any(not isinstance(inputs.get(k), dict) for k in INPUT_KEYS):
-        raise ValueError('DPO2 report delivery decision lacks its rule inputs; refusing')
+        raise ValueError('selected report delivery decision lacks its rule inputs; refusing')
     again = R.delivery(*(inputs[k] for k in INPUT_KEYS))
     if any(again[k] != chosen.get(k) for k in ('delivered', 'condition_i_size_log_mae', 'condition_ii_debiased_success')):
-        raise ValueError('DPO2 report delivery decision disagrees with the amendment-005 rule on its own inputs')
+        raise ValueError('selected report delivery decision disagrees with the amendment-005 rule on its own inputs')
     return chosen
 
 
@@ -63,22 +70,29 @@ def _table(header, rows):
         '| ' + ' | '.join(map(str, r)) + ' |' for r in rows] + ['']
 
 
+def _files(root, files, dest):
+    return [{'source': str(Path(root) / n), 'dest': f'{dest}/{n}', 'sha256': h._expected_hash(v)} for n, v in sorted(files.items())]
+
+
 def build(run, report, out):
     run, report, out = Path(run), Path(report), Path(out)
     if out.exists():
         raise FileExistsError(out)
-    stage = S.load_stage(run, 'dpo2', report)
+    if S._read(report / 'results.json').get('stage') != 'selected':
+        raise ValueError('delivery packages only the report of stage selected (amendment 010)')
+    selection = S.load_selection(run / 'dev-eval-010' / 'selection.json')
+    stage = S.load_stage(run, 'selected', report, selection)
     results = stage['results']
     chosen = decision(results)
-    chain = {arm: S.lineage(run, arm, ['dpo2']) for arm in h.ARMS}
-    S.bind('dpo2', chain, stage['receipts'])
-    pair_summaries = {s: S.pairs(run, s, chain)[0] for s in ('dpo1', 'dpo2')}
+    chain, kept = S.selected_lineage(run, stage)
     label = chosen['delivered']
     arm = ARM[label]
-    link, receipt = chain[arm], chain[arm]['dpo2']['receipt']
+    candidate = stage['candidates'][arm]
+    name = S.candidate_stage(candidate)
+    link, receipt = chain[arm], chain[arm][name]['receipt']
     data = run / 'eval-data-v1'
     if h.sha256(data / 'MANIFEST.json') != results['input_sha256']['data_MANIFEST']:
-        raise ValueError('eval-data-v1 is not the data the DPO2 report evaluated')
+        raise ValueError('eval-data-v1 is not the data the selected report evaluated')
     manifest = S._read(data / 'MANIFEST.json')
     requests = h._rows(data, f'{arm}/requests.jsonl', manifest['files'][f'{arm}/requests.jsonl'])
     example = min(requests, key=lambda r: (len(r['messages'][1]['content']), r['uid']))
@@ -91,26 +105,40 @@ def build(run, report, out):
         prior = {'path': str(path.resolve()), 'sha256': expected, 'key': 'full_prior',
                  'use': 'fastfill.comparison.size_prior.predict_sizes(features, prior), each value max(0.01, round(v, 2))'}
     model = Path(receipt['model']['path'])
-    copies = [{'source': str(model / n), 'dest': f'model/{n}', 'sha256': h._expected_hash(v)}
-              for n, v in sorted(receipt['model']['files'].items())]
+    if name == 'sft':  # Evaluated: the SFT adapter merged at runtime on GPU onto the generic base (infer-ARM-002).
+        policy = {'sft-adapter': receipt['adapter'], 'base': receipt['base']}
+    else:  # Evaluated: the stage adapter unmerged, FP32 as trained, on its BF16 training base (amendment 009).
+        policy = {'adapter': receipt['adapter'], 'training-base': link[S.STAGES[S.STAGES.index(name) - 1]]['receipt']['model']}
+    copies = _files(model, receipt['model']['files'], 'model')
+    copies += [c for dest, part in policy.items() for c in _files(part['path'], part['files'], dest)]
     copies += [{'source': link[s]['path'], 'dest': f'lineage/{arm}-{s}-merged.json', 'sha256': link[s]['sha256']}
-               for s in S.STAGES]
+               for s in link]
     copies += [{'source': prior['path'], 'dest': 'size-priors.json', 'sha256': prior['sha256']}] if prior else []
     report_files = {**S._read(report / 'MANIFEST.json')['files'], 'MANIFEST.json': h.sha256(report / 'MANIFEST.json')}
-    copies += [{'source': str((report / n).resolve()), 'dest': f'report-dpo2/{n}', 'sha256': h._expected_hash(v)}
-               for n, v in sorted(report_files.items())]
+    copies += _files(report.resolve(), report_files, 'report-selected')
+    copies.append({'source': str(selection['path'].resolve()), 'dest': 'dev-selection/selection.json',
+                   'sha256': selection['sha256']})
     infer = stage['receipts'][arm]
     fraction, _, why = S.merge_fraction(receipt)
-    value = {'status': 'DELIVERY_PACKAGE_READY', 'amendments': ['005', '008', '009'], 'rule': RULE,
-             'chosen_arm': label, 'arm': arm, 'decision': chosen,
-             'model': {'path': str(model), 'model_sha256': receipt['model_sha256'],
+    chosen_dev = selection['value']['arms'][arm]
+    value = {'status': 'DELIVERY_PACKAGE_READY', 'amendments': ['005', '008', '009', '010'], 'rule': RULE,
+             'chosen_arm': label, 'arm': arm, 'candidate': candidate, 'candidates': stage['candidates'], 'decision': chosen,
+             'dev_selection': {'rule': selection['value']['rule'], 'selection_sha256': selection['sha256'],
+                               'uids_sha256': selection['value']['uids_sha256'],
+                               'rooms': chosen_dev['candidates']['sft']['requests'],
+                               **{k: chosen_dev[k] for k in ('selected', 'eligible', 'tied', 'best_a_prime', 'candidates')}},
+             'model': {'path': str(model), 'stage': name, 'model_sha256': receipt['model_sha256'],
                        'model_sha256_definition': 'sha256 of the sorted JSON file->sha256 manifest (dpo_stages lineage receipt)',
                        'files': receipt['model']['files'], 'merge': receipt['merge'],
                        'merge_changed_fraction': fraction, 'merge_changed_fraction_note': why,
-                       'lineage_receipt': link['dpo2']['path'], 'lineage_receipt_sha256': link['dpo2']['sha256'],
+                       'lineage_receipt': link[name]['path'], 'lineage_receipt_sha256': link[name]['sha256'],
                        'base_revision': receipt['base'].get('revision'), 'base_sha256': receipt['base_sha256'],
                        'training_data_manifest_sha256': receipt['training_data'].get('manifest_sha256')},
-             'evaluated_policy': {'lora': infer['config']['lora'], **infer['policy'],
+             'evaluated_policy': {'lora': infer['config']['lora'],
+                                  **(infer.get('policy') or {'adapter': infer['config']['adapter'],
+                                                             'adapter_sha256': infer['adapter_sha256'],
+                                                             'base': infer['config']['base']}),
+                                  'package_dirs': {dest: str(part['path']) for dest, part in policy.items()},
                                   'inference_run_sha256': infer['run_sha256']},
              'size_prior': prior,
              'inference': {k: infer['config'].get(k) for k in (*S.DECODE, 'cap_base', 'cap_per_object',
@@ -122,34 +150,54 @@ def build(run, report, out):
     with tempfile.TemporaryDirectory(prefix='.' + out.name + '-', dir=out.parent) as tmp:
         dest = Path(tmp)
         h.write_json(dest / 'delivery.json', value)
-        (dest / 'MODEL_CARD.md').write_text(card(value, results, chain, pair_summaries, example))
+        (dest / 'MODEL_CARD.md').write_text(card(value, results, link, kept[arm], example))
         (dest / 'SHA256SUMS').write_text(''.join(f"{c['sha256']}  {c['dest']}\n" for c in copies))
         h.write_json(dest / 'MANIFEST.json', {'files': h.artifact_manifest(dest)})
         _publish(dest, out)
     return value
 
 
-def card(value, results, chain, pair_summaries, example):
-    t, label, arm, d = results['tables'], value['chosen_arm'], value['arm'], value['decision']
+def card(value, results, link, kept, example):
+    t, label, d, dev = results['tables'], value['chosen_arm'], value['decision'], value['dev_selection']
     bias, t6, t2 = ({r[k]: r for r in t[name]} for name, k in (('T1_bias', 'system'), ('T6', 'system'), ('T2', 'scope')))
-    m, cfg = value['model'], value['inference']
-    lines = [f'# FastFill unknown-size layout model: {label}-DPO2', '',
+    m, cfg, sft = value['model'], value['inference'], value['model']['stage'] == 'sft'
+    names = {x: f"{x}-selected ({value['candidates'][ARM[x]]})" for x in 'JP'}
+    lines = [f"# FastFill unknown-size layout model: {names[label]}", '',
              f'**Delivered arm:** {NAME[label]}.', '',
              f'Chosen by the {RULE}. Delivery is an artifact choice for the user pipeline, not a claim of scientific '
-             'superiority. Single training seed. Every number below is copied from the DPO2 report_v2 output '
-             f"(results.json sha256 {value['report']['results_sha256']}) or the lineage receipts.", '',
-             '## Model', '',
-             f"- Base: Qwen/Qwen3-8B, revision `{m['base_revision']}` (lineage root base_sha256 `{m['base_sha256']}`).",
-             f"- Delivered weights: merged BF16 model `{m['path']}` ({m['merge']}); model_sha256 `{m['model_sha256']}` "
-             '(per-file hashes in delivery.json and SHA256SUMS).',
-             f"- Training data: {DATA_RELEASE} (main-data manifest sha256 `{m['training_data_manifest_sha256']}`).",
-             '- Recipe (OptiScene, amendments 008/009): SFT → DPO-stage1 (consensus alignment; negatives = own SFT '
-             'samples) → DPO-stage2 (geometric plausibility; negatives = out-of-boundary / overlap position '
-             'perturbations of the positive). Each DPO stage trains a LoRA on the BF16 merge of the previous stage '
-             'and is merged afterwards. Positives are a programmatic geometry-verified selection, not human approval.', '']
+             'superiority. Single training seed. Every number below is copied from the selected-stage report_v2 output '
+             f"(results.json sha256 {value['report']['results_sha256']}), the dev selection.json or the lineage receipts.", '',
+             '## Dev selection (amendment 010)', '',
+             f"Each arm's model was selected on {dev['rooms']} dev rooms only (never used for training or a test decision; "
+             f"uids sha256 `{dev['uids_sha256']}`, selection.json sha256 `{dev['selection_sha256']}`) by the rule: {dev['rule']}. "
+             f"{label}: eligible {', '.join(dev['eligible'])}; best dev a′ {_fmt(dev['best_a_prime'])}; within 0.005 of it: "
+             f"{', '.join(dev['tied'])}; selected **{dev['selected']}**. The other arm selected "
+             f"{value['candidates'][ARM['P' if label == 'J' else 'J']]}.", '']
+    lines += _table(['candidate', 'dev complete rate', 'dev size log MAE', 'SFT size log MAE (same rooms)', 'common rooms',
+                     'own footprint bias B', "dev a′", 'eligible', 'selected'],
+                    [[c, _fmt(x['complete_rate']), _fmt(x['size_log_mae_common_with_sft']), _fmt(x['sft_size_log_mae_common']),
+                      _fmt(x['common_with_sft']), _fmt(x['footprint_bias']), _fmt(x['a_prime']), _fmt(c in dev['eligible']),
+                      _fmt(c == dev['selected'])] for c, x in dev['candidates'].items()])
+    lines += ['## Model', '',
+              f"- Base: Qwen/Qwen3-8B, revision `{m['base_revision']}` (lineage root base_sha256 `{m['base_sha256']}`).",
+              f"- Delivered weights: merged BF16 model `{m['path']}` ({m['merge']}); model_sha256 `{m['model_sha256']}` "
+              '(per-file hashes in delivery.json and SHA256SUMS). '
+              + ('It is dpo-001\'s SFT merge (the DPO1 training base). Also listed: the SFT adapter (`sft-adapter/`) and '
+                 'the generic base (`base/`), the evaluated policy.' if sft else
+                 'Also listed: the stage adapter (`adapter/`) and its BF16 training base (`training-base/`), which '
+                 'together are the evaluated exact policy (amendment 009).'),
+              f"- Training data: {DATA_RELEASE} (main-data manifest sha256 `{m['training_data_manifest_sha256']}`).",
+              ('- Recipe: SFT only, as trained (no eligible DPO candidate beat it on dev by more than 0.005 a′).' if sft else
+               f"- Recipe (OptiScene, amendments 008/009; amendment 010 candidate {value['candidate']}): SFT → DPO-stage1 "
+               '(consensus alignment; negatives = own SFT samples)'
+               + (' → DPO-stage2 (geometric plausibility; negatives = out-of-boundary / overlap position perturbations '
+                  'of the positive)' if m['stage'] == 'dpo2' else '')
+               + '. e1 = the official README hyper-parameters for 1 epoch per stage; rpo = 3 epochs plus an NLL term on '
+               'the chosen response (α 1.0). Each DPO stage trains a LoRA on the BF16 merge of the previous stage and is '
+               'merged afterwards. Positives are a programmatic geometry-verified selection, not human approval.'), '']
     rows = []
-    for stage in S.STAGES:
-        r = chain[arm][stage]['receipt']
+    for stage in link:
+        r = link[stage]['receipt']
         recipe = r['training']['recipe']
         if isinstance(recipe, dict):
             recipe = ', '.join(f'{k} {recipe[k]}' for k in ('lr', 'epochs', 'lora_r', 'lora_alpha', 'lora_dropout', 'beta',
@@ -162,9 +210,8 @@ def card(value, results, chain, pair_summaries, example):
                      _fmt(fraction) if why is None else 'not measured (' + why + ')'])
     lines += _table(['stage', 'hyper-parameters (lineage receipt)', 'DPO pairs', 'optimizer steps',
                      'fraction of weights changed by the BF16 merge'], rows)
-    lines += [f"Pair summaries: stage1 kept {pair_summaries['dpo1']['kept_both_arms']} of "
-              f"{pair_summaries['dpo1']['positives']} positives, stage2 kept {pair_summaries['dpo2']['kept_both_arms']} "
-              f"of {pair_summaries['dpo2']['positives']} (both arms).", '',
+    lines += ['Pair summaries: ' + ('; '.join(f"{s} kept {p['kept_both_arms']} of {p['positives']} positives (both arms)"
+                                              for s, p in kept.items()) or 'n/a (no DPO stage)') + '.', '',
               '## Input / output contract', '',
               'Two chat messages: the fixed system prompt of the arm and a user JSON with the room boundary, '
               'boundary_type, optional height, room_type, fixed items and the movable objects (opaque IDs, categories'
@@ -173,7 +220,9 @@ def card(value, results, chain, pair_summaries, example):
               f"test request of this arm (uid `{example['uid']}`, historical test split; format illustration only).", '',
               '```text', example['messages'][0]['content'], '```', '', '```json', example['messages'][1]['content'], '```', '',
               '## Inference', '',
-              f"Evaluated as the exact trained policy ({value['evaluated_policy']['lora']}) with transformers, "
+              ('Evaluated with the SFT LoRA adapter merged at runtime on GPU onto the generic base '
+               if sft else 'Evaluated as the exact trained policy ')
+              + f"({value['evaluated_policy']['lora']}) with transformers, "
               f"greedy decoding (do_sample={cfg['do_sample']}, num_beams={cfg['num_beams']}), dtype {cfg['dtype']}, "
               f"thinking off (enable_thinking={cfg['enable_thinking']}), batch {cfg['batch_size']} with "
               f"{cfg['padding_side']} padding, context budget {cfg['context_budget']} tokens, at most "
@@ -182,7 +231,7 @@ def card(value, results, chain, pair_summaries, example):
               'An answer that reaches the cap without EOS counts as a failure.', '',
               '```python', 'import json, torch',
               'from transformers import AutoModelForCausalLM, AutoTokenizer',
-              "path = 'model'  # the copied merged DPO2 directory",
+              "path = 'model'  # the copied merged directory",
               'tok = AutoTokenizer.from_pretrained(path)',
               "model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.bfloat16, device_map='auto')",
               "messages = request['messages'][:2]  # system + user, exactly as in the example",
@@ -213,12 +262,13 @@ def card(value, results, chain, pair_summaries, example):
     else:
         lines += ['J needs no size prior: `request = {\'messages\': messages(bind_room(prepared_room)[0], \'joint\')[:2]}` '
                   '(fastfill.comparison.contract).', '']
-    lines += ['## Measured results: secondary delivery comparison J-DPO2 vs P-DPO2 (one shared inference plan, '
-              'frozen geometry code)', '',
-              'This comparison decides which arm is delivered (amendment 008); it is secondary, not confirmatory. '
+    lines += [f"## Measured results: secondary delivery comparison {names['J']} vs {names['P']} (one shared inference "
+              'plan, frozen geometry code, full test set)', '',
+              'This comparison decides which arm is delivered (amendment 010: the two dev-selected models, replacing '
+              'J-DPO2 vs P-DPO2 of amendment 008); it is secondary, not confirmatory. '
               "The protocol's primary (confirmatory) comparison stays the same-stage matched SFT J0 vs P0 (protocol.md), "
               'reported in the SFT-stage report and the stage table, not in this card. Holm p below adjusts only '
-              'within (a), (b) of this DPO2 comparison.', '',
+              'within (a), (b) of this comparison.', '',
               f"Intervals: house-component cluster bootstrap, {results['repeats']} draws, seed {results['seed']}; "
               'they cover test-room sampling only, not training randomness.', '']
     rows = [[r['endpoint'], _fmt(r['J']), _fmt(r['P']), _fmt(r['delta'], True), _fmt(r['n']),
@@ -228,7 +278,7 @@ def card(value, results, chain, pair_summaries, example):
                  _fmt(complete, True), _fmt(complete['n']), 'n/a', 'n/a'])
     rows.append(['footprint size bias B = mean log(pred/GT)', _fmt(bias['J']['footprint']), _fmt(bias['P']['footprint']),
                  'n/a', 'n/a', 'n/a', 'n/a'])
-    lines += _table(['endpoint', 'J-DPO2', 'P-DPO2', 'Δ J−P [95% CI]', 'n', 'bootstrap p',
+    lines += _table(['endpoint', names['J'], names['P'], 'Δ J−P [95% CI]', 'n', 'bootstrap p',
                      'Holm p (within (a), (b); secondary)'], rows)
     every = t2['all']
     lines += [f"Delivery rule: condition (i) {_fmt(d['condition_i_size_log_mae'])}, condition (ii) "
@@ -262,10 +312,16 @@ def card(value, results, chain, pair_summaries, example):
               '- The test split is historical and was used for earlier diagnostics; it is not a fresh blind test.',
               '- Human UR not measured. Geometry success is a bounding-box check with tolerances and category exemptions, '
               'not mesh-level physics.',
-              f"- Evaluated policy ≠ delivered bytes: the numbers come from the exact policy ({value['evaluated_policy']['lora']}); "
-              'the delivered model folds that update into BF16 weights (fraction of weights changed by the final merge: '
+              ('- Evaluated policy ≠ delivered bytes: the numbers come from the SFT adapter merged at runtime on GPU '
+               f"({value['evaluated_policy']['lora']}); the delivered model is the separately produced fastfill.merge_lora "
+               'BF16 merge of the same adapter' if sft else
+               '- Evaluated policy ≠ delivered bytes: the numbers come from the exact policy '
+               f"({value['evaluated_policy']['lora']}); the delivered model folds that update into BF16 weights")
+              + ' (fraction of weights changed by its merge: '
               f"{_fmt(m['merge_changed_fraction']) if m['merge_changed_fraction_note'] is None else 'not measured'}). "
-              'The merged bytes were not re-evaluated.',
+              'The merged bytes were not re-evaluated; the listed adapter and base reproduce the evaluated policy.',
+              '- Model selection (amendment 010) used dev rooms only and was locked after the amendment-009 DPO1 test '
+              'results had been viewed (disclosed in the amendment); no test output was used to select.',
               f'- Known source defects: trained on {DATA_RELEASE}. The sensitivity rows below are the report\'s own: the '
               'GT-pass stratum, the declared known-defect test rooms excluded and, when the report was given that frozen '
               'list, the test rooms changed by the later v3.3 source correction excluded.']

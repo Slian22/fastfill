@@ -14,7 +14,8 @@
 #   build-dev                  main-data-v1 + both SFT runs' dev length admission -> dev-select-v1 (600 rooms, frozen)
 #   dev-plan                   amendment 002 shared length-sorted plan (caps) for dev-select-v1 -> dev-eval-010/plan
 #   dev-merge ARM CAND N       dev-eval-010/CAND/ARM/shard-* -> dev-eval-010/CAND/infer-ARM
-#   score                      frozen geometry over all candidates (+ report-only a009-*) -> dev-eval-010/scores
+#   score                      frozen geometry over the five selectable candidates -> dev-eval-010/scores
+#   score-report-only          sft + report-only a009-* (addendum 2) -> dev-eval-010/scores-report-only
 #   select                     selection rule -> dev-eval-010/selection.json, then submits the test chain
 #   selected-geometry J_DIR P_DIR   evaluate_pair --stage-label selected on eval-data-v1 -> geometry-v5
 # Every output is new-only.
@@ -46,7 +47,12 @@ case "$STEP" in
           --out "$EVAL/$4/infer-$3" --shards "${SHARDS[@]}") ;;
   score)
     test "$#" -eq 2
-    ARGS=(fastfill.comparison.dev_select score --data "$DEV" --root "$EVAL" --out "$EVAL/scores" --workers 30) ;;
+    ARGS=(fastfill.comparison.dev_select score --data "$DEV" --root "$EVAL" --out "$EVAL/scores" --workers 30
+          --only selectable) ;;
+  score-report-only)
+    test "$#" -eq 2
+    ARGS=(fastfill.comparison.dev_select score --data "$DEV" --root "$EVAL" --out "$EVAL/scores-report-only"
+          --workers 30 --only report-only) ;;
   select)
     test "$#" -eq 2
     command -v sbatch >/dev/null || echo "WARNING: no sbatch in this job; the selector prints the test chain" >&2
