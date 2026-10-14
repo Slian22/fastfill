@@ -86,6 +86,10 @@ handoff_20261014:
   a018_jobs: {snapshot: main-4bb8b087f, plan: 7413694 done, teacher_shards: '7413695-7413704', filter: '7413705 cancelled -> 7413841', s06_rerun: 7413840, chain: {tc_data: 7413806 done, recheck: 7413842, sft_data: 7413843, train_sft_d: 7413844, pairs_dpo1: 7413845, train_dpo1_d: 7413846, sample: 7413847, finalize: 7413848, pairs_dpo2: 7413849, train_dpo2_d: 7413850, dev: '7413851-7413859', dev_score: 7413860, select: 7413861, first_chain_cancelled: '7413802-7413821'}, addenda: {A: 24fc6fecc, B: 4bb8b087f}}
   workflows_running_2015: {a021_tooling: wfv0k2wy2, data_fixes_v34: wn26h0szg, a019_mesh: w2wk22do4, a020_tooling: w3a0p9hpy}
   a020_jobs: {addendum_A: 56a759ad2, sizers_snapshot: main-56a759ad2, rooms: 7414963, L_size_api: 7414964, O2_size: '7414965-7414970', size_report: 7414971, placers_snapshot: main-9eacf055f, placers: '7415012-7415037', api_cap: '6,500 calls (used 1,771 + needed <=3,754)'}
+  a021_jobs: {snapshot: main-06161c75b, addendum_A: 06161c75b, diag_ledger: 7416671, diag_probe: 7416672, train_setup: 7416673, eval_confirm: 7416676, plan_engine: 7416677, plan_confirm: 7416679, next: 'smoke (+smoke-vllm) -> train; engine -> o2nt -> candidates A -> select -> test'}
+  a013_selection: {adopted: op-dpo2-e1, dev_checker: '0.470 -> 0.515', test: 'deferred to 021 §4 (addendum A ca6cdd552)'}
+  a019_results: results/mesh-collision-019
+  a022: {locked: f228a4df9, tooling_workflow: wg89td30u}
   a016_local: {scale_curve: 'running locally (6 workers) -> H/scale-curve-016; no cap-rule inputs locally (T6: 0 flips)', seeds_workflow: wz2dlyjv4}
   not_started:
     a016: '§2 compare (agents_016 compare, local) after pilot S1; §3 ablation after 7407094 + seeds build; §4 OptiScene+S1 after 7406363/7408062'
