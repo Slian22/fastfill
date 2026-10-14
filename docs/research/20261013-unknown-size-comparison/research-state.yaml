@@ -2,9 +2,9 @@ project:
   title: Unknown-size matched J/P comparison
   status: active
   primary_endpoint: matched_SFT_J0_vs_P0
-phase: amendment_010_regularised_dpo_dev_selection
-observed_utc: '2026-10-14T04:45:00Z'
-scientific_status: training_audited_correct_no_retrain; source_correction_candidate_002_in_verification; amendments_002_005_locked_before_outputs
+phase: amendments_013_016_execution (scope frozen at locked amendments 011-016; no new branches)
+observed_utc: '2026-10-14T16:26:00Z'
+scientific_status: delivered P = rpo-dpo1 (amendment 010); S1 adopted (012 dev) and applied on test; 013 on-policy DPO2, 014 OptiScene reproduction, 015 E3, 016 size-confound/ablation pending GPU queue
 jobs:
   main_data: {id: 7365659, status: COMPLETED}
   sft_joint: {id: 7365681, status: COMPLETED, elapsed: '16:22:09'}
@@ -25,7 +25,7 @@ jobs:
 counts: {common_qualified_train: 98923, prior_fit_pool: 124843, dev: 8167, test: 8647}
 budgets: {requested_gpu_hours_before_amendment_002: 93.75, cap_gpu_hours: 260, max_concurrent_new_gpus: 8_after_amendment_002, api_success_cap: 360, formal_api_cap: 348}
 visual: {reference_candidates: 1009, reference_asset_eligible: 1005, gpt_preselected_rooms: 174}
-pending: [measured_tables, final_review]
+pending: see handoff_20261014.open
 human_ur: not_measured
 inference_context: {budget: 40960, batch_size: 8, policy: shared_paired_input_remaining_context, capacity_job: 7367612, peak_allocated_bytes: 73998618112}
 
@@ -60,3 +60,26 @@ visual_resource_integrity:
   point_in_time_audit: {assets: 1945, files: 6558, mismatches: 0}
   render_time_enforcement: deployed_pre_and_post_boundary_checks_transient_drift_not_excluded
 live_evidence: evidence/post-visual-binding-live-status-20261013.json
+
+# Handoff (2026-10-14 16:26 UTC). Status words: done | running | queued (Slurm PENDING, Priority=1, workq only) | not_started.
+# Code version = the snapshot each chain was submitted from (git main-<sha> under RUN/../code-snapshots); RUN = /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013; H = /Volumes/harddisk/fastfillout/unknownsize-20261013
+handoff_20261014:
+  done:
+    a012_dev_decision: {job: 7407059, snapshot: main-785ae6a74, out: results/decision-012, result: 'S1 adopted (J +0.080 [0.074,0.086], P +0.093 [0.086,0.100]); S2 not adopted'}
+    a012_test_application: {code: f45907d76, where: local Mac, params: 'max_trials 2000, time_limit_s 60, J/P all 8647 test rooms, 8 agents x harness/raw on 1454 cohort', out: 'results/test-apply-012 (H/test-apply-012/summary-2000)', bootstrap: '2000 draws seed 42', tests: '62 passed (test_test_apply_012, test_output_repair, test_room_families) at 16:24 UTC'}
+    a015_families: {job: 7408056, snapshot: main-6a48ccd32, out: 'results/families-015 (RUN/families-015)'}
+    a015_e3_plan: {job: 7408058, out: RUN/optiscene-015}
+  running:
+    visual_run_002: {where: local Mac (Blender, 2 chunks), out: H/visual-final-selected-002, progress: '~45% of 1009 rooms at 16:24 UTC (8609 PNGs = 2 views x 9 systems per room)', next: 'FID (amendment-011 populations) then GPT judge (secondary metric)'}
+    a016_tooling_workflow: {run: wf_fed13063-1d2, files: 'scale_curve.py, submit_016_scale.sh, llm_open/evaluate_llm placement arm, submit_016_agents.sh, train_dpo --sft_only, ablation_016.py, isambard_016.sbatch, submit_016_ablation.sh (+tests)', status: uncommitted, next: 'addenda A+B delta (size substitution with support-z recompute, rule-level failure table, a016-pilot 300 rooms incl. L, enforced sizes + unauthorised-size-change rate, Kendall tau, seed 43 for RFT and op-dpo2)'}
+  queued:
+    a013_onpolicy_dpo2: {snapshot: main-506b1e35c, smoke: 7407090, array: 7407091, finalize: 7407092, pairs: 7407093, train: 7407094, dev_e1: [7407095, 7407096, 7407097], dev_e2: [7407098, 7407099, 7407100], dev_score: 7407101, select: 7407102, out: 'RUN/dpo-004, RUN/dev-eval-013', rule: 'amendment-013 §3 (a′ +0.01, acceptance +0.01, complete -0.005, both dev halves)'}
+    a014_optiscene_reproduction: {snapshot: main-785ae6a74, sft: 7406351, merge_sft: 7406352, gen_sft: 7406353, dpo1: [7406354, 7406355], merge_dpo1: 7406356, gen_dpo1: 7406357, dpo2: [7406358, 7406359], merge_dpo2: 7406360, gen_dpo2: 7406361, gen_8b: 7406362, score: 7406363, out: RUN/optiscene-014, note: 'paper-comparable model = DPO2 stage; SFT/DPO1 are stage rows'}
+    a015_e3_generation: {snapshot: main-6a48ccd32, gen_sft: 7408059, gen_dpo1: 7408060, gen_dpo2: 7408061, score: 7408062, gen_8b: 'resubmit after 014 8B smoke'}
+  not_started:
+    a016: '§1/§5/§6 run locally on CPU once tooling + delta are committed; §2 pilot (300) then full cohort on GPU; §3 ablation after 7407094; §4 OptiScene+S1 after 7406363/7408062'
+  open:
+    - 'final model: SFT+DPO1+DPO2 iff 013 selects op-dpo2 on dev (then one test run), else rpo-dpo1'
+    - 'key table still missing: same-protocol gain of the new DPO2 (013 dev; 016 §3 attribution)'
+    - 'tables needing every system under one protocol: missing systems are labelled missing, never skipped silently'
+    - 'Isambard cert must be renewed before 21:48 UTC if server work remains'
