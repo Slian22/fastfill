@@ -96,7 +96,8 @@ def _selection(root, references):
         if raw is not None and uids != raw['selected_uids'][:29]:
             raise ValueError('selection must retain frozen first 29; no replacement')
         flattened.extend(uids)
-    if flattened != selected or len(selected) > 174:
+    # Same UIDs, any stratum order: the frozen file stores strata sorted by name (2026-10-14 fix).
+    if sorted(flattened) != sorted(selected) or len(selected) > 174:
         raise ValueError('frozen selection inventory mismatch')
     return selected
 

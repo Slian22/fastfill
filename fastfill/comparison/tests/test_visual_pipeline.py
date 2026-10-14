@@ -405,6 +405,16 @@ def test_output_cannot_modify_input_snapshot(tmp_path):
     assert not (ref / 'out').exists()
 
 
+def test_selection_accepts_name_sorted_strata_and_rejects_extra_uid(tmp_path):
+    references = {f'u{i}': {'stratum': s} for i, s in enumerate(('b/x', 'b/x', 'a/y'))}
+    strata = {'a/y': {'selected_uids': ['u2']}, 'b/x': {'selected_uids': ['u0', 'u1']}}  # Stored sorted by name.
+    write(tmp_path / 'gpt-selection.json', {'selected_uids': ['u0', 'u1', 'u2'], 'strata': strata, 'replacement': False})
+    assert pipeline._selection(tmp_path, references) == ['u0', 'u1', 'u2']  # Frozen global order kept.
+    write(tmp_path / 'gpt-selection.json', {'selected_uids': ['u0', 'u1'], 'strata': strata, 'replacement': False})
+    with pytest.raises(ValueError, match='inventory mismatch'):
+        pipeline._selection(tmp_path, references)
+
+
 def test_all_1009_frozen_cases_and_174_selection_accounted_without_render(tmp_path, monkeypatch):
     ref, geo, _, cases = fixture(tmp_path, n=1009)
     strata = visual_cases.STRATA
