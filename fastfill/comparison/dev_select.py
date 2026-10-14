@@ -13,14 +13,16 @@ score   --data DEV --root RUN/dev-eval-010 --out RUN/dev-eval-010/scores [--work
     Each candidate's merged dev inference ROOT/CANDIDATE/infer-ARM (shared length-sorted dev plan,
     amendment 002 caps) is verified (evaluate_pair._inference) and bound to its model (SFT adapter run, or
     the dpo-002/dpo-003 stage's exact policy), then scored by the frozen geometry.score; reached_token_cap
-    without EOS is a failure (amendment 005). Per arm and candidate: complete rate, size log MAE on rooms
-    complete in both the candidate and SFT, own footprint bias B = mean over the candidate's complete rooms
-    of the room mean log(pred/GT footprint), and a' = all-request geometry success after rescaling its x/y
-    sizes about object centres by exp(-B/2) (report_v2._derive, amendment 005).
+    without EOS is a failure (amendment 005). Per arm and candidate: complete rate, size log MAE of the
+    candidate and of SFT on the same rooms (complete in both; amendment 005 common-complete pairing), own
+    footprint bias B = mean over the candidate's complete rooms of the room mean log(pred/GT footprint),
+    and a' = all-request geometry success after rescaling its x/y sizes about object centres by exp(-B/2)
+    (report_v2._derive, amendment 005). The amendment-009 stages a009-dpo1/a009-dpo2 (dpo-001 exact
+    policy; amendment 010 addendum) are scored the same way under 'report_only': never selectable.
 select  --scores SCORES --out RUN/dev-eval-010/selection.json --code-root CODE [--shards 6] [--no-submit]
-    Eligible: SFT always; a DPO candidate iff complete rate >= SFT's - 0.01 and common log MAE <= SFT's
-    + 0.01. Selected: the eligible candidate with the highest a'; candidates within 0.005 of the best tie
-    and go to fewer training stages (sft 0, dpo1 1, dpo2 2), then higher a', then protocol order, so SFT
+    Eligible: SFT always; a DPO candidate iff complete rate >= SFT's - 0.01 and its log MAE <= SFT's log
+    MAE on the same common rooms + 0.01. Selected: the eligible candidate with the highest a'; candidates
+    within 0.005 of the best tie and go to fewer training stages (sft 0, dpo1 1, dpo2 2), then higher a', then protocol order, so SFT
     wins unless a DPO candidate is eligible and better by more than 0.005. selection.json is write-once
     with every candidate's dev metrics. Then the test chain is submitted with sbatch (fails with the exact
     commands printed if sbatch is unavailable): for each selected DPO candidate, N exact-policy test shards
@@ -54,14 +56,16 @@ SALT = 'dev-select-v1:'
 PAPER_SOURCES = ('OptiScene_holodeck', 'IL3D_3dfront')
 TARGETS = {'paper_sources': 300, 'other_sources': 300}
 CANDIDATES = ('sft', 'e1-dpo1', 'e1-dpo2', 'rpo-dpo1', 'rpo-dpo2')  # Protocol order (last tie-break).
+REPORT_ONLY = ('a009-dpo1', 'a009-dpo2')  # Amendment 010 addendum: dev-only report rows, never selectable.
+RUNS = {**{k: v[0] for k, v in d.CANDIDATES.items()}, 'a009': d.SOURCE_RUN}
 STAGE_COUNT = {'sft': 0, 'e1-dpo1': 1, 'rpo-dpo1': 1, 'e1-dpo2': 2, 'rpo-dpo2': 2}
 COMPLETE_MARGIN, MAE_MARGIN, TIE = 0.01, 0.01, 0.005
 EPS = 1e-12  # Float slack so that the rule's inclusive bounds stay inclusive.
 EXACT = 'unmerged_fp32_stage_adapter_on_bf16_training_base'
 SFT_TEST_TAG, TEST_TAG, GEOMETRY = '002', '005', 'geometry-v5'
-RULE = ("eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01 and dev size log MAE on rooms "
-        "complete in both it and SFT <= SFT + 0.01. selected: highest dev a' (own footprint bias rescale) among "
-        "eligible; candidates within 0.005 of the best tie and go to fewer training stages, then higher a', then "
+RULE = ("eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01 and its dev size log MAE <= SFT's "
+        "dev size log MAE + 0.01, both on the rooms complete in both it and SFT. selected: highest dev a' "
+        "(own footprint bias rescale) among eligible; candidates within 0.005 of the best tie and go to fewer training stages, then higher a', then "
         "protocol order sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2")
 
 
@@ -143,7 +147,7 @@ def build(args):
 
 def model_path(run_root, arm, candidate):
     recipe, stage = candidate.split('-')
-    return Path(run_root) / d.CANDIDATES[recipe][0] / arm / f'{stage}-merged'
+    return Path(run_root) / RUNS[recipe] / arm / f'{stage}-merged'
 
 
 def _bind(receipt, run_root, arm, candidate):
@@ -163,11 +167,14 @@ def _bind(receipt, run_root, arm, candidate):
 def metrics(rows, sft_rows):
     """Selection inputs of one candidate (rows after cap failures and with bias_fp)."""
     complete = [r for r in rows if r['complete']]
-    common = [r['size_log_mae'] for r, s in zip(rows, sft_rows, strict=True) if r['complete'] and s['complete']]
+    common = [(r['size_log_mae'], s['size_log_mae']) for r, s in zip(rows, sft_rows, strict=True)
+              if r['complete'] and s['complete']]
     bias = statistics.mean(r['bias_fp'] for r in complete) if complete else None
     return {'requests': len(rows), 'complete_rate': len(complete) / len(rows),
             'geometry_success_rate': sum(r['geometry_success'] for r in rows) / len(rows),
-            'size_log_mae_common_with_sft': statistics.mean(common) if common else None, 'common_with_sft': len(common),
+            'size_log_mae_common_with_sft': statistics.mean(x for x, _ in common) if common else None,
+            'sft_size_log_mae_common': statistics.mean(y for _, y in common) if common else None,  # Same rooms.
+            'common_with_sft': len(common),
             'size_log_mae_own': statistics.mean(r['size_log_mae'] for r in complete) if complete else None,
             'footprint_bias': bias, 'scale_factor': None if bias is None else math.exp(-bias / 2)}
 
@@ -184,7 +191,7 @@ def score(args):
     plans, result, files = set(), {}, {}
     for arm in ARMS:
         rows, result[arm] = {}, {}
-        for candidate in CANDIDATES:
+        for candidate in CANDIDATES + REPORT_ONLY:
             path = root / candidate / f'infer-{arm}'
             records, receipt = e._inference(path, data, expected)
             if receipt['training_data']['manifest_sha256'] != manifest['training_manifest_sha256']:
@@ -199,7 +206,7 @@ def score(args):
                                                     'manifest_sha256': h.sha256(path / 'MANIFEST.json'),
                                                     'stage': receipt.get('stage', 'sft'), 'lora': receipt['config']['lora']},
                                       'token_cap_failures': sum(caps)}
-        for candidate in CANDIDATES:
+        for candidate in CANDIDATES + REPORT_ONLY:
             value = metrics(rows[candidate], rows['sft'])
             tasks = [(r, rooms[r['uid']], requests[arm][r['uid']], value['scale_factor']) for r in rows[candidate]]
             derived = r2._map(r2._derive, tasks, args.workers)
@@ -210,7 +217,9 @@ def score(args):
     if len(plans) != 1 or None in plans:
         raise ValueError('candidates were not run on one shared dev plan')
     value = {'protocol': 'amendment-010-dev-scores', 'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
-             'uids_sha256': manifest['uids_sha256'], 'plan_sha256': plans.pop(), 'candidates': result,
+             'uids_sha256': manifest['uids_sha256'], 'plan_sha256': plans.pop(),
+             'candidates': {arm: {c: result[arm][c] for c in CANDIDATES} for arm in ARMS},
+             'report_only': {arm: {c: result[arm][c] for c in REPORT_ONLY} for arm in ARMS},
              'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(e.__file__), Path(g.__file__),
                                                            Path(r2.__file__))}}
     if _digest(expected) != value['uids_sha256']:
@@ -230,10 +239,10 @@ def choose(candidates):
 
     def eligible(name):
         m = candidates[name]
-        return name == 'sft' or (
-            sft['size_log_mae_common_with_sft'] is not None and m['size_log_mae_common_with_sft'] is not None
+        return name == 'sft' or (  # Both MAEs over the same rooms (complete in it and SFT), amendment 005 pairing.
+            m['size_log_mae_common_with_sft'] is not None
             and m['complete_rate'] >= sft['complete_rate'] - COMPLETE_MARGIN - EPS
-            and m['size_log_mae_common_with_sft'] <= sft['size_log_mae_common_with_sft'] + MAE_MARGIN + EPS)
+            and m['size_log_mae_common_with_sft'] <= m['sft_size_log_mae_common'] + MAE_MARGIN + EPS)
     names = [c for c in CANDIDATES if eligible(c)]
     best = max(candidates[c]['a_prime'] for c in names)
     tied = [c for c in names if candidates[c]['a_prime'] >= best - TIE - EPS]

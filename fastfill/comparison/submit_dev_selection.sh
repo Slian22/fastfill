@@ -9,7 +9,9 @@
 #   train CAND ARM dpo2 (4 GPUs)     <- train CAND ARM dpo1
 #   per candidate sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2 and arm:
 #     DEV_N dev shards (1 GPU)       <- dev-plan (+ the candidate's train job); dev-merge (CPU) <- its shards
-#   score (CPU)                      <- all 10 dev merges: frozen geometry, per-candidate dev metrics
+#   a009-dpo1, a009-dpo2 and arm (amendment 010 addendum: amendment-009 stages, dev-only report rows):
+#     DEV_N dev shards (1 GPU)       <- dev-plan; dev-merge (CPU) <- its shards
+#   score (CPU)                      <- all 14 dev merges: frozen geometry, per-candidate dev metrics
 #   select (CPU)                     <- score: selection.json, then submits the selected models' test chain
 # Timed-out GPU steps are resubmitted by hand with the same arguments (shards add --resume).
 set -euo pipefail
@@ -69,10 +71,10 @@ trained() {  # trained CANDIDATE ARM -> the train job id producing that model
   exit 1
 }
 MERGES=""
-for CAND in sft e1-dpo1 e1-dpo2 rpo-dpo1 rpo-dpo2; do
+for CAND in sft e1-dpo1 e1-dpo2 rpo-dpo1 rpo-dpo2 a009-dpo1 a009-dpo2; do
   for ARM in "${ARMS[@]}"; do
     AFTER="$PLAN"
-    if test "$CAND" != sft; then AFTER="$AFTER:$(trained "$CAND" "$ARM")"; fi
+    case "$CAND" in sft|a009-*) ;; *) AFTER="$AFTER:$(trained "$CAND" "$ARM")" ;; esac
     SHARDS=""
     for ((i = 0; i < N; i++)); do
       submit "dev shard $CAND $ARM $i" "$AFTER" "$S/isambard_010_infer_shard.sbatch" "$CODE_ROOT" dev "$ARM" "$CAND" "$i" "$N"

@@ -14,7 +14,7 @@
 #   build-dev                  main-data-v1 + both SFT runs' dev length admission -> dev-select-v1 (600 rooms, frozen)
 #   dev-plan                   amendment 002 shared length-sorted plan (caps) for dev-select-v1 -> dev-eval-010/plan
 #   dev-merge ARM CAND N       dev-eval-010/CAND/ARM/shard-* -> dev-eval-010/CAND/infer-ARM
-#   score                      frozen geometry over all candidates -> dev-eval-010/scores
+#   score                      frozen geometry over all candidates (+ report-only a009-*) -> dev-eval-010/scores
 #   select                     selection rule -> dev-eval-010/selection.json, then submits the test chain
 #   selected-geometry J_DIR P_DIR   evaluate_pair --stage-label selected on eval-data-v1 -> geometry-v5
 # Every output is new-only.
@@ -38,7 +38,7 @@ case "$STEP" in
   dev-merge)
     test "$#" -eq 5
     case "$3" in joint|placement) ;; *) exit 2 ;; esac
-    case "$4" in sft|e1-dpo1|e1-dpo2|rpo-dpo1|rpo-dpo2) ;; *) exit 2 ;; esac
+    case "$4" in sft|e1-dpo1|e1-dpo2|rpo-dpo1|rpo-dpo2|a009-dpo1|a009-dpo2) ;; *) exit 2 ;; esac
     case "$5" in ''|*[!0-9]*) exit 2 ;; esac
     SHARDS=()
     for ((i = 0; i < $5; i++)); do SHARDS+=("$EVAL/$4/$3/shard-$(printf %02d "$i")"); done

@@ -120,7 +120,8 @@ def plan_for(data, out):
     return out
 
 
-KINDS = {'sft': 'collide', 'e1-dpo1': 'good', 'e1-dpo2': 'good', 'rpo-dpo1': 'broken', 'rpo-dpo2': 'collide'}
+KINDS = {'sft': 'collide', 'e1-dpo1': 'good', 'e1-dpo2': 'good', 'rpo-dpo1': 'broken', 'rpo-dpo2': 'collide',
+         'a009-dpo1': 'good', 'a009-dpo2': 'broken'}  # Report-only rows; a009-dpo1 would win if it were selectable.
 
 
 def fake_sbatch(log, fail_on=None):
@@ -142,10 +143,18 @@ def test_dev_scores_rule_selection_and_test_chain_submission(dev, monkeypatch):
     monkeypatch.setenv('SLURM_JOB_ID', '7')  # Must not leak into the selector's sbatch calls.
     with pytest.raises(ValueError, match='not joint/e1-dpo2'):  # Each dev inference is bound to its model.
         ds._bind(h.strict_json((merged['e1-dpo1', 'joint'] / 'run_receipt.json').read_text()), root, 'joint', 'e1-dpo2')
+    with pytest.raises(ValueError, match='not joint/a009-dpo1'):  # Amendment-009 rows bind to dpo-001, not dpo-002.
+        ds._bind(h.strict_json((merged['e1-dpo1', 'joint'] / 'run_receipt.json').read_text()), root, 'joint', 'a009-dpo1')
     result = ds.score(ns(data=dev.out, root=root / 'dev-eval-010', out=root / 'dev-eval-010/scores', workers=1))
-    assert result['joint'] == {'sft': 0.0, 'e1-dpo1': 1.0, 'e1-dpo2': 1.0, 'rpo-dpo1': 0.0, 'rpo-dpo2': 0.0}
+    assert result['joint'] == {'sft': 0.0, 'e1-dpo1': 1.0, 'e1-dpo2': 1.0, 'rpo-dpo1': 0.0, 'rpo-dpo2': 0.0,
+                               'a009-dpo1': 1.0, 'a009-dpo2': 0.0}
     scores = h.strict_json((root / 'dev-eval-010/scores/scores.json').read_text())
     joint = scores['candidates']['joint']
+    assert set(joint) == set(ds.CANDIDATES) and set(scores['report_only']['joint']) == set(ds.REPORT_ONLY)
+    report = scores['report_only']['joint']
+    assert report['a009-dpo1']['inference']['path'] == str((root / 'dev-eval-010/a009-dpo1/infer-joint').resolve())
+    assert report['a009-dpo1']['a_prime'] == 1.0 and report['a009-dpo2']['complete_rate'] == 0
+    assert joint['e1-dpo1']['sft_size_log_mae_common'] == joint['sft']['size_log_mae_common_with_sft']
     assert joint['rpo-dpo1']['complete_rate'] == 0 and joint['rpo-dpo1']['size_log_mae_common_with_sft'] is None
     assert joint['e1-dpo1']['complete_rate'] == 1 and joint['e1-dpo1']['footprint_bias'] < 0  # 0.5 m vs GT 0.6 m.
     assert joint['e1-dpo1']['size_log_mae_common_with_sft'] == joint['sft']['size_log_mae_common_with_sft'] > 0
@@ -157,6 +166,7 @@ def test_dev_scores_rule_selection_and_test_chain_submission(dev, monkeypatch):
     selected = ds.select(ns(scores=root / 'dev-eval-010/scores', out=root / 'dev-eval-010/selection.json',
                             code_root=CODE, shards=2), run=fake_sbatch(log), which=lambda name: '/usr/bin/' + name)
     assert selected['selected'] == {'joint': 'e1-dpo1', 'placement': 'e1-dpo1'}  # Tie with e1-dpo2: fewer stages.
+    # (a009-dpo1 ties too, with fewer stages than e1-dpo2, but it is report-only and never considered.)
     value = h.strict_json((root / 'dev-eval-010/selection.json').read_text())
     assert value['arms']['joint']['eligible'] == ['sft', 'e1-dpo1', 'e1-dpo2', 'rpo-dpo2']
     assert value['arms']['joint']['tied'] == ['e1-dpo1', 'e1-dpo2'] and set(value['arms']['joint']['candidates']) == set(ds.CANDIDATES)
@@ -208,8 +218,9 @@ def test_selection_without_sbatch_prints_the_exact_commands_and_fails(capsys):
     assert len(log) == 3
 
 
-def m(complete, mae, a):
-    return {'complete_rate': complete, 'size_log_mae_common_with_sft': mae, 'a_prime': a}
+def m(complete, mae, a, sft_mae=.30):
+    return {'complete_rate': complete, 'size_log_mae_common_with_sft': mae, 'sft_size_log_mae_common': sft_mae,
+            'a_prime': a}
 
 
 def test_rule_eligibility_margins_ties_and_sft_fallback():
@@ -226,10 +237,36 @@ def test_rule_eligibility_margins_ties_and_sft_fallback():
     worse = {c: m(.5, 1., .99) for c in ds.CANDIDATES if c != 'sft'}
     assert ds.choose({'sft': m(.9, .3, .1), **worse}) == {'selected': 'sft', 'eligible': ['sft'], 'tied': ['sft'],
                                                          'best_a_prime': .1}
-    no_sft_mae = {**base, 'sft': m(0., None, 0.)}  # SFT never complete: nothing can be compared, SFT stays.
+    no_sft_mae = {c: m(.9, None, .9, sft_mae=None) for c in ds.CANDIDATES}  # As metrics() gives for an SFT that
+    no_sft_mae['sft'] = m(0., None, 0., sft_mae=None)  # is never complete: no common rooms, nothing compared, SFT stays.
     assert ds.choose(no_sft_mae)['selected'] == 'sft'
     with pytest.raises(ValueError, match='every candidate'):
         ds.choose({'sft': base['sft']})
+    # The MAE bound is SFT's MAE on the candidate's common rooms, not SFT's MAE on all its own complete rooms.
+    assert ds.choose({**base, 'e1-dpo2': m(.95, .20, .60, sft_mae=.18)})['selected'] == 'e1-dpo1'
+
+
+def row(complete, mae):
+    return {'complete': complete, 'size_log_mae': mae if complete else None, 'geometry_success': complete,
+            'bias_fp': 0.0 if complete else None}
+
+
+def test_mae_eligibility_compares_the_same_rooms():
+    """Review regression: both complete 90/100; the candidate is 0.03 worse on all 81 shared rooms and fails
+    the 9 hard rooms SFT completes (MAE 0.60), completing 9 SFT failures instead. Its common MAE (0.28) is
+    below SFT's own-room MAE + 0.01 (0.295) but above SFT's MAE on the same rooms + 0.01 (0.26)."""
+    sft = [row(True, .25)] * 81 + [row(True, .60)] * 9 + [row(False, 0)] * 10
+    worse = [row(True, .28)] * 81 + [row(False, 0)] * 9 + [row(True, .40)] * 9 + [row(False, 0)]
+    better = [row(True, .24)] * 81 + [row(False, 0)] * 9 + [row(True, .40)] * 9 + [row(False, 0)]
+    ref = ds.metrics(sft, sft)
+    assert ref['size_log_mae_common_with_sft'] == ref['sft_size_log_mae_common'] == pytest.approx(.285)
+    for rows, eligible in ((worse, False), (better, True)):
+        value = ds.metrics(rows, sft)
+        assert value['complete_rate'] == ref['complete_rate'] == .9 and value['common_with_sft'] == 81
+        assert value['sft_size_log_mae_common'] == pytest.approx(.25)
+        scored = {c: {**ref, 'a_prime': .1} for c in ds.CANDIDATES}
+        chosen = ds.choose({**scored, 'e1-dpo1': {**value, 'a_prime': .9}})
+        assert ('e1-dpo1' in chosen['eligible']) is eligible and chosen['selected'] == ('e1-dpo1' if eligible else 'sft')
 
 
 def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
@@ -253,8 +290,13 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     for k, (cand, jobs) in enumerate(after.items()):
         for j, arm in enumerate(h.ARMS):
             assert log[14 + 4 * k + 2 * j] == f'{kill}102:{jobs[j]} isambard_010_infer_shard.sbatch CODE dev {arm} {cand} 0 1'
-    merges = ':'.join(str(112 + 2 * k) for k in range(10))
-    assert log[30:] == [f'{kill}{merges} isambard_010_cpu.sbatch CODE score', f'{kill}131 isambard_010_cpu.sbatch CODE select']
+    for k, cand in enumerate(ds.REPORT_ONLY):  # Report-only amendment-009 stages: models exist, only the plan.
+        for j, arm in enumerate(h.ARMS):
+            assert log[30 + 4 * k + 2 * j:32 + 4 * k + 2 * j] == [
+                f'{kill}102 isambard_010_infer_shard.sbatch CODE dev {arm} {cand} 0 1',
+                f'{kill}{131 + 4 * k + 2 * j} isambard_010_cpu.sbatch CODE dev-merge {arm} {cand} 1']
+    merges = ':'.join(str(112 + 2 * k) for k in range(14))
+    assert log[38:] == [f'{kill}{merges} isambard_010_cpu.sbatch CODE score', f'{kill}139 isambard_010_cpu.sbatch CODE select']
     assert run.stdout.splitlines()[-1] == 'released build-dev 101'
     assert (tmp_path / 'log.scontrol').read_text() == 'scontrol release 101\n'
     failed = tmp_path / 'failed'
@@ -270,6 +312,9 @@ def test_submit_chain_dependencies_with_stub_sbatch(tmp_path):
     ('isambard_010_infer_shard.sbatch', ['test', 'joint', 'rpo-dpo2', '5', '6'], True),
     ('isambard_010_infer_shard.sbatch', ['test', 'joint', 'sft', '0', '6'], False),  # SFT test output is reused.
     ('isambard_010_infer_shard.sbatch', ['dev', 'joint', 'dpo2', '0', '2'], False),
+    ('isambard_010_infer_shard.sbatch', ['dev', 'placement', 'a009-dpo2', '1', '2'], True),
+    ('isambard_010_infer_shard.sbatch', ['test', 'placement', 'a009-dpo2', '0', '6'], False),  # Dev-only report row.
+    ('isambard_010_cpu.sbatch', ['dev-merge', 'placement', 'a009-dpo1', '2'], True),
     ('isambard_dpo_train.sbatch', ['joint', 'dpo1', 'rpo'], True),
     ('isambard_dpo_train.sbatch', ['joint', 'dpo1', 'official'], False),
     ('isambard_010_cpu.sbatch', ['selected-geometry', f'{RUN}/infer-joint-002', f'{RUN}/infer-placement-005'], True),
