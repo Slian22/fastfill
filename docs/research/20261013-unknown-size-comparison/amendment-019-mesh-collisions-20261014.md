@@ -23,3 +23,18 @@ Locked 2026-10-14 (UTC), before any mesh-collision output exists. Prompted by th
 - **For GT:** the A4 categories of amendment-017 evidence (tucked, box artefact, small overlap, contained, genuine), each against the mesh verdict.
 - **CIs:** house-cluster bootstrap CIs on paired differences vs P.
 - **Status:** descriptive; no decision rule.
+
+## Addendum A (locked before the full run; implementation details from the tool review)
+
+**Disclosure.** Tooling agents ran the tool on 20 and 40 rooms to measure timing and check placement. They reported mesh-collision counts only as tooling diagnostics (for example, 3 of GT's 7 colliding pairs at τ = 500 in 20 rooms are mostly a flush contact layer). No system-level comparison was seen.
+
+1. **Triangle sampling** is ≤ 0.5 cm, i.e. pitch/4. Some assets have holes (open boundary edges); at 1 cm sampling the hole-filling leaked through them and under-counted solids by up to 43%. Voxelisation is chunked; the results are identical.
+2. **Systems.** Every system rendered in the visual run is reported, including O1a and O1b (labelled).
+3. **"Shell only" column.** It means the fill added no voxels. This is a voxel-level property and depends on the system's sizes; it is not mesh watertightness.
+4. **Flush contact.** Two flat faces in contact can share one 2 cm voxel layer, about 2 cm × the contact area. In that case a flush contact is counted at the primary τ = 500 cm³. The primary metric stays exactly as locked.
+   - Added diagnostic, labelled "not pre-registered": `deep_cm3`, the interpenetration volume after removing the voxels that lie on both objects' surface shells.
+   - No claim may rest on the diagnostic alone.
+5. **Rooms and outputs left out.**
+   - Rooms whose fixed items have no asset are reported as missing.
+   - Each system's outputs that could not be placed are counted per system.
+   - After the render completes, the run is checked against the render ledger (`chunks/*/render/ledger.json`).
