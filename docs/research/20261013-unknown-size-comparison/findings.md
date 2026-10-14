@@ -69,6 +69,21 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
   - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
   - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
 
+## On-policy DPO2 (amendment 013; dev-select, 600 rooms, HF exact policy)
+
+- op-dpo2-e1 is adopted. Against rpo-dpo1:
+  - checker success 0.470 → 0.515;
+  - a′ 0.435 → 0.488;
+  - downstream (strict admission) acceptance 0.252 → 0.332;
+  - complete 0.998 → 0.995.
+- The gain holds in both dev halves:
+  - a′ in OptiScene_holodeck + IL3D_3dfront rooms: 0.467 → 0.563;
+  - a′ in other sources: 0.403 → 0.413.
+- Epoch 2 over-trains: complete falls to 0.942.
+- **Pair data.** 4,496 pairs from 1,514 train rooms. Each rejected sample is the model's own failure; its chosen is that same sample's S1 repair.
+- **Test.** No test number yet: the test run is deferred to amendment 021 §4 (013 addendum A).
+- **The attribution question stays open.** Whether the preference construction adds anything beyond the repaired data is the amendment 016 §3 ablation (RFT / perturbation / seeds), now running.
+
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
 **Corrected comparison**
