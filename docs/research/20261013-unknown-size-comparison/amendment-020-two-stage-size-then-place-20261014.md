@@ -42,3 +42,13 @@ Locked 2026-10-14 (UTC), before any amendment-020 call, generation or score exis
   | OptiScene generation, 2 new modes | ~4 |
   | P inference, 2 modes on ≤ 1,877 rooms | ~10 |
   | Total cap | 30 |
+
+## Addendum A (locked before any amendment-020 output exists)
+
+- **The locked cap rule could never pass.** §2's rule "used + 1,877 × 3 ≤ 4,800" fails before a single call is made, because 1,877 × 3 = 5,631 > 4,800.
+- **Corrected budget.**
+  - The amendment-002 LLM-agent call cap is raised from 4,800 to **6,500** calls.
+  - L-size gets one answer plus at most **one** repair round per room, instead of two, so it needs at most 1,877 × 2 = 3,754 calls. The worst case so far is ≤ 2,675 calls used, which gives ≤ 6,429 in total.
+  - The expected real spend is about 1,900–2,100 calls, because size-only answers rarely need a repair.
+- **O2-size** (free, GPU) keeps the agents' two repair rounds.
+- **Failures.** A room still invalid after its repair is a failure. It is carried as a failure and never dropped.
