@@ -123,3 +123,9 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
 - 主要终点：(a) J 0.3882 vs P 0.3896，Δ −0.0014 [−0.0122, +0.0091]；(b) log MAE J 0.2861 vs P 0.2817，Δ +0.0044 [+0.0005, +0.0084]，Holm p 0.066。J 足迹偏差 −0.083，(a′) Δ −0.051。按修订 005 规则 SFT 阶段会交付 P（正式交付在 DPO2 阶段决定）。
 - gpt-6.1-sol（队列 1,454）：几何成功 0.935 vs J 0.431 / P 0.510；尺寸 log MAE 0.300 vs 0.243 / 0.239。
 - 综合见 findings.md。O6（Qwen3.8-Flash-Next）冒烟通过，全量运行中；J DPO1 完成，DPO2 训练与 DPO1 测试分片运行中。
+
+## 2026-10-14 01:10–02:10 UTC — Agency SFT 审计、报表修正、O5 修复
+
+- Agency 审计（wf_b7ae99d6-8df，3 审计 + 3 Reality Check）：评分路径无伪影；API agent 强烈缩小尺寸（B_L −0.175），去偏后 L 0.765 仍高于 J 0.371 / P 0.515，但仅略高于 GT；J/P 与 GT 的差距约 70% 来自可移动物体重叠，集中于多物体合成房间与大房间越界；J 的优势主要来自 SceneSmith；GT-pass 层 (b) 反号。findings 重写（adc3a35be），审计记录入库。
+- report_v2 修正（7e433e779、281257f25）：房屋组件数与 CI 抑制/标记、所有系统的足迹偏差与 (a′)（EXPLORATORY，按系统自身完整掩码）、交付规则仅 DPO2 有约束力、警告渲染、阶段感知标题。旧 DPO 报告作业 7389197/7389198 取消；以同一快照 main-281257f25 重新生成 SFT 报告 7394712（report-v2-JPL-002）、DPO1 7394713、DPO2+L 7394714。
+- O5（DeepSeek-V4-Flash）冒烟 7385474 失败：DeepGEMM JIT 断言 nvcc ≥ 12.9，集群模块为 12.6；改用 vLLM 环境内 pip CUDA 13.4 nvcc（79b049733），重提 O5 冒烟 7394628 / 全量 7394629（singleton 排队）与评估 7394641 / 7394642。O6 全量与评估完成；O4 全量运行中。
