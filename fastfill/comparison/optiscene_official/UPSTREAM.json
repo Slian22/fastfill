@@ -1,0 +1,74 @@
+{
+  "upstream": "https://github.com/PolySummit/OptiScene",
+  "commit": "409f1317e1a8afe852f4cdc99dfefaed30aeb425",
+  "fixes": {
+    "F1": "command line only: dataset/dpo1_prompts.json -> dataset/dpo_prompts.json (released name)",
+    "F2": "main.py: OptiSceneScriptArguments(ScriptArguments) with dataset_name=\"local-json\" (unused) and dataset_file=None, used in TrlParser((..., DPOConfig, ModelConfig))",
+    "F3": "scripts/dpo_train.py: trainer.train(resume_from_checkpoint=get_last_checkpoint(training_args.output_dir))",
+    "F4": "conditional, NOT applied: only if env-check cannot import modelscope",
+    "F5": "scripts/sft_train.py: gradient_checkpointing=True in SFTConfig (memory only; same adapter: trl enables input grads, checkpoint keeps the dropout RNG)"
+  },
+  "files": {
+    "main.py": {
+      "upstream_sha256": "3e5a46ca05e1623a47f93cb3e7cb0735f30b0e3e9eb5eab2b6b16ea5f035bea1",
+      "vendored_sha256": "c808d2967f5097fbec7ddf80da1ae0cfebf7f9534e97d12b5b9b336b41f69378",
+      "fixes": [
+        "F2"
+      ]
+    },
+    "utils.py": {
+      "upstream_sha256": "09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f",
+      "vendored_sha256": "09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f",
+      "fixes": []
+    },
+    "prompt.py": {
+      "upstream_sha256": "dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56",
+      "vendored_sha256": "dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56",
+      "fixes": []
+    },
+    "default_prompt.txt": {
+      "upstream_sha256": "39cd6c2331bc74b76bec7e87e62365e5d86b1947b9a5660c22fed0a92444ad55",
+      "vendored_sha256": "39cd6c2331bc74b76bec7e87e62365e5d86b1947b9a5660c22fed0a92444ad55",
+      "fixes": []
+    },
+    "environment.yml": {
+      "upstream_sha256": "490ed14240ee7b21bbc46124dac2eceefd59b714874f37722f6b0f96565ce950",
+      "vendored_sha256": "490ed14240ee7b21bbc46124dac2eceefd59b714874f37722f6b0f96565ce950",
+      "fixes": []
+    },
+    "README.md": {
+      "upstream_sha256": "4a489c398b28745793d4b729a55703cd24c4c3e3cf109d36b8fd9e6dfe1c32f7",
+      "vendored_sha256": "4a489c398b28745793d4b729a55703cd24c4c3e3cf109d36b8fd9e6dfe1c32f7",
+      "fixes": []
+    },
+    "scripts/__init__.py": {
+      "upstream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "vendored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixes": []
+    },
+    "scripts/dpo_train.py": {
+      "upstream_sha256": "0cd3668d4079890ad4be61f97a1bbde1254f7298bf263b219ab02ee4f271c73c",
+      "vendored_sha256": "34ba07e471a66ab95eb62a5d437d9fa6d224b8fd1465a18d471a9d7b66cee360",
+      "fixes": [
+        "F3"
+      ]
+    },
+    "scripts/sft_train.py": {
+      "upstream_sha256": "a3539ea3eb356228eddab5845034c8836e220f5387306b93b437b3e36086a2c1",
+      "vendored_sha256": "342b854a642e58bdebe62c2048e555871261615c33443359bed8d5e68d261450",
+      "fixes": [
+        "F5"
+      ]
+    },
+    "scripts/merge_lora.py": {
+      "upstream_sha256": "0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6",
+      "vendored_sha256": "0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6",
+      "fixes": []
+    },
+    "scripts/inference.py": {
+      "upstream_sha256": "36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19",
+      "vendored_sha256": "36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19",
+      "fixes": []
+    }
+  }
+}
