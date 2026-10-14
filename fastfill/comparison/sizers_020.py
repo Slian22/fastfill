@@ -67,6 +67,7 @@ PROTOCOL = 'amendment-020'
 # Amendment 020 addendum A: the LLM-agent call cap (amendment 002's 4,800) is raised to 6,500 and L-size gets one answer
 # + at most one repair round per room (O2-size, free, keeps llm_agent.REPAIRS rounds).
 CAP, L_REPAIRS = 6500, 1
+L_MODEL = 'gpt-6.1-sol'  # The API agent L (amendment 002).
 CALLS_PER_ROOM = 1 + L_REPAIRS
 SEED = 42
 SIZE_DEFINITION = 'size=[sx,sy,sz] denotes positive extents along local X,Y,Z; local +X is the front.'
@@ -503,7 +504,8 @@ def _l_joint(root, data_sha, uids):
     manifest = e._verified(root)
     summary = h.strict_json((root / 'summary.json').read_text())
     if (summary.get('status') != 'LLM_COMPARISON_COMPLETE' or summary.get('data_manifest_sha256') != data_sha
-            or summary.get('system') != 'L' or summary['llm']['config'].get('request_arm', 'joint') != 'joint'):
+            or summary.get('system', 'L') != 'L' or summary['llm']['config'].get('model') != L_MODEL  # Older
+            or summary['llm']['config'].get('request_arm', 'joint') != 'joint'):  # summaries carry no 'system' key.
         raise ValueError(f'{root}: not a complete J-input evaluation of L on this data')
     keep = set(uids)
     return {r['uid']: ({o['id']: o['size'] for o in r['raw_layout']} if r['complete'] else None)

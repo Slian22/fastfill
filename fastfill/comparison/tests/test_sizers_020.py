@@ -290,7 +290,7 @@ def _l_joint(world, uids):
              'raw_layout': [{'id': o['id'], 'size': [v * 0.8 for v in o['size']]} for o in world.labels[u]['objects']]}
             for u in uids]
     (root / 'llm_harness-geometry.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
-    h.write_json(root / 'summary.json', {'status': 'LLM_COMPARISON_COMPLETE', 'system': 'L', 'llm': {'config': {}},
+    h.write_json(root / 'summary.json', {'status': 'LLM_COMPARISON_COMPLETE', 'llm': {'config': {'model': S.L_MODEL}},
                                          'data_manifest_sha256': h.sha256(world.data / 'MANIFEST.json')})
     h.write_json(root / 'MANIFEST.json', {'files': h.artifact_manifest(root)})
     return root
@@ -401,3 +401,16 @@ def test_submit_chain_dependencies_gpu_ceiling_and_api_guard(tmp_path):
     assert done.returncode == 1 and log == [] and 'already in Slurm' in done.stderr
     done, log, _ = _submit(tmp_path / 'd', rate=20.0)
     assert done.returncode == 1 and log == [] and 'GPU ceiling' in done.stderr
+
+
+def test_l_joint_accepts_summaries_without_a_system_key_and_checks_the_model(world):
+    root = _l_joint(world, ['il-bed-0', 'x-00'])  # The real llm-eval-L-selected-v1 summary has no 'system' key.
+    data_sha = h.sha256(world.data / 'MANIFEST.json')
+    assert set(S._l_joint(root, data_sha, ['il-bed-0', 'x-00'])) == {'il-bed-0', 'x-00'}
+    summary = json.loads((root / 'summary.json').read_text())
+    summary['llm']['config']['model'] = 'other-model'
+    h.write_json(root / 'summary.json', summary)
+    (root / 'MANIFEST.json').unlink()  # Re-seal: only the model differs.
+    h.write_json(root / 'MANIFEST.json', {'files': h.artifact_manifest(root)})
+    with pytest.raises(ValueError, match='not a complete J-input evaluation of L'):
+        S._l_joint(root, data_sha, ['il-bed-0'])
