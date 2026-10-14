@@ -1,0 +1,5 @@
+stage,rule_outcome,condition_i_size_log_mae,condition_ii_debiased_success,note,missing
+sft,P,False,False,仅供参考，非交付决定,
+dpo1,P,False,True,仅供参考，非交付决定,
+dpo2,,,,已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析,rule_outcome: 已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析; condition_i_size_log_mae: 已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析; condition_ii_debiased_success: 已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析
+selected,P,False,False,正式交付决定（修订 010：两臂 dev 选定模型）,

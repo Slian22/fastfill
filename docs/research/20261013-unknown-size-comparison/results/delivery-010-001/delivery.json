@@ -1,0 +1,498 @@
+{
+  "status": "DELIVERY_PACKAGE_READY",
+  "amendments": [
+    "005",
+    "008",
+    "009",
+    "010"
+  ],
+  "rule": "amendment 005 §1 rule applied to J-selected vs P-selected (amendment 010: each arm's model selected on dev only; replaces J-DPO2 vs P-DPO2 of amendment 008): deliver J iff J−P size log MAE on common-complete rooms has its paired 95 % CI below zero and the size-debiased success (a′) J−P has 95 % CI lower bound ≥ −0.02; otherwise P; any undefined interval delivers P",
+  "chosen_arm": "P",
+  "arm": "placement",
+  "candidate": "rpo-dpo1",
+  "candidates": {
+    "joint": "sft",
+    "placement": "rpo-dpo1"
+  },
+  "decision": {
+    "delivered": "P",
+    "condition_i_size_log_mae": false,
+    "condition_ii_debiased_success": false,
+    "margin": -0.02,
+    "inputs": {
+      "b_size_log_mae_joint_minus_placement": {
+        "estimate": 0.004640402433211638,
+        "ci95": [
+          0.0007017409328466634,
+          0.008691711285323553
+        ],
+        "p": 0.021,
+        "n": 8602,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "a_prime_debiased_success_joint_minus_placement": {
+        "estimate": -0.060367757603793225,
+        "ci95": [
+          -0.07118950732655288,
+          -0.049316070800720264
+        ],
+        "p": 0.0,
+        "n": 8647,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    },
+    "stage": "selected",
+    "binding": true,
+    "raw_a_joint_minus_placement": {
+      "estimate": -0.009829998843529548,
+      "ci95": [
+        -0.02127922032474804,
+        0.0016427370104357534
+      ],
+      "p": 0.095,
+      "n": 8647,
+      "warnings": [
+        "singleton_source_signature_strata"
+      ]
+    },
+    "B_footprint": {
+      "J": {
+        "estimate": -0.08288392492273443,
+        "ci95": [
+          -0.09424889784440009,
+          -0.07243226782264404
+        ],
+        "p": 0.0,
+        "n": 8602,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      },
+      "P": {
+        "estimate": 0.014531774702754862,
+        "ci95": [
+          0.0028558780629949817,
+          0.02652627778772017
+        ],
+        "p": 0.014,
+        "n": 8602,
+        "warnings": [
+          "singleton_source_signature_strata"
+        ]
+      }
+    },
+    "scale_factor": {
+      "joint": 1.0423126668343305,
+      "placement": 0.9927604453926092
+    },
+    "gt_reference_success": 0.7230253267029028,
+    "a_prime": {
+      "J": 0.3439343124783162,
+      "P": 0.4043020700821094
+    },
+    "raw_a": {
+      "J": 0.38822713079680815,
+      "P": 0.3980571296403377
+    }
+  },
+  "dev_selection": {
+    "rule": "eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01 and its dev size log MAE <= SFT's dev size log MAE + 0.01, both on the rooms complete in both it and SFT. selected: highest dev a' (own footprint bias rescale) among eligible; candidates within 0.005 of the best tie and go to fewer training stages, then higher a', then protocol order sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2",
+    "selection_sha256": "f094395f3be366930a39dec66c141410f2f6db560b18dd32448de35602114e13",
+    "uids_sha256": "2f04f2246315de81359447ae0b9d4ccb16bfd90a7de2a38923ce3b7e1104c4df",
+    "rooms": 600,
+    "selected": "rpo-dpo1",
+    "eligible": [
+      "sft",
+      "e1-dpo1",
+      "rpo-dpo1"
+    ],
+    "tied": [
+      "rpo-dpo1"
+    ],
+    "best_a_prime": 0.435,
+    "candidates": {
+      "sft": {
+        "inference": {
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/sft/infer-placement",
+          "run_sha256": "891d0ff7cff5054e16dbb57a30bd7173837b3da0d23a6daf7227a180173de3ad",
+          "manifest_sha256": "84da8cbdc1fedf9b6770d4ddc99381cac1d7f993b7e134ef15eaa4f81f5f1c56",
+          "stage": "sft",
+          "lora": "merge_and_unload_bf16"
+        },
+        "token_cap_failures": 0,
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success_rate": 0.4083333333333333,
+        "size_log_mae_common_with_sft": 0.23396453317762048,
+        "sft_size_log_mae_common": 0.23396453317762048,
+        "common_with_sft": 599,
+        "size_log_mae_own": 0.23396453317762048,
+        "footprint_bias": -0.05558287629317416,
+        "scale_factor": 1.0281812226764873,
+        "a_prime": 0.38166666666666665
+      },
+      "e1-dpo1": {
+        "inference": {
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/e1-dpo1/infer-placement",
+          "run_sha256": "6d9a20917a27b37c5bb2336f821ab2c98740b0ce69adbbd5656e08efe325f5cf",
+          "manifest_sha256": "64f0c239266bde1b7464712b59a7fb754557fc3fd3565980c738b936cad841ac",
+          "stage": "dpo1",
+          "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+        },
+        "token_cap_failures": 0,
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success_rate": 0.4216666666666667,
+        "size_log_mae_common_with_sft": 0.23391769535381485,
+        "sft_size_log_mae_common": 0.23391769535381485,
+        "common_with_sft": 598,
+        "size_log_mae_own": 0.2345787095111161,
+        "footprint_bias": -0.05402971575646473,
+        "scale_factor": 1.0273830673826023,
+        "a_prime": 0.39166666666666666
+      },
+      "e1-dpo2": {
+        "inference": {
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/e1-dpo2/infer-placement",
+          "run_sha256": "79e95893e5a3af13ed0b06643e71500809d235ba7c499eaf2ce76e4e825edfc9",
+          "manifest_sha256": "ba802115b3fff3fca3524908b3c8f828cb40ae5ecfa47122da8aba775fd4f46d",
+          "stage": "dpo2",
+          "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+        },
+        "token_cap_failures": 3,
+        "requests": 600,
+        "complete_rate": 0.42833333333333334,
+        "geometry_success_rate": 0.18666666666666668,
+        "size_log_mae_common_with_sft": 0.26677364069193904,
+        "sft_size_log_mae_common": 0.26677364069193904,
+        "common_with_sft": 256,
+        "size_log_mae_own": 0.26818644822067567,
+        "footprint_bias": -0.06140143596176886,
+        "scale_factor": 1.0311768450125605,
+        "a_prime": 0.17666666666666667
+      },
+      "rpo-dpo1": {
+        "inference": {
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/rpo-dpo1/infer-placement",
+          "run_sha256": "55187d2a05f06101d73274859c5aa39126d70ba4361245ed9b2fbf89bd7da51f",
+          "manifest_sha256": "4c7f602bb4226dee5210864e0e3be64d7edb7788dda2b328c9a63ef83a619118",
+          "stage": "dpo1",
+          "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+        },
+        "token_cap_failures": 0,
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success_rate": 0.47,
+        "size_log_mae_common_with_sft": 0.23391769535381485,
+        "sft_size_log_mae_common": 0.23391769535381485,
+        "common_with_sft": 598,
+        "size_log_mae_own": 0.2345787095111161,
+        "footprint_bias": -0.05402971575646473,
+        "scale_factor": 1.0273830673826023,
+        "a_prime": 0.435
+      },
+      "rpo-dpo2": {
+        "inference": {
+          "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/rpo-dpo2/infer-placement",
+          "run_sha256": "6f500368ab6f4aedd7610eaa7b2740de21f7a118ce6259820bd847582382e5af",
+          "manifest_sha256": "f8c5ed69c2e577d86e4a07e973a4afec50fb2d5d57e671176524bfdb2dc07fc2",
+          "stage": "dpo2",
+          "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base"
+        },
+        "token_cap_failures": 8,
+        "requests": 600,
+        "complete_rate": 0.9683333333333334,
+        "geometry_success_rate": 0.43166666666666664,
+        "size_log_mae_common_with_sft": 0.23248864214577214,
+        "sft_size_log_mae_common": 0.23248864214577214,
+        "common_with_sft": 580,
+        "size_log_mae_own": 0.23317259487112754,
+        "footprint_bias": -0.05393747410353337,
+        "scale_factor": 1.02733568471911,
+        "a_prime": 0.4
+      }
+    }
+  },
+  "model": {
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged",
+    "stage": "dpo1",
+    "model_sha256": "bbbb2c18a276d84cdd4700405e71e72bbae7db7473be287fe899baf7ef359a58",
+    "model_sha256_definition": "sha256 of the sorted JSON file->sha256 manifest (dpo_stages lineage receipt)",
+    "files": {
+      "chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "config.json": "6dbedfb51cf68ebea47e96217172f551818fc21d3b3ec6202d819a61adaae2a2",
+      "generation_config.json": "5292414bc5c987a1498cf50e6370ecf4939f451e023c74bb3facbdce8445a153",
+      "model.safetensors": "ae090b19f7bd211c5e676c3c109f55f08c870e207c929bbc724db5250c7c145a",
+      "run_manifest.json": "b5bb8786a0c44e82db023a0400021eb066f755d99196dba5120cbc0b2cacdc98",
+      "tokenizer.json": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "tokenizer_config.json": "01db94287eca2abcaaf275c24da51da85e555d5627dfe00f795051229f18728d"
+    },
+    "merge": "fastfill.merge_lora: BF16 PeftModel.merge_and_unload",
+    "merge_changed_fraction": 0.06747777222776735,
+    "merge_changed_fraction_note": null,
+    "lineage_receipt": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged.json",
+    "lineage_receipt_sha256": "a6d383a947e5e7695876248f338c701aba29b1d2f3c4896e740e36f468b60192",
+    "base_revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "base_sha256": "69d069331c87531e7aa054e70085cef25752b3e6e3614b03e851a2e997a4b85b",
+    "training_data_manifest_sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6"
+  },
+  "evaluated_policy": {
+    "lora": "unmerged_fp32_stage_adapter_on_bf16_training_base",
+    "mode": "unmerged_fp32_adapter_on_bf16_training_base",
+    "training_base": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged",
+    "training_base_sha256": "272c5ae1779c51de257d86bc826b6ea2bab4a0cc571111afbf4283ae22dd38ee",
+    "adapter": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final",
+    "adapter_sha256": "306d1a343fc13bc5afd5df822c458d9b2f4d525e86dae959c8e61ca2b7732bab",
+    "package_dirs": {
+      "adapter": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final",
+      "training-base": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged"
+    },
+    "inference_run_sha256": "8a0e46e253bbe04f45c1f41cf8a1b1612461c7d32c0b6eb22f145b68570da100"
+  },
+  "size_prior": {
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json",
+    "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+    "key": "full_prior",
+    "use": "fastfill.comparison.size_prior.predict_sizes(features, prior), each value max(0.01, round(v, 2))"
+  },
+  "inference": {
+    "max_new_tokens": 40959,
+    "max_input_tokens": 40959,
+    "context_budget": 40960,
+    "batch_size": 8,
+    "logits_to_keep": 1,
+    "do_sample": false,
+    "num_beams": 1,
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "cap_base": 1024,
+    "cap_per_object": 128,
+    "enable_thinking": false,
+    "padding_side": "left"
+  },
+  "report": {
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001",
+    "results_sha256": "9539d1044b070f8408fe874831f944e6f3b60070f263ab9056fc17e22bc8951a",
+    "manifest_sha256": "3c14e3c54ce539932f32e298b8f67a342f7776cb6fa9e5051f2a40870e7a2d07"
+  },
+  "example_request_uid": "il3d:b7897ce0-86d4-11f0-a478-60cf84ae2082",
+  "files_to_copy": [
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/chat_template.jinja",
+      "dest": "model/chat_template.jinja",
+      "sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/config.json",
+      "dest": "model/config.json",
+      "sha256": "6dbedfb51cf68ebea47e96217172f551818fc21d3b3ec6202d819a61adaae2a2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/generation_config.json",
+      "dest": "model/generation_config.json",
+      "sha256": "5292414bc5c987a1498cf50e6370ecf4939f451e023c74bb3facbdce8445a153"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/model.safetensors",
+      "dest": "model/model.safetensors",
+      "sha256": "ae090b19f7bd211c5e676c3c109f55f08c870e207c929bbc724db5250c7c145a"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/run_manifest.json",
+      "dest": "model/run_manifest.json",
+      "sha256": "b5bb8786a0c44e82db023a0400021eb066f755d99196dba5120cbc0b2cacdc98"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/tokenizer.json",
+      "dest": "model/tokenizer.json",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged/tokenizer_config.json",
+      "dest": "model/tokenizer_config.json",
+      "sha256": "01db94287eca2abcaaf275c24da51da85e555d5627dfe00f795051229f18728d"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/README.md",
+      "dest": "adapter/README.md",
+      "sha256": "766e2fb489344c25bd5b04b604a9b30e47c24fe73104fce46f30d44c529a7cba"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/adapter_config.json",
+      "dest": "adapter/adapter_config.json",
+      "sha256": "421b1df5d06c6f31f3021770f44520420d43bae42518681b3523fd54a9bd4a60"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/adapter_model.safetensors",
+      "dest": "adapter/adapter_model.safetensors",
+      "sha256": "99a3bc6f098c7fd4da38ebcd593daa79d06a2d75379ecddeda97f39990343f20"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/chat_template.jinja",
+      "dest": "adapter/chat_template.jinja",
+      "sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/completion.json",
+      "dest": "adapter/completion.json",
+      "sha256": "674a2d63662b780ca8235dc6ce3a319940e6102429658ba3bc5a75403354c2a8"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/tokenizer.json",
+      "dest": "adapter/tokenizer.json",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1/final/tokenizer_config.json",
+      "dest": "adapter/tokenizer_config.json",
+      "sha256": "1cc816812993bff176eb4f7495433b736f06fba9b6e7b05cac7b4a1780650c95"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/chat_template.jinja",
+      "dest": "training-base/chat_template.jinja",
+      "sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/config.json",
+      "dest": "training-base/config.json",
+      "sha256": "6dbedfb51cf68ebea47e96217172f551818fc21d3b3ec6202d819a61adaae2a2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/generation_config.json",
+      "dest": "training-base/generation_config.json",
+      "sha256": "5292414bc5c987a1498cf50e6370ecf4939f451e023c74bb3facbdce8445a153"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/model.safetensors",
+      "dest": "training-base/model.safetensors",
+      "sha256": "a15d5d02c653ebc3aa98912afb236aad33a0edd3a4b70672cbdf920304b2455b"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/tokenizer.json",
+      "dest": "training-base/tokenizer.json",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged/tokenizer_config.json",
+      "dest": "training-base/tokenizer_config.json",
+      "sha256": "01db94287eca2abcaaf275c24da51da85e555d5627dfe00f795051229f18728d"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-001/placement/sft-merged.json",
+      "dest": "lineage/placement-sft-merged.json",
+      "sha256": "245dab5a4513d7be9c95db06120f6de980a02f1a23c7a9486ad4442d94e919f2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dpo-003/placement/dpo1-merged.json",
+      "dest": "lineage/placement-dpo1-merged.json",
+      "sha256": "a6d383a947e5e7695876248f338c701aba29b1d2f3c4896e740e36f468b60192"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json",
+      "dest": "size-priors.json",
+      "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/MANIFEST.json",
+      "dest": "report-selected/MANIFEST.json",
+      "sha256": "3c14e3c54ce539932f32e298b8f67a342f7776cb6fa9e5051f2a40870e7a2d07"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/S1.csv",
+      "dest": "report-selected/S1.csv",
+      "sha256": "e6e93edc4277e52b267a42fe42dc237d8caab959776f3c6d9335bf36f769fd84"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/S2.csv",
+      "dest": "report-selected/S2.csv",
+      "sha256": "64971b6524169a74c48344d893cb940de84c571958f7d51985715600c7edb068"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T1.csv",
+      "dest": "report-selected/T1.csv",
+      "sha256": "996ff21c9b82a91c16b2ab216b6bf786b1f588318e4c47b8864a0c81f133a20e"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T1_bias.csv",
+      "dest": "report-selected/T1_bias.csv",
+      "sha256": "47c0645b5dfcdb5f84ea2283f4d584ca6c3b2a7032f6ccb37fd0e70fe6ac0fd9"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T1b.csv",
+      "dest": "report-selected/T1b.csv",
+      "sha256": "baa4905fd5f26966a4bd3fbc89aaa5da94bd4b2b51b87d771ea47537ad94b348"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T2.csv",
+      "dest": "report-selected/T2.csv",
+      "sha256": "145a06277e2e9afd2b910d2670cff026f0fcb2a80532b7ba60486cee2c11d046"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T3.csv",
+      "dest": "report-selected/T3.csv",
+      "sha256": "a446b85b8b88fbd84590adc50a518d7ef27bcd80a3cd2eda57a7071bcebdbac3"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T4.csv",
+      "dest": "report-selected/T4.csv",
+      "sha256": "de1c8f58e736ca741d739d0c47112a2e103d0994693a5b542ce9d5bc4c68b3c9"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T4_paper.csv",
+      "dest": "report-selected/T4_paper.csv",
+      "sha256": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T5.csv",
+      "dest": "report-selected/T5.csv",
+      "sha256": "64251d3f0ba008f269d5572ac82571212999062d8fd4538f1aabc697b7043219"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T5_contrasts.csv",
+      "dest": "report-selected/T5_contrasts.csv",
+      "sha256": "4620e06541d724e1ef8d5bfe4f1ff43dc0e5438480435b0896cf80aa54e25f2c"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T5_cost.csv",
+      "dest": "report-selected/T5_cost.csv",
+      "sha256": "2eb7e9b6a0f69ad2d7f22c9568bfe31ef72e97aebf8dcd3df0005f4d320c834b"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/T6.csv",
+      "dest": "report-selected/T6.csv",
+      "sha256": "639222c785dfebc47864ad48e5091ef2c55bcf44ca1e3f28d5743095aba8a199"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/report.md",
+      "dest": "report-selected/report.md",
+      "sha256": "593f381e11dffb267550d41aa518e99d1278ce840a5a7465d50d8f5da79ecbfa"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001/results.json",
+      "dest": "report-selected/results.json",
+      "sha256": "9539d1044b070f8408fe874831f944e6f3b60070f263ab9056fc17e22bc8951a"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/selection.json",
+      "dest": "dev-selection/selection.json",
+      "sha256": "f094395f3be366930a39dec66c141410f2f6db560b18dd32448de35602114e13"
+    }
+  ],
+  "agents": {
+    "included": [
+      "L",
+      "O1a",
+      "O1b",
+      "O2",
+      "O3",
+      "O4",
+      "O6",
+      "O7"
+    ],
+    "excluded": {}
+  }
+}

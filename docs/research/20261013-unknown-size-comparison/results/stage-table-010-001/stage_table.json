@@ -1,0 +1,1471 @@
+{
+  "status": "STAGE_TABLE_COMPLETE",
+  "stages_run": [
+    "sft",
+    "dpo1",
+    "selected"
+  ],
+  "not_run": {
+    "dpo2": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析"
+  },
+  "tables": {
+    "stages": [
+      {
+        "stage": "sft",
+        "arm": "J",
+        "requests": 8647,
+        "complete_rate": 0.9971088238695501,
+        "geometry_success": 0.38822713079680815,
+        "debiased_success": 0.3439343124783162,
+        "size_iou": 0.5592609865714632,
+        "size_log_mae": {
+          "estimate": 0.2860767335814207,
+          "ci95": [
+            0.2806107683520602,
+            0.29137493670768966
+          ],
+          "p": 0.0,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.1469673347523161,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.04834062767322521,
+        "oor_rotated_strata": 0.037500303692813416,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": -0.08308153432745663,
+          "ci95": [
+            -0.09445606099760065,
+            -0.07253725363856862
+          ],
+          "p": 0.0,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": -0.12082920310022142,
+          "ci95": [
+            -0.13979083103601075,
+            -0.10274872948847989
+          ],
+          "p": 0.0,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      },
+      {
+        "stage": "sft",
+        "arm": "P",
+        "requests": 8647,
+        "complete_rate": 0.998496588412166,
+        "geometry_success": 0.38961489533942406,
+        "debiased_success": 0.39470336532901584,
+        "size_iou": 0.5584634833338873,
+        "size_log_mae": {
+          "estimate": 0.2816817934210049,
+          "ci95": [
+            0.2759534707468847,
+            0.28780929239754877
+          ],
+          "p": 0.0,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.2682086612441882,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.03843428945127834,
+        "oor_rotated_strata": 0.030131042704572352,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": 0.014958734023053526,
+          "ci95": [
+            0.003213969526563971,
+            0.027036321636462895
+          ],
+          "p": 0.012,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": 0.04237640012099927,
+          "ci95": [
+            0.023026922951382606,
+            0.061973815178746186
+          ],
+          "p": 0.0,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "arm": "J",
+        "requests": 8647,
+        "complete_rate": 0.8827338961489534,
+        "geometry_success": 0.2132531513819822,
+        "debiased_success": 0.11784433907713658,
+        "size_iou": 0.29778176879009377,
+        "size_log_mae": {
+          "estimate": 0.590364003101305,
+          "ci95": [
+            0.5797670211836609,
+            0.6011616711294206
+          ],
+          "p": 0.0,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.1546598529339243,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.0795981360977846,
+        "oor_rotated_strata": 0.07164113612493134,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": -0.35648921291701763,
+          "ci95": [
+            -0.3851990430549434,
+            -0.32680214951958336
+          ],
+          "p": 0.0,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": -0.4779342687690617,
+          "ci95": [
+            -0.5214677024675363,
+            -0.43459805772908466
+          ],
+          "p": 0.0,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "arm": "P",
+        "requests": 8647,
+        "complete_rate": 0.49624147103041516,
+        "geometry_success": 0.09298022435526772,
+        "debiased_success": 0.09112987163177981,
+        "size_iou": 0.5653013777901453,
+        "size_log_mae": {
+          "estimate": 0.2751782291709943,
+          "ci95": [
+            0.26725370185640684,
+            0.2839140085573541
+          ],
+          "p": 0.0,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.14882028589119234,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.05041873381589982,
+        "oor_rotated_strata": 0.04660169729753187,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": -0.011488757326792642,
+          "ci95": [
+            -0.028132265825770383,
+            0.005356066693540752
+          ],
+          "p": 0.181,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": 0.011496779973704277,
+          "ci95": [
+            -0.013881712356340382,
+            0.03815966728055785
+          ],
+          "p": 0.386,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      },
+      {
+        "stage": "dpo2",
+        "arm": "J",
+        "requests": null,
+        "complete_rate": null,
+        "geometry_success": null,
+        "debiased_success": null,
+        "size_iou": null,
+        "size_log_mae": null,
+        "oor_axis": null,
+        "oor_rotated": null,
+        "oor_axis_strata": null,
+        "oor_rotated_strata": null,
+        "automatic_acceptance": null,
+        "bias_fp": null,
+        "bias_vol": null,
+        "cap_rule_flipped_complete": null,
+        "missing": {
+          "requests": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "complete_rate": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "geometry_success": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "debiased_success": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "size_iou": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "size_log_mae": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_axis": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_rotated": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_axis_strata": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_rotated_strata": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "automatic_acceptance": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "bias_fp": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "bias_vol": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "cap_rule_flipped_complete": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析"
+        }
+      },
+      {
+        "stage": "dpo2",
+        "arm": "P",
+        "requests": null,
+        "complete_rate": null,
+        "geometry_success": null,
+        "debiased_success": null,
+        "size_iou": null,
+        "size_log_mae": null,
+        "oor_axis": null,
+        "oor_rotated": null,
+        "oor_axis_strata": null,
+        "oor_rotated_strata": null,
+        "automatic_acceptance": null,
+        "bias_fp": null,
+        "bias_vol": null,
+        "cap_rule_flipped_complete": null,
+        "missing": {
+          "requests": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "complete_rate": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "geometry_success": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "debiased_success": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "size_iou": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "size_log_mae": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_axis": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_rotated": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_axis_strata": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "oor_rotated_strata": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "automatic_acceptance": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "bias_fp": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "bias_vol": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "cap_rule_flipped_complete": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析"
+        }
+      },
+      {
+        "stage": "selected（sft）",
+        "arm": "J",
+        "requests": 8647,
+        "complete_rate": 0.9971088238695501,
+        "geometry_success": 0.38822713079680815,
+        "debiased_success": 0.3439343124783162,
+        "size_iou": 0.5592609865714632,
+        "size_log_mae": {
+          "estimate": 0.28606221256560965,
+          "ci95": [
+            0.28064150391062137,
+            0.2913464950827215
+          ],
+          "p": 0.0,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.1469673347523161,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.04834062767322521,
+        "oor_rotated_strata": 0.037500303692813416,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": -0.08288392492273443,
+          "ci95": [
+            -0.09424889784440009,
+            -0.07243226782264404
+          ],
+          "p": 0.0,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": -0.12083266975257798,
+          "ci95": [
+            -0.14011290371075788,
+            -0.10260439542702954
+          ],
+          "p": 0.0,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      },
+      {
+        "stage": "selected（rpo-dpo1）",
+        "arm": "P",
+        "requests": 8647,
+        "complete_rate": 0.9976870590956401,
+        "geometry_success": 0.3980571296403377,
+        "debiased_success": 0.4043020700821094,
+        "size_iou": 0.5585723682730394,
+        "size_log_mae": {
+          "estimate": 0.28142181013239786,
+          "ci95": [
+            0.27565117971208675,
+            0.2874958726404854
+          ],
+          "p": 0.0,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "oor_axis": 0.24789940136824146,
+        "oor_rotated": null,
+        "oor_axis_strata": 0.030232228929994026,
+        "oor_rotated_strata": 0.02781594655362982,
+        "automatic_acceptance": null,
+        "bias_fp": {
+          "estimate": 0.014531774702754862,
+          "ci95": [
+            0.0028558780629949817,
+            0.02652627778772017
+          ],
+          "p": 0.014,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "bias_vol": {
+          "estimate": 0.04148324270677516,
+          "ci95": [
+            0.022037835276449924,
+            0.06080884110491664
+          ],
+          "p": 0.0,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "cap_rule_flipped_complete": 0,
+        "missing": {
+          "oor_rotated": "未测：report_v2 只按论文六层输出旋转 OOR（见六层合并列）",
+          "automatic_acceptance": "未测：report_v2 未输出自动接受率字段"
+        }
+      }
+    ],
+    "differences": [
+      {
+        "stage": "sft",
+        "endpoint": "(a) 全请求原始几何成功率",
+        "delta": {
+          "estimate": -0.0013877645426159362,
+          "ci95": [
+            -0.012154633439843803,
+            0.009139625368598286
+          ],
+          "p": 0.793,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": 0.793,
+        "p_holm": 0.793,
+        "role": "主要（确认性，protocol.md）",
+        "missing": {}
+      },
+      {
+        "stage": "sft",
+        "endpoint": "(b) 尺寸 log MAE（共同完整）",
+        "delta": {
+          "estimate": 0.004394940160415657,
+          "ci95": [
+            0.0004904112079132748,
+            0.008421021797190857
+          ],
+          "p": 0.033,
+          "n": 8610,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8610,
+        "p": 0.033,
+        "p_holm": 0.066,
+        "role": "主要（确认性，protocol.md）",
+        "missing": {}
+      },
+      {
+        "stage": "sft",
+        "endpoint": "(a′) 尺寸去偏几何成功率",
+        "delta": {
+          "estimate": -0.050769052850699666,
+          "ci95": [
+            -0.06048699009761216,
+            -0.04123244504443861
+          ],
+          "p": 0.0,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": null,
+        "p_holm": null,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "sft",
+        "endpoint": "complete（房间微平均）",
+        "delta": {
+          "estimate": -0.0013877645426159362,
+          "ci95": [
+            -0.002702436132023824,
+            0.0
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "sft",
+        "endpoint": "geometry_success_repaired（房间微平均）",
+        "delta": {
+          "estimate": -0.002891176130449867,
+          "ci95": [
+            -0.01345058402021004,
+            0.00781070108387413
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "sft",
+        "endpoint": "oor（房间微平均）",
+        "delta": {
+          "estimate": -0.1140618656709126,
+          "ci95": [
+            -0.1300810686221825,
+            -0.09891160418423706
+          ],
+          "n": 8610
+        },
+        "n": 8610,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "sft",
+        "endpoint": "oor_repaired（房间微平均）",
+        "delta": {
+          "estimate": -0.11410726450616296,
+          "ci95": [
+            -0.13010976595096627,
+            -0.09903468399565252
+          ],
+          "n": 8610
+        },
+        "n": 8610,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "sft",
+        "endpoint": "size_iou（房间微平均）",
+        "delta": {
+          "estimate": 0.0007314287618846036,
+          "ci95": [
+            -0.002110867729913586,
+            0.0036831555689356543
+          ],
+          "n": 8610
+        },
+        "n": 8610,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "(a) 全请求原始几何成功率",
+        "delta": {
+          "estimate": 0.12027292702671447,
+          "ci95": [
+            0.10962104715589015,
+            0.13101384644385333
+          ],
+          "p": 0.0,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": 0.0,
+        "p_holm": 0.0,
+        "role": "描述性",
+        "missing": {}
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "(b) 尺寸 log MAE（共同完整）",
+        "delta": {
+          "estimate": 0.3151857739303107,
+          "ci95": [
+            0.3051097445055128,
+            0.3248936978267278
+          ],
+          "p": 0.0,
+          "n": 3851,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 3851,
+        "p": 0.0,
+        "p_holm": 0.0,
+        "role": "描述性",
+        "missing": {}
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "(a′) 尺寸去偏几何成功率",
+        "delta": {
+          "estimate": 0.02671446744535677,
+          "ci95": [
+            0.019120526023708527,
+            0.034655715834140094
+          ],
+          "p": 0.0,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": null,
+        "p_holm": null,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "complete（房间微平均）",
+        "delta": {
+          "estimate": 0.3864924251185382,
+          "ci95": [
+            0.37393944968493986,
+            0.3985553892564818
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "geometry_success_repaired（房间微平均）",
+        "delta": {
+          "estimate": 0.11934775066497051,
+          "ci95": [
+            0.10853336720649336,
+            0.1299831810692565
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "oor（房间微平均）",
+        "delta": {
+          "estimate": -0.04017619199924249,
+          "ci95": [
+            -0.05256923258497248,
+            -0.028338335005711195
+          ],
+          "n": 3851
+        },
+        "n": 3851,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "oor_repaired（房间微平均）",
+        "delta": {
+          "estimate": -0.04026082403711903,
+          "ci95": [
+            -0.05262877060132792,
+            -0.028389981932319702
+          ],
+          "n": 3851
+        },
+        "n": 3851,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "endpoint": "size_iou（房间微平均）",
+        "delta": {
+          "estimate": -0.2633724612242583,
+          "ci95": [
+            -0.2692899036951297,
+            -0.2571521484978381
+          ],
+          "n": 3851
+        },
+        "n": 3851,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "(a) 全请求原始几何成功率",
+        "delta": {
+          "estimate": -0.009829998843529548,
+          "ci95": [
+            -0.02127922032474804,
+            0.0016427370104357534
+          ],
+          "p": 0.095,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": 0.095,
+        "p_holm": 0.095,
+        "role": "次要（交付比较，修订 010）",
+        "missing": {}
+      },
+      {
+        "stage": "selected",
+        "endpoint": "(b) 尺寸 log MAE（共同完整）",
+        "delta": {
+          "estimate": 0.004640402433211638,
+          "ci95": [
+            0.0007017409328466634,
+            0.008691711285323553
+          ],
+          "p": 0.021,
+          "n": 8602,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8602,
+        "p": 0.021,
+        "p_holm": 0.042,
+        "role": "次要（交付比较，修订 010）",
+        "missing": {}
+      },
+      {
+        "stage": "selected",
+        "endpoint": "(a′) 尺寸去偏几何成功率",
+        "delta": {
+          "estimate": -0.060367757603793225,
+          "ci95": [
+            -0.07118950732655288,
+            -0.049316070800720264
+          ],
+          "p": 0.0,
+          "n": 8647,
+          "warnings": [
+            "singleton_source_signature_strata"
+          ]
+        },
+        "n": 8647,
+        "p": null,
+        "p_holm": null,
+        "role": "次要（交付比较，修订 010）",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "complete（房间微平均）",
+        "delta": {
+          "estimate": -0.0005782352260899734,
+          "ci95": [
+            -0.002050420235960676,
+            0.0008529694693030719
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "geometry_success_repaired（房间微平均）",
+        "delta": {
+          "estimate": -0.010292587024401527,
+          "ci95": [
+            -0.021905680941064307,
+            0.001237265287578689
+          ],
+          "n": 8647
+        },
+        "n": 8647,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "oor（房间微平均）",
+        "delta": {
+          "estimate": -0.09286598105310022,
+          "ci95": [
+            -0.1109751614466645,
+            -0.07510153235056582
+          ],
+          "n": 8602
+        },
+        "n": 8602,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "oor_repaired（房间微平均）",
+        "delta": {
+          "estimate": -0.09308657413789438,
+          "ci95": [
+            -0.11124661541387845,
+            -0.07541465169435028
+          ],
+          "n": 8602
+        },
+        "n": 8602,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      },
+      {
+        "stage": "selected",
+        "endpoint": "size_iou（房间微平均）",
+        "delta": {
+          "estimate": 0.000679328523718149,
+          "ci95": [
+            -0.002188398969822153,
+            0.003654298109496679
+          ],
+          "n": 8602
+        },
+        "n": 8602,
+        "role": "描述性",
+        "missing": {
+          "p": "不适用：只对 (a)、(b) 计算 p 与 Holm",
+          "p_holm": "不适用：只对 (a)、(b) 计算 p 与 Holm"
+        }
+      }
+    ],
+    "decisions": [
+      {
+        "stage": "sft",
+        "rule_outcome": "P",
+        "condition_i_size_log_mae": false,
+        "condition_ii_debiased_success": false,
+        "note": "仅供参考，非交付决定"
+      },
+      {
+        "stage": "dpo1",
+        "rule_outcome": "P",
+        "condition_i_size_log_mae": false,
+        "condition_ii_debiased_success": true,
+        "note": "仅供参考，非交付决定"
+      },
+      {
+        "stage": "dpo2",
+        "note": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+        "missing": {
+          "rule_outcome": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "condition_i_size_log_mae": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析",
+          "condition_ii_debiased_success": "已停止（修订 010 补充：测试推理在查看前停止，未测）：其部分输出（最大的房间，有偏子集）未分析"
+        }
+      },
+      {
+        "stage": "selected",
+        "rule_outcome": "P",
+        "condition_i_size_log_mae": false,
+        "condition_ii_debiased_success": false,
+        "note": "正式交付决定（修订 010：两臂 dev 选定模型）"
+      }
+    ],
+    "lineage": [
+      {
+        "stage": "sft",
+        "arm": "J",
+        "evaluated_policy": "SFT LoRA 运行时 GPU 合并（merge_and_unload_bf16）",
+        "recipe": "SFT as trained: LoRA r32 a64, lr 5e-5, 1 epoch",
+        "pairs": null,
+        "pairs_kept_both_arms": null,
+        "admitted_pairs": null,
+        "steps": null,
+        "merge_changed_fraction": 0.7845571476258757,
+        "merge_modules": {
+          "down_proj": 0.9032820126524678,
+          "gate_proj": 0.9423726145867948,
+          "k_proj": 0.9307365814844767,
+          "o_proj": 0.9257946047517989,
+          "other": 0.0,
+          "q_proj": 0.9305655542347167,
+          "up_proj": 0.9287434281022461,
+          "v_proj": 0.9094245698716905
+        },
+        "merge_note": null,
+        "model_sha256": "26107ef9fd05b8f7e35d9a0ef477a0dc45bb1fdc64867511731b65b3e64d9112",
+        "lineage_receipt_sha256": "78e1e5f419394225c16bbe93ed8a2e916b4a62045a9e7bc62950d83f0186c4d0",
+        "missing": {
+          "pairs": "不适用：SFT 无偏好对",
+          "admitted_pairs": "不适用：SFT 无偏好对",
+          "steps": "不适用：SFT 无偏好对",
+          "pairs_kept_both_arms": "不适用：SFT 无偏好对",
+          "merge_note": "不适用：诊断成功"
+        }
+      },
+      {
+        "stage": "sft",
+        "arm": "P",
+        "evaluated_policy": "SFT LoRA 运行时 GPU 合并（merge_and_unload_bf16）",
+        "recipe": "SFT as trained: LoRA r32 a64, lr 5e-5, 1 epoch",
+        "pairs": null,
+        "pairs_kept_both_arms": null,
+        "admitted_pairs": null,
+        "steps": null,
+        "merge_changed_fraction": 0.7761756226488558,
+        "merge_modules": {
+          "down_proj": 0.8850495975326609,
+          "gate_proj": 0.9367653799277765,
+          "k_proj": 0.929388682047526,
+          "o_proj": 0.9193955063819885,
+          "other": 0.0,
+          "q_proj": 0.9267176439364752,
+          "up_proj": 0.9187236014339659,
+          "v_proj": 0.9034175872802734
+        },
+        "merge_note": null,
+        "model_sha256": "272c5ae1779c51de257d86bc826b6ea2bab4a0cc571111afbf4283ae22dd38ee",
+        "lineage_receipt_sha256": "245dab5a4513d7be9c95db06120f6de980a02f1a23c7a9486ad4442d94e919f2",
+        "missing": {
+          "pairs": "不适用：SFT 无偏好对",
+          "admitted_pairs": "不适用：SFT 无偏好对",
+          "steps": "不适用：SFT 无偏好对",
+          "pairs_kept_both_arms": "不适用：SFT 无偏好对",
+          "merge_note": "不适用：诊断成功"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "arm": "J",
+        "evaluated_policy": "精确训练策略：未合并 FP32 适配器 + BF16 训练基座（修订 009）",
+        "recipe": "lr 5e-06, 10 epochs, LoRA r32/α16, dropout 0.05, β 0.1, 有效 batch 4",
+        "pairs": 2200,
+        "pairs_kept_both_arms": 2200,
+        "admitted_pairs": 2200,
+        "steps": 5500,
+        "merge_changed_fraction": 0.13542042041998045,
+        "merge_modules": {
+          "down_proj": 0.13788340433880134,
+          "gate_proj": 0.1845163509801582,
+          "k_proj": 0.08927556541230944,
+          "o_proj": 0.17689564492967394,
+          "other": 0.0,
+          "q_proj": 0.10316676066981421,
+          "up_proj": 0.17669996950361463,
+          "v_proj": 0.14717193444569907
+        },
+        "merge_note": null,
+        "model_sha256": "d1cd865048eb3d11ca0050e87eb67cae6d1d32c5f6fdd61043bab581377d39cb",
+        "lineage_receipt_sha256": "bc9755cee128a9ebff456528a2fe539d9a4c9ca8d870408f31ff08cff3e17bd2",
+        "missing": {
+          "merge_note": "不适用：诊断成功"
+        }
+      },
+      {
+        "stage": "dpo1",
+        "arm": "P",
+        "evaluated_policy": "精确训练策略：未合并 FP32 适配器 + BF16 训练基座（修订 009）",
+        "recipe": "lr 5e-06, 10 epochs, LoRA r32/α16, dropout 0.05, β 0.1, 有效 batch 4",
+        "pairs": 2200,
+        "pairs_kept_both_arms": 2200,
+        "admitted_pairs": 2200,
+        "steps": 5500,
+        "merge_changed_fraction": 0.14549685560833453,
+        "merge_modules": {
+          "down_proj": 0.15292968959720046,
+          "gate_proj": 0.1930716606201949,
+          "k_proj": 0.1087697082095676,
+          "o_proj": 0.18098772896660698,
+          "other": 0.0,
+          "q_proj": 0.12681466175450218,
+          "up_proj": 0.1863320972080584,
+          "v_proj": 0.1645103825463189
+        },
+        "merge_note": null,
+        "model_sha256": "5c725e32d963aea632e502cc05deb0e3c55c6fdf1229c94268c52c1f98ff9135",
+        "lineage_receipt_sha256": "8a17f6aba5cff4825aecdc931dfa100c31375edbbaa9372e9f85c30224fd53bd",
+        "missing": {
+          "merge_note": "不适用：诊断成功"
+        }
+      },
+      {
+        "stage": "selected（sft）",
+        "arm": "J",
+        "evaluated_policy": "SFT LoRA 运行时 GPU 合并（merge_and_unload_bf16）",
+        "recipe": "SFT as trained: LoRA r32 a64, lr 5e-5, 1 epoch",
+        "pairs": null,
+        "pairs_kept_both_arms": null,
+        "admitted_pairs": null,
+        "steps": null,
+        "merge_changed_fraction": 0.7845571476258757,
+        "merge_modules": {
+          "down_proj": 0.9032820126524678,
+          "gate_proj": 0.9423726145867948,
+          "k_proj": 0.9307365814844767,
+          "o_proj": 0.9257946047517989,
+          "other": 0.0,
+          "q_proj": 0.9305655542347167,
+          "up_proj": 0.9287434281022461,
+          "v_proj": 0.9094245698716905
+        },
+        "merge_note": null,
+        "model_sha256": "26107ef9fd05b8f7e35d9a0ef477a0dc45bb1fdc64867511731b65b3e64d9112",
+        "lineage_receipt_sha256": "78e1e5f419394225c16bbe93ed8a2e916b4a62045a9e7bc62950d83f0186c4d0",
+        "missing": {
+          "pairs": "不适用：SFT 无偏好对",
+          "admitted_pairs": "不适用：SFT 无偏好对",
+          "steps": "不适用：SFT 无偏好对",
+          "pairs_kept_both_arms": "不适用：SFT 无偏好对",
+          "merge_note": "不适用：诊断成功"
+        }
+      },
+      {
+        "stage": "selected（rpo-dpo1）",
+        "arm": "P",
+        "evaluated_policy": "精确训练策略：未合并 FP32 适配器 + BF16 训练基座（修订 009）",
+        "recipe": "lr 5e-06, 3 epochs, LoRA r32/α16, dropout 0.05, β 0.1, 有效 batch 4",
+        "pairs": 2200,
+        "pairs_kept_both_arms": 2200,
+        "admitted_pairs": 2200,
+        "steps": 1650,
+        "merge_changed_fraction": 0.06747777222776735,
+        "merge_modules": {
+          "down_proj": 0.07072245136455253,
+          "gate_proj": 0.08328388024259496,
+          "k_proj": 0.054440445370144315,
+          "o_proj": 0.0840673330757353,
+          "other": 0.0,
+          "q_proj": 0.05965683195326063,
+          "up_proj": 0.09208375325909367,
+          "v_proj": 0.07792016532686022
+        },
+        "merge_note": null,
+        "model_sha256": "bbbb2c18a276d84cdd4700405e71e72bbae7db7473be287fe899baf7ef359a58",
+        "lineage_receipt_sha256": "a6d383a947e5e7695876248f338c701aba29b1d2f3c4896e740e36f468b60192",
+        "missing": {
+          "merge_note": "不适用：诊断成功"
+        }
+      }
+    ],
+    "pairs": [
+      {
+        "stage": "dpo1",
+        "pairs_dir": "stage1-pairs",
+        "manifest_sha256": "3bab257188ff80a4d50faf87adbfb3d39de9b6ca7cd27a5333fa71c288677bf0",
+        "positives": 2200,
+        "kept_both_arms": 2200,
+        "verified_per_arm": {
+          "joint": 2200,
+          "placement": 2200
+        },
+        "dropped_by_other_arm_only": {
+          "joint": 0,
+          "placement": 0
+        },
+        "kept_by_source": {
+          "IL3D_3dfront": 1100,
+          "OptiScene_holodeck": 1100
+        }
+      }
+    ],
+    "dev": [
+      {
+        "arm": "J",
+        "candidate": "sft",
+        "requests": 600,
+        "complete_rate": 1.0,
+        "geometry_success": 0.38,
+        "size_log_mae": 0.2496752575137839,
+        "sft_size_log_mae": 0.2496752575137839,
+        "common_with_sft": 600,
+        "footprint_bias": -0.0869640267807733,
+        "a_prime": 0.3566666666666667,
+        "eligible": true,
+        "selected": true,
+        "missing": {}
+      },
+      {
+        "arm": "J",
+        "candidate": "e1-dpo1",
+        "requests": 600,
+        "complete_rate": 1.0,
+        "geometry_success": 0.3983333333333333,
+        "size_log_mae": 0.2591391075933144,
+        "sft_size_log_mae": 0.2496752575137839,
+        "common_with_sft": 600,
+        "footprint_bias": -0.12740528120540767,
+        "a_prime": 0.2916666666666667,
+        "eligible": true,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "J",
+        "candidate": "e1-dpo2",
+        "requests": 600,
+        "complete_rate": 0.8416666666666667,
+        "geometry_success": 0.39666666666666667,
+        "size_log_mae": 0.2515640142158123,
+        "sft_size_log_mae": 0.2539849913205869,
+        "common_with_sft": 505,
+        "footprint_bias": -0.07121896117340404,
+        "a_prime": 0.37666666666666665,
+        "eligible": false,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "J",
+        "candidate": "rpo-dpo1",
+        "requests": 600,
+        "complete_rate": 1.0,
+        "geometry_success": 0.39,
+        "size_log_mae": 0.26643871823073395,
+        "sft_size_log_mae": 0.2496752575137839,
+        "common_with_sft": 600,
+        "footprint_bias": -0.21053325375929866,
+        "a_prime": 0.16,
+        "eligible": false,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "J",
+        "candidate": "rpo-dpo2",
+        "requests": 600,
+        "complete_rate": 0.985,
+        "geometry_success": 0.435,
+        "size_log_mae": 0.25235536848013246,
+        "sft_size_log_mae": 0.2462897721485538,
+        "common_with_sft": 591,
+        "footprint_bias": -0.1385539604068983,
+        "a_prime": 0.2833333333333333,
+        "eligible": false,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "J",
+        "candidate": "a009-dpo1",
+        "requests": 600,
+        "complete_rate": 0.8816666666666667,
+        "geometry_success": 0.18166666666666667,
+        "size_log_mae": 0.572862439016029,
+        "sft_size_log_mae": 0.25099340901264827,
+        "common_with_sft": 529,
+        "footprint_bias": -0.2878538975797907,
+        "a_prime": 0.11666666666666667,
+        "eligible": null,
+        "selected": null,
+        "missing": {
+          "eligible": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选",
+          "selected": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选"
+        }
+      },
+      {
+        "arm": "J",
+        "candidate": "a009-dpo2",
+        "requests": 600,
+        "complete_rate": 0.0,
+        "geometry_success": 0.0,
+        "size_log_mae": null,
+        "sft_size_log_mae": null,
+        "common_with_sft": 0,
+        "footprint_bias": null,
+        "a_prime": 0.0,
+        "eligible": null,
+        "selected": null,
+        "missing": {
+          "size_log_mae": "未测：无（与 SFT 共同）完整输出",
+          "sft_size_log_mae": "未测：无（与 SFT 共同）完整输出",
+          "footprint_bias": "未测：无（与 SFT 共同）完整输出",
+          "eligible": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选",
+          "selected": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选"
+        }
+      },
+      {
+        "arm": "P",
+        "candidate": "sft",
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success": 0.4083333333333333,
+        "size_log_mae": 0.23396453317762048,
+        "sft_size_log_mae": 0.23396453317762048,
+        "common_with_sft": 599,
+        "footprint_bias": -0.05558287629317416,
+        "a_prime": 0.38166666666666665,
+        "eligible": true,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "P",
+        "candidate": "e1-dpo1",
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success": 0.4216666666666667,
+        "size_log_mae": 0.23391769535381485,
+        "sft_size_log_mae": 0.23391769535381485,
+        "common_with_sft": 598,
+        "footprint_bias": -0.05402971575646473,
+        "a_prime": 0.39166666666666666,
+        "eligible": true,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "P",
+        "candidate": "e1-dpo2",
+        "requests": 600,
+        "complete_rate": 0.42833333333333334,
+        "geometry_success": 0.18666666666666668,
+        "size_log_mae": 0.26677364069193904,
+        "sft_size_log_mae": 0.26677364069193904,
+        "common_with_sft": 256,
+        "footprint_bias": -0.06140143596176886,
+        "a_prime": 0.17666666666666667,
+        "eligible": false,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "P",
+        "candidate": "rpo-dpo1",
+        "requests": 600,
+        "complete_rate": 0.9983333333333333,
+        "geometry_success": 0.47,
+        "size_log_mae": 0.23391769535381485,
+        "sft_size_log_mae": 0.23391769535381485,
+        "common_with_sft": 598,
+        "footprint_bias": -0.05402971575646473,
+        "a_prime": 0.435,
+        "eligible": true,
+        "selected": true,
+        "missing": {}
+      },
+      {
+        "arm": "P",
+        "candidate": "rpo-dpo2",
+        "requests": 600,
+        "complete_rate": 0.9683333333333334,
+        "geometry_success": 0.43166666666666664,
+        "size_log_mae": 0.23248864214577214,
+        "sft_size_log_mae": 0.23248864214577214,
+        "common_with_sft": 580,
+        "footprint_bias": -0.05393747410353337,
+        "a_prime": 0.4,
+        "eligible": false,
+        "selected": false,
+        "missing": {}
+      },
+      {
+        "arm": "P",
+        "candidate": "a009-dpo1",
+        "requests": 600,
+        "complete_rate": 0.4766666666666667,
+        "geometry_success": 0.08166666666666667,
+        "size_log_mae": 0.22341825752915356,
+        "sft_size_log_mae": 0.22341825752915356,
+        "common_with_sft": 286,
+        "footprint_bias": -0.05992936297755577,
+        "a_prime": 0.07333333333333333,
+        "eligible": null,
+        "selected": null,
+        "missing": {
+          "eligible": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选",
+          "selected": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选"
+        }
+      },
+      {
+        "arm": "P",
+        "candidate": "a009-dpo2",
+        "requests": 600,
+        "complete_rate": 0.05,
+        "geometry_success": 0.041666666666666664,
+        "size_log_mae": 0.17430663924493564,
+        "sft_size_log_mae": 0.17430663924493564,
+        "common_with_sft": 30,
+        "footprint_bias": -0.07030318097256841,
+        "a_prime": 0.03833333333333333,
+        "eligible": null,
+        "selected": null,
+        "missing": {
+          "eligible": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选",
+          "selected": "仅报告：修订 010 补充，修订 009 阶段只在 dev 上评分，不可选"
+        }
+      }
+    ],
+    "reference": [
+      {
+        "stage": "参考",
+        "arm": "GT 布局（无模型）",
+        "requests": 8647,
+        "geometry_success": 0.7230253267029028,
+        "oor_axis": 0.07871759190471023,
+        "oor_rotated": 0.07155416677475779,
+        "oor_axis_strata": 0.025581394006781225,
+        "oor_rotated_strata": 0.014467964901082491,
+        "complete_rate": null,
+        "debiased_success": null,
+        "size_iou": null,
+        "size_log_mae": null,
+        "automatic_acceptance": null,
+        "bias_fp": null,
+        "bias_vol": null,
+        "cap_rule_flipped_complete": null,
+        "missing": {
+          "complete_rate": "不适用：GT 参考行不含该量",
+          "debiased_success": "不适用：GT 参考行不含该量",
+          "size_iou": "不适用：GT 参考行不含该量",
+          "size_log_mae": "不适用：GT 参考行不含该量",
+          "automatic_acceptance": "不适用：GT 参考行不含该量",
+          "bias_fp": "不适用：GT 参考行不含该量",
+          "bias_vol": "不适用：GT 参考行不含该量",
+          "cap_rule_flipped_complete": "不适用：GT 参考行不含该量"
+        }
+      },
+      {
+        "stage": "参考",
+        "arm": "P 先验尺寸（全部房间）",
+        "requests": 8647,
+        "size_iou": 0.5582263425816721,
+        "size_log_mae": 0.28244658078965523,
+        "bias_fp": 0.016064899577243708,
+        "bias_vol": 0.043929604231038685,
+        "complete_rate": null,
+        "geometry_success": null,
+        "debiased_success": null,
+        "oor_axis": null,
+        "oor_rotated": null,
+        "oor_axis_strata": null,
+        "oor_rotated_strata": null,
+        "automatic_acceptance": null,
+        "cap_rule_flipped_complete": null,
+        "missing": {
+          "complete_rate": "不适用：先验行只含尺寸量",
+          "geometry_success": "不适用：先验行只含尺寸量",
+          "debiased_success": "不适用：先验行只含尺寸量",
+          "oor_axis": "不适用：先验行只含尺寸量",
+          "oor_rotated": "不适用：先验行只含尺寸量",
+          "oor_axis_strata": "不适用：先验行只含尺寸量",
+          "oor_rotated_strata": "不适用：先验行只含尺寸量",
+          "automatic_acceptance": "不适用：先验行只含尺寸量",
+          "cap_rule_flipped_complete": "不适用：先验行只含尺寸量"
+        }
+      }
+    ]
+  },
+  "dev_selection": {
+    "selection": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-eval-010/selection.json",
+    "selection_sha256": "f094395f3be366930a39dec66c141410f2f6db560b18dd32448de35602114e13",
+    "rule": "eligible: SFT always; DPO candidate iff dev complete rate >= SFT - 0.01 and its dev size log MAE <= SFT's dev size log MAE + 0.01, both on the rooms complete in both it and SFT. selected: highest dev a' (own footprint bias rescale) among eligible; candidates within 0.005 of the best tie and go to fewer training stages, then higher a', then protocol order sft, e1-dpo1, e1-dpo2, rpo-dpo1, rpo-dpo2",
+    "rooms": 600,
+    "selected": {
+      "joint": "sft",
+      "placement": "rpo-dpo1"
+    },
+    "scores_manifest_sha256": "b3f1f49f593729bf798612ad9db2295e943de1a1089fee85ebb3114f18faedeb",
+    "data_manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a",
+    "uids_sha256": "2f04f2246315de81359447ae0b9d4ccb16bfd90a7de2a38923ce3b7e1104c4df",
+    "report_only_scores_manifest_sha256": "12debf540b7cf777604f2effab1da7625c9c1ce2c87beae6322ecabe42769d8a"
+  },
+  "context_plan_sha256": "77e0fa5876b4768c008bb3379afa5a6b1e148f6a3c1f0c09f5cdbf681d230634",
+  "data_manifest_sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+  "repeats": 2000,
+  "seed": 42,
+  "report_warnings": [
+    "prior_level_pair_category_unresolved_without_frozen_size_priors"
+  ],
+  "inputs": {
+    "sft": {
+      "report": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-JPL-002",
+      "report_MANIFEST": "54dd9463a459880ddba5f59773e9bda43e8d9a35f31289a29de1cfc4e3ed2d1c",
+      "results": "4aa505f2c83778676121a2fe059f4856ae1b5080d2a8a3bb6934855380c3f46f",
+      "geometry_MANIFEST": "3fc1ff78328ebd22c6074bbe41f34b9b68135f63dbe6523345444681dc0a67fe",
+      "inference_run_sha256": {
+        "joint": "d914a5577bd3e3855d7f07f41394a73d8940cc95259a7974587b309dceeb67e0",
+        "placement": "4cef3245f33f6c9bbe834ab949968414342ba79952c0b3120f62c7cafa0a2b59"
+      },
+      "lineage_receipts": {
+        "joint": "78e1e5f419394225c16bbe93ed8a2e916b4a62045a9e7bc62950d83f0186c4d0",
+        "placement": "245dab5a4513d7be9c95db06120f6de980a02f1a23c7a9486ad4442d94e919f2"
+      }
+    },
+    "dpo1": {
+      "report": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-dpo1-001",
+      "report_MANIFEST": "fef0e01faa7c64e6d7994b4e895d4ab1ec2e6387ee45d39db83d8f6bc79fb159",
+      "results": "aea2755f54f3dcff62b66fd435aa8d16cc75b44650b101b906ce816f9c6ec7dd",
+      "geometry_MANIFEST": "dccd2d393dcced53ac85db1d023df8bf8deaffe3ea03cc82a6db265a8ececa75",
+      "inference_run_sha256": {
+        "joint": "2085c962457e20e8b980d8c8f374c36bbc6ff53c77cf936d799b393f4f36f8ea",
+        "placement": "128f812d10fc3561834782c9029de4ef48d148d9e56a97146599315e0bca5093"
+      },
+      "lineage_receipts": {
+        "joint": "bc9755cee128a9ebff456528a2fe539d9a4c9ca8d870408f31ff08cff3e17bd2",
+        "placement": "8a17f6aba5cff4825aecdc931dfa100c31375edbbaa9372e9f85c30224fd53bd"
+      }
+    },
+    "selected": {
+      "report": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/report-v2-selected-001",
+      "report_MANIFEST": "3c14e3c54ce539932f32e298b8f67a342f7776cb6fa9e5051f2a40870e7a2d07",
+      "results": "9539d1044b070f8408fe874831f944e6f3b60070f263ab9056fc17e22bc8951a",
+      "geometry_MANIFEST": "f1ab98559a99645b0cc28f769f1b58908833da471c0e43f2c39a015389d08f44",
+      "inference_run_sha256": {
+        "joint": "d914a5577bd3e3855d7f07f41394a73d8940cc95259a7974587b309dceeb67e0",
+        "placement": "8a0e46e253bbe04f45c1f41cf8a1b1612461c7d32c0b6eb22f145b68570da100"
+      },
+      "lineage_receipts": {
+        "joint": "78e1e5f419394225c16bbe93ed8a2e916b4a62045a9e7bc62950d83f0186c4d0",
+        "placement": "a6d383a947e5e7695876248f338c701aba29b1d2f3c4896e740e36f468b60192"
+      },
+      "candidates": {
+        "joint": "sft",
+        "placement": "rpo-dpo1"
+      }
+    }
+  },
+  "code_sha256": {
+    "stage_table.py": "ca18197c8ff9e3a52c6355dc1bb4f9540ce72ba26b8c1a5aed77678eef8929f8",
+    "report_v2.py": "9bc9e0837d120ccf28325b897947c4fdfeb2c81e13d05adc30d47b9770ec3105"
+  }
+}
