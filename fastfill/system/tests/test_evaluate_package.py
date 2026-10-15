@@ -459,3 +459,17 @@ def test_scripts_refuse_bad_arguments(tmp_path):
         assert call(submit, CODE, *args).returncode == 2, args
     result = call(submit, tmp_path, 'test-sharded', '4')
     assert result.returncode == 1 and 'nothing submitted' in result.stderr
+
+
+def test_package_uses_sharded_test_eval_only_when_unsharded_is_absent(tmp_path):
+    from fastfill.system import package as pk
+    from fastfill.system import evaluate as ev
+    plain, sharded = ev.paths(tmp_path, 'final', 'test')['eval'], ev.paths(tmp_path, 'final', 'test', sharded=True)['eval']
+    assert pk._eval_root(tmp_path, 'final', 'test') == plain
+    sharded.mkdir(parents=True)
+    (sharded / 'MANIFEST.json').write_text('{}')
+    assert pk._eval_root(tmp_path, 'final', 'test') == sharded
+    assert pk._eval_root(tmp_path, 'final', 'cohort') == ev.paths(tmp_path, 'final', 'cohort')['eval']
+    plain.mkdir(parents=True)
+    (plain / 'MANIFEST.json').write_text('{}')
+    assert pk._eval_root(tmp_path, 'final', 'test') == plain

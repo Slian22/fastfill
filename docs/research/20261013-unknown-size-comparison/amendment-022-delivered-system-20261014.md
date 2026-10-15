@@ -59,3 +59,25 @@ Those pilot rooms are test-cohort rooms. Nothing below is selected on them.
    - The cohort run passes `--api-max-rooms 600`; the system stops before any API call if more rooms would escalate.
    - The amendment-005 cap rule applies to the placer's stages, not to the agents' or O2's answers, as in amendments 012 and 016.
 4. **Evaluation engine.** It is the 021 §3 serving engine of the selected placer and is printed on the model card.
+
+## Addendum B (locked 2026-10-15 ~10:00 UTC, before any amendment-022 test-scope output exists; no O2 answer of job 7426877 has been read)
+
+1. **Why.** The test-scope system job 7426877 might not finish within its 12-hour limit.
+   - It escalates about 2,230 rooms to O2 on 2 GPUs, in chunks of 256. Chunk 1 took 2.5 h and chunk 2's first round took 44 min.
+   - The projected total of 10–12+ h is at the limit.
+   - It writes its receipts only after the last chunk, so a timeout would lose every answer.
+   - The limit cannot be raised by the user, and the SSH certificate expires at 15:15 UTC.
+   - Only its timing log (`invocations.jsonl`) was read.
+2. **Change.** 7426877 and its summarize job 7426878 are cancelled. The test scope reruns with the O2 escalation sharded (`submit_022.sh CODE_ROOT test-sharded 4`, commit 34f240e09):
+   - **Shards:** 4 shards by `int(sha256('a022-o2-shard:' + uid), 16) mod 4`, each a 2-GPU job.
+   - **Unchanged:** the engine, sampling, chat template, harness rounds, chunk size 256 and within-shard chunk order rule of `o2_answers`.
+   - **Writes:** every chunk is written as it finishes, and a killed shard resumes from its first unfinished chunk.
+   - **Assembly:** a CPU finalize step assembles the receipts and runs the rest of the system unchanged; then the same summarize.
+   - **Output:** `RUN/system-022/final/test-sharded`.
+   - **Identity:** it records the sharding (N = 4, the rule, each chunk's uids).
+3. **Disclosure.** This is not bitwise the unsharded run.
+   - vLLM decoding is not batch-invariant, so chunk composition can change some O2 answers.
+   - S1 is re-run in the plan step. It is deterministic except for rooms that hit its 60 s safety timeout.
+   - The report labels the test-scope system as "O2 escalation, sharded ×4".
+4. **Package.** It reads `test-sharded/eval` for the test scope only when `test/eval` does not exist (`package._eval_root`). The package job is resubmitted after the sharded summarize; job 7426881 is cancelled.
+5. **GPU cost.** The ceiling is 4 × 2 GPUs × 12 h = 96 GPU-h; the expected use is about 25 GPU-h.

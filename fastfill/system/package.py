@@ -88,9 +88,16 @@ def training_base(run, policy):
     return files
 
 
+def _eval_root(run, mode, scope):
+    """Amendment 022 addendum B: the sharded test evaluation stands in only when the unsharded one does not exist."""
+    root, sharded = ev.paths(run, mode, scope)['eval'], ev.paths(run, mode, scope, sharded=True)['eval']
+    use = scope == 'test' and not (root / 'MANIFEST.json').exists() and (sharded / 'MANIFEST.json').exists()
+    return sharded if use else root
+
+
 def measured(run, mode, candidate):
     """{'cohort': results | None, 'test': results | None, 'apply_012': results | None} (verified JSON only)."""
-    value = {scope: _verified_json(ev.paths(run, mode, scope)['eval']) for scope in ev.SCOPES}
+    value = {scope: _verified_json(_eval_root(run, mode, scope)) for scope in ev.SCOPES}
     value['apply_012'] = _verified_json(Path(run) / 'apply-012-test') if candidate == A.R else None
     return value
 
@@ -121,7 +128,7 @@ def build(run, mode, out=None, files=code_files):
         *([(run / A.A21 / 'final-selection.json', 'provenance/final-selection.json')] if mode == 'final' else []))]
     for scope in ev.SCOPES:
         if results[scope] is not None:
-            root = ev.paths(run, mode, scope)['eval']
+            root = _eval_root(run, mode, scope)
             names = {**e._verified(root)['files'], 'MANIFEST.json': h.sha256(root / 'MANIFEST.json')}
             copies += delivery._files(root.resolve(), names, f'evaluation/{scope}')
     if results['apply_012'] is not None:
