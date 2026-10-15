@@ -1,8 +1,31 @@
-# Current findings (updated 2026-10-14 11:40 UTC, after the final-deliverable audit wf_c30fbffe-068; amendment 011 locked)
+# Current findings (updated 2026-10-15 03:40 UTC)
 
 ## Status
 
-All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010 binding rule; `results/report-v2-selected-001`, `results/stage-table-010-001`, `results/delivery-010-001`). These three outputs are being regenerated from one corrected code snapshot under amendment 011 (reporting only; no J/P number changes). Pending: visual metrics (render running, FID/KID populations fixed by amendment 011 §1, GPT judge), the merged-weight dev check (amendment 011 §5). O5 (DeepSeek-V4-Flash) was not run after 4 engine-build failures and was never substituted. Everything marked EXPLORATORY is post hoc.
+**Delivered model so far: P = rpo-dpo1.** It takes train-prior sizes and the model predicts the placement.
+
+**Delivered system: amendment 022.**
+- Pipeline: prior sizes → placer → S1 repair → escalation of failing rooms (gpt-6.1-sol, then O2) → best candidate → fallback.
+- Its placer is fixed by amendment 021 §4, a final selection across R, 013 op-dpo2-e1 (adopted on dev) and the 27B student (Arm A, training).
+- 018 adopted nothing (see below).
+
+**Completed and below:**
+- confirmatory J vs P;
+- S1 repair (012);
+- same-input agents, size-fixed (016);
+- FID/KID (011);
+- GPT judge with two judges (002, 023);
+- mesh collisions (019);
+- LLM sizers (020);
+- admission variants (017).
+
+**Pending:**
+- 021 candidates → confirm → test;
+- 022 cohort/test with the final placer;
+- the 014 OptiScene reproduction chain (DPO1 training);
+- 020 OptiScene placer parts.
+
+Everything marked EXPLORATORY is post hoc.
 
 ## Confirmatory (locked primary endpoint: matched SFT J0 vs P0, Holm over (a), (b); single seed; historical test split)
 
@@ -381,6 +404,6 @@ Strict = our port (every category required, every door an entry); required = {} 
 
 ## Open questions
 
-- Visual realism (FID/KID) and GPT judge scores of J/P vs agents (amendment 011 populations).
-- Does the delivered BF16 merge behave like the evaluated policy on dev (amendment 011 §5)?
-- Does the agents' lead survive fixed sizes (amendment 016 §1–2), and does on-policy DPO2 add beyond its repaired data (amendment 013, 016 §3)?
+- Does the 27B student or op-dpo2-e1 beat R on dev-select and the 3,000-room confirm slice (021 §4)?
+- What do the delivered system's checker success, admission and API cost come to on the 1,454-room cohort and on all test rooms (022 §2)?
+- How does the official OptiScene reproduction (014) compare under the same checker, with and without S1 (016 §4)?
