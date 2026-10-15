@@ -34,6 +34,8 @@ def main(argv=None):
     run.add_argument('--prior-sha256')
     run.add_argument('--placer', choices=('hf', 'vllm'), required=True)
     run.add_argument('--escalate', choices=pipeline.ESCALATE, required=True)
+    run.add_argument('--escalate-on', choices=pipeline.TRIGGERS, default='checker',
+                     help="escalate on checker failure (default) or on checker or strict-admission failure")
     run.add_argument('--api-cap', type=count)
     run.add_argument('--api-max-rooms', type=count)
     run.add_argument('--env-file', type=Path, default=Path(os.environ.get('FASTFILL_API_ENV', '~/.fastfill_api.env')))
@@ -45,7 +47,8 @@ def main(argv=None):
     result = pipeline.run(pipeline.load_requests(args.requests), pipeline.load_prior(args.prior, args.prior_sha256),
                           placer, args.out, escalate=args.escalate, api_cap=args.api_cap,
                           api_max_rooms=args.api_max_rooms, env_file=args.env_file,
-                          o2_model=args.o2_model, dry_run=args.dry_run, workers=max(1, args.workers))
+                          o2_model=args.o2_model, dry_run=args.dry_run, workers=max(1, args.workers),
+                          trigger=args.escalate_on)
     print(json.dumps({k: result[k] for k in ('status', 'rooms', 'stages', 'would_escalate')}, ensure_ascii=False))
     return 0
 

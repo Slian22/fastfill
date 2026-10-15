@@ -473,3 +473,19 @@ def test_sharded_run_equals_the_unsharded_run(world):
     assert list(tagged) == value['escalated'] and all(tagged[u]['shard'] == p.shard_of(u, 3) for u in tagged)
     assert {u: {k: v for k, v in b.items() if k not in ('shard', 'chunk')} for u, b in tagged.items()} == no_latency(
         receipts('out'))
+
+
+def test_strict_trigger_escalates_and_ranks_by_strict_then_required():
+    from fastfill.system import pipeline as pl
+    c = lambda stage, checker, acc, noreq, viol=0: {'stage': stage, 'complete': True, 'checker_pass': checker,
+                                                    'accepted': acc, '_noreq': noreq, 'violations': viol}
+    records = [{'uid': 'a'}, {'uid': 'b'}, {'uid': 'c'}]
+    cands = {'a': [c('placer', True, True, True)], 'b': [c('placer', True, False, True)],
+             'c': [c('placer', False, False, False, 3)]}
+    assert [r['uid'] for r in pl._failing(records, cands)] == ['c']
+    assert [r['uid'] for r in pl._failing(records, cands, 'strict')] == ['b', 'c']
+    local, big = c('placer', True, False, False), c('gpt', True, True, False)
+    assert pl.best([local, big]) is local and pl.best([local, big], 'strict') is big
+    noreq = c('o2', True, False, True)
+    assert pl.best([local, noreq], 'strict') is noreq and pl.best([local, c('o2', True, False, False)], 'strict') is local
+    assert pl._public({'a': 1, '_noreq': True}) == {'a': 1}

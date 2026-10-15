@@ -64,6 +64,7 @@ from fastfill.comparison.best_of_n import VIOLATIONS
 from fastfill.comparison.report_v2 import cap_failure
 
 S1 = {'max_trials': 2000, 'time_limit': 60.0}                       # amendment 012
+TRIGGERS = ('checker', 'strict')                                   # amendment 026 addendum B
 API_ROUNDS = 2                                                      # one answer + at most one repair round
 API = {'max_output_tokens': 65536, 'timeout': 900, 'concurrency': 4}    # llm_agent run defaults
 HF_BUDGET = 40960                                                   # infer_shard plans: budget 40960, tokens 40959
@@ -151,10 +152,13 @@ def _score(task):
         row = cap_failure(row)
     out = output_repair.repair_row((row, room, request, S1['max_trials'], S1['time_limit']))
     s1, geo = out['s1'], out['s1'].get('geometry_s1')
+    v = s1.get('downstream_s1') or {}
     return {'stage': stage, 'complete': row['complete'], 'error': row['error'],
             'checker_pass_raw': row['geometry_success'], 'checker_pass': s1['geometry_success_s1'],
             'violations': sum(geo[k] for k in VIOLATIONS) if geo else None,
-            'accepted': s1['accepted_s1'], 's1_status': s1['status'], 'layout': out['s1_layout']}
+            'accepted': s1['accepted_s1'], 's1_status': s1['status'], 'layout': out['s1_layout'],
+            # required={} admission (amendment 017); '_' keys are never written, so default outputs are unchanged.
+            '_noreq': bool(v.get('endpoint_ok') and v.get('attach_ok') and v.get('admit_no_required_ok'))}
 
 
 def _score_all(tasks, workers):
@@ -164,10 +168,13 @@ def _score_all(tasks, workers):
         return list(pool.map(_score, tasks, chunksize=4))
 
 
-def best(candidates):
-    """Checker pass > complete > fewer checker violations; max keeps the first (earlier stage) on ties."""
-    return max(candidates, key=lambda c: (c['checker_pass'], c['complete'],
-                                          -math.inf if c['violations'] is None else -c['violations']))
+def best(candidates, trigger='checker'):
+    """Checker pass > complete > fewer checker violations; max keeps the first (earlier stage) on ties.
+    trigger 'strict' (amendment 026 addendum B): checker pass > strict admission > required={} > complete > fewer."""
+    tail = lambda c: (c['complete'], -math.inf if c['violations'] is None else -c['violations'])
+    if trigger == 'strict':
+        return max(candidates, key=lambda c: (c['checker_pass'], c['accepted'], c['_noreq'], *tail(c)))
+    return max(candidates, key=lambda c: (c['checker_pass'], *tail(c)))
 
 
 def fallback_answer(request):
@@ -196,9 +203,11 @@ def _place(records, rooms, placer, workers):
     return {r['uid']: [c] for r, c in zip(records, _score_all(tasks, workers))}
 
 
-def _failing(records, cands):
-    """The rooms the system escalates: no candidate passes the frozen checker."""
-    return [r for r in records if not any(c['checker_pass'] for c in cands[r['uid']])]
+def _failing(records, cands, trigger='checker'):
+    """The rooms the system escalates: no candidate passes the frozen checker ('strict': the checker and strict
+    admission, i.e. 'accepted'; amendment 026 addendum B)."""
+    key = 'accepted' if trigger == 'strict' else 'checker_pass'
+    return [r for r in records if not any(c[key] for c in cands[r['uid']])]
 
 
 def _escalate(cands, stage, records, rooms, bodies, workers):
@@ -435,7 +444,7 @@ def plan(requests, prior, placer, out, shards, workers=1):
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
     cands = _place(records, rooms, placer, workers)
-    _jsonl(out / 'placer.jsonl', [{'uid': r['uid'], **cands[r['uid']][0]} for r in records])
+    _jsonl(out / 'placer.jsonl', [{'uid': r['uid'], **_public(cands[r['uid']][0])} for r in records])
     escalated = [r['uid'] for r in _failing(records, cands)]
     value = {'status': 'PLAN_COMPLETE', 'rooms': len(records), 'records_sha256': infer._hash(records),
              'placer': placer.identity, 'prior': prior[1], 's1': S1, 'shards': shards, 'shard_rule': SHARD_RULE,
@@ -553,18 +562,24 @@ def _export(room, candidate, names):
         return {'error': f'{type(exc).__name__}: {exc}'}
 
 
+def _public(candidate):
+    return {k: v for k, v in candidate.items() if not k.startswith('_')}
+
+
 def _jsonl(path, rows):
     path.write_text(''.join(json.dumps(r, ensure_ascii=False, allow_nan=False) + '\n' for r in rows))
 
 
 def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_rooms=None, env_file=None,
         o2_model=None, dry_run=False, workers=1, post=L.call_api, o2_load=llm_open.load_vllm,
-        api_concurrency=API['concurrency'], placed=None, o2=None):
+        api_concurrency=API['concurrency'], placed=None, o2=None, trigger='checker'):
     """requests = load_requests(...); prior = load_prior(...); placer = hf_placer / vllm_placer / any Placer.
     Sharded O2 only: placed = load_plan's placer candidates (the placer stage is not rerun); o2(todo, OUT/o2) ->
     (bodies, identity) replaces o2_answers (o2_merge; no GPU here)."""
     if escalate not in ESCALATE:
         raise ValueError(f'escalate must be one of {ESCALATE}')
+    if trigger not in TRIGGERS or (trigger == 'strict' and placed is not None):
+        raise ValueError(f'trigger must be one of {TRIGGERS} (strict: not with a sharded plan)')
     if not dry_run and ((escalate == 'l+o2' and None in (api_cap, env_file)) or (escalate != 'none' and not o2_model)):
         raise ValueError('escalation needs api_cap and env_file (l+o2) and o2_model (o2, l+o2)')
     if not dry_run and escalate == 'l+o2':
@@ -580,7 +595,7 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
     out.mkdir(parents=True, exist_ok=False)
     cands = _place(records, rooms, placer, workers) if placed is None else {r['uid']: [placed[r['uid']]]
                                                                              for r in records}
-    failing = lambda: _failing(records, cands)
+    failing = lambda: _failing(records, cands, trigger)
     needs = [r['uid'] for r in failing()]
     info = {}
     if escalate == 'l+o2' and not dry_run and (todo := failing()):
@@ -595,7 +610,7 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
     for r, c in zip(empty, _score_all([('fallback', rooms[r['uid']], r, fallback_answer(r), None, False)
                                        for r in empty], workers)):
         cands[r['uid']].append(c)
-    final = {uid: best(c) for uid, c in cands.items()}
+    final = {uid: best(c, trigger) for uid, c in cands.items()}
     if any(c['layout'] is None for c in final.values()):
         raise RuntimeError('a room has no complete candidate after the fallback')
     tag = {k: placer.identity.get(k) for k in PLACER_KEYS}
@@ -603,7 +618,7 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         {**{k: r[k] for k in ('uid', 'source', 'group')}, 'room_type': r.get('room_type'),
          **{k: final[r['uid']][k] for k in ('stage', 'complete', 'checker_pass', 'accepted', 'violations')},
          'needs_escalation': r['uid'] in needs, 'layout': _layout(final[r['uid']], names[r['uid']]),
-         'candidates': [{k: v for k, v in c.items() if k != 'layout'} for c in cands[r['uid']]], 'placer': tag}
+         'candidates': [{k: v for k, v in _public(c).items() if k != 'layout'} for c in cands[r['uid']]], 'placer': tag}
         for r in records])
     _jsonl(out / 'roomgenbench.jsonl', [{'uid': r['uid'], 'stage': final[r['uid']]['stage'], 'placer': tag,
                                          **_export(rooms[r['uid']], final[r['uid']], names[r['uid']])}
@@ -613,7 +628,7 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
     result = {
         'status': 'DRY_RUN' if dry_run else 'SYSTEM_COMPLETE', 'rooms': len(records), 'escalate': escalate,
         'dry_run': dry_run, 'api_cap': api_cap, 'api_max_rooms': api_max_rooms, 'api_rounds': API_ROUNDS, 's1': S1,
-        'placer': placer.identity,
+        'placer': placer.identity, **({'escalation_trigger': trigger} if trigger != 'checker' else {}),
         'prior': prior[1], 'stages': {
             'placer_raw_checker_pass': count(c['checker_pass_raw'] for c in first),
             'placer_s1_checker_pass': count(c['checker_pass'] for c in first),
