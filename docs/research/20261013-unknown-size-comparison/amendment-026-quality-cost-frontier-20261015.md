@@ -82,3 +82,22 @@ The frontier answers one question: how much big-model use is needed to match "bi
 **Policies and reporting.** The same policies and reporting as scopes A and B. In addition, LOCAL vs BIG for every family.
 
 **Cap.** ≤ 900 paid calls (300 rooms × ≤ 3 attempts), plus a 2-room smoke. No retries beyond the harness, and no replacement.
+
+## Addendum B (locked 2026-10-15 ~12:15 UTC, after scopes A and B were viewed and before any scope-C L output exists: job 7439383 still running, `s1-026` absent)
+
+**What was seen in scopes A and B (test rooms; exploratory)**
+- **Scope A (gpt-6.1-sol):** ESC-STRICT escalates 55.7 % of rooms and reaches checker 0.987, strict 0.753, required = {} 0.880. BIG reaches 0.977 / 0.723 / 0.850. Differences against BIG: strict +0.030 [+0.011, +0.051], required = {} +0.030 [+0.013, +0.048].
+- **Scope B (O2 harness):** ESC-STRICT reaches 0.956 / 0.725 / 0.870 against BIG's 0.928 / 0.701 / 0.801.
+
+**Confirmatory rule on scope C** (the 300 family-stratified test rooms, big model = gpt-6.1-sol harness). ESC-STRICT becomes the escalation rule of the delivered method if both hold:
+1. Strict admission, ESC-STRICT − BIG: 95 % CI lower bound > −0.01.
+2. Checker, ESC-STRICT − BIG: ≥ −0.005.
+
+**Reported with the decision**
+- the share of rooms escalated;
+- the share where the big answer was used;
+- the calls and tokens per room against BIG's.
+
+**If the rule fails,** the delivered method keeps the amendment-022 ESC-CHECK rule, and the frontier stays descriptive.
+
+**Scope of the change.** It replaces only the escalation trigger in 022 §1.4 (checker failure → checker or strict-admission failure). The best-candidate choice gains strict and then required = {} as the second and third keys, as in this amendment's §2. Nothing else changes.
