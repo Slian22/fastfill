@@ -104,3 +104,14 @@ No retries and no replacement; a failed call leaves the room unedited, and this 
 **Compute:** CPU jobs only, and no GPU.
 
 **Keys:** the API key is never printed or copied.
+
+## Addendum A (locked 2026-10-15 ~11:55 UTC, before any amendment-025 output exists): family-balanced dev rooms
+
+**Why.** The user asked for evaluation rooms with more room types. A plain hash sample of dev-select would mirror its mix: 210 bedrooms, 132 living rooms, 2 garages.
+
+**Change to §2 "Rooms".**
+- **Pool:** the dev-select rooms whose 27B vLLM output is complete.
+- **Selection:** for each amendment-015 room family, at most 31 rooms, taking the lowest `sha256('a025:' + uid)` within the family. Families with fewer rooms contribute all of them.
+- **Expected count:** about 247 rooms across all 15 families. The exact count and the per-family counts are written with the room list before any critic call.
+
+**Budget.** The cap stays ≤ 500 critic + ≤ 500 judge calls on dev. Everything else in amendment 025 is unchanged.
