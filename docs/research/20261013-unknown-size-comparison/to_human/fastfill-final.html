@@ -1,0 +1,191 @@
+<title>FastFill 布局系统交付</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of a drafting sheet; tables scroll inside their own frame; status chips mark measured vs pending. */
+:root {
+  --paper: #f5f7f6; --sheet: #ffffff; --ink: #18211f; --muted: #5b6763; --rule: #d5ddda;
+  --accent: #1f5f8b; --accent-soft: #e3eef6; --good: #2d7a4f; --bad: #a3432f; --pending: #8a6d1d; --pending-bg: #f7efd8;
+  --display: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #111816; --sheet: #172120; --ink: #e4ece9; --muted: #9aa8a3; --rule: #2c3936;
+  --accent: #79b3dd; --accent-soft: #1d3140; --good: #6cc392; --bad: #e28a74; --pending: #e0c063; --pending-bg: #322a12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #111816; --sheet: #172120; --ink: #e4ece9; --muted: #9aa8a3; --rule: #2c3936;
+  --accent: #79b3dd; --accent-soft: #1d3140; --good: #6cc392; --bad: #e28a74; --pending: #e0c063; --pending-bg: #322a12; color-scheme: dark }
+body { background: var(--paper); color: var(--ink); font: 15px/1.75 var(--body); }
+main { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 72px; display: grid; gap: 40px; }
+h1, h2 { font-family: var(--display); text-wrap: balance; line-height: 1.3; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.35rem; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+h3 { font-size: 1.02rem; margin: 0; }
+p { margin: 0; max-width: 65ch; }
+section { display: grid; gap: 14px; min-width: 0; }
+.lede { color: var(--muted); font-size: 1.02rem; }
+.eyebrow { font: 500 .75rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.tile { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.tile b { font: 500 1.6rem/1.1 var(--mono); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: .86rem; line-height: 1.5; }
+.frame { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-weight: 500; color: var(--muted); background: var(--accent-soft); }
+td { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td:first-child { font-family: var(--body); }
+tr.ours td:first-child { font-weight: 700; color: var(--accent); }
+tr.ref td { color: var(--muted); }
+td.pending { color: var(--pending); background: var(--pending-bg); font-family: var(--body); }
+.good { color: var(--good); } .bad { color: var(--bad); }
+.note { color: var(--muted); font-size: .84rem; max-width: 70ch; }
+ol, ul { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; max-width: 70ch; }
+code { font: .86em var(--mono); background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+.chip { display: inline-block; font: 500 .72rem/1.6 var(--mono); padding: 0 7px; border-radius: 3px; background: var(--pending-bg); color: var(--pending); }
+pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 12px; overflow-x: auto; }
+</style>
+
+<main>
+<header style="display:grid;gap:10px">
+  <div class="eyebrow">FastFill · unknown-size · 2026-10-15</div>
+  <h1>FastFill 布局系统交付</h1>
+  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可直接导出到 RoomGenBench 生成 3D 场景。下面所有数字都来自实测；未测的格子标“待测”。</p>
+</header>
+
+<section>
+  <h2>交付物：一个系统</h2>
+  <pre class="mermaid">flowchart LR
+  A[房间 + 家具清单] --> B[尺寸：训练集先验]
+  B --> C[布局模型]
+  C --> D[S1 确定性修复]
+  D -->|通过检查器| F[输出 bbox + 布局]
+  D -->|未通过| E[升级：gpt-6.1-sol，再不行用开源 O2]
+  E --> F</pre>
+  <ol>
+    <li><b>尺寸</b>：每类家具用训练集统计的真实尺寸（先验）。LLM 自己给尺寸会系统性偏小，见表 4。</li>
+    <li><b>布局模型</b>：<span class="chip">待定</span> 由修订 021 §4 在 R = rpo-dpo1、op-dpo2-e1、27B 学生模型三者中选出并确认。</li>
+    <li><b>S1 修复</b>：只沿 XY 平移支撑子树，不改类别、尺寸、朝向和支撑关系；不用 GPU、不用 API。</li>
+    <li><b>升级</b>：只有修复后仍不通过的房间才调用 API；每个请求都保证有输出，不丢房间。</li>
+  </ol>
+</section>
+
+<section>
+  <h2>关键数字</h2>
+  <div class="tiles">
+    <div class="tile"><b class="good">−0.02</b><span>我们的足迹尺寸偏差 B（0 = 与标注一致）。所有 LLM 代理为 −0.18 到 −0.45，即家具平均缩小 16–35%。</span></div>
+    <div class="tile"><b class="good">24.0</b><span>FID（越低越真实），1,005 个论文房型房间。gpt-6.1-sol 为 32.1，开源模型 33.7–40.4。</span></div>
+    <div class="tile"><b>0.52 → 0.83</b><span>单次摆放 → 加 S1 修复后的检查器通过率（1,454 房，给定真实尺寸）。</span></div>
+    <div class="tile"><b class="pending">待测</b><span>交付系统（含升级）的检查器通过率和 API 调用房间占比。</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>表 1　交付系统逐级效果</h2>
+  <div class="frame"><table>
+    <thead><tr><th>阶段</th><th>检查器通过率</th><th>严格准入</th><th>准入（required = {}）</th><th>调用 API 的房间</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td>布局模型单次</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td>0</td></tr>
+      <tr class="ours"><td>+ S1 修复</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td>0</td></tr>
+      <tr class="ours"><td>+ 升级（完整系统）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+      <tr class="ref"><td>GT（真实布局，参考）</td><td>0.725</td><td>0.448</td><td>0.758</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">1,454 房同输入队列，升级用 gpt-6.1-sol 再到 O2；全部 8,647 个测试房只用免费的 O2 升级（修订 022 §2）。GT 也只有 44.8% 过严格准入：这套规则要求每类家具都能从每扇门走到，真实布局大多不满足。</p>
+</section>
+
+<section>
+  <h2>表 2　同一输入的对比（给定真实尺寸，1,454 房）</h2>
+  <div class="frame"><table>
+    <thead><tr><th>系统</th><th>检查器 单次 → S1</th><th>严格准入 单次 → S1</th><th>准入 required = {} 单次 → S1</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td>我们 P（rpo-dpo1，8B）</td><td>0.519 → 0.826</td><td>0.354 → 0.472</td><td>0.718 → 0.798</td></tr>
+      <tr><td>gpt-6.1-sol（L）*</td><td>0.947 → 0.977</td><td>0.677 → 0.723</td><td>0.787 → 0.850</td></tr>
+      <tr><td>Qwen3.8-27B 思考（O2）</td><td>0.918 → 0.928</td><td>0.667 → 0.701</td><td>0.750 → 0.801</td></tr>
+      <tr><td>Qwen3.8-Flash-Next（O6）</td><td>0.756 → 0.883</td><td>0.527 → 0.620</td><td>0.648 → 0.771</td></tr>
+      <tr><td>gpt-oss-120b（O4）</td><td>0.653 → 0.853</td><td>0.457 → 0.567</td><td>0.634 → 0.741</td></tr>
+      <tr><td>Muse-Glimmer-30B（O7）</td><td>0.700 → 0.812</td><td>0.507 → 0.581</td><td>0.611 → 0.697</td></tr>
+      <tr class="ref"><td>GT</td><td>0.725</td><td>0.448</td><td>0.758</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">* L 只在 300 房 pilot 上跑了尺寸固定版本（API 成本）。开源模型用 harness（最多 3 次尝试）。单次摆放我们明显落后；加 S1 后在 required = {} 准入上与 O2 持平（0.798 vs 0.801），高于 O6、O4、O7。来源：<code>results/compare-016-full-v1</code>、<code>compare-016-pilot-v1</code>。</p>
+</section>
+
+<section>
+  <h2>表 3　论文口径指标（OptiScene / LayoutGPT / SceneSmith）</h2>
+  <div class="frame"><table>
+    <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>越界房间 ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 评分 ↑</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td>我们 P</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.118</td><td>0.548</td><td>6.15</td></tr>
+      <tr class="ours"><td>我们 J（联合预测尺寸）</td><td>22.3</td><td>0.0004</td><td>0.048</td><td>0.134</td><td>0.422</td><td>6.28</td></tr>
+      <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.006</td><td>0.979</td><td>8.01</td></tr>
+      <tr><td>O2</td><td>33.7</td><td>0.0095</td><td>0.008</td><td>0.022</td><td>0.976</td><td>—</td></tr>
+      <tr><td>O6</td><td>34.4</td><td>0.0103</td><td>0.008</td><td>0.180</td><td>0.896</td><td>6.84</td></tr>
+      <tr><td>O4</td><td>37.7</td><td>0.0147</td><td>0.010</td><td>0.149</td><td>0.835</td><td>—</td></tr>
+      <tr><td>O7</td><td>40.4</td><td>0.0170</td><td>0.014</td><td>0.169</td><td>0.862</td><td>—</td></tr>
+      <tr class="ref"><td>GT</td><td>—</td><td>—</td><td>0.026</td><td>0.072</td><td>0.797</td><td>—</td></tr>
+      <tr class="ref"><td>OptiScene 论文（不同基准）</td><td>26.5–41.7</td><td>—</td><td>0.01–0.08</td><td>—</td><td>—</td><td>8.3–9.4</td></tr>
+      <tr><td>OptiScene 官方复现（同基准）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">FID/KID、OOR、网格碰撞：6 个论文房型，1,005 个渲染房（OOR 为 1,009 房完成输出均值）。越界房间：1,454 房队列、单次输出、至少一件家具越界的房间占比（LayoutGPT 的 out-of-bound 口径）。GPT 评分：174 房，评委 gpt-6-astra（reasoning high），与 gpt-6.1-sol 评委排名一致（Spearman 0.90）。代理的列用的是它们自己给的偏小尺寸，OOR、越界和碰撞因此偏低；FID 对尺寸也敏感。OptiScene 论文的数字用 Isaac Sim 渲染和他们自己的参考集，只能作参考，不能直接比较。</p>
+</section>
+
+<section>
+  <h2>表 4　训练上什么有用（dev-select 600 房，HF 精确策略）</h2>
+  <div class="frame"><table>
+    <thead><tr><th>布局模型</th><th>完整率</th><th>检查器通过率</th><th>严格准入</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>R = rpo-dpo1（现交付）</td><td>0.998</td><td>0.470</td><td>0.252</td><td style="text-align:left">SFT → DPO1（1 epoch + NLL）</td></tr>
+      <tr class="ours"><td>自修复在线 DPO2（op-dpo2-e1）</td><td>0.995</td><td class="good">0.515</td><td class="good">0.332</td><td style="text-align:left">rejected = 自己的失败，chosen = 同一样本的 S1 修复</td></tr>
+      <tr><td>同数据只做 SFT（RFT）</td><td>0.999</td><td>0.480</td><td>0.271</td><td style="text-align:left">两种子均值；增益主要来自偏好损失</td></tr>
+      <tr><td>OptiScene 式合成扰动 DPO2</td><td>0.978</td><td class="bad">0.407</td><td>0.235</td><td style="text-align:left">GT vs 扰动 GT，比起点更差</td></tr>
+      <tr><td>从 O2 蒸馏：SFT-D</td><td>0.992</td><td>0.450</td><td>0.282</td><td style="text-align:left">−0.020，不显著，未采用</td></tr>
+      <tr><td>从 O2 蒸馏：DPO2-D</td><td>0.807</td><td class="bad">0.385</td><td>0.308</td><td style="text-align:left">完整率下降，未采用</td></tr>
+      <tr><td>27B 学生（无思考，vLLM）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td style="text-align:left">40,000 房 LoRA，修订 021</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">另外：按 OptiScene 官方超参（lr 5e-6，10 epoch）做 DPO1 在测试集上崩溃（P 检查器 0.390 → 0.093，近一半输出无效 JSON），所以换成了上表的配方。来源：<code>results/ablation-016</code>、<code>dev-eval-018</code>、修订 010/013。</p>
+</section>
+
+<section>
+  <h2>表 5　尺寸从哪来</h2>
+  <div class="frame"><table>
+    <thead><tr><th>尺寸来源</th><th>尺寸 log MAE ↓</th><th>足迹偏差 B</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td>训练集先验（交付系统用）</td><td>0.267</td><td>−0.004</td></tr>
+      <tr><td>gpt-6.1-sol 只问尺寸</td><td>0.327</td><td>−0.198</td></tr>
+      <tr><td>O2 只问尺寸</td><td>0.408</td><td>−0.280</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">1,877 个测试房。只问真实尺寸、不提摆放，LLM 照样给偏小的家具，所以偏小部分来自尺寸知识本身。把代理自己布局里的尺寸换成先验尺寸，gpt-6.1-sol 的严格准入从 0.728 掉到 0.339，O2 从 0.723 掉到 0.203：它们的高通过率有一部分靠小家具。来源：<code>results/sizes-020</code>、<code>scale-curve-016</code>。</p>
+</section>
+
+<section>
+  <h2>为什么这样做、创新点</h2>
+  <ol>
+    <li><b>尺寸和摆放分开。</b>尺寸用真实统计，模型只学放在哪。尺寸误差最小，也不会靠缩小家具来过检查；在 RoomGenBench 里生成的是正常大小的家具。</li>
+    <li><b>自修复在线偏好学习。</b>用模型自己的失败样本做 rejected，用同一样本经 S1 修复后的结果做 chosen。dev 上检查器 +0.045、严格准入 +0.08；同样数据只做 SFT 没有这个增益，OptiScene 式合成负例反而变差。</li>
+    <li><b>确定性修复 S1。</b>不花 GPU 和 API，把检查器通过率从约 0.40 提到 0.70（dev 选定，测试集复现）。</li>
+    <li><b>分级升级。</b>本地 8B 模型加修复处理大多数房间，只把失败的房间交给 API，在保持真实尺寸的前提下接近大模型的通过率。比例见表 1。</li>
+    <li><b>评测方法。</b>先查清尺寸混杂（尺寸替换、尺寸固定重新生成），再看网格级碰撞和双评委一致性，避免把“缩小家具”误当成“摆得好”。</li>
+  </ol>
+</section>
+
+<section>
+  <h2>做得不好的地方</h2>
+  <ul>
+    <li>单次摆放仍明显弱于 gpt-6.1-sol 和 O2（0.52 vs 0.92–0.95）；修复后差距缩到 0.10–0.15。</li>
+    <li>网格级无碰撞房间 0.548，低于 GT 的 0.797；P 的碰撞 86.5% 在网格层面也确实存在。</li>
+    <li>GPT 评委给我们的分低于 gpt-6.1-sol 和 O6；两位评委都属 GPT-6 家族，同家族偏好没有排除。</li>
+    <li>从 O2 蒸馏没有成功；单种子、历史测试划分；人工评审（UR）没有做。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>可复现</h2>
+  <p class="note">代码与全部修订（预注册）在 git main；研究记录 <code>docs/research/20261013-unknown-size-comparison/</code>（findings.md、research-log.md、results/）。大文件在服务器 RUN 目录和 <code>/Volumes/harddisk/fastfillout/unknownsize-20261013/</code>。</p>
+</section>
+</main>
