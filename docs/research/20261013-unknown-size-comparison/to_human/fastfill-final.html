@@ -52,116 +52,96 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
 <header style="display:grid;gap:10px">
   <div class="eyebrow">FastFill · unknown-size · 2026-10-15</div>
   <h1>FastFill 布局系统交付</h1>
-  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可直接导出到 RoomGenBench 生成 3D 场景。下面所有数字都来自实测；未测的格子标“待测”。</p>
+  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可导出到 RoomGenBench。这是一个“本地模型优先、大模型兜底”的系统。所有数字都是实测；离线回放、探索性的结果都单独注明；没测的格子标“待测”。</p>
 </header>
 
-
 <section>
-  <h2>交付物：一个系统</h2>
+  <h2>交付物</h2>
   <pre class="mermaid">flowchart LR
   A[房间 + 家具清单] --> B[尺寸：训练集先验]
   B --> C[27B 布局模型]
   C --> D[S1 确定性修复]
-  D -->|通过检查器| F[输出 bbox + 布局]
-  D -->|未通过| E[升级：gpt-6.1-sol，再不行用开源 O2]
-  E --> F</pre>
+  D --> R{检查器和严格准入都过?}
+  R -->|过| F[输出 bbox + 布局]
+  R -->|不过| E[升级：gpt-6.1-sol，再不行用本地 O2]
+  E --> K[两份答案取更好的]
+  K --> F</pre>
   <ol>
-    <li><b>尺寸</b>：每类家具用训练集统计的尺寸（先验）。LLM 自己给尺寸会系统性偏小，见表 5。</li>
-    <li><b>布局模型</b>：27B 学生模型（Qwen3.8-27B + LoRA，用 40,000 个房间做 SFT，推理时不开思考，vLLM 服务）。修订 021 §4 在 rpo-dpo1（旧 8B）、op-dpo2-e1、27B 三者中按预注册规则选出；在 3,000 个 dev 确认房上（vLLM）检查器通过率比 rpo-dpo1 高 +0.053 [+0.037, +0.068]，在 8,647 个测试房上高 +0.044 [+0.033, +0.056]。</li>
-    <li><b>S1 修复</b>：只沿 XY 平移支撑子树，不改类别、尺寸、朝向和支撑关系；不用 GPU、不用 API。</li>
-    <li><b>升级</b>：只有修复后仍不通过检查器的房间才升级：队列评测用 gpt-6.1-sol 再 O2，全测试只用开源 O2（需要 2 张 GPU）。升级时尺寸锁死。修好的房间用新布局，修不好的返回最好的候选，不会返回空输出。</li>
+    <li><b>尺寸</b>：每类家具用训练集统计的尺寸，模型不改尺寸。</li>
+    <li><b>布局模型</b>：Qwen3.8-27B + LoRA（4 万个房间 SFT，推理不开思考）。修订 021 预注册选择并确认，全测试集 8,647 房检查器比旧 8B 高 +0.044 [+0.033, +0.056]。</li>
+    <li><b>S1 修复</b>：只平移支撑子树，不改类别、尺寸、朝向、父子关系；不用 GPU 和 API。</li>
+    <li><b>升级</b>：S1 后检查器或严格准入任一不过的房间交给 gpt-6.1-sol（再不行用本地 O2），按“检查器 > 严格准入 > required={}”取两份中更好的。这条规则来自修订 026 的离线回放，属于探索性采纳。</li>
+    <li><b>critic 修复（可选）</b>：gpt-6.1-sol 看盒子视图给出最多 5 条受限编辑（移动、旋转、靠墙、朝向；不增删、不改尺寸），每组编辑后重跑 S1 并复核，最多 2 轮。dev 上按预注册规则采纳。</li>
   </ol>
+  <p class="note">交付包：<code>/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-final/</code>（1.1 GB，76 个文件 sha256 全部校验通过）：placer/adapter（27B LoRA）、size-priors.json、code/（系统、S1、升级、critic）、evaluation/、MODEL_CARD.md。底座 Qwen3.8-27B 是公开模型，不随包复制。</p>
 </section>
 
 <section>
-  <h2>关键数字（1,454 房同输入队列）</h2>
-  <div class="tiles">
-    <div class="tile"><b>0.854</b><span>27B + S1 的检查器通过率，不用 API。全部 8,647 个测试房上为 0.742。</span></div>
-    <div class="tile"><b>0.993</b><span>完整系统（含升级）的检查器通过率，14.6% 的房间用了 API。升级本身由检查器触发，所以这个数天然偏高。</span></div>
-    <div class="tile"><b class="bad">0.520</b><span>完整系统的严格准入率。高于真实布局（0.448），但低于拿到同样尺寸的 gpt-6.1-sol（0.723）和 O2（0.65–0.70）。</span></div>
-    <div class="tile"><b>−0.022</b><span>足迹尺寸偏差 B（0 = 与标注一致），来自尺寸先验。LLM 自己定尺寸时为 −0.18 到 −0.45，即家具缩小 16–36%。</span></div>
-  </div>
-</section>
-
-<section>
-  <h2>表 1　交付系统逐级效果</h2>
+  <h2>表 1　交付系统实测（旧的“检查器失败才升级”规则）</h2>
   <div class="frame"><table>
-    <thead><tr><th>阶段（1,454 房队列）</th><th>检查器通过率</th><th>严格准入</th><th>准入（required = {}）</th><th>OOR</th><th>调用 API 的房间</th></tr></thead>
+    <thead><tr><th>范围 / 阶段</th><th>检查器</th><th>严格准入</th><th>required={}</th><th>OOR</th><th>升级房间</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>27B 单次</td><td>0.556</td><td>0.349</td><td>0.765</td><td>0.165</td><td>0</td></tr>
-      <tr class="ours"><td>+ S1 修复</td><td>0.854</td><td>0.453</td><td>0.820</td><td>0.083</td><td>0</td></tr>
-      <tr class="ours"><td>+ 升级（gpt-6.1-sol，再 O2）</td><td>0.993</td><td>0.520</td><td>0.854</td><td>0.056</td><td>212（14.6%）</td></tr>
-      <tr class="ref"><td>GT（真实布局，标注尺寸）</td><td>0.725</td><td>0.448</td><td>0.758</td><td>0.048</td><td>—</td></tr>
+      <tr class="ours"><td>全部测试房 8,647：27B 单次</td><td>0.443</td><td>0.216</td><td>0.533</td><td>0.256</td><td>—</td></tr>
+      <tr class="ours"><td>　+ S1</td><td>0.742</td><td>0.291</td><td>0.637</td><td>0.153</td><td>—</td></tr>
+      <tr class="ours"><td>　+ 本地 O2 升级（无 GPT API）</td><td>0.890</td><td>0.343</td><td>0.667</td><td>0.108</td><td>25.8%</td></tr>
+      <tr class="ref"><td>　GT（真实布局）</td><td>0.723</td><td>0.295</td><td>—</td><td>0.079</td><td>—</td></tr>
+      <tr class="ours"><td>队列 1,454：27B 单次 → S1 → gpt-6.1-sol / O2 升级</td><td>0.556 → 0.854 → 0.993</td><td>0.349 → 0.453 → 0.520</td><td>0.765 → 0.820 → 0.854</td><td>0.165 → 0.056</td><td>14.6%</td></tr>
     </tbody>
   </table></div>
-  <div class="frame"><table>
-    <thead><tr><th>阶段（全部 8,647 个测试房）</th><th>检查器通过率</th><th>严格准入</th><th>OOR</th></tr></thead>
-    <tbody>
-      <tr class="ours"><td>27B 单次</td><td>0.443</td><td>0.216</td><td>0.256</td></tr>
-      <tr class="ours"><td>+ S1 修复</td><td>0.742</td><td>0.291</td><td>—</td></tr>
-      <tr class="ours"><td>+ 升级（只用 O2，约 2,230 房）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
-      <tr class="ref"><td>旧 8B 模型 rpo-dpo1：单次 → S1</td><td>0.398 → 0.701</td><td>0.200 → 0.288</td><td>0.253（单次）</td></tr>
-      <tr class="ref"><td>GT</td><td>0.723</td><td>0.295</td><td>0.079</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">队列上：212 房先交给 gpt-6.1-sol（225 次调用，197 房通过），剩下 15 房交给 O2（通过 5 房）；最后 1,247 房直接用我们模型的输出，约 10 房仍未通过、返回最好的候选。检查器的配对差（房屋连通组 bootstrap）：S1 +0.298 [+0.274, +0.320]，升级再 +0.139 [+0.123, +0.156]。<br>需要注意三点：(1) 升级用了 API 或更大的模型，这是一个“带 API 的系统”，不能当作单个模型去和单次回答的代理比；(2) 升级设计在 300 个 pilot 房上模拟过（这些房属于队列），所以队列结果不是完全干净的留出评测；(3) 队列比全测试简单（holodeck 房占 34.6%，全测试只有 5.8%），全测试 S1 后仍有 25.8% 的房间需要升级。严格准入同时检查从每扇门的可达性、盒体碰撞（含塞进桌下的椅子）、1 mm 边界和门前禁区，真实布局主要栽在盒体碰撞上。来源：<code>results/system-022-cohort</code>、<code>results/a021-test</code>、<code>results/test-apply-012</code>。</p>
+  <p class="note">全测试按家具数：≤20 件检查器 0.933、21–50 件 0.710、>50 件 0.559，严格准入分别 0.382 / 0.161 / 0.110。升级由检查器触发，所以检查器分数在构造上偏高；比 GT 高只表示这套规则下通过率更高，不等于布局比真实布局更好。没有一个房间输出为空，没有家具被改尺寸。来源：<code>results/system-022-test-sharded</code>、<code>system-022-cohort</code>。</p>
 </section>
 
 <section>
-  <h2>表 2　同一输入、单次回答的对比（1,454 房队列）</h2>
-  <p class="note">所有系统拿到同样的房间和同样的先验尺寸（尺寸被锁死），每个系统只回答一次；箭头右边是同样加上 S1 修复后的结果。</p>
+  <h2>表 2　为什么不直接全用 gpt-6.1-sol（同一输入、同样加 S1）</h2>
   <div class="frame"><table>
-    <thead><tr><th>系统</th><th>检查器 单次 → S1</th><th>严格准入 单次 → S1</th><th>准入 required = {} 单次 → S1</th></tr></thead>
+    <thead><tr><th>方法</th><th>交给 gpt-6.1-sol</th><th>检查器</th><th>严格准入</th><th>required={}</th><th>OOR</th><th>每房输入 / 输出 token</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>我们 27B（交付）</td><td>0.556 → 0.854</td><td>0.349 → 0.453</td><td>0.765 → 0.820</td></tr>
-      <tr><td>我们旧 8B（rpo-dpo1）</td><td>0.519 → 0.826</td><td>0.354 → 0.472</td><td>0.718 → 0.798</td></tr>
-      <tr><td>gpt-6.1-sol（L，300 房 pilot）</td><td>0.947 → 0.977</td><td>0.677 → 0.723</td><td>0.787 → 0.850</td></tr>
-      <tr><td>Qwen3.8-27B 思考（O2）</td><td>0.787 → 0.792</td><td>0.624 → 0.653</td><td>0.683 → 0.722</td></tr>
-      <tr><td>Qwen3.8-Flash-Next（O6）</td><td>0.752 → 0.871</td><td>0.525 → 0.617</td><td>0.642 → 0.761</td></tr>
-      <tr><td>gpt-oss-120b（O4）</td><td>0.653 → 0.851</td><td>0.457 → 0.566</td><td>0.632 → 0.739</td></tr>
-      <tr><td>Muse-Glimmer-30B（O7）</td><td>0.683 → 0.790</td><td>0.495 → 0.567</td><td>0.598 → 0.682</td></tr>
-      <tr class="ref"><td>GT 布局换成先验尺寸</td><td>0.433</td><td>0.270</td><td>—</td></tr>
+      <tr><td colspan="7" style="text-align:left;font-family:var(--body)"><b>300 间、15 类房型各 20 间（探索性复核）</b></td></tr>
+      <tr><td>只用 27B</td><td>0%</td><td>0.790</td><td>0.350</td><td>0.707</td><td>0.130</td><td>0 / 0</td></tr>
+      <tr><td>检查器失败才升级（旧规则）</td><td>21%</td><td>0.990</td><td>0.430</td><td>0.770</td><td>0.088</td><td>1,194 / 361</td></tr>
+      <tr class="ours"><td>检查器或严格准入失败就升级（新规则）</td><td>65%</td><td>0.990</td><td>0.643</td><td>0.820</td><td>0.079</td><td>3,399 / 656</td></tr>
+      <tr class="ref"><td>每个房间都用 gpt-6.1-sol</td><td>100%</td><td>0.973</td><td>0.620</td><td>0.777</td><td>0.079</td><td>5,051 / 747</td></tr>
+      <tr><td colspan="7" style="text-align:left;font-family:var(--body)"><b>300 间 pilot 房</b></td></tr>
+      <tr class="ours"><td>新规则</td><td>56%</td><td>0.987</td><td>0.753</td><td>0.880</td><td>0.042</td><td>≈2,736 / ≈363</td></tr>
+      <tr class="ref"><td>每个房间都用 gpt-6.1-sol</td><td>100%</td><td>0.977</td><td>0.723</td><td>0.850</td><td>0.035</td><td>4,854 / 549</td></tr>
     </tbody>
   </table></div>
-  <p class="note">O2 单次只有 79.6% 的房间给出完整答案（思考太长被截断）；允许最多 3 次尝试时 O2 为 0.918 → 0.928 / 0.667 → 0.701 / 0.750 → 0.801。读法：27B 单次落后于 L 和所有开源代理；加 S1 后检查器与 O4、O6 相近、高于 O2 单次和 O7，required = {} 准入仅次于 L，但严格准入在所有系统里最低。完整系统与它们的配对差：严格准入比 L + S1 低 0.210 [0.152, 0.270]（300 房），比 O2 三次 + S1 低 0.181 [0.155, 0.207]；required = {} 与 L + S1 相当（−0.017 [−0.047, +0.013]）。来源：<code>results/system-022-cohort/report.md</code>、<code>compare-016-full-v1</code>。</p>
+  <p class="note">新规则 − 全用 gpt-6.1-sol：15 类房型集上严格准入 +0.023 [+0.009, +0.041]、检查器 +0.017、required={} +0.043；pilot 上严格准入 +0.030 [+0.011, +0.051]，但 OOR 更差（0.042 vs 0.035）。调用按账本 196 vs 301；输入 token 为 67%、输出为 88%；美元费用没核算。每类房型里新规则都不差于全用 gpt-6.1-sol，但升级比例差很多：车库 25%、阳台和厨房 40%，卧室 75%、客厅 80%、餐厅和会议室 95%。<br>边界：这是离线回放（大模型答案是同设置的已有答案）；15 类房型集里有 35 间与 1,454 队列重复、138 间同房屋组，所以只是“房型扩展的探索性复核”，不是独立确认。用本地 O2 代替 gpt-6.1-sol 时结论相同（1,454 房：0.956 / 0.725 / 0.870 vs 全用 O2 0.928 / 0.701 / 0.801）。来源：<code>results/frontier-026-v4</code>。</p>
 </section>
 
 <section>
-  <h2>表 3　视觉与物理指标（OptiScene / LayoutGPT / SceneSmith 的口径）</h2>
+  <h2>表 3　critic 修复（参考 SceneSmith，修订 025）</h2>
+  <div class="frame"><table>
+    <thead><tr><th>指标</th><th>27B + S1</th><th>+ critic</th><th>差值 [95% CI]</th></tr></thead>
+    <tbody>
+      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>dev 246 间（15 类房型均衡，按预注册规则采纳）</b></td></tr>
+      <tr class="ours"><td>GPT 评委（功能 + 布局）/ 2</td><td>5.91</td><td>7.33</td><td>+1.40 [+1.24, +1.56]（244 房）</td></tr>
+      <tr class="ours"><td>检查器</td><td>0.776</td><td>0.955</td><td>+0.179 [+0.128, +0.231]</td></tr>
+      <tr class="ours"><td>严格准入</td><td>0.390</td><td>0.695</td><td>+0.305 [+0.250, +0.362]</td></tr>
+      <tr class="ours"><td>required={}</td><td>0.752</td><td>0.898</td><td>+0.146 [+0.103, +0.191]</td></tr>
+      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>测试集 174 间（交付系统输出 + critic）</b></td></tr>
+      <tr><td>检查器 / 严格准入 / 评委</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">critic 每房平均 1.8 次 gpt-6.1-sol 调用（带图，每房约 16k 输入 token），比一次重新生成贵。编辑幅度大：位移中位 0.98 m、95 分位 6.5 m。评委 gpt-6-astra 与 critic gpt-6.1-sol 同属 GPT-6 家族，同家族偏好没有排除。评委看的是盒子视图（中性配色，提示词附 id→类别清单）。来源：<code>results/a025-dev</code>。</p>
+</section>
+
+<section>
+  <h2>表 4　视觉与物理指标（OptiScene / LayoutGPT / SceneSmith 口径）</h2>
   <div class="frame"><table>
     <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 评分 ↑</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>交付系统（27B + S1 + 升级）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
-      <tr class="ours"><td>27B 布局模型（单次）</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td class="pending">待测</td></tr>
-      <tr><td>旧 8B 模型 P（单次，未修复）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15</td></tr>
-      <tr><td>旧 8B 联合尺寸模型 J（单次）</td><td>22.3</td><td>0.0004</td><td>0.048</td><td>0.422</td><td>6.28</td></tr>
+      <tr class="ours"><td>交付系统（27B + S1 + 本地 O2 升级）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+      <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td class="pending">待测</td></tr>
+      <tr><td>旧 8B 模型 P（单次）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15</td></tr>
       <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01</td></tr>
       <tr><td>O2（998 房）</td><td>33.7</td><td>0.0095</td><td>0.008</td><td>0.976</td><td>—</td></tr>
       <tr><td>O6</td><td>34.4</td><td>0.0103</td><td>0.008</td><td>0.896</td><td>6.84</td></tr>
-      <tr><td>O4</td><td>37.7</td><td>0.0147</td><td>0.010</td><td>0.835</td><td>—</td></tr>
-      <tr><td>O7</td><td>40.4</td><td>0.0170</td><td>0.014</td><td>0.862</td><td>—</td></tr>
+      <tr><td>O4 / O7</td><td>37.7 / 40.4</td><td>0.0147 / 0.0170</td><td>0.010 / 0.014</td><td>0.835 / 0.862</td><td>—</td></tr>
       <tr class="ref"><td>GT</td><td>—</td><td>—</td><td>0.026</td><td>0.797</td><td>—</td></tr>
     </tbody>
   </table></div>
-  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间；代理在这里用的是它们自己给的、偏小的尺寸，FID、OOR 和碰撞都对尺寸敏感。GPT 评分：174 房，评委 gpt-6-astra（reasoning high），与 gpt-6.1-sol 评委排名一致（Spearman 0.90）。两个指标结论相反：FID 我们最好，GPT 评分我们最低。OptiScene 论文的 FID 26.5–41.7、OOR 0.01–0.08、GPT-4o 8.3–9.4 是按房型分别算的，用 Isaac Sim 渲染、自己的参考集和 676 个房，不能和这里直接比；我们按房型分开算 FID 样本太少（每类约 170 房），数值会明显偏高。交付系统的视觉指标需要重新渲染，正在安排。</p>
-</section>
-
-<section>
-  <h2>表 4　训练上学到了什么（dev-select 600 房）</h2>
-  <div class="frame"><table>
-    <thead><tr><th>布局模型（引擎）</th><th>完整率</th><th>检查器</th><th>严格准入</th><th>说明</th></tr></thead>
-    <tbody>
-      <tr class="ours"><td>27B 学生（vLLM）</td><td>0.997</td><td>0.510</td><td>0.263</td><td style="text-align:left">交付；GT 关系保持率 0.740，各护栏全过</td></tr>
-      <tr><td>旧 8B rpo-dpo1（HF / vLLM）</td><td>0.998</td><td>0.470 / 0.445</td><td>0.252 / 0.227</td><td style="text-align:left">SFT → DPO1（1 epoch + NLL）</td></tr>
-      <tr><td>op-dpo2-e1（HF）</td><td>0.995</td><td>0.515</td><td>0.332</td><td style="text-align:left">自己的失败 vs 同一样本的 S1 修复；GT 关系保持率 0.629，未过护栏，未交付</td></tr>
-      <tr><td>op-dpo2 两轮（两种子均值）</td><td>0.944</td><td>0.482</td><td>0.327</td><td style="text-align:left">与下一行同数据同步数</td></tr>
-      <tr><td>同数据只做 SFT（RFT，两种子）</td><td>0.999</td><td>0.480</td><td>0.271</td><td style="text-align:left">检查器相同，严格准入低 0.05</td></tr>
-      <tr><td>OptiScene 式合成扰动 DPO2（单种子）</td><td>0.978</td><td class="bad">0.407</td><td>0.235</td><td style="text-align:left">GT vs 扰动 GT，比起点更差</td></tr>
-      <tr><td>从 O2 蒸馏：SFT-D / DPO2-D</td><td>0.992 / 0.807</td><td>0.450 / 0.385</td><td>0.282 / 0.308</td><td style="text-align:left">都不如 rpo-dpo1，未采用</td></tr>
-      <tr class="ref"><td>同一 27B 不微调、不思考（最多 3 次）</td><td>0.433</td><td>0.082</td><td>—</td><td style="text-align:left">零样本基线</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">按 OptiScene 官方超参（lr 5e-6，10 epoch）做 DPO1 在测试集上崩溃：检查器 0.390 → 0.093，29% 的输出是无效 JSON，约一半不完整，所以换成了上表的配方。27B 与旧 8B 之间不只换了模型大小：27B 只做 SFT，训练房间取自另一个准入池（包含旧 8B 没用到的房间）中的 40,000 间；旧 8B 用了 98.9k 间并做了 DPO1。所以提升不能全部算在模型大小上。来源：<code>results/a021-selection</code>、<code>results/ablation-016</code>、findings.md 的修订 018 节。</p>
+  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 评分：174 房，评委 gpt-6-astra。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
 </section>
 
 <section>
@@ -174,33 +154,32 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr><td>O2 只问尺寸</td><td>0.408</td><td>−0.280</td></tr>
     </tbody>
   </table></div>
-  <p class="note">只问真实尺寸、不提摆放，LLM 照样给偏小的家具；先验与 gpt-6.1-sol 的配对差 0.060 [0.050, 0.069]。先验也有弱点：16.2% 的房间、7.6% 的物体落到通用的兜底尺寸（这些物体 log MAE 1.229），在 SceneSmith 这类训练没见过的数据源上明显偏大。预注册的主检验里，模型自己预测尺寸（J）既没有比先验更准，也没有被确认更差。另外，尺寸固定后重新生成的实验表明，代理领先并不是靠小家具：给它们同样的先验尺寸，L 和 O2 的检查器仍有 0.92–0.95（最多 3 次）。来源：<code>results/sizes-020</code>、<code>compare-016-pilot-v1</code>。</p>
+  <p class="note">只问真实尺寸，LLM 也会系统性给偏小的家具。先验的弱点：16.2% 的房间、7.6% 的物体落到通用兜底尺寸，在 SceneSmith 这类没见过的数据源上偏大。预注册主检验里，模型自己预测尺寸（J）既没有比先验更准，也没有被确认更差。来源：<code>results/sizes-020</code>。</p>
 </section>
 
 <section>
   <h2>我们的做法和发现</h2>
   <ol>
-    <li><b>尺寸和摆放分开。</b>尺寸用数据统计，模型只学放在哪。输出的家具是正常大小，RoomGenBench 里不会出现缩小的家具；代价是摆放更难（真实布局换成先验尺寸后检查器也只有 0.433）。</li>
-    <li><b>微调一个不思考的 27B。</b>同一底座不思考时几乎不会摆（0.08）；用我们的数据做 SFT 后不思考也有 0.556（队列）/ 0.443（全测试），在测试集上比旧 8B 高 +0.044 [+0.033, +0.056]。它没有追上 O2 长思考的单次水平（0.787），推理开销没有测量。</li>
-    <li><b>确定性修复 S1。</b>不用 GPU 和 API，全测试检查器 0.443 → 0.742，不改任何尺寸、朝向和父子关系（不变量计数全为 0）。</li>
-    <li><b>分级升级。</b>只把修复后仍失败的房间交出去，队列上 14.6% 的房间用了 API；检查器 0.993，required = {} 准入与 L 相当，严格准入仍低于代理。</li>
-    <li><b>偏好数据的来源很关键。</b>OptiScene 式的合成扰动负例让模型变差；用模型自己的失败配上它的 S1 修复做偏好对，严格准入比同数据 SFT 高 +0.058 / +0.053（两个种子），检查器没有区别。这个模型没过关系保持护栏，所以没有交付。</li>
+    <li><b>本地模型和大模型互补。</b>先用本地 27B + S1，再把检查器或严格准入不过的房间交给大模型，取两者中更好的。这样比每个房间都交给大模型的质量更好（严格准入 +0.02~+0.03），而且只用约 2/3 的输入 token。这是训练本地模型的主要价值（探索性，离线回放）。</li>
+    <li><b>尺寸和摆放分开。</b>尺寸用数据统计，模型只学放在哪，输出的家具都是正常大小。代价是摆放更难：真实布局换成先验尺寸后，检查器也只有 0.433。</li>
+    <li><b>受限的 critic 修复。</b>参考 SceneSmith，但只允许移动、旋转、靠墙、朝向，并加了确定性复核。dev 上评委分数和几何都显著提高。</li>
+    <li><b>确定性修复 S1。</b>不用 GPU 和 API，全测试检查器 0.443 → 0.742。</li>
+    <li><b>不思考的 27B 学生。</b>同一底座不思考时只有 0.08，微调后 0.443（全测试）；但没追上 O2 长思考的单次水平（0.787，同输入队列）。</li>
   </ol>
 </section>
 
 <section>
   <h2>做得不好的地方</h2>
   <ul>
-    <li><b>严格准入低。</b>完整系统 0.520，比拿同样尺寸的 L、O2 低 0.18–0.21；全测试上 27B + S1 只有 0.291，和旧模型（0.288）、真实布局（0.295）差不多。</li>
-    <li><b>大房间。</b>21 件以上家具的测试房（1,433 间）27B 单次只有 0.018；S1 后 31–50 件 0.304、51 件以上 0.127，严格准入接近 0。</li>
-    <li><b>重叠。</b>全测试 27B 的 OOR 0.256，真实布局 0.079。</li>
-    <li><b>视觉与碰撞。</b>27B 单次的 FID（22.9）好于所有代理，但网格级无碰撞房间只有 0.575，明显低于真实布局（0.797）和代理（0.84–0.98，后者家具偏小）；旧 8B 模型的 GPT 评分最低（两位评委都是 GPT-6 家族）。完整系统的视觉指标还在测。</li>
-    <li><b>评测范围。</b>单种子、历史测试划分；升级设计用 pilot 房模拟过；没有人工评审（UR）。</li>
+    <li><b>大房间</b>：21 件以上家具的房间，本地模型几乎没有优势，基本要靠大模型。卧室和客厅的升级比例也有 75–80%。</li>
+    <li><b>严格准入低</b>：全测试只有 0.343（真实布局 0.295），一半以上房间过不了“从每扇门可达 + 无盒体碰撞 + 门前禁区”这套规则。</li>
+    <li><b>证据边界</b>：新的升级规则来自离线回放和非独立的复核集；critic 在测试集上的效果还在测；单种子、历史测试划分，没有人工评审。</li>
+    <li><b>下一步</b>：布局反馈驱动的尺寸选择（在合理尺寸候选里按摆放失败来换尺寸），需要 2–3 天的独立实验。</li>
   </ul>
 </section>
 
 <section>
   <h2>可复现</h2>
-  <p class="note">代码与全部预注册修订在 git main；研究记录在 <code>docs/research/20261013-unknown-size-comparison/</code>（findings.md、research-log.md、results/）。模型：Qwen3.8-27B 底座 + LoRA adapter（服务器 <code>RUN/a021/27b/train/final</code>，sha256 4d3c427b…）；交付包 <code>RUN/system-022/final/package</code>（打包中）。大文件在服务器 RUN 目录和 <code>/Volumes/harddisk/fastfillout/unknownsize-20261013/</code>。</p>
+  <p class="note">代码和全部预注册修订（002–026）在 git main；研究记录 <code>docs/research/20261013-unknown-size-comparison/</code>（findings.md、research-log.md、results/、evidence/ 里的三份外部复核）。大文件在 <code>/Volumes/harddisk/fastfillout/unknownsize-20261013/</code>。</p>
 </section>
 </main>
