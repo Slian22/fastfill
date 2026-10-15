@@ -513,16 +513,13 @@ def test_o2nt_score_scores_placement_runs_and_rechecks_zero_reasoning(tmp_path, 
     assert harness['complete_rate'] == 1.0 and result['dev-select'] == harness['checker']
     assert all(v['reasoning_tokens'] == 0 for v in value['slices'].values())
     assert 'O2nt 参考行' in (run / 'a021/o2nt-scores/report.md').read_text()
-    status = run / 'a021/o2nt/cohort/result.json'  # A run whose result admits reasoning is refused.
-    shutil.rmtree(run / 'a021/o2nt-scores')
-    payload = h.strict_json(status.read_text())
-    payload['tokens']['reasoning_tokens'] = 3
-    h.write_json(status, payload)
-    manifest = h.strict_json((run / 'a021/o2nt/cohort/MANIFEST.json').read_text())
-    h.write_json(run / 'a021/o2nt/cohort/MANIFEST.json', {**manifest, 'files': {**manifest['files'],
-                                                                                 'result.json': h.sha256(status)}})
-    with pytest.raises(ValueError, match='O2nt reasoned on cohort'):
-        A.o2nt_score(ns(run_root=run, workers=1))
+    assert all(v['no_reasoning_violations'] == {'rooms': 0, 'uids': []} for v in value['slices'].values())
+    # Addendum B: a room whose answer reasoned is counted (it fails as an invalid answer); no run abort.
+    receipt = sorted((run / 'a021/o2nt/cohort/receipts').glob('*.json'))[0]
+    body = h.strict_json(receipt.read_text())
+    body['answers'][0]['no_reasoning_violation'] = True
+    receipt.write_text(json.dumps(body))
+    assert A._violations(run / 'a021/o2nt/cohort') == [body['uid']]
 
 
 # ---- Slurm scripts -------------------------------------------------------------------------------

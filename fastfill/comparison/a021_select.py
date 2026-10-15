@@ -551,8 +551,7 @@ def o2nt_score(args):
                 config.get('chat_template_kwargs')) != ('O2nt', ARM, False, {'enable_thinking': False}) or \
                 config.get('reasoning_tokens') not in ('asserted_zero', 'zero_else_failure'):  # Addendum B.
             raise ValueError(f'{o2nt_dir(run, slice_)} is not an O2nt P-input run')
-        if result['tokens']['reasoning_tokens'] != 0:
-            raise ValueError(f'O2nt reasoned on {slice_}: {result["tokens"]["reasoning_tokens"]} tokens')
+        violations = _violations(o2nt_dir(run, slice_))
         _, rooms, requests = _slice(data)
         variants = {}
         for variant, rows in records.items():
@@ -562,11 +561,19 @@ def o2nt_score(args):
         value['slices'][slice_] = {'run': {'path': str(o2nt_dir(run, slice_).resolve()), 'run_sha256': receipt['run_sha256'],
                                            'config_sha256': receipt['config_sha256']},
                                    'cohort_sha256': h.sha256(cohort_path), 'rooms': len(cohort['uids']),
-                                   'reasoning_tokens': 0, 'gpu_hours': (cost or {}).get('gpu_hours'), 'variants': variants}
+                                   'reasoning_tokens': result['tokens']['reasoning_tokens'],
+                                   'no_reasoning_violations': {'rooms': len(violations), 'uids': violations},
+                                   'gpu_hours': (cost or {}).get('gpu_hours'), 'variants': variants}
     value['code_sha256'] = _code()
     d._publish_dir(out, {'scores.json': _json(value), 'report.md': _o2nt_report(value).encode('utf-8')})
     return {'status': 'A021_O2NT_SCORED', **{s: round(v['variants']['llm_harness']['checker'], 4)
                                               for s, v in value['slices'].items()}}
+
+
+def _violations(root):
+    """Addendum B: uids whose O2nt answer reasoned; such a room fails (never repaired) and is counted, not a run abort."""
+    receipts = (h.strict_json(p.read_text()) for p in sorted((Path(root) / 'receipts').glob('*.json')))
+    return sorted(r['uid'] for r in receipts if any(a.get('no_reasoning_violation') for a in r.get('answers', [])))
 
 
 def _num(x):
