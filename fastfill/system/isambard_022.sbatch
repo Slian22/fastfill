@@ -27,6 +27,8 @@
 #                                 -> shards/shard-K
 #   finalize MODE                 CPU 72 / 200G: pipeline.run on the plan + the merged shards -> system
 #   summarize MODE test-sharded   summarize --scope test --sharded -> eval
+# Strict trigger (amendment 027; RUN/system-022/MODE/test-strict-sharded): plan MODE N strict, shard MODE K HOURS
+# strict, finalize MODE strict (each --trigger strict) and summarize MODE test-strict-sharded.
 # MODE: interim (R = rpo-dpo1) | final (amendment-021 §4 delivered placer). SCOPE: cohort | test. Never resumes or
 # replaces an output; the API key file is never printed.
 set -euo pipefail
@@ -41,6 +43,7 @@ PYTHON="$PROJECT_ROOT/env/bin/python"
 API_ENV=/home/u6uv/shanliantian.u6uv/.fastfill_api.env
 case "$MODE" in interim|final) ;; *) exit 2 ;; esac
 scope() { case "$1" in cohort|test) ;; *) exit 2 ;; esac; }
+strict() { case "${1-}" in '') return 1 ;; strict) return 0 ;; *) exit 2 ;; esac; }  # optional last argument
 LIMIT=175m GPUS=0 CACHE=""
 case "$STEP" in
   s1)
@@ -57,27 +60,31 @@ case "$STEP" in
   summarize)
     test "$#" -eq 1 || exit 2
     LIMIT=355m  # submit_022.sh gives summarize --time=06:00:00
-    if test "$1" = test-sharded; then
+    if test "$1" = test-sharded -o "$1" = test-strict-sharded; then
       ARGS=(fastfill.system.evaluate summarize --run-root "$RUN_ROOT" --mode "$MODE" --scope test --sharded --workers 30)
+      if test "$1" = test-strict-sharded; then ARGS+=(--trigger strict); fi
     else
       scope "$1"
       ARGS=(fastfill.system.evaluate summarize --run-root "$RUN_ROOT" --mode "$MODE" --scope "$1" --workers 30)
     fi ;;
   plan)
-    test "$#" -eq 1 || exit 2
+    test "$#" -eq 1 -o "$#" -eq 2 || exit 2
     case "$1" in ''|*[!0-9]*) exit 2 ;; esac
     test "$1" -ge 1 -a "$1" -le 16 || exit 2
-    LIMIT=235m ARGS=(fastfill.system.evaluate plan --run-root "$RUN_ROOT" --mode "$MODE" --shards "$1" --workers 64) ;;
+    LIMIT=235m ARGS=(fastfill.system.evaluate plan --run-root "$RUN_ROOT" --mode "$MODE" --shards "$1" --workers 64)
+    if strict "${2-}"; then ARGS+=(--trigger strict); fi ;;
   shard)
-    test "$#" -eq 2 || exit 2
+    test "$#" -eq 2 -o "$#" -eq 3 || exit 2
     case "$1" in ''|*[!0-9]*) exit 2 ;; esac
     case "$2" in ''|*[!0-9]*) exit 2 ;; esac
     test "$1" -le 15 -a "$2" -ge 1 -a "$2" -le 24 || exit 2
     LIMIT="$(($2 * 60 - 5))m" GPUS=2 CACHE="022-$MODE-test-sharded-$1"
-    ARGS=(fastfill.system.evaluate shard --run-root "$RUN_ROOT" --mode "$MODE" --index "$1") ;;
+    ARGS=(fastfill.system.evaluate shard --run-root "$RUN_ROOT" --mode "$MODE" --index "$1")
+    if strict "${3-}"; then ARGS+=(--trigger strict) CACHE="022-$MODE-test-strict-sharded-$1"; fi ;;
   finalize)
-    test "$#" -eq 0 || exit 2
-    LIMIT=235m ARGS=(fastfill.system.evaluate finalize --run-root "$RUN_ROOT" --mode "$MODE" --workers 64) ;;
+    test "$#" -le 1 || exit 2
+    LIMIT=235m ARGS=(fastfill.system.evaluate finalize --run-root "$RUN_ROOT" --mode "$MODE" --workers 64)
+    if strict "${1-}"; then ARGS+=(--trigger strict); fi ;;
   package)
     test "$#" -eq 0 || exit 2
     ARGS=(fastfill.system.package build --run-root "$RUN_ROOT" --mode "$MODE") ;;

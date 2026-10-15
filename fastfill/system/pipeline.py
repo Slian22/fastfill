@@ -431,34 +431,42 @@ def o2_answers(records, out, model_dir, load=llm_open.load_vllm, chunk=256):
 # run(placed=plan candidates, o2=o2_merge of the finished shards) writes the outputs a normal run writes.
 
 SHARD_RULE = "int(sha256('a022-o2-shard:' + uid), 16) mod N"
+PLAN_FLAGS = {'_strict': 'strict_s1', '_noreq': 'noreq_s1'}        # best()'s strict keys, public in a strict plan
+PLAN_FLAGS_BACK = {v: k for k, v in PLAN_FLAGS.items()}
 
 
 def shard_of(uid, shards):
     return int(L._digest('a022-o2-shard:' + uid), 16) % shards
 
 
-def plan(requests, prior, placer, out, shards, workers=1):
+def plan(requests, prior, placer, out, shards, workers=1, trigger='checker'):
     """run()'s placer stage (placer + S1) once, persisted for the shards and the finalize: OUT/placer.jsonl (every
-    room's placer candidate, request order) then OUT/plan.json (written last: the escalated uids, N, the rule)."""
-    if shards < 1:
-        raise ValueError('shards must be >= 1')
+    room's placer candidate, request order) then OUT/plan.json (written last: the escalated uids, N, the rule).
+    trigger 'strict' (amendment 027): escalated = _failing(..., 'strict'), plan.json escalation_trigger, and
+    placer.jsonl keeps best()'s strict / required={} flags as PLAN_FLAGS (load_plan restores them); 'checker' writes
+    neither."""
+    if shards < 1 or trigger not in TRIGGERS:
+        raise ValueError(f'shards must be >= 1 and trigger one of {TRIGGERS}')
     records, _, rooms = prepare(requests, prior)
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
     cands = _place(records, rooms, placer, workers)
-    _jsonl(out / 'placer.jsonl', [{'uid': r['uid'], **_public(cands[r['uid']][0])} for r in records])
-    escalated = [r['uid'] for r in _failing(records, cands)]
+    flags = lambda c: {v: c[k] for k, v in PLAN_FLAGS.items()} if trigger == 'strict' else {}
+    _jsonl(out / 'placer.jsonl', [{'uid': r['uid'], **_public(cands[r['uid']][0]), **flags(cands[r['uid']][0])}
+                                  for r in records])
+    escalated = [r['uid'] for r in _failing(records, cands, trigger)]
     value = {'status': 'PLAN_COMPLETE', 'rooms': len(records), 'records_sha256': infer._hash(records),
              'placer': placer.identity, 'prior': prior[1], 's1': S1, 'shards': shards, 'shard_rule': SHARD_RULE,
              'escalated': escalated, 'shard_rooms': [sum(shard_of(u, shards) == k for u in escalated)
                                                      for k in range(shards)],
-             'placer_sha256': h.sha256(out / 'placer.jsonl'), 'code_sha256': {'pipeline.py': h.sha256(__file__)}}
+             'placer_sha256': h.sha256(out / 'placer.jsonl'), 'code_sha256': {'pipeline.py': h.sha256(__file__)},
+             **({'escalation_trigger': trigger} if trigger != 'checker' else {})}
     h.write_json(out / 'plan.json', value)
     return value
 
 
 def load_plan(out):
-    """(plan.json, {uid: placer candidate}) of a complete plan."""
+    """(plan.json, {uid: placer candidate}) of a complete plan; a strict plan's PLAN_FLAGS become best()'s keys."""
     out = Path(out)
     value = h.strict_json((out / 'plan.json').read_text())
     if value.get('status') != 'PLAN_COMPLETE' or h.sha256(out / 'placer.jsonl') != value['placer_sha256']:
@@ -466,7 +474,8 @@ def load_plan(out):
     placed = {}
     for line in (out / 'placer.jsonl').read_text().splitlines():
         row = h.strict_json(line)
-        placed[row.pop('uid')] = row
+        uid = row.pop('uid')
+        placed[uid] = {PLAN_FLAGS_BACK.get(k, k): v for k, v in row.items()}
     return value, placed
 
 
@@ -576,12 +585,15 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         o2_model=None, dry_run=False, workers=1, post=L.call_api, o2_load=llm_open.load_vllm,
         api_concurrency=API['concurrency'], placed=None, o2=None, trigger='checker'):
     """requests = load_requests(...); prior = load_prior(...); placer = hf_placer / vllm_placer / any Placer.
-    Sharded O2 only: placed = load_plan's placer candidates (the placer stage is not rerun); o2(todo, OUT/o2) ->
-    (bodies, identity) replaces o2_answers (o2_merge; no GPU here)."""
+    Sharded O2 only: placed = load_plan's placer candidates (the placer stage is not rerun; trigger 'strict' needs a
+    strict plan's, which carry best()'s flags); o2(todo, OUT/o2) -> (bodies, identity) replaces o2_answers (o2_merge;
+    no GPU here)."""
     if escalate not in ESCALATE:
         raise ValueError(f'escalate must be one of {ESCALATE}')
-    if trigger not in TRIGGERS or (trigger == 'strict' and placed is not None):
-        raise ValueError(f'trigger must be one of {TRIGGERS} (strict: not with a sharded plan)')
+    if trigger not in TRIGGERS:
+        raise ValueError(f'trigger must be one of {TRIGGERS}')
+    if trigger == 'strict' and placed is not None and any(PLAN_FLAGS.keys() - c.keys() for c in placed.values()):
+        raise ValueError('trigger strict: the placed candidates lack the strict / required={} flags (no strict plan)')
     if not dry_run and ((escalate == 'l+o2' and None in (api_cap, env_file)) or (escalate != 'none' and not o2_model)):
         raise ValueError('escalation needs api_cap and env_file (l+o2) and o2_model (o2, l+o2)')
     if not dry_run and escalate == 'l+o2':

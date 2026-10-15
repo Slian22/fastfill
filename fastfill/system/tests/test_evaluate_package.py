@@ -356,6 +356,68 @@ def test_sharded_test_scope_fallback(system, monkeypatch):
             parse(*words)
 
 
+def test_strict_sharded_test_scope(system, monkeypatch):
+    """Amendment 027: plan / shard / finalize / summarize --trigger strict under test-strict-sharded, paired with the
+    checker-trigger test-sharded run; never touches test-sharded."""
+    shard = pl.o2_shard
+    monkeypatch.setattr(ev.pl, 'o2_shard', lambda *x, **k: shard(*x, **k, load=lambda e: (FakeO2(system), dict)))
+    checker = ev.step_plan(system.run, 'interim', 2)
+    for k in range(2):
+        ev.step_shard(system.run, 'interim', k)
+    ev.step_finalize(system.run, 'interim')
+    a, b = ev.paths(system.run, 'interim', 'test', True), ev.paths(system.run, 'interim', 'test', True, 'strict')
+    assert (b['plan'].parent.name, ev.paths(system.run, 'interim', 'test')['eval'].parent.name) == (
+        'test-strict-sharded', 'test')
+    before = {f: f.read_bytes() for f in a['plan'].parent.rglob('*') if f.is_file()}
+    value = ev.step_plan(system.run, 'interim', 2, trigger='strict')
+    s1_rows = ev.bound(ev.placer(system.run, 'interim'), system.data)[0]
+    assert value['escalation_trigger'] == 'strict' and value['escalated'] == ev.failing(s1_rows, list(ROOMS), 'strict')
+    assert set(checker['escalated']) <= set(value['escalated'])     # here equal (a and b pass strict admission too)
+    assert ev.step_plan(system.run, 'interim', 2, trigger='strict')['status'] == 'PLAN_REUSED'
+    with pytest.raises(FileNotFoundError, match='unfinished shards'):
+        ev.step_finalize(system.run, 'interim', trigger='strict')
+    for k in range(2):
+        ev.step_shard(system.run, 'interim', k, trigger='strict')
+    result = ev.step_finalize(system.run, 'interim', trigger='strict')
+    rows = [json.loads(x) for x in (b['system'] / 'rooms.jsonl').read_text().splitlines()]
+    assert result['escalation_trigger'] == 'strict'
+    assert [x['uid'] for x in rows if x['needs_escalation']] == value['escalated']
+    a['system'].rename(a['root'] / 'aside')                         # §3 pairs with the checker run: required
+    with pytest.raises(FileNotFoundError, match='checker-trigger run'):
+        ev.step_summarize(system.run, 'interim', 'test', repeats=20, sharded=True, trigger='strict')
+    (a['root'] / 'aside').rename(a['system'])
+    summary = ev.step_summarize(system.run, 'interim', 'test', repeats=20, sharded=True, trigger='strict')
+    o2 = summary['o2_run']                                          # §2: rounds, process time, GPU-h
+    assert (o2['rooms'], o2['rounds'], o2['invocations'], len(o2['shard_seconds'])) == (
+        len(value['escalated']), summary['escalation']['steps']['o2']['calls'], 2, 2)
+    assert o2['wall_seconds'] == max(o2['shard_seconds']) and o2['gpu_hours'] == sum(o2['shard_seconds']) * 2 / 3600
+    assert o2['unanswered_rooms'] == 0 and 0 <= o2['repaired_rooms'] <= o2['rooms']
+    assert summary['escalation_trigger'] == 'strict' and summary['inputs']['system']['escalation_trigger'] == 'strict'
+    assert '严格准入失败' in summary['label_zh'] and 'strict-admission' in summary['label']
+    vs = summary['escalation']['vs_s1_rows']
+    assert (vs['s1_failing'], vs['escalated_not_failing'], vs['failing_not_escalated']) == (
+        len(value['escalated']), 0, 0)
+    paired = {c['subset']: c for c in summary['contrasts'] if c['comparison'] == f'system - {ev.CHECKER_RUN}'}
+    assert paired['all']['rooms'] == len(ROOMS) and set(paired) <= set(ev.CONTRAST_SUBSETS)
+    assert paired['all']['fields']['strict']['estimate'] == 0          # same escalated rooms and answers here
+    assert summary['inputs']['checker_trigger_system']['rooms_sha256'] == h.sha256(a['system'] / 'rooms.jsonl')
+    pred = summary['replay_prediction']
+    m = pred['measured']
+    assert pred['predicted'] == ev.PREDICTED and m['rooms'] == len(COHORT) == summary['inputs']['cohort_rooms']
+    assert m['escalated_share'] == sum(x['needs_escalation'] for x in rows if x['uid'] in COHORT) / len(COHORT)
+    text = (b['eval'] / 'report.md').read_text()
+    assert '严格触发' in text and f'system - {ev.CHECKER_RUN}' in text and '离线回放预测 vs 实测' in text
+    assert f"轮次 {o2['rounds']}" in text
+    assert {f: f.read_bytes() for f in a['plan'].parent.rglob('*') if f.is_file()} == before
+    parse = lambda *words: ev.parse_args(['--run-root', 'r', '--mode', 'final', *words])
+    assert parse('plan', '--shards', '8', '--trigger', 'strict').trigger == 'strict'
+    assert parse('summarize', '--scope', 'test', '--sharded', '--trigger', 'strict').trigger == 'strict'
+    for words in (('summarize', '--scope', 'test', '--trigger', 'strict'), ('plan', '--shards', '2', '--trigger', 'x'),
+                  ('system', '--scope', 'test', '--trigger', 'strict')):
+        with pytest.raises(SystemExit):
+            parse(*words)
+
+
 def test_interim_package_and_assembly(world, tmp_path):
     value = pk.build(world.run, 'interim', files=lambda: ['fastfill/system/package.py'])
     out = ev.paths(world.run, 'interim')['package']
@@ -459,6 +521,91 @@ def test_scripts_refuse_bad_arguments(tmp_path):
         assert call(submit, CODE, *args).returncode == 2, args
     result = call(submit, tmp_path, 'test-sharded', '4')
     assert result.returncode == 1 and 'nothing submitted' in result.stderr
+    for args in (('plan', 'final', '8', 'loose'), ('plan', 'final', '8', 'strict', 'x'),
+                 ('shard', 'final', '1', '12', 'x'), ('finalize', 'final', 'x'), ('summarize', 'final', 'test-strict')):
+        assert call(sbatch, CODE, *args).returncode == 2, args
+    for args in (('plan', 'final', '8', 'strict'), ('shard', 'final', '7', '12', 'strict'),
+                 ('finalize', 'final', 'strict'), ('summarize', 'final', 'test-strict-sharded')):
+        assert 'SLURM_JOB_ID' in call(sbatch, CODE, *args).stderr, args
+    for args in (('test-strict-sharded', '0'), ('test-strict-sharded', 'x'), ('test-strict-sharded', '17')):
+        assert call(submit, CODE, *args).returncode == 2, args
+
+
+def test_submit_strict_sharded_chain(tmp_path):
+    """submit_022.sh test-strict-sharded with fake sbatch / squeue / scontrol (a copy with PROJECT_ROOT under tmp)."""
+    code, project, bin_ = tmp_path / 'code', tmp_path / 'project', tmp_path / 'bin'
+    for name in ('pipeline.py', 'cli.py', 'evaluate.py', 'package.py', 'isambard_022.sbatch',
+                 '../../docs/research/20261013-unknown-size-comparison/amendment-022-delivered-system-20261014.md'):
+        (code / 'fastfill/system' / name).parent.mkdir(parents=True, exist_ok=True)
+        (code / 'fastfill/system' / name).write_text('')
+    text = (CODE / 'fastfill/system/submit_022.sh').read_text()
+    root = 'PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill'
+    assert text.count(root) == 1
+    (code / 'fastfill/system/submit_022.sh').write_text(text.replace(root, f'PROJECT_ROOT={project}'))
+    run, s1 = project / 'runs/unknownsize-20261013', tmp_path / 's1'
+    for name in ('eval-data-v1/MANIFEST.json', 'main-data-v1/size-priors.json', 'llm-cohort-v1.json',
+                 'a021/final-selection.json', '../../../s1/MANIFEST.json'):
+        (run / name).parent.mkdir(parents=True, exist_ok=True)
+        (run / name).write_text('{}')
+    log, queue = tmp_path / 'sbatch.log', tmp_path / 'queue'
+    fakes = {project / 'env/bin/python': f'case "$*" in *ev.placer*) echo {s1}; exit 0 ;; esac\n'
+                                          f'exec {sys.executable} "$@"',
+             bin_ / 'sbatch': f'n=$(($(cat {tmp_path}/n 2>/dev/null || echo 100) + 1)); echo $n > {tmp_path}/n\n'
+                              f'echo "$*" >> {log}; echo $n',
+             bin_ / 'scontrol': f'echo "scontrol $*" >> {log}',
+             bin_ / 'squeue': 'name=""; while test $# -gt 0; do test "$1" != -n || name="$2"; shift; done\n'
+                              f'while read -r id job; do if test -z "$name"; then echo "$id $job"; '
+                              f'elif test "$job" = "$name"; then echo "$id"; fi; done < {queue}; exit 0'}
+    for path, body in fakes.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('#!/bin/bash\n' + body + '\n')
+        path.chmod(0o755)
+    queue.write_text('')
+    env = {**{k: v for k, v in os.environ.items() if not k.startswith('SLURM')}, 'USER': 'u',
+           'PATH': f"{bin_}:{os.environ['PATH']}"}
+    submit = lambda *args: subprocess.run(['bash', str(code / 'fastfill/system/submit_022.sh'), str(code), *args],
+                                          capture_output=True, text=True, env=env)
+    result = submit('test-strict-sharded')
+    assert result.returncode == 0, result.stderr
+    jobs = log.read_text().splitlines()
+    name = lambda line: line.split('--job-name=')[1].split()[0]
+    assert [name(x) for x in jobs[:-1]] == ['unknownsize-022-test-strict-sharded-' + s for s in (
+        'plan', *(f'shard{k}' for k in range(8)), 'finalize', 'summarize')] and jobs[-1] == 'scontrol release 101'
+    assert '--hold' in jobs[0] and jobs[0].endswith('plan final 8 strict')
+    assert all('afterok:101 ' in x and x.endswith(f'shard final {k} 12 strict') for k, x in enumerate(jobs[1:9]))
+    assert 'afterok:101:' + ':'.join(map(str, range(102, 110))) in jobs[9] and jobs[9].endswith('finalize final strict')
+    assert 'afterok:110 ' in jobs[10] and jobs[10].endswith('summarize final test-strict-sharded')
+    assert '8 shards x 2 GPUs x 12 h = 192 GPU-h' in result.stdout
+    log.write_text('')                                                        # the checker chain is as before
+    assert submit('test-sharded').returncode == 0
+    jobs = log.read_text().splitlines()
+    assert [name(x) for x in jobs[:-1]] == ['unknownsize-022-test-sharded-' + s for s in (
+        'plan', *(f'shard{k}' for k in range(4)), 'finalize', 'summarize')]
+    assert [x.rsplit('isambard_022.sbatch ', 1)[1].split(' ', 1)[1] for x in jobs[:-1]] == [
+        'plan final 4', *(f'shard final {k} 12' for k in range(4)), 'finalize final', 'summarize final test-sharded']
+    t = run / 'system-022/final/test-strict-sharded'                         # resubmit: only unfinished shards
+    (t / 'plan').mkdir(parents=True)
+    (t / 'plan/plan.json').write_text(json.dumps({'shards': 8}))
+    for k in (0, 3):
+        (t / f'shards/shard-{k}').mkdir(parents=True)
+        (t / f'shards/shard-{k}/COMPLETE.json').write_text('{}')
+    log.write_text('')
+    assert submit('test-strict-sharded').returncode == 0
+    assert [name(x) for x in log.read_text().splitlines() if 'shard final' in x] == [
+        f'unknownsize-022-test-strict-sharded-shard{k}' for k in (1, 2, 4, 5, 6, 7)]
+    log.write_text('')
+    for args, queued, reason in ((('test-strict-sharded', '4'), '', 'made for 8 shards'),
+                                 (('test-strict-sharded',), '7 unknownsize-022-test-strict-sharded-shard1\n',
+                                  'already in Slurm (scancel 7)')):
+        queue.write_text(queued)
+        result = submit(*args)
+        assert result.returncode == 1 and reason in result.stderr and 'nothing submitted' in result.stderr, args
+    assert log.read_text() == ''
+    queue.write_text('8 unknownsize-022-test-sharded-shard1\n')                # the checker chain does not block
+    assert submit('test-strict-sharded').returncode == 0
+    (t / 'system').mkdir()
+    result = submit('test-strict-sharded')
+    assert result.returncode == 1 and 'test-strict-sharded/system exists' in result.stderr
 
 
 def test_package_uses_sharded_test_eval_only_when_unsharded_is_absent(tmp_path):

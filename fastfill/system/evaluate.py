@@ -55,6 +55,14 @@ finalize  [--workers W]: pipeline.run on the plan's placer candidates with O2 = 
           -> system/ (the files step_system writes; result.json escalation.o2.sharding: N, rule, chunk size, every
           shard's rooms / chunks / identity sha256, the plan sha256).
 summarize --scope test --sharded: as summarize test, on test-sharded/system -> test-sharded/eval (inputs.system.o2_sharding).
+
+Strict escalation trigger (amendment 027; amendment 026 addendum B): plan / shard / finalize / summarize --sharded with
+--trigger strict run the same chain under RUN/system-022/MODE/test-strict-sharded (never touching test-sharded): the
+plan escalates rooms failing the checker or strict admission and keeps best()'s flags, the finalize ranks by the strict
+rule. summarize labels the trigger, takes the S1 rows' failing set under it, adds o2_run (§2: O2 rounds, repaired rooms,
+shard process time and GPU-h from the shards' invocations.jsonl), the 'cohort' subset with the 026 scope-B replay
+prediction against the measurement, and the paired contrasts 'system - checker-trigger system' against the
+checker-trigger test-sharded/system, which must exist (same rooms, house-cluster bootstrap, seed 42).
 """
 import argparse
 import collections
@@ -96,6 +104,9 @@ FIXED_AGENTS = ('O2', 'O4', 'O6', 'O7')                 # amendment 016 §2 size
 VARIANTS = ('raw', 'harness')                           # single-shot (llm_raw) and harness (llm_harness)
 CONTRAST_SUBSETS = ('all', *(n for n, _, _ in sc.BINS), 'real', 'synthetic', 'family:paper_families',
                     'family:other_families')
+CHECKER_RUN = 'checker-trigger system'                 # amendment 027 §3: the strict run's paired comparison
+PREDICTED = {'source': 'amendment 026 addendum B, scope B (cohort), O2 harness, ESC-STRICT',      # amendment 027 §4
+             'escalated_share': .547, 'checker_rate': .956, 'strict_rate': .725, 'noreq_rate': .870}
 LABEL = {'cohort': 'system with API access (gpt-6.1-sol escalation, then O2)', 'test': 'system with free O2 escalation'}
 LABEL_ZH = {'cohort': '系统（含 API 访问：gpt-6.1-sol 升级，再 O2）', 'test': '系统（仅 O2 免费升级）'}
 STAGE_ZH = {'raw': '原始', 's1': '+S1', 'system': '+升级'}
@@ -104,10 +115,12 @@ NOT_MEASURED = 'not measured'
 
 # ---- paths, prior and the placer -----------------------------------------------------------------
 
-def paths(run, mode, scope=None, sharded=False):
-    """sharded: the sharded O2 fallback of the test scope, under SCOPE-sharded (plan, shards/shard-K, system, eval)."""
+def paths(run, mode, scope=None, sharded=False, trigger='checker'):
+    """sharded: the sharded O2 fallback of the test scope, under SCOPE-sharded (plan, shards/shard-K, system, eval);
+    trigger 'strict' (amendment 027): under SCOPE-strict-sharded."""
     root = Path(run) / 'system-022' / mode
-    leaf = root / (scope + '-sharded' if sharded else scope) if scope else root
+    name = scope and scope + ('-strict' if trigger == 'strict' else '') + ('-sharded' if sharded else '')
+    leaf = root / name if scope else root
     return {'root': root, 'requests': leaf / 'requests.jsonl', 'gate': leaf / 'gate.json', 'system': leaf / 'system',
             'eval': leaf / 'eval', 'package': root / 'package', 'plan': leaf / 'plan', 'shards': leaf / 'shards'}
 
@@ -216,7 +229,8 @@ def load_pipeline(out):
                 'api_calls': api.get('calls_ledger', 0), 'api_stopped': api.get('stopped'),
                 'prior': result['prior'], 'result_sha256': h.sha256(out / 'result.json'),
                 'rooms_sha256': h.sha256(out / 'rooms.jsonl'),
-                **({'o2_sharding': o2['sharding']} if 'sharding' in o2 else {})}
+                **({'o2_sharding': o2['sharding']} if 'sharding' in o2 else {}),
+                **({'escalation_trigger': result['escalation_trigger']} if 'escalation_trigger' in result else {})}
     bodies = {'gpt': {}, 'o2': {}}
     for path in sorted((out / 'api' / 'receipts').glob('*.json')):
         body = h.strict_json(path.read_text())
@@ -239,6 +253,33 @@ def load_pipeline(out):
     return identity, rows
 
 
+def o2_run(system):
+    """Amendment 027 §2, the O2 stage of a sharded run (SYSTEM: its system dir): rooms, rounds (answers; local O2 has
+    no transport retries, so calls = rounds), repaired / unanswered rooms, and the shard processes' time from each
+    shard's invocations.jsonl (an invocation runs from its 'start' event to its last event)."""
+    system, seconds, invocations, jobs, generation = Path(system), [], 0, set(), 0.0
+    bodies = [h.strict_json(x) for x in (system / 'o2' / 'receipts.jsonl').read_text().splitlines()]
+    for d in h.strict_json((system / 'result.json').read_text())['escalation']['o2']['sharding']['detail']:
+        spans = []
+        for e in map(h.strict_json, (Path(d['dir']) / 'invocations.jsonl').read_text().splitlines()):
+            if e['event'] == 'start':
+                spans.append(0.0)
+            spans[-1] = max(spans[-1], e['elapsed_seconds'])
+            generation += e.get('wall_seconds', 0.0)            # llm_open._chunk's 'call' events
+            jobs.add(e.get('slurm_job_id'))
+        seconds.append(sum(spans))
+        invocations += len(spans)
+    gpus = llm_open.SPECS['O2']['tp']
+    return {'rooms': len(bodies), 'rounds': sum(len(b['answers']) for b in bodies),
+            'repaired_rooms': sum(len(b['answers']) > 1 for b in bodies),
+            'unanswered_rooms': sum(not b['answers'] for b in bodies), 'invocations': invocations,
+            'slurm_job_ids': sorted(j for j in jobs if j), 'shard_seconds': seconds, 'wall_seconds': max(seconds),
+            'gpus_per_shard': gpus, 'gpu_hours': sum(seconds) * gpus / 3600, 'generation_seconds': generation,
+            'scope': 'shard process time (model load included) from invocations.jsonl; wall = the slowest shard; '
+                     "Slurm queueing, process start-up and the time after a killed invocation's last event are "
+                     'excluded (sacct over slurm_job_ids is authoritative)'}
+
+
 # ---- gate (cohort, before any API call) ---------------------------------------------------------
 
 def capped(row):
@@ -247,11 +288,11 @@ def capped(row):
     return bool(row.get('reached_token_cap')) and not row.get('stopped_on_eos', True)
 
 
-def failing(s1_rows, uids):
-    """The rooms the system escalates: incomplete (cap rule included) or failing the frozen checker after S1."""
-    keep = set(uids)
-    return [x['uid'] for x in s1_rows if x['uid'] in keep
-            and not (x['complete'] and not capped(x) and x['s1']['geometry_success_s1'])]
+def failing(s1_rows, uids, trigger='checker'):
+    """The rooms the system escalates: incomplete (cap rule included) or failing the frozen checker after S1 ('strict':
+    the checker and strict admission, accepted_s1, as pipeline._failing)."""
+    keep, key = set(uids), 'accepted_s1' if trigger == 'strict' else 'geometry_success_s1'
+    return [x['uid'] for x in s1_rows if x['uid'] in keep and not (x['complete'] and not capped(x) and x['s1'][key])]
 
 
 def spent(run):
@@ -378,9 +419,12 @@ def escalation(rows, fail, identity, scope, prices=None):
 
 # ---- evaluation core -----------------------------------------------------------------------------
 
-def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000, workers=1, prices=None):
+def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000, workers=1, prices=None,
+             trigger='checker', baseline=None, extra_subsets=None):
     """rooms / requests: {uid: ...} of the scope; s1_rows: the placer's bound S1 rows (scope uids); system:
-    (identity, rows) from load_pipeline; agents: {label: {'setting', 'variant', 'rows'}} (S1 rows, cohort only)."""
+    (identity, rows) from load_pipeline; agents: {label: {'setting', 'variant', 'rows'}} (S1 rows, cohort only);
+    trigger: the system's escalation trigger; baseline: (label, rows) of another load_pipeline run on these rooms,
+    paired as 'system - label' on CONTRAST_SUBSETS; extra_subsets: {name: uids} added to the subsets."""
     identity, rows = system
     uids = [x['uid'] for x in s1_rows]
     if sorted(uids) != sorted(rooms) or sorted(r['uid'] for r in rows) != sorted(uids):
@@ -393,6 +437,11 @@ def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000,
         for stage, v in stage_views(x, rooms[x['uid']], cap_rule=True).items():
             views[stage].append(v)
     views['system'] = r2._map(final_view, [(rooms[u], requests[u], by[u]['layout']) for u in uids], workers)
+    if baseline:
+        other = {r['uid']: r for r in baseline[1]}
+        if sorted(other) != sorted(uids):
+            raise ValueError(f'{baseline[0]}: not the same rooms')
+        views[baseline[0]] = r2._map(final_view, [(rooms[u], requests[u], other[u]['layout']) for u in uids], workers)
     agree = 0
     pose = lambda layout: [{k: o.get(k) for k in POSE} for o in layout or []]
     for x, s1, final in zip(s1_rows, views['s1'], views['system']):
@@ -400,7 +449,8 @@ def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000,
             if any(s1[k] != final[k] for k in ('checker', 'strict', 'noreq')):
                 raise ValueError(f"{x['uid']}: the final layout is the S1 layout but scores differently")
             agree += 1
-    subsets = {k: {x['uid'] for x in v} for k, v in sc.subsets(list(rooms.values())).items()}
+    subsets = {k: {x['uid'] for x in v} for k, v in sc.subsets(list(rooms.values())).items()} | {
+        k: set(v) for k, v in (extra_subsets or {}).items()}
     systems = {'system': {stage: views[stage] for stage in STAGES}}
     for label, a in (agents or {}).items():
         systems[label] = {'raw': [], 's1': []}
@@ -417,6 +467,9 @@ def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000,
             meta.append({'subset': name, 'comparison': f'{first} - {second}'})
         if name not in CONTRAST_SUBSETS:
             continue
+        if baseline:
+            tasks.append((pick(views['system']), pick(views[baseline[0]]), repeats))
+            meta.append({'subset': name, 'comparison': f'system - {baseline[0]}'})
         for label, a in (agents or {}).items():
             only = {x['uid'] for x in a['rows']}
             for stage in ('raw', 's1'):
@@ -424,9 +477,12 @@ def evaluate(rooms, requests, s1_rows, system, scope, agents=None, repeats=2000,
                 meta.append({'subset': name, 'comparison': f'system - {label} [{stage}]', 'setting': a['setting'],
                              'variant': a['variant']})
     contrasts = [{**m, 'rooms': len(t[0]), **c} for m, t, c in zip(meta, tasks, r2._map(contrast, tasks, workers))]
+    strict = trigger == 'strict'
     return {'status': 'SYSTEM_022_EVAL_COMPLETE', 'protocol': 'amendment-022 §2', 'scope': scope,
-            'label': LABEL[scope], 'label_zh': LABEL_ZH[scope], 'requests': len(uids),
-            'escalation': escalation(rows, failing(s1_rows, uids), identity, scope, prices),
+            'label': LABEL[scope] + (', escalation on checker or strict-admission failure' if strict else ''),
+            'label_zh': LABEL_ZH[scope] + ('（升级触发：检查器或严格准入失败）' if strict else ''),
+            **({'escalation_trigger': trigger} if strict else {}), 'requests': len(uids),
+            'escalation': escalation(rows, failing(s1_rows, uids, trigger), identity, scope, prices),
             'size_changed_objects': sum(v['size_changed'] for v in views['system']), 'final_equals_s1_rows': agree,
             'levels': levels, 'contrasts': contrasts,
             'agents': {label: {'setting': a['setting'], 'variant': a['variant'], 'rooms': len(a['rows']),
@@ -504,10 +560,10 @@ def step_s1(run, mode, workers=1):
                    workers, t12.MAX_TRIALS, t12.TIME_LIMIT)
 
 
-def _system_inputs(run, mode, scope, env_file=None, sharded=False):
+def _system_inputs(run, mode, scope, env_file=None, sharded=False, trigger='checker'):
     """(paths, requests, prior, replayed placer, API cap) of a system run; the cohort gate (gate.json) first."""
     run, data = Path(run), Path(run) / 'eval-data-v1'
-    out, p = paths(run, mode, scope, sharded), placer(run, mode)
+    out, p = paths(run, mode, scope, sharded, trigger), placer(run, mode)
     if out['system'].exists():
         raise FileExistsError(f"{out['system']} exists (a pipeline run never resumes; move it aside to retry, its "
                               'API ledger still counts)')
@@ -540,31 +596,32 @@ def step_system(run, mode, scope, env_file=None, workers=1):
 
 # ---- sharded O2 fallback (test scope): plan -> shard 0..N-1 (GPU, resumable) -> finalize -> summarize --sharded ----
 
-def step_plan(run, mode, shards, workers=1):
+def step_plan(run, mode, shards, workers=1, trigger='checker'):
     """pipeline.plan (the placer stage once) -> test-sharded/plan; a complete plan for the same N is reused."""
-    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True)
+    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True, trigger=trigger)
     if (out['plan'] / 'plan.json').exists():
         value, _ = pl.load_plan(out['plan'])
-        if value['shards'] != shards or value['placer'] != replayed.identity:
-            raise ValueError(f"{out['plan']} was made for another N or placer")
+        if (value['shards'], value['placer'], value.get('escalation_trigger', 'checker')) != (shards, replayed.identity,
+                                                                                              trigger):
+            raise ValueError(f"{out['plan']} was made for another N, placer or trigger")
         return {**value, 'status': 'PLAN_REUSED'}
-    return pl.plan(requests, prior, replayed, out['plan'], shards, workers)
+    return pl.plan(requests, prior, replayed, out['plan'], shards, workers, trigger)
 
 
-def _planned(run, mode):
-    """(paths, plan, placer candidates, P records); the plan must bind exactly these requests and prior."""
+def _planned(run, mode, trigger='checker'):
+    """(paths, plan, placer candidates, P records); the plan must bind exactly these requests, prior and trigger."""
     run = Path(run)
-    out, prior = paths(run, mode, 'test', True), prior_table(run)
+    out, prior = paths(run, mode, 'test', True, trigger), prior_table(run)
     value, placed = pl.load_plan(out['plan'])
     records = pl.prepare(pl.load_requests(out['requests']), pl.load_prior(prior['path'], prior['sha256']))[0]
-    if infer._hash(records) != value['records_sha256']:
-        raise ValueError(f"{out['plan']} was made for other requests")
+    if infer._hash(records) != value['records_sha256'] or value.get('escalation_trigger', 'checker') != trigger:
+        raise ValueError(f"{out['plan']} was made for other requests or another trigger")
     return out, value, placed, records
 
 
-def step_shard(run, mode, index):
+def step_shard(run, mode, index, trigger='checker'):
     """pipeline.o2_shard on the plan's escalated rooms of shard INDEX -> test-sharded/shards/shard-INDEX (resumes)."""
-    out, value, _, records = _planned(run, mode)
+    out, value, _, records = _planned(run, mode, trigger)
     if out['system'].exists():
         raise FileExistsError(f"{out['system']} exists (already finalized)")
     if not 0 <= index < value['shards']:
@@ -575,14 +632,15 @@ def step_shard(run, mode, index):
                        index, value['shards'])
 
 
-def step_finalize(run, mode, workers=1):
+def step_finalize(run, mode, workers=1, trigger='checker'):
     """pipeline.run on the plan's placer candidates with O2 merged from the N finished shards -> test-sharded/system,
-    the files step_system writes; result.json escalation.o2.sharding declares N, the rule and every shard."""
-    out, value, placed, _ = _planned(run, mode)
+    the files step_system writes; result.json escalation.o2.sharding declares N, the rule and every shard. The
+    escalation trigger (escalated set and best()) is the plan's."""
+    out, value, placed, _ = _planned(run, mode, trigger)
     dirs = [out['shards'] / f'shard-{k}' for k in range(value['shards'])]
     if missing := [d.name for d in dirs if not (d / 'COMPLETE.json').exists()]:
         raise FileNotFoundError(f'unfinished shards {missing}: nothing finalized')
-    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True)
+    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True, trigger=trigger)
     if value['placer'] != replayed.identity:
         raise ValueError(f"{out['plan']} was made with another placer")
     model = A.models_root(Path(run)) / llm_open.SPECS['O2']['model']
@@ -594,12 +652,13 @@ def step_finalize(run, mode, workers=1):
         return bodies, {**identity, 'sharding': {**identity['sharding'],
                                                  'plan_sha256': h.sha256(out['plan'] / 'plan.json')}}
     return pl.run(requests, prior, replayed, out['system'], escalate=SCOPES['test']['escalate'], api_cap=0,
-                  api_max_rooms=SCOPES['test']['api_rooms'], o2_model=model, workers=workers, placed=placed, o2=o2)
+                  api_max_rooms=SCOPES['test']['api_rooms'], o2_model=model, workers=workers, placed=placed, o2=o2,
+                  trigger=value.get('escalation_trigger', 'checker'))
 
 
-def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None, sharded=False):
+def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None, sharded=False, trigger='checker'):
     run, data = Path(run), Path(run) / 'eval-data-v1'
-    out, p = paths(run, mode, scope, sharded), placer(run, mode)
+    out, p = paths(run, mode, scope, sharded, trigger), placer(run, mode)
     if out['eval'].exists():
         raise FileExistsError(out['eval'])
     uids, rooms, requests, _ = _scope(run, data, scope)
@@ -610,9 +669,32 @@ def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None, shard
         raise ValueError('the system placer stage did not replay the bound placer test rows')
     if identity['prior']['sha256'] != prior_table(run)['sha256']:
         raise ValueError('the system used another prior table than the one P was evaluated with')
+    if identity.get('escalation_trigger', 'checker') != trigger:
+        raise ValueError(f'the system run used another escalation trigger than {trigger}')
     data_sha = h.sha256(data / 'MANIFEST.json')
     agents, missing = load_agents(run, uids, data_sha) if scope == 'cohort' else ({}, [])
-    result = evaluate(rooms, requests, s1_rows, (identity, rows), scope, agents, repeats, workers, prices)
+    more, baseline, extra = {}, None, None
+    if trigger == 'strict':                         # amendment 027 §2 / §3 / §4
+        other = paths(run, mode, scope, sharded)['system']
+        if not (other / 'result.json').exists():
+            raise FileNotFoundError(f'{other}: the checker-trigger run amendment 027 §3 pairs with')
+        base, base_rows = load_pipeline(other)
+        if 'escalation_trigger' in base or any(base[k] != identity[k] for k in ('placer', 'prior', 'escalate')):
+            raise ValueError(f'{other}: not the checker-trigger run of this placer, prior and escalation')
+        baseline, o2 = (CHECKER_RUN, base_rows), o2_run(out['system'])
+        cohort = scope_uids(run, data, 'cohort') if (run / 'llm-cohort-v1.json').exists() else []
+        extra = {'cohort': [u for u in cohort if u in rooms]} if cohort else None
+        more = {'checker_trigger_system': base, 'cohort_rooms': extra and len(extra['cohort'])}
+    result = evaluate(rooms, requests, s1_rows, (identity, rows), scope, agents, repeats, workers, prices, trigger,
+                      baseline, extra)
+    if trigger == 'strict':
+        result['o2_run'] = o2
+    if extra:
+        keep, got = set(extra['cohort']), result['levels']['cohort']['system']['system']
+        result['replay_prediction'] = {'predicted': PREDICTED, 'measured': {
+            'rooms': len(keep),
+            'escalated_share': sum(bool(r['escalation']) for r in rows if r['uid'] in keep) / len(keep),
+            **{k: got[k] for k in ('checker_rate', 'strict_rate', 'noreq_rate')}}}
     result.update({
         'mode': mode, 'interim': mode == 'interim', 'agents_missing': missing,
         'placer': {k: (str(v) if isinstance(v, Path) else v) for k, v in p.items()},
@@ -620,7 +702,7 @@ def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None, shard
                    's1_params': s1_info['params'], 'geometry_MANIFEST': h.sha256(p['geometry'] / 'MANIFEST.json'),
                    'placer_run_sha256': run_sha, 'system': identity,
                    'gate': h.strict_json(out['gate'].read_text()) if out['gate'].exists() else None,
-                   'requests_sha256': h.sha256(out['requests'])},
+                   'requests_sha256': h.sha256(out['requests']), **more},
         'settings': {'repeats': repeats, 'seed': r2.SEED, 'max_trials': t12.MAX_TRIALS, 'time_limit_s': t12.TIME_LIMIT},
         'spec': SPEC, 'code_sha256': {Path(f).name: h.sha256(f) for f in (__file__, pl.__file__, rep.__file__,
                                                                         dn.__file__, g.__file__, r2.__file__)}})
@@ -688,7 +770,9 @@ def report(result):
              f'**{name}**。升级阶段使用 API 或额外的开源大模型，因此这是“含升级的系统”，从不作为“模型”与单次代理比较。'
              + ('（临时版 interim：放置器 R = rpo-dpo1，不改变任何决定。）' if result.get('interim') else ''), '',
              f"放置器：{result.get('placer', {}).get('label', '—')}（测试行复用，未重新推理）。阶段：原始 → +S1（修订 012 的确定性"
-             '修复）→ +升级（只对 S1 后未完成或检查器失败的房间）。', '',
+             '修复）→ +升级（' + ('只对 S1 后未完成或检查器失败的房间' if 'escalation_trigger' not in result else
+                                  '严格触发，修订 026 附录 B / 027：只对 S1 后未完成、检查器或严格准入失败的房间；最优候选按'
+                                  '检查器 > 严格准入 > required={} > 完整 > 更少违规') + '）。', '',
              '比率的分母为该范围的全部请求（未完成计失败）；OOR、尺寸 log MAE、足迹偏差 B 为完整房间的均值。'
              '严格准入 = downstream.accept；required={} 准入 = 端点、贴附与 admit_no_required 均通过（修订 017 的两个变体）。', '',
              '## 1. 各阶段贡献（全部房间）', '',
@@ -705,6 +789,11 @@ def report(result):
              + ('—' if not x['latency_s'] else ' / '.join(_f(x['latency_s'][k]) for k in ('mean', 'p50', 'p95')))
              for s, x in esc['steps'].items()]
     cost = '未测量（未给出单价）' if isinstance(api['cost_usd'], str) else _f(api['cost_usd'])
+    if o2 := result.get('o2_run'):
+        steps.append(f"- O2 运行（分片进程计时，见 results.json o2_run.scope）：{o2['rooms']} 间，轮次 {o2['rounds']}（本地 O2"
+                     f" 无传输重试，调用 = 轮次），用到修复轮的房间 {o2['repaired_rooms']}，无答案 {o2['unanswered_rooms']}；"
+                     f"{o2['invocations']} 个进程，最慢分片 {o2['wall_seconds'] / 3600:.2f} h，合计 {o2['gpu_hours']:.1f} "
+                     f"GPU-h（{o2['gpus_per_shard']} GPU / 分片，含模型加载）。")
     lines += ['', '## 2. 升级', '',
               f"- 升级房间：{esc['escalated']} / {esc['requests']}（{_f(esc['escalated_share'])}）；S1 行判定失败 "
               f"{esc['vs_s1_rows']['s1_failing']} 间，升级但 S1 行未失败 {esc['vs_s1_rows']['escalated_not_failing']} 间，"
@@ -738,6 +827,16 @@ def report(result):
     for c in (c for c in result['contrasts'] if c['subset'] in bins):
         lines.append(f"| {c['subset']} | {c['comparison']} | {c['rooms']} | {c['components']} | "
                      + ' | '.join(_ci(c['fields'].get(k)) for k in ('complete', 'checker', 'strict', 'noreq', 'oor')) + ' |')
+    if 'escalation_trigger' in result:
+        lines += ['', f'与检查器触发运行（同一批房间）的配对差即上表 “system - {CHECKER_RUN}” 行。']
+        pred = result.get('replay_prediction')
+        if pred:
+            m, q = pred['measured'], pred['predicted']
+            lines += ['', f"## 5. 离线回放预测 vs 实测（代理队列 {m['rooms']} 间；{q['source']}）", '',
+                      '| | 升级比例 | 检查器 | 严格准入 | required={} |', '|---|---:|---:|---:|---:|',
+                      *(f"| {name} | " + ' | '.join(_f(x[k]) for k in ('escalated_share', 'checker_rate', 'strict_rate',
+                                                                          'noreq_rate')) + ' |'
+                        for name, x in (('预测', q), ('实测', m)))]
     if result.get('agents_missing'):
         lines += ['', f"缺少的代理输出（不替代）：{', '.join(result['agents_missing'])}。"]
     lines += ['', '完整数字见 results.json、levels.csv、contrasts.csv。']
@@ -759,6 +858,7 @@ def parse_args(argv=None):
     parser.add_argument('--shards', type=int)           # plan
     parser.add_argument('--index', type=int)            # shard
     parser.add_argument('--sharded', action='store_true')   # summarize --scope test: the sharded O2 fallback run
+    parser.add_argument('--trigger', choices=pl.TRIGGERS, default='checker')   # amendment 027: the sharded test path
     args = parser.parse_args(argv)
     if args.step in ('system', 'summarize') and not args.scope:
         parser.error(f'{args.step} needs --scope')
@@ -770,6 +870,8 @@ def parse_args(argv=None):
         parser.error('--sharded applies to summarize --scope test only')
     if args.step in ('plan', 'shard', 'finalize') and args.scope not in (None, 'test'):
         parser.error(f'{args.step} is the sharded O2 fallback of the test scope')
+    if args.trigger != 'checker' and not (args.step in ('plan', 'shard', 'finalize') or args.sharded):
+        parser.error('--trigger applies to plan / shard / finalize / summarize --sharded only')
     return args
 
 
@@ -787,18 +889,18 @@ def main(argv=None):
         value = step_system(args.run_root, args.mode, args.scope, args.env_file, args.workers)
         print(json.dumps({k: value[k] for k in ('status', 'rooms', 'stages')}))
     elif args.step == 'plan':
-        value = step_plan(args.run_root, args.mode, args.shards, args.workers)
+        value = step_plan(args.run_root, args.mode, args.shards, args.workers, args.trigger)
         print(json.dumps({k: value[k] for k in ('status', 'rooms', 'shards', 'shard_rooms')}))
     elif args.step == 'shard':
-        bodies, identity = step_shard(args.run_root, args.mode, args.index)
+        bodies, identity = step_shard(args.run_root, args.mode, args.index, args.trigger)
         print(json.dumps({'status': 'SHARD_COMPLETE', 'rooms': len(bodies), **{
             k: identity['sharding'][k] for k in ('index', 'shards')}}))
     elif args.step == 'finalize':
-        value = step_finalize(args.run_root, args.mode, args.workers)
+        value = step_finalize(args.run_root, args.mode, args.workers, args.trigger)
         print(json.dumps({k: value[k] for k in ('status', 'rooms', 'stages')}))
     else:
         value = step_summarize(args.run_root, args.mode, args.scope, args.workers, args.repeats,
-                               args.price_usd_per_mtok, args.sharded)
+                               args.price_usd_per_mtok, args.sharded, args.trigger)
         print(json.dumps({'status': value['status'], 'escalated': value['escalation']['escalated']}))
     return 0
 

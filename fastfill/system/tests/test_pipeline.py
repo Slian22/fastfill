@@ -80,18 +80,19 @@ def world(tmp_path):
     return tmp_path
 
 
-def inputs(plan):
-    """(requests, {P user turn: uid}, a stub placer answering each room with its scripted kind)."""
-    requests = [p.joint_request(simple(uid, i)) for i, uid in enumerate(plan)]
+def inputs(plan, doors=None):
+    """(requests, {P user turn: uid}, a stub placer answering each room with its scripted kind); doors: {uid: door}."""
+    requests = [p.joint_request({**simple(uid, i), 'fixed': [(doors or {}).get(uid, DOOR)]})
+                for i, uid in enumerate(plan)]
     by_user = {p.placement_request(r, p.prior_sizes(r, PRIOR))['messages'][1]['content']: r['uid'] for r, _ in requests}
     placer = p.Placer(STUB, lambda records: {r['uid']: {'raw': answer(r, plan[r['uid']][0]), 'error': None,
                                                         'cap_hit': False} for r in records})
     return requests, by_user, placer
 
 
-def system(root, plan, escalate='l+o2', api_cap=100, **kwargs):
+def system(root, plan, escalate='l+o2', api_cap=100, doors=None, **kwargs):
     """plan: {uid: (placer kind, [API kinds per round], O2 kind)} -> (result, rows by uid, API uids, O2 uids)."""
-    requests, by_user, placer = inputs(plan)
+    requests, by_user, placer = inputs(plan, doors)
     script, api_calls, o2 = {u: list(v[1]) for u, v in plan.items()}, [], FakeO2({u: v[2] for u, v in plan.items()},
                                                                                   by_user)
 
@@ -493,3 +494,65 @@ def test_strict_trigger_escalates_and_ranks_by_strict_then_required():
     # both fail the checker: the standalone strict flag still ranks (offline frontier rule), not 'accepted'
     lo, hi = c('placer', False, False, False, strict=False), c('gpt', False, False, False, strict=True)
     assert pl.best([lo, hi], 'strict') is hi and pl.best([lo, hi]) is lo
+
+
+# ---- strict trigger on the sharded path (amendment 027) ------------------------------------------------
+
+WIDE = {**DOOR, 'size': [0.9, 0.1, 2.0]}         # strict admission can pass (DOOR fails A3_DOORWAY_TOO_NARROW)
+STRICT_DOORS = {'w': WIDE, 'x': WIDE}
+STRICT_PLAN = {'a': ('good', ['good'], 'good'),  # checker passes, strict fails: escalated only under strict
+               'b': ('bad', ['good'], 'good'), 'd': ('invalid', ['invalid'], 'bad'),
+               'w': ('good', ['good'], 'bad'),   # accepted: never escalated
+               'x': ('bad', ['good'], 'good')}   # escalated, O2's answer is accepted
+GOLDEN_PLAN = {      # DEFAULT_PLAN, 3 shards, captured with the code before the strict sharded path existed (a72991f86)
+    'placer': '97a8f796a7c518c1a94ff31491a7eb1b141df9309da00d714ca720f9e38543a8',
+    'plan': '2ed6e6fc30b1b1fa429b39e62eca7a635a949c8c4f987c605d5f479e7f6f0974'}
+
+
+def test_default_plan_is_unchanged(world):
+    requests, _, placer = inputs(DEFAULT_PLAN)
+    p.plan(requests, DUMMY_PRIOR, placer, world / 'plan', 3)
+    plan = json.loads((world / 'plan/plan.json').read_text())
+    plan.pop('code_sha256')
+    sha = lambda b: hashlib.sha256(b).hexdigest()
+    assert {'placer': sha((world / 'plan/placer.jsonl').read_bytes()),
+            'plan': sha(json.dumps(plan, sort_keys=True).encode())} == GOLDEN_PLAN
+
+
+def test_strict_plan_and_sharded_finalize_equal_the_unsharded_strict_run(world):
+    result, rows, _, o2_calls = system(world, STRICT_PLAN, escalate='o2', doors=STRICT_DOORS, trigger='strict')
+    assert [u for u, r in rows.items() if r['needs_escalation']] == sorted(o2_calls) == ['a', 'b', 'd', 'x']
+    assert {u: r['stage'] for u, r in rows.items()} == {'a': 'placer', 'b': 'o2', 'd': 'o2', 'w': 'placer', 'x': 'o2'}
+    requests, by_user, placer = inputs(STRICT_PLAN, STRICT_DOORS)
+    records, _, rooms = p.prepare(requests, DUMMY_PRIOR)
+    value = p.plan(requests, DUMMY_PRIOR, placer, world / 'plan', 2, trigger='strict')
+    loaded, placed = p.load_plan(world / 'plan')
+    assert loaded == value and value['escalation_trigger'] == 'strict'
+    assert value['escalated'] == [r['uid'] for r in p._failing(records, {u: [c] for u, c in placed.items()}, 'strict')]
+    assert value['escalated'] == ['a', 'b', 'd', 'x']
+    line = json.loads((world / 'plan/placer.jsonl').read_text().splitlines()[0])
+    assert {'strict_s1', 'noreq_s1'} <= set(line) and not any(k.startswith('_') for k in line)
+    fresh = p._place(records, rooms, placer, 1)                  # the flags round-trip to best()'s keys
+    assert all(placed[u] | {'layout': None} == fresh[u][0] | {'layout': None} for u in placed)
+    assert placed['w']['_strict'] and not placed['a']['_strict']
+    o2 = FakeO2({u: v[2] for u, v in STRICT_PLAN.items()}, by_user)
+    dirs = [world / f'shard-{k}' for k in range(2)]
+    for k, d in enumerate(dirs):
+        p.o2_shard([r for r in records if r['uid'] in value['escalated'] and p.shard_of(r['uid'], 2) == k], d,
+                   world / 'o2', k, 2, load=lambda e: (o2, dict))
+    rerun = p.Placer(STUB, lambda records: pytest.fail('the placer stage reran'))
+    finalize = lambda out, placed: p.run(requests, DUMMY_PRIOR, rerun, world / out, escalate='o2', api_cap=100,
+                                         o2_model=world / 'o2', placed=placed, trigger='strict',
+                                         o2=lambda todo, o: p.o2_merge(todo, o, dirs, world / 'o2'))
+    checker_plan = p.plan(requests, DUMMY_PRIOR, placer, world / 'checker-plan', 2)
+    assert 'escalation_trigger' not in checker_plan and 'a' not in checker_plan['escalated']
+    with pytest.raises(ValueError, match='lack the strict'):     # a checker plan carries no flags
+        finalize('refused', p.load_plan(world / 'checker-plan')[1])
+    assert not (world / 'refused').exists()
+    finalize('sharded', placed)
+    for name in ('rooms.jsonl', 'roomgenbench.jsonl'):
+        assert (world / 'sharded' / name).read_text() == (world / 'out' / name).read_text()
+    plain, sharded = (json.loads((world / d / 'result.json').read_text()) for d in ('out', 'sharded'))
+    assert sharded['escalation']['o2'].pop('sharding')['shards'] == 2
+    drop = lambda r: {k: v for k, v in r.items() if k not in ('code_sha256', 'runtime_seconds')}
+    assert drop(plain) == drop(sharded) and plain['escalation_trigger'] == 'strict'
