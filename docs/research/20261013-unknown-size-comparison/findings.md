@@ -6,7 +6,7 @@
 
 **Delivered system: amendment 022.**
 - Pipeline: prior sizes → placer → S1 repair → escalation of failing rooms (gpt-6.1-sol, then O2) → best candidate → fallback.
-- Its placer is the **27B student** (Arm A, vLLM). Amendment 021 §4 selected it on dev and confirmed it (+0.053 checker vs R on 3,000 confirm rooms); test is running.
+- Its placer is the **27B student** (Arm A, vLLM). Amendment 021 §4 selected it on dev and confirmed it (+0.053 checker vs R on 3,000 confirm rooms). On test it gains +0.044 [+0.033, +0.056].
 - 018 adopted nothing (see below).
 
 **Completed and below:**
@@ -20,7 +20,6 @@
 - admission variants (017).
 
 **Pending:**
-- 021 test (27B and R on vLLM);
 - 022 cohort/test with the final placer;
 - the 014 OptiScene reproduction chain (DPO1 training);
 - 020 OptiScene placer parts.
@@ -174,6 +173,19 @@ Checker success, with the difference to R (paired house-cluster bootstrap, 2,000
 - 27B 0.444 vs R 0.391.
 - Difference +0.053 [+0.037, +0.068], house-cluster bootstrap, 2,000 draws.
 - **Confirmed: the delivered placer is the 27B student.** Test runs once, for the 27B and for R on the same engine.
+
+**Test, all 8,647 rooms, vLLM; run once as pre-registered (`results/a021-test/`).** Paired differences use the house-cluster bootstrap, 2,000 draws.
+
+| | 27B | R (vLLM) | 27B − R |
+|---|---|---|---|
+| Complete | 0.9995 | 0.998 | +0.0015 [+0.0006, +0.0024] |
+| Checker | 0.443 | 0.399 | **+0.044 [+0.033, +0.056]** |
+| Strict admission | 0.216 | 0.202 | +0.014 [+0.006, +0.022] |
+| GT-relation hold | 0.651 | 0.595 | — |
+| OOR | 0.256 | 0.253 | — |
+
+- R on HF exact was 0.398 on the same test rooms, so the gain does not depend on the engine.
+- **No gain in large rooms.** Checker success in the 1,433 rooms with 21+ objects is 0.018 for both models.
 
 **Context**
 - The 27B is Qwen3.8-27B with a LoRA SFT on 40,000 rooms that have an admitted P target, served with thinking off.
@@ -430,6 +442,5 @@ Strict = our port (every category required, every door an entry); required = {} 
 
 ## Open questions
 
-- How does the 27B student do on all 8,647 test rooms, next to R on the same engine (021 test)?
 - What do the delivered system's checker success, admission and API cost come to on the 1,454-room cohort and on all test rooms (022 §2)?
 - How does the official OptiScene reproduction (014) compare under the same checker, with and without S1 (016 §4)?
