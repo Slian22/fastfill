@@ -88,7 +88,8 @@ handoff_20261014:
   a020_jobs: {addendum_A: 56a759ad2, sizers_snapshot: main-56a759ad2, rooms: 7414963, L_size_api: 7414964, O2_size: '7414965-7414970', size_report: 7414971, placers_snapshot: main-9eacf055f, placers: '7415012-7415037', api_cap: '6,500 calls (used 1,771 + needed <=3,754)'}
   bugfix_init_adapter_cuda0: {commit: 22028de2c, affected: '013 7409993, 018 7413844/7418899', note: 'safetensors bare cuda -> cuda:0; exclusive-process nodes'}
   a018_chain_v3: {snapshot: main-22028de2c, recheck: 7419327, train_sft_d: 7419328, pairs_dpo1: 7419329, train_dpo1_d: 7419330, train_dpo2_d: 7419334, select: 7419345}
-  a021_train: {job: 7419267, snapshot: main-5bc501b3d}
+  a021_train: {job: 7419267, snapshot: main-5bc501b3d, status: 'done 5:06, N 40000, policy sha 4d3c427b'}
+  a021_candidates: {snapshot: main-7a9704f06, probe: 7425625, vllm_dev_r: [7425630, 7425631], vllm_dev_arm: 7425632, vllm_confirm: {arm: 7425633, r: 7425634}, select: 7425635, next: 'if HF winner (op13): submit_021_eval.sh SNAP select (HF confirm) -> test; else test'}
   a021_smoke: {verdict: SMOKE_PASS, peak_reserved_gb: 73.8, s_per_step: 4.96, N: 40000, projected_h: 3.9, smoke_vllm_rerun: 7418890, addendum_B: 5bc501b3d}
   a018_teacher_done: {rooms: 7500, targets: 6184, rate: 0.825, gpu_h: 41.5, chain_rerun: '7418898-7418916 (FROM train-sft; first SFT-D 7413844 failed on nid010850)'}
   a022_interim_rerun: 7418892
