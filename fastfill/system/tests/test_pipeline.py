@@ -3,6 +3,7 @@
 FASTFILL_EVAL_DATA=.../eval-data-v1 [FASTFILL_PRIOR=.../size-priors.json] also checks the real P requests.
 """
 import functools
+import hashlib
 import json
 import math
 import os
@@ -79,12 +80,18 @@ def world(tmp_path):
     return tmp_path
 
 
-def system(root, plan, escalate='l+o2', api_cap=100, **kwargs):
-    """plan: {uid: (placer kind, [API kinds per round], O2 kind)} -> (result, rows by uid, API uids, O2 uids)."""
+def inputs(plan):
+    """(requests, {P user turn: uid}, a stub placer answering each room with its scripted kind)."""
     requests = [p.joint_request(simple(uid, i)) for i, uid in enumerate(plan)]
     by_user = {p.placement_request(r, p.prior_sizes(r, PRIOR))['messages'][1]['content']: r['uid'] for r, _ in requests}
     placer = p.Placer(STUB, lambda records: {r['uid']: {'raw': answer(r, plan[r['uid']][0]), 'error': None,
                                                         'cap_hit': False} for r in records})
+    return requests, by_user, placer
+
+
+def system(root, plan, escalate='l+o2', api_cap=100, **kwargs):
+    """plan: {uid: (placer kind, [API kinds per round], O2 kind)} -> (result, rows by uid, API uids, O2 uids)."""
+    requests, by_user, placer = inputs(plan)
     script, api_calls, o2 = {u: list(v[1]) for u, v in plan.items()}, [], FakeO2({u: v[2] for u, v in plan.items()},
                                                                                   by_user)
 
@@ -313,6 +320,43 @@ def test_api_room_cap_stops_before_any_call(world):
     assert sorted(api_calls) == ['b', 'c'] and result['api_max_rooms'] == 2
 
 
+def fingerprint(out, *local):
+    """Digests of a pipeline run's outputs without code hashes, wall times and the given machine-local strings."""
+    sha = lambda text: hashlib.sha256(text.encode()).hexdigest()
+    result = json.loads((out / 'result.json').read_text())
+    text = json.dumps({k: v for k, v in result.items() if k not in ('code_sha256', 'runtime_seconds')}, sort_keys=True)
+    for s in local:
+        text = text.replace(s, '<local>')
+    receipts = [json.loads(x) for x in (out / 'o2/receipts.jsonl').read_text().splitlines()]
+    for a in (a for x in receipts for a in x['answers']):
+        a.pop('latency_seconds')
+    return {'files': sorted(str(f.relative_to(out)) for f in out.rglob('*') if f.is_file() and f.parent.name != 'receipts'),
+            'result': sha(text), 'rooms': sha((out / 'rooms.jsonl').read_text()),
+            'roomgenbench': sha((out / 'roomgenbench.jsonl').read_text()), 'o2': sha(json.dumps(receipts, sort_keys=True))}
+
+
+DEFAULT_PLAN = {'a': ('good', ['good'], 'good'), 'b': ('bad', ['good'], 'good'), 'c': ('bad', ['bad'], 'good'),
+                'd': ('invalid', ['invalid'], 'bad'), 'e': ('bad', ['invalid'], 'worse'),
+                'f': ('invalid', ['invalid'], 'invalid')}
+FILES = ['o2/invocations.jsonl', 'o2/receipts.jsonl', 'report.md', 'result.json', 'roomgenbench.jsonl', 'rooms.jsonl']
+GOLDEN = {      # captured with the code before the sharded O2 fallback existed (commit 23a51728d)
+    'o2': {'files': FILES, 'result': 'f9cac59ff768ac0b2b3980fc193e3ac16877c181f261666be907d16578b793a6',
+           'rooms': 'c75ac81ff5e5eb12f40cd34bda812d1b0591f918d081dce3e550be77a0e109f1',
+           'roomgenbench': '69accf962a3b2f64a64599363c640722821cc9f6045a0b1d62783ac8658af8e8',
+           'o2': '105112843717bb46ad2f41f12c8c32f712cfc15693f64ecbd3ada132284bfcc0'},
+    'l+o2': {'files': ['api/calls.jsonl', 'api/status.json', *FILES],
+             'result': '1348e6278b48f7ac4d3c7ef505b320e07ae391c7078dadd705dc6bf714a9d273',
+             'rooms': '7f71d694fee6295aa893da07312362fb09f087b7f7134243e71cb863a927b0ae',
+             'roomgenbench': '4b3cb2a01149bd870d1ea6ee1d0744cfea1bc6e868b8252c7a88321dd903e408',
+             'o2': '639001bc00240e0549ac4c25d092deb45693d8701031558acaca8a7b49628a68'}}
+
+
+@pytest.mark.parametrize('escalate', ['o2', 'l+o2'])
+def test_default_outputs_are_unchanged(world, escalate):
+    system(world, DEFAULT_PLAN, escalate=escalate)
+    assert fingerprint(world / 'out', str(world.resolve()), str(world)) == GOLDEN[escalate]
+
+
 def test_configuration_is_checked_before_the_placer(world, monkeypatch):
     plan = {'a': ('good', ['good'], 'good')}
     (world / 'api.env').chmod(0o644)
@@ -327,3 +371,105 @@ def test_configuration_is_checked_before_the_placer(world, monkeypatch):
     with pytest.raises(RuntimeError, match='2 visible GPUs'):
         p.run(requests, (PRIOR, {}), p.Placer(STUB, None), world / 'out', escalate='o2', o2_model=world)
     assert not (world / 'out').exists()                                 # no output dir: nothing ran
+
+
+# ---- sharded O2 fallback ----------------------------------------------------------------------------
+
+DUMMY_PRIOR = (PRIOR, {'path': 'prior.json', 'sha256': '0' * 64})
+
+
+class Killed(Exception):
+    pass
+
+
+class KilledO2(FakeO2):
+    """Dies, as a Slurm time limit would, on the first generation call that reaches a room of `kill`."""
+    def __init__(self, script, by_user, kill):
+        super().__init__(script, by_user)
+        self.kill = set(kill)
+
+    def chat(self, conversations, *args, **kwargs):
+        if self.kill & {self.by_user[c[1]['content']] for c in conversations}:
+            raise Killed
+        return super().chat(conversations, *args, **kwargs)
+
+
+def no_latency(bodies):
+    return {u: {**b, 'answers': [{k: v for k, v in a.items() if k != 'latency_seconds'} for a in b['answers']]}
+            for u, b in bodies.items()}
+
+
+def test_plan_escalates_as_run_and_the_rule_partitions_it(world):
+    requests, _, placer = inputs(DEFAULT_PLAN)
+    value = p.plan(requests, DUMMY_PRIOR, placer, world / 'plan', 3)
+    _, rows, _, _ = system(world, DEFAULT_PLAN, escalate='o2')
+    assert value['escalated'] == [u for u, r in rows.items() if r['needs_escalation']] == list('bcdef')
+    for n in range(1, 7):
+        parts = [[u for u in value['escalated'] if p.shard_of(u, n) == k] for k in range(n)]
+        assert sorted(sum(parts, [])) == value['escalated']                  # each room in exactly one shard
+    assert p.shard_of('b', 3) == int(hashlib.sha256(b'a022-o2-shard:b').hexdigest(), 16) % 3
+    assert value['shard_rooms'] == [sum(p.shard_of(u, 3) == k for u in value['escalated']) for k in range(3)]
+    loaded, placed = p.load_plan(world / 'plan')
+    assert loaded == value and list(placed) == list(DEFAULT_PLAN)
+    assert [placed[u] | {'layout': None} for u in placed] == [c | {'layout': None} for r in rows.values()
+                                                              for c in r['candidates'][:1]]
+    with pytest.raises(FileExistsError):
+        p.plan(requests, DUMMY_PRIOR, placer, world / 'plan', 3)
+
+
+def test_shard_persists_each_chunk_and_resumes_after_a_kill(world):
+    requests, by_user, _ = inputs(DEFAULT_PLAN)
+    records = [r for r in p.prepare(requests, DUMMY_PRIOR)[0] if r['uid'] != 'a']
+    script = {u: v[2] for u, v in DEFAULT_PLAN.items()}
+    shard = lambda out, o2, chunk=2: p.o2_shard(records, world / out, world / 'o2', 0, 1, load=lambda e: (o2, dict),
+                                                 chunk=chunk)
+    whole, identity = shard('whole', FakeO2(script, by_user))
+    chunks = identity['sharding']['chunks']
+    assert [len(c) for c in chunks] == [2, 2, 1] and sorted(sum(chunks, [])) == sorted(r['uid'] for r in records)
+    assert identity['sharding'] | {'chunks': None} == {'shards': 1, 'index': 0, 'rule': p.SHARD_RULE, 'chunk_size': 2,
+                                                       'chunks': None}
+    with pytest.raises(Killed):                                     # killed inside chunk 1: chunk 0 is kept
+        shard('shard', KilledO2(script, by_user, chunks[1]))
+    assert [f.name for f in (world / 'shard/chunks').iterdir()] == ['0000.json']
+    assert not (world / 'shard/COMPLETE.json').exists()
+    again = FakeO2(script, by_user)
+    resumed, same = shard('shard', again)
+    assert same == identity and set(again.calls) == set(chunks[1] + chunks[2])     # chunk 1 redone whole, 0 not
+    assert no_latency(resumed) == no_latency(whole)
+    assert all((resumed[u]['shard'], resumed[u]['chunk']) == (0, k) for k, c in enumerate(chunks) for u in c)
+    complete = json.loads((world / 'shard/COMPLETE.json').read_text())
+    assert complete['identity_sha256'] == p.infer._hash(identity) and complete['chunks'] == 3
+    p.o2_shard(records, world / 'shard', world / 'o2', 0, 1, load=lambda e: pytest.fail('engine loaded'), chunk=2)
+    with pytest.raises(ValueError, match='resume identity mismatch'):
+        shard('shard', FakeO2(script, by_user), chunk=3)
+
+
+def test_sharded_run_equals_the_unsharded_run(world):
+    system(world, DEFAULT_PLAN, escalate='o2')                                  # -> world/out
+    requests, by_user, placer = inputs(DEFAULT_PLAN)
+    value = p.plan(requests, DUMMY_PRIOR, placer, world / 'plan', 3)
+    _, placed = p.load_plan(world / 'plan')
+    records = p.prepare(requests, DUMMY_PRIOR)[0]
+    o2 = FakeO2({u: v[2] for u, v in DEFAULT_PLAN.items()}, by_user)
+    dirs = [world / f'shard-{k}' for k in range(3)]
+    for k, d in enumerate(dirs):
+        p.o2_shard([r for r in records if r['uid'] in value['escalated'] and p.shard_of(r['uid'], 3) == k], d,
+                   world / 'o2', k, 3, load=lambda e: (o2, dict))
+    with pytest.raises(ValueError, match='not the finished shard'):            # N = 2 is another assignment
+        p.o2_merge([r for r in records if r['uid'] in value['escalated']], world / 'm', dirs[:2], world / 'o2')
+    rerun = p.Placer(STUB, lambda records: pytest.fail('the placer stage reran'))
+    p.run(requests, DUMMY_PRIOR, rerun, world / 'sharded', escalate='o2', api_cap=100, o2_model=world / 'o2', placed=placed,
+          o2=lambda todo, out: p.o2_merge(todo, out, dirs, world / 'o2'))      # no GPU check, no engine
+    for name in ('rooms.jsonl', 'roomgenbench.jsonl'):
+        assert (world / 'sharded' / name).read_text() == (world / 'out' / name).read_text()
+    plain, sharded = (json.loads((world / d / 'result.json').read_text()) for d in ('out', 'sharded'))
+    sharding = sharded['escalation']['o2'].pop('sharding')
+    assert (sharding['shards'], sharding['rule'], sharding['chunk_size']) == (3, p.SHARD_RULE, 256)
+    assert [x['rooms'] for x in sharding['detail']] == value['shard_rooms']
+    drop = lambda r: {k: v for k, v in r.items() if k not in ('code_sha256', 'runtime_seconds')}
+    assert drop(plain) == drop(sharded)
+    receipts = lambda d: {x.pop('uid'): x for x in map(json.loads, (world / d / 'o2/receipts.jsonl').read_text().splitlines())}
+    tagged = no_latency(receipts('sharded'))
+    assert list(tagged) == value['escalated'] and all(tagged[u]['shard'] == p.shard_of(u, 3) for u in tagged)
+    assert {u: {k: v for k, v in b.items() if k not in ('shard', 'chunk')} for u, b in tagged.items()} == no_latency(
+        receipts('out'))

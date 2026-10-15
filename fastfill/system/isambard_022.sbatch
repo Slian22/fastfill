@@ -21,6 +21,12 @@
 #   summarize MODE SCOPE          CPU 32 / 96G, --time=06:00:00: evaluate summarize (30 workers, 355 min) ->
 #                                 RUN/system-022/MODE/SCOPE/eval
 #   package MODE                  CPU: package build -> RUN/system-022/MODE/package
+# Sharded O2 fallback of the test scope (evaluate plan / shard / finalize; RUN/system-022/MODE/test-sharded):
+#   plan MODE N                   CPU 72 / 200G: the placer stage once (S1 with 64 workers), N shards -> plan
+#   shard MODE K HOURS            --gpus-per-node=2, vLLM env (cache per shard): O2 on shard K, resumes per chunk
+#                                 -> shards/shard-K
+#   finalize MODE                 CPU 72 / 200G: pipeline.run on the plan + the merged shards -> system
+#   summarize MODE test-sharded   summarize --scope test --sharded -> eval
 # MODE: interim (R = rpo-dpo1) | final (amendment-021 §4 delivered placer). SCOPE: cohort | test. Never resumes or
 # replaces an output; the API key file is never printed.
 set -euo pipefail
@@ -35,7 +41,7 @@ PYTHON="$PROJECT_ROOT/env/bin/python"
 API_ENV=/home/u6uv/shanliantian.u6uv/.fastfill_api.env
 case "$MODE" in interim|final) ;; *) exit 2 ;; esac
 scope() { case "$1" in cohort|test) ;; *) exit 2 ;; esac; }
-LIMIT=175m GPUS=0
+LIMIT=175m GPUS=0 CACHE=""
 case "$STEP" in
   s1)
     test "$#" -eq 0 -a "$MODE" = final || exit 2
@@ -45,14 +51,33 @@ case "$STEP" in
     scope "$1"
     case "$2" in ''|*[!0-9]*) exit 2 ;; esac
     test "$2" -ge 1 -a "$2" -le 24 || exit 2
-    LIMIT="$(($2 * 60 - 5))m" GPUS=2
+    LIMIT="$(($2 * 60 - 5))m" GPUS=2 CACHE="022-$MODE-$1"
     ARGS=(fastfill.system.evaluate system --run-root "$RUN_ROOT" --mode "$MODE" --scope "$1" --workers 64)
     if test "$1" = cohort; then ARGS+=(--env-file "$API_ENV"); fi ;;
   summarize)
     test "$#" -eq 1 || exit 2
-    scope "$1"
     LIMIT=355m  # submit_022.sh gives summarize --time=06:00:00
-    ARGS=(fastfill.system.evaluate summarize --run-root "$RUN_ROOT" --mode "$MODE" --scope "$1" --workers 30) ;;
+    if test "$1" = test-sharded; then
+      ARGS=(fastfill.system.evaluate summarize --run-root "$RUN_ROOT" --mode "$MODE" --scope test --sharded --workers 30)
+    else
+      scope "$1"
+      ARGS=(fastfill.system.evaluate summarize --run-root "$RUN_ROOT" --mode "$MODE" --scope "$1" --workers 30)
+    fi ;;
+  plan)
+    test "$#" -eq 1 || exit 2
+    case "$1" in ''|*[!0-9]*) exit 2 ;; esac
+    test "$1" -ge 1 -a "$1" -le 16 || exit 2
+    LIMIT=235m ARGS=(fastfill.system.evaluate plan --run-root "$RUN_ROOT" --mode "$MODE" --shards "$1" --workers 64) ;;
+  shard)
+    test "$#" -eq 2 || exit 2
+    case "$1" in ''|*[!0-9]*) exit 2 ;; esac
+    case "$2" in ''|*[!0-9]*) exit 2 ;; esac
+    test "$1" -le 15 -a "$2" -ge 1 -a "$2" -le 24 || exit 2
+    LIMIT="$(($2 * 60 - 5))m" GPUS=2 CACHE="022-$MODE-test-sharded-$1"
+    ARGS=(fastfill.system.evaluate shard --run-root "$RUN_ROOT" --mode "$MODE" --index "$1") ;;
+  finalize)
+    test "$#" -eq 0 || exit 2
+    LIMIT=235m ARGS=(fastfill.system.evaluate finalize --run-root "$RUN_ROOT" --mode "$MODE" --workers 64) ;;
   package)
     test "$#" -eq 0 || exit 2
     ARGS=(fastfill.system.package build --run-root "$RUN_ROOT" --mode "$MODE") ;;
@@ -64,9 +89,9 @@ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 HF_HUB_DISA
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 unset OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL
 cd "$CODE_ROOT"
-if test "$STEP" = system; then  # O2 on vLLM, as isambard_021_eval.sbatch; compile caches under PROJECTDIR.
+if test "$GPUS" -gt 0; then  # system / shard: O2 on vLLM, as isambard_021_eval.sbatch; caches under PROJECTDIR.
   PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
-  JOB_CACHE="$PROJECT_ROOT/.cache-jobs/022-$MODE-$1"
+  JOB_CACHE="$PROJECT_ROOT/.cache-jobs/$CACHE"
   PIP_CUDA="$(dirname "$(dirname "$PYTHON")")/lib/python3.11/site-packages/nvidia/cu13"
   if test -x "$PIP_CUDA/bin/nvcc"; then
     CUDA_HOME="$PIP_CUDA"

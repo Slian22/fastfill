@@ -122,6 +122,15 @@ def placement_request(record, sizes):
                                    {'role': 'user', 'content': contract._json(user)}]}
 
 
+def prepare(requests, prior):
+    """(P records, {uid: output-id names}, {uid: request room}) of load_requests rows under load_prior's table."""
+    records = [placement_request(r, prior_sizes(r, prior[0])) for r, _ in requests]
+    if len({r['uid'] for r in records}) != len(records):
+        raise ValueError('duplicate request uid')
+    names = {r['uid']: (s or {}).get('bound_to_original', {}) for r, (_, s) in zip(records, requests)}
+    return records, names, {r['uid']: request_room(r) for r in records}
+
+
 def request_room(request):
     """The label-free IR room geometry.score and S1 read: P's request, fixed yaw in radians. No GT exists here, so
     movable objects carry only id, category and the request size (score's size / parent diagnostics are void)."""
@@ -176,6 +185,20 @@ def _llm_task(stage, room, request, body):
         return (stage, room, request, None, body['error'] or 'NOT_ANSWERED', False), None
     text, counts = L.enforce_sizes(answers[-1]['raw'], request)
     return (stage, room, request, text, None, False), counts
+
+
+def _place(records, rooms, placer, workers):
+    """The placer stage: {uid: [placer candidate after S1]} in request order."""
+    answers = placer.generate(records)
+    missing = {'raw': None, 'error': 'NOT_GENERATED', 'cap_hit': False}
+    tasks = [('placer', rooms[r['uid']], r, *(answers.get(r['uid'], missing)[k] for k in ('raw', 'error', 'cap_hit')))
+             for r in records]
+    return {r['uid']: [c] for r, c in zip(records, _score_all(tasks, workers))}
+
+
+def _failing(records, cands):
+    """The rooms the system escalates: no candidate passes the frozen checker."""
+    return [r for r in records if not any(c['checker_pass'] for c in cands[r['uid']])]
 
 
 def _escalate(cands, stage, records, rooms, bodies, workers):
@@ -358,27 +381,160 @@ def api_answers(records, out, cap, env_file, post=L.call_api, concurrency=API['c
                                                         for k in ('input_tokens', 'output_tokens', 'reasoning_tokens')}}
 
 
-def o2_answers(records, out, model_dir, load=llm_open.load_vllm, chunk=256):
-    """O2 size-fixed with llm_open's engine, chunk order and harness (llm_open._chunk): {uid: body}, identity."""
+def _o2_setup(model_dir):
+    """(spec, vLLM engine, identity) of O2 size-fixed with llm_open's engine and harness."""
     spec, model = llm_open.SPECS['O2'], Path(model_dir).resolve()
     engine = {'model': str(model), 'tensor_parallel_size': spec['tp'], 'max_model_len': llm_open.MAX_MODEL_LEN,
               'seed': llm_open.SEED, **spec['engine']}
     identity = {'system': 'O2', 'model': spec['name'], 'model_files_sha256': _config_files(model), 'engine': engine,
                 'sampling': llm_open.SAMPLING, 'chat_template_kwargs': spec['template'],
                 'repair_rounds': L.REPAIRS, 'suffix': L.SUFFIX, 'request_arm': 'placement'}
+    return spec, engine, identity
+
+
+def _o2_chunks(records, spec, chunk):
+    """llm_open's chunk order (cap desc, prompt characters desc, uid), cut into chunks of `chunk` rooms."""
+    pending = sorted(records, key=lambda r: (-llm_open.output_cap(r, spec), -len(r['messages'][1]['content']),
+                                             r['uid']))
+    return [pending[start:start + chunk] for start in range(0, len(pending), chunk)]
+
+
+def o2_answers(records, out, model_dir, load=llm_open.load_vllm, chunk=256):
+    """O2 size-fixed with llm_open's engine, chunk order and harness (llm_open._chunk): {uid: body}, identity."""
+    spec, engine, identity = _o2_setup(model_dir)
     out.mkdir(parents=True)
     started = time.monotonic()
     log = lambda e: llm_open._append(out / 'invocations.jsonl', {'elapsed_seconds': time.monotonic() - started, **e})
     llm, params = load(engine)
     tok = llm.get_tokenizer()
-    pending = sorted(records, key=lambda r: (-llm_open.output_cap(r, spec), -len(r['messages'][1]['content']),
-                                             r['uid']))
     bodies = {}
-    for start in range(0, len(pending), chunk):
-        bodies.update(llm_open._chunk(llm, params, tok, spec, pending[start:start + chunk], log, 'placement'))
+    for part in _o2_chunks(records, spec, chunk):
+        bodies.update(llm_open._chunk(llm, params, tok, spec, part, log, 'placement'))
     (out / 'receipts.jsonl').write_text(''.join(json.dumps({'uid': r['uid'], **bodies[r['uid']]}, allow_nan=False)
                                                 + '\n' for r in records))
     return bodies, {**identity, 'rooms': len(records)}
+
+
+# ------------------------------------------------------------------ sharded O2 (fallback for one long O2 job)
+# plan (CPU): run()'s placer stage once -> the escalated set; o2_shard (GPU, one per shard, resumable per chunk);
+# run(placed=plan candidates, o2=o2_merge of the finished shards) writes the outputs a normal run writes.
+
+SHARD_RULE = "int(sha256('a022-o2-shard:' + uid), 16) mod N"
+
+
+def shard_of(uid, shards):
+    return int(L._digest('a022-o2-shard:' + uid), 16) % shards
+
+
+def plan(requests, prior, placer, out, shards, workers=1):
+    """run()'s placer stage (placer + S1) once, persisted for the shards and the finalize: OUT/placer.jsonl (every
+    room's placer candidate, request order) then OUT/plan.json (written last: the escalated uids, N, the rule)."""
+    if shards < 1:
+        raise ValueError('shards must be >= 1')
+    records, _, rooms = prepare(requests, prior)
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=False)
+    cands = _place(records, rooms, placer, workers)
+    _jsonl(out / 'placer.jsonl', [{'uid': r['uid'], **cands[r['uid']][0]} for r in records])
+    escalated = [r['uid'] for r in _failing(records, cands)]
+    value = {'status': 'PLAN_COMPLETE', 'rooms': len(records), 'records_sha256': infer._hash(records),
+             'placer': placer.identity, 'prior': prior[1], 's1': S1, 'shards': shards, 'shard_rule': SHARD_RULE,
+             'escalated': escalated, 'shard_rooms': [sum(shard_of(u, shards) == k for u in escalated)
+                                                     for k in range(shards)],
+             'placer_sha256': h.sha256(out / 'placer.jsonl'), 'code_sha256': {'pipeline.py': h.sha256(__file__)}}
+    h.write_json(out / 'plan.json', value)
+    return value
+
+
+def load_plan(out):
+    """(plan.json, {uid: placer candidate}) of a complete plan."""
+    out = Path(out)
+    value = h.strict_json((out / 'plan.json').read_text())
+    if value.get('status') != 'PLAN_COMPLETE' or h.sha256(out / 'placer.jsonl') != value['placer_sha256']:
+        raise ValueError(f'{out}: not a complete plan')
+    placed = {}
+    for line in (out / 'placer.jsonl').read_text().splitlines():
+        row = h.strict_json(line)
+        placed[row.pop('uid')] = row
+    return value, placed
+
+
+def _shard_identity(records, model_dir, index, shards, chunk):
+    """(spec, engine, chunks, identity): o2_answers' identity + the shard (index, N, rule, chunk size, chunk uids)."""
+    spec, engine, identity = _o2_setup(model_dir)
+    parts = _o2_chunks(records, spec, chunk)
+    return spec, engine, parts, {**identity, 'rooms': len(records), 'sharding': {
+        'shards': shards, 'index': index, 'rule': SHARD_RULE, 'chunk_size': chunk,
+        'chunks': [[r['uid'] for r in part] for part in parts]}}
+
+
+def _shard_bodies(out, identity):
+    """{uid: body tagged with shard and chunk} from every chunk file the shard identity lists."""
+    s, bodies = identity['sharding'], {}
+    for k, uids in enumerate(s['chunks']):
+        value = h.strict_json((Path(out) / 'chunks' / f'{k:04d}.json').read_text())
+        if (value['shard'], value['chunk'], [x['uid'] for x in value['receipts']]) != (s['index'], k, uids):
+            raise ValueError(f'{out}: chunk {k} is not the one the shard identity lists')
+        for x in value['receipts']:
+            bodies[x.pop('uid')] = {'shard': s['index'], 'chunk': k, **x}
+    return bodies
+
+
+def o2_shard(records, out, model_dir, index, shards, load=llm_open.load_vllm, chunk=256):
+    """o2_answers on one shard's rooms, resumable: same engine, sampling, template, harness and chunking (size, order
+    over the shard's rooms). Each finished chunk is persisted at once (chunks/NNNN.json, atomic, write-once), so a rerun
+    redoes only the unfinished chunks, each whole. identity.json must match on resume; COMPLETE.json marks the end."""
+    spec, engine, parts, identity = _shard_identity(records, model_dir, index, shards, chunk)
+    out = Path(out)
+    (out / 'chunks').mkdir(parents=True, exist_ok=True)
+    if not (out / 'identity.json').exists():
+        infer.write_once(out / 'identity.json', identity)
+    elif h.strict_json((out / 'identity.json').read_text()) != identity:
+        raise ValueError(f'{out}: resume identity mismatch')
+    path = lambda k: out / 'chunks' / f'{k:04d}.json'
+    todo = [k for k in range(len(parts)) if not path(k).exists()]
+    started, job = time.monotonic(), os.environ.get('SLURM_JOB_ID')
+    log = lambda e: llm_open._append(out / 'invocations.jsonl', {
+        'slurm_job_id': job, 'pid': os.getpid(), 'elapsed_seconds': time.monotonic() - started, **e})
+    log({'event': 'start', 'pending_chunks': todo})
+    if todo:
+        llm, params = load(engine)
+        tok = llm.get_tokenizer()
+        for k in todo:
+            bodies = llm_open._chunk(llm, params, tok, spec, parts[k], log, 'placement')
+            infer.write_once(path(k), {'shard': index, 'chunk': k,
+                                       'receipts': [{'uid': r['uid'], **bodies[r['uid']]} for r in parts[k]]})
+            log({'event': 'chunk_done', 'chunk': k})
+    bodies = _shard_bodies(out, identity)
+    if not (out / 'COMPLETE.json').exists():
+        infer.write_once(out / 'COMPLETE.json', {'status': 'SHARD_COMPLETE', 'index': index, 'shards': shards,
+                                                 'rooms': len(records), 'chunks': len(parts),
+                                                 'identity_sha256': infer._hash(identity)})
+    return bodies, identity
+
+
+def o2_merge(records, out, shard_dirs, model_dir, chunk=256):
+    """run()'s O2 stage from finished o2_shard dirs (shard k = shard_dirs[k], N = their count): each must carry
+    COMPLETE.json and exactly the identity o2_shard builds for its rooms of `records` under the rule, so every room is
+    answered once, with o2_answers' settings. Writes OUT/receipts.jsonl as o2_answers does (lines tagged with shard and
+    chunk); the identity is o2_answers' plus 'sharding' (N, rule, chunk size, per-shard rooms / chunks / identity)."""
+    shards, bodies, detail = len(shard_dirs), {}, []
+    for k, d in enumerate(map(Path, shard_dirs)):
+        mine = [r for r in records if shard_of(r['uid'], shards) == k]
+        identity = _shard_identity(mine, model_dir, k, shards, chunk)[3]
+        if not (d / 'COMPLETE.json').exists() or h.strict_json((d / 'identity.json').read_text()) != identity:
+            raise ValueError(f'{d}: not the finished shard {k} of {shards} for these rooms and settings')
+        bodies.update(_shard_bodies(d, identity))
+        detail.append({'index': k, 'dir': str(d.resolve()), 'rooms': len(mine),
+                       'chunks': len(identity['sharding']['chunks']), 'identity_sha256': infer._hash(identity)})
+    if sorted(bodies) != sorted(r['uid'] for r in records):
+        raise ValueError('the shards do not answer exactly the escalated rooms')
+    out.mkdir(parents=True)
+    (out / 'receipts.jsonl').write_text(''.join(json.dumps({'uid': r['uid'], **bodies[r['uid']]}, allow_nan=False)
+                                                + '\n' for r in records))
+    base = _o2_setup(model_dir)[2]
+    return bodies, {**base, 'rooms': len(records), 'sharding': {'shards': shards, 'rule': SHARD_RULE,
+                                                                'chunk_size': chunk, 'detail': detail}}
 
 
 # ------------------------------------------------------------------ system
@@ -403,8 +559,10 @@ def _jsonl(path, rows):
 
 def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_rooms=None, env_file=None,
         o2_model=None, dry_run=False, workers=1, post=L.call_api, o2_load=llm_open.load_vllm,
-        api_concurrency=API['concurrency']):
-    """requests = load_requests(...); prior = load_prior(...); placer = hf_placer / vllm_placer / any Placer."""
+        api_concurrency=API['concurrency'], placed=None, o2=None):
+    """requests = load_requests(...); prior = load_prior(...); placer = hf_placer / vllm_placer / any Placer.
+    Sharded O2 only: placed = load_plan's placer candidates (the placer stage is not rerun); o2(todo, OUT/o2) ->
+    (bodies, identity) replaces o2_answers (o2_merge; no GPU here)."""
     if escalate not in ESCALATE:
         raise ValueError(f'escalate must be one of {ESCALATE}')
     if not dry_run and ((escalate == 'l+o2' and None in (api_cap, env_file)) or (escalate != 'none' and not o2_model)):
@@ -413,21 +571,16 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         _api_config(env_file)                       # fail now, not after the placer and S1
     if not dry_run and escalate != 'none':
         _config_files(o2_model)
-        if o2_load is llm_open.load_vllm and _visible_gpus() < llm_open.SPECS['O2']['tp']:
+        if o2 is None and o2_load is llm_open.load_vllm and _visible_gpus() < llm_open.SPECS['O2']['tp']:
             raise RuntimeError(f"O2 needs {llm_open.SPECS['O2']['tp']} visible GPUs (tensor parallel)")
     started, out = time.monotonic(), Path(out)
-    records = [placement_request(r, prior_sizes(r, prior[0])) for r, _ in requests]
-    if len({r['uid'] for r in records}) != len(records):
-        raise ValueError('duplicate request uid')
-    names = {r['uid']: (s or {}).get('bound_to_original', {}) for r, (_, s) in zip(records, requests)}
-    rooms = {r['uid']: request_room(r) for r in records}
+    records, names, rooms = prepare(requests, prior)
+    if placed is not None and placed.keys() != rooms.keys():
+        raise ValueError('the placed candidates are not these requests')
     out.mkdir(parents=True, exist_ok=False)
-    answers = placer.generate(records)
-    missing = {'raw': None, 'error': 'NOT_GENERATED', 'cap_hit': False}
-    tasks = [('placer', rooms[r['uid']], r, *(answers.get(r['uid'], missing)[k] for k in ('raw', 'error', 'cap_hit')))
-             for r in records]
-    cands = {r['uid']: [c] for r, c in zip(records, _score_all(tasks, workers))}
-    failing = lambda: [r for r in records if not any(c['checker_pass'] for c in cands[r['uid']])]
+    cands = _place(records, rooms, placer, workers) if placed is None else {r['uid']: [placed[r['uid']]]
+                                                                             for r in records}
+    failing = lambda: _failing(records, cands)
     needs = [r['uid'] for r in failing()]
     info = {}
     if escalate == 'l+o2' and not dry_run and (todo := failing()):
@@ -436,7 +589,7 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         receipts, info['api'] = api_answers(todo, out / 'api', api_cap, env_file, post, api_concurrency)
         _escalate(cands, 'gpt', todo, rooms, receipts, workers)
     if escalate != 'none' and not dry_run and (todo := failing()):
-        bodies, info['o2'] = o2_answers(todo, out / 'o2', o2_model, o2_load)
+        bodies, info['o2'] = o2_answers(todo, out / 'o2', o2_model, o2_load) if o2 is None else o2(todo, out / 'o2')
         _escalate(cands, 'o2', todo, rooms, bodies, workers)
     empty = [r for r in records if not any(c['complete'] for c in cands[r['uid']])]
     for r, c in zip(empty, _score_all([('fallback', rooms[r['uid']], r, fallback_answer(r), None, False)

@@ -42,6 +42,19 @@ summarize --scope cohort|test [--workers N] [--repeats 2000] [--price-usd-per-mt
           access" everywhere; in the CSVs placer stages and agent rows carry their own labels. Mesh collisions
           (amendment 019): the system is not rendered -> not measured. -> RUN/system-022/MODE/SCOPE/eval: results.json,
           levels.csv, contrasts.csv, report.md (Chinese), MANIFEST.json (write-once).
+
+Sharded O2 fallback of the test scope (a different run identity; used only under its own protocol addendum), all under
+RUN/system-022/MODE/test-sharded (the requests.jsonl step_system would write; never touches .../test):
+plan      --shards N [--workers W]: pipeline.plan, run()'s placer stage (placer replay + S1) once -> plan/ (placer.jsonl,
+          plan.json: the escalated uids, N, the rule int(sha256('a022-o2-shard:' + uid), 16) mod N). A complete plan
+          for the same N and placer is reused (PLAN_REUSED), so a resubmitted chain re-roots on it.
+shard     --index K: pipeline.o2_shard on the plan's escalated rooms of shard K (o2_answers' engine, sampling, template,
+          harness, chunk size 256 and order) -> shards/shard-K: chunks/NNNN.json written per finished chunk; a rerun
+          resumes at the unfinished chunks (each redone whole); COMPLETE.json at the end.
+finalize  [--workers W]: pipeline.run on the plan's placer candidates with O2 = pipeline.o2_merge of the N complete shards
+          -> system/ (the files step_system writes; result.json escalation.o2.sharding: N, rule, chunk size, every
+          shard's rooms / chunks / identity sha256, the plan sha256).
+summarize --scope test --sharded: as summarize test, on test-sharded/system -> test-sharded/eval (inputs.system.o2_sharding).
 """
 import argparse
 import collections
@@ -56,6 +69,7 @@ from fastfill.comparison import a021_select as A
 from fastfill.comparison import downstream as dn
 from fastfill.comparison import evaluate_pair as e
 from fastfill.comparison import geometry as g
+from fastfill.comparison import infer
 from fastfill.comparison import llm_agent
 from fastfill.comparison import llm_open
 from fastfill.comparison import output_repair as rep
@@ -90,11 +104,12 @@ NOT_MEASURED = 'not measured'
 
 # ---- paths, prior and the placer -----------------------------------------------------------------
 
-def paths(run, mode, scope=None):
+def paths(run, mode, scope=None, sharded=False):
+    """sharded: the sharded O2 fallback of the test scope, under SCOPE-sharded (plan, shards/shard-K, system, eval)."""
     root = Path(run) / 'system-022' / mode
-    leaf = root / scope if scope else root
+    leaf = root / (scope + '-sharded' if sharded else scope) if scope else root
     return {'root': root, 'requests': leaf / 'requests.jsonl', 'gate': leaf / 'gate.json', 'system': leaf / 'system',
-            'eval': leaf / 'eval', 'package': root / 'package'}
+            'eval': leaf / 'eval', 'package': root / 'package', 'plan': leaf / 'plan', 'shards': leaf / 'shards'}
 
 
 def prior_table(run):
@@ -196,11 +211,12 @@ def load_pipeline(out):
     result = h.strict_json((out / 'result.json').read_text())
     if result.get('status') != 'SYSTEM_COMPLETE':
         raise ValueError(f'{out}: not a complete system run (status {result.get("status")})')
-    api = result['escalation'].get('api') or {}
+    api, o2 = result['escalation'].get('api') or {}, result['escalation'].get('o2') or {}
     identity = {'placer': result['placer'], 'escalate': result['escalate'], 'api_cap': result['api_cap'],
                 'api_calls': api.get('calls_ledger', 0), 'api_stopped': api.get('stopped'),
                 'prior': result['prior'], 'result_sha256': h.sha256(out / 'result.json'),
-                'rooms_sha256': h.sha256(out / 'rooms.jsonl')}
+                'rooms_sha256': h.sha256(out / 'rooms.jsonl'),
+                **({'o2_sharding': o2['sharding']} if 'sharding' in o2 else {})}
     bodies = {'gpt': {}, 'o2': {}}
     for path in sorted((out / 'api' / 'receipts').glob('*.json')):
         body = h.strict_json(path.read_text())
@@ -488,9 +504,10 @@ def step_s1(run, mode, workers=1):
                    workers, t12.MAX_TRIALS, t12.TIME_LIMIT)
 
 
-def step_system(run, mode, scope, env_file=None, workers=1):
+def _system_inputs(run, mode, scope, env_file=None, sharded=False):
+    """(paths, requests, prior, replayed placer, API cap) of a system run; the cohort gate (gate.json) first."""
     run, data = Path(run), Path(run) / 'eval-data-v1'
-    out, p = paths(run, mode, scope), placer(run, mode)
+    out, p = paths(run, mode, scope, sharded), placer(run, mode)
     if out['system'].exists():
         raise FileExistsError(f"{out['system']} exists (a pipeline run never resumes; move it aside to retry, its "
                               'API ledger still counts)')
@@ -510,15 +527,79 @@ def step_system(run, mode, scope, env_file=None, workers=1):
     out['requests'].parent.mkdir(parents=True, exist_ok=True)
     out['requests'].write_text(text)
     prior = prior_table(run)
-    return pl.run(pl.load_requests(out['requests']), pl.load_prior(prior['path'], prior['sha256']),
-                  replay(p, data, run_sha), out['system'], escalate=SCOPES[scope]['escalate'], api_cap=api_cap,
+    return (out, pl.load_requests(out['requests']), pl.load_prior(prior['path'], prior['sha256']),
+            replay(p, data, run_sha), api_cap)
+
+
+def step_system(run, mode, scope, env_file=None, workers=1):
+    out, requests, prior, replayed, api_cap = _system_inputs(run, mode, scope, env_file)
+    return pl.run(requests, prior, replayed, out['system'], escalate=SCOPES[scope]['escalate'], api_cap=api_cap,
                   api_max_rooms=SCOPES[scope]['api_rooms'], env_file=env_file,
-                  o2_model=A.models_root(run) / llm_open.SPECS['O2']['model'], workers=workers)
+                  o2_model=A.models_root(Path(run)) / llm_open.SPECS['O2']['model'], workers=workers)
 
 
-def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None):
+# ---- sharded O2 fallback (test scope): plan -> shard 0..N-1 (GPU, resumable) -> finalize -> summarize --sharded ----
+
+def step_plan(run, mode, shards, workers=1):
+    """pipeline.plan (the placer stage once) -> test-sharded/plan; a complete plan for the same N is reused."""
+    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True)
+    if (out['plan'] / 'plan.json').exists():
+        value, _ = pl.load_plan(out['plan'])
+        if value['shards'] != shards or value['placer'] != replayed.identity:
+            raise ValueError(f"{out['plan']} was made for another N or placer")
+        return {**value, 'status': 'PLAN_REUSED'}
+    return pl.plan(requests, prior, replayed, out['plan'], shards, workers)
+
+
+def _planned(run, mode):
+    """(paths, plan, placer candidates, P records); the plan must bind exactly these requests and prior."""
+    run = Path(run)
+    out, prior = paths(run, mode, 'test', True), prior_table(run)
+    value, placed = pl.load_plan(out['plan'])
+    records = pl.prepare(pl.load_requests(out['requests']), pl.load_prior(prior['path'], prior['sha256']))[0]
+    if infer._hash(records) != value['records_sha256']:
+        raise ValueError(f"{out['plan']} was made for other requests")
+    return out, value, placed, records
+
+
+def step_shard(run, mode, index):
+    """pipeline.o2_shard on the plan's escalated rooms of shard INDEX -> test-sharded/shards/shard-INDEX (resumes)."""
+    out, value, _, records = _planned(run, mode)
+    if out['system'].exists():
+        raise FileExistsError(f"{out['system']} exists (already finalized)")
+    if not 0 <= index < value['shards']:
+        raise ValueError(f"shard index {index} outside 0..{value['shards'] - 1}")
+    keep = set(value['escalated'])
+    mine = [r for r in records if r['uid'] in keep and pl.shard_of(r['uid'], value['shards']) == index]
+    return pl.o2_shard(mine, out['shards'] / f'shard-{index}', A.models_root(Path(run)) / llm_open.SPECS['O2']['model'],
+                       index, value['shards'])
+
+
+def step_finalize(run, mode, workers=1):
+    """pipeline.run on the plan's placer candidates with O2 merged from the N finished shards -> test-sharded/system,
+    the files step_system writes; result.json escalation.o2.sharding declares N, the rule and every shard."""
+    out, value, placed, _ = _planned(run, mode)
+    dirs = [out['shards'] / f'shard-{k}' for k in range(value['shards'])]
+    if missing := [d.name for d in dirs if not (d / 'COMPLETE.json').exists()]:
+        raise FileNotFoundError(f'unfinished shards {missing}: nothing finalized')
+    out, requests, prior, replayed, _ = _system_inputs(run, mode, 'test', sharded=True)
+    if value['placer'] != replayed.identity:
+        raise ValueError(f"{out['plan']} was made with another placer")
+    model = A.models_root(Path(run)) / llm_open.SPECS['O2']['model']
+
+    def o2(todo, o2_out):
+        if [r['uid'] for r in todo] != value['escalated']:
+            raise ValueError('the escalated rooms are not the plan\'s')
+        bodies, identity = pl.o2_merge(todo, o2_out, dirs, model)
+        return bodies, {**identity, 'sharding': {**identity['sharding'],
+                                                 'plan_sha256': h.sha256(out['plan'] / 'plan.json')}}
+    return pl.run(requests, prior, replayed, out['system'], escalate=SCOPES['test']['escalate'], api_cap=0,
+                  api_max_rooms=SCOPES['test']['api_rooms'], o2_model=model, workers=workers, placed=placed, o2=o2)
+
+
+def step_summarize(run, mode, scope, workers=1, repeats=2000, prices=None, sharded=False):
     run, data = Path(run), Path(run) / 'eval-data-v1'
-    out, p = paths(run, mode, scope), placer(run, mode)
+    out, p = paths(run, mode, scope, sharded), placer(run, mode)
     if out['eval'].exists():
         raise FileExistsError(out['eval'])
     uids, rooms, requests, _ = _scope(run, data, scope)
@@ -667,7 +748,7 @@ def report(result):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('step', choices=('s1', 'gate', 'system', 'summarize'))
+    parser.add_argument('step', choices=('s1', 'gate', 'system', 'summarize', 'plan', 'shard', 'finalize'))
     parser.add_argument('--run-root', type=Path, required=True)
     parser.add_argument('--mode', choices=('interim', 'final'), required=True)
     parser.add_argument('--scope', choices=tuple(SCOPES))
@@ -675,11 +756,20 @@ def parse_args(argv=None):
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--repeats', type=int, default=2000)
     parser.add_argument('--price-usd-per-mtok', type=float, nargs=2, metavar=('IN', 'OUT'))
+    parser.add_argument('--shards', type=int)           # plan
+    parser.add_argument('--index', type=int)            # shard
+    parser.add_argument('--sharded', action='store_true')   # summarize --scope test: the sharded O2 fallback run
     args = parser.parse_args(argv)
     if args.step in ('system', 'summarize') and not args.scope:
         parser.error(f'{args.step} needs --scope')
     if args.step == 'gate' and args.scope not in (None, 'cohort'):
         parser.error('the gate applies to the cohort (API escalation) only')
+    if (args.step == 'plan') != (args.shards is not None) or (args.step == 'shard') != (args.index is not None):
+        parser.error('plan takes --shards N (>= 1), shard takes --index K; no other step takes them')
+    if args.sharded and (args.step, args.scope) != ('summarize', 'test'):
+        parser.error('--sharded applies to summarize --scope test only')
+    if args.step in ('plan', 'shard', 'finalize') and args.scope not in (None, 'test'):
+        parser.error(f'{args.step} is the sharded O2 fallback of the test scope')
     return args
 
 
@@ -696,9 +786,19 @@ def main(argv=None):
     elif args.step == 'system':
         value = step_system(args.run_root, args.mode, args.scope, args.env_file, args.workers)
         print(json.dumps({k: value[k] for k in ('status', 'rooms', 'stages')}))
+    elif args.step == 'plan':
+        value = step_plan(args.run_root, args.mode, args.shards, args.workers)
+        print(json.dumps({k: value[k] for k in ('status', 'rooms', 'shards', 'shard_rooms')}))
+    elif args.step == 'shard':
+        bodies, identity = step_shard(args.run_root, args.mode, args.index)
+        print(json.dumps({'status': 'SHARD_COMPLETE', 'rooms': len(bodies), **{
+            k: identity['sharding'][k] for k in ('index', 'shards')}}))
+    elif args.step == 'finalize':
+        value = step_finalize(args.run_root, args.mode, args.workers)
+        print(json.dumps({k: value[k] for k in ('status', 'rooms', 'stages')}))
     else:
         value = step_summarize(args.run_root, args.mode, args.scope, args.workers, args.repeats,
-                               args.price_usd_per_mtok)
+                               args.price_usd_per_mtok, args.sharded)
         print(json.dumps({'status': value['status'], 'escalated': value['escalation']['escalated']}))
     return 0
 

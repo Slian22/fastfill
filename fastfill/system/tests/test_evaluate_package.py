@@ -21,6 +21,7 @@ from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison.contract import messages
 from fastfill.comparison.size_prior import fit_prior
 from fastfill.comparison.tests import test_test_apply_012 as T12
+from fastfill.system.tests.test_pipeline import Killed, fingerprint
 from fastfill.system import cli
 from fastfill.system import evaluate as ev
 from fastfill.system import package as pk
@@ -277,6 +278,84 @@ def test_test_scope_escalates_to_o2_only(system):
     assert value['agents'] == {} and '仅 O2' in value['label_zh']
 
 
+TEST_GOLDEN = {      # step_system test scope, captured before the sharded O2 fallback existed (commit 23a51728d)
+    'files': ['o2/invocations.jsonl', 'o2/receipts.jsonl', 'report.md', 'result.json', 'roomgenbench.jsonl',
+              'rooms.jsonl'], 'result': 'cf922868f6dda7643efff38cfef23741bf465186e62a03ad70b4de5531300d25',
+    'rooms': '2151372350d1d51d99c84b45708a8ece78fa845d1f299eb99c73f76608e979e5',
+    'roomgenbench': 'fbe279e8632fa45caada1077a3b7236689f649ed08c6f6e9cc2ab96d989a1a49',
+    'o2': '1ef68aa2258d978522655ae28f3cd3f542824786bac2a37c75b4875283e338e0'}
+TEST_REQUESTS = '9d874f32d64be5e41dec5944c36eec242bb449a59244382067800463713849f7'
+
+
+def test_default_test_scope_outputs_are_unchanged(system):
+    ev.step_system(system.run, 'interim', 'test')
+    out = ev.paths(system.run, 'interim', 'test')
+    root = system.run.parent
+    assert fingerprint(out['system'], str(root.resolve()), str(root), system.run_sha) == TEST_GOLDEN
+    assert h.sha256(out['requests']) == TEST_REQUESTS
+
+
+def test_sharded_test_scope_fallback(system, monkeypatch):
+    """plan -> shards (one killed, resumed) -> finalize -> summarize --sharded = the unsharded test run, in test-sharded."""
+    ev.step_system(system.run, 'interim', 'test')
+    plain = ev.step_summarize(system.run, 'interim', 'test', repeats=20)
+    a, b = ev.paths(system.run, 'interim', 'test'), ev.paths(system.run, 'interim', 'test', sharded=True)
+    before = {f: f.read_bytes() for f in a['system'].parent.rglob('*') if f.is_file()}     # .../test
+    fake = {'o2': FakeO2(system)}
+    shard = pl.o2_shard
+    monkeypatch.setattr(ev.pl, 'o2_shard', lambda *x, **k: shard(*x, **k, load=lambda e: (fake['o2'], dict)))
+    value = ev.step_plan(system.run, 'interim', 3)
+    rows = [json.loads(x) for x in (a['system'] / 'rooms.jsonl').read_text().splitlines()]
+    assert value['escalated'] == [x['uid'] for x in rows if x['needs_escalation']] and len(value['escalated']) >= 2
+    assert ev.step_plan(system.run, 'interim', 3)['status'] == 'PLAN_REUSED'
+    with pytest.raises(ValueError, match='another N'):
+        ev.step_plan(system.run, 'interim', 2)
+    busy = next(k for k in range(3) if value['shard_rooms'][k])
+
+    class Dying(FakeO2):
+        def chat(self, *x, **k):
+            raise Killed
+    fake['o2'] = Dying(system)
+    with pytest.raises(Killed):
+        ev.step_shard(system.run, 'interim', busy)
+    fake['o2'] = FakeO2(system)
+    for k in range(3):
+        if k != busy:
+            ev.step_shard(system.run, 'interim', k)
+    with pytest.raises(FileNotFoundError, match='unfinished shards'):
+        ev.step_finalize(system.run, 'interim')
+    assert not b['system'].exists()
+    ev.step_shard(system.run, 'interim', busy)                         # the resubmitted shard resumes
+    ev.step_finalize(system.run, 'interim')
+    for name in ('rooms.jsonl', 'roomgenbench.jsonl'):
+        assert (a['system'] / name).read_text() == (b['system'] / name).read_text()
+    assert a['requests'].read_text() == b['requests'].read_text()
+    x, y = (json.loads((d['system'] / 'result.json').read_text()) for d in (a, b))
+    sharding = y['escalation']['o2'].pop('sharding')
+    assert (sharding['shards'], sharding['rule'], sharding['plan_sha256']) == (3, pl.SHARD_RULE,
+                                                                               h.sha256(b['plan'] / 'plan.json'))
+    drop = lambda r: {k: v for k, v in r.items() if k not in ('code_sha256', 'runtime_seconds')}
+    assert drop(x) == drop(y)
+    value = ev.step_summarize(system.run, 'interim', 'test', repeats=20, sharded=True)
+    assert value['levels'] == plain['levels'] and value['contrasts'] == plain['contrasts']
+    steps = lambda r: {s: {k: v for k, v in x.items() if k != 'latency_s'} for s, x in r['escalation']['steps'].items()}
+    assert steps(value) == steps(plain) and value['escalation']['final_stage'] == plain['escalation']['final_stage']
+    assert value['inputs']['system']['o2_sharding'] == {**sharding, 'plan_sha256': h.sha256(b['plan'] / 'plan.json')}
+    assert 'o2_sharding' not in plain['inputs']['system'] and (b['eval'] / 'MANIFEST.json').exists()
+    assert {f: f.read_bytes() for f in a['system'].parent.rglob('*') if f.is_file()} == before
+    with pytest.raises(FileExistsError):
+        ev.step_shard(system.run, 'interim', 0)
+    with pytest.raises(FileExistsError):
+        ev.step_finalize(system.run, 'interim')
+    parse = lambda *words: ev.parse_args(['--run-root', 'r', '--mode', 'final', *words])
+    assert (parse('plan', '--shards', '4').shards, parse('shard', '--index', '3').index) == (4, 3)
+    assert parse('summarize', '--scope', 'test', '--sharded').sharded
+    for words in (('plan',), ('shard',), ('finalize', '--index', '1'), ('summarize', '--scope', 'cohort', '--sharded'),
+                  ('system', '--scope', 'test', '--sharded'), ('plan', '--shards', '2', '--scope', 'cohort')):
+        with pytest.raises(SystemExit):
+            parse(*words)
+
+
 def test_interim_package_and_assembly(world, tmp_path):
     value = pk.build(world.run, 'interim', files=lambda: ['fastfill/system/package.py'])
     out = ev.paths(world.run, 'interim')['package']
@@ -369,4 +448,14 @@ def test_scripts_refuse_bad_arguments(tmp_path):
     assert 'SLURM_JOB_ID' in call(sbatch, CODE, 'summarize', 'final', 'cohort').stderr
     assert call(submit).returncode == 2 and call(submit, CODE, 'everything').returncode == 2
     result = call(submit, tmp_path, 'cohort')
+    assert result.returncode == 1 and 'nothing submitted' in result.stderr
+    for args in (('plan', 'final'), ('plan', 'final', '0'), ('shard', 'final', '1'), ('shard', 'final', 'x', '12'),
+                 ('shard', 'final', '1', '25'), ('finalize', 'final', '1'), ('summarize', 'final', 'test-shard')):
+        assert call(sbatch, CODE, *args).returncode == 2, args
+    for args in (('plan', 'final', '4'), ('shard', 'final', '3', '12'), ('finalize', 'final'),
+                 ('summarize', 'final', 'test-sharded')):
+        assert 'SLURM_JOB_ID' in call(sbatch, CODE, *args).stderr, args
+    for args in (('test-sharded', '0'), ('test-sharded', 'x'), ('test-sharded', '17'), ('test', '4')):
+        assert call(submit, CODE, *args).returncode == 2, args
+    result = call(submit, tmp_path, 'test-sharded', '4')
     assert result.returncode == 1 and 'nothing submitted' in result.stderr
