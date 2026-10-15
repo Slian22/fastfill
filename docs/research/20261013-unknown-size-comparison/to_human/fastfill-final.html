@@ -132,6 +132,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
     <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 评分 ↑</th></tr></thead>
     <tbody>
       <tr class="ours"><td>交付系统（27B + S1 + 升级）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+      <tr class="ours"><td>27B 布局模型（单次）</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td class="pending">待测</td></tr>
       <tr><td>旧 8B 模型 P（单次，未修复）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15</td></tr>
       <tr><td>旧 8B 联合尺寸模型 J（单次）</td><td>22.3</td><td>0.0004</td><td>0.048</td><td>0.422</td><td>6.28</td></tr>
       <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01</td></tr>
@@ -193,7 +194,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
     <li><b>严格准入低。</b>完整系统 0.520，比拿同样尺寸的 L、O2 低 0.18–0.21；全测试上 27B + S1 只有 0.291，和旧模型（0.288）、真实布局（0.295）差不多。</li>
     <li><b>大房间。</b>21 件以上家具的测试房（1,433 间）27B 单次只有 0.018；S1 后 31–50 件 0.304、51 件以上 0.127，严格准入接近 0。</li>
     <li><b>重叠。</b>全测试 27B 的 OOR 0.256，真实布局 0.079。</li>
-    <li><b>视觉。</b>交付系统还没渲染。旧 8B 模型的 FID 最好，但 GPT 评分最低（两位评委都是 GPT-6 家族），网格级无碰撞房间 0.548，低于真实布局的 0.797。</li>
+    <li><b>视觉与碰撞。</b>27B 单次的 FID（22.9）好于所有代理，但网格级无碰撞房间只有 0.575，明显低于真实布局（0.797）和代理（0.84–0.98，后者家具偏小）；旧 8B 模型的 GPT 评分最低（两位评委都是 GPT-6 家族）。完整系统的视觉指标还在测。</li>
     <li><b>评测范围。</b>单种子、历史测试划分；升级设计用 pilot 房模拟过；没有人工评审（UR）。</li>
   </ul>
 </section>
