@@ -66,7 +66,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   E --> F</pre>
   <ol>
     <li><b>尺寸</b>：每类家具用训练集统计的真实尺寸（先验）。LLM 自己给尺寸会系统性偏小，见表 4。</li>
-    <li><b>布局模型</b>：<span class="chip">待定</span> 由修订 021 §4 在 R = rpo-dpo1、op-dpo2-e1、27B 学生模型三者中选出并确认。</li>
+    <li><b>布局模型</b>：27B 学生模型（Qwen3.8-27B + LoRA，用 40,000 个房间微调，推理时不开思考，vLLM 服务）。修订 021 §4 在 rpo-dpo1、op-dpo2-e1、27B 三者中预注册选择，并在 3,000 房确认切片上确认：比 rpo-dpo1 高 +0.053 [+0.037, +0.068]。</li>
     <li><b>S1 修复</b>：只沿 XY 平移支撑子树，不改类别、尺寸、朝向和支撑关系；不用 GPU、不用 API。</li>
     <li><b>升级</b>：只有修复后仍不通过的房间才调用 API；每个请求都保证有输出，不丢房间。</li>
   </ol>
@@ -139,12 +139,13 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
     <thead><tr><th>布局模型</th><th>完整率</th><th>检查器通过率</th><th>严格准入</th><th>说明</th></tr></thead>
     <tbody>
       <tr><td>R = rpo-dpo1（现交付）</td><td>0.998</td><td>0.470</td><td>0.252</td><td style="text-align:left">SFT → DPO1（1 epoch + NLL）</td></tr>
-      <tr class="ours"><td>自修复在线 DPO2（op-dpo2-e1）</td><td>0.995</td><td class="good">0.515</td><td class="good">0.332</td><td style="text-align:left">rejected = 自己的失败，chosen = 同一样本的 S1 修复</td></tr>
+      <tr><td>自修复在线 DPO2（op-dpo2-e1）</td><td>0.995</td><td class="good">0.515</td><td class="good">0.332</td><td style="text-align:left">自己的失败 vs 同一样本的 S1 修复；未过 GT 关系保持护栏</td></tr>
       <tr><td>同数据只做 SFT（RFT）</td><td>0.999</td><td>0.480</td><td>0.271</td><td style="text-align:left">两种子均值；增益主要来自偏好损失</td></tr>
       <tr><td>OptiScene 式合成扰动 DPO2</td><td>0.978</td><td class="bad">0.407</td><td>0.235</td><td style="text-align:left">GT vs 扰动 GT，比起点更差</td></tr>
       <tr><td>从 O2 蒸馏：SFT-D</td><td>0.992</td><td>0.450</td><td>0.282</td><td style="text-align:left">−0.020，不显著，未采用</td></tr>
       <tr><td>从 O2 蒸馏：DPO2-D</td><td>0.807</td><td class="bad">0.385</td><td>0.308</td><td style="text-align:left">完整率下降，未采用</td></tr>
-      <tr><td>27B 学生（无思考，vLLM）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td style="text-align:left">40,000 房 LoRA，修订 021</td></tr>
+      <tr class="ours"><td>27B 学生（交付，vLLM）</td><td>0.997</td><td class="good">0.510</td><td>0.263</td><td style="text-align:left">同引擎 R 为 0.445；GT 关系保持率 0.740，各护栏全过</td></tr>
+      <tr class="ref"><td>同一 27B 不微调、不思考</td><td>0.433</td><td>0.082</td><td>—</td><td style="text-align:left">微调代替了 O2 每题约 1.1–1.6 万推理 token</td></tr>
     </tbody>
   </table></div>
   <p class="note">另外：按 OptiScene 官方超参（lr 5e-6，10 epoch）做 DPO1 在测试集上崩溃（P 检查器 0.390 → 0.093，近一半输出无效 JSON），所以换成了上表的配方。来源：<code>results/ablation-016</code>、<code>dev-eval-018</code>、修订 010/013。</p>
@@ -169,7 +170,8 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
     <li><b>尺寸和摆放分开。</b>尺寸用真实统计，模型只学放在哪。尺寸误差最小，也不会靠缩小家具来过检查；在 RoomGenBench 里生成的是正常大小的家具。</li>
     <li><b>自修复在线偏好学习。</b>用模型自己的失败样本做 rejected，用同一样本经 S1 修复后的结果做 chosen。dev 上检查器 +0.045、严格准入 +0.08；同样数据只做 SFT 没有这个增益，OptiScene 式合成负例反而变差。</li>
     <li><b>确定性修复 S1。</b>不花 GPU 和 API，把检查器通过率从约 0.40 提到 0.70（dev 选定，测试集复现）。</li>
-    <li><b>分级升级。</b>本地 8B 模型加修复处理大多数房间，只把失败的房间交给 API，在保持真实尺寸的前提下接近大模型的通过率。比例见表 1。</li>
+    <li><b>分级升级。</b>本地模型加修复处理大多数房间，只把失败的房间交给 API，在保持真实尺寸的前提下接近大模型的通过率。比例见表 1。</li>
+    <li><b>用微调代替长推理。</b>同一个 27B 不思考时几乎不会摆（0.08）；用我们的数据微调后不思考也能到 0.51，超过 8B 模型，推理成本远低于 O2 的长思考。</li>
     <li><b>评测方法。</b>先查清尺寸混杂（尺寸替换、尺寸固定重新生成），再看网格级碰撞和双评委一致性，避免把“缩小家具”误当成“摆得好”。</li>
   </ol>
 </section>
