@@ -79,9 +79,6 @@ import os
 from pathlib import Path
 import statistics
 
-from matplotlib.figure import Figure
-from matplotlib.patches import Patch, Polygon as MplPolygon
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from shapely.geometry import LineString, Point, Polygon
 from shapely.geometry.polygon import orient
 
@@ -338,6 +335,10 @@ def _arrow(o):
 def render_views(room, layout, flag, title, flag_legend=True):
     """(top PNG bytes, oblique PNG bytes), VIEW_INCHES x VIEW_DPI px each; flag_legend=False drops the checker-flag
     legend entries (the judge's neutral views, all boxes 'ok')."""
+    # Imported here: only rendering needs matplotlib (the server env has none; it never renders).
+    from matplotlib.figure import Figure
+    from matplotlib.patches import Patch, Polygon as MplPolygon
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
     order = sorted(layout, key=lambda o: (o['pos'][2], o['id']))
     xs, ys = zip(*room['boundary'])
     ring = list(room['boundary']) + [room['boundary'][0]]
