@@ -62,3 +62,23 @@ The pilot rooms were also used to design 022. Everything here is EXPLORATORY.
 No policy is adopted here. The delivered system stays as locked in 022.
 
 The frontier answers one question: how much big-model use is needed to match "big model for every room" on each metric, and on which room families local-first is enough.
+
+## Addendum A (locked 2026-10-15 ~11:50 UTC, before any scope-C output exists): scope C, family-stratified rooms
+
+**Why.** The user pointed out that the 300 pilot rooms of scope A are dominated by bedrooms and living rooms (143 + 50) from 2 sources, and asked for a sample with more room types.
+
+**Rooms.** 300 test rooms, 20 from each of the 15 amendment-015 room families:
+- bedroom, living, dining, kitchen, bathroom, study_office, meeting, balcony, laundry_utility, garage, circulation, storage_closet, public_commercial, other, none;
+- every family has ≥ 41 test rooms;
+- within a family, the 20 lowest `sha256('a026c:' + uid)`;
+- written to `RUN/a026-diverse-v1.json` before any call.
+
+**Big model.** gpt-6.1-sol, size-fixed (P input, B2 enforcement), with exactly the amendment-016 pilot settings:
+- `llm_agent` placement arm, reasoning effort medium;
+- harness of up to 3 attempts, then `evaluate_llm` and S1.
+
+**Local side.** The existing 27B test rows + S1 (`s1-022/placement-arm`), restricted to these uids. No new GPU work.
+
+**Policies and reporting.** The same policies and reporting as scopes A and B. In addition, LOCAL vs BIG for every family.
+
+**Cap.** ≤ 900 paid calls (300 rooms × ≤ 3 attempts), plus a 2-room smoke. No retries beyond the harness, and no replacement.
