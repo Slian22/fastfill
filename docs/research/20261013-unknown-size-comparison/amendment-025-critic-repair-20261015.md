@@ -115,3 +115,19 @@ No retries and no replacement; a failed call leaves the room unedited, and this 
 - **Expected count:** about 247 rooms across all 15 families. The exact count and the per-family counts are written with the room list before any critic call.
 
 **Budget.** The cap stays ≤ 500 critic + ≤ 500 judge calls on dev. Everything else in amendment 025 is unchanged.
+
+## Addendum B (locked 2026-10-15 ~13:35 UTC, before any output of judge job 7442970 has been read)
+
+**Trigger.** An independent review (`evidence/agency-026-025-review-20261015.md`) found that the dev judge prompt gives only category counts, while the box views label objects only by id. The judge therefore cannot tell which box is which piece of furniture. Swapping two categories leaves its input unchanged. This is verified: the prompt lists `{"category": "bed", "count": 1}` etc., and the images show `obj_0001`…
+
+**Changes**
+
+1. **Formal judge.** A new bundle in which the prompt of both arms also lists every movable object as `{id, category}`. The list is identical for B and C, because ids and categories never change.
+   - Everything else is as before: same rooms, neutral views, judge, rubric and settings.
+   - Job 7442970, which had no mapping, is reported only as a "category-blind diagnostic". It is never used for adoption.
+2. **Coverage rule**, added to the §2 adoption rule.
+   - At least 90 % of the dev rooms (≥ 222 of 246) must have both arms judged successfully. Otherwise the critic stage is not adopted.
+   - Missing judgements are reported per arm and per room family, and are never imputed.
+3. **Budget.** The amendment cap is raised from 1,550 to 2,050 paid calls, covering this extra 492-call judge run.
+   - Spent so far: 450 critic calls and 492 calls for job 7442970.
+   - Still allowed afterwards: test critic ≤ 348 and test judge ≤ 174.
