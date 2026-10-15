@@ -32,10 +32,16 @@ labels, the hard cap is 800, the paired table is first-minus-second arm, and
 summary.endpoint holds the per-room mean of functionality/layout/aesthetics
 difference (first minus second) on rooms where both completed, with a
 percentile CI from 2,000 draws (seed 42) resampling rooms within stratum.
+
+Amendment 023: --model replaces the bundle's expected_model for this run (the
+bundle stays byte-identical), --reasoning-effort is forwarded to the client,
+and --workers runs that many one-case client subprocesses at once. Records keep
+mapping order. Unset, all three leave the run identity and behaviour unchanged.
 """
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import csv
 import hashlib
 import importlib.util
@@ -293,7 +299,7 @@ def _result(client, case, directory, model, returncode):
                                              for k in METRICS if k + '_score' in scores}}
 
 
-def _run_case(client, case, output, client_path, client_hash, model, timeout, env_file):
+def _run_case(client, case, output, client_path, client_hash, model, timeout, env_file, effort='', override=False):
     directory = output / 'cases' / digest(case['id'].encode())
     directory.mkdir(parents=True)
     _write(directory / 'reservation.json', {'id': case['id'], 'content_sha256': content_hash(case),
@@ -304,10 +310,15 @@ def _run_case(client, case, output, client_path, client_hash, model, timeout, en
     try:
         if digest(client_path.read_bytes()) != client_hash:
             raise BatchError('client_changed')
-        client.prepare_case(case, output, client.Config('unused', 'https://unused.invalid', model))
+        options = {'reasoning_effort': effort} if effort else {}
+        client.prepare_case(case, output, client.Config('unused', 'https://unused.invalid', model, **options))
         command = [sys.executable, str(client_path), '--manifest', str(manifest_path),
                    '--results-dir', str(directory / 'results'), '--env-file', str(env_file),
                    '--limit', '1', '--timeout', str(timeout)]
+        if override:
+            command += ['--model', model]
+        if effort:
+            command += ['--reasoning-effort', effort]
         environment = {k: os.environ[k] for k in ('PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL', 'SYSTEMROOT')
                        if k in os.environ}
         launched = True
@@ -512,8 +523,10 @@ def _tables(output, summary):
 
 
 def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=None,
-             expected_total=None, timeout=90, arms=ARMS):
+             expected_total=None, timeout=90, arms=ARMS, model='', reasoning_effort='', workers=1):
     arms = _check_arms(arms)
+    if reasoning_effort not in ('', 'low', 'medium', 'high') or type(workers) is not int or not 1 <= workers <= 16:
+        raise BatchError('invalid_options')
     if (type(max_cases) is not int or not 1 <= max_cases <= _cap(arms)
             or (expected_total is not None and (type(expected_total) is not int or not 0 <= expected_total <= max_cases))
             or type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 600):
@@ -533,6 +546,8 @@ def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=No
         raise BatchError(str(exc)) from None
     if output.resolve().is_relative_to(root) or root.is_relative_to(output.resolve()):
         raise BatchError('overlapping_output_bundle')
+    if model:
+        manifest = {**manifest, 'expected_model': model}
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
     artifacts = output / 'artifacts'
     artifacts.mkdir()
@@ -548,28 +563,36 @@ def evaluate(bundle, output, client, max_cases=CAP, *, mapping=None, failures=No
                     'mapping_sha256': provenance['mapping_sha256'],
                     'failures_sha256': provenance['failures_sha256'],
                     'client_sha256': digest(client_bytes)}
+    options = {k: v for k, v in (('model_override', model), ('reasoning_effort', reasoning_effort)) if v}
+    run_identity.update(options)
     provenance = {**provenance, 'run_identity_sha256': digest(canonical(run_identity))}
     snapshot = {'schema_version': 1, 'model': manifest['expected_model'], 'max_cases': max_cases,
                 'expected_total': expected_total, 'replacement': False, 'retry': False,
-                'client_sha256': digest(client_bytes), **provenance,
+                'client_sha256': digest(client_bytes), **options, **provenance,
                 'cases': frozen, 'mapping': metadata, 'failures': failed,
                 'case_sha256': {c['id']: content_hash(c) for c in frozen}}
     _write(output / 'snapshot.json', snapshot)
     env_file = Path(os.environ.get('FASTFILL_API_ENV', '~/.fastfill_api.env')).expanduser()
     indexed = {c['id']: c for c in frozen}
     records = []
-    with (output / 'records.jsonl').open('xb') as stream:
-        for meta in metadata:
-            cid = meta['id']
-            result = ({'status': 'failed', 'error': 'preparation_failed', 'failure': failed[cid]['failure'],
-                       'launched': False} if cid in failed else
-                      _run_case(api, indexed[cid], output, client_path, digest(client_bytes),
-                                manifest['expected_model'], timeout, env_file))
-            record = {**meta, **result}
-            records.append(record)
-            stream.write(canonical(record) + b'\n')
-            stream.flush()
-            os.fsync(stream.fileno())
+
+    def run(meta):
+        cid = meta['id']
+        return ({'status': 'failed', 'error': 'preparation_failed', 'failure': failed[cid]['failure'],
+                 'launched': False} if cid in failed else
+                _run_case(api, indexed[cid], output, client_path, digest(client_bytes),
+                          manifest['expected_model'], timeout, env_file, reasoning_effort, bool(model)))
+    pool = ThreadPoolExecutor(workers)
+    try:
+        with (output / 'records.jsonl').open('xb') as stream:
+            for meta, result in zip(metadata, pool.map(run, metadata)):
+                record = {**meta, **result}
+                records.append(record)
+                stream.write(canonical(record) + b'\n')
+                stream.flush()
+                os.fsync(stream.fileno())
+    finally:
+        pool.shutdown(cancel_futures=True)  # An unexpected error launches no further cases.
     summary = {**summarize(records, manifest['expected_model'], len(frozen), arms), **provenance,
                'client_sha256': digest(client_bytes),
                'snapshot_sha256': digest((output / 'snapshot.json').read_bytes())}
@@ -588,6 +611,9 @@ def main(argv=None):
     parser.add_argument('--expected-total', type=int)
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--arms', type=lambda v: tuple(v.split(',')), default=ARMS)
+    parser.add_argument('--model', default='')
+    parser.add_argument('--reasoning-effort', default='')
+    parser.add_argument('--workers', type=int, default=1)
     args = parser.parse_args(argv)
     try:
         summary = evaluate(**vars(args))

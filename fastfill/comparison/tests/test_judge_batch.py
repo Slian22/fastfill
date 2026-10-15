@@ -588,3 +588,32 @@ def test_endpoint_resamples_rooms_within_stratum_with_fixed_seed():
     assert batch._endpoint(records, 'J', 'P') == endpoint
     assert endpoint['bootstrap'] == {'draws': 2000, 'seed': 42, 'resample': 'rooms_within_stratum',
                                      'interval': 'percentile'}
+
+
+def test_023_model_override_reasoning_and_workers(tmp_path, monkeypatch):
+    client = Path(batch.__file__).with_name('server_api_judge.py')
+    root = bundle(tmp_path, n=3)
+    calls, commands = [], []
+    fake = fake_client(calls)
+
+    def run(command, **kwargs):
+        commands.append(command)
+        return fake(command, **kwargs)
+    monkeypatch.setattr(batch.subprocess, 'run', run)
+    summary = batch.evaluate(root, tmp_path / 'out', client, model='gpt-6-astra',
+                             reasoning_effort='high', workers=3)
+    assert summary['model'] == 'gpt-6-astra' and summary['counts']['success'] == 6
+    assert all(c[c.index('--model') + 1] == 'gpt-6-astra' and c[c.index('--reasoning-effort') + 1] == 'high'
+               for c in commands)
+    records = [json.loads(line) for line in (tmp_path / 'out/records.jsonl').read_text().splitlines()]
+    mapping = json.loads((root / 'api-mapping.json').read_text())
+    assert [r['id'] for r in records] == list(mapping)
+    snapshot = json.loads((tmp_path / 'out/snapshot.json').read_text())
+    assert snapshot['model_override'] == 'gpt-6-astra' and snapshot['reasoning_effort'] == 'high'
+    commands.clear()
+    default = batch.evaluate(root, tmp_path / 'default', client)
+    assert default['model'] == 'gpt-6.1-sol'
+    assert not any('--model' in c or '--reasoning-effort' in c for c in commands)
+    assert default['run_identity_sha256'] != summary['run_identity_sha256']
+    with pytest.raises(batch.BatchError):
+        batch.evaluate(root, tmp_path / 'bad', client, reasoning_effort='max')
