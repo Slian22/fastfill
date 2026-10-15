@@ -1,0 +1,361 @@
+{
+ "source": "/Volumes/harddisk/fastfillout/unknownsize-20261013/fid-011-visual-002/fid.json (1.6 MB; features npz 80 MB on harddisk)",
+ "amendment": "011",
+ "metric": "FID",
+ "disclosure": "Amendment 011: primary J/P FID and KID are conditional on the rooms where the reference, J and P all have verified images and features; each agent's on reference, J, P and that agent, with J and P re-scored on the same rooms; the all-system intersection only for the judged set (secondary). Every population reports its N; N < 50 is flagged small_n and N < 2 has no score. Failures remain in requested counts and are never imputed. 'pooled' scores the union of the manifest strata as one cohort; strata are never averaged.",
+ "counts": {
+  "reference_eligible": 1005,
+  "requested": 1009,
+  "shared_success": 1005
+ },
+ "pooled_populations": {
+  "agent/L": {
+   "fid": {
+    "J": 22.336185915066892,
+    "L": 32.081429347044036,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "L": {
+     "kid": 0.007233343151335516,
+     "se": 0.0005229358493351161
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "L"
+   ]
+  },
+  "agent/O1a": {
+   "fid": {
+    "J": 47.69253681896765,
+    "O1a": 67.53342864122524,
+    "P": 49.051851410712715
+   },
+   "kid": {
+    "J": {
+     "kid": 0.00036603282707899857,
+     "se": 0.0002536117752199331
+    },
+    "O1a": {
+     "kid": 0.012661165395142436,
+     "se": 0.0017883486499618772
+    },
+    "P": {
+     "kid": 0.0009278872695573244,
+     "se": 0.000446688566250981
+    }
+   },
+   "n": 257,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O1a"
+   ]
+  },
+  "agent/O1b": {
+   "fid": {
+    "J": 32.001510047668376,
+    "O1b": 48.35270228562169,
+    "P": 33.177699362528415
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0005794828348953925,
+     "se": 0.0002069299033431994
+    },
+    "O1b": {
+     "kid": 0.012185952775853916,
+     "se": 0.0010433589901927063
+    },
+    "P": {
+     "kid": 0.0012027256162666017,
+     "se": 0.00026691733593830526
+    }
+   },
+   "n": 615,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O1b"
+   ]
+  },
+  "agent/O2": {
+   "fid": {
+    "J": 22.423468371937986,
+    "O2": 33.71241946750098,
+    "P": 24.076316705505576
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004084078991342796,
+     "se": 0.00012033264135891632
+    },
+    "O2": {
+     "kid": 0.009492717329239234,
+     "se": 0.000667630028750676
+    },
+    "P": {
+     "kid": 0.001373715288029341,
+     "se": 0.0002215237409571114
+    }
+   },
+   "n": 998,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O2"
+   ]
+  },
+  "agent/O3": {
+   "fid": {
+    "J": 40.63078555254273,
+    "O3": 54.89171215504598,
+    "P": 42.90130902685647
+   },
+   "kid": {
+    "J": {
+     "kid": 0.00024438921765114143,
+     "se": 0.00020014809585336098
+    },
+    "O3": {
+     "kid": 0.011164551830807024,
+     "se": 0.0010376987041664598
+    },
+    "P": {
+     "kid": 0.0013362018925263761,
+     "se": 0.0003564987696669853
+    }
+   },
+   "n": 409,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O3"
+   ]
+  },
+  "agent/O4": {
+   "fid": {
+    "J": 22.336185915066892,
+    "O4": 37.68732208750495,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "O4": {
+     "kid": 0.014650440177421353,
+     "se": 0.000843256890922818
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O4"
+   ]
+  },
+  "agent/O6": {
+   "fid": {
+    "J": 22.336185915066892,
+    "O6": 34.38377559333233,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "O6": {
+     "kid": 0.01028183117353151,
+     "se": 0.0006865363914924881
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O6"
+   ]
+  },
+  "agent/O7": {
+   "fid": {
+    "J": 22.336185915066892,
+    "O7": 40.371275243614406,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "O7": {
+     "kid": 0.0170093854348288,
+     "se": 0.0009231766887641097
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "O7"
+   ]
+  },
+  "judged": {
+   "fid": {
+    "J": 22.336185915066892,
+    "L": 32.081429347044036,
+    "O6": 34.38377559333233,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "L": {
+     "kid": 0.007233343151335516,
+     "se": 0.0005229358493351161
+    },
+    "O6": {
+     "kid": 0.01028183117353151,
+     "se": 0.0006865363914924881
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P",
+    "L",
+    "O6"
+   ]
+  },
+  "primary": {
+   "fid": {
+    "J": 22.336185915066892,
+    "P": 23.966439701801107
+   },
+   "kid": {
+    "J": {
+     "kid": 0.0004106372724844715,
+     "se": 0.00011962722345222538
+    },
+    "P": {
+     "kid": 0.0013515689599648767,
+     "se": 0.00021843389173546477
+    }
+   },
+   "n": 1005,
+   "small_n": false,
+   "status": "ok",
+   "systems": [
+    "J",
+    "P"
+   ]
+  }
+ },
+ "strata": {
+  "IL3D_3dfront/bedroom": {
+   "counts": {
+    "reference_eligible": 418,
+    "requested": 419,
+    "shared_success": 418
+   },
+   "J_vs_reference": 37.22402436047375,
+   "P_vs_reference": 39.422712668055055
+  },
+  "IL3D_3dfront/living room": {
+   "counts": {
+    "reference_eligible": 84,
+    "requested": 87,
+    "shared_success": 84
+   },
+   "J_vs_reference": 86.1215692286087,
+   "P_vs_reference": 86.10352208185816
+  },
+  "OptiScene_holodeck/bathroom": {
+   "counts": {
+    "reference_eligible": 128,
+    "requested": 128,
+    "shared_success": 128
+   },
+   "J_vs_reference": 60.81232013170421,
+   "P_vs_reference": 68.11415408082652
+  },
+  "OptiScene_holodeck/bedroom": {
+   "counts": {
+    "reference_eligible": 115,
+    "requested": 115,
+    "shared_success": 115
+   },
+   "J_vs_reference": 68.40267078924111,
+   "P_vs_reference": 70.39067499379004
+  },
+  "OptiScene_holodeck/kitchen": {
+   "counts": {
+    "reference_eligible": 129,
+    "requested": 129,
+    "shared_success": 129
+   },
+   "J_vs_reference": 72.77928608881948,
+   "P_vs_reference": 74.85895683409572
+  },
+  "OptiScene_holodeck/living room": {
+   "counts": {
+    "reference_eligible": 131,
+    "requested": 131,
+    "shared_success": 131
+   },
+   "J_vs_reference": 74.0478980753366,
+   "P_vs_reference": 73.411687658023
+  }
+ },
+ "weights_sha256": "6726825d0af5f729cebd5821db510b11b1cfad8faad88a03f1befd49fb9129b2",
+ "kid_definition": "cubic polynomial kernel (x.y/d+1)^3; paired U-statistic over rooms i!=j; first-order U-statistic standard error"
+}

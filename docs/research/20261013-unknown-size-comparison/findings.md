@@ -186,6 +186,24 @@ Every system gets P's input (train-prior sizes, enforced); rates over all 300 re
   - After S1, P matches O2 and leads O6, O4 and O7 on required={} admission.
   - Single-shot, P is last.
 
+## Visual realism: FID / KID (amendment 011 populations; visual run 002, 1,005 paper-strata rooms; `results/fid-011-visual-002/`)
+
+Pooled over the six paper strata, per-agent populations = reference ∩ J ∩ P ∩ agent.
+
+| System | FID | KID | Rooms |
+|---|---|---|---|
+| J | 22.3 | 0.0004 | 1,005 |
+| P | 24.0 | 0.0014 | 1,005 |
+| L | 32.1 | 0.0072 | 1,005 |
+| O2 | 33.7 | 0.0095 | 998 |
+| O6 | 34.4 | 0.0103 | 1,005 |
+| O4 | 37.7 | 0.0147 | 1,005 |
+| O7 | 40.4 | 0.0170 | 1,005 |
+
+- O1a, O1b and O3 are on smaller populations (257, 615 and 409 rooms), where they score 48–68 against J/P's 32–49 on the same rooms.
+- The trained models' layouts look much closer to the real layouts than every agent's.
+- **Caveat (addendum B4):** FID is size-sensitive. Agents render 16–35 % smaller furniture, so part of the gap is size. No claim rests on FID alone.
+
 ## Mesh-level collisions on rendered rooms (amendment 019; 1,005 paper-strata rooms; EXPLORATORY)
 
 Every object's real reference mesh is placed into its bbox exactly as rendered. The primary threshold is τ = 500 cm³ of voxel interpenetration.
