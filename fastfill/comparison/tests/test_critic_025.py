@@ -297,6 +297,11 @@ def test_rounds_and_evaluation_end_to_end(tmp_path):
         c.evaluate(tmp_path / 'r0', tmp_path / 'r2', tmp_path / 'eval', judge)
     bound = c.render.json_sha256({'B': sha('r0'), 'C': sha('r2')})          # judge_bundle_025.dev's provenance
     (judge / 'summary.json').write_text(json.dumps({'geometry_manifest_sha256': bound}))
+    (judge / 'artifacts').mkdir()
+    (judge / 'artifacts' / 'p.txt').write_text('rubric without the id list')
+    with pytest.raises(ValueError, match='addendum-B prompt'):          # the category-blind diagnostic is refused
+        c.evaluate(tmp_path / 'r0', tmp_path / 'r2', tmp_path / 'eval', judge)
+    (judge / 'artifacts' / 'p.txt').write_text('rubric\n' + c.LEGEND_MARK + ': [...]')
     result = c.evaluate(tmp_path / 'r0', tmp_path / 'r2', tmp_path / 'eval', judge)
     value = h.strict_json((tmp_path / 'eval/results.json').read_text())
     assert value['rooms_edited'] == 1 and value['yaw_changed_objects'] == 1 and value['moved_objects'] == 0
@@ -319,3 +324,10 @@ def test_adoption_needs_all_three_rules_and_waits_for_the_judge():
     assert c.adoption({**contrast, 'judge': {'estimate': None, 'ci95': None}})['adopted'] is False
     assert c.adoption({**contrast, 'accepted': {'estimate': -0.006}})['adopted'] is False
     assert c.adoption({k: v for k, v in contrast.items() if k != 'judge'})['adopted'] is None
+
+
+def test_adoption_requires_addendum_b_coverage():
+    from fastfill.comparison import critic_025 as cr
+    contrast = {'judge': {'ci95': [0.1, 0.3], 'n': 221}, 'accepted': {'estimate': 0.1}, 'geometry_success': {'estimate': 0.1}}
+    assert cr.adoption(contrast, 246)['adopted'] is False
+    assert cr.adoption({**contrast, 'judge': {'ci95': [0.1, 0.3], 'n': 222}}, 246)['adopted'] is True

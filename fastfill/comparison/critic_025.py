@@ -684,10 +684,16 @@ def judge_values(root, uids):
     return out
 
 
-def adoption(contrast):
-    """Section 2 rule; the judge part is pending (None) without judge rows and fails closed on an undefined CI."""
+COVERAGE = 0.9                     # addendum B: >= 90% of the rooms with both arms judged
+LEGEND_MARK = 'The boxes in the images are labelled by id'   # addendum B formal prompt (judge_bundle_025._legend)
+
+
+def adoption(contrast, rooms=None):
+    """Section 2 rule + addendum B coverage; the judge part is pending (None) without judge rows and fails closed on an
+    undefined CI."""
     judge = contrast.get('judge')
     rules = {'judge_ci_lower_gt_0': None if judge is None else bool(judge['ci95'] and judge['ci95'][0] > 0),
+             **({'judge_coverage_ge_0.9': judge['n'] >= COVERAGE * rooms} if judge is not None and rooms else {}),
              'strict_admission_ge_-0.005': contrast['accepted']['estimate'] >= SLACK,
              'checker_ge_-0.005': contrast['geometry_success']['estimate'] >= SLACK}
     return {'rules': rules, 'adopted': None if rules['judge_ci_lower_gt_0'] is None else all(rules.values())}
@@ -714,6 +720,9 @@ def evaluate(b, c, out, judge=None, workers=1):
         if h.strict_json((Path(judge) / 'summary.json').read_text()).get('geometry_manifest_sha256') != \
                 judge_lineage(b_sha, c_sha):
             raise ValueError('the judge run was not made on judge_bundle_025 dev of these B and C states')
+        prompts = sorted((Path(judge) / 'artifacts').glob('*.txt'))
+        if not prompts or any(LEGEND_MARK not in x.read_text(encoding='utf-8') for x in prompts):
+            raise ValueError('the judge run did not use the addendum-B prompt (id -> category list)')
     js = judge_values(judge, uids) if judge else {}
     arms = {}
     for name, rows_ in (('B', b_rows), ('C', c_rows)):
@@ -748,7 +757,7 @@ def evaluate(b, c, out, judge=None, workers=1):
                                               'both_scored': contrast['judge']['n'],
                                               'summary_sha256': h.sha256(Path(judge) / 'summary.json'),
                                               'image_source': 'box_views'},
-             'adoption': adoption(contrast), 'code_sha256': _code()}
+             'adoption': adoption(contrast, len(uids)), 'code_sha256': _code()}
     dps._publish_dir(out, {'results.json': _json(value), 'report.md': _report(value).encode('utf-8')})
     return {'status': 'A025_EVALUATED', 'adopted': value['adoption']['adopted'],
             **{f: contrast[f]['estimate'] for f in fields}}
