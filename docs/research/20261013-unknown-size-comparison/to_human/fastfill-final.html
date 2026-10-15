@@ -52,7 +52,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
 <header style="display:grid;gap:10px">
   <div class="eyebrow">FastFill · unknown-size · 2026-10-15</div>
   <h1>FastFill 布局系统交付</h1>
-  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可导出到 RoomGenBench。这是一个“本地模型优先、大模型兜底”的系统。所有数字都是实测；离线回放、探索性的结果都单独注明；没测的格子标“待测”。</p>
+  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可导出到 RoomGenBench。这是一个“本地模型优先、大模型兜底”的系统。所有数字都是实测；离线回放、探索性的结果都单独注明；没测的格子标“—”。</p>
 </header>
 
 <section>
@@ -119,11 +119,14 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ours"><td>检查器</td><td>0.776</td><td>0.955</td><td>+0.179 [+0.128, +0.231]</td></tr>
       <tr class="ours"><td>严格准入</td><td>0.390</td><td>0.695</td><td>+0.305 [+0.250, +0.362]</td></tr>
       <tr class="ours"><td>required={}</td><td>0.752</td><td>0.898</td><td>+0.146 [+0.103, +0.191]</td></tr>
-      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>测试集 174 间（交付系统输出 + critic）</b></td></tr>
-      <tr><td>检查器 / 严格准入 / 评委</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
+      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>测试集 174 间（论文房型的评委房；交付系统输出 → + critic）</b></td></tr>
+      <tr class="ours"><td>GPT 评委（功能 + 布局）/ 2（Blender 渲染）</td><td>6.96</td><td>7.73</td><td>+0.77 [+0.60, +0.95]（173 房）</td></tr>
+      <tr class="ours"><td>检查器</td><td>0.966</td><td>0.983</td><td>+0.017 [0.000, +0.045]</td></tr>
+      <tr class="ours"><td>严格准入</td><td>0.598</td><td>0.891</td><td>+0.293 [+0.222, +0.365]</td></tr>
+      <tr class="ours"><td>required={}</td><td>0.885</td><td>0.960</td><td>+0.075 [+0.036, +0.119]</td></tr>
     </tbody>
   </table></div>
-  <p class="note">critic 每房平均 1.8 次 gpt-6.1-sol 调用（带图，每房约 16k 输入 token），比一次重新生成贵。编辑幅度大：位移中位 0.98 m、95 分位 6.5 m。评委 gpt-6-astra 与 critic gpt-6.1-sol 同属 GPT-6 家族，同家族偏好没有排除。评委看的是盒子视图（中性配色，提示词附 id→类别清单）。来源：<code>results/a025-dev</code>。</p>
+  <p class="note">测试集上 critic 是加在交付系统输出之后（不是 27B 单次），174 房里 157 房被修改，共 309 次 critic 调用。critic 每房平均 1.8 次 gpt-6.1-sol 调用（带图，每房约 16k 输入 token），比一次重新生成贵。编辑幅度大：位移中位 0.98 m、95 分位 6.5 m。评委 gpt-6-astra 与 critic gpt-6.1-sol 同属 GPT-6 家族，同家族偏好没有排除。评委看的是盒子视图（中性配色，提示词附 id→类别清单）。来源：<code>results/a025-dev</code>。</p>
 </section>
 
 <section>
@@ -131,8 +134,9 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   <div class="frame"><table>
     <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 评分 ↑</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>交付系统（27B + S1 + 本地 O2 升级）</td><td>22.8</td><td>0.0007</td><td>0.026</td><td>0.775</td><td class="pending">待测</td></tr>
-      <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td class="pending">待测</td></tr>
+      <tr class="ours"><td>交付系统 + critic</td><td>—</td><td>—</td><td>—</td><td>—</td><td>7.54</td></tr>
+      <tr class="ours"><td>交付系统（27B + S1 + 本地 O2 升级）</td><td>22.8</td><td>0.0007</td><td>0.026</td><td>0.775</td><td>6.83</td></tr>
+      <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td>6.58</td></tr>
       <tr><td>旧 8B 模型 P（单次）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15</td></tr>
       <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01</td></tr>
       <tr><td>O2（998 房）</td><td>33.7</td><td>0.0095</td><td>0.008</td><td>0.976</td><td>—</td></tr>
@@ -141,7 +145,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ref"><td>GT</td><td>—</td><td>—</td><td>0.026</td><td>0.797</td><td>—</td></tr>
     </tbody>
   </table></div>
-  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 评分：174 房，评委 gpt-6-astra。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
+  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 评分：174 房，评委 gpt-6-astra（reasoning high），Blender 渲染，各行同一评委、同一提示词、同一批房间；critic 行只在这 174 房上渲染，所以没有 FID 和网格碰撞。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
 </section>
 
 <section>
@@ -173,7 +177,8 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   <ul>
     <li><b>大房间</b>：21 件以上家具的房间，本地模型几乎没有优势，基本要靠大模型。卧室和客厅的升级比例也有 75–80%。</li>
     <li><b>严格准入低</b>：全测试只有 0.343（真实布局 0.295），一半以上房间过不了“从每扇门可达 + 无盒体碰撞 + 门前禁区”这套规则。</li>
-    <li><b>证据边界</b>：新的升级规则来自离线回放和非独立的复核集；critic 在测试集上的效果还在测；单种子、历史测试划分，没有人工评审。</li>
+    <li><b>证据边界</b>：新的升级规则来自离线回放和非独立的复核集；critic 在测试集上只测了论文房型的 174 个评委房；单种子、历史测试划分，没有人工评审。</li>
+    <li><b>GPT 评分</b>：加 critic 后 7.54，仍低于 gpt-6.1-sol 的 8.01；评委和 critic 都是 GPT-6 家族。</li>
     <li><b>下一步</b>：布局反馈驱动的尺寸选择（在合理尺寸候选里按摆放失败来换尺寸），需要 2–3 天的独立实验。</li>
   </ul>
 </section>

@@ -1,0 +1,15 @@
+arm,stratum,selected,success,failed,functionality_count,functionality_missing,functionality_mean,layout_count,layout_missing,layout_mean,aesthetics_count,aesthetics_missing,aesthetics_mean,overall_count,overall_missing,overall_mean
+SC,,174,173,1,173,1,7.410404624277457,173,1,8.052023121387283,173,1,7.173410404624278,173,1,7.539306358381503
+S,,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,IL3D_3dfront/bedroom,29,29,0,29,0,7.0,29,0,7.655172413793103,29,0,6.9655172413793105,29,0,7.2
+S,IL3D_3dfront/bedroom,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,IL3D_3dfront/living room,29,28,1,28,1,6.714285714285714,28,1,7.107142857142857,28,1,6.678571428571429,28,1,6.825
+S,IL3D_3dfront/living room,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,OptiScene_holodeck/bathroom,29,29,0,29,0,8.0,29,0,8.551724137931034,29,0,7.655172413793103,29,0,8.068965517241379
+S,OptiScene_holodeck/bathroom,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,OptiScene_holodeck/bedroom,29,29,0,29,0,8.206896551724139,29,0,8.620689655172415,29,0,7.655172413793103,29,0,8.16551724137931
+S,OptiScene_holodeck/bedroom,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,OptiScene_holodeck/kitchen,29,29,0,29,0,7.172413793103448,29,0,8.137931034482758,29,0,6.9655172413793105,29,0,7.417241379310345
+S,OptiScene_holodeck/kitchen,0,0,0,0,0,,0,0,,0,0,,0,0,
+SC,OptiScene_holodeck/living room,29,29,0,29,0,7.344827586206897,29,0,8.206896551724139,29,0,7.103448275862069,29,0,7.5344827586206895
+S,OptiScene_holodeck/living room,0,0,0,0,0,,0,0,,0,0,,0,0,
