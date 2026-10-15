@@ -1,0 +1,49 @@
+{
+ "status": "A021_PROBE_COMPLETE",
+ "rooms": 100,
+ "room_rule": "lowest sha256('a021-probe:' + uid)",
+ "rates": {
+  "hf": {
+   "complete": 0.99,
+   "geometry_success": 0.43
+  },
+  "vllm": {
+   "complete": 0.99,
+   "geometry_success": 0.43
+  }
+ },
+ "checker_success_vllm_minus_hf": {
+  "estimate": 0.0,
+  "ci95": [
+   -0.06,
+   0.058823529411764705
+  ],
+  "p": 1.0,
+  "n": 100,
+  "warnings": [
+   "singleton_source_signature_strata"
+  ]
+ },
+ "complete_vllm_minus_hf": {
+  "estimate": 0.0,
+  "ci95": [
+   0.0,
+   0.0
+  ],
+  "p": 1.0,
+  "n": 100,
+  "warnings": [
+   "singleton_source_signature_strata"
+  ]
+ },
+ "identical_outputs": {
+  "count": 19,
+  "share": 0.19
+ },
+ "receipts": {
+  "hf": "ac3af48cb4ff21da0e24181abc6f7df6dae6d057d32d5196b74bbe9116ff9fe4",
+  "vllm": "8eedf5bf9929f1d117c927d3a24a2438d8784953f2ba5e47a627bed8563f8fec"
+ },
+ "data_manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a",
+ "merged_copy": "not listed (needs an 011-section-5 check)"
+}
