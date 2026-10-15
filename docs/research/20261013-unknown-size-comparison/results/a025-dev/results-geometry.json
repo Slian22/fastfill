@@ -1,0 +1,170 @@
+{
+  "protocol": "amendment-025-dev",
+  "rooms": 246,
+  "per_family": {
+    "bedroom": 31,
+    "living": 31,
+    "dining": 19,
+    "kitchen": 31,
+    "bathroom": 31,
+    "study_office": 31,
+    "meeting": 4,
+    "balcony": 8,
+    "laundry_utility": 3,
+    "garage": 2,
+    "circulation": 4,
+    "storage_closet": 6,
+    "public_commercial": 8,
+    "other": 9,
+    "none": 28
+  },
+  "b_manifest_sha256": "227a453112097aff2de7306a0b3d35f34e35834b4489c69e018f76b4e437a887",
+  "c_manifest_sha256": "f7051fe3b35d86108bea198c7b0c89ebba68f81755cbe622b992e446428f547b",
+  "c_round": 2,
+  "rates": {
+    "B": {
+      "geometry_success": 0.7764227642276422,
+      "accepted": 0.3902439024390244,
+      "admitted_no_required": 0.7520325203252033,
+      "oor": 0.100222989445067
+    },
+    "C": {
+      "geometry_success": 0.9552845528455285,
+      "accepted": 0.6951219512195121,
+      "admitted_no_required": 0.8983739837398373,
+      "oor": 0.06644761834126961
+    }
+  },
+  "contrast_c_minus_b": {
+    "geometry_success": {
+      "estimate": 0.17886178861788618,
+      "ci95": [
+        0.1276553361023989,
+        0.23076923076923078
+      ],
+      "p": 0.0,
+      "n": 246,
+      "warnings": [
+        "singleton_source_signature_strata"
+      ]
+    },
+    "accepted": {
+      "estimate": 0.3048780487804878,
+      "ci95": [
+        0.24997641509433963,
+        0.3625
+      ],
+      "p": 0.0,
+      "n": 246,
+      "warnings": [
+        "singleton_source_signature_strata"
+      ]
+    },
+    "admitted_no_required": {
+      "estimate": 0.14634146341463414,
+      "ci95": [
+        0.10276679841897234,
+        0.19087600782646827
+      ],
+      "p": 0.0,
+      "n": 246,
+      "warnings": [
+        "singleton_source_signature_strata"
+      ]
+    },
+    "oor": {
+      "estimate": -0.033775371103797386,
+      "ci95": [
+        -0.04197070908794222,
+        -0.025658647323435497
+      ],
+      "p": 0.0,
+      "n": 246,
+      "warnings": [
+        "singleton_source_signature_strata"
+      ]
+    }
+  },
+  "bootstrap": {
+    "draws": 2000,
+    "seed": 42,
+    "cluster": "house group"
+  },
+  "displacement_moved_objects_m": {
+    "n": 1076,
+    "median": 0.9810378143368752,
+    "p95": 6.522225943759167
+  },
+  "moved_objects": 1076,
+  "yaw_changed_objects": 274,
+  "rooms_edited": 217,
+  "share_rooms_edited": 0.8821138211382114,
+  "invariants": {
+    "count": 0,
+    "id": 0,
+    "category": 0,
+    "size": 0,
+    "parent": 0
+  },
+  "critic": {
+    "1": {
+      "round": 1,
+      "cases": 246,
+      "calls": {
+        "answered": 246
+      },
+      "answer_errors": {},
+      "edits_valid": 773,
+      "edits_rejected": {},
+      "edit_sets": 217,
+      "edit_sets_accepted": 217,
+      "edit_sets_unchanged": 0,
+      "set_reject_reasons": {},
+      "s1_timed_out": 0,
+      "stops": {
+        "no_valid_edits": 29,
+        "scores_ge_8": 15
+      },
+      "next_round_rooms": 202
+    },
+    "2": {
+      "round": 2,
+      "cases": 202,
+      "calls": {
+        "answered": 202
+      },
+      "answer_errors": {},
+      "edits_valid": 466,
+      "edits_rejected": {},
+      "edit_sets": 142,
+      "edit_sets_accepted": 138,
+      "edit_sets_unchanged": 1,
+      "set_reject_reasons": {
+        "admission_worse": 4
+      },
+      "s1_timed_out": 0,
+      "stops": {
+        "edit_set_rejected": 4,
+        "max_rounds": 109,
+        "no_valid_edits": 60,
+        "scores_ge_8": 29
+      },
+      "next_round_rooms": 0
+    }
+  },
+  "judge": null,
+  "adoption": {
+    "rules": {
+      "judge_ci_lower_gt_0": null,
+      "strict_admission_ge_-0.005": true,
+      "checker_ge_-0.005": true
+    },
+    "adopted": null
+  },
+  "code_sha256": {
+    "critic_025.py": "72f005787d6a41b20504ffd046ae22284dda488e6d1e37edcdd8be670c94f0ba",
+    "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+    "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+    "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+  }
+}
