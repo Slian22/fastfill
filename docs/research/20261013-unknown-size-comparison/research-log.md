@@ -246,3 +246,10 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
   - (5) 交付包 7434565 取消，换为 7443172：模型卡推荐 --escalate-on strict，并注明卡内实测数字全部来自旧 checker 规则；全测试 ESC-CHECK 结果不改标。
 - 13:20 UTC：**022 全测试（8,647 房，O2 升级、旧 checker 触发、按附录 B 分 4 片）完成**：检查器 .443 → .742 → .890，严格准入 .216 → .291 → .343，required={} .533 → .637 → .667，OOR .256 → .153 → .108；升级 2,229 间（25.8%），O2 修好 1,278，最终来源 placer 7,348 / o2 1,297 / fallback 2，空输出 0，改尺寸物体 0。GT：检查器 .723、严格 .295。按物体数：≤20 件 .933/.382，21–50 件 .710/.161，>50 件 .559/.110。交付包 7443172 完成（results/delivery-022-final；模型卡推荐 --escalate-on strict，并注明实测数字来自旧规则）。修订 024 臂 S：prepare 完成（1,005 附着，场景与 run 002 一致），本机渲染 → FID(A+S) → 网格碰撞已启动。正式评委 7443249 运行中。
 - 13:55 UTC：**025 critic 在 dev 上按规则采纳。** 正式评委 7443249（含 id→类别映射，gpt-6-astra 高推理）：490/492 成功（exit 1 为 2 例失败，按设计），244/246 房两臂都有评分（覆盖 99% ≥ 90%）。（功能+布局）/2：B 5.91 → C 7.33，+1.40 [+1.24, +1.56]；检查器 +.179、严格 +.305 ≥ −.005 → 四条全满足。evaluate 已强制覆盖率和正式提示词绑定（拒绝无类别的诊断评分；ef22ba07a 之前的 0a7… 提交）。结果入库 results/a025-dev。§3 测试应用：critic_025 rows-system 用交付系统测试输出建 174 个评委房的第 0 轮（S 检查器 168/174、接受 104/174，与系统自身判定 174/174 一致），critic 第 1 轮 7444956（≤174）。外部复核第三份（agency-022-delivery-025-followup）待处理：模型卡正文旧触发描述、交付包组装状态、措辞边界。
+- 13:47 UTC：第三份外部复核（evidence/agency-022-delivery-025-followup-20261015.md）逐条核对后接受。
+  - (1) 数值正确：检查器 7,697/8,647，严格 2,970/8,647；57% 是升级房间里检查器被修好的比例。
+  - (2) 覆盖率和正式提示词绑定已写进代码（evaluate 拒绝无类别的诊断评分）。
+  - (3) 交付包原先只是 MANIFEST_READY → 模型卡正文改为推荐 strict 触发，表格标注为旧 checker 触发，新增 critic 第 5 步。test 范围改称“本地 O2 升级，无 GPT API 调用”。代码闭包纳入 critic 模块；为此 critic_025 改为渲染时才导入 matplotlib（服务器环境不装新包）。
+  - 交付包 v2 在服务器生成并组装（main-7c57aba8c）：RUN/system-022/final/package-v2 → delivery-v2，DELIVERY_PACKAGE_ASSEMBLED，76 个文件逐一 sha256 校验，1.1 GB；正在拉到 harddisk delivery-final。
+  - (4) 措辞：检查器/严格准入高于 GT 只表示这套规则下通过率更高，不等于实际布局质量超过真实布局。
+  - 025 §3 测试 critic 第 1 轮 7444956：55/174；臂 S 渲染 929/2,010 张。
