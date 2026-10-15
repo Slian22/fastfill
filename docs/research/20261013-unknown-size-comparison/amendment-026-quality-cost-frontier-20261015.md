@@ -63,7 +63,7 @@ No policy is adopted here. The delivered system stays as locked in 022.
 
 The frontier answers one question: how much big-model use is needed to match "big model for every room" on each metric, and on which room families local-first is enough.
 
-## Addendum A (locked 2026-10-15 ~11:50 UTC, before any scope-C output exists): scope C, family-stratified rooms
+## Addendum A (locked 2026-10-15 ~11:20 UTC, before any scope-C output exists): scope C, family-stratified rooms
 
 **Why.** The user pointed out that the 300 pilot rooms of scope A are dominated by bedrooms and living rooms (143 + 50) from 2 sources, and asked for a sample with more room types.
 
