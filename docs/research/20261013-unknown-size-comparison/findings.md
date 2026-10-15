@@ -172,6 +172,19 @@ Every system gets P's input (train-prior sizes, enforced); rates over all 300 re
   - **Ranking stability.** By strict admission, Kendall τ-b between the size-free and size-fixed rankings is +0.73 [+0.47, +0.87] for harness raw and +0.87 [+0.60, +0.97] for raw raw. The ranking barely changes when sizes are fixed.
   - **Pre-specified flips.** P − O2 under fixed sizes, harness, is −0.273 [−0.329, −0.219] on admission raw and −0.097 [−0.133, −0.059] on the checker after S1. P − L under fixed sizes is −0.310 [−0.373, −0.247].
   - **One exception.** On admission with required = {} after S1, P (0.803) ranks second, behind L (0.850) and ahead of O2 (0.767), O6, O4 and O7.
+- **Full cohort, size-fixed** (1,454 rooms, open models, harness; `results/compare-016-full-v1`).
+
+  | System | Checker, raw → S1 | Strict admission, raw → S1 | required={} admission, raw → S1 |
+  |---|---|---|---|
+  | P | 0.519 → 0.826 | 0.354 → 0.472 | 0.718 → 0.798 |
+  | O2 | 0.918 → 0.928 | 0.667 → 0.701 | 0.750 → 0.801 |
+  | O6 | 0.756 → 0.883 | 0.527 → 0.620 | 0.648 → 0.771 |
+  | O4 | 0.653 → 0.853 | 0.457 → 0.567 | 0.634 → 0.741 |
+  | O7 | 0.700 → 0.812 | 0.507 → 0.581 | 0.611 → 0.697 |
+
+  - Kendall τ-b between the size-free and size-fixed rankings is +0.80 in every variant, so the ranking does not depend on who chooses the sizes.
+  - After S1, P matches O2 and leads O6, O4 and O7 on required={} admission.
+  - Single-shot, P is last.
 
 ## Mesh-level collisions on rendered rooms (amendment 019; 1,005 paper-strata rooms; EXPLORATORY)
 
