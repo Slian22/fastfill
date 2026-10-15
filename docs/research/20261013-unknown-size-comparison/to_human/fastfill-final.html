@@ -138,6 +138,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ours"><td>交付系统（27B + S1 + 本地 O2，旧检查器触发）</td><td>22.8</td><td>0.0007</td><td>0.026</td><td>0.775</td><td>6.83（173）</td></tr>
       <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td>6.58（173）</td></tr>
       <tr><td>旧 8B 模型 P（单次）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15（172）</td></tr>
+      <tr><td>旧 8B 联合尺寸模型 J（单次）</td><td>22.3</td><td>0.0004</td><td>0.048</td><td>0.422</td><td>6.28（171）</td></tr>
       <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01（171）</td></tr>
       <tr><td>O2（998 房）</td><td>33.7</td><td>0.0095</td><td>0.008</td><td>0.976</td><td>—</td></tr>
       <tr><td>O6</td><td>34.4</td><td>0.0103</td><td>0.008</td><td>0.896</td><td>6.84（170）</td></tr>
@@ -145,7 +146,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ref"><td>GT</td><td>—</td><td>—</td><td>0.026</td><td>0.797</td><td>—</td></tr>
     </tbody>
   </table></div>
-  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 总分（overall，含美观；表 3 用的是（功能+布局）/2，所以交付系统在表 3 是 6.96）：从同一批 174 个房间里选，括号里是实际评到的房间数；评委 gpt-6-astra（reasoning high），Blender 渲染，各行同一评委、同一提示词；critic 行只在这 174 房上渲染，所以没有 FID 和网格碰撞。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
+  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间；同一人群里旧 J 的 FID（22.3）比交付系统（22.8）还低，所以不能说交付系统 FID 最好，只能说我们的模型都明显好于各 LLM 代理（32–40）。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 总分（overall，含美观；表 3 用的是（功能+布局）/2，所以交付系统在表 3 是 6.96）：从同一批 174 个房间里选，括号里是实际评到的房间数；评委 gpt-6-astra（reasoning high），Blender 渲染，各行同一评委、同一提示词；critic 行只在这 174 房上渲染，所以没有 FID 和网格碰撞。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
 </section>
 
 <section>
@@ -165,7 +166,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   <h2>我们的做法和发现</h2>
   <ol>
     <li><b>本地模型和大模型互补。</b>先用本地 27B + S1，再把检查器或严格准入不过的房间交给大模型，取两者中更好的。这样比每个房间都交给大模型的严格准入和 required={} 更高（严格准入 +0.02~+0.03；pilot 上 OOR 反而更差），只用约 2/3 的输入 token（探索性，离线回放）。微调的作用用消融单独测过：把本地模型换成同一底座、不微调、不思考的版本，同样的 S1 和选择规则下，它要把 84–86% 的房间交给大模型（27B 只需 55–56%），质量还更低；配对差（27B − 未微调）：升级比例 −0.28~−0.31，严格准入 +0.017~+0.032，required={} +0.023~+0.124（离线回放，探索性；<code>results/frontier-026-ablation-o2nt</code>）。</li>
-    <li><b>尺寸和摆放分开。</b>尺寸用数据统计，模型只学放在哪，输出的家具都是正常大小。代价是摆放更难：真实布局换成先验尺寸后，检查器也只有 0.425。</li>
+    <li><b>尺寸和摆放分开。</b>尺寸用训练集先验估计（不是每件家具的真实尺寸：与标注相比 log MAE 0.267，足迹偏差 −0.004），模型只学放在哪，不会像 LLM 那样把家具整体缩小。代价是摆放更难：真实布局换成先验尺寸后，检查器也只有 0.425。</li>
     <li><b>受限的 critic 修复。</b>参考 SceneSmith，但只允许移动、旋转、靠墙、朝向，并加了确定性复核。dev 上评委分数和几何都显著提高。</li>
     <li><b>确定性修复 S1。</b>不用 GPU 和 API，全测试检查器 0.443 → 0.742。</li>
     <li><b>不思考的 27B 学生。</b>同一底座不思考时只有 0.06–0.08；微调后在同输入队列上 0.556（全测试 0.443），但没追上 O2 长思考的单次水平（同一队列 0.787）。</li>
