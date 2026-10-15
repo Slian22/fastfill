@@ -77,23 +77,33 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   <div class="tiles">
     <div class="tile"><b class="good">−0.02</b><span>我们的足迹尺寸偏差 B（0 = 与标注一致）。所有 LLM 代理为 −0.18 到 −0.45，即家具平均缩小 16–35%。</span></div>
     <div class="tile"><b class="good">24.0</b><span>FID（越低越真实），1,005 个论文房型房间。gpt-6.1-sol 为 32.1，开源模型 33.7–40.4。</span></div>
-    <div class="tile"><b>0.52 → 0.83</b><span>单次摆放 → 加 S1 修复后的检查器通过率（1,454 房，给定真实尺寸）。</span></div>
-    <div class="tile"><b class="pending">待测</b><span>交付系统（含升级）的检查器通过率和 API 调用房间占比。</span></div>
+    <div class="tile"><b class="good">0.993</b><span>交付系统检查器通过率（1,454 房同输入队列）。只有 14.6% 的房间调用了 API。</span></div>
+    <div class="tile"><b>0.556 → 0.854</b><span>27B 单次摆放 → 加 S1 修复（同一队列，不用 API）。</span></div>
   </div>
 </section>
 
 <section>
   <h2>表 1　交付系统逐级效果</h2>
   <div class="frame"><table>
-    <thead><tr><th>阶段</th><th>检查器通过率</th><th>严格准入</th><th>准入（required = {}）</th><th>调用 API 的房间</th></tr></thead>
+    <thead><tr><th>阶段（1,454 房队列）</th><th>检查器通过率</th><th>严格准入</th><th>准入（required = {}）</th><th>OOR</th><th>调用 API 的房间</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>布局模型单次</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td>0</td></tr>
-      <tr class="ours"><td>+ S1 修复</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td>0</td></tr>
-      <tr class="ours"><td>+ 升级（完整系统）</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td><td class="pending">待测</td></tr>
-      <tr class="ref"><td>GT（真实布局，参考）</td><td>0.725</td><td>0.448</td><td>0.758</td><td>—</td></tr>
+      <tr class="ours"><td>27B 单次</td><td>0.556</td><td>0.349</td><td>0.765</td><td>0.165</td><td>0</td></tr>
+      <tr class="ours"><td>+ S1 修复</td><td>0.854</td><td>0.453</td><td>0.820</td><td>0.083</td><td>0</td></tr>
+      <tr class="ours"><td>+ 升级（完整系统）</td><td class="good">0.993</td><td>0.520</td><td>0.854</td><td>0.056</td><td>212（14.6%）</td></tr>
+      <tr class="ref"><td>GT（真实布局，参考）</td><td>0.725</td><td>0.448</td><td>0.758</td><td>—</td><td>—</td></tr>
     </tbody>
   </table></div>
-  <p class="note">1,454 房同输入队列，升级用 gpt-6.1-sol 再到 O2；全部 8,647 个测试房只用免费的 O2 升级（修订 022 §2）。GT 也只有 44.8% 过严格准入：这套规则要求每类家具都能从每扇门走到，真实布局大多不满足。</p>
+  <div class="frame"><table>
+    <thead><tr><th>阶段（全部 8,647 个测试房）</th><th>检查器通过率</th><th>严格准入</th><th>升级方式</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td>27B 单次</td><td>0.443</td><td>0.216</td><td>—</td></tr>
+      <tr class="ours"><td>+ S1 修复</td><td>0.742</td><td>0.291</td><td>—</td></tr>
+      <tr class="ours"><td>+ 升级（只用免费的 O2）</td><td class="pending">待测</td><td class="pending">待测</td><td>O2，约 2,200 房</td></tr>
+      <tr class="ref"><td>旧模型 R（rpo-dpo1）单次 → S1</td><td>0.398 → 0.701</td><td>0.200 → 0.288</td><td>—</td></tr>
+      <tr class="ref"><td>GT</td><td>0.723</td><td>0.295</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">队列上的升级：212 房先交给 gpt-6.1-sol（共 225 次调用，197 房修好），剩下 15 房交给开源 O2（修好 5 房）。最终 1,247 房用的是我们自己模型的输出。升级时尺寸被锁死，改动尺寸的物体数为 0；没有一个房间返回空输出。严格准入要求每类家具都能从每扇门走到，真实布局（GT）也只有 44.8%（全测试 29.5%）满足。配对差（房屋连通组 bootstrap）：S1 带来 +0.298 [+0.274, +0.320]，升级再带来 +0.139 [+0.123, +0.156]。来源：<code>results/system-022-cohort</code>、<code>results/a021-test</code>。</p>
 </section>
 
 <section>
@@ -101,7 +111,9 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
   <div class="frame"><table>
     <thead><tr><th>系统</th><th>检查器 单次 → S1</th><th>严格准入 单次 → S1</th><th>准入 required = {} 单次 → S1</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>我们 P（rpo-dpo1，8B）</td><td>0.519 → 0.826</td><td>0.354 → 0.472</td><td>0.718 → 0.798</td></tr>
+      <tr class="ours"><td>我们 27B（交付）</td><td>0.556 → 0.854</td><td>0.349 → 0.453</td><td>0.765 → 0.820</td></tr>
+      <tr class="ours"><td>我们完整系统（+ 升级，用 API）</td><td>0.993</td><td>0.520</td><td>0.854</td></tr>
+      <tr><td>我们旧模型 P（rpo-dpo1，8B）</td><td>0.519 → 0.826</td><td>0.354 → 0.472</td><td>0.718 → 0.798</td></tr>
       <tr><td>gpt-6.1-sol（L）*</td><td>0.947 → 0.977</td><td>0.677 → 0.723</td><td>0.787 → 0.850</td></tr>
       <tr><td>Qwen3.8-27B 思考（O2）</td><td>0.918 → 0.928</td><td>0.667 → 0.701</td><td>0.750 → 0.801</td></tr>
       <tr><td>Qwen3.8-Flash-Next（O6）</td><td>0.756 → 0.883</td><td>0.527 → 0.620</td><td>0.648 → 0.771</td></tr>
@@ -110,7 +122,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ref"><td>GT</td><td>0.725</td><td>0.448</td><td>0.758</td></tr>
     </tbody>
   </table></div>
-  <p class="note">* L 只在 300 房 pilot 上跑了尺寸固定版本（API 成本）。开源模型用 harness（最多 3 次尝试）。单次摆放我们明显落后；加 S1 后在 required = {} 准入上与 O2 持平（0.798 vs 0.801），高于 O6、O4、O7。来源：<code>results/compare-016-full-v1</code>、<code>compare-016-pilot-v1</code>。</p>
+  <p class="note">* L 只在 300 房 pilot 上跑了尺寸固定版本（API 成本）。开源模型用 harness（最多 3 次尝试）。单次摆放我们明显落后于 L 和 O2；加 S1 后 27B 在 required = {} 准入上超过 O2（0.820 vs 0.801）。完整系统的检查器通过率是全表最高，required = {} 准入与 L 相当，但严格准入（0.520）仍低于 O2 和 L（0.70 左右）。来源：<code>results/compare-016-full-v1</code>、<code>compare-016-pilot-v1</code>。</p>
 </section>
 
 <section>
