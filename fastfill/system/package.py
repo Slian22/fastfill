@@ -39,7 +39,8 @@ from fastfill.system import evaluate as ev
 from fastfill.system import pipeline as pl
 
 CODE_ROOT = Path(__file__).resolve().parents[2]
-CLOSURE = ('import json, sys; import fastfill.system.cli, fastfill.v2.direct_layout, fastfill.v2.validation; '
+CLOSURE = ('import json, sys; import fastfill.system.cli, fastfill.v2.direct_layout, fastfill.v2.validation, '
+           'fastfill.comparison.critic_025, fastfill.comparison.critic_batch_025, fastfill.comparison.critic_client_025; '
            'print(json.dumps(sorted('
            "m.__file__ for n, m in sys.modules.items() if n.split('.')[0] == 'fastfill' and getattr(m, '__file__', None))))")
 NM = 'not measured'
@@ -230,10 +231,10 @@ def card(v):
     zh_stage = {'raw': '放置器原始', 's1': '+S1', 'system': '+升级'}
     header_zh = ['阶段', '完整率', '检查器成功', '严格准入', 'required={} 准入', 'OOR']
     header_en = ['stage', 'complete', 'checker success', 'strict admission', 'required={} admission', 'OOR']
-    scopes_zh = {'cohort': '代理队列（含 API 访问的系统：gpt-6.1-sol 升级，再 O2）', 'test': '全部测试房间（仅 O2 免费升级的系统）',
+    scopes_zh = {'cohort': '代理队列（含 API 访问的系统：gpt-6.1-sol 升级，再 O2）', 'test': '全部测试房间（本地 O2 升级，无 GPT API 调用；旧 checker 触发）',
                  'apply_012': '全部测试房间，修订 012 §4（R 原始 / +S1，无升级）'}
     scopes_en = {'cohort': 'agent cohort (system with API access: gpt-6.1-sol escalation, then O2)',
-                 'test': 'all test rooms (system with free O2 escalation only)',
+                 'test': 'all test rooms (local O2 escalation, no GPT API call; earlier checker trigger)',
                  'apply_012': 'all test rooms, amendment 012 §4 (R raw / +S1, no escalation)'}
 
     def esc_line(scope, zh):
@@ -259,9 +260,13 @@ def card(v):
                 else f"{p['training_base']['path']}（公开基座，不随包复制") + f"，sha256 {_f(p['training_base']['sha256'])}）"
              f"+ adapter（placer/adapter，sha256 {p['adapter']['sha256']}）。",
              f"3. S1：确定性最小位移修复（max_trials {v['s1']['max_trials']}，每间 {v['s1']['time_limit']:.0f} 秒）。",
-             f"4. 升级（只对 S1 后未完成或检查器失败的房间）：{esc['api_model']} 固定尺寸（一次回答 + 至多一轮修复）→ "
-             f"{esc['o2_model']} 固定尺寸 → 最佳候选。API 上限：≤ {esc['api_cap_rooms']} 间 × 2 次 = {esc['api_cap_calls']} 次调用；"
-             f"LLM 代理总上限 {esc['llm_agent_global_cap']}。永不返回空结果、永不丢房间。", '',
+             f"4. 升级：推荐 --escalate-on strict，即 S1 后未完成、检查器失败或严格准入失败的房间都升级（修订 026 附录 B，探索性采纳；"
+             f"最佳候选按 检查器 > 严格准入 > required={{}} 排序）。本卡下表的实测数字用的是旧的 checker 触发（只升级未完成或检查器失败的房间）。"
+             f"升级顺序：{esc['api_model']} 固定尺寸（一次回答 + 至多一轮修复）→ {esc['o2_model']} 固定尺寸 → 最佳候选。"
+             f"API 上限（--api-max-rooms / --api-cap）需按批量设置：strict 触发下约 55–65% 的房间会升级。永不返回空结果、永不丢房间。",
+             "5. critic 修复（可选后处理，修订 025，dev 上按预注册规则采纳）：gpt-6.1-sol 看带 id 与朝向箭头的盒子视图，给出最多 5 条受限编辑"
+             "（移动、旋转、靠墙、朝向某物；不增删、不改尺寸、类别和父子关系），每组编辑后重跑 S1 并复核（检查器计数不变差、严格准入不由过变不过），最多 2 轮。"
+             "dev 246 房：评委（功能+布局）/2 +1.40 [+1.24, +1.56]，检查器 +0.18，严格准入 +0.30；代码 code/fastfill/comparison/critic_025.py。", '',
              '**实测结果。** 每个数字来自已校验的 results.json；缺失写 not measured。比率的分母为全部请求。', '']
     for scope in ('cohort', 'test', 'apply_012'):
         lines += [f'{scopes_zh[scope]}：', '', *delivery._table(header_zh, _rows(m.get(scope), zh_stage))]
@@ -286,10 +291,17 @@ def card(v):
               f"{_f(p['training_base']['sha256'])}) + adapter (placer/adapter, sha256 {p['adapter']['sha256']}).",
               f"3. S1: deterministic minimum-displacement repair (max_trials {v['s1']['max_trials']}, "
               f"{v['s1']['time_limit']:.0f} s per room).",
-              f"4. Escalation (only rooms incomplete or failing the checker after S1): {esc['api_model']} size-fixed (one "
-              f"answer + at most one repair round) -> {esc['o2_model']} size-fixed -> best candidate. API cap: <= "
-              f"{esc['api_cap_rooms']} rooms x 2 = {esc['api_cap_calls']} calls; LLM-agent total cap "
-              f"{esc['llm_agent_global_cap']}. Never empty, never drops a room.", '',
+              f"4. Escalation: recommended --escalate-on strict, i.e. rooms incomplete, failing the checker or failing strict "
+              f"admission after S1 (amendment 026 addendum B, exploratory adoption; best candidate ranked checker > strict > "
+              f"required={{}}). The measured tables below used the earlier checker trigger. Order: {esc['api_model']} size-fixed "
+              f"(one answer + at most one repair round) -> {esc['o2_model']} size-fixed -> best candidate. Set --api-max-rooms / "
+              f"--api-cap per batch: about 55-65% of rooms escalate under the strict trigger. Never empty, never drops a room.",
+              "5. Critic repair (optional post-processing, amendment 025, adopted on dev by its pre-registered rule): gpt-6.1-sol "
+              "sees box views with ids and facing arrows and returns at most 5 constrained edits (move, rotate, against_wall, "
+              "face; no add/remove, sizes, categories and parents fixed); after each edit set S1 reruns and a re-check keeps it "
+              "only if the checker counts are not worse and strict admission does not go pass->fail; at most 2 rounds. Dev, 246 "
+              "rooms: judge (functionality+layout)/2 +1.40 [+1.24, +1.56], checker +0.18, strict admission +0.30; code "
+              "code/fastfill/comparison/critic_025.py.", '',
               '**Measured.** Every number comes from a verified results.json; missing ones read not measured. Rates use '
               'every request as the denominator.', '']
     for scope in ('cohort', 'test', 'apply_012'):
