@@ -69,6 +69,21 @@ All test inference is measured. Delivered model: **P = rpo-dpo1** (amendment 010
   - With S1, P beats O3, O1a and O1b. It trails L, O2, O6 and O4. Versus O7 the difference is small: −0.028 [−0.054, −0.001] for harness and −0.016 [−0.042, +0.012] for raw.
   - **Every agent that beats P also beats GT itself (0.448) while shrinking furniture by 16–29 % in footprint (B −0.18 to −0.35).** Under self-chosen sizes, downstream acceptance rewards undersizing. This is the size confound that amendment 016 tests with size substitution and size-fixed regeneration; no ranking claim is made from these rows.
 
+## O2 without thinking (amendment 021 §1.4 reference rows; descriptive)
+
+Qwen3.8-27B zero-shot with `enable_thinking = False`, on P's input:
+
+| Slice | Complete | Checker (harness) |
+|---|---|---|
+| dev-select | 0.433 | 0.082 |
+| confirm | 0.386 | 0.083 |
+| cohort | 0.405 | 0.063 |
+
+- Reasoning violations (rooms counted as failures): 0 on dev-select, 3 on confirm, 1 on cohort.
+- With thinking, O2 single-shot reaches 0.793 on the pilot. Its zero-shot skill therefore comes from long reasoning (~11k tokens per answer).
+- Without thinking, most failures are format or completeness failures, as with O1a.
+- Whether a fine-tuned 27B places well without thinking is what amendment 021's Arm A measures.
+
 ## On-policy DPO2 (amendment 013; dev-select, 600 rooms, HF exact policy)
 
 - op-dpo2-e1 is adopted. Against rpo-dpo1:
