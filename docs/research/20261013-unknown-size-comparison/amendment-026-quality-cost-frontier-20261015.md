@@ -101,3 +101,20 @@ The frontier answers one question: how much big-model use is needed to match "bi
 **If the rule fails,** the delivered method keeps the amendment-022 ESC-CHECK rule, and the frontier stays descriptive.
 
 **Scope of the change.** It replaces only the escalation trigger in 022 §1.4 (checker failure → checker or strict-admission failure). The best-candidate choice gains strict and then required = {} as the second and third keys, as in this amendment's §2. Nothing else changes.
+
+## Addendum C (locked 2026-10-15 ~15:15 UTC, before any number of this ablation exists): is the fine-tuning needed?
+
+**Trigger.** Two reviews (`evidence/agency-026-025-review-20261015.md` §1 and the final report audit) noted that the local-first gain cannot be credited to fine-tuning without a "same base, untuned" control.
+
+**Ablation.** Scopes A (300 pilot rooms, big model = gpt-6.1-sol) and B (1,454 cohort rooms, big model = O2 raw and harness) are recomputed with one change: the local arm is the untuned same base instead of the 27B.
+- **Local arm:** O2nt (Qwen3.8-27B, thinking off, zero-shot, P input with B2 enforcement; amendment 021 §1.4), its raw single attempt + S1. These are the existing outputs in `RUN/a021/o2nt/cohort`.
+- **Pipeline:** `evaluate_llm --arm placement`, then `output_repair` at the amendment-012 settings, with S1 at the same settings as the 27B.
+- **Unchanged:** the policies (LOCAL, ESC-CHECK, ESC-STRICT, BIG), the choice rule, the big-model answers and the bootstrap.
+
+**Reported**
+- Per scope, policy and local arm (27B vs O2nt): checker, strict admission, required = {}, the share escalated and the share where the big answer is used.
+- The difference 27B − O2nt per policy (paired, house-cluster bootstrap, 2,000 draws, seed 42).
+
+**Reading.** No decision. If O2nt + S1 + ESC-STRICT matches the 27B version at a similar escalation share, the fine-tuning adds little to the hybrid. If it needs much more escalation or reaches lower quality, the fine-tuning is what makes local-first work.
+
+**Compute.** CPU only; no API and no GPU.
