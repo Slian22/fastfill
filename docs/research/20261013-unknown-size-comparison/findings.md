@@ -275,7 +275,12 @@ Size log MAE is 0.239 and B −0.022 at every stage.
 **Test application, 174 judge rooms** (delivered system output S → S + critic).
 - Strict admission 0.598 → 0.891, +0.293 [+0.222, +0.365].
 - Checker 0.966 → 0.983; required = {} 0.885 → 0.960; OOR 0.033 → 0.016.
-- The test judge score is pending.
+- Judge on test (gpt-6-astra high, Blender renders, 174 rooms), overall score:
+  - 27B raw 6.58;
+  - delivered system 6.83;
+  - delivered system + critic 7.54.
+  - Same judge and rooms: J 6.28, P 6.15, L 8.01, O6 6.84.
+  - SC − S, (functionality + layout) / 2: +0.77 [+0.60, +0.95], 173 pairs.
 
 **Cost and caveats**
 - About 1.8 gpt-6.1-sol image calls and about 16k input tokens per room.
@@ -294,7 +299,11 @@ Run-002 rendering is reproduced exactly (pixel-identical re-render; GT and P mes
 | OOR | 0.037 | P 0.030, GT 0.026 |
 | Checker on these rooms | 0.635 | P 0.599 |
 
-The delivered system's arm S and the judge for arms A and S follow the test run.
+**Delivered system (arm S, test output) on the same rooms**
+- FID 22.79 and KID 0.0007.
+- Mesh collision-free 0.775 (GT 0.797).
+- OOR 0.026 (GT 0.026).
+- Judge score 6.83 (27B raw: 6.58).
 
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
