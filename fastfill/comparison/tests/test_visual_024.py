@@ -204,3 +204,24 @@ def test_bundle_is_run_002_format_for_its_judge_rooms_and_passes_judge_batch_pre
     assert len(rows) == 8
     with pytest.raises(FileExistsError):
         v.bundle(world.out)
+
+
+def test_bundle_one_arm_paired_with_s_is_opt_in_and_runs_through_judge_batch(world, monkeypatch):
+    from fastfill.comparison.tests.test_judge_batch import CLIENT, fake_client
+    rendered(world)
+    for arms, paired in ((['A', 'S'], 'J'), (['A'], 'A')):
+        with pytest.raises(ValueError, match='paired-with'):
+            v.bundle(world.out, arms, paired)
+    assert v.main(['bundle', '--out', str(world.out), '--arm', 'A', '--paired-with', 'S']) == 0
+    dest = world.out / 'bundle-A'
+    manifest = json.loads((dest / 'MANIFEST.json').read_text())
+    assert manifest['judge_batch'] == '--arms A,S --expected-total 4' and manifest['paired_with'] == 'S'
+    assert manifest['counts'] == {'selected': 4, 'api_cases': 3, 'failed': 1}
+    assert {m['arm'] for m in json.loads((dest / 'api-mapping.json').read_text()).values()} == {'A'}
+    calls = []
+    monkeypatch.setattr(judge_batch.subprocess, 'run', fake_client(calls))
+    summary = judge_batch.evaluate(dest, world.h / 'judge-A', CLIENT, max_cases=4, expected_total=4, arms=('A', 'S'))
+    assert len(calls) == 3 and summary['counts']['success'] == 3 and summary['endpoint']['both_complete'] == 0
+    # the default (two-arm) bundle is unchanged: no paired_with, judge_batch takes the arms as they are
+    result = v.bundle(world.out)
+    assert 'paired_with' not in result and result['judge_batch'] == '--arms A,S --expected-total 8'

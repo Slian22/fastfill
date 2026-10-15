@@ -30,6 +30,10 @@ Amendment 023 options (absent = the pinned run-002 client's exact payload):
 the env file); --reasoning-effort adds {"reasoning": {"effort": ...}} and
 raises max_output_tokens to 32768 because reasoning tokens count against it.
 
+Amendment 025: Config.instructions/Config.parse (evaluate's instructions/parse)
+let critic_client_025 reuse this client with its own system prompt and output
+parser; the parsed object is stored under "scores". Defaults change nothing.
+
 Content hashes cover scene ID and ordered verified artifact bytes (via SHA-256).
 Request hashes additionally cover endpoint, exact model, instructions and full
 payload, including image data URLs. Credentials, artifact paths, and timeout are
@@ -91,6 +95,8 @@ class Config:
     base_url: str
     model: str
     reasoning_effort: str = ""
+    instructions: str = INSTRUCTIONS
+    parse: object = None  # None = parse_scores
 
 
 @dataclass
@@ -285,7 +291,7 @@ def prepare_case(case, root, config):
         content.append({"type": "input_image", "image_url": "data:image/png;base64,"
                         + base64.b64encode(data).decode("ascii")})
     payload = {"model": config.model, "input": [{"role": "user", "content": content}],
-               "instructions": INSTRUCTIONS, "store": False, "stream": True, "max_output_tokens": 4096}
+               "instructions": config.instructions, "store": False, "stream": True, "max_output_tokens": 4096}
     if config.reasoning_effort:
         payload["reasoning"] = {"effort": config.reasoning_effort}
         payload["max_output_tokens"] = 32768
@@ -492,7 +498,8 @@ def read_record(path, identity):
     return record
 
 
-def reuse_result(attempt_path, result_path, identity):
+def reuse_result(attempt_path, result_path, identity, parse=None):
+    parse = parse or parse_scores
     if not os.path.lexists(attempt_path):
         if os.path.lexists(result_path):
             raise JudgeError("missing_attempt_record")
@@ -509,7 +516,7 @@ def reuse_result(attempt_path, result_path, identity):
             or "error" in result or not isinstance(result.get("raw_final_text"), str)):
         raise JudgeError("invalid_record")
     try:
-        if parse_scores(result["raw_final_text"]) != parse_scores(canonical(result.get("scores"))):
+        if parse(result["raw_final_text"]) != parse(canonical(result.get("scores"))):
             raise JudgeError("invalid_record")
     except (JudgeError, ValueError):
         raise JudgeError("invalid_record") from None
@@ -529,7 +536,7 @@ def call_judge(identity, body, config, timeout):
             if response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "text/event-stream":
                 raise JudgeError("unexpected_content_type")
             read_sse(response, config.model, state)
-            scores = parse_scores(state.raw_final_text)
+            scores = (config.parse or parse_scores)(state.raw_final_text)
     except JudgeError as exc:
         error = str(exc)
     except urllib.error.HTTPError as exc:
@@ -554,14 +561,16 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def evaluate(manifest_path, results_dir, env_file, limit=1, timeout=90, model="", reasoning_effort=""):
+def evaluate(manifest_path, results_dir, env_file, limit=1, timeout=90, model="", reasoning_effort="",
+             instructions=INSTRUCTIONS, parse=None):
     if (type(limit) is not int or limit < 1 or type(timeout) not in (int, float)
             or not math.isfinite(timeout) or timeout <= 0):
         raise JudgeError("invalid_bounds")
     config = load_config(env_file)
     if reasoning_effort not in ("", "low", "medium", "high"):
         raise JudgeError("invalid_reasoning_effort")
-    config = replace(config, model=model or config.model, reasoning_effort=reasoning_effort)
+    config = replace(config, model=model or config.model, reasoning_effort=reasoning_effort,
+                     instructions=instructions, parse=parse)
     manifest_path = Path(manifest_path).expanduser().resolve()
     manifest = load_manifest(manifest_path)
     if manifest["expected_model"] != config.model:
@@ -576,7 +585,7 @@ def evaluate(manifest_path, results_dir, env_file, limit=1, timeout=90, model=""
         raise JudgeError("results_directory_error") from None
     paths = [(results_dir / (sha256(case["id"].encode()) + ".attempt.json"),
               results_dir / (sha256(case["id"].encode()) + ".result.json")) for case in selected]
-    reused = [reuse_result(*pair, identity) for pair, identity in zip(paths, identities)]
+    reused = [reuse_result(*pair, identity, parse) for pair, identity in zip(paths, identities)]
     records = []
     for case, identity, pair, prior in zip(selected, identities, paths, reused):
         if prior is not None:

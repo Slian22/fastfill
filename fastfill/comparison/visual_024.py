@@ -37,7 +37,8 @@ fid      OUT/fid-ARMS: run 002's fid-manifest (absolute paths) plus each arm's p
 mesh     OUT/mesh-ARMS: mesh_collision.run (amendment 019, unchanged: 2 cm voxels, 0.5 cm sampling, tau 125/500/2000,
          500 primary) on run 002's rendered rooms with layouts GT, P (run 002's) and each arm; its system list is
          extended by the arms for that call only. reproduction-019.json: recomputed GT and P rows vs mesh-collision-019.
-bundle   OUT/bundle-ARMS (>= 2 arms, judge_batch needs two): visual_pipeline._api_bundle per arm on run 002's 174 judge
+bundle   OUT/bundle-ARMS (>= 2 arms, judge_batch needs two; or one arm with --paired-with S, judged alone and joined by
+         uid to S's earlier judge records: --arms ARM,S): visual_pipeline._api_bundle per arm on run 002's 174 judge
          rooms (prompt identical to run 002's, checked), merged into one api-bundle + api-mapping.json +
          api-failures.json + MANIFEST.json; judge_batch's own preflight is run on it. On the server:
          judge_batch.py --bundle BUNDLE --output NEW --client CLIENT --arms A,S --max-cases 400 --expected-total 348
@@ -382,12 +383,16 @@ def mesh_arms(out, arms=None, workers=4, limit=None, repeats=2000, mesh_019=None
 
 # ---- bundle ----------------------------------------------------------------------------------------
 
-def bundle(out, arms=None):
-    """Run 002's judge bundle format for its 174 judge rooms x the arms; judge_batch's preflight passes on it."""
+def bundle(out, arms=None, paired_with=None):
+    """Run 002's judge bundle format for its 174 judge rooms x the arms; judge_batch's preflight passes on it.
+    paired_with: one arm alone, its judge records paired by uid with PAIRED_WITH's from an earlier judge run."""
     out = Path(out).resolve()
     arms = _arms(out, arms)
-    if len(arms) < 2:
+    if paired_with is not None and (len(arms) != 1 or paired_with in arms):
+        raise ValueError('--paired-with takes one arm and another label')
+    if len(arms) < 2 and paired_with is None:
         raise ValueError('judge_batch.py needs at least two arms (--arms A,S)')
+    labels = tuple(arms) if paired_with is None else (*arms, paired_with)
     ledgers = {a: list(_rendered(out / a).values()) for a in arms}
     base, config, visual, prep002 = _run002(_base(out, arms))
     dest = out / ('bundle-' + '-'.join(arms))
@@ -426,10 +431,11 @@ def bundle(out, arms=None):
         files = {p.relative_to(stage).as_posix(): render.file_sha256(p) for p in sorted(stage.rglob('*')) if p.is_file()}
         result = {'amendment': '024', 'arms': arms, 'selected_uids': selected, 'provenance': provenance,
                   'counts': {'selected': len(mapping), 'api_cases': len(requests), 'failed': len(failures)},
-                  'judge_batch': f"--arms {','.join(arms)} --expected-total {len(mapping)}"}
+                  'judge_batch': f"--arms {','.join(labels)} --expected-total {len(mapping)}",
+                  **({} if paired_with is None else {'paired_with': paired_with})}
         vp._write(stage / 'MANIFEST.json', {**result, 'files': files})
         client = judge_batch._client(Path(judge_batch.__file__).with_name('server_api_judge.py'))
-        judge_batch._inputs(stage, None, None, client, len(mapping), len(mapping), tuple(arms))
+        judge_batch._inputs(stage, None, None, client, len(mapping), len(mapping), labels)
         _publish(stage, dest)
     return result
 
@@ -462,6 +468,7 @@ def main(argv=None):
     sub.choices['fid'].add_argument('--device', default='cpu')
     sub.choices['fid'].add_argument('--fid-011', type=Path)
     sub.choices['mesh'].add_argument('--mesh-019', type=Path)
+    sub.choices['bundle'].add_argument('--paired-with')
     args = vars(parser.parse_args(argv))
     command = args.pop('command')
     run = {'prepare': prepare, 'render': render_arm, 'fid': fid_arms, 'bundle': bundle,
