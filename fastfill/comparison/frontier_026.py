@@ -357,8 +357,9 @@ def build(args):
     rooms, requests = rows('rooms.jsonl'), rows('placement/requests.jsonl')
     if set(rooms) != want:
         raise ValueError('scope uids outside the test data')
-    local_dir = run / 's1-022' / 'placement-arm'
-    local, local_in = s1_rows(local_dir, 'placement-geometry.jsonl', data_sha, want)
+    # Addendum C: --local-dir/--local-geometry swap the local arm (e.g. the untuned base O2nt + S1); default = 27B.
+    local_dir = Path(args.local_dir) if args.local_dir else run / 's1-022' / 'placement-arm'
+    local, local_in = s1_rows(local_dir, args.local_geometry, data_sha, want)
     inputs, missing, panels = {'data_MANIFEST': data_sha, 'local': local_in}, [], []
     of = lambda uids: {u: rooms[u] for u in uids}
     # A: L size-fixed harness on the pilot rooms (+ SYSTEM-022 check)
@@ -683,6 +684,8 @@ def parse_args(argv=None):
     parser.add_argument('--usage-a', type=Path)
     parser.add_argument('--uids-c', type=Path)
     parser.add_argument('--big-c-dir', type=Path)
+    parser.add_argument('--local-dir', type=Path, help='addendum C: S1 dir of another local arm (default RUN/s1-022/placement-arm)')
+    parser.add_argument('--local-geometry', default='placement-geometry.jsonl', help='its geometry file name')
     parser.add_argument('--usage-c', type=Path)
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--repeats', type=int, default=2000)
