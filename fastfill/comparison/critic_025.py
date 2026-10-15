@@ -632,6 +632,38 @@ def rows(data, arm, out, workers=1):
     return {'status': summary['status'], 'rooms': len(state), 'complete': summary['selection']['complete']}
 
 
+def _initial_s(task):
+    """(S visual row, GT room, request) -> round-0 state row on the delivered system's final layout (section 3)."""
+    x, gt, request = task
+    pred = rep.predicted_room(gt, request['messages'], [])
+    room = {k: pred[k] for k in ('uid', 'source', 'group', 'room_type', 'boundary_type', 'boundary', 'height', 'fixed')}
+    layout = x['raw_layout']
+    return {'uid': x['uid'], 'source': x['source'], 'group': x['group'], 'objects': len(layout), 'room': room,
+            'layout': layout, 'metrics': metrics(room, layout), 'round': 0, 'active': True, 'history': [],
+            'b': {'stage': x.get('stage')}}
+
+
+def rows_system(s_dir, data, out, workers=1):
+    """Amendment 025 section 3: round 0 = arm S (the delivered system's test output, visual_024 arm S) on S's
+    judge rooms (preparation.json selected_uids); the rounds then run exactly as on dev."""
+    s_dir, data, out = Path(s_dir), Path(data), Path(out)
+    if os.path.lexists(out):
+        raise FileExistsError(out)
+    prep = h.strict_json((s_dir / 'preparation.json').read_text())
+    uids = prep['selected_uids']
+    by = {r['uid']: r for r in (h.strict_json(l) for l in (s_dir / 'source' / 'system-geometry.jsonl').read_text()
+                                .splitlines() if l.strip())}
+    _, rooms, requests = A._slice(data)
+    state = r2._map(_initial_s, [(by[u], rooms[u], requests[u]) for u in uids], workers)
+    summary = {'status': 'A025_S_COMPLETE', 'round': 0, 'arm': 'S = delivered system test output (024 arm S)',
+               'selection': {'rooms': len(uids), 'uids': uids, 'from': 'visual_024 S preparation.json selected_uids'},
+               'inputs': {'data_manifest_sha256': h.sha256(data / 'MANIFEST.json'),
+                          's_manifest_sha256': h.sha256(s_dir / 'MANIFEST.json')},
+               's1': S1, 'b_manifest_sha256': None, 'prev_manifest_sha256': None}
+    _publish_state(out, state, summary, workers)
+    return {'status': summary['status'], 'rooms': len(state)}
+
+
 def round_(prev, answers, out, workers=1):
     prev, out = Path(prev), Path(out)
     if os.path.lexists(out):
@@ -796,9 +828,9 @@ def _report(v):
               '失败或无效的 critic 调用不重试、不替换，房间保持未编辑并计入上表。按构造，C 的检查器和严格准入在每个房间都不劣于 B'
               '（编辑集只有在字典序不变差、严格准入不由过变不过时才被接受）。这是 dev 上的探索性结果，不改变任何已报告结果。']
     if v['judge']:
-        lines += ['', '披露：dev 房间无法接入 run-002 的 Blender 管线，judge 看的是 critic 的同款盒子视图（judge_bundle_025，'
-                  'image_source = box_views），物体按冻结检查器标记着色；按构造 C 的检查器结果不劣于 B，'
-                  '这种着色可能使 judge 端点偏向 C。']
+        lines += ['', '披露：dev 房间无法接入 run-002 的 Blender 管线，judge 看的是盒子视图（judge_bundle_025，'
+                  'image_source = box_views）。正式评委的视图为中性配色、无检查器图例，提示词附 id→类别清单（附录 B），'
+                  '无类别的诊断评分不用于采纳。critic（gpt-6.1-sol）与评委（gpt-6-astra）同属 GPT-6 家族，同家族偏好未排除。']
     return '\n'.join(lines) + '\n'
 
 
@@ -809,6 +841,9 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command', required=True)
     step = sub.add_parser('rows')
     for flag in ('data', 'arm', 'out'):
+        step.add_argument('--' + flag, type=Path, required=True)
+    step = sub.add_parser('rows-system')
+    for flag in ('s', 'data', 'out'):
         step.add_argument('--' + flag, type=Path, required=True)
     step = sub.add_parser('round')
     for flag in ('prev', 'answers', 'out'):
@@ -822,6 +857,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.command == 'rows':
         result = rows(args.data, args.arm, args.out, args.workers)
+    elif args.command == 'rows-system':
+        result = rows_system(args.s, args.data, args.out, args.workers)
     elif args.command == 'round':
         result = round_(args.prev, args.answers, args.out, args.workers)
     else:
