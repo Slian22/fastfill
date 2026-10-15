@@ -266,6 +266,25 @@ Size log MAE is 0.239 and B −0.022 at every stage.
 - ESC-STRICT is adopted for the delivered method (026 addendum B) on this exploratory evidence.
 - No full end-to-end test run of the strict trigger exists yet.
 
+## Does the fine-tuning matter? (amendment 026 addendum C; offline replay; `results/frontier-026-ablation-o2nt/`)
+
+**Setup.** The local arm is replaced by the untuned same base, O2nt (Qwen3.8-27B, thinking off, zero-shot) + S1. Policies, big-model answers and selection rule are unchanged.
+
+**Local alone**
+- Scope A, 27B: checker 0.847, strict 0.447.
+- Scope A, O2nt: checker 0.233, strict 0.160.
+
+**Under ESC-STRICT, 27B − O2nt** (paired, house-cluster bootstrap)
+
+| Scope | Escalated share | Strict admission | required = {} | Checker |
+|---|---|---|---|---|
+| A (gpt-6.1-sol) | −0.283 [−0.342, −0.224] | +0.017 [+0.000, +0.034] | +0.023 [+0.007, +0.042] | +0.007 |
+| B raw (O2) | −0.314 | +0.032 [+0.021, +0.042] | +0.124 | +0.102 |
+| B harness (O2) | −0.314 | +0.021 [+0.013, +0.029] | +0.063 | +0.024 |
+
+- **The fine-tuning is what makes local-first work.** With the untuned base the hybrid must escalate 84–86 % of rooms, against 55–56 %, and its quality is still no better.
+- It remains an offline replay on test rooms (exploratory).
+
 ## Critic → constrained repair (amendment 025; SceneSmith-style; `results/a025-dev`, `results/a025-test`)
 
 **Dev, 246 family-balanced rooms (27B + S1 → + critic).** It is adopted by the pre-registered rule, with addendum B applied.
