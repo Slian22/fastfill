@@ -116,6 +116,22 @@ Qwen3.8-27B zero-shot with `enable_thinking = False`, on P's input:
     - pairing the model's own failure against its own repair adds admission gains beyond the repaired data itself;
     - synthetic negatives hurt.
 
+## Distillation from the open teacher O2 (amendment 018; dev-select, 600 rooms, HF exact policy; binding rule)
+
+Checker success, with the difference to R (paired house-cluster bootstrap, 2,000 draws, seed 42, 95 % CI):
+
+| Candidate | Complete | Checker | Δ vs R | Strict admission |
+|---|---|---|---|---|
+| R = rpo-dpo1 | 0.998 | 0.470 | — | 0.252 |
+| SFT-D | 0.992 | 0.450 | −0.020 [−0.058, +0.016] | 0.282 |
+| DPO1-D | 0.943 | 0.405 | −0.065 [−0.108, −0.023] | 0.245 |
+| DPO2-D | 0.807 | 0.385 | −0.085 [−0.124, −0.044] | 0.308 |
+
+- **No candidate was adopted.** P stays rpo-dpo1, and amendment 018 runs no test inference.
+- **Completeness fell with each DPO stage** on the distilled targets.
+- SFT-D's higher strict admission (0.282 vs 0.252) is outside the rule (exploratory).
+- **Lesson:** 6,184 teacher targets did not transfer the teacher's success to the 8B. Its zero-shot strength needs long reasoning: O2 without thinking passes 0.06–0.08 (amendment 021 §1.4).
+
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
 **Corrected comparison**
@@ -204,22 +220,48 @@ Pooled over the six paper strata, per-agent populations = reference ∩ J ∩ P 
 - The trained models' layouts look much closer to the real layouts than every agent's.
 - **Caveat (addendum B4):** FID is size-sensitive. Agents render 16–35 % smaller furniture, so part of the gap is size. No claim rests on FID alone.
 
-## GPT judge (secondary; 174 pre-selected paper-strata rooms; judge = gpt-6.1-sol; `results/gpt-judge-visual-002/`)
+## GPT judge (secondary; 174 pre-selected paper-strata rooms; same bundle, two judges)
 
-Overall scores, out of 10:
+Run 002 used judge gpt-6.1-sol (`results/gpt-judge-visual-002/`). Amendment 023 reran it with judge gpt-6-astra at reasoning effort high (`results/gpt-judge-023-astra-high/`); the agreement analysis is in `results/judge-agreement-023/`.
 
-| System | Overall | Rooms judged / selected |
+Overall scores out of 10, with rooms judged / selected:
+
+| System | gpt-6.1-sol | gpt-6-astra (high) |
 |---|---|---|
-| J | 6.31 | 173 / 174 |
-| P | 6.16 | 170 / 174 |
-| L | 7.91 | 173 / 174 |
-| O6 | 6.83 | 167 / 174 |
+| J | 6.31 (173 / 174) | 6.28 (171 / 174) |
+| P | 6.16 (170 / 174) | 6.15 (172 / 174) |
+| L | 7.91 (173 / 174) | 8.01 (171 / 174) |
+| O6 | 6.83 (167 / 174) | 6.84 (170 / 174) |
 
 The functionality, layout and aesthetics sub-scores follow the same order.
 
-- **Conflict of interest.** The judge is the same model as the compared system L (addendum B4), so this is a secondary metric and no claim rests on it.
-- **The judge's ranking is the opposite of FID's:** the judge favours the agents, FID favours the trained models.
-- **Failures.** 13 of 692 judgements failed and 4 rooms had no render; all are reported as missing, never filled.
+**Paired J − P endpoint** (mean of the three sub-scores; 2,000 draws, seed 42):
+
+| Judge | J − P | 95 % CI | Rooms |
+|---|---|---|---|
+| gpt-6.1-sol | +0.13 | [−0.08, +0.34] | 170 |
+| gpt-6-astra | +0.11 | [−0.09, +0.31] | 171 |
+
+Neither judge finds a significant J − P difference.
+
+**The two judges agree closely** (675 cases judged by both):
+- Spearman correlation: overall 0.90; per sub-score 0.86–0.89.
+- Mean per-room Kendall τ of the four arms: 0.80 (155 rooms).
+- Identical ranking: L > O6 > J > P.
+
+**L's lead is not caused by the conflict of interest.** L's margin over the mean of the other arms is +1.49 under gpt-6.1-sol and +1.58 under gpt-6-astra.
+- The identity conflict (the judge being L itself) is therefore not what drives L's score.
+- A same-family preference cannot be excluded, because both judges are GPT-6 models. Cross-vendor vision models on the server API (gemini-3.1-pro-preview, claude-opus-5-5) were not used.
+
+**"High" effort used little reasoning.** The median was 102 reasoning tokens (p90 171), and 14 cases used none, so the scoring task asks for little reasoning.
+
+**Missing judgements, never filled.**
+- gpt-6.1-sol: 9 API failures out of 692 runnable, plus 4 rooms without a render.
+- gpt-6-astra: 8 API failures (5 remote response failures, 2 HTTP 520, 1 missing completion event), plus the same 4 rooms without a render.
+
+**Limits.**
+- The judge's ranking is the opposite of FID's: the judge favours the agents, FID favours the trained models.
+- Both remain secondary metrics, and no claim rests on either.
 
 ## Mesh-level collisions on rendered rooms (amendment 019; 1,005 paper-strata rooms; EXPLORATORY)
 

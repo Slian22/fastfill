@@ -1,0 +1,177 @@
+{
+ "judges": [
+  "gpt-6.1-sol",
+  "gpt-6-astra-high"
+ ],
+ "cases": 696,
+ "completed": {
+  "gpt-6.1-sol": 683,
+  "gpt-6-astra-high": 684
+ },
+ "common_completed": 675,
+ "correlation": {
+  "functionality": {
+   "n": 675,
+   "spearman": 0.8628710498945455,
+   "pearson": 0.8797488252965915
+  },
+  "layout": {
+   "n": 675,
+   "spearman": 0.8905075765760401,
+   "pearson": 0.9031635629530366
+  },
+  "aesthetics": {
+   "n": 675,
+   "spearman": 0.8565857035200193,
+   "pearson": 0.8744876862327082
+  },
+  "overall": {
+   "n": 675,
+   "spearman": 0.9042452851455883,
+   "pearson": 0.9140269603342275
+  }
+ },
+ "room_kendall_tau": {
+  "rooms": 155,
+  "mean": 0.798408500734165
+ },
+ "gpt-6.1-sol": {
+  "means_own": {
+   "J": {
+    "functionality": 6.242774566473988,
+    "layout": 6.543352601156069,
+    "aesthetics": 6.138728323699422,
+    "overall": 6.305202312138728,
+    "n": 173
+   },
+   "L": {
+    "functionality": 7.797687861271676,
+    "layout": 8.433526011560694,
+    "aesthetics": 7.53757225433526,
+    "overall": 7.913872832369943,
+    "n": 173
+   },
+   "O6": {
+    "functionality": 6.790419161676646,
+    "layout": 7.1437125748503,
+    "aesthetics": 6.562874251497006,
+    "overall": 6.8299401197604785,
+    "n": 167
+   },
+   "P": {
+    "functionality": 6.041176470588235,
+    "layout": 6.447058823529412,
+    "aesthetics": 6.0058823529411764,
+    "overall": 6.161176470588236,
+    "n": 170
+   }
+  },
+  "means_common": {
+   "J": {
+    "functionality": 6.245614035087719,
+    "layout": 6.538011695906433,
+    "aesthetics": 6.140350877192983,
+    "overall": 6.304678362573099,
+    "n": 171
+   },
+   "L": {
+    "functionality": 7.8011695906432745,
+    "layout": 8.444444444444445,
+    "aesthetics": 7.549707602339181,
+    "overall": 7.9222222222222225,
+    "n": 171
+   },
+   "O6": {
+    "functionality": 6.786585365853658,
+    "layout": 7.140243902439025,
+    "aesthetics": 6.560975609756097,
+    "overall": 6.826829268292682,
+    "n": 164
+   },
+   "P": {
+    "functionality": 6.029585798816568,
+    "layout": 6.437869822485207,
+    "aesthetics": 6.0,
+    "overall": 6.15207100591716,
+    "n": 169
+   }
+  },
+  "ranking_common": [
+   "L",
+   "O6",
+   "J",
+   "P"
+  ],
+  "L_margin_common": 1.494362676627909
+ },
+ "gpt-6-astra-high": {
+  "means_own": {
+   "J": {
+    "functionality": 6.216374269005848,
+    "layout": 6.456140350877193,
+    "aesthetics": 6.16374269005848,
+    "overall": 6.275438596491227,
+    "n": 171
+   },
+   "L": {
+    "functionality": 7.900584795321637,
+    "layout": 8.491228070175438,
+    "aesthetics": 7.654970760233918,
+    "overall": 8.009356725146198,
+    "n": 171
+   },
+   "O6": {
+    "functionality": 6.741176470588235,
+    "layout": 7.152941176470589,
+    "aesthetics": 6.635294117647059,
+    "overall": 6.84,
+    "n": 170
+   },
+   "P": {
+    "functionality": 5.924418604651163,
+    "layout": 6.430232558139535,
+    "aesthetics": 6.116279069767442,
+    "overall": 6.149418604651163,
+    "n": 172
+   }
+  },
+  "means_common": {
+   "J": {
+    "functionality": 6.216374269005848,
+    "layout": 6.456140350877193,
+    "aesthetics": 6.16374269005848,
+    "overall": 6.275438596491227,
+    "n": 171
+   },
+   "L": {
+    "functionality": 7.900584795321637,
+    "layout": 8.491228070175438,
+    "aesthetics": 7.654970760233918,
+    "overall": 8.009356725146198,
+    "n": 171
+   },
+   "O6": {
+    "functionality": 6.7682926829268295,
+    "layout": 7.164634146341464,
+    "aesthetics": 6.646341463414634,
+    "overall": 6.8567073170731705,
+    "n": 164
+   },
+   "P": {
+    "functionality": 5.9171597633136095,
+    "layout": 6.414201183431953,
+    "aesthetics": 6.118343195266272,
+    "overall": 6.142603550295857,
+    "n": 169
+   }
+  },
+  "ranking_common": [
+   "L",
+   "O6",
+   "J",
+   "P"
+  ],
+  "L_margin_common": 1.58444023719278
+ },
+ "same_ranking": true
+}
