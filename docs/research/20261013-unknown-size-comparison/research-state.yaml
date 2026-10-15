@@ -95,6 +95,8 @@ handoff_20261014:
   a021_jobs: {snapshot: main-06161c75b, addendum_A: 06161c75b, diag_ledger: 7416671, diag_probe: 7416672, train_setup: 7416673, eval_confirm: 7416676, plan_engine: 7416677, plan_confirm: 7416679, next: 'smoke (+smoke-vllm) -> train; engine -> o2nt -> candidates A -> select -> test'}
   a013_selection: {adopted: op-dpo2-e1, dev_checker: '0.470 -> 0.515', test: 'deferred to 021 §4 (addendum A ca6cdd552)'}
   a019_results: results/mesh-collision-019
+  a018_selection: {job: 7419345, result: 'no candidate adopted (SFT-D -0.020 [-0.058,+0.016], DPO1-D -0.065, DPO2-D -0.085 vs R .470); P stays rpo-dpo1; no 018 test', out: RUN/dev-eval-018/selection.json}
+  a023_judge: {locked: f993266f1, snapshot: main-f993266f1, smoke: '7423684 pass (2/2, returned gpt-6-astra)', full: '7423785 done: 684/692 (8 API fail + 4 no render)', result: 'same ranking L>O6>J>P, rho 0.90, room tau 0.80, L lead 1.49->1.58, J-P +0.11 [-0.09,+0.31]', out: 'results/gpt-judge-023-astra-high, results/judge-agreement-023; raw H/server-pulls-judge-023'}
   a022: {locked: f228a4df9, addendum_A: b39094847, code: 3f31ce57e, snapshot: main-b39094847, interim_package_job: 7418174, next: 'cohort/test/package after RUN/a021/final-selection.json'}
   a016_local: {scale_curve: 'running locally (6 workers) -> H/scale-curve-016; no cap-rule inputs locally (T6: 0 flips)', seeds_workflow: wz2dlyjv4}
   not_started:
