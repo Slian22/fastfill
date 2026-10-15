@@ -24,6 +24,8 @@ recomputed; summary.size_enforcement counts the answers / objects whose returned
 than llm_agent.SIZE_TOL, the "unauthorised size changes"). Its rows are labelled SYSTEM-P (SYSTEM-PGT). --uids FILE
 scores a subset of the cohort (llm_agent.subset, e.g. the amendment-016 pilot): the run must cover exactly it, J/P
 are restricted to it and summary.cohort.subset records it. Joint runs without --uids are scored and reported unchanged.
+--uids FILE --uids-scope test (amendment 026 scope C, diverse_026): any test rooms, in expected_uids order; the subset
+records scope 'test'.
 """
 import argparse
 import collections
@@ -138,7 +140,10 @@ def _report(summary):
     lines = [f"# 未知尺寸：LLM 代理 {s}（{config['model']}）{title}", '',
              intro + f"{names['llm_raw']} 是第一次回答；{names['llm_harness']} 是至多两轮重试后的答案（共至多 3 次尝试），重试消息只含异常类名"
              '（通用重试，不含解析器错误文本）。P 的尺寸来自训练集先验，不是预测。' + paired, '',
-             (f"队列子集：{summary['cohort']['subset']['rooms']} 个房间（取自 {summary['cohort']['rooms']} 间的冻结队列；"
+             (f"测试集子集：{summary['cohort']['subset']['rooms']} 个房间（取自全部测试房间，不限于冻结队列；"
+              f"--uids 文件 sha256 {summary['cohort']['subset']['sha256'][:12]}，修订 026 范围 C 的按房型族分层样本）。"
+              if summary['cohort'].get('subset', {}).get('scope') == 'test' else
+              f"队列子集：{summary['cohort']['subset']['rooms']} 个房间（取自 {summary['cohort']['rooms']} 间的冻结队列；"
               f"--uids 文件 sha256 {summary['cohort']['subset']['sha256'][:12]}，例如修订 016 的试点子样本：试点数字只是早期读数，"
               '不替代全队列结果）。' if 'subset' in summary['cohort'] else
               f"队列：{summary['cohort']['rooms']} 个测试房间（论文六层全部，加每个来源至多 30 个哈希抽样）。")
@@ -184,7 +189,7 @@ def _report(summary):
     return '\n'.join(lines) + '\n'
 
 
-def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1, uids_path=None):
+def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1, uids_path=None, uids_scope='cohort'):
     data, out, cohort_path = Path(data), Path(out), Path(cohort_path)
     runs = runs or {}
     if out.exists():
@@ -198,7 +203,8 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1, ui
     rooms = h._by_uid(h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl']))
     requests = {arm: h._by_uid(h._rows(data, arm + '/requests.jsonl', manifest['files'][arm + '/requests.jsonl']))
                 for arm in h.ARMS}
-    uids = cohort['uids'] if uids_path is None else llm_agent.subset(cohort, uids_path)
+    test = manifest['expected_uids'] if uids_scope == 'test' else None
+    uids = cohort['uids'] if uids_path is None else llm_agent.subset(cohort, uids_path, test)
     records, llm_receipt, llm_result, llm_cost = _llm(Path(llm), data, cohort, h.sha256(cohort_path), uids)
     config = llm_receipt['config']
     request_arm = config.get('request_arm', 'joint')  # 'placement': amendment 016 section 2.
@@ -247,7 +253,8 @@ def evaluate(data, cohort_path, llm, out, runs=None, repeats=2000, workers=1, ui
                'cohort': {'rooms': len(cohort['uids']), 'sha256': h.sha256(cohort_path),
                           'uids_sha256': cohort['uids_sha256'], 'counts': cohort['counts'],
                           **({'subset': {'rooms': len(uids), 'sha256': h.sha256(uids_path),
-                                         'uids_sha256': llm_agent._digest(json.dumps(uids))}} if uids_path else {})},
+                                         'uids_sha256': llm_agent._digest(json.dumps(uids)),
+                                         **({'scope': 'test'} if test else {})}} if uids_path else {})},
                'arms': {n: g.summarize(rows) for n, rows in scored.items()},
                'paper_strata': {s: {n: g.aggregate(rows) for n, rows in v.items()} for s, v in strata.items()},
                'paired': paired, **({'size_enforcement': enforcement} if enforcement else {}),
@@ -288,9 +295,11 @@ def main():
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--repeats', type=int, default=2000)
     parser.add_argument('--uids', type=Path)  # A subset of the cohort (amendment 016 pilot).
+    parser.add_argument('--uids-scope', choices=('cohort', 'test'), default='cohort')  # test: amendment 026 C.
     args = parser.parse_args()
     runs = {arm: getattr(args, arm) for arm in h.ARMS if getattr(args, arm) is not None}
-    result = evaluate(args.data, args.cohort, args.llm, args.out, runs, args.repeats, args.workers, args.uids)
+    result = evaluate(args.data, args.cohort, args.llm, args.out, runs, args.repeats, args.workers, args.uids,
+                      args.uids_scope)
     print(json.dumps({'status': result['status'], 'rooms': result['cohort']['rooms'], 'arms': list(result['arms'])}))
 
 

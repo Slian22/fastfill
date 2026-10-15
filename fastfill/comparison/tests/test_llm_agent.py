@@ -36,11 +36,11 @@ def write_rows(path, rows):
     path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
 
 
-def eval_data(root, mutate=None):
-    """Two paper strata, a non-stratum 3D-FRONT room, a 33-room source and one without room type."""
-    specs = ([(f'il-bed-{i}', 'IL3D_3dfront', 'bedroom') for i in range(3)]
-             + [('il-ld-0', 'IL3D_3dfront', 'living dining room'), ('holo-k-0', 'OptiScene_holodeck', 'kitchen')]
-             + [(f'x-{i:02d}', 'X', 'office') for i in range(33)] + [('y-0', 'Y', None)])
+def eval_data(root, mutate=None, specs=None):
+    """Two paper strata, a non-stratum 3D-FRONT room, a 33-room source and one without room type (or specs)."""
+    specs = specs or ([(f'il-bed-{i}', 'IL3D_3dfront', 'bedroom') for i in range(3)]
+                      + [('il-ld-0', 'IL3D_3dfront', 'living dining room'), ('holo-k-0', 'OptiScene_holodeck', 'kitchen')]
+                      + [(f'x-{i:02d}', 'X', 'office') for i in range(33)] + [('y-0', 'Y', None)])
     rooms = [_room(uid, source, kind, 'g-' + uid[:4], 5 + i / 100) for i, (uid, source, kind) in enumerate(sorted(specs))]
     if mutate:
         rooms = [mutate(copy.deepcopy(r)) for r in rooms]
@@ -75,7 +75,7 @@ def env_file(root, mode=0o600, model=L.EXPECTED_MODEL):
 def args(root, **extra):
     values = {'data': root / 'data', 'cohort': root / 'cohort.json', 'out': root / 'run', 'env_file': root / 'api.env',
               'expected_model': L.EXPECTED_MODEL, 'concurrency': 2, 'max_calls': 4800, 'max_output_tokens': 65536,
-              'timeout': 900, 'max_attempts': 2, 'limit': None, 'arm': 'joint', 'uids': None}
+              'timeout': 900, 'max_attempts': 2, 'limit': None, 'arm': 'joint', 'uids': None, 'uids_scope': 'cohort'}
     return argparse.Namespace(**{**values, **extra})
 
 

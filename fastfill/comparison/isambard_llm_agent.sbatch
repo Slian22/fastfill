@@ -21,8 +21,12 @@
 # Amendment 016 addenda A2/B1: L with P's input (--arm placement) on the 300-room pilot RUN/a016-pilot-v1.json
 # (agents_016 pilot) -> llm-agent-P-pilot-001; one attempt + the same harness, <= 1,200 calls (300 rooms x 3 rounds
 # + retries), inside the amendment-006 cap's remainder (4,800 - smoke 6 - full ledger; report-v2 T5: 1,469 calls).
+#        sbatch --time=00:30:00 isambard_llm_agent.sbatch CODE_ROOT uids-smoke UIDS OUT              (first 2 of UIDS)
+#        sbatch --time=04:00:00 isambard_llm_agent.sbatch CODE_ROOT uids-placement UIDS OUT MAX_CALLS
+# Amendment 026 addendum A (scope C): pilot-placement's settings on the test rooms of RUN/UIDS (--uids-scope test)
+# into RUN/OUT under a MAX_CALLS ledger cap; uids-smoke = the smoke's gate and cap. Driven by submit_026_diverse.sh.
 set -euo pipefail
-test "$#" -eq 2
+case "${2-}" in uids-smoke) test "$#" -eq 4 ;; uids-placement) test "$#" -eq 5 ;; *) test "$#" -eq 2 ;; esac
 PAIR_CODE_ROOT="$1"
 PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill
 PAIR_RUN_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013"
@@ -33,6 +37,11 @@ case "$2" in
   full) OUT=llm-agent-001; MINUTES=470; EXTRA=(--max-calls 4794) ;;
   pilot-placement) OUT=llm-agent-P-pilot-001; MINUTES=230
     EXTRA=(--arm placement --uids "$PAIR_RUN_ROOT/a016-pilot-v1.json" --max-calls 1200) ;;
+  uids-smoke) OUT="$4"; MINUTES=25
+    EXTRA=(--arm placement --uids "$PAIR_RUN_ROOT/$3" --uids-scope test --limit 2 --max-calls 6 --max-attempts 99
+           --require-no-api-failed) ;;
+  uids-placement) OUT="$4"; MINUTES=230
+    EXTRA=(--arm placement --uids "$PAIR_RUN_ROOT/$3" --uids-scope test --max-calls "$5") ;;
   *) exit 2 ;;
 esac
 COHORT="$PAIR_RUN_ROOT/llm-cohort-v1.json"

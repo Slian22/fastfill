@@ -39,6 +39,8 @@ sizes) instead of J's, with the same suffix and harness; answers go through enfo
 are replaced by the request's, supported z recomputed, a size-only difference is not invalid) and then
 infer.parse_prediction(..., 'placement'). --uids FILE runs a subset of the cohort (subset(); the addendum-B pilot
 written by agents_016 pilot). Both are recorded in the identity only when given: the default identity is unchanged.
+Amendment 026 scope C: --uids FILE --uids-scope test takes any test room (diverse_026), run in expected_uids order;
+the identity's cohort.subset then records scope 'test'.
 gt_request builds P's request with GT sizes (addendum A1 supplementary, llm_open --sizes gt).
 """
 import argparse
@@ -119,15 +121,17 @@ def build_cohort(data):
             'uids_sha256': _digest(json.dumps(uids)), 'uids': uids}
 
 
-def subset(cohort, path):
-    """The uids of a --uids FILE (a JSON list, or an object with 'uids') in cohort order; each must be a cohort uid."""
+def subset(cohort, path, test=None):
+    """The uids of a --uids FILE (a JSON list, or an object with 'uids') in cohort order; each must be a cohort uid.
+    test (the eval data's expected_uids; amendment 026 scope C): any test uid instead, in that order."""
     value = h.strict_json(Path(path).read_text())
     uids = value.get('uids') if isinstance(value, dict) else value
+    pool = cohort['uids'] if test is None else test
     if (not isinstance(uids, list) or not uids or any(not isinstance(u, str) for u in uids)
-            or len(set(uids)) != len(uids) or not set(uids) <= set(cohort['uids'])):
-        raise ValueError('--uids must list unique cohort uids')
+            or len(set(uids)) != len(uids) or not set(uids) <= set(pool)):
+        raise ValueError('--uids must list unique ' + ('cohort' if test is None else 'test') + ' uids')
     chosen = set(uids)
-    return [u for u in cohort['uids'] if u in chosen]
+    return [u for u in pool if u in chosen]
 
 
 def _vec(value):
@@ -531,7 +535,8 @@ def run(args, post=call_api):
     cohort = h.strict_json(Path(args.cohort).read_text())
     if cohort != build_cohort(args.data):
         raise ValueError('cohort file differs from its deterministic rebuild')
-    uids = (subset(cohort, args.uids) if args.uids else cohort['uids'])[:args.limit]
+    test = data['expected_uids'] if args.uids_scope == 'test' else None
+    uids = (subset(cohort, args.uids, test) if args.uids else cohort['uids'])[:args.limit]
     by_uid = h._by_uid(rows)
     records = [by_uid[uid] for uid in uids]
     config = load_config(args.env_file)
@@ -548,7 +553,8 @@ def run(args, post=call_api):
                 'data': {'manifest_sha256': data['manifest_sha256'],
                          f'{args.arm}_requests_sha256': data['files'][f'{args.arm}/requests.jsonl']},
                 'cohort': {'sha256': h.sha256(args.cohort), 'uids_sha256': cohort['uids_sha256'], 'rooms': len(uids),
-                           **({'subset': {'sha256': h.sha256(args.uids), 'uids_sha256': _digest(json.dumps(uids))}}
+                           **({'subset': {'sha256': h.sha256(args.uids), 'uids_sha256': _digest(json.dumps(uids)),
+                                          **({'scope': 'test'} if test else {})}}
                               if args.uids else {})},
                 'code_sha256': {p.name: h.sha256(p) for p in (Path(__file__), Path(infer.__file__), Path(h.__file__))}}
     run_hash = infer._hash(identity)
@@ -604,6 +610,7 @@ def main(argv=None):
     run_parser.add_argument('--require-no-api-failed', action='store_true')
     run_parser.add_argument('--arm', choices=h.ARMS, default='joint')  # placement: amendment 016 section 2.
     run_parser.add_argument('--uids', type=Path)  # A subset of the cohort (amendment 016 pilot).
+    run_parser.add_argument('--uids-scope', choices=('cohort', 'test'), default='cohort')  # test: amendment 026 C.
     args = parser.parse_args(argv)
     if args.command == 'cohort':
         value = build_cohort(args.data)
