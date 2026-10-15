@@ -1,0 +1,1 @@
+contrasts.csv and results.json are on the harddisk: /Volumes/harddisk/fastfillout/unknownsize-20261013/system-022-final/test-sharded-eval (from RUN/system-022/final/test-sharded/eval, summarize job 7434564; O2 escalation sharded x4 under 022 addendum B; checker trigger).

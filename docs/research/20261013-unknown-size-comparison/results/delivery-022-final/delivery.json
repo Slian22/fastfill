@@ -1,0 +1,618 @@
+{
+  "status": "MANIFEST_READY",
+  "protocol": "amendment-022 §3",
+  "mode": "final",
+  "release": "final",
+  "spec": "docs/research/20261013-unknown-size-comparison/amendment-022-delivered-system-20261014.md",
+  "placer": {
+    "candidate": "arm",
+    "label": "021 臂",
+    "serving_engine": "vllm",
+    "evaluated_rows_engine": "vllm",
+    "model": {
+      "size": "27B",
+      "kind": "A",
+      "exact_policy": true,
+      "base": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+      "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b",
+      "policy_sha256": "4d3c427b0c23f6fab8b4a8b6c673085afce08ad40153c33479d13f9eeaf741bf",
+      "hf": {}
+    },
+    "training_base": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+      "sha256": "a4fca2a27a330e7510b09d7535d92352a6b19917b4b44251cd9a3aa20036db36",
+      "copied": false,
+      "package_dir": null
+    },
+    "adapter": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final",
+      "sha256": "cc3e286fa715be1892d13c0e4f29721ac32324903d8bb08e81f1951fee5fd1e6",
+      "files": {
+        "README.md": "41b133be7fbb02c4e00e64d37a21a62ea9bb535c5683028e14040858b0a0d1f6",
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+        "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+        "completion.json": "13e9dd71e9cf8664f2f205cb3f2f13b44d52909eab947deb8a2f987b215b01a3",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "package_dir": "placer/adapter"
+    },
+    "lora": "vllm_bf16_lora_on_bf16_base",
+    "inference_run_sha256": "2de2c9f3788b5b2db915cb4180a2bda07cb9dac737e65567287eede31ed282dc",
+    "inference_dir": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/vllm/test/arm",
+    "final_selection_sha256": "063403903c3b7e280567777bb0de05ee1d95828508559f4107a3fc202d3d2b5b",
+    "versions": {
+      "vllm": "0.31.0",
+      "torch": "2.13.0",
+      "transformers": "5.17.0"
+    }
+  },
+  "size_prior": {
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json",
+    "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+    "package_file": "size-priors.json",
+    "use": "pipeline.load_prior (full_prior) + size_prior.predict_sizes, rounded as eval_data"
+  },
+  "s1": {
+    "max_trials": 2000,
+    "time_limit": 60.0
+  },
+  "escalation": {
+    "order": [
+      "gpt-6.1-sol size-fixed (one answer + at most one repair, B2) + S1",
+      "O2 size-fixed + S1",
+      "best candidate: checker pass > complete > fewer violations"
+    ],
+    "api_model": "gpt-6.1-sol",
+    "api_rounds": 2,
+    "api_cap_rooms": 600,
+    "api_cap_calls": 1200,
+    "llm_agent_global_cap": 7700,
+    "o2_model": "qwen3.8-27b",
+    "o2_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B"
+  },
+  "cli": "PYTHONPATH=code python -m fastfill.system.cli run --requests ROOMS.jsonl --prior size-priors.json --prior-sha256 073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422 --placer vllm --model /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B --adapter placer/adapter --escalate l+o2 --escalate-on strict --api-cap 1200 --api-max-rooms 600 --env-file ~/.fastfill_api.env --o2-model /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B --workers 32 --out NEW_DIR",
+  "code": {
+    "git_commit": null,
+    "git_dirty": true,
+    "sha256": {
+      "fastfill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fastfill/anchors.py": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5",
+      "fastfill/build.py": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d",
+      "fastfill/comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "fastfill/comparison/a021_select.py": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50",
+      "fastfill/comparison/best_of_n.py": "690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894",
+      "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "fastfill/comparison/corpus.py": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "fastfill/comparison/data.py": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "fastfill/comparison/decide_012.py": "fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea",
+      "fastfill/comparison/dev_select.py": "066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db",
+      "fastfill/comparison/distill_018_chain.py": "466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9",
+      "fastfill/comparison/downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+      "fastfill/comparison/dpo_stages.py": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "fastfill/comparison/eval_data.py": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "fastfill/comparison/evaluate_llm.py": "d2f4f893c7af1f6f193191e108b57851718bbe4c51c5e00fabe5e690348b009f",
+      "fastfill/comparison/evaluate_pair.py": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+      "fastfill/comparison/fid.py": "6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5",
+      "fastfill/comparison/final_tables.py": "6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18",
+      "fastfill/comparison/geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "fastfill/comparison/infer.py": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "fastfill/comparison/infer_shard.py": "5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3",
+      "fastfill/comparison/judge_batch.py": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf",
+      "fastfill/comparison/llm_agent.py": "55245c524dbf61691c1c3ada786e551833c5c0f702842b3fade986b24e0f93fc",
+      "fastfill/comparison/llm_open.py": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+      "fastfill/comparison/onpolicy_dpo.py": "af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb",
+      "fastfill/comparison/output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+      "fastfill/comparison/render_assets.py": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "fastfill/comparison/report_v2.py": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0",
+      "fastfill/comparison/room_families.py": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c",
+      "fastfill/comparison/sample_vllm.py": "d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9",
+      "fastfill/comparison/scale_curve.py": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413",
+      "fastfill/comparison/size_prior.py": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "fastfill/comparison/test_apply_012.py": "59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896",
+      "fastfill/comparison/train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "fastfill/comparison/visual_cases.py": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298",
+      "fastfill/comparison/visual_pipeline.py": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99",
+      "fastfill/interface.py": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "fastfill/split.py": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "fastfill/system/__init__.py": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882",
+      "fastfill/system/cli.py": "023ce88b47a14ead4ff1d013daf16a31812593cb5395ea8714480e7badb4de8b",
+      "fastfill/system/pipeline.py": "25a2c5d4a5b22451ae2481d232968c8aeb2b63b75b782c782b5c7514238dff28",
+      "fastfill/v2/__init__.py": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "fastfill/v2/batch.py": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "fastfill/v2/direct_layout.py": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "fastfill/v2/geometry.py": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "fastfill/v2/io.py": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "fastfill/v2/schema.py": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "fastfill/v2/validation.py": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "fastfill/validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158"
+    },
+    "package_dir": "code",
+    "closure": "import closure of fastfill.system.cli + fastfill.v2.direct_layout, fastfill.v2.validation (clean interpreter)"
+  },
+  "measured": {
+    "cohort": {
+      "source": "amendment-022 §2 evaluate.py (system with API access (gpt-6.1-sol escalation, then O2))",
+      "requests": 1454,
+      "stages": {
+        "raw": {
+          "complete_rate": 1.0,
+          "checker_rate": 0.5563961485557084,
+          "strict_rate": 0.3493810178817056,
+          "noreq_rate": 0.7647867950481431,
+          "oor": 0.16495727124880913,
+          "size_log_mae": 0.2387881911256436,
+          "bias_fp": -0.02240155135337094
+        },
+        "s1": {
+          "complete_rate": 1.0,
+          "checker_rate": 0.8541953232462174,
+          "strict_rate": 0.453232462173315,
+          "noreq_rate": 0.8204951856946355,
+          "oor": 0.08327820238981895,
+          "size_log_mae": 0.2387881911256436,
+          "bias_fp": -0.02240155135337094
+        },
+        "system": {
+          "complete_rate": 1.0,
+          "checker_rate": 0.9931224209078404,
+          "strict_rate": 0.5199449793672627,
+          "noreq_rate": 0.8541953232462174,
+          "oor": 0.05619820790545582,
+          "size_log_mae": 0.2387881911256436,
+          "bias_fp": -0.02240155135337094
+        }
+      },
+      "bins": {
+        "objects<=20": {
+          "raw": 0.5983727810650887,
+          "s1": 0.8986686390532544,
+          "system": 0.9970414201183432
+        },
+        "objects21-50": {
+          "raw": 0.0,
+          "s1": 0.2804878048780488,
+          "system": 0.9634146341463414
+        },
+        "objects>50": {
+          "raw": 0.0,
+          "s1": 0.2,
+          "system": 0.85
+        }
+      },
+      "escalated_share": 0.14580467675378267,
+      "api_rooms": 212,
+      "api_calls": 225,
+      "api_cost_usd": null,
+      "final_stage": {
+        "placer": 1247,
+        "gpt": 202,
+        "o2": 5
+      }
+    },
+    "test": {
+      "source": "amendment-022 §2 evaluate.py (system with free O2 escalation)",
+      "requests": 8647,
+      "stages": {
+        "raw": {
+          "complete_rate": 0.999537411819128,
+          "checker_rate": 0.4433907713657916,
+          "strict_rate": 0.21614432751243207,
+          "noreq_rate": 0.5331328784549555,
+          "oor": 0.25595189922109307,
+          "size_log_mae": 0.28241882345596314,
+          "bias_fp": 0.016102577526563504
+        },
+        "s1": {
+          "complete_rate": 0.999537411819128,
+          "checker_rate": 0.7422227362090899,
+          "strict_rate": 0.2913149069041286,
+          "noreq_rate": 0.6372152191511506,
+          "oor": 0.1526373948339497,
+          "size_log_mae": 0.28241882345596314,
+          "bias_fp": 0.016102577526563504
+        },
+        "system": {
+          "complete_rate": 1.0,
+          "checker_rate": 0.890135307042905,
+          "strict_rate": 0.3434717242974442,
+          "noreq_rate": 0.6668208627269573,
+          "oor": 0.10807408831966488,
+          "size_log_mae": 0.28244658078965523,
+          "bias_fp": 0.016064899577243708
+        }
+      },
+      "bins": {
+        "objects<=20": {
+          "raw": 0.5278624896035486,
+          "s1": 0.8229830884391461,
+          "system": 0.9331854726919878
+        },
+        "objects21-50": {
+          "raw": 0.02394106813996317,
+          "s1": 0.40239410681399634,
+          "system": 0.7099447513812155
+        },
+        "objects>50": {
+          "raw": 0.0,
+          "s1": 0.12680115273775217,
+          "system": 0.5590778097982709
+        }
+      },
+      "escalated_share": 0.25777726379091015,
+      "api_rooms": 0,
+      "api_calls": 0,
+      "api_cost_usd": null,
+      "final_stage": {
+        "placer": 7348,
+        "o2": 1297,
+        "fallback": 2
+      }
+    },
+    "apply_012": null
+  },
+  "files_to_copy": [
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/README.md",
+      "dest": "placer/adapter/README.md",
+      "sha256": "41b133be7fbb02c4e00e64d37a21a62ea9bb535c5683028e14040858b0a0d1f6"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/adapter_config.json",
+      "dest": "placer/adapter/adapter_config.json",
+      "sha256": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/adapter_model.safetensors",
+      "dest": "placer/adapter/adapter_model.safetensors",
+      "sha256": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/chat_template.jinja",
+      "dest": "placer/adapter/chat_template.jinja",
+      "sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/completion.json",
+      "dest": "placer/adapter/completion.json",
+      "sha256": "13e9dd71e9cf8664f2f205cb3f2f13b44d52909eab947deb8a2f987b215b01a3"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/tokenizer.json",
+      "dest": "placer/adapter/tokenizer.json",
+      "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final/tokenizer_config.json",
+      "dest": "placer/adapter/tokenizer_config.json",
+      "sha256": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json",
+      "dest": "size-priors.json",
+      "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/__init__.py",
+      "dest": "code/fastfill/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/anchors.py",
+      "dest": "code/fastfill/anchors.py",
+      "sha256": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/build.py",
+      "dest": "code/fastfill/build.py",
+      "sha256": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/__init__.py",
+      "dest": "code/fastfill/comparison/__init__.py",
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/a021_select.py",
+      "dest": "code/fastfill/comparison/a021_select.py",
+      "sha256": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/best_of_n.py",
+      "dest": "code/fastfill/comparison/best_of_n.py",
+      "sha256": "690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/contract.py",
+      "dest": "code/fastfill/comparison/contract.py",
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/corpus.py",
+      "dest": "code/fastfill/comparison/corpus.py",
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/data.py",
+      "dest": "code/fastfill/comparison/data.py",
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/decide_012.py",
+      "dest": "code/fastfill/comparison/decide_012.py",
+      "sha256": "fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/dev_select.py",
+      "dest": "code/fastfill/comparison/dev_select.py",
+      "sha256": "066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/distill_018_chain.py",
+      "dest": "code/fastfill/comparison/distill_018_chain.py",
+      "sha256": "466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/downstream.py",
+      "dest": "code/fastfill/comparison/downstream.py",
+      "sha256": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/dpo_stages.py",
+      "dest": "code/fastfill/comparison/dpo_stages.py",
+      "sha256": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/eval_data.py",
+      "dest": "code/fastfill/comparison/eval_data.py",
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/evaluate_llm.py",
+      "dest": "code/fastfill/comparison/evaluate_llm.py",
+      "sha256": "d2f4f893c7af1f6f193191e108b57851718bbe4c51c5e00fabe5e690348b009f"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/evaluate_pair.py",
+      "dest": "code/fastfill/comparison/evaluate_pair.py",
+      "sha256": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/fid.py",
+      "dest": "code/fastfill/comparison/fid.py",
+      "sha256": "6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/final_tables.py",
+      "dest": "code/fastfill/comparison/final_tables.py",
+      "sha256": "6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/geometry.py",
+      "dest": "code/fastfill/comparison/geometry.py",
+      "sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/infer.py",
+      "dest": "code/fastfill/comparison/infer.py",
+      "sha256": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/infer_shard.py",
+      "dest": "code/fastfill/comparison/infer_shard.py",
+      "sha256": "5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/judge_batch.py",
+      "dest": "code/fastfill/comparison/judge_batch.py",
+      "sha256": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/llm_agent.py",
+      "dest": "code/fastfill/comparison/llm_agent.py",
+      "sha256": "55245c524dbf61691c1c3ada786e551833c5c0f702842b3fade986b24e0f93fc"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/llm_open.py",
+      "dest": "code/fastfill/comparison/llm_open.py",
+      "sha256": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/onpolicy_dpo.py",
+      "dest": "code/fastfill/comparison/onpolicy_dpo.py",
+      "sha256": "af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/output_repair.py",
+      "dest": "code/fastfill/comparison/output_repair.py",
+      "sha256": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/render_assets.py",
+      "dest": "code/fastfill/comparison/render_assets.py",
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/report_v2.py",
+      "dest": "code/fastfill/comparison/report_v2.py",
+      "sha256": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/room_families.py",
+      "dest": "code/fastfill/comparison/room_families.py",
+      "sha256": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/sample_vllm.py",
+      "dest": "code/fastfill/comparison/sample_vllm.py",
+      "sha256": "d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/scale_curve.py",
+      "dest": "code/fastfill/comparison/scale_curve.py",
+      "sha256": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/size_prior.py",
+      "dest": "code/fastfill/comparison/size_prior.py",
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/test_apply_012.py",
+      "dest": "code/fastfill/comparison/test_apply_012.py",
+      "sha256": "59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/train_pair_helpers.py",
+      "dest": "code/fastfill/comparison/train_pair_helpers.py",
+      "sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/visual_cases.py",
+      "dest": "code/fastfill/comparison/visual_cases.py",
+      "sha256": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/comparison/visual_pipeline.py",
+      "dest": "code/fastfill/comparison/visual_pipeline.py",
+      "sha256": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/interface.py",
+      "dest": "code/fastfill/interface.py",
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/scene.py",
+      "dest": "code/fastfill/scene.py",
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/split.py",
+      "dest": "code/fastfill/split.py",
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/system/__init__.py",
+      "dest": "code/fastfill/system/__init__.py",
+      "sha256": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/system/cli.py",
+      "dest": "code/fastfill/system/cli.py",
+      "sha256": "023ce88b47a14ead4ff1d013daf16a31812593cb5395ea8714480e7badb4de8b"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/system/pipeline.py",
+      "dest": "code/fastfill/system/pipeline.py",
+      "sha256": "25a2c5d4a5b22451ae2481d232968c8aeb2b63b75b782c782b5c7514238dff28"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/__init__.py",
+      "dest": "code/fastfill/v2/__init__.py",
+      "sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/batch.py",
+      "dest": "code/fastfill/v2/batch.py",
+      "sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/direct_layout.py",
+      "dest": "code/fastfill/v2/direct_layout.py",
+      "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/geometry.py",
+      "dest": "code/fastfill/v2/geometry.py",
+      "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/io.py",
+      "dest": "code/fastfill/v2/io.py",
+      "sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/schema.py",
+      "dest": "code/fastfill/v2/schema.py",
+      "sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/v2/validation.py",
+      "dest": "code/fastfill/v2/validation.py",
+      "sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-579591181/fastfill/validate.py",
+      "dest": "code/fastfill/validate.py",
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/MANIFEST.json",
+      "dest": "provenance/eval-data-MANIFEST.json",
+      "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/vllm/test/arm/run_receipt.json",
+      "dest": "provenance/inference-run_receipt.json",
+      "sha256": "f3aa7f2d4b26384490ce4d5e8e55861530b262fec6e8eb2f57e0323235e9291f"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/final-selection.json",
+      "dest": "provenance/final-selection.json",
+      "sha256": "063403903c3b7e280567777bb0de05ee1d95828508559f4107a3fc202d3d2b5b"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/cohort/eval/MANIFEST.json",
+      "dest": "evaluation/cohort/MANIFEST.json",
+      "sha256": "ad2346ef99221a4b9cc44d830a672d0334c3c3d42cf185c6a30f6784e26742cf"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/cohort/eval/contrasts.csv",
+      "dest": "evaluation/cohort/contrasts.csv",
+      "sha256": "5dc832afa83ea31868c8c136b49fa0bcf6963e1df15dd099198f6ef462bec6f4"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/cohort/eval/levels.csv",
+      "dest": "evaluation/cohort/levels.csv",
+      "sha256": "2767eb4fa719877bcb6b64e61e006abfaedf447c55d9dd2e48beb0ce38614826"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/cohort/eval/report.md",
+      "dest": "evaluation/cohort/report.md",
+      "sha256": "cf284c6010f54bd37a0b164d5097b9117c0a4cfe4f497d529a9d7eeeafc184d5"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/cohort/eval/results.json",
+      "dest": "evaluation/cohort/results.json",
+      "sha256": "f05d02a869434f9fa06dbf3a271340345cf91a74229ea85d836a96936d5fc7f2"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/test-sharded/eval/MANIFEST.json",
+      "dest": "evaluation/test/MANIFEST.json",
+      "sha256": "9696eb87dedd829fc7dba7737fce429d17c5a80c1ae67220dfb9fa2907e67d34"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/test-sharded/eval/contrasts.csv",
+      "dest": "evaluation/test/contrasts.csv",
+      "sha256": "7169268f4f36c5a33aeedb36f5b9fb4bf5f15cd2813bb515eda30b1334f23398"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/test-sharded/eval/levels.csv",
+      "dest": "evaluation/test/levels.csv",
+      "sha256": "84f37dc7b2b3035018429a6789d18face8997dca21ef260517963a2b5df96a40"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/test-sharded/eval/report.md",
+      "dest": "evaluation/test/report.md",
+      "sha256": "caec7a2e269dfdef3b301f58e53fab178ea23e577c57ab27054a3955ee99ce63"
+    },
+    {
+      "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/test-sharded/eval/results.json",
+      "dest": "evaluation/test/results.json",
+      "sha256": "9026866dc02adbe96f3b725b0f1409511e84eee378670aa34ce39d77dedc2249"
+    }
+  ]
+}
