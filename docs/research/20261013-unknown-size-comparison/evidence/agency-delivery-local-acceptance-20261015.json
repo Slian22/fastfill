@@ -1,0 +1,58 @@
+{
+  "status": "LOCAL_PACKAGE_HASH_VERIFIED",
+  "created_utc": "2026-10-15T13:50:09.834285+00:00",
+  "head": "0b06983c59609ad0730ab4692c8765d870d014e1",
+  "root": "/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-final",
+  "assembly_status": "DELIVERY_PACKAGE_ASSEMBLED",
+  "expected": 76,
+  "verified": 76,
+  "file_bytes": 1135811000,
+  "errors": [],
+  "metadata_checks": {
+    "MODEL_CARD.md": true,
+    "SHA256SUMS": true,
+    "delivery.json": true
+  },
+  "assembly_bindings": {
+    "manifest": true,
+    "SHA256SUMS": true,
+    "file_count": true
+  },
+  "scope": "Byte integrity and assembly receipt, not new end-to-end model inference",
+  "remaining_metadata_note": "delivery.json escalation.order retains old ranking text; model card and actual strict code match recommended command.",
+  "cli_smoke": {
+    "status": "PASS",
+    "python": "/usr/local/bin/python3",
+    "cwd": "/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-final",
+    "command": "PYTHONPATH=code /usr/local/bin/python3 -m fastfill.system.cli --help",
+    "exit_code": 0,
+    "scope": "Import and argument parser only; no GPU/API inference",
+    "environment_note": "The default python3 in the delivery directory resolves to Homebrew Python without shapely; the existing project Python has required imports."
+  },
+  "critic_dev_acceptance": {
+    "status": "VERIFIED",
+    "paired": 244,
+    "rooms": 246,
+    "coverage": 0.991869918699187,
+    "difference": 1.3995901639344261,
+    "ci95": [
+      1.2362192159490701,
+      1.5545980750378754
+    ],
+    "adopted": true,
+    "coverage_boundary_tests": "221/246 rejected; 222/246 passes coverage gate",
+    "known_old_prompt_rejected": true,
+    "actual_formal_run_case_and_prompt_hashes_match": true,
+    "formal_model": "gpt-6-astra",
+    "reasoning_effort": "high",
+    "targeted_tests_passed": 2,
+    "scope": "Dev adoption only; test critic and visual results pending"
+  },
+  "acceptance": "Prior blocking review items resolved within inspected scope; one stale machine-readable ranking-description string remains",
+  "pending_results": [
+    "test critic and test judge",
+    "full-system FID",
+    "mesh collisions"
+  ],
+  "no_new_model_inference": true
+}

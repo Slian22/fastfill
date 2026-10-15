@@ -1,0 +1,72 @@
+{
+  "scope": "Diagnostic of top-three selection metrics using recorded ESC-STRICT used IDs; no new inference; not independent confirmation",
+  "fields": "checker=complete&&geometry_success_s1; strict=complete&&strict_ok_s1 (NOT accepted_s1, which also requires checker); noreq=complete&&endpoint&&attach&&admit_no_required; placer cap rule applied",
+  "result": {
+    "A": {
+      "n": 300,
+      "BIG_rates": [
+        0.9766666666666667,
+        0.7233333333333334,
+        0.85
+      ],
+      "ESC_STRICT_rates": [
+        0.9866666666666667,
+        0.7533333333333333,
+        0.88
+      ],
+      "all_local_plus_BIG_same_top3_selector_rates": [
+        0.9866666666666667,
+        0.7533333333333333,
+        0.88
+      ],
+      "strict_win": 9,
+      "strict_loss": 0,
+      "BIG_strict_without_checker": 0,
+      "LOCAL_strict_without_checker": 1
+    },
+    "B-raw": {
+      "n": 1454,
+      "BIG_rates": [
+        0.7916093535075653,
+        0.6533700137551581,
+        0.7221458046767538
+      ],
+      "ESC_STRICT_rates": [
+        0.9133425034387895,
+        0.6932599724896836,
+        0.8638239339752407
+      ],
+      "all_local_plus_BIG_same_top3_selector_rates": [
+        0.9133425034387895,
+        0.6932599724896836,
+        0.8638239339752407
+      ],
+      "strict_win": 58,
+      "strict_loss": 0,
+      "BIG_strict_without_checker": 0,
+      "LOCAL_strict_without_checker": 1
+    },
+    "B-harness": {
+      "n": 1454,
+      "BIG_rates": [
+        0.9277854195323246,
+        0.7008253094910591,
+        0.8012379642365888
+      ],
+      "ESC_STRICT_rates": [
+        0.9559834938101788,
+        0.7248968363136176,
+        0.8700137551581844
+      ],
+      "all_local_plus_BIG_same_top3_selector_rates": [
+        0.9559834938101788,
+        0.7248968363136176,
+        0.8700137551581844
+      ],
+      "strict_win": 35,
+      "strict_loss": 0,
+      "BIG_strict_without_checker": 0,
+      "LOCAL_strict_without_checker": 1
+    }
+  }
+}
