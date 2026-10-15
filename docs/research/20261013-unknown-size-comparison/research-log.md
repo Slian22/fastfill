@@ -253,3 +253,4 @@ Independent Agency review found8k generation insufficient:devlongestJtarget14,39
   - 交付包 v2 在服务器生成并组装（main-7c57aba8c）：RUN/system-022/final/package-v2 → delivery-v2，DELIVERY_PACKAGE_ASSEMBLED，76 个文件逐一 sha256 校验，1.1 GB；正在拉到 harddisk delivery-final。
   - (4) 措辞：检查器/严格准入高于 GT 只表示这套规则下通过率更高，不等于实际布局质量超过真实布局。
   - 025 §3 测试 critic 第 1 轮 7444956：55/174；臂 S 渲染 929/2,010 张。
+- 14:05 UTC：交付包拉到 harddisk delivery-final（1.1 GB，SHA256SUMS 全部 OK）。最终报告草稿按最终方法重写（本地优先 + strict 升级 + 可选 critic；证据边界按三份复核）。025 §3 测试 critic：第 1 轮 7444956 完成（174 次，456 条编辑，157 组接受），第 2 轮 7445448（135 房）；测试 critic 共 ≤ 309 次。臂 S 渲染约一半。
