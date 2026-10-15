@@ -87,6 +87,13 @@ def _context(room, layout):
             'stratum': visual_cases._stratum(room), 'layouts': {'reference': layout}, 'fixed': room['fixed']}
 
 
+def _legend(layout):
+    """Amendment 025 addendum B: the boxes' id -> category list (identical for B and C; ids/categories never change)."""
+    pairs = sorted((o['id'], o['category']) for o in layout)
+    return ('\nThe boxes in the images are labelled by id; each id is this piece of furniture: '
+            + json.dumps([{'id': i, 'category': c} for i, c in pairs], ensure_ascii=False) + '\n')
+
+
 def dev(dev_dir, b, c, out, workers=1, views=_views):
     """Box-view judge bundle of critic_025's B (round-0) and C (last round) states -> OUT (write-once)."""
     dev_dir, out = Path(dev_dir).resolve(), Path(out).resolve()
@@ -121,7 +128,8 @@ def dev(dev_dir, b, c, out, workers=1, views=_views):
             prompt = Path('prompts') / (vp._hash(uid) + '.txt')
             if not (bundle / prompt).exists():
                 (bundle / prompt).parent.mkdir(parents=True, exist_ok=True)
-                (bundle / prompt).write_text(vp.build_prompt(_context(row['room'], row['layout'])), encoding='utf-8')
+                (bundle / prompt).write_text(vp.build_prompt(_context(row['room'], row['layout'])) + _legend(row['layout']),
+                                             encoding='utf-8')
             identity = vp._hash([uid, arm])
             meta = {'uid': uid, 'arm': arm, 'stratum': row['source'], 'group': row['group']}
             mapping[identity] = meta
@@ -147,7 +155,7 @@ def dev(dev_dir, b, c, out, workers=1, views=_views):
         result = {'amendment': '025', 'spec': SPEC, 'arms': list(ARMS), 'image_source': 'box_views',
                   'image_source_check': IMAGE_CHECK, 'disclosures': DISCLOSURES, 'selected_uids': [r['uid'] for r in b_rows], 'lineage': lineage,
                   'provenance': {**provenance, 'image_source': 'box_views'},
-                  'prompt': 'visual_pipeline.build_prompt verbatim; images: critic_025 box views (oblique, then top)',
+                  'prompt': 'visual_pipeline.build_prompt verbatim + id->category list (addendum B); images: critic_025 box views (oblique, then top)',
                   'views_code_sha256': render.file_sha256(critic.__file__),
                   'counts': {'rooms': len(b_rows), 'selected': n, 'api_cases': len(requests), 'failed': len(failures)},
                   'judge_batch': f'--arms C,B --max-cases {n} --expected-total {n} '

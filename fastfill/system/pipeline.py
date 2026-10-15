@@ -158,6 +158,7 @@ def _score(task):
             'violations': sum(geo[k] for k in VIOLATIONS) if geo else None,
             'accepted': s1['accepted_s1'], 's1_status': s1['status'], 'layout': out['s1_layout'],
             # required={} admission (amendment 017); '_' keys are never written, so default outputs are unchanged.
+            '_strict': bool(s1.get('strict_ok_s1')),
             '_noreq': bool(v.get('endpoint_ok') and v.get('attach_ok') and v.get('admit_no_required_ok'))}
 
 
@@ -170,10 +171,11 @@ def _score_all(tasks, workers):
 
 def best(candidates, trigger='checker'):
     """Checker pass > complete > fewer checker violations; max keeps the first (earlier stage) on ties.
-    trigger 'strict' (amendment 026 addendum B): checker pass > strict admission > required={} > complete > fewer."""
+    trigger 'strict' (amendment 026 addendum B): checker pass > strict admission (alone, as frontier_026 ranks) >
+    required={} > complete > fewer."""
     tail = lambda c: (c['complete'], -math.inf if c['violations'] is None else -c['violations'])
     if trigger == 'strict':
-        return max(candidates, key=lambda c: (c['checker_pass'], c['accepted'], c['_noreq'], *tail(c)))
+        return max(candidates, key=lambda c: (c['checker_pass'], c['_strict'], c['_noreq'], *tail(c)))
     return max(candidates, key=lambda c: (c['checker_pass'], *tail(c)))
 
 

@@ -178,7 +178,7 @@ def usage(serving, base, prior, o2):
     """Run from the assembled package directory (code/ on PYTHONPATH)."""
     return ('PYTHONPATH=code python -m fastfill.system.cli run --requests ROOMS.jsonl --prior size-priors.json '
             f"--prior-sha256 {prior['sha256']} --placer {serving} --model {base} "
-            f"--adapter placer/adapter --escalate l+o2 --api-cap {ev.SCOPES['cohort']['api_calls']} "
+            f"--adapter placer/adapter --escalate l+o2 --escalate-on strict --api-cap {ev.SCOPES['cohort']['api_calls']} "
             f"--api-max-rooms {ev.SCOPES['cohort']['api_rooms']} --env-file ~/.fastfill_api.env --o2-model {o2} "
             '--workers 32 --out NEW_DIR')
 
@@ -220,9 +220,13 @@ def card(v):
     m, p, esc = v['measured'], v['placer'], v['escalation']
     interim = v['release'] == 'interim'
     tag_zh = '临时版（interim）：放置器 R = rpo-dpo1，在修订 021 §4 完成前打包，不改变任何决定' if interim else \
-        '正式版（final）：放置器为修订 021 §4 选定并确认的模型'
+        '正式版（final）：放置器为修订 021 §4 选定并确认的模型。推荐升级规则 --escalate-on strict（修订 026 附录 B，探索性采纳）；' \
+        '本卡所有实测数字都来自旧的 checker 触发规则（修订 022），strict 规则的证据是修订 026 的离线回放（results/frontier-026-v4）'
     tag_en = ('INTERIM: placer R = rpo-dpo1, packaged before amendment 021 §4 finishes; it changes no decision'
-              if interim else 'FINAL: the placer selected and confirmed by amendment 021 §4')
+              if interim else 'FINAL: the placer selected and confirmed by amendment 021 §4. Recommended escalation '
+              '--escalate-on strict (amendment 026 addendum B, exploratory adoption); every measured number in this card '
+              'used the earlier checker trigger (amendment 022); the strict rule\'s evidence is the amendment-026 offline '
+              'replay (results/frontier-026-v4)')
     zh_stage = {'raw': '放置器原始', 's1': '+S1', 'system': '+升级'}
     header_zh = ['阶段', '完整率', '检查器成功', '严格准入', 'required={} 准入', 'OOR']
     header_en = ['stage', 'complete', 'checker success', 'strict admission', 'required={} admission', 'OOR']

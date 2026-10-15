@@ -171,3 +171,8 @@ def test_sc_refuses_changed_objects_or_rooms(tmp_path, change):
     with pytest.raises(ValueError):
         jb.sc(tmp_path / 'critic.jsonl', s_dir(tmp_path), tmp_path / 'SC')
     assert not (tmp_path / 'SC').exists()
+
+
+def test_prompt_lists_every_box_id_with_its_category():
+    text = jb._legend([{'id': 'obj_0002', 'category': 'chair'}, {'id': 'obj_0001', 'category': 'desk'}])
+    assert '"id": "obj_0001", "category": "desk"' in text and '"id": "obj_0002", "category": "chair"' in text
