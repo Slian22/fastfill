@@ -226,6 +226,62 @@ Size log MAE is 0.239 and B −0.022 at every stage.
 
 **Test scope.** O2 escalation only, sharded ×4 under addendum B; 2,229 rooms escalated; running.
 
+## Delivered system on all 8,647 test rooms (amendment 022 addendum B; local O2 escalation, no GPT API; checker trigger; `results/system-022-test-sharded/`)
+
+| Stage | Checker | Strict admission | required = {} | OOR |
+|---|---|---|---|---|
+| 27B raw | 0.443 | 0.216 | 0.533 | 0.256 |
+| + S1 | 0.742 | 0.291 | 0.637 | 0.153 |
+| + O2 escalation | 0.890 | 0.343 | 0.667 | 0.108 |
+| GT | 0.723 | 0.295 | — | 0.079 |
+
+**Escalation**
+- 2,229 rooms (25.8 %) were escalated, and O2 repaired 1,278 of them (57 %).
+- Final output source: placer 7,348, o2 1,297, fallback 2.
+- No room is empty, and every size is unchanged.
+
+**By object count** (checker / strict): ≤ 20 objects 0.933 / 0.382; 21–50 objects 0.710 / 0.161; > 50 objects 0.559 / 0.110.
+
+**Reading.** A rate above GT only means a higher pass rate under these rules, not better layouts than the real ones.
+
+## Local-first vs big model for every room (amendment 026; offline replay; EXPLORATORY; `results/frontier-026-v4/`)
+
+**Policies**
+- ESC-CHECK: escalate when the checker fails.
+- ESC-STRICT: escalate when the checker or strict admission fails.
+- In both, the better of the two answers is kept.
+
+**Results**
+- **Scope C** (300 test rooms, 20 per family):
+  - ESC-STRICT escalates 65 % and reaches checker 0.990, strict 0.643, required = {} 0.820.
+  - Big model for every room (gpt-6.1-sol): 0.973 / 0.620 / 0.777.
+  - Difference: strict +0.023 [+0.009, +0.041], checker +0.017, required = {} +0.043.
+  - Cost: 196 vs 301 calls; 67 % of the input tokens and 88 % of the output tokens.
+- **Scope A** (300 pilot rooms): strict +0.030 [+0.011, +0.051], but OOR is worse (0.042 vs 0.035).
+- **Scope B** (O2 as the big model): the same direction.
+- **Per family:** ESC-STRICT is never worse than the big model for every room. Escalation ranges from 25 % (garage) to 75–80 % (bedroom, living) and 95 % (dining, meeting).
+
+**Limits**
+- Scope C is not independent: 35 of its rooms are cohort uids and 138 share a house group with the cohort. It is a type-expanded exploratory recheck.
+- ESC-STRICT is adopted for the delivered method (026 addendum B) on this exploratory evidence.
+- No full end-to-end test run of the strict trigger exists yet.
+
+## Critic → constrained repair (amendment 025; SceneSmith-style; `results/a025-dev`, `results/a025-test`)
+
+**Dev, 246 family-balanced rooms (27B + S1 → + critic).** It is adopted by the pre-registered rule, with addendum B applied.
+- Judge, (functionality + layout) / 2: 5.91 → 7.33, +1.40 [+1.24, +1.56], 244 / 246 rooms paired.
+- Checker +0.179, strict admission +0.305, required = {} +0.146.
+
+**Test application, 174 judge rooms** (delivered system output S → S + critic).
+- Strict admission 0.598 → 0.891, +0.293 [+0.222, +0.365].
+- Checker 0.966 → 0.983; required = {} 0.885 → 0.960; OOR 0.033 → 0.016.
+- The test judge score is pending.
+
+**Cost and caveats**
+- About 1.8 gpt-6.1-sol image calls and about 16k input tokens per room.
+- The edits are large: median displacement 0.8–1.0 m.
+- The critic (gpt-6.1-sol) and the judge (gpt-6-astra) are both GPT-6 models.
+
 ## Visual metrics of the 27B placer (amendment 024 arm A; 1,005 paper-strata rooms; `results/visual-024/`)
 
 Run-002 rendering is reproduced exactly (pixel-identical re-render; GT and P mesh rows identical to amendment 019).
