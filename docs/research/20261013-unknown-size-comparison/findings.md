@@ -204,6 +204,23 @@ Pooled over the six paper strata, per-agent populations = reference ∩ J ∩ P 
 - The trained models' layouts look much closer to the real layouts than every agent's.
 - **Caveat (addendum B4):** FID is size-sensitive. Agents render 16–35 % smaller furniture, so part of the gap is size. No claim rests on FID alone.
 
+## GPT judge (secondary; 174 pre-selected paper-strata rooms; judge = gpt-6.1-sol; `results/gpt-judge-visual-002/`)
+
+Overall scores, out of 10:
+
+| System | Overall | Rooms judged / selected |
+|---|---|---|
+| J | 6.31 | 173 / 174 |
+| P | 6.16 | 170 / 174 |
+| L | 7.91 | 173 / 174 |
+| O6 | 6.83 | 167 / 174 |
+
+The functionality, layout and aesthetics sub-scores follow the same order.
+
+- **Conflict of interest.** The judge is the same model as the compared system L (addendum B4), so this is a secondary metric and no claim rests on it.
+- **The judge's ranking is the opposite of FID's:** the judge favours the agents, FID favours the trained models.
+- **Failures.** 13 of 692 judgements failed and 4 rooms had no render; all are reported as missing, never filled.
+
 ## Mesh-level collisions on rendered rooms (amendment 019; 1,005 paper-strata rooms; EXPLORATORY)
 
 Every object's real reference mesh is placed into its bbox exactly as rendered. The primary threshold is τ = 500 cm³ of voxel interpenetration.
