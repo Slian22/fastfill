@@ -2,11 +2,11 @@
 
 ## Status
 
-**Delivered model so far: P = rpo-dpo1.** It takes train-prior sizes and the model predicts the placement.
+**Delivered model: arm P (train-prior sizes, placement by the model).** Placer until 021 §4: rpo-dpo1; from 021 §4: the 27B student.
 
 **Delivered system: amendment 022.**
 - Pipeline: prior sizes → placer → S1 repair → escalation of failing rooms (gpt-6.1-sol, then O2) → best candidate → fallback.
-- Its placer is fixed by amendment 021 §4, a final selection across R, 013 op-dpo2-e1 (adopted on dev) and the 27B student (Arm A, training).
+- Its placer is the **27B student** (Arm A, vLLM). Amendment 021 §4 selected it on dev and confirmed it (+0.053 checker vs R on 3,000 confirm rooms); test is running.
 - 018 adopted nothing (see below).
 
 **Completed and below:**
@@ -20,7 +20,7 @@
 - admission variants (017).
 
 **Pending:**
-- 021 candidates → confirm → test;
+- 021 test (27B and R on vLLM);
 - 022 cohort/test with the final placer;
 - the 014 OptiScene reproduction chain (DPO1 training);
 - 020 OptiScene placer parts.
@@ -154,6 +154,32 @@ Checker success, with the difference to R (paired house-cluster bootstrap, 2,000
 - **Completeness fell with each DPO stage** on the distilled targets.
 - SFT-D's higher strict admission (0.282 vs 0.252) is outside the rule (exploratory).
 - **Lesson:** 6,184 teacher targets did not transfer the teacher's success to the 8B. Its zero-shot strength needs long reasoning: O2 without thinking passes 0.06–0.08 (amendment 021 §1.4).
+
+## Final placer selection (amendment 021 §4; binding rule; `results/a021-selection/`)
+
+**Candidates on dev-select (600 rooms), each on its serving engine:**
+
+| Candidate | Engine | Complete | Checker | Strict admission | GT-relation hold rate | OOR |
+|---|---|---|---|---|---|---|
+| R = rpo-dpo1 | HF exact | 0.998 | 0.470 | 0.252 | 0.702 | 0.127 |
+| op-dpo2-e1 (013) | HF exact | 0.995 | 0.515 | 0.332 | 0.629 | 0.050 |
+| **27B student (Arm A)** | vLLM greedy | 0.997 | 0.510 | 0.263 | 0.740 | 0.132 |
+| R (same-engine reference) | vLLM greedy | 0.998 | 0.445 | 0.227 | 0.703 | 0.139 |
+
+- **op-dpo2-e1 fails the GT-relation hold guard:** 0.629 against a floor of 0.672 (R − 0.03). It keeps fewer of GT's `on` and `against_wall` relations.
+- **The 27B passes every guard** and has the highest checker success among eligible candidates.
+- **Tie band:** max(0.01, R's run-to-run spread on vLLM). The spread is 0.0033, so the band is 0.01.
+
+**Confirm slice (3,000 dev rooms, vLLM):**
+- 27B 0.444 vs R 0.391.
+- Difference +0.053 [+0.037, +0.068], house-cluster bootstrap, 2,000 draws.
+- **Confirmed: the delivered placer is the 27B student.** Test runs once, for the 27B and for R on the same engine.
+
+**Context**
+- The 27B is Qwen3.8-27B with a LoRA SFT on 40,000 rooms that have an admitted P target, served with thinking off.
+- Zero-shot without thinking, the same base passes 0.06–0.08 (§1.4).
+- Fine-tuning therefore replaces the ~11–16k reasoning tokens that O2 needs.
+- **Engine gap.** On dev, R is 0.025 lower on vLLM than on HF exact. The 27B is still +0.040 above R's HF number.
 
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
@@ -404,6 +430,6 @@ Strict = our port (every category required, every door an entry); required = {} 
 
 ## Open questions
 
-- Does the 27B student or op-dpo2-e1 beat R on dev-select and the 3,000-room confirm slice (021 §4)?
+- How does the 27B student do on all 8,647 test rooms, next to R on the same engine (021 test)?
 - What do the delivered system's checker success, admission and API cost come to on the 1,454-room cohort and on all test rooms (022 §2)?
 - How does the official OptiScene reproduction (014) compare under the same checker, with and without S1 (016 §4)?
