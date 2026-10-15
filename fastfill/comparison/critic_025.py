@@ -778,7 +778,10 @@ def evaluate(b, c, out, judge=None, workers=1):
         edited += bool(yaw or any(disp))
         inv.update(invariants(rb['layout'], rc['layout']))
     rounds = sorted({x['round'] for r in c_rows for x in r['history']})
-    value = {'protocol': 'amendment-025-dev', 'rooms': len(uids), 'per_family': b_summary['selection']['per_family'],
+    per_family = b_summary['selection'].get('per_family') or dict(collections.Counter(
+        family(r['room'].get('room_type')) for r in b_rows))                 # rows_system (section 3) states
+    value = {'protocol': 'amendment-025-dev' if b_summary.get('status') == 'A025_B_COMPLETE' else 'amendment-025-test',
+             'rooms': len(uids), 'per_family': per_family,
              'b_manifest_sha256': b_sha,
              'c_manifest_sha256': c_sha, 'c_round': c_summary['round'], 'rates': rates,
              'contrast_c_minus_b': contrast, 'bootstrap': {'draws': REPEATS, 'seed': SEED, 'cluster': 'house group'},
