@@ -193,6 +193,53 @@ Checker success, with the difference to R (paired house-cluster bootstrap, 2,000
 - Fine-tuning therefore replaces the ~11–16k reasoning tokens that O2 needs.
 - **Engine gap.** On dev, R is 0.025 lower on vLLM than on HF exact. The 27B is still +0.040 above R's HF number.
 
+## Delivered system (amendment 022; API system; `results/system-022-cohort/`)
+
+**Cohort, 1,454 rooms.** Pipeline: 27B placer replayed → S1 → escalation of every room still failing the checker (gpt-6.1-sol first, then O2) → best candidate.
+
+| Stage | Checker | Strict admission | required = {} | OOR |
+|---|---|---|---|---|
+| 27B raw | 0.556 | 0.349 | 0.765 | 0.165 |
+| + S1 | 0.854 | 0.453 | 0.820 | 0.083 |
+| + escalation | 0.993 | 0.520 | 0.854 | 0.056 |
+
+Size log MAE is 0.239 and B −0.022 at every stage.
+
+**Escalation**
+- 212 rooms (14.6 %) were escalated.
+- gpt-6.1-sol: 225 calls; 197 of its rooms then passed.
+- O2: 15 rooms, 36 calls; 5 then passed.
+- Final output source: placer 1,247, gpt 202, o2 5.
+- No room was empty, and escalation changed 0 object sizes.
+
+**Paired contrasts** (house-cluster bootstrap, 2,000 draws)
+- Checker: S1 − raw +0.298 [+0.274, +0.320]; system − S1 +0.139 [+0.123, +0.156].
+- Against agents given the same prior sizes, the system's strict admission is lower:
+  - −0.210 [−0.270, −0.152] vs L + S1 (300 pilot rooms);
+  - −0.181 [−0.207, −0.155] vs O2 harness + S1.
+- required = {} admission ≈ L + S1: −0.017 [−0.047, +0.013].
+
+**Caveats**
+- Escalation is triggered by the checker, so a near-1 checker rate is expected by construction.
+- The escalation design was simulated on the 300 pilot rooms before it was locked.
+- The cohort is easier than all of test: 27B + S1 reaches 0.854 here vs 0.742 on all test.
+
+**Test scope.** O2 escalation only, sharded ×4 under addendum B; 2,229 rooms escalated; running.
+
+## Visual metrics of the 27B placer (amendment 024 arm A; 1,005 paper-strata rooms; `results/visual-024/`)
+
+Run-002 rendering is reproduced exactly (pixel-identical re-render; GT and P mesh rows identical to amendment 019).
+
+| Metric | 27B raw | Comparison on the same population |
+|---|---|---|
+| FID | 22.9 | J 22.3, P 24.0, agents 32.1–40.4 |
+| KID | 0.00068 ± 0.00014 | — |
+| Mesh collision-free (τ 500) | 0.575 | P 0.548, GT 0.797, agents 0.84–0.98 (own, smaller sizes) |
+| OOR | 0.037 | P 0.030, GT 0.026 |
+| Checker on these rooms | 0.635 | P 0.599 |
+
+The delivered system's arm S and the judge for arms A and S follow the test run.
+
 ## Why P trails (research memo + skeptical review, `solution-research-20261014b/`; EXPLORATORY)
 
 **Corrected comparison**
@@ -442,5 +489,5 @@ Strict = our port (every category required, every door an entry); required = {} 
 
 ## Open questions
 
-- What do the delivered system's checker success, admission and API cost come to on the 1,454-room cohort and on all test rooms (022 §2)?
+- What does the delivered system reach on all 8,647 test rooms with O2-only escalation (022 addendum B, running)? What are its FID and judge scores (024 arm S)?
 - How does the official OptiScene reproduction (014) compare under the same checker, with and without S1 (016 §4)?
