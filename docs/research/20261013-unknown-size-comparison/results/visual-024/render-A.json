@@ -1,0 +1,26 @@
+{
+  "amendment": "024",
+  "arm": "A",
+  "blender": "/Applications/Blender.app/Contents/MacOS/Blender",
+  "blender_versions": {
+    "5.2.1 LTS": 1005
+  },
+  "counts": {
+    "failed": 4,
+    "frozen": 1009,
+    "rendered": 1005
+  },
+  "files": {
+    "failures.jsonl": "eaac29b8cfdd21dcf7b3b8fdb82326726cf92db4110135b4c286f932b9e29dc1",
+    "ledger.json": "769d98f03ea5f509eecb20ab758a720bafa67103e398db5917a1ac4d6b9fe986"
+  },
+  "limit": null,
+  "statuses": {
+    "attachment_failed": 4,
+    "rendered": 1005
+  },
+  "threads": 3,
+  "timeout_seconds": 86400,
+  "wall_seconds": 4209.997017457994,
+  "workers": 2
+}
