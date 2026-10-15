@@ -42,4 +42,4 @@ B = 27B + S1，C = 27B + S1 + critic 修复（最多 2 轮，最终状态为第 
 
 失败或无效的 critic 调用不重试、不替换，房间保持未编辑并计入上表。按构造，C 的检查器和严格准入在每个房间都不劣于 B（编辑集只有在字典序不变差、严格准入不由过变不过时才被接受）。这是 dev 上的探索性结果，不改变任何已报告结果。
 
-披露：dev 房间无法接入 run-002 的 Blender 管线，judge 看的是 critic 的同款盒子视图（judge_bundle_025，image_source = box_views），物体按冻结检查器标记着色；按构造 C 的检查器结果不劣于 B，这种着色可能使 judge 端点偏向 C。
+披露：dev 房间无法接入 run-002 的 Blender 管线，judge 看的是盒子视图（judge_bundle_025，image_source = box_views）。正式评委的视图为中性配色、无检查器图例，提示词附 id→类别清单（附录 B），无类别的诊断评分不用于采纳。critic（gpt-6.1-sol）与评委（gpt-6-astra）同属 GPT-6 家族，同家族偏好未排除。

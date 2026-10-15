@@ -1,0 +1,7 @@
+{
+  "status": "DELIVERY_PACKAGE_ASSEMBLED",
+  "package": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/system-022/final/package-v2",
+  "package_manifest_sha256": "e3737a29930ec973b2b6b60e204c2a6e1fc945b092aad76119bcb5c31d0e3af4",
+  "sha256sums_sha256": "51c8e5fc1cd4106b514074727b393078160cd7e6f0f096d820de8bd8d85bcab3",
+  "files_verified": 76
+}

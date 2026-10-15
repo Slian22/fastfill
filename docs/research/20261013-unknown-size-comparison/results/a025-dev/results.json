@@ -182,7 +182,7 @@
     "adopted": true
   },
   "code_sha256": {
-    "critic_025.py": "9b5715949ed146c9a52d5d5e7116a936966a90be2f2c21d9c6955f1d06fe96c3",
+    "critic_025.py": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca",
     "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
     "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
     "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"

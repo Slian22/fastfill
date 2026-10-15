@@ -52,7 +52,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
 <header style="display:grid;gap:10px">
   <div class="eyebrow">FastFill · unknown-size · 2026-10-15</div>
   <h1>FastFill 布局系统交付</h1>
-  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可导出到 RoomGenBench。这是一个“本地模型优先、大模型兜底”的系统。所有数字都是实测；离线回放、探索性的结果都单独注明；没测的格子标“—”。</p>
+  <p class="lede">输入房间信息（边界、层高、门窗、固定物、房型）和需要的家具清单，输出每件家具的 bbox 尺寸、位置、朝向和支撑关系，可导出到 RoomGenBench。这是一个“本地模型优先、大模型兜底”的系统。除注明为估计的 token 数外，所有数字都是实测；离线回放、探索性的结果单独注明；没测的格子标“—”。交付方法用新的升级规则，但全测试集上实测的是旧规则（检查器失败才升级、本地 O2）；新规则在全测试集上端到端没有跑过。</p>
 </header>
 
 <section>
@@ -70,7 +70,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
     <li><b>尺寸</b>：每类家具用训练集统计的尺寸，模型不改尺寸。</li>
     <li><b>布局模型</b>：Qwen3.8-27B + LoRA（4 万个房间 SFT，推理不开思考）。修订 021 预注册选择并确认，全测试集 8,647 房检查器比旧 8B 高 +0.044 [+0.033, +0.056]。</li>
     <li><b>S1 修复</b>：只平移支撑子树，不改类别、尺寸、朝向、父子关系；不用 GPU 和 API。</li>
-    <li><b>升级</b>：S1 后检查器或严格准入任一不过的房间交给 gpt-6.1-sol（再不行用本地 O2），按“检查器 > 严格准入 > required={}”取两份中更好的。这条规则来自修订 026 的离线回放，属于探索性采纳。</li>
+    <li><b>升级</b>：S1 后检查器或严格准入任一不过的房间交给 gpt-6.1-sol（再不行用本地 O2），按“检查器 > 严格准入 > required={}”取两份中更好的。这条规则来自修订 026 的离线回放，属于探索性采纳；全测试集上实测的是旧规则（只在检查器失败时升级、只用本地 O2），新规则的端到端全测试没有跑过。</li>
     <li><b>critic 修复（可选）</b>：gpt-6.1-sol 看盒子视图给出最多 5 条受限编辑（移动、旋转、靠墙、朝向；不增删、不改尺寸），每组编辑后重跑 S1 并复核，最多 2 轮。dev 上按预注册规则采纳。</li>
   </ol>
   <p class="note">交付包：<code>/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-final/</code>（1.1 GB，76 个文件 sha256 全部校验通过）：placer/adapter（27B LoRA）、size-priors.json、code/（系统、S1、升级、critic）、evaluation/、MODEL_CARD.md。底座 Qwen3.8-27B 是公开模型，不随包复制。</p>
@@ -85,7 +85,7 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ours"><td>　+ S1</td><td>0.742</td><td>0.291</td><td>0.637</td><td>0.153</td><td>—</td></tr>
       <tr class="ours"><td>　+ 本地 O2 升级（无 GPT API）</td><td>0.890</td><td>0.343</td><td>0.667</td><td>0.108</td><td>25.8%</td></tr>
       <tr class="ref"><td>　GT（真实布局）</td><td>0.723</td><td>0.295</td><td>—</td><td>0.079</td><td>—</td></tr>
-      <tr class="ours"><td>队列 1,454：27B 单次 → S1 → gpt-6.1-sol / O2 升级</td><td>0.556 → 0.854 → 0.993</td><td>0.349 → 0.453 → 0.520</td><td>0.765 → 0.820 → 0.854</td><td>0.165 → 0.056</td><td>14.6%</td></tr>
+      <tr class="ours"><td>队列 1,454：27B 单次 → S1 → gpt-6.1-sol / O2 升级</td><td>0.556 → 0.854 → 0.993</td><td>0.349 → 0.453 → 0.520</td><td>0.765 → 0.820 → 0.854</td><td>0.165 → 0.083 → 0.056</td><td>14.6%</td></tr>
     </tbody>
   </table></div>
   <p class="note">全测试按家具数：≤20 件检查器 0.933、21–50 件 0.710、>50 件 0.559，严格准入分别 0.382 / 0.161 / 0.110。升级由检查器触发，所以检查器分数在构造上偏高；比 GT 高只表示这套规则下通过率更高，不等于布局比真实布局更好。没有一个房间输出为空，没有家具被改尺寸。来源：<code>results/system-022-test-sharded</code>、<code>system-022-cohort</code>。</p>
@@ -106,46 +106,46 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
       <tr class="ref"><td>每个房间都用 gpt-6.1-sol</td><td>100%</td><td>0.977</td><td>0.723</td><td>0.850</td><td>0.035</td><td>4,854 / 549</td></tr>
     </tbody>
   </table></div>
-  <p class="note">新规则 − 全用 gpt-6.1-sol：15 类房型集上严格准入 +0.023 [+0.009, +0.041]、检查器 +0.017、required={} +0.043；pilot 上严格准入 +0.030 [+0.011, +0.051]，但 OOR 更差（0.042 vs 0.035）。调用按账本 196 vs 301；输入 token 为 67%、输出为 88%；美元费用没核算。每类房型里新规则都不差于全用 gpt-6.1-sol，但升级比例差很多：车库 25%、阳台和厨房 40%，卧室 75%、客厅 80%、餐厅和会议室 95%。<br>边界：这是离线回放（大模型答案是同设置的已有答案）；15 类房型集里有 35 间与 1,454 队列重复、138 间同房屋组，所以只是“房型扩展的探索性复核”，不是独立确认。用本地 O2 代替 gpt-6.1-sol 时结论相同（1,454 房：0.956 / 0.725 / 0.870 vs 全用 O2 0.928 / 0.701 / 0.801）。来源：<code>results/frontier-026-v4</code>。</p>
+  <p class="note">新规则 − 全用 gpt-6.1-sol：15 类房型集上严格准入 +0.023 [+0.009, +0.041]、检查器 +0.017、required={} +0.043；pilot 上严格准入 +0.030 [+0.011, +0.051]，但 OOR 更差（0.042 vs 0.035）。调用按账本 196 vs 301；输入 token 为 67%、输出为 88%；美元费用没核算。按 15 个房间族（含 other 和 none，每族只有 20 间）看，点估计上新规则在三项规则指标上都不低于全用 gpt-6.1-sol，但样本太小，不能据此断言每类都不差；升级比例差很多：车库 25%、阳台和厨房 40%，卧室 75%、客厅 80%、餐厅和会议室 95%。<br>边界：这是离线回放（大模型答案是同设置的已有答案）；15 类房型集里有 35 间与 1,454 队列重复、138 间同房屋组，所以只是“房型扩展的探索性复核”，不是独立确认。用本地 O2 代替 gpt-6.1-sol 时结论相同（1,454 房：0.956 / 0.725 / 0.870 vs 全用 O2 0.928 / 0.701 / 0.801）。来源：<code>results/frontier-026-v4</code>。</p>
 </section>
 
 <section>
   <h2>表 3　critic 修复（参考 SceneSmith，修订 025）</h2>
   <div class="frame"><table>
-    <thead><tr><th>指标</th><th>27B + S1</th><th>+ critic</th><th>差值 [95% CI]</th></tr></thead>
+    <thead><tr><th>指标</th><th>改前</th><th>+ critic</th><th>差值 [95% CI]</th></tr></thead>
     <tbody>
-      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>dev 246 间（15 类房型均衡，按预注册规则采纳）</b></td></tr>
+      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>dev 246 间，改前 = 27B + S1（15 个房间族，每族最多 31 间；按预注册规则采纳，评委覆盖 244/246 ≥ 90%）</b></td></tr>
       <tr class="ours"><td>GPT 评委（功能 + 布局）/ 2</td><td>5.91</td><td>7.33</td><td>+1.40 [+1.24, +1.56]（244 房）</td></tr>
       <tr class="ours"><td>检查器</td><td>0.776</td><td>0.955</td><td>+0.179 [+0.128, +0.231]</td></tr>
       <tr class="ours"><td>严格准入</td><td>0.390</td><td>0.695</td><td>+0.305 [+0.250, +0.362]</td></tr>
       <tr class="ours"><td>required={}</td><td>0.752</td><td>0.898</td><td>+0.146 [+0.103, +0.191]</td></tr>
-      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>测试集 174 间（论文房型的评委房；交付系统输出 → + critic）</b></td></tr>
+      <tr><td colspan="4" style="text-align:left;font-family:var(--body)"><b>测试集 174 间（论文房型的评委房），改前 = 交付系统测试输出（旧检查器触发 + 本地 O2）</b></td></tr>
       <tr class="ours"><td>GPT 评委（功能 + 布局）/ 2（Blender 渲染）</td><td>6.96</td><td>7.73</td><td>+0.77 [+0.60, +0.95]（173 房）</td></tr>
       <tr class="ours"><td>检查器</td><td>0.966</td><td>0.983</td><td>+0.017 [0.000, +0.045]</td></tr>
       <tr class="ours"><td>严格准入</td><td>0.598</td><td>0.891</td><td>+0.293 [+0.222, +0.365]</td></tr>
       <tr class="ours"><td>required={}</td><td>0.885</td><td>0.960</td><td>+0.075 [+0.036, +0.119]</td></tr>
     </tbody>
   </table></div>
-  <p class="note">测试集上 critic 是加在交付系统输出之后（不是 27B 单次），174 房里 157 房被修改，共 309 次 critic 调用。critic 每房平均 1.8 次 gpt-6.1-sol 调用（带图，每房约 16k 输入 token），比一次重新生成贵。编辑幅度大：位移中位 0.98 m、95 分位 6.5 m。评委 gpt-6-astra 与 critic gpt-6.1-sol 同属 GPT-6 家族，同家族偏好没有排除。评委看的是盒子视图（中性配色，提示词附 id→类别清单）。来源：<code>results/a025-dev</code>。</p>
+  <p class="note">测试集上 critic 是加在交付系统输出之后（不是 27B 单次），174 房里 157 房被修改，共 309 次 critic 调用；测试评委看的是 Blender 渲染。dev 上 critic 每房平均 1.8 次 gpt-6.1-sol 调用（带图，每房约 16k 输入 token），比一次重新生成贵；dev 评委看的是盒子视图（中性配色、无检查器图例，提示词附 id→类别清单）。编辑幅度大：位移中位 dev 0.98 m / 测试 0.79 m，95 分位 dev 6.5 m / 测试 4.6 m。评委 gpt-6-astra 与 critic gpt-6.1-sol 同属 GPT-6 家族，同家族偏好没有排除。来源：<code>results/a025-dev</code>、<code>results/a025-test</code>、<code>results/visual-024</code>。</p>
 </section>
 
 <section>
   <h2>表 4　视觉与物理指标（OptiScene / LayoutGPT / SceneSmith 口径）</h2>
   <div class="frame"><table>
-    <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 评分 ↑</th></tr></thead>
+    <thead><tr><th>系统</th><th>FID ↓</th><th>KID ↓</th><th>OOR ↓</th><th>网格无碰撞房间 ↑</th><th>GPT 总分 ↑（评分房间数）</th></tr></thead>
     <tbody>
-      <tr class="ours"><td>交付系统 + critic</td><td>—</td><td>—</td><td>—</td><td>—</td><td>7.54</td></tr>
-      <tr class="ours"><td>交付系统（27B + S1 + 本地 O2 升级）</td><td>22.8</td><td>0.0007</td><td>0.026</td><td>0.775</td><td>6.83</td></tr>
-      <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td>6.58</td></tr>
-      <tr><td>旧 8B 模型 P（单次）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15</td></tr>
-      <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01</td></tr>
+      <tr class="ours"><td>交付系统（旧触发）+ critic</td><td>—</td><td>—</td><td>—</td><td>—</td><td>7.54（173）</td></tr>
+      <tr class="ours"><td>交付系统（27B + S1 + 本地 O2，旧检查器触发）</td><td>22.8</td><td>0.0007</td><td>0.026</td><td>0.775</td><td>6.83（173）</td></tr>
+      <tr class="ours"><td>27B 单次</td><td>22.9</td><td>0.0007</td><td>0.037</td><td>0.575</td><td>6.58（173）</td></tr>
+      <tr><td>旧 8B 模型 P（单次）</td><td>24.0</td><td>0.0014</td><td>0.030</td><td>0.548</td><td>6.15（172）</td></tr>
+      <tr><td>gpt-6.1-sol（L）</td><td>32.1</td><td>0.0072</td><td>0.011</td><td>0.979</td><td>8.01（171）</td></tr>
       <tr><td>O2（998 房）</td><td>33.7</td><td>0.0095</td><td>0.008</td><td>0.976</td><td>—</td></tr>
-      <tr><td>O6</td><td>34.4</td><td>0.0103</td><td>0.008</td><td>0.896</td><td>6.84</td></tr>
+      <tr><td>O6</td><td>34.4</td><td>0.0103</td><td>0.008</td><td>0.896</td><td>6.84（170）</td></tr>
       <tr><td>O4 / O7</td><td>37.7 / 40.4</td><td>0.0147 / 0.0170</td><td>0.010 / 0.014</td><td>0.835 / 0.862</td><td>—</td></tr>
       <tr class="ref"><td>GT</td><td>—</td><td>—</td><td>0.026</td><td>0.797</td><td>—</td></tr>
     </tbody>
   </table></div>
-  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 评分：174 房，评委 gpt-6-astra（reasoning high），Blender 渲染，各行同一评委、同一提示词、同一批房间；critic 行只在这 174 房上渲染，所以没有 FID 和网格碰撞。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
+  <p class="note">6 个论文房型，1,005 个渲染房，FID/KID 合并计算、没有置信区间。代理用的是它们自己定的偏小尺寸，FID、OOR、碰撞都对尺寸敏感。GPT 总分（overall，含美观；表 3 用的是（功能+布局）/2，所以交付系统在表 3 是 6.96）：从同一批 174 个房间里选，括号里是实际评到的房间数；评委 gpt-6-astra（reasoning high），Blender 渲染，各行同一评委、同一提示词；critic 行只在这 174 房上渲染，所以没有 FID 和网格碰撞。OptiScene 论文的 FID 26.5–41.7、GPT-4o 8.3–9.4 是按房型分别算的，渲染器、参考集、样本量都不同，不能直接比较。来源：<code>results/visual-024</code>、<code>fid-011-visual-002</code>、<code>gpt-judge-023-astra-high</code>、<code>mesh-collision-019</code>。</p>
 </section>
 
 <section>
@@ -164,11 +164,11 @@ pre.mermaid { background: var(--sheet); border: 1px solid var(--rule); border-ra
 <section>
   <h2>我们的做法和发现</h2>
   <ol>
-    <li><b>本地模型和大模型互补。</b>先用本地 27B + S1，再把检查器或严格准入不过的房间交给大模型，取两者中更好的。这样比每个房间都交给大模型的质量更好（严格准入 +0.02~+0.03），而且只用约 2/3 的输入 token。这是训练本地模型的主要价值（探索性，离线回放）。</li>
-    <li><b>尺寸和摆放分开。</b>尺寸用数据统计，模型只学放在哪，输出的家具都是正常大小。代价是摆放更难：真实布局换成先验尺寸后，检查器也只有 0.433。</li>
+    <li><b>本地模型和大模型互补。</b>先用本地 27B + S1，再把检查器或严格准入不过的房间交给大模型，取两者中更好的。这样比每个房间都交给大模型的严格准入和 required={} 更高（严格准入 +0.02~+0.03；pilot 上 OOR 反而更差），只用约 2/3 的输入 token（探索性，离线回放）。训练本身的贡献没有单独分离：还需要“未微调的同一底座 + 同样的 S1 和选择规则”这个消融。</li>
+    <li><b>尺寸和摆放分开。</b>尺寸用数据统计，模型只学放在哪，输出的家具都是正常大小。代价是摆放更难：真实布局换成先验尺寸后，检查器也只有 0.425。</li>
     <li><b>受限的 critic 修复。</b>参考 SceneSmith，但只允许移动、旋转、靠墙、朝向，并加了确定性复核。dev 上评委分数和几何都显著提高。</li>
     <li><b>确定性修复 S1。</b>不用 GPU 和 API，全测试检查器 0.443 → 0.742。</li>
-    <li><b>不思考的 27B 学生。</b>同一底座不思考时只有 0.08，微调后 0.443（全测试）；但没追上 O2 长思考的单次水平（0.787，同输入队列）。</li>
+    <li><b>不思考的 27B 学生。</b>同一底座不思考时只有 0.06–0.08；微调后在同输入队列上 0.556（全测试 0.443），但没追上 O2 长思考的单次水平（同一队列 0.787）。</li>
   </ol>
 </section>
 
