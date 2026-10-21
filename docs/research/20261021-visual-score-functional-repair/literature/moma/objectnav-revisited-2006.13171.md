@@ -1,0 +1,9 @@
+# ObjectNav Revisited: On Evaluation of Embodied Agents Navigating to Objects
+- Authors: Dhruv Batra, Aaron Gokaslan, Aniruddha Kembhavi, Oleksandr Maksymets, Roozbeh Mottaghi, Manolis Savva, Alexander Toshev, Erik Wijmans. arXiv 23 Jun 2020 (v2 30 Aug 2020). https://arxiv.org/abs/2006.13171 (read from the PDF text)
+- Why here (pre-2023, but it is the origin of the "viewpoint" definition that HomeRobot OVMM / Habitat episodes reuse): defines when a target object counts as reachable-and-seeable from the floor.
+- Valid viewpoint (success zone) = floor location that (1) is navigable, (2) is "within 1m of the oriented bounding box of the object instance or inside of the bounding box", and (3) the object "must be visible from that location under oracle-visibility" (in-place turning / camera tilt allowed). Viewpoints sampled on an agent-radius-scaled floor grid (exact grid fraction garbled in the PDF text; unverified). Instances with no valid viewpoint are dropped from the dataset.
+- Visibility recommendation if enforced: "at least 1 pixel corresponding to the object within frame".
+- Habitat 2020 success: STOP within 0.1m geodesic distance of a valid viewpoint. RoboTHOR 2020 success: target "within 1m and is in the field of view of the camera".
+- Embodiment: earlier Habitat agent = cylinder radius 0.1m, height 1.5m; 2020 config matches LoCoBot: base radius 0.18m, height 0.88m; forward 0.25m, turn 30 deg, look up/down 30 deg; camera HFOV 79 deg, 480 x 640, depth 0.5-6m. Episode filters: shortest path <= 750 actions, geodesic/Euclidean >= 1.05.
+- Relevance: directly implementable "see each task object" check on a top-down layout: exists a free cell (agent-radius-dilated grid, connected to the door) within 1 m of the target's OBB with an unobstructed line of sight (2D raycast against taller furniture) to the target; drop/repair if none.
+- Tags: sim-benchmark, open-vocab-nav-pick

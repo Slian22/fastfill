@@ -1,0 +1,8 @@
+# RoboLab: A High-Fidelity Simulation Benchmark for Analysis of Task Generalist Policies
+- Authors: Jenai Xuning Yang, Rishit Dagli, Alex Zook + 5 others (8 total; NVIDIA, U Toronto, U Sydney). arXiv 2604.09860 (v4 14 Aug 2026); RSS 2026 per search listing (unverified). https://arxiv.org/abs/2604.09860
+- What: LLM-generated tabletop scenes for evaluating VLAs: LLM gets theme + catalog with bbox sizes, outputs objects + predicates (place-on-base, place-in, place-on, cluster-around); geometric solver places in dependency order with progressively relaxed collision margins; Isaac Sim physics for 300 steps, object unstable if max displacement > "typically 0.02m"; failure text fed back to the LLM for refinement (max iterations not stated).
+- Robot: Franka Panda 7-DoF + Robotiq 2F-85, ZED 2i external + ZED mini wrist cameras; policies fine-tuned on DROID. Not mobile.
+- Benchmark: RoboLab-120 tasks (difficulty counts inconsistent in paper), 10 episodes/task. Success: pi0.5 28.0%, pi0-FAST 15.5%, GR00T N1.6 7.2%, pi0 5.0%, PaliGemma 3.4%. Ranking vs RoboArena Spearman 1.00, Pearson 0.68.
+- Layout-related failure causes: success degrades as object count rises (no numbers in text); object-pose success "peaked" near 0.5 m from the robot "likely due to robot reachability"; pi0.5 95.0% at 10/20 cm pose perturbation -> 62.5% at 30 cm; wrist-camera perturbation -> 60.0%.
+- Relevance: generate-validate-refine loop with an explicit stability threshold (0.02 m in 300 steps); reachability band around 0.5 m for a fixed arm is the tabletop analogue of base-pose feasibility.
+- Tags: sim-benchmark, scene-gen-for-robots, VLA-policy

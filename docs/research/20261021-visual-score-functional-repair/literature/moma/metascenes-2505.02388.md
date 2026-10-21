@@ -1,0 +1,8 @@
+# MetaScenes: Towards Automated Replica Creation for Real-world 3D Scans
+- Authors: Huangyue Yu, Baoxiong Jia, Yixin Chen, Yandan Yang, Puhao Li, Rongpeng Su, Jiaxin Li, Qing Li, Wei Liang, Song-Chun Zhu, Tengyu Liu, Siyuan Huang (BIGAI et al.). May 2025, CVPR 2025. https://arxiv.org/abs/2505.02388 (HTML v1 read)
+- What: Scan2Sim replaces ScanNet scan objects with retrieved simulatable assets: 706 replicated scenes, 15,366 object instances, 831 fine-grained categories, 7,328 unique assets. Relations (support, embedding, containment) as scene-graph constraints (96.3% accuracy on 10 manually checked scenes); collision loss = summed pairwise 3D bbox IoU, MCMC until zero; QC: 10% of each batch sampled, pass if > 98% valid.
+- Robot eval: none for manipulation. "Micro-scene synthesis" (small objects on furniture tops) is a layout-generation benchmark with FID/SCA/CKL/Col_obj/Col_scene/R_out; baselines Col_obj 0.645 (ATISS), 0.657 (DiffuScene), 0.395 (PhyScene).
+- Navigation: SPOC agent trained on ProcTHOR vs MetaScenes vs both; held-out ScanNet++ domain SR 45.33 / 50.67 / 46.67, SPL 37.58 / 44.33 / 41.51 (Table 5). No robot radius, reachability or clearance metric.
+- Scene-attributed issues: high small-object collision in learned micro-layouts; authors say ProcTHOR-trained agents overfit to procedural scenes (no number).
+- Relevance: real-layout replicas as a realism/OOD test set for MoMa; supplies no executability thresholds. Small-object-on-receptacle collision rates show clutter on receptacles is an unsolved generation problem.
+- Tags: real2sim/digital-twin, scene-gen-for-robots, sim-benchmark

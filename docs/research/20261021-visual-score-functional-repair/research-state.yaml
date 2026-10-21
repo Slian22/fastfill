@@ -1,19 +1,24 @@
 project:
   title: "Visual score and functional-relation-aware repair for FastFill"
   question: "Which automatic score tracks rendered layout quality, and can repair keep checker/strict gains without breaking furniture function?"
-  status: concluded
+  status: active
   started: "2026-10-21"
   domain: "3D layout evaluation / post-hoc repair"
 hypotheses:
+  - {id: H4, statement: "task-reachability S2-F raises task-scoped admission 0.845 -> >=0.90, 0 checker regressions, companions >=0.95", status: pending}
+  - {id: H5, statement: "descriptive pass rates of MoMa checks (visibility, base pose, approach/opening clearance) for GT/raw/S1/S2F", status: done, evidence: "task_all S1 0.604 / S2F 0.645; front clearance main failure (moma-checks/report.md)"}
   - {id: H1c, statement: "judge v2 (pros/cons, both orders): order-consistency >=70% and GT wins >=70% of consistent rooms", status: supported_marginal, evidence: "18/20 consistent; GT 13/18 = 0.72"}
   - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: refuted, evidence: "13/20 = 65% [0.43,0.82]; ref>S1 0.58", priority: high}
   - {id: H1b, statement: "CLIP prefers GT over raw in <=60% of rooms; GT-raw CLIP difference uncorrelated with raw violations", status: supported, evidence: "GT>raw 43.7-53.3%, |rho|<=0.05, AUC 0.46-0.58 (clip-metric/report.md)", priority: high}
   - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: refuted, evidence: "10/20 = 50%; position A 75%", priority: high}
   - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge vs S1 19-3-18, vs S2 10-30-0", priority: high}
 agents:
+  moma_survey: running (literature/moma/)
+  s2f_task: running (probes-20261021/s2f-task/)
+  moma_checks: done (probes-20261021/moma-checks/report.md)
   s2f_builder: done (probes-20261021/s2f/REPORT.md)
   clip_metric: done (probes-20261021/clip-metric/report.md)
   gpt_judge: done (judge/report.md); judge v2 S2F vs S1 stopped at 15/40 (user: skip)
   literature: done (literature/survey.md)
 api: {cap_calls: 200, used_calls: 0, status: "busy since ~05:40 local 2026-10-21"}
-next_step: "phase concluded; next phase = rebuild training targets with a companion-preserving teacher on Isambard (needs clifton auth), plus 50-100 human pairwise labels"
+next_step: "phase 2 (MoMa): agents moma_survey, s2f_task, moma_checks running; then synthesize; training-target rebuild still needs clifton auth"

@@ -1,0 +1,9 @@
+# InfiniteWorld: A Unified Scalable Simulation Framework for General Visual-Language Robot Interaction
+- Authors: Pengzhen Ren et al. (~19 authors). Dec 2024. https://arxiv.org/abs/2412.05789 (HTML v1 read)
+- What: Isaac Sim platform; scenes from HOLODECK language-driven generation plus style changes/object edits: "10K indoor scenes", household scenes with "1-5 different room numbers", "236 different textures" -> "a total of 2.36 M scenes"; Real2Sim path (PGSR + Depth Pro, TSDF meshing) without counts; Annot8-3D annotation.
+- Robot: "Stretch robot" with "a mobile base with omnidirectional wheels and a 7-degree-of-freedom (DOF) manipulator" (as written; not the real Stretch spec).
+- Benchmarks/success: Object Loco-Navigation success = "less than 2 meters" from target and "within 60 degrees" of horizontal FOV (GPT-4o SR 90.82; Qwen-turbo 69.94; GLM4-flash 66.41; VLM zero-shot ~0). Loco-Manipulation (carry object between rooms and place; no explicit place threshold): GPT-4o SR 77.28, GLM4-flash 50.63, Qwen-turbo 42.64. SGCE: 200-step limit, SER 0.2581-0.3209. Open-World Social MoMa: SR 0.00 in all three configurations.
+- Scene checks: 2D occupancy grid (z-projection, free/obstacle/unknown), D* Lite path following, goal in obstacle cell -> nearest free point. No robot radius, reachability, collision or articulation checks reported; object attach ("adhesion") within an unstated range.
+- Scene-attributed failure: navigation failures when the agent cannot reach a spot with the object in its 60 deg view because "a wall or obstacle blocking the view".
+- Relevance: a usable visibility-style success definition (<2 m and within 60 deg HFOV) and evidence that occluding walls/obstacles cause nav failures; built on unrepaired Holodeck layouts.
+- Tags: sim-benchmark, scene-gen-for-robots, open-vocab-nav-pick, 3D-memory/scene-graph, real2sim/digital-twin

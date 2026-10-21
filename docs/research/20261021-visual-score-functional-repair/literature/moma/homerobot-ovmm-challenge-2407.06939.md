@@ -1,0 +1,8 @@
+# Towards Open-World Mobile Manipulation in Homes: Lessons from the NeurIPS 2023 HomeRobot Open Vocabulary Mobile Manipulation Challenge
+- Authors: Sriram Yenamandra, Arun Ramachandran, Mukul Khanna, Karmesh Yadav, Jay Vakil, Andrew Melnik, Michael Büttner, Leon Harz, et al. (45 authors). arXiv 9 Jul 2024. https://arxiv.org/abs/2407.06939 (HTML v1 read)
+- What: report of the OVMM challenge (61 teams, 368 submissions, 79 on final leaderboard per Sec. 3.1; intro numbers garbled). 250 eval episodes per agent, 60 HSSD scenes; real-world finals in one apartment, 3 evaluations per team.
+- Success: object "anywhere on top of a target receptacle" of the correct category; collision with scene geometry fails immediately; real trials halted after 3 collisions (partial credit by stage). 48-hour total compute budget per evaluation.
+- Results: baseline 0.8% (real perception in sim) -> best team (UniTeam) 10.8% overall / 32.8% partial on test-challenge (6.0% / 27.6% test-standard); real world UniTeam 33.3% overall.
+- Layout-related failure causes (qualitative, no percentages): end receptacles "too large to place objects on them without collisions" (large held objects hit the receptacle, so teams dropped from higher); objects near receptacle edges fall off; rolling objects (pens) never settle; floor misclassified as table; arm blocks the head camera; robot stuck / collided with furniture during real exploration; perception "is not reliable from larger distances".
+- Relevance: no numeric layout thresholds; supports adding receptacle-edge margin and approach-side checks for placement, and short viewpoint distances.
+- Tags: sim-benchmark, open-vocab-nav-pick, real-home-deploy

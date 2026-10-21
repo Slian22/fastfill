@@ -1,0 +1,11 @@
+# Affordance-Guided Coarse-to-Fine Exploration for Base Placement in Open-Vocabulary Mobile Manipulation
+- Authors: Tzu-Jung Lin, Jia-Fong Yeh, Hung-Ting Su, Chung-Yi Lin, Yi-Ting Chen, Winston H. Hsu. arXiv v2 3 Jan 2026; AAAI 2026 (ojs.aaai.org, DOI 10.1609/aaai.v40i22.38909). https://arxiv.org/abs/2511.06240
+- What: zero-shot base placement: VLM affordance point + direction projection, coarse-to-fine search mixing semantic and geometric scores.
+- Robot: TIAGo++ (differential drive, 7-DoF arm, left arm), head RGB-D, Isaac Sim.
+- Tasks (20 trials each, randomised object pose/base start): can->trash, pot near mug, mug on shelf, open cabinet, open dishwasher.
+- Success: valid EE pose over the affordance region found by IK, collision-free arm motion, primitive executed and outcome verified.
+- Parameters: candidate base poses need dist(x, O) >= 0.4 m from obstacles; coarse navigation stops within 1.5 m of object; baselines use preferred distance 0.7 m.
+- Results (total): Object Center + A* 47%; Object Center + RRT* 50%; Affordance Point + A* 58%; + RRT* 61%; PIVOT 26% / 23%; ours 85%. Object Center + A* on articulated: open cabinet 5/20, dishwasher 5/20.
+- Failure causes: geometry-only placement ignores required approach angle; "even when g lies near a handle, approaching from the side often results in failure"; RGB-only VLM proposes wrong distance or "physically inaccessible" poses; arm collisions in clutter remain.
+- Relevance: articulated targets need a free base region on the opening side, roughly 0.4-0.7 m off the object, not just any reachable pose; object-centre proximity alone gives ~47%.
+- Tags: base-placement, articulated-objects, open-vocab-nav-pick

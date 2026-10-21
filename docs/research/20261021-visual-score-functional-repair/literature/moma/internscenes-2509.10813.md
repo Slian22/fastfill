@@ -1,0 +1,9 @@
+# InternScenes: A Large-scale Simulatable Indoor Scene Dataset with Realistic Layouts
+- Authors: Weipeng Zhong, Peizhou Cao, Yichen Jin + 9 others (12 total; Shanghai AI Lab). arXiv 2509.10813, v2 14 Oct 2025; NeurIPS 2025 (per conference page). https://arxiv.org/abs/2509.10813
+- What: 39,870 scenes / 48,381 regions (Real2Sim 9,833, procedural "Gen" 11,454, designer "Synthetic" 27,094), 1.96M objects, 15 scene types, 288 classes, 41.5 objects per region on average (keeps small items).
+- Simulatability: large-furniture collisions resolved by a bbox loss (IoU + ground + regularisation); small objects settled in SAPIEN with gravity and repulsive forces (CoACD convex parts); ~20% of objects replaced by PartNet-Mobility articulated assets (Isaac Sim articulations). No numeric penetration thresholds given.
+- Navigation check: navigable floor = points with ESDF > 0.5 m (no navmesh / agent radius described).
+- PointNav benchmark: Isaac Sim, ClearPath Dingo wheeled robot, 20 Real2Sim + 10 Gen scenes, 20 episodes each, start-goal 3-10 m apart, wheel-speed control. Success/SPL: DD-PPO 23.6/23.1 (Real2Sim), 45.0/44.2 (Gen); NavDP 48.3/45.3, 61.9/61.8; NavDP-FT 51.0/49.4, 63.6/61.7. Success distance threshold not stated.
+- Failure causes: cluttered layouts need path planning and collision recovery; narrow passages whose traversability depends on embodiment; small obstacles such as chair legs hard to perceive. Real scans are harder than generated scenes (e.g. NavDP 48.3 vs 61.9).
+- Relevance: realistic clutter (41.5 obj/region) halves nav success vs generated scenes; ESDF > 0.5 m is a usable free-space proxy; generated layouts are easier than real ones, so a layout model that is "too clean" may overstate robot success.
+- Tags: scene-gen-for-robots, sim-benchmark, real2sim/digital-twin

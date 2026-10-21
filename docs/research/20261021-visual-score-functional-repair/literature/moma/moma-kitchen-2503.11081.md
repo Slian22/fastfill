@@ -1,0 +1,9 @@
+# MoMa-Kitchen: A 100K+ Benchmark for Affordance-Grounded Last-Mile Navigation in Mobile Manipulation
+- Authors: Pingrui Zhang, Xianqiang Gao, Yuhan Wu, Kehui Liu, Dong Wang, Zhigang Wang, Bin Zhao, Yan Ding, Xuelong Li. Mar 2025, ICCV 2025. https://arxiv.org/abs/2503.11081 (HTML v1 read)
+- What: procedurally generated kitchens in BestMan (PyBullet, PartNet-Mobility): "a rectangular kitchen layout, where common kitchen furniture and appliances ... are procedurally arranged along one wall"; 1-3 rigid targets on countertops, 1-3 obstacles in the semicircle in front of each target; 137 assets (65 rigid, 48 articulated, 24 obstacle). 569 scenes, 14,155 configurations, 127,343 episodes (train 456 scenes / 102,687 eps; test 113 / 24,656).
+- Robots: six arms (Flexiv, Panda, UR5e suction, xArm6, Realman, Elephant) on a mobile base; base size/height not numeric; "only xArm6 has a unique base height".
+- Base-pose labels: floor semicircle centred on target with radius = max arm reach; grid 10 cm in x and y; one manipulation attempt per position, binary success (grasp or suction-and-move), EE aligned with target surface normal / functional link; densified by Gaussian kNN (theta, k, sigma not stated). Floor points z < 0.02 m.
+- Results: NavAff RMSE 0.147, PCC 0.680, SIM 0.696; manipulation success of chosen base pose Top1 0.72 / Top5 0.66 vs random 0.080 / 0.046.
+- Not reported: fraction of feasible floor cells, good-pose distance band, height effects, failure-cause breakdown.
+- Relevance: the only work found that labels base-pose feasibility densely per target in generated rooms; its protocol (semicircle of radius = reach, 10 cm grid, obstacles in front of target) is directly reusable as a symbolic "free base pose within reach" check; a random pose in that region scores 0.080 Top1 vs 0.72 for NavAff, so base-pose choice matters.
+- Tags: base-placement, sim-benchmark, scene-gen-for-robots, articulated-objects

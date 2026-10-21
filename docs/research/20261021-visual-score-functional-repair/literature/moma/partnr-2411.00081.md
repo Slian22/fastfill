@@ -1,0 +1,11 @@
+# PARTNR: A Benchmark for Planning and Reasoning in Embodied Multi-agent Tasks
+- Authors: Matthew Chang, Gunjan Chhablani, Alexander Clegg, et al. (20 authors, FAIR Meta). arXiv 31 Oct 2024. https://arxiv.org/abs/2411.00081 (venue not checked)
+- What: natural-language human-robot collaboration in homes; 4 task types (constraint-free, spatial, temporal, heterogeneous); LLM planners over pick/place/navigate/open/close skills.
+- Robot: simulated Spot in Habitat 3.0; learned nav skill uses a 224x171 arm depth camera, 55 deg hFOV. Dims not given.
+- Scenes: HSSD, 60 houses, 5,819 OVMM objects; 37 train (100,000 episodes) / 13 val (1,000) / 10 test (1,000).
+- Success: S := (PC = 1), PC = fraction of satisfied propositions; timeout 20000 simulation steps; 50 (decentralized) / 100 (centralized) replanning calls.
+- Predicate thresholds: is_on_floor within "0.04m vertically" of navmesh; is_next_to horizontal L2 <= "0.50m"; is_inside = 1.00 m raycasts, threshold 2 hits; is_in_room >= 25% of keypoints in region. Pick/place snap when gripper "close enough" (no number).
+- Results: humans 0.93; privileged heuristic expert 0.84; ReAct single-agent 0.73; ReAct with learned skills 0.57 +- 0.02 (val) / 0.50 +- 0.02 (test); with ConceptGraph perception 0.30 (0.25 +- 0.01 with learned skills).
+- Failure causes (qualitative only in text read): task tracking, wrong furniture/object, pick failures, incomplete exploration, perception (shelves read as tables, rooms mislabeled). No navigation/reachability/clutter breakdown with numbers found.
+- Relevance: gives reusable symbolic predicates (next_to 0.50 m, on_floor 0.04 m, in_room 25% keypoints) for goal-relation checks; the 0.73 -> 0.30 drop shows perception (finding receptacles/objects) dominates once oracle perception is removed.
+- Tags: sim-benchmark, long-horizon, 3D-memory/scene-graph

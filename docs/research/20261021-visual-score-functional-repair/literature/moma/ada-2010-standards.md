@@ -1,0 +1,11 @@
+# 2010 ADA Standards for Accessible Design (human wheelchair proxy, not a robot source)
+- Publisher: U.S. Access Board / DOJ, 2010. https://www.access-board.gov/ada/ (sections read via the web version)
+- Why here: no robot benchmark we found publishes door-approach or turning-space numbers; the ADA wheelchair envelope (30 x 48 in clear floor space) is close to a Stretch/TIAGo-class base, so these are the standard human-built-environment fallbacks.
+- 304.3.1 turning space: circle "60 inches (1525 mm) diameter minimum"; 304.3.2 T-shaped: "within a 60 inch (1525 mm) square minimum with arms and base 36 inches (915 mm) wide minimum".
+- 305.3 clear floor space: "30 inches (760 mm) minimum by 48 inches (1220 mm) minimum".
+- 308.2.1 / 308.3.1 unobstructed forward and side reach: high 48 in (1220 mm) max, low 15 in (380 mm) min.
+- 403.5.1 walking-surface clear width: "36 inches (915 mm) minimum", may drop to 32 in (815 mm) for at most 24 in (610 mm) of length. 403.5.2 180-degree turn around an element < 48 in (1220 mm) wide: 42 in (1065 mm) approaching/leaving, 48 in (1220 mm) at the turn.
+- 404.2.3 door clear width: "32 inches (815 mm) minimum", measured between the door face and the stop with the door open 90 degrees.
+- Table 404.2.4.1 maneuvering clearance at manual swinging doors (perpendicular to door x parallel): front/pull 60 in (1525 mm) x 18 in (455 mm) beyond latch; front/push 48 in (1220 mm) x 0 (+12 in / 305 mm if closer and latch); hinge/pull 60 in x 36 in (915 mm) or 54 in (1370 mm) x 42 in (1065 mm); hinge/push 42 in (1065 mm) (+6 in / 150 mm with closer and latch) x 22 in (560 mm) beyond hinge; latch/pull 48 in (1220 mm) (+6 in with closer) x 24 in (610 mm); latch/push 42 in (1065 mm) (+6 in with closer) x 24 in (610 mm).
+- Relevance: gives an implementable, citable door-approach rectangle (pull side 1.525 m deep, plus 0.455 m beyond the latch) and a 0.915 m passage width; both are stricter than the downstream 0.2 m-radius grid and should be treated as "comfortable" tiers, not hard robot limits.
+- Tags: (none of the robot tags; human accessibility standard)
