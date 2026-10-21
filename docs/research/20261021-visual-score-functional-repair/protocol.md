@@ -69,3 +69,14 @@ Context: WorldEdge rooms are for a mobile manipulator; EmbodiedGen derives robot
   region, a collision-free robot base pose within arm reach of each task object, and front approach / opening clearance
   of receptacles and articulated furniture — for GT, raw, S1, S2F. Thresholds come from the literature survey and the
   EmbodiedGen robot contract, fixed before the GT/raw/S1/S2F numbers are computed.
+
+## Addendum D (locked 2026-10-21) — published layout methods as same-input baselines
+
+Methods with code: Holodeck, LayoutGPT, LayoutVLM, I-Design (one agent each); a scout agent assesses SceneSmith,
+ReSpace, DirectLayout, ATISS/DiffuScene and others for feasibility. Fairness rule (memory: LLM comparison protocol):
+every method gets FastFill's exact inputs (room polygon, height, fixed objects, furniture list with the same prior
+sizes) and no others; object-adding/removing and resizing steps are disabled and listed as deviations; every LLM call
+uses gpt-6.1-sol medium. Pilot: 100 hash-picked visual-cohort rooms (`baselines/pilot100`), ≤ 600 successful calls
+per method. Metrics, computed centrally with the same code for all systems: completion, checker, all-category and
+task-scoped strict, companion score, MoMa checks (moma_checks.py), CLIP Holodeck protocol on our renders, each raw and
+after S1; plus render sheets. No parameter of FastFill is tuned on these rooms.
