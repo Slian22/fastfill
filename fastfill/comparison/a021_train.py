@@ -37,6 +37,9 @@ smoke-vllm --data RUN/dev-select-v1 --smoke RUN/a021/smoke --base QWEN27   (vLLM
     adapter (smoke/train/final: every LM linear incl. gated-delta-net in_proj_qkv/in_proj_z/out_proj) as a LoRA and
     decodes the first VLLM_SMOKE_ROOMS probe rooms greedily. Writes smoke/vllm-load.json (status OK) only on success;
     train (Arm A) refuses without it, so an adapter vLLM cannot serve stops Arm A before its training, not at the probe.
+Amendment 028 (arm J27, fastfill.comparison.a028): smoke / smoke-vllm --arm J27 and train --arm J27 --pool RUN/a028/rows
+    --run-root RUN/a028 --smoke RUN/a028/smoke run Arm A's code, model, recipe and gates on J's own SFT rows (rows file
+    joint.jsonl, smoke-vllm on the joint requests); the policy RUN/a028/27b-joint is served as --arm joint.
 train    --arm A|B --pool RUN/a021/pool --base BASE --run-root RUN/a021 [--smoke RUN/a021/smoke]   (4 GPUs; resumes)
     A: the first N admitted rooms (smoke verdict + vllm-load.json OK) that fit the 27B; B (only while A has no policy): every admitted room
     that fits the 8B, on the generic Qwen3-8B. run_receipt.json (N, rows, recipe, base, smoke verdict) is written
@@ -106,7 +109,11 @@ LORA_27B = (r'model\.language_model\.layers\.\d+\.(self_attn\.(q|k|v|o)_proj|lin
             r'|mlp\.(gate|up|down)_proj)')
 LORA_8B = r'model\.layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj)'  # P's seven, LM layers only.
 ARMS = {'A': {'dir': '27b', 'tokens': '27b', 'regex': LORA_27B, 'model_class': IMAGE_TEXT, 'model_type': MODEL_TYPE},
-        'B': {'dir': '8b', 'tokens': '8b', 'regex': LORA_8B, 'model_class': CAUSAL, 'model_type': 'qwen3'}}
+        'B': {'dir': '8b', 'tokens': '8b', 'regex': LORA_8B, 'model_class': CAUSAL, 'model_type': 'qwen3'},
+        # Amendment 028: Arm A's base, recipe and gates on J's own SFT rows (a028 rows, an a021 pool layout), under
+        # --run-root RUN/a028; a joint policy (inference arm 'joint').
+        'J27': {'dir': '27b-joint', 'tokens': '27b', 'regex': LORA_27B, 'model_class': IMAGE_TEXT, 'model_type': MODEL_TYPE,
+                'rows': 'joint.jsonl', 'infer_arm': 'joint', 'stage': 'a028-27b-joint-sft'}}
 RECIPE = {'lr': 5e-5, 'epochs': 1, 'bs': 1, 'grad_accum': 1, 'max_len': MAX_LEN, 'lora_r': 32, 'lora_alpha': 64,
           'seed': SEED, 'warmup_ratio': 0.03}  # P's SFT: LoRA r32/a64, lr 5e-5, 1 epoch, effective batch 4 = 4 x 1 x 1,
 # cosine with max(1, int(0.03 x steps)) warmup steps (train_pair).
@@ -128,6 +135,14 @@ CODE = ('comparison/a021_train.py', 'comparison/dpo_stages.py', 'comparison/infe
 def _code():
     package = Path(__file__).resolve().parents[1]
     return {name: h.sha256(package / name) for name in CODE}
+
+
+def _rows_name(arm):
+    return ARMS[arm].get('rows', 'placement.jsonl')
+
+
+def _infer_arm(arm):
+    return ARMS.get(arm, {}).get('infer_arm', 'placement')
 
 
 def rank(uid, salt=SALT):
@@ -198,10 +213,10 @@ def inference_identity(run):
     """dpo_stages.inference_identity for RUN/a021/27b|8b (--exact-policy): the FP32 adapter unmerged on the pinned base."""
     if not getattr(run, 'exact_policy', False):
         raise ValueError('an amendment-021 policy is evaluated as its exact policy (--exact-policy)')
-    if run.arm != 'placement':
-        raise ValueError(f'an amendment-021 policy is a placement policy, not --arm {run.arm}')
     root = Path(run.model).resolve()
     receipt = h.strict_json((root / POLICY).read_text())
+    if run.arm != _infer_arm(receipt.get('arm')):  # Arms A/B: placement; J27 (amendment 028): joint.
+        raise ValueError(f'an amendment-021 policy is a {_infer_arm(receipt.get("arm"))} policy, not --arm {run.arm}')
     base = base_receipt(run.base)
     if (base['path'], base['files']) != (receipt['base']['path'], receipt['base']['files']):
         raise ValueError('base differs from the amendment-021 policy base')
@@ -437,9 +452,9 @@ def fit_n(tokens, rate):
     return lo
 
 
-def smoke_verdict(perf, tokens):
-    """The two fixed stop rules on the smoke's per-rank perf records; tokens = the admitted rooms' totals in rank
-    order. Incomplete records are no measurement: RuntimeError, never a verdict."""
+def smoke_verdict(perf, tokens, arm="A"):
+    """Arm A keeps both stop rules; J27 reduces N on time but still stops on memory or an empty training window.
+    Tokens are admitted totals in rank order. Incomplete perf records are never a verdict."""
     perf = sorted(perf, key=lambda p: p['rank'])
     counts = {len(p['steps']) for p in perf}
     if [p['rank'] for p in perf] != list(range(WORLD)) or len(counts) != 1 or counts.pop() <= WARMUP:
@@ -449,8 +464,12 @@ def smoke_verdict(perf, tokens):
     rate = sum(max(s['input_tokens'] for s in step) for step in steps) / seconds
     peak = max(p['max_memory_reserved'] for p in perf)
     full = projected_hours(tokens[:N_MAX], rate)
-    reasons = (['peak_memory'] if peak > STOP_MEMORY else []) + (['projected_hours'] if full > STOP_HOURS else [])
     n = fit_n(tokens, rate)
+    reasons = ((['peak_memory'] if peak > STOP_MEMORY else [])
+               + (['projected_hours'] if arm != 'J27' and full > STOP_HOURS else [])
+               + (['no_fitting_rooms'] if arm == 'J27' and n == 0 else []))
+    rules = ({**RULES, 'stop_projected_hours': None, 'reduce_n_above_projected_hours': STOP_HOURS}
+             if arm == 'J27' else RULES)
     per_step = seconds / len(steps)
     return {'status': SMOKE_STOP if reasons else SMOKE_PASS, 'reasons': reasons,
             'peak_memory_reserved': {str(p['rank']): p['max_memory_reserved'] for p in perf},
@@ -459,7 +478,7 @@ def smoke_verdict(perf, tokens):
             'steady_steps': len(steps), 'seconds_per_step': per_step, 'tokens_per_second_per_rank': rate,
             'tokens_per_second_all_ranks': sum(s['input_tokens'] for step in steps for s in step) / seconds,
             'projected_hours_n_max': full, 'n': n, 'projected_hours_n': projected_hours(tokens[:n], rate),
-            'save_steps': max(1, int(CKPT_SECONDS / per_step)), 'rules': RULES}
+            'save_steps': max(1, int(CKPT_SECONDS / per_step)), 'rules': rules}
 
 
 def recipe(arm, save_steps, **extra):
@@ -479,6 +498,7 @@ def smoke(args, run=subprocess.run):
         return h.strict_json((out / 'verdict.json').read_text())
     if os.path.lexists(out):
         raise FileExistsError(f'{out} exists without a verdict; inspect it')
+    arm = getattr(args, 'arm', 'A')  # A, or J27 (amendment 028: same model and recipe, J's rows).
     value = load_pool(args.pool)
     _eos(value, '27b')
     base = base_receipt(args.base)
@@ -489,15 +509,15 @@ def smoke(args, run=subprocess.run):
     if len(longest) != WORLD * SMOKE_STEPS:
         raise ValueError('too few admitted rooms for the smoke')
     out.mkdir(parents=True)
-    d._publish_dir(out / 'rows', {'placement.jsonl': d._jsonl(pool_rows(value, [e['uid'] for e in longest]))})
-    settings = recipe('A', 0, perf_out=str(out / 'perf'))
+    d._publish_dir(out / 'rows', {_rows_name(arm): d._jsonl(pool_rows(value, [e['uid'] for e in longest]))})
+    settings = recipe(arm, 0, perf_out=str(out / 'perf'))
     started = time.monotonic()
-    code = run(torchrun(base['path'], out / 'rows/placement.jsonl', out / 'train') + d._flags(settings)).returncode
+    code = run(torchrun(base['path'], out / 'rows' / _rows_name(arm), out / 'train') + d._flags(settings)).returncode
     try:
         if code != 0:
             raise RuntimeError(f'smoke training exited {code}')
         perf = [h.strict_json(p.read_text()) for p in sorted((out / 'perf').glob('perf-rank*.json'))]
-        measured = smoke_verdict(perf, [e['tokens']['27b']['total'] for e in fitting])
+        measured = smoke_verdict(perf, [e['tokens']['27b']['total'] for e in fitting], arm=arm)
     except Exception as error:  # A crash is not a stop rule: no verdict; the attempt is kept aside and can be rerun.
         failed = out.with_name(f'{out.name}.failed-{os.environ.get("SLURM_JOB_ID") or os.getpid()}')
         out.rename(failed)
@@ -546,7 +566,7 @@ def train(args, run=subprocess.run):
     base = base_receipt(args.base)
     if _model_type(base) != spec['model_type']:
         raise ValueError(f'Arm {args.arm} trains on {spec["model_type"]}, not {_model_type(base)}')
-    if args.arm == 'A':
+    if args.arm != 'B':
         verdict, verdict_sha, load_sha = load_verdict(args.smoke, value, base)
         n, save_steps = verdict['n'], verdict['save_steps']
     else:
@@ -556,18 +576,18 @@ def train(args, run=subprocess.run):
     uids = take(value, spec['tokens'], n)
     if not uids:
         raise ValueError('no admitted rows')
-    rows_dir = root / 'rows'
+    rows_dir, name = root / 'rows', _rows_name(args.arm)
     if os.path.lexists(rows_dir):
         files = d._verified_dir(rows_dir)
-        if [r['uid'] for r in h._rows(rows_dir, 'placement.jsonl', files['placement.jsonl'])] != uids:
+        if [r['uid'] for r in h._rows(rows_dir, name, files[name])] != uids:
             raise ValueError(f'{rows_dir} holds other rooms')
     else:
         root.mkdir(parents=True, exist_ok=True)
-        d._publish_dir(rows_dir, {'placement.jsonl': d._jsonl(pool_rows(value, uids))})
-    rows = rows_dir / 'placement.jsonl'
+        d._publish_dir(rows_dir, {name: d._jsonl(pool_rows(value, uids))})
+    rows = rows_dir / name
     settings = recipe(args.arm, save_steps)
     receipt = {'protocol': 'amendment-021-train-v1', 'arm': args.arm, 'n': len(uids),
-               'n_rule': ('min(40,000, rooms fitting 10 h at the smoke throughput), sha256 order' if args.arm == 'A'
+               'n_rule': ('min(40,000, rooms fitting 10 h at the smoke throughput), sha256 order' if args.arm != 'B'
                           else 'every admitted room that fits the 8B (fallback)'),
                'smoke_verdict_sha256': verdict_sha, 'smoke_vllm_load_sha256': load_sha,
                'pool_manifest_sha256': value['manifest_sha256'],
@@ -588,7 +608,7 @@ def train(args, run=subprocess.run):
         run(torchrun(base['path'], rows, out) + d._flags(settings), check=True)
     completion = d._completion(out, len(uids), settings)
     final = out / 'final'
-    policy = {'protocol': 'amendment-021-policy-v1', 'arm': args.arm, 'stage': f'a021-{spec["dir"]}-sft',
+    policy = {'protocol': 'amendment-021-policy-v1', 'arm': args.arm, 'stage': spec.get('stage', f'a021-{spec["dir"]}-sft'),
               'model_class': spec['model_class'], 'base': receipt['base'],
               'adapter': {'path': str(final.resolve()), 'files': h.artifact_manifest(final)},
               'training_data': {'manifest_sha256': value['summary']['inputs']['main_manifest_sha256'],
@@ -648,8 +668,8 @@ def kernels(strict=True):
 
 # ---- fidelity probe ------------------------------------------------------------------------------------------------
 
-def probe_records(data):
-    rows, info = i.load_eval(data, 'placement')
+def probe_records(data, arm='placement'):
+    rows, info = i.load_eval(data, arm)
     return sorted(rows, key=lambda r: (rank(r['uid'], PROBE_SALT), r['uid']))[:PROBE_ROOMS], info
 
 
@@ -759,7 +779,7 @@ def smoke_vllm(args, load=None):
         raise ValueError('base differs from the smoke base')
     adapter = smoke_dir / 'train' / 'final'
     files = h.artifact_manifest(adapter)
-    records, info = probe_records(args.data)
+    records, info = probe_records(args.data, _infer_arm(getattr(args, 'arm', 'A')))  # J27: the joint requests.
     rows, run = _vllm_decode(args.base, adapter, records[:VLLM_SMOKE_ROOMS], 'a021-smoke', load)
     i.write_once(out, {'status': 'OK', 'verdict_sha256': h.sha256(smoke_dir / 'verdict.json'),
                        'adapter': {'path': str(adapter.resolve()), 'files': files}, 'base': str(args.base),
@@ -845,9 +865,11 @@ def parse_args(argv=None):
     step = sub.add_parser('smoke')
     for flag in ('pool', 'base', 'out'):
         step.add_argument('--' + flag, type=Path, required=True)
+    step.add_argument('--arm', choices=('A', 'J27'), default='A')
     step = sub.add_parser('smoke-vllm')
     for flag in ('data', 'smoke', 'base'):
         step.add_argument('--' + flag, type=Path, required=True)
+    step.add_argument('--arm', choices=('A', 'J27'), default='A')
     step = sub.add_parser('train')
     step.add_argument('--arm', choices=tuple(ARMS), required=True)
     for flag in ('pool', 'base', 'run-root'):
@@ -858,8 +880,8 @@ def parse_args(argv=None):
         for flag in ('data', 'policy', 'base', 'out'):
             step.add_argument('--' + flag, type=Path, required=True)
     args = parser.parse_args(argv)
-    if args.command == 'train' and (args.arm == 'A') != (args.smoke is not None):
-        parser.error('--smoke is required for Arm A and not taken by Arm B')
+    if args.command == 'train' and (args.arm != 'B') != (args.smoke is not None):
+        parser.error('--smoke is required for Arm A (and J27) and not taken by Arm B')
     return args
 
 

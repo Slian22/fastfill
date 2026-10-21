@@ -15,6 +15,10 @@ Input, one room per JSONL line, in either form:
 Sizes: size_prior.predict_sizes on the pinned train prior (training size-priors.json, its full_prior, or a bare prior;
 sha256 recorded and optionally pinned), rounded as eval_data. P's request = the J request with those sizes and P's
 system prompt: byte-identical to eval-data-v1 placement/requests.jsonl (verified on all 8,647 rooms, see the tests).
+Opt-in size_fallback='api': use eligible category/room or category prior buckets; resolve other objects through
+the size-only API before placement (sizing.py). A missing unpinned prior may be loaded with allow_missing=True.
+size_api_cap and size_api_max_rooms are separate from layout escalation limits. Failures abort before placement,
+with API receipts retained. Missing-size dry runs only write a plan, without model/API execution.
 
 Stages (amendment 022 §1), every candidate scored by geometry.score (placement semantics, the frozen checker) and
 repaired by S1 (output_repair.repair_row, amendment 012: max_trials 2000, time_limit 60 s):
@@ -62,6 +66,7 @@ from fastfill.comparison import size_prior
 from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison.best_of_n import VIOLATIONS
 from fastfill.comparison.report_v2 import cap_failure
+from fastfill.system import sizing
 
 S1 = {'max_trials': 2000, 'time_limit': 60.0}                       # amendment 012
 TRIGGERS = ('checker', 'strict')                                   # amendment 026 addendum B
@@ -74,13 +79,25 @@ PLACER_KEYS = ('engine', 'model', 'adapter', 'adapter_sha256')
 
 # ------------------------------------------------------------------ requests
 
-def load_prior(path, sha256=None):
+def load_prior(path, sha256=None, *, allow_missing=False):
     """(prior table, {'path', 'sha256'}); a training size-priors.json yields its full_prior, as eval_data uses."""
-    digest = h.sha256(path)
+    if path is None:
+        if not allow_missing or sha256 is not None:
+            raise ValueError('prior is required unless size_fallback=api without a pinned hash')
+        return None, {'path': None, 'sha256': None, 'status': 'not_provided'}
+    try:
+        digest = h.sha256(path)
+    except FileNotFoundError:
+        if not allow_missing or sha256 is not None:
+            raise
+        return None, {'path': str(Path(path).resolve()), 'sha256': None, 'status': 'missing'}
     if sha256 is not None and digest != sha256:
         raise ValueError('prior table sha256 differs from the pinned value')
     value = h.strict_json(Path(path).read_text())
-    return value.get('full_prior', value), {'path': str(Path(path).resolve()), 'sha256': digest}
+    table = value.get('full_prior', value) if isinstance(value, dict) else None
+    if not isinstance(table, dict):
+        raise ValueError('prior table must be a JSON object')
+    return table, {'path': str(Path(path).resolve()), 'sha256': digest}
 
 
 def joint_request(room, seed=contract.DEFAULT_SEED):
@@ -123,9 +140,13 @@ def placement_request(record, sizes):
                                    {'role': 'user', 'content': contract._json(user)}]}
 
 
-def prepare(requests, prior):
+def prepare(requests, prior, size_by_uid=None):
     """(P records, {uid: output-id names}, {uid: request room}) of load_requests rows under load_prior's table."""
-    records = [placement_request(r, prior_sizes(r, prior[0])) for r, _ in requests]
+    records = [placement_request(r, prior_sizes(r, prior[0]) if size_by_uid is None else size_by_uid[r['uid']])
+               for r, _ in requests]
+    if size_by_uid is not None:
+        for record in records:
+            infer.validate_request(record, 'placement')
     if len({r['uid'] for r in records}) != len(records):
         raise ValueError('duplicate request uid')
     names = {r['uid']: (s or {}).get('bound_to_original', {}) for r, (_, s) in zip(records, requests)}
@@ -583,7 +604,8 @@ def _jsonl(path, rows):
 
 def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_rooms=None, env_file=None,
         o2_model=None, dry_run=False, workers=1, post=L.call_api, o2_load=llm_open.load_vllm,
-        api_concurrency=API['concurrency'], placed=None, o2=None, trigger='checker'):
+        api_concurrency=API['concurrency'], placed=None, o2=None, trigger='checker',
+        size_fallback='prior', size_api_cap=None, size_api_max_rooms=None):
     """requests = load_requests(...); prior = load_prior(...); placer = hf_placer / vllm_placer / any Placer.
     Sharded O2 only: placed = load_plan's placer candidates (the placer stage is not rerun; trigger 'strict' needs a
     strict plan's, which carry best()'s flags); o2(todo, OUT/o2) -> (bodies, identity) replaces o2_answers (o2_merge;
@@ -594,6 +616,23 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         raise ValueError(f'trigger must be one of {TRIGGERS}')
     if trigger == 'strict' and placed is not None and any(PLAN_FLAGS.keys() - c.keys() for c in placed.values()):
         raise ValueError('trigger strict: the placed candidates lack the strict / required={} flags (no strict plan)')
+    if size_fallback not in sizing.POLICIES:
+        raise ValueError(f'size_fallback must be one of {sizing.POLICIES}')
+    if size_fallback == 'prior' and prior[0] is None:
+        raise ValueError('a prior is required unless size_fallback=api')
+    if size_fallback == 'api' and (placed is not None or o2 is not None):
+        raise ValueError('API sizing cannot reuse precomputed placed candidates or O2 callbacks')
+    size_plan = sizing.plan(requests, prior[0]) if size_fallback == 'api' else None
+    if size_plan is not None:
+        sizing.preflight(size_plan, size_api_cap, size_api_max_rooms, dry_run=dry_run)
+        if dry_run and size_plan['requests']:
+            names = {r['uid']: (s or {}).get('bound_to_original', {}) for r, s in requests}
+            return sizing.dry_report(size_plan, prior, out, size_api_cap, size_api_max_rooms, names)
+    size_config = None
+    if size_plan is not None and size_plan['requests']:
+        if env_file is None:
+            raise ValueError('size API needs env_file')
+        size_config = _api_config(env_file)
     if not dry_run and ((escalate == 'l+o2' and None in (api_cap, env_file)) or (escalate != 'none' and not o2_model)):
         raise ValueError('escalation needs api_cap and env_file (l+o2) and o2_model (o2, l+o2)')
     if not dry_run and escalate == 'l+o2':
@@ -603,10 +642,23 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         if o2 is None and o2_load is llm_open.load_vllm and _visible_gpus() < llm_open.SPECS['O2']['tp']:
             raise RuntimeError(f"O2 needs {llm_open.SPECS['O2']['tp']} visible GPUs (tensor parallel)")
     started, out = time.monotonic(), Path(out)
-    records, names, rooms = prepare(requests, prior)
+    size_api = None
+    if size_plan is not None:
+        out.mkdir(parents=True, exist_ok=False)
+        if size_plan['requests']:
+            size_plan, size_api = sizing.estimate(size_plan, out / 'size-api', size_api_cap,
+                                                   size_config, post, api_concurrency)
+    records, names, rooms = prepare(requests, prior, size_plan['sizes'] if size_plan is not None else None)
     if placed is not None and placed.keys() != rooms.keys():
         raise ValueError('the placed candidates are not these requests')
-    out.mkdir(parents=True, exist_ok=False)
+    if size_plan is None:
+        out.mkdir(parents=True, exist_ok=False)
+    else:
+        _jsonl(out / 'size-estimates.jsonl', [
+            {'uid': r['uid'], 'estimated_sizes': {names[r['uid']].get(k, k): v
+                                                for k, v in size_plan['sizes'][r['uid']].items()},
+             'sources': {names[r['uid']].get(k, k): v for k, v in size_plan['sources'][r['uid']].items()},
+             'placement_request_sha256': infer._hash(r)} for r in records])
     cands = _place(records, rooms, placer, workers) if placed is None else {r['uid']: [placed[r['uid']]]
                                                                              for r in records}
     failing = lambda: _failing(records, cands, trigger)
@@ -614,7 +666,8 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
     info = {}
     if escalate == 'l+o2' and not dry_run and (todo := failing()):
         if api_max_rooms is not None and len(todo) > api_max_rooms:
-            raise RuntimeError(f'{len(todo)} rooms need the API > api_max_rooms {api_max_rooms}; no API call was made')
+            scope = 'layout API' if size_plan is not None else 'API'
+            raise RuntimeError(f'{len(todo)} rooms need the API > api_max_rooms {api_max_rooms}; no {scope} call was made')
         receipts, info['api'] = api_answers(todo, out / 'api', api_cap, env_file, post, api_concurrency)
         _escalate(cands, 'gpt', todo, rooms, receipts, workers)
     if escalate != 'none' and not dry_run and (todo := failing()):
@@ -632,6 +685,8 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
         {**{k: r[k] for k in ('uid', 'source', 'group')}, 'room_type': r.get('room_type'),
          **{k: final[r['uid']][k] for k in ('stage', 'complete', 'checker_pass', 'accepted', 'violations')},
          'needs_escalation': r['uid'] in needs, 'layout': _layout(final[r['uid']], names[r['uid']]),
+         **({'size_sources': {names[r['uid']].get(k, k): v for k, v in size_plan['sources'][r['uid']].items()}}
+            if size_plan is not None else {}),
          'candidates': [{k: v for k, v in _public(c).items() if k != 'layout'} for c in cands[r['uid']]], 'placer': tag}
         for r in records])
     _jsonl(out / 'roomgenbench.jsonl', [{'uid': r['uid'], 'stage': final[r['uid']]['stage'], 'placer': tag,
@@ -657,6 +712,13 @@ def run(requests, prior, placer, out, *, escalate='none', api_cap=None, api_max_
             contract, size_prior, g, output_repair, d, L, llm_open, infer, infer_shard, sample_vllm, A)}
         | {'pipeline.py': h.sha256(__file__)},
         'runtime_seconds': time.monotonic() - started}
+    if size_plan is not None:
+        result = {**result, 'sizing': sizing.summary(size_plan, size_api), 'size_api_cap': size_api_cap,
+                  'size_api_max_rooms': size_api_max_rooms,
+                  'api_calls_total': (size_api['calls_ledger'] if size_api else 0)
+                                     + info.get('api', {}).get('calls_ledger', 0),
+                  'code_sha256': {**result['code_sha256'], 'sizing.py': h.sha256(sizing.__file__),
+                                  'sizers_020.py': h.sha256(sizing.S.__file__)}}
     h.write_json(out / 'result.json', result)
     _report(out, result)
     return result
@@ -666,9 +728,12 @@ def _report(out, s):
     n, st = s['rooms'], s['stages']
     rate = lambda k: f"{st[k]} / {n}（{st[k] / n:.3f}）" if n else '—'
     api = s['escalation'].get('api')
+    size_text = (f"训练集先验表 sha256 {s['prior']['sha256'][:12]}" if s['prior'].get('sha256') else '未提供先验表')
+    if 'sizing' in s:
+        size_text += f"；尺寸来源 {s['sizing']['objects_by_source']}"
     lines = ['# FastFill 交付系统运行报告（amendment 022 §1）', '',
              f"放置模型：{s['placer'].get('engine')}，adapter sha256 {str(s['placer'].get('adapter_sha256'))[:12]}；"
-             f"尺寸：训练集先验表 sha256 {s['prior']['sha256'][:12]}；S1：max_trials {S1['max_trials']}，"
+             f"尺寸：{size_text}；S1：max_trials {S1['max_trials']}，"
              f"每房间 {S1['time_limit']:.0f} 秒。" + ('**试运行（dry run）：未调用 API 与 O2。**' if s['dry_run'] else ''), '',
              '| 阶段 | 冻结检查器通过 |', '|---|---:|',
              f"| 放置模型原始输出 | {rate('placer_raw_checker_pass')} |",
@@ -679,4 +744,9 @@ def _report(out, s):
              f"API 调用（账本，含重试）：{api['calls_ledger'] if api else 0}，上限 {s['api_cap']}"
              + (f"，因 {api['stopped']} 停止" if api and api['stopped'] else '') + '。', '',
              '升级结果属于"带 API / 额外模型的系统"，不能当作单一模型与单次生成的智能体直接比较。']
+    if 'sizing' in s:
+        size_api = s['sizing']['api']
+        lines += ['', f"尺寸 API 调用（含重试）：{size_api['calls_ledger'] if size_api else 0}，"
+                      f"独立上限 {s['size_api_cap']}；全流程 API 调用：{s['api_calls_total']}。",
+                  'API 尺寸是估计值；尺寸来源及最终尺寸见 size-estimates.jsonl，未测量该模式的质量。']
     (out / 'report.md').write_text('\n'.join(lines) + '\n')

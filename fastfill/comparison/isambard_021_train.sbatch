@@ -28,6 +28,9 @@
 #   probe        --gpus-per-node=1 --cpus-per-task=16 --mem=200G --time=03:00:00   kernels, probe-hf (training env;
 #                      per room, a rerun resumes), probe-vllm (vLLM env), probe-report -> RUN/a021/probe; each part
 #                      skipped once its output exists
+# Amendment 028 (arm J27 = Arm A's model, recipe and gates on J's own SFT rows; RUN/a028; submit_028.sh):
+#   rows J27       CPU   a028 rows -> RUN/a028/rows (J's matched SFT rows in Arm A's order, a021_train pool layout)
+#   smoke J27 | smoke-vllm J27 | train J27 H   as above on RUN/a028/rows -> RUN/a028/smoke, RUN/a028/27b-joint
 set -euo pipefail
 test "$#" -ge 2 || exit 2
 CODE_ROOT="$1"
@@ -36,6 +39,7 @@ shift 2
 PROJECT_ROOT=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill
 RUN_ROOT="$PROJECT_ROOT/runs/unknownsize-20261013"
 A21="$RUN_ROOT/a021"
+A28="$RUN_ROOT/a028"
 PYTHON="$PROJECT_ROOT/env/bin/python"
 VLLM_PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
 OVERLAY="$PROJECT_ROOT/pylib-021"
@@ -44,14 +48,16 @@ EINOPS_VERSION=0.8.1
 B27="$PROJECT_ROOT/models/Qwen3.8-27B"
 B8="$PROJECT_ROOT/models/Qwen3-8B"
 LINEAGE="$CODE_ROOT/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage-7368003-result.json"
-GPUS=0 KERNELS=""
+GPUS=0 KERNELS="" J27=""
+j27() { test "$#" -eq 1 && test "$1" = J27 || exit 2; J27=1; }  # The amendment-028 form of a mode.
 case "$MODE" in
   setup) test "$#" -eq 0 || exit 2; LIMIT=460m ;;
-  smoke) test "$#" -eq 0 || exit 2; GPUS=4 LIMIT=85m KERNELS=1 ;;
-  smoke-vllm) test "$#" -eq 0 || exit 2; GPUS=1 LIMIT=50m ;;
+  rows) j27 "$@"; LIMIT=460m ;;
+  smoke) test "$#" -eq 0 || j27 "$@"; GPUS=4 LIMIT=85m KERNELS=1 ;;
+  smoke-vllm) test "$#" -eq 0 || j27 "$@"; GPUS=1 LIMIT=50m ;;
   train)
     test "$#" -eq 2 || exit 2
-    case "$1" in A) ARM=A KERNELS=1 ;; B) ARM=B ;; *) exit 2 ;; esac
+    case "$1" in A) ARM=A KERNELS=1 ;; B) ARM=B ;; J27) ARM=J27 KERNELS=1 J27=1 ;; *) exit 2 ;; esac
     case "$2" in ''|*[!0-9]*) exit 2 ;; esac
     test "$2" -ge 1 -a "$2" -le 24 || exit 2
     GPUS=4 LIMIT="$(( $2 * 60 - 10 ))m" ;;
@@ -88,6 +94,28 @@ vllm() {  # vllm LIMIT STEP ARGS...: the vLLM env as isambard_018.sbatch's vllm 
     exec timeout --signal=TERM --kill-after=60s "$1" "$VLLM_PYTHON" -B -u -m fastfill.comparison.a021_train "${@:2}"
   )
 }
+if test -n "$J27"; then  # Amendment 028: Arm A's steps on RUN/a028 (default commands below unchanged).
+  mkdir -p "$A28"
+  case "$MODE" in
+    rows)
+      export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+      exec timeout --signal=TERM --kill-after=60s "$LIMIT" "$PYTHON" -B -u -m fastfill.comparison.a028 rows \
+        --data "$RUN_ROOT/main-data-v1" --sft-runs "$RUN_ROOT/sft-joint-001" "$RUN_ROOT/sft-placement-001" \
+        --base27 "$B27" --arm-a "$A21/27b" --dev "$RUN_ROOT/dev-select-v1" "$RUN_ROOT/dev-full-v1" \
+        --test "$RUN_ROOT/eval-data-v1" --out "$A28/rows" ;;
+    smoke)
+      exec timeout --signal=TERM --kill-after=120s "$LIMIT" "${A[@]}" smoke --pool "$A28/rows" --base "$B27" \
+        --out "$A28/smoke" --arm J27 ;;
+    smoke-vllm)
+      vllm "$LIMIT" smoke-vllm --data "$RUN_ROOT/dev-select-v1" --smoke "$A28/smoke" --base "$B27" --arm J27 ;;
+    train)
+      exec 9>"$A28/.train-J27.lock"
+      flock -n 9 || { echo "another job owns Arm J27" >&2; exit 1; }
+      exec timeout --signal=TERM --kill-after=120s "$LIMIT" "${A[@]}" train --arm J27 --pool "$A28/rows" \
+        --base "$B27" --smoke "$A28/smoke" --run-root "$A28" ;;
+  esac
+  exit 0  # smoke-vllm returned OK (set -e stops on a failure); never fall through to the amendment-021 steps.
+fi
 case "$MODE" in
   setup)
     export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1

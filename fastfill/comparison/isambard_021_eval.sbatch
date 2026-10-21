@@ -26,6 +26,10 @@
 #                                  --arm placement (SLICE dev-select | confirm | cohort) -> a021/o2nt/SLICE
 #   o2nt-score | engine-check | select | test-geometry   CPU (30 workers; test-geometry --time=06:00:00)
 # SLICE: dev-select | confirm | engine | test. Every output is new-only; a vLLM or llm_open run resumes from receipts.
+# Amendment 028 (fastfill.comparison.a028; submit_028.sh):
+#   a028 greedy dev-select|test HOURS   --gpus-per-node=1 --cpus-per-task=16 --mem=100G   vLLM env: J27 greedy (Arm A's
+#                                  engine, joint requests) -> a028/vllm/SLICE/j27
+#   a028 compare HOURS             CPU (70 workers): J27 geometry rows, S1 and 27B-J vs 27B-P -> a028/compare
 set -euo pipefail
 test "$#" -ge 2 || exit 2
 PAIR_CODE_ROOT="$1"
@@ -65,6 +69,15 @@ case "$MODE" in
     test "$#" -eq 2 || exit 2
     case "$1" in dev-select|confirm|cohort) ;; *) exit 2 ;; esac; hours "$2"
     KIND=vllm GPUS=2 ITEMS=(o2nt "$1") ;;
+  a028)
+    test "$#" -ge 2 || exit 2
+    case "$1" in
+      greedy) test "$#" -eq 3 || exit 2; case "$2" in dev-select|test) ;; *) exit 2 ;; esac; hours "$3"
+              KIND=vllm GPUS=1 TAG="a028-greedy-$2" ARGS=(fastfill.comparison.a028 greedy --run-root "$RUN_ROOT" --slice "$2") ;;
+      compare) test "$#" -eq 2 || exit 2; hours "$2"
+               ARGS=(fastfill.comparison.a028 compare --run-root "$RUN_ROOT" --workers 70) ;;
+      *) exit 2 ;;
+    esac ;;
   o2nt-score|engine-check|select|test-geometry)
     test "$#" -eq 0 || exit 2
     if test "$MODE" = test-geometry; then LIMIT=350m; fi
@@ -90,7 +103,7 @@ case "$KIND" in
     export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ;;
   vllm)  # As isambard_018.sbatch; compile caches under PROJECTDIR (scratch file limit).
     PYTHON=/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python
-    JOB_CACHE="$PROJECT_ROOT/.cache-jobs/a021-$(IFS=-; echo "${ITEMS[*]}")"  # One per concurrent job.
+    JOB_CACHE="$PROJECT_ROOT/.cache-jobs/${TAG:-a021-$(IFS=-; echo "${ITEMS[*]}")}"  # One per concurrent job.
     PIP_CUDA="$(dirname "$(dirname "$PYTHON")")/lib/python3.11/site-packages/nvidia/cu13"
     if test -x "$PIP_CUDA/bin/nvcc"; then
       CUDA_HOME="$PIP_CUDA"
