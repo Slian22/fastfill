@@ -1,0 +1,102 @@
+[
+  {
+    "id": "alfred",
+    "url": "https://arxiv.org/pdf/1912.01734",
+    "resolved_url": "https://arxiv.org/pdf/1912.01734",
+    "file": "alfred.pdf",
+    "bytes": 7539412,
+    "sha256": "84b314c06de82f5a1ff853676d391e05394a2e517986b03faadcbca325c9ee0b",
+    "pages": 18,
+    "downloaded_utc": "2026-10-20T18:05:14.985221+00:00"
+  },
+  {
+    "id": "embodiedgen-v2",
+    "url": "https://arxiv.org/pdf/2607.07459v3",
+    "resolved_url": "https://arxiv.org/pdf/2607.07459v3",
+    "file": "embodiedgen-v2.pdf",
+    "bytes": 21486619,
+    "sha256": "b7fa9a531218d448367eb15432d0ae1a9e0cbd676133283a1fd609467a947f28",
+    "pages": 24,
+    "downloaded_utc": "2026-10-20T18:05:05.958531+00:00"
+  },
+  {
+    "id": "holodeck",
+    "url": "https://arxiv.org/pdf/2312.09067",
+    "resolved_url": "https://arxiv.org/pdf/2312.09067",
+    "file": "holodeck.pdf",
+    "bytes": 21922347,
+    "sha256": "64bff3f8c550b85ae203153a9f2102fc8b23dcfd99c7ac48557858480ea58139",
+    "pages": 21,
+    "downloaded_utc": "2026-10-20T18:05:27.064864+00:00"
+  },
+  {
+    "id": "homerobot",
+    "url": "https://arxiv.org/pdf/2306.11565",
+    "resolved_url": "https://arxiv.org/pdf/2306.11565",
+    "file": "homerobot.pdf",
+    "bytes": 22419355,
+    "sha256": "518b6ba6f64a2c51a1bda3b92902e6ad0d2cbf5567d6d07e93207a28155d61e3",
+    "pages": 37,
+    "downloaded_utc": "2026-10-20T18:05:17.593235+00:00"
+  },
+  {
+    "id": "infinity-thor",
+    "url": "https://arxiv.org/pdf/2505.16928",
+    "resolved_url": "https://arxiv.org/pdf/2505.16928",
+    "file": "infinity-thor.pdf",
+    "bytes": 24491965,
+    "sha256": "ae32cd0a75c7a6a1dd32a55a7fe60350b2a012e1566e31703b609d5d6d127881",
+    "pages": 17,
+    "downloaded_utc": "2026-10-20T18:05:29.057613+00:00"
+  },
+  {
+    "id": "optiscene",
+    "url": "https://arxiv.org/pdf/2506.07570",
+    "resolved_url": "https://arxiv.org/pdf/2506.07570",
+    "file": "optiscene.pdf",
+    "bytes": 8171302,
+    "sha256": "b887dc647c229ad1ffa94d6528b9057e6ae99cc750920bbff8682dde29071b65",
+    "pages": 24,
+    "downloaded_utc": "2026-10-20T18:04:57.732361+00:00"
+  },
+  {
+    "id": "partnr",
+    "url": "https://arxiv.org/pdf/2411.00081",
+    "resolved_url": "https://arxiv.org/pdf/2411.00081",
+    "file": "partnr.pdf",
+    "bytes": 5736431,
+    "sha256": "7da62f6f2b031d78908d6f063d44b6eaeb491bb31d03536218f6ee61dd300efd",
+    "pages": 63,
+    "downloaded_utc": "2026-10-20T18:05:06.828369+00:00"
+  },
+  {
+    "id": "scenecode",
+    "url": "https://arxiv.org/pdf/2605.19587v1",
+    "resolved_url": "https://arxiv.org/pdf/2605.19587v1",
+    "file": "scenecode.pdf",
+    "bytes": 8909133,
+    "sha256": "6ac8d534e42237c76ab322cc02da8ffa3ac47478225b11d445bedd2a5df58760",
+    "pages": 34,
+    "downloaded_utc": "2026-10-20T18:05:04.145093+00:00"
+  },
+  {
+    "id": "sceneeval",
+    "url": "https://arxiv.org/pdf/2503.14756v3",
+    "resolved_url": "https://arxiv.org/pdf/2503.14756v3",
+    "file": "sceneeval.pdf",
+    "bytes": 1809430,
+    "sha256": "fc862411219e06c648d4f29397a2613d3d6cc37ea39ddb133af6c6cba673952c",
+    "pages": 24,
+    "downloaded_utc": "2026-10-20T18:04:55.653788+00:00"
+  },
+  {
+    "id": "scenesmith",
+    "url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/pfaff26a/pfaff26a.pdf",
+    "resolved_url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/pfaff26a/pfaff26a.pdf",
+    "file": "scenesmith.pdf",
+    "bytes": 19996472,
+    "sha256": "6e4b5657f1ce7f661a51ef3ad1c145fd8ad8f80888d6d16fb0b1e468609d7039",
+    "pages": 69,
+    "downloaded_utc": "2026-10-20T18:06:10.197080+00:00"
+  }
+]

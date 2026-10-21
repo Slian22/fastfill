@@ -1,0 +1,11 @@
+{
+  "status": "CAPACITY_COMPLETE",
+  "quality_claim": false,
+  "batch_size": 8,
+  "cached_tokens": 40960,
+  "elapsed_seconds": 51.54129073000513,
+  "peak_allocated_bytes": 73998618112,
+  "peak_reserved_bytes": 100411637760,
+  "gpu_total_bytes": 102005473280,
+  "scope": "synthetic dev-token cache pressure test; chunked prefill differs from formal unchunked prompt prefill; no quality or throughput claim"
+}

@@ -1,0 +1,205 @@
+{
+  "status": "COMPLETE_WITH_KNOWN_SOURCE_DEFECTS",
+  "utc": "2026-10-13T07:44:42.686041+00:00",
+  "current_pair_disposition": "Preserve running pair as diagnostic frozen-corpus evidence. Correct source conversion, version/rebuild entire paired data lineage, and rerun both arms before claiming corrected-geometry performance. No silent posthoc exclusions.",
+  "jobs": {
+    "input_scan": 7367962,
+    "geometry_exposure": 7367978,
+    "core_lineage_and_p_target": 7368003,
+    "payload_completion": 7368012
+  },
+  "verification": {
+    "strict_input_violations": {},
+    "paired_populations": {
+      "train": {
+        "rows_per_arm": 98923,
+        "admitted_per_arm": 98754,
+        "excluded_by_length": 169
+      },
+      "dev": {
+        "rows_per_arm": 8167,
+        "admitted_per_arm": 8151,
+        "excluded_by_length": 16
+      },
+      "test": {
+        "rows_per_arm": 8647,
+        "admitted_per_arm": null,
+        "excluded_by_length": null
+      }
+    },
+    "components": 56352,
+    "core_data_check_failures": {},
+    "core_checks_passed": 10513216,
+    "prior_bucket_count": 776848,
+    "prior_axis_values_compared": 2330544,
+    "median_max_delta": {
+      "absolute": 0.0,
+      "relative": 0.0
+    },
+    "prior_fits": {
+      "full": {
+        "room_count": 124843,
+        "object_count": 1580249,
+        "component_count": 49163,
+        "fixed_excluded_count": 344030,
+        "fitted_uid_sha256": "65e4abfeba4eb8219d9bda5aac8625eef78bdfe3a4e67a23b28f07bd0bdae5e2",
+        "held_out_rooms": 0,
+        "held_out_uid_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "component_sha256": "87fa9089ddde1624ba255c22893f9cf4cfd3cff01c4da4d347fd7dcbb0cc0923"
+      },
+      "0": {
+        "room_count": 100139,
+        "object_count": 1274032,
+        "component_count": 39330,
+        "fixed_excluded_count": 275474,
+        "fitted_uid_sha256": "ee02e6d69c5dc12cb9493c667bc75b9f89084d260507c8e125da0e6e59347849",
+        "held_out_rooms": 24704,
+        "held_out_uid_sha256": "5fc8d55740f4bcfe3ec01df25dca311490ee684f8358e80bac95bc211f22240e",
+        "component_sha256": "ac7a726137640982790d79424de0734d94d068674e76f70310eace2e77347c15"
+      },
+      "1": {
+        "room_count": 100241,
+        "object_count": 1248226,
+        "component_count": 39330,
+        "fixed_excluded_count": 274801,
+        "fitted_uid_sha256": "ff0fbcb916e4f1db36b9f3db94425bcbf26732a71fc1534b47cf5551395bffd6",
+        "held_out_rooms": 24602,
+        "held_out_uid_sha256": "76069ae279360022f6e6353311937d01b0ad0f26f481c2b51bc96ffe24bd3130",
+        "component_sha256": "2062f139ecae3e815afc68496de26374d8195ba90182110e7c2b0ce5eb312cf8"
+      },
+      "2": {
+        "room_count": 100384,
+        "object_count": 1267636,
+        "component_count": 39330,
+        "fixed_excluded_count": 276053,
+        "fitted_uid_sha256": "ee80344bb294cbc545c0fd2543119ba2ba13d49ca9000d2eb4e16903b46741d0",
+        "held_out_rooms": 24459,
+        "held_out_uid_sha256": "d2255718b16ca73c4ae3405f07d5ed647b5dffe409068d603489b76cc8163424",
+        "component_sha256": "3b37261d4c747bc91f4d322370fa4ee640fd1fb2689118ec008b09100eb78739"
+      },
+      "3": {
+        "room_count": 98061,
+        "object_count": 1250911,
+        "component_count": 39331,
+        "fixed_excluded_count": 272589,
+        "fitted_uid_sha256": "b09378e794049983ce8ce1c0f092857325d8f47dc04b8959f56e18639946972f",
+        "held_out_rooms": 26782,
+        "held_out_uid_sha256": "7701568db743a685204a34618099d4a4d1b6f3910d5b701ce12ca58bb18210f9",
+        "component_sha256": "ea7d379ac34c3868ed9af3b61ac3849180ed26e22c620db10581d5c115cec0fc"
+      },
+      "4": {
+        "room_count": 100547,
+        "object_count": 1280191,
+        "component_count": 39331,
+        "fixed_excluded_count": 277203,
+        "fitted_uid_sha256": "214613f95bb7ecee7c6e1de4ae5d48e90e5841e2f4e88c86bde869b0a0cea788",
+        "held_out_rooms": 24296,
+        "held_out_uid_sha256": "16c3cc540e41f03e71319bba53457d1b4ca55abe8bc98d20ecf6521f50f58975",
+        "component_sha256": "5b15dfaf7ec5642a8fa0816b3ce78d7cc4cf7af9396deeb27c69cd1778adf35d"
+      }
+    },
+    "p_targets": {
+      "train": {
+        "records": 98923,
+        "poses_different": 58796,
+        "poses_equal": 40127
+      },
+      "dev": {
+        "records": 8167,
+        "poses_different": 0,
+        "poses_equal": 8167
+      }
+    },
+    "p_target_issues": {},
+    "payload_status": "PASS",
+    "payload_issues": {}
+  },
+  "known_source_exposure": {
+    "Scan2CAD": {
+      "train_targets": 1,
+      "train_rooms": 1,
+      "prior_pool_targets": 7,
+      "prior_pool_rooms": 5
+    },
+    "IL3D_3dfront": {
+      "train_fixed": 20,
+      "train_rooms": 10,
+      "test_fixed": 2,
+      "test_rooms": 1,
+      "prior_pool_fixed": 25,
+      "prior_pool_rooms": 15
+    },
+    "SpatialGen": {
+      "test_targets": 2,
+      "test_rooms": 2
+    },
+    "k0_axis_semantic_exposure_not_error_count": {
+      "train_targets": 1113,
+      "train_fixed": 30,
+      "train_rooms": 806,
+      "dev_targets": 569,
+      "dev_fixed": 8,
+      "dev_rooms": 240,
+      "test_targets": 473,
+      "test_fixed": 9,
+      "test_rooms": 209
+    }
+  },
+  "qualification_caveat": "window/windows is excluded from fixed_blocking used by admission/repair; wrong widths affect input and may affect fixed_collisions, not proven direct blocking-gate effect.",
+  "measurement_caveat": "Known-case identity/exact historical IR dimensions were checked against current full records. No new source-mesh remeasurement. Prior/model influence of corrected labels not measured.",
+  "audit_logic_corrections": {
+    "geometry_job_false_assertion": "P train target equality to J minus size is invalid under pose repair. 58796 train differences are expected; zero dev differences, identity/support unchanged.",
+    "lineage_job_original_status": "ERROR preserved: core completed; final all-history manifest inventory hit an unconsumed missing auxiliary. Required current payload inventory completed separately with PASS."
+  },
+  "uninspected_historical_auxiliary_files": [
+    {
+      "scope": "release",
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_constrained_rooms.jsonl",
+      "expected_sha256": "d54e28c06b4b3714b6e76b544230c6edb45dd592e966dec6b916ce068f16e2e2"
+    },
+    {
+      "scope": "release",
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_rooms.jsonl",
+      "expected_sha256": "e0c2a6fdb44778e83f91273122fb5f7a4489cdb2c6fcf49ffc118ab15671c97f"
+    },
+    {
+      "scope": "release",
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/stats.json",
+      "expected_sha256": "32ad3932f2f5a637f6f806fafc95388ed75dd7fc94dc269ae9dfeb6e9f9c12a4"
+    },
+    {
+      "scope": "release",
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test_constrained_rooms.jsonl",
+      "expected_sha256": "0bb4edaab1ceca5ee794ba5ae99ff8ee8aff26b48e46ae723259cc50900c727d"
+    },
+    {
+      "scope": "release",
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test_rooms.jsonl",
+      "expected_sha256": "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303"
+    }
+  ],
+  "files_checked_inventory": "full-audit-data-files-checked.json",
+  "uninspected_binaries": "Original mesh/texture assets and model/checkpoint tensor payloads were not opened by this data audit.",
+  "result_receipts": {
+    "inputs": {
+      "path": "full-audit-data-inputs-7367962-result.json",
+      "sha256": "02e2ad6bb7b7ddb06ba8524d6aa00e730d8b0504762e3458b3548763d75d3615"
+    },
+    "geometry": {
+      "path": "full-audit-data-geometry-7367978-result.json",
+      "sha256": "5cca605cc3331ab7405baffdc56a7e4dd1193991706ce1c3d84679311e4fe7a5"
+    },
+    "lineage": {
+      "path": "full-audit-data-lineage-7368003-result.json",
+      "sha256": "3c65c23d639d19f26081a7f0aa35eb9307ab51f88ca817a58dfc7fffc67e7f53"
+    },
+    "p_targets": {
+      "path": "full-audit-data-p-target-7368003-result.json",
+      "sha256": "084e46964cbbb5b8f03407cc9259eb10ee7b332898f6769b1b5bac5303c835db"
+    },
+    "payloads": {
+      "path": "full-audit-data-payloads-7368012-result.json",
+      "sha256": "f7b5e1dc78a7196e5479c3688d85f86c7bc3796c0e1a1c0c2d771163b895a29d"
+    }
+  }
+}

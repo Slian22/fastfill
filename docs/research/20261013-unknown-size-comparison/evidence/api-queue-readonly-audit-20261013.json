@@ -1,0 +1,218 @@
+{
+  "api_calls": 0,
+  "audit_kind": "read_only_slurm_scheduling",
+  "cancelled_jobs": 0,
+  "compute_api_egress": {
+    "offline_local_real_asset_smoke_is_not_egress_evidence": true,
+    "prior_login_smoke_location": "not_established_by_this_audit",
+    "required_probe": "Parent-owned compute-node job or permitted job step; actual endpoint GET/HEAD without Authorization, no secrets/paid requests; same direct/proxy-disabled transport as client. Record Slurm job/step ID, compute hostname, DNS/TLS/connectivity and HTTP status only.",
+    "separate_probe_queue_warning": "A new5min allocation is also estimated~78h43m away. If fullAPIjob is submitted only after that probe, another queue wait is possible;120h is not an end-to-end completion guarantee.",
+    "status": "unverified"
+  },
+  "deadline_probes": [
+    {
+      "deadline": "2026-10-16T05:42:50",
+      "driver_hours": 72,
+      "estimated_finish": "2026-10-16T22:25:50+00:00",
+      "estimated_start": "2026-10-16T12:25:50+00:00",
+      "finish_within_deadline": false,
+      "job_hours": 10,
+      "returncode": 0
+    },
+    {
+      "deadline": "2026-10-18T05:42:50",
+      "driver_hours": 120,
+      "estimated_finish": "2026-10-16T22:25:50+00:00",
+      "estimated_start": "2026-10-16T12:25:50+00:00",
+      "finish_within_deadline": true,
+      "job_hours": 10,
+      "returncode": 0
+    },
+    {
+      "deadline": "2026-10-20T05:42:50",
+      "driver_hours": 168,
+      "estimated_finish": "2026-10-16T22:25:50+00:00",
+      "estimated_start": "2026-10-16T12:25:50+00:00",
+      "finish_within_deadline": true,
+      "job_hours": 10,
+      "returncode": 0
+    }
+  ],
+  "duration_probes": [
+    {
+      "command": [
+        "sbatch",
+        "--test-only",
+        "--account=brics.u6uv",
+        "--partition=workq",
+        "--qos=normal",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=1",
+        "--mem=4G",
+        "--gres=none",
+        "--no-requeue",
+        "--wrap=true",
+        "--time=01:00:00"
+      ],
+      "estimated_start": "2026-10-16T12:25:07",
+      "hours": 1,
+      "node": "nid010022",
+      "processors": 72,
+      "returncode": 0
+    },
+    {
+      "command": [
+        "sbatch",
+        "--test-only",
+        "--account=brics.u6uv",
+        "--partition=workq",
+        "--qos=normal",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=1",
+        "--mem=4G",
+        "--gres=none",
+        "--no-requeue",
+        "--wrap=true",
+        "--time=02:00:00"
+      ],
+      "estimated_start": "2026-10-16T12:25:07",
+      "hours": 2,
+      "node": "nid010022",
+      "processors": 72,
+      "returncode": 0
+    },
+    {
+      "command": [
+        "sbatch",
+        "--test-only",
+        "--account=brics.u6uv",
+        "--partition=workq",
+        "--qos=normal",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=1",
+        "--mem=4G",
+        "--gres=none",
+        "--no-requeue",
+        "--wrap=true",
+        "--time=04:00:00"
+      ],
+      "estimated_start": "2026-10-16T12:25:07",
+      "hours": 4,
+      "node": "nid010022",
+      "processors": 72,
+      "returncode": 0
+    },
+    {
+      "command": [
+        "sbatch",
+        "--test-only",
+        "--account=brics.u6uv",
+        "--partition=workq",
+        "--qos=normal",
+        "--nodes=1",
+        "--ntasks=1",
+        "--cpus-per-task=1",
+        "--mem=4G",
+        "--gres=none",
+        "--no-requeue",
+        "--wrap=true",
+        "--time=10:00:00"
+      ],
+      "estimated_start": "2026-10-16T12:25:07",
+      "hours": 10,
+      "node": "nid010022",
+      "processors": 72,
+      "returncode": 0
+    }
+  ],
+  "findings": [
+    "Shorter1/2/4h requests did not improve estimated start.",
+    "Reducing memory1G or requesting72cores did not improve estimated start.",
+    "72h deadline dryrun returned0 despite estimated start afterdeadline; manually compare estimatedfinish todeadline.",
+    "No alternate user CPU partition was visible on this cluster; Isambard3 access and secret availability were not established.",
+    "No evidence warrants retraining; issue is scheduling.",
+    "Do not mutate a running driver config/frozen code to extend its in-memory deadline."
+  ],
+  "five_minute_probe": {
+    "audit_time_utc": "2026-10-13T05:44:32.830414+00:00",
+    "cpu_requested": 1,
+    "estimated_start_utc": "2026-10-16T12:27:32",
+    "gres": "none",
+    "memory": "4G",
+    "node": "nid010043",
+    "processors": 72,
+    "returncode": 0,
+    "submitted": false,
+    "wall_minutes": 5
+  },
+  "live_configuration": {
+    "account": "brics.u6uv",
+    "cluster": "gracehopper",
+    "global_select_type_parameters": "CR_CORE_MEMORY",
+    "job_submit_plugins": null,
+    "node_cores_per_socket": 72,
+    "node_sockets": 4,
+    "node_total_cpus": 288,
+    "partition_select_type_parameters": "CR_SOCKET_MEMORY",
+    "user_partition_visible": [
+      "workq"
+    ],
+    "user_qos": [
+      "normal"
+    ],
+    "workq_qos_maxwall": "1-00:00:00"
+  },
+  "observed_utc": [
+    "2026-10-13T05:42:07.836383+00:00",
+    "2026-10-13T05:42:50.313307+00:00"
+  ],
+  "production_edits": false,
+  "production_sha256": {
+    "fastfill/comparison/overnight.py": "4ff251d8ce8b223470425408ad9bf896ddcda4f7cd1d647efad3f6f69a7ae5a6",
+    "fastfill/comparison/tests/test_overnight.py": "97e62c47bb64fdd8fbfd9df99de6fac3105b10612708c6290de5d9bc29e36a8a"
+  },
+  "recommendation": {
+    "api_max_cases": 348,
+    "api_timeout_seconds": 36000,
+    "attempts_per_case": 1,
+    "automatic_retries": 0,
+    "changes_applied": false,
+    "rationale": "Current estimated finish is 88h43m after audit, leaving about31h17m in a120h window.168h not justified by this snapshot alone. Estimate is not a reservation and may change before actual submission.",
+    "render_timeout_seconds": 86400,
+    "total_timeout_seconds": 432000
+  },
+  "resource_probes": [
+    {
+      "cpus_requested": 1,
+      "estimated_start": "2026-10-16T12:25:50+00:00",
+      "hours": 10,
+      "memory": "1G",
+      "node": "nid010017",
+      "processors": 72,
+      "returncode": 0
+    },
+    {
+      "cpus_requested": 72,
+      "estimated_start": "2026-10-16T12:25:50+00:00",
+      "hours": 10,
+      "memory": "4G",
+      "node": "nid010017",
+      "processors": 72,
+      "returncode": 0
+    }
+  ],
+  "schema_version": 1,
+  "sources": [
+    "https://slurm.schedmd.com/sbatch.html",
+    "https://slurm.schedmd.com/slurm.conf.html",
+    "https://docs.isambard.ac.uk/user-documentation/information/how-isambard-works/",
+    "https://docs.isambard.ac.uk/user-documentation/information/job-scheduling/",
+    "https://docs.isambard.ac.uk/user-documentation/guides/using_ai_agents/",
+    "https://docs.isambard.ac.uk/user-documentation/guides/accounting/"
+  ],
+  "ssh_host": "u6uv.aip2.isambard",
+  "submitted_jobs": 0
+}

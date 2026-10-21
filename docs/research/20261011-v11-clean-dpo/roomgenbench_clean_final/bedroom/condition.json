@@ -1,0 +1,355 @@
+{
+  "schema_version": "fastfill.v2",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "bedroom",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        4.2,
+        0.0
+      ],
+      [
+        4.2,
+        4.5
+      ],
+      [
+        0.0,
+        4.5
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.9,
+          2.05
+        ],
+        "bottom_center_m": [
+          2.9,
+          4.5,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "category": "bed",
+      "description": "A teak platform bed with an organic rectangular silhouette, tapered legs, and a low\u2011slung mid\u2011century modern profile",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0001",
+      "category": "nightstand",
+      "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0002",
+      "category": "nightstand",
+      "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0003",
+      "category": "dresser",
+      "description": "A low teak dresser with a wide rectangular base, straight\u2011edged drawers and a smooth organic finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0004",
+      "category": "wardrobe",
+      "description": "A tall teak wardrobe with a narrow rectangular footprint, tapered legs and a sleek vertical silhouette",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0005",
+      "category": "chair",
+      "description": "A mid\u2011century lounge chair with an elongated curved back, tapered wooden legs and a low\u2011slung seat",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0006",
+      "category": "bench",
+      "description": "A teak foot bench with a short rectangular seat, rounded front edge and compact low profile",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0007",
+      "category": "plant",
+      "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0008",
+      "category": "plant",
+      "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0009",
+      "category": "lamp",
+      "description": "A tapered floor lamp with a slender cylindrical stem, a narrow conical shade and a warm wooden finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0010",
+      "category": "sculpture",
+      "description": "An organic wooden sculpture with a curving abstract form, smooth polished surface and natural teak hue",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0011",
+      "category": "floorplant",
+      "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0012",
+      "category": "floorplant",
+      "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0013",
+      "category": "floorplant",
+      "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0014",
+      "category": "floorplant",
+      "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0015",
+      "category": "floorlamp",
+      "description": "A tall slender floor lamp with a white conical shade, a slender metal pole and a soft diffused light at the top",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0016",
+      "category": "tablelamp",
+      "description": "A mustard table lamp with a squat cylindrical base, a conical shade and a warm metal finish",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0017",
+      "category": "book_1",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0018",
+      "category": "book_2",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0019",
+      "category": "book_3",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0020",
+      "category": "book_5",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0021",
+      "category": "smartphone",
+      "description": "A smartphone on a minimalist stand with a thin rectangular base and a low profile",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0022",
+      "category": "print_1",
+      "description": "A small framed print with a rectangular canvas, thin wooden frame and a subtle matte finish",
+      "support_parent": "obj_0035"
+    },
+    {
+      "id": "obj_0023",
+      "category": "mirror",
+      "description": "A small round mirror with a thin silver rim and a flat reflective surface",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0024",
+      "category": "charger",
+      "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0025",
+      "category": "wirelesspad",
+      "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0026",
+      "category": "booknightstand2",
+      "description": "A rectangular hardcover book with a vintage 1950s style cover and slightly rounded edges",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0027",
+      "category": "charger2",
+      "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0028",
+      "category": "smartphone2",
+      "description": "A sleek rectangular smartphone on a slim stand, with a glossy black back and a low\u2011profile base",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0029",
+      "category": "wirelesspad2",
+      "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0030",
+      "category": "shelfbook_3",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "support_parent": "obj_0035"
+    },
+    {
+      "id": "obj_0031",
+      "category": "shelfbook_4",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "support_parent": "obj_0035"
+    },
+    {
+      "id": "obj_0032",
+      "category": "shelfbook_5",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "support_parent": "obj_0035"
+    },
+    {
+      "id": "obj_0033",
+      "category": "smartphone",
+      "description": "A slim rectangular smartphone on a minimalist stand, with a glossy black back and a thin metal base",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0034",
+      "category": "charger",
+      "description": "A small square wireless charger pad with a smooth matte finish, subtle LED indicator and a minimalist design",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0035",
+      "category": "shelf",
+      "description": "A single piece of thin and upright wall\u2011mounted teak shelf with a long rectangular panel and subtle angled brackets",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0036",
+      "category": "art",
+      "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0037",
+      "category": "art",
+      "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0038",
+      "category": "mirror",
+      "description": "A single piece of thin and upright oval teak frame mirror with a smooth polished surface and a subtle curved wooden border",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0039",
+      "category": "clock",
+      "description": "A single piece of thin and upright olive\u2011green wall clock with a round face, minimalist hands and a matte finish",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0040",
+      "category": "art",
+      "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0041",
+      "category": "art",
+      "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0042",
+      "category": "wallart",
+      "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0043",
+      "category": "wallart",
+      "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0044",
+      "category": "wallclock",
+      "description": "A single piece of thin and upright wall clock with an olive colour face, circular shape, minimalist hands and a brushed metal frame",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0045",
+      "category": "art",
+      "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0046",
+      "category": "art",
+      "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0047",
+      "category": "clock",
+      "description": "A single piece of thin and upright wall clock with an olive-colored face, circular shape, and minimalist hands.",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0048",
+      "category": "book_10",
+      "description": "A hardcover book with a rectangular shape, featuring a slightly textured cover in a vintage 1950s style, with a slim spine and crisp pages.",
+      "support_parent": "obj_0035"
+    },
+    {
+      "id": "obj_0049",
+      "category": "smartphone",
+      "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0050",
+      "category": "smartphone",
+      "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+      "support_parent": "obj_0003"
+    }
+  ],
+  "constraints": []
+}

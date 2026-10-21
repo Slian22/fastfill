@@ -1,0 +1,8 @@
+{
+  "date_utc": "2026-10-13T07:18:48.725654+00:00",
+  "terminated_pids": [
+    50883
+  ],
+  "reason": "Official text numeric matcher too slow on large lengths receipt; exact source JSON-pointer assertions already passed; rerun helper on small explicitly derived claim records. No scientific results changed.",
+  "status": "terminated_before_output"
+}

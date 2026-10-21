@@ -1,0 +1,35 @@
+{
+  "at_unix": 1791879985.6441972,
+  "old_processes_all_gone": [
+    40191,
+    96318,
+    40239,
+    96319
+  ],
+  "endstate": {
+    "api_submission_attempted": false,
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 2629.4885815000016,
+    "failures": [
+      {
+        "reason": "signal interruption",
+        "stage": "jobs",
+        "type": "KeyboardInterrupt"
+      }
+    ],
+    "pid": 96318,
+    "reason": "interrupted",
+    "remote_batch": null,
+    "remote_job": null,
+    "remote_may_be_active": false,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "partial",
+    "updated_unix": 1791879967.616134
+  }
+}

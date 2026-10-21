@@ -1,0 +1,186 @@
+{
+  "code_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+  "original_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+  "run_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+  "source_sha256": "3e3eef72c51546cc0a22134e4409853570b988c4e5932823182d42007f6197c4",
+  "archive_sha256": "55575cce1a2eca19d1211fd0a91a1ef0808fcac999bffabd1a7502601a1a5e11",
+  "protocol_commit": "24342801681e62adc001dd647468e796ee25c5af",
+  "started_at": "2026-10-11T16:59:06.165216+00:00",
+  "jobs": {
+    "ff-clean-train-1": {
+      "job_id": "7252874",
+      "arguments": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/pairs"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.365940+00:00"
+    },
+    "ff-clean-train-2": {
+      "job_id": "7252875",
+      "arguments": [
+        "--dependency=afterany:7252874",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/pairs"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.377328+00:00"
+    },
+    "ff-full-sft-1": {
+      "job_id": "7252876",
+      "arguments": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "sft"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.389244+00:00"
+    },
+    "ff-full-sft-2": {
+      "job_id": "7252877",
+      "arguments": [
+        "--dependency=afterany:7252876",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "sft"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.400261+00:00"
+    },
+    "ff-full-dpo1-1": {
+      "job_id": "7252878",
+      "arguments": [
+        "--dependency=afterany:7252875",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "dpo1"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.410927+00:00"
+    },
+    "ff-full-dpo1-2": {
+      "job_id": "7252879",
+      "arguments": [
+        "--dependency=afterany:7252878",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "dpo1"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.421033+00:00"
+    },
+    "ff-full-final-1": {
+      "job_id": "7252880",
+      "arguments": [
+        "--dependency=afterany:7252875",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "final"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.431665+00:00"
+    },
+    "ff-full-final-2": {
+      "job_id": "7252881",
+      "arguments": [
+        "--dependency=afterany:7252880",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full",
+        "final"
+      ],
+      "submitted_at": "2026-10-11T16:59:06.441629+00:00"
+    },
+    "ff-research-report": {
+      "job_id": "7252889",
+      "arguments": [
+        "sbatch",
+        "--parsable",
+        "--account=brics.u6uv",
+        "--partition=workq",
+        "--nodes=1",
+        "--ntasks=1",
+        "--gpus=0",
+        "--cpus-per-task=4",
+        "--mem=32G",
+        "--time=00:30:00",
+        "--job-name=ff-research-report",
+        "--dependency=afterany:7252877:7252879:7252881",
+        "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/logs/research-report-%j.out",
+        "--wrap",
+        "cd /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515 && export PYTHONPATH=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515 && exec /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/bin/python -m fastfill.v1_1.research_report --output /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/evaluation_full"
+      ],
+      "submitted_at": "2026-10-11T16:59:25.097034+00:00"
+    }
+  },
+  "gpu_hour_cap": 84,
+  "complete_submission": true,
+  "gpu_submission_complete": true,
+  "scheduler_requeue": false,
+  "post_submission_updates": [
+    {
+      "at": "2026-10-11T17:02:42.268171+00:00",
+      "commands": [
+        [
+          "scontrol",
+          "update",
+          "JobId=7252874",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252875",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252876",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252877",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252878",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252879",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252880",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252881",
+          "Requeue=0"
+        ],
+        [
+          "scontrol",
+          "update",
+          "JobId=7252889",
+          "Requeue=0"
+        ]
+      ],
+      "reason": "Keep recovery bounded to the explicitly submitted continuation; no implicit Slurm requeue."
+    }
+  ]
+}

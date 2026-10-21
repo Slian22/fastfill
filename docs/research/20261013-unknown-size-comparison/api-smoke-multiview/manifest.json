@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "expected_model": "gpt-6.1-sol",
+  "cases": [
+    {
+      "id": "non-test-realasset-multiview-capability-smoke",
+      "prompt_file": "prompt.txt",
+      "prompt_sha256": "e54c0b1bb4178db806aed31686378683d3442f3b400d02f3a17d242acf16294d",
+      "images": [
+        {
+          "path": "perspective.png",
+          "sha256": "3a23dd3828c3c6c3d7fcff41676eb2f0ced9b4b55d1314a9daadfd0e6dc9de2b"
+        },
+        {
+          "path": "top.png",
+          "sha256": "e691d60ff4bb5d48defcca3f3ca2440c937f5a6d22af316c263a741ead07054b"
+        }
+      ]
+    }
+  ]
+}

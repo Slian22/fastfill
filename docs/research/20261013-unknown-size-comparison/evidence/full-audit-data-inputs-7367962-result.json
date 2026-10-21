@@ -1,0 +1,526 @@
+{
+  "status": "COMPLETE",
+  "utc": "2026-10-13T07:22:48.701162+00:00",
+  "elapsed_seconds": 493.4288696909789,
+  "slurm_job_id": "7367962",
+  "python": "3.12.15 (main, Oct  6 2026, 23:51:47) [GCC 15.3.0]",
+  "max_rss_kib": 1944576,
+  "issues": {},
+  "examples": {},
+  "summary": {
+    "versions": {
+      "transformers": "5.14.1",
+      "tokenizers": "0.22.2",
+      "numpy": "2.4.6",
+      "shapely": "2.2.0"
+    },
+    "resources": {
+      "cpus": "4",
+      "mem_per_node_mb": "32768",
+      "gpu_requested": 0
+    },
+    "populations": {
+      "train": {
+        "rows_per_arm": 98923,
+        "by_source": {
+          "HSSD200": 956,
+          "IL3D_3dfront": 9237,
+          "IL3D_synthetic": 6090,
+          "InteriorGS": 2458,
+          "InternScenes_3rscan": 297,
+          "InternScenes_arkit": 2098,
+          "InternScenes_gen": 11870,
+          "InternScenes_mp3d": 562,
+          "InternScenes_scannet": 268,
+          "MansionWorld": 18343,
+          "MultiScan": 15,
+          "OptiScene_holodeck": 8946,
+          "SAGE-10k": 5736,
+          "Scan2CAD": 5,
+          "SpatialLM": 24060,
+          "Structured3D": 7982
+        },
+        "admitted_per_arm": 98754,
+        "excluded_by_length": 169,
+        "counts": {
+          "objects:joint": 1109168,
+          "prompt_tokens:joint": 59130923,
+          "objects:placement": 1109168,
+          "prompt_tokens:placement": 78736311,
+          "admitted_total_tokens:joint": 111845719,
+          "admitted_supervised_tokens:joint": 53157852,
+          "admitted_total_tokens:placement": 112329829,
+          "admitted_supervised_tokens:placement": 34454444
+        }
+      },
+      "dev": {
+        "rows_per_arm": 8167,
+        "by_source": {
+          "HSSD200": 86,
+          "IL3D_3dfront": 939,
+          "IL3D_synthetic": 349,
+          "InteriorGS": 268,
+          "InternScenes_3rscan": 61,
+          "InternScenes_arkit": 280,
+          "InternScenes_gen": 828,
+          "InternScenes_mp3d": 89,
+          "InternScenes_scannet": 80,
+          "MansionWorld": 1153,
+          "MultiScan": 2,
+          "OptiScene_holodeck": 497,
+          "SAGE-10k": 503,
+          "SpatialLM": 2239,
+          "Structured3D": 793
+        },
+        "admitted_per_arm": 8151,
+        "excluded_by_length": 16,
+        "counts": {
+          "objects:joint": 102563,
+          "prompt_tokens:joint": 5237287,
+          "objects:placement": 102563,
+          "prompt_tokens:placement": 7047753,
+          "admitted_total_tokens:joint": 10104861,
+          "admitted_supervised_tokens:joint": 4911391,
+          "admitted_total_tokens:placement": 10150912,
+          "admitted_supervised_tokens:placement": 3190137
+        }
+      },
+      "test": {
+        "rows_per_arm": 8647,
+        "by_source": {
+          "HSSD200": 138,
+          "InternScenes_3rscan": 70,
+          "InternScenes_arkit": 229,
+          "InternScenes_gen": 660,
+          "InternScenes_mp3d": 18,
+          "InternScenes_scannet": 104,
+          "MansionWorld": 1313,
+          "MultiScan": 6,
+          "SAGE-10k": 489,
+          "Scan2CAD": 1,
+          "SceneSmith": 364,
+          "IL3D_synthetic": 316,
+          "IL3D_3dfront": 872,
+          "InteriorGS": 311,
+          "OptiScene_holodeck": 503,
+          "SpatialGen": 45,
+          "SpatialLM": 2461,
+          "Structured3D": 747
+        },
+        "admitted_per_arm": null,
+        "excluded_by_length": null,
+        "counts": {
+          "objects:joint": 108253,
+          "prompt_tokens:joint": 5486503,
+          "input_ge_40960:joint": 0,
+          "objects:placement": 108253,
+          "prompt_tokens:placement": 7390912,
+          "input_ge_40960:placement": 0
+        }
+      }
+    }
+  },
+  "files": {
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-inputs.py": {
+      "sha256": "7ba325fbcd564518fefdc0cc9672b0973463686b01488029a1b18178f46468bf",
+      "bytes": 15824,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/contract.py": {
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "bytes": 13793,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/size_prior.py": {
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "bytes": 11001,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/scene.py": {
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "bytes": 21001,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/comparison/train_pair_helpers.py": {
+      "sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+      "bytes": 19717,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/comparison/train_pair.py": {
+      "sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "bytes": 23264,
+      "source_read": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/MANIFEST.json": {
+      "sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "bytes": 1272009,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/MANIFEST.json": {
+      "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+      "bytes": 429063,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json": {
+      "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+      "bytes": 241067473,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001/lengths.json": {
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "bytes": 32527892,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-placement-001/lengths.json": {
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "bytes": 32527892,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001/run_receipt.json": {
+      "sha256": "9bd27d9495f1a24ec6675796bf4f02c3778df4a1dc1465d7cf1f8933bd1df216",
+      "bytes": 7544,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-placement-001/run_receipt.json": {
+      "sha256": "0c048b78bfd8009a25c14a8817010f6187a6321133de0aac00e10f9b30d6ff6e",
+      "bytes": 7552,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/tokenizer.json": {
+      "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "bytes": 11422654,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/tokenizer_config.json": {
+      "sha256": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "bytes": 9732,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/config.json": {
+      "sha256": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+      "bytes": 728,
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/bound_rooms.jsonl": {
+      "sha256": "bb3d2448761cf49be0d52f00b1a42dde4290d959d7b04420513342a1fd8efea2",
+      "bytes": 427938557,
+      "records": 107090,
+      "fields": {
+        "_comparison_protocol": 107090,
+        "boundary": 107090,
+        "boundary_type": 107090,
+        "fixed": 107090,
+        "group": 107090,
+        "height": 107090,
+        "meta": 107090,
+        "objects": 107090,
+        "room_type": 107090,
+        "source": 107090,
+        "split": 107090,
+        "subset": 107090,
+        "uid": 107090
+      },
+      "by_source": {
+        "HSSD200": 1042,
+        "IL3D_3dfront": 10176,
+        "IL3D_synthetic": 6439,
+        "InteriorGS": 2726,
+        "InternScenes_3rscan": 358,
+        "InternScenes_arkit": 2378,
+        "InternScenes_gen": 12698,
+        "InternScenes_mp3d": 651,
+        "InternScenes_scannet": 348,
+        "MansionWorld": 19496,
+        "MultiScan": 17,
+        "OptiScene_holodeck": 9443,
+        "SAGE-10k": 6239,
+        "Scan2CAD": 5,
+        "SpatialLM": 26299,
+        "Structured3D": 8775
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/rooms.jsonl": {
+      "sha256": "37a541e2cc05656f808ff4fc03e197f929723d29b2e6ca9fc0aa474a3cf5a6ad",
+      "bytes": 38056113,
+      "records": 8647,
+      "fields": {
+        "uid": 8647,
+        "source": 8647,
+        "subset": 8647,
+        "group": 8647,
+        "room_type": 8647,
+        "boundary": 8647,
+        "boundary_type": 8647,
+        "height": 8647,
+        "objects": 8647,
+        "meta": 8647,
+        "fixed": 8647,
+        "split": 8647,
+        "_comparison_protocol": 8647,
+        "component": 8647
+      },
+      "by_source": {
+        "HSSD200": 138,
+        "InternScenes_3rscan": 70,
+        "InternScenes_arkit": 229,
+        "InternScenes_gen": 660,
+        "InternScenes_mp3d": 18,
+        "InternScenes_scannet": 104,
+        "MansionWorld": 1313,
+        "MultiScan": 6,
+        "SAGE-10k": 489,
+        "Scan2CAD": 1,
+        "SceneSmith": 364,
+        "IL3D_synthetic": 316,
+        "IL3D_3dfront": 872,
+        "InteriorGS": 311,
+        "OptiScene_holodeck": 503,
+        "SpatialGen": 45,
+        "SpatialLM": 2461,
+        "Structured3D": 747
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/train.jsonl": {
+      "sha256": "e35674f0149e1df5d122f2803e410f0a038ed8777a96316d346a0f6207be111c",
+      "bytes": 333473541,
+      "records": 98923,
+      "fields": {
+        "flags": 98923,
+        "group": 98923,
+        "messages": 98923,
+        "source": 98923,
+        "split": 98923,
+        "target_policy": 98923,
+        "target_qualified": 98923,
+        "uid": 98923
+      },
+      "by_source": {
+        "HSSD200": 956,
+        "IL3D_3dfront": 9237,
+        "IL3D_synthetic": 6090,
+        "InteriorGS": 2458,
+        "InternScenes_3rscan": 297,
+        "InternScenes_arkit": 2098,
+        "InternScenes_gen": 11870,
+        "InternScenes_mp3d": 562,
+        "InternScenes_scannet": 268,
+        "MansionWorld": 18343,
+        "MultiScan": 15,
+        "OptiScene_holodeck": 8946,
+        "SAGE-10k": 5736,
+        "Scan2CAD": 5,
+        "SpatialLM": 24060,
+        "Structured3D": 7982
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/train.jsonl": {
+      "sha256": "92d8ec98e65cd5279b94fd6c2a353349b2cf8514ebb2100d1dee8ad5b8ac582d",
+      "bytes": 336728079,
+      "records": 98923,
+      "fields": {
+        "flags": 98923,
+        "group": 98923,
+        "messages": 98923,
+        "source": 98923,
+        "split": 98923,
+        "target_policy": 98923,
+        "target_qualified": 98923,
+        "uid": 98923
+      },
+      "by_source": {
+        "HSSD200": 956,
+        "IL3D_3dfront": 9237,
+        "IL3D_synthetic": 6090,
+        "InteriorGS": 2458,
+        "InternScenes_3rscan": 297,
+        "InternScenes_arkit": 2098,
+        "InternScenes_gen": 11870,
+        "InternScenes_mp3d": 562,
+        "InternScenes_scannet": 268,
+        "MansionWorld": 18343,
+        "MultiScan": 15,
+        "OptiScene_holodeck": 8946,
+        "SAGE-10k": 5736,
+        "Scan2CAD": 5,
+        "SpatialLM": 24060,
+        "Structured3D": 7982
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/dev.jsonl": {
+      "sha256": "1faf7340d8fd1ecadcdadeb17f498d19cf0ef9ca30fa5dacd553d2a380dc459e",
+      "bytes": 29392213,
+      "records": 8167,
+      "fields": {
+        "flags": 8167,
+        "group": 8167,
+        "messages": 8167,
+        "source": 8167,
+        "split": 8167,
+        "target_policy": 8167,
+        "target_qualified": 8167,
+        "uid": 8167
+      },
+      "by_source": {
+        "HSSD200": 86,
+        "IL3D_3dfront": 939,
+        "IL3D_synthetic": 349,
+        "InteriorGS": 268,
+        "InternScenes_3rscan": 61,
+        "InternScenes_arkit": 280,
+        "InternScenes_gen": 828,
+        "InternScenes_mp3d": 89,
+        "InternScenes_scannet": 80,
+        "MansionWorld": 1153,
+        "MultiScan": 2,
+        "OptiScene_holodeck": 497,
+        "SAGE-10k": 503,
+        "SpatialLM": 2239,
+        "Structured3D": 793
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/dev.jsonl": {
+      "sha256": "36d85a82e83260096cf8a97a5e799a858fd6892e99077f56387fc992374be73c",
+      "bytes": 29663290,
+      "records": 8167,
+      "fields": {
+        "flags": 8167,
+        "group": 8167,
+        "messages": 8167,
+        "source": 8167,
+        "split": 8167,
+        "target_policy": 8167,
+        "target_qualified": 8167,
+        "uid": 8167
+      },
+      "by_source": {
+        "HSSD200": 86,
+        "IL3D_3dfront": 939,
+        "IL3D_synthetic": 349,
+        "InteriorGS": 268,
+        "InternScenes_3rscan": 61,
+        "InternScenes_arkit": 280,
+        "InternScenes_gen": 828,
+        "InternScenes_mp3d": 89,
+        "InternScenes_scannet": 80,
+        "MansionWorld": 1153,
+        "MultiScan": 2,
+        "OptiScene_holodeck": 497,
+        "SAGE-10k": 503,
+        "SpatialLM": 2239,
+        "Structured3D": 793
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/joint/requests.jsonl": {
+      "sha256": "3574a825fc4631e0273cc128efef13d5e0955eb0dab66166bc0792ee6d23cdb9",
+      "bytes": 20911283,
+      "records": 8647,
+      "fields": {
+        "uid": 8647,
+        "source": 8647,
+        "group": 8647,
+        "component": 8647,
+        "split": 8647,
+        "room_type": 7974,
+        "messages": 8647
+      },
+      "by_source": {
+        "HSSD200": 138,
+        "InternScenes_3rscan": 70,
+        "InternScenes_arkit": 229,
+        "InternScenes_gen": 660,
+        "InternScenes_mp3d": 18,
+        "InternScenes_scannet": 104,
+        "MansionWorld": 1313,
+        "MultiScan": 6,
+        "SAGE-10k": 489,
+        "Scan2CAD": 1,
+        "SceneSmith": 364,
+        "IL3D_synthetic": 316,
+        "IL3D_3dfront": 872,
+        "InteriorGS": 311,
+        "OptiScene_holodeck": 503,
+        "SpatialGen": 45,
+        "SpatialLM": 2461,
+        "Structured3D": 747
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/placement/requests.jsonl": {
+      "sha256": "1ef83b089cd30968f9d562e3aaba4b9248c1a173c0d60e23fde11bbccd9a5f0b",
+      "bytes": 23958420,
+      "records": 8647,
+      "fields": {
+        "uid": 8647,
+        "source": 8647,
+        "group": 8647,
+        "component": 8647,
+        "split": 8647,
+        "room_type": 7974,
+        "messages": 8647
+      },
+      "by_source": {
+        "HSSD200": 138,
+        "InternScenes_3rscan": 70,
+        "InternScenes_arkit": 229,
+        "InternScenes_gen": 660,
+        "InternScenes_mp3d": 18,
+        "InternScenes_scannet": 104,
+        "MansionWorld": 1313,
+        "MultiScan": 6,
+        "SAGE-10k": 489,
+        "Scan2CAD": 1,
+        "SceneSmith": 364,
+        "IL3D_synthetic": 316,
+        "IL3D_3dfront": 872,
+        "InteriorGS": 311,
+        "OptiScene_holodeck": 503,
+        "SpatialGen": 45,
+        "SpatialLM": 2461,
+        "Structured3D": 747
+      },
+      "complete_scan": true
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/common-admission.jsonl": {
+      "sha256": "d33581f64819be8d69329ff0c17eb0acbeaf297f7237cf235dcd71fe87c3f3fe",
+      "bytes": 289323207,
+      "records": 144150,
+      "fields": {
+        "accepted": 144150,
+        "component": 144150,
+        "eligible": 144150,
+        "fold": 144150,
+        "joint": 144150,
+        "placement": 144150,
+        "reasons": 144150,
+        "source": 144150,
+        "uid": 144150,
+        "repair": 124843
+      },
+      "by_source": {
+        "HSSD200": 1876,
+        "InternScenes_3rscan": 1200,
+        "InternScenes_arkit": 4528,
+        "InternScenes_gen": 12552,
+        "InternScenes_mp3d": 1258,
+        "InternScenes_scannet": 1309,
+        "MansionWorld": 19396,
+        "MultiScan": 114,
+        "SAGE-10k": 8977,
+        "Scan2CAD": 18,
+        "IL3D_synthetic": 6277,
+        "IL3D_3dfront": 18054,
+        "InteriorGS": 4877,
+        "SpatialLM": 42068,
+        "Structured3D": 12700,
+        "OptiScene_holodeck": 8946
+      },
+      "complete_scan": true
+    }
+  }
+}

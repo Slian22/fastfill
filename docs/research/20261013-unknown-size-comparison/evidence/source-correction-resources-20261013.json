@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-10-13T08:57:07.158720",
+  "os": {
+    "system": "Darwin",
+    "release": "25.6.0",
+    "version": "Darwin Kernel Version 25.6.0: Fri Jul 31 19:16:36 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6030",
+    "machine": "arm64",
+    "python_version": "3.13.1"
+  },
+  "cpu": {
+    "physical_cores": 12,
+    "logical_cores": 12,
+    "max_frequency_mhz": 4056,
+    "architecture": "arm64",
+    "processor": "arm",
+    "current_frequency_mhz": 4056
+  },
+  "memory": {
+    "total_gb": 36.0,
+    "available_gb": 10.88,
+    "used_gb": 14.76,
+    "percent_used": 69.8,
+    "swap_total_gb": 8.0,
+    "swap_available_gb": 0.92
+  },
+  "disk": {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene",
+    "total_gb": 926.35,
+    "available_gb": 90.17,
+    "used_gb": 806.59,
+    "percent_used": 89.9
+  },
+  "gpu": {
+    "nvidia_gpus": [],
+    "amd_gpus": [],
+    "apple_silicon": {
+      "name": "Apple M3 Pro",
+      "type": "Apple Silicon",
+      "backend": "Metal",
+      "unified_memory": true,
+      "chipset": "Apple M3 Pro",
+      "gpu_cores": "18"
+    },
+    "total_gpus": 1,
+    "available_backends": [
+      "Metal"
+    ]
+  },
+  "recommendations": {
+    "parallel_processing": {
+      "strategy": "high_parallelism",
+      "suggested_workers": 10,
+      "libraries": [
+        "joblib",
+        "multiprocessing",
+        "dask"
+      ]
+    },
+    "memory_strategy": {
+      "strategy": "moderate_memory",
+      "libraries": [
+        "dask",
+        "zarr"
+      ],
+      "note": "Consider chunking for datasets > 2GB"
+    },
+    "gpu_acceleration": {
+      "available": true,
+      "backends": [
+        "Metal"
+      ],
+      "suggested_libraries": [
+        "pytorch-mps",
+        "tensorflow-metal",
+        "jax-metal"
+      ]
+    },
+    "large_data_handling": {
+      "strategy": "moderate_disk",
+      "libraries": [
+        "zarr",
+        "h5py",
+        "parquet"
+      ]
+    }
+  }
+}

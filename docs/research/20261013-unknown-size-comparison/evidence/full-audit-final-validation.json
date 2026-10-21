@@ -1,0 +1,25 @@
+{
+  "date_utc": "2026-10-13T07:27:31.681217+00:00",
+  "scope": "current local comparison after three bounded fixes",
+  "pytest_passed": 681,
+  "pytest_seconds": 18.38,
+  "coverage": {
+    "covered_lines": 4531,
+    "num_statements": 4986,
+    "percent_covered": 90.87444845567589,
+    "percent_covered_display": "91",
+    "missing_lines": 455,
+    "excluded_lines": 0
+  },
+  "python": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+  "command": "python3.13 -m coverage run --data-file=docs/research/20261013-unknown-size-comparison/evidence/full-audit-final.coverage --source=fastfill/comparison -m pytest -q fastfill/comparison/tests",
+  "changed_sha256": {
+    "fastfill/comparison/train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+    "fastfill/comparison/geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+    "fastfill/comparison/final_tables.py": "b9758ce30311973e812035bd6b2c1a8b525ae2cc3682540dbcbde8ccf28ab0f9",
+    "fastfill/comparison/tests/test_train_pair.py": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+    "fastfill/comparison/tests/test_geometry.py": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+    "fastfill/comparison/tests/test_final_tables.py": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901"
+  },
+  "limits": "Tests use mocks for GPU/network/Blender. Raw scientific results unchanged. Active immutable deployment not yet updated."
+}

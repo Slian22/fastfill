@@ -1,0 +1,18 @@
+{
+  "stage1": {
+    "counts": {
+      "rows": 7244,
+      "kept": 7244,
+      "chosen_is_reference": 4402
+    },
+    "bad_examples": []
+  },
+  "stage2": {
+    "counts": {
+      "rows": 12000,
+      "kept": 12000,
+      "chosen_is_reference": 12000
+    },
+    "bad_examples": []
+  }
+}

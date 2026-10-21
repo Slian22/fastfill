@@ -1,0 +1,15 @@
+{
+  "VIS_01": "unfixed resource inventory comparison; no observed drift; parent prepublication guard required",
+  "authorized_unix": 1791877337.031071,
+  "candidate_config_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config-run003-candidate.json",
+  "candidate_config_sha256": "e74d780c4c62f96e6d4c3bab317e5ff3dab9a602e5578d94da3455aa82b992f8",
+  "geometry_submission_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-geometry-submission.json",
+  "geometry_submission_sha256": "ad57ab0e2720f7c6e7c34fce175c34daf347521ec3fd1aa2d2576674ddaf4bbe",
+  "parent_snapshot_ready": true,
+  "review_report_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/evidence/agency-full-audit-patch-review-20261013.md",
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "run_classification": "retained diagnostic; corrected data and paired retraining required before clean scientific claims",
+  "snapshot_manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2",
+  "test_evidence_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-final-validation.json",
+  "test_evidence_sha256": "b7cdc906d98182a73e20ff66b3bb434ceb05d5e64019a10f06c4a242bff16824"
+}

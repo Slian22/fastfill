@@ -1,0 +1,8 @@
+{
+  "job_id": "7367681",
+  "remote_output": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/api-egress-001",
+  "script_sha256": "fbfa186d155356a189bd2abe1c7bf1571bec2c2659cd228c1fda5921a2a49f20",
+  "api_scoring_calls": 0,
+  "walltime_seconds": 300,
+  "gpu_requested": 0
+}

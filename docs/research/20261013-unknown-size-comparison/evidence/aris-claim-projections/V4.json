@@ -1,0 +1,10 @@
+{
+  "id": "V4",
+  "description": "Legacy v2 spread relation hold",
+  "value": 0.43296030978957806,
+  "source": "outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+  "json_pointer": "/methods/ff-spread/rel_hold/0",
+  "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

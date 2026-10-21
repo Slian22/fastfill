@@ -1,0 +1,196 @@
+Amendment 028 bounded CPU QA — final source campaign
+
+Full persistent broad run: complete
+Baseline commit: e0f68ea9bc34dfdcf10eea862678767897b9cde6
+Final source commit: 7373495ca9e35391a5981653997be5485f64e9b6
+Final campaign source hashes unchanged: True (855 files)
+Miniforge Python 3.12.9, Torch 2.13.0, Transformers 5.14.1, PEFT 0.21.0, Accelerate 1.15.0
+Coverage tooling: coverage 7.16.2 and pytest-cov 7.1.0 installed with pip --no-deps --target into QA/deps
+
+Final native test execution (standard pytest; no custom audit hooks or fixture injection):
+  post-fix-targeted: {'passed': 95}; 0 subtests passed; 95 cases; exit 0; 46.56 s; bound 180 s
+    fastfill.comparison.tests.test_a028: {'passed': 25}
+    fastfill.comparison.tests.test_a021_train: {'passed': 25}
+    fastfill.comparison.tests.test_a021_select: {'passed': 41}
+    fastfill.v1_1.tests.test_train_dpo_a021: {'passed': 4}
+  post-fix-comparison: {'passed': 338}; 110 subtests passed; 338 cases; exit 0; 103.938 s; bound 180 s
+    fastfill.comparison.tests.test_report_v2: {'passed': 32}
+    fastfill.comparison.tests.test_geometry.GeometryTests: {'passed': 16}
+    fastfill.comparison.tests.test_evaluate_pair: {'passed': 7}
+    fastfill.comparison.tests.test_evaluate_llm: {'passed': 3}
+    fastfill.comparison.tests.test_sample_vllm: {'passed': 15}
+    fastfill.comparison.tests.test_dpo_stages: {'passed': 24}
+    fastfill.comparison.tests.test_infer_shard: {'passed': 15}
+    fastfill.comparison.tests.test_infer.InferenceTests: {'passed': 19}
+    fastfill.comparison.tests.test_onpolicy_dpo: {'passed': 37}
+    fastfill.comparison.tests.test_output_repair.RepairTests: {'passed': 15}
+    fastfill.comparison.tests.test_output_repair.ParityTests: {'passed': 1}
+    fastfill.comparison.tests.test_output_repair.RowTests: {'passed': 3}
+    fastfill.comparison.tests.test_train_pair.AdmissionTests: {'passed': 5}
+    fastfill.comparison.tests.test_train_pair.ManifestTests: {'passed': 13}
+    fastfill.comparison.tests.test_train_pair.SchemaTests: {'passed': 4}
+    fastfill.comparison.tests.test_train_pair.RunnerTests: {'passed': 20}
+    fastfill.comparison.tests.test_contract: {'passed': 109}
+  post-fix-resume: {'passed': 2}; 0 subtests passed; 2 cases; exit 0; 14.68 s; bound 180 s
+    test_j27_resume_qa: {'passed': 2}
+  post-fix-broad-persistent: {'passed': 1498, 'skipped': 4}; 191 subtests passed; 1502 cases; exit 0; 495.825 s; bound 900 s
+    fastfill.comparison.tests.test_a021_diag: {'passed': 17}
+    fastfill.comparison.tests.test_a021_select: {'passed': 41}
+    fastfill.comparison.tests.test_a021_train: {'passed': 25}
+    fastfill.comparison.tests.test_a028: {'passed': 25}
+    fastfill.comparison.tests.test_ablation_016: {'passed': 37}
+    fastfill.comparison.tests.test_agents_016: {'passed': 6}
+    fastfill.comparison.tests.test_best_of_n: {'passed': 8}
+    fastfill.comparison.tests.test_context_plan: {'passed': 11}
+    fastfill.comparison.tests.test_contract: {'passed': 109}
+    fastfill.comparison.tests.test_corpus: {'passed': 50}
+    fastfill.comparison.tests.test_critic_025: {'passed': 14}
+    fastfill.comparison.tests.test_critic_client_025: {'passed': 10}
+    fastfill.comparison.tests.test_data.DataTests: {'passed': 8}
+    fastfill.comparison.tests.test_delivery: {'passed': 22}
+    fastfill.comparison.tests.test_dev_select: {'passed': 37}
+    fastfill.comparison.tests.test_distill_018_chain: {'passed': 41}
+    fastfill.comparison.tests.test_distill_018_teacher: {'passed': 18}
+    fastfill.comparison.tests.test_diverse_026: {'passed': 5}
+    fastfill.comparison.tests.test_downstream.DoorStripTests: {'passed': 1}
+    fastfill.comparison.tests.test_downstream.AcceptTests: {'passed': 11}
+    fastfill.comparison.tests.test_downstream.RoomGenBenchTests: {'passed': 2}
+    fastfill.comparison.tests.test_dpo_stages: {'passed': 24}
+    fastfill.comparison.tests.test_eval_data: {'passed': 25}
+    fastfill.comparison.tests.test_evaluate_llm: {'passed': 3}
+    fastfill.comparison.tests.test_evaluate_pair: {'passed': 7}
+    fastfill.comparison.tests.test_fid: {'passed': 35}
+    fastfill.comparison.tests.test_final_011: {'passed': 23}
+    fastfill.comparison.tests.test_final_tables: {'passed': 17}
+    fastfill.comparison.tests.test_frontier_026: {'passed': 10}
+    fastfill.comparison.tests.test_geometry.GeometryTests: {'passed': 16}
+    fastfill.comparison.tests.test_infer.InferenceTests: {'passed': 19}
+    fastfill.comparison.tests.test_infer_shard: {'passed': 15}
+    fastfill.comparison.tests.test_judge_agreement_023: {'passed': 1}
+    fastfill.comparison.tests.test_judge_batch: {'passed': 49}
+    fastfill.comparison.tests.test_judge_bundle_025: {'passed': 12}
+    fastfill.comparison.tests.test_llm_agent: {'passed': 12}
+    fastfill.comparison.tests.test_llm_open: {'passed': 24}
+    fastfill.comparison.tests.test_main_data: {'passed': 27}
+    fastfill.comparison.tests.test_mesh_collision: {'passed': 12}
+    fastfill.comparison.tests.test_onpolicy_dpo: {'passed': 37}
+    fastfill.comparison.tests.test_optiscene_eval: {'skipped': 4, 'passed': 60}
+    fastfill.comparison.tests.test_output_repair.RepairTests: {'passed': 15}
+    fastfill.comparison.tests.test_output_repair.ParityTests: {'passed': 1}
+    fastfill.comparison.tests.test_output_repair.RowTests: {'passed': 3}
+    fastfill.comparison.tests.test_overnight: {'passed': 82}
+    fastfill.comparison.tests.test_placers_020: {'passed': 25}
+    fastfill.comparison.tests.test_pose_targets.PoseTargetTests: {'passed': 34}
+    fastfill.comparison.tests.test_render_assets: {'passed': 94}
+    fastfill.comparison.tests.test_report_v2: {'passed': 32}
+    fastfill.comparison.tests.test_room_families: {'passed': 40}
+    fastfill.comparison.tests.test_sample_vllm: {'passed': 15}
+    fastfill.comparison.tests.test_scale_curve: {'passed': 7}
+    fastfill.comparison.tests.test_server_api_judge: {'passed': 3}
+    fastfill.comparison.tests.test_size_prior.SizePriorTests: {'passed': 14}
+    fastfill.comparison.tests.test_size_prior.OOFPriorTests: {'passed': 11}
+    fastfill.comparison.tests.test_sizers_020: {'passed': 12}
+    fastfill.comparison.tests.test_stage_table: {'passed': 15}
+    fastfill.comparison.tests.test_test_apply_012: {'passed': 3}
+    fastfill.comparison.tests.test_train_pair.AdmissionTests: {'passed': 5}
+    fastfill.comparison.tests.test_train_pair.ManifestTests: {'passed': 13}
+    fastfill.comparison.tests.test_train_pair.SchemaTests: {'passed': 4}
+    fastfill.comparison.tests.test_train_pair.RunnerTests: {'passed': 20}
+    fastfill.comparison.tests.test_visual_024: {'passed': 8}
+    fastfill.comparison.tests.test_visual_cases: {'passed': 25}
+    fastfill.comparison.tests.test_visual_final: {'passed': 5}
+    fastfill.comparison.tests.test_visual_pipeline: {'passed': 45}
+    fastfill.comparison.tests.test_visual_resource_binding: {'passed': 41}
+  git-fixture-authorized: {'passed': 1}; 0 subtests passed; 1 cases; exit 0; 0.826 s; bound 180 s
+    fastfill.comparison.tests.test_delivery: {'passed': 1}
+
+Coverage (completed post-fix native runs only; no interrupted or superseded runs included):
+  fastfill/comparison/a021_train.py: statements 484/566 (85.51%); branches 124/166 (74.70%)
+    Changed executable lines: 27/27 (100.00%); missing []
+    Changed branch arcs: 8/8 (100.00%)
+  fastfill/comparison/a028.py: statements 195/203 (96.06%); branches 46/54 (85.19%)
+    Changed executable lines: 195/203 (96.06%); missing [96, 109, 114, 172, 178, 199, 203, 372]
+    Changed branch arcs: 46/54 (85.19%)
+
+Static checks: 6 bash -n passes; 130 Python sources compiled from text in memory, no source pyc.
+All-comparison attempt was stopped after 230 seconds at 38% with 600 successful progress markers; no source failures were reported. Pytest raised a tmp_path teardown KeyError while handling the interruption. This incomplete attempt is excluded from final counts and coverage.
+Both full comparison attempts excluded one test that creates a Git commit; it subsequently passed in a separately authorized run, with all Git commands confined to its temporary QA repository. The completed full suite overlaps targeted and focused comparison tests; counts must not be added as unique tests.
+Method: coverage.py branch tracing; a028 is wholly new; a021 changed lines are git diff -U0 additions intersected with executable statements. Coverage is descriptive, not a probability of defect absence.
+Only post-fix native runs count as final validation. Earlier framework/import, fixture-isolation and audit-hook attempts are retained in commands.jsonl and logs for transparency.
+
+Failures:
+  None in final native campaign.
+
+Skipped cases:
+  post-fix-broad-persistent: fastfill.comparison.tests.test_optiscene_eval::test_vendored_files_differ_from_upstream_only_by_f2_f3_and_f5: no OptiScene_Original clone
+  post-fix-broad-persistent: fastfill.comparison.tests.test_optiscene_eval::test_exact_readme_dpo_command_parses_with_the_vendored_parser: trl is not installed (training venv only)
+  post-fix-broad-persistent: fastfill.comparison.tests.test_optiscene_eval::test_f3_resume_past_a_partial_checkpoint_equals_an_uninterrupted_run: trl is not installed (training venv only)
+  post-fix-broad-persistent: fastfill.comparison.tests.test_optiscene_eval::test_submit_chain_holds_releases_and_refuses: released dataset not present
+
+Limits: CPU and mocked Slurm/vLLM only; real tiny Qwen CPU model tests included. No GPU, production model weights, Slurm allocation, remote jobs or network API.
+
+Exact executed commands and bounds (environment overrides in commands.jsonl):
+  [targeted] exit=2 timeout=180s elapsed=17.798s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B -m coverage run --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q fastfill/comparison/tests/test_a028.py fastfill/comparison/tests/test_a021_train.py fastfill/comparison/tests/test_a021_select.py --basetemp=/tmp/a028-qa-20261016/tmp/targeted --junitxml=/tmp/a028-qa-20261016/targeted.xml
+  [shell-syntax] exit=0 timeout=180s elapsed=0.007s
+    bash -n fastfill/comparison/submit_028.sh fastfill/comparison/isambard_021_train.sbatch fastfill/comparison/isambard_021_eval.sbatch fastfill/comparison/submit_021_train.sh fastfill/comparison/submit_021_eval.sh fastfill/comparison/submit_021_diag.sh
+  [static-checks] exit=0 timeout=180s elapsed=0.722s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/static_checks.py
+  [targeted-isolated-fixture] exit=3 timeout=180s elapsed=0.4s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B -m coverage run --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' /tmp/a028-qa-20261016/pytest_cpu.py -p no:cacheprovider -q fastfill/comparison/tests/test_a028.py fastfill/comparison/tests/test_a021_train.py fastfill/comparison/tests/test_a021_select.py --basetemp=/tmp/a028-qa-20261016/tmp/targeted-isolated --junitxml=/tmp/a028-qa-20261016/targeted-isolated.xml
+  [install-qa-coverage] exit=0 timeout=180s elapsed=1.744s
+    /Users/slian/miniforge3/bin/python -B -m pip install --disable-pip-version-check --no-input --no-compile --no-cache-dir --no-deps --target /tmp/a028-qa-20261016/deps pytest-cov coverage
+  [targeted-isolated-fixture-r2] exit=-15 timeout=180s elapsed=49.634s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B -m coverage run --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' /tmp/a028-qa-20261016/pytest_cpu.py -p no:cacheprovider -q fastfill/comparison/tests/test_a028.py fastfill/comparison/tests/test_a021_train.py fastfill/comparison/tests/test_a021_select.py --basetemp=/tmp/a028-qa-20261016/tmp/targeted-isolated-r2 --junitxml=/tmp/a028-qa-20261016/targeted-isolated-r2.xml
+  [miniforge-metadata] exit=0 timeout=180s elapsed=0.127s
+    /Users/slian/miniforge3/bin/python -B -c 'import sys, importlib.metadata as m; print(sys.executable,sys.version); print({p:m.version(p) for p in ("torch","transformers","peft","accelerate","pytest","coverage","pytest-cov","numpy","shapely")})'
+  [native-targeted] exit=1 timeout=180s elapsed=48.055s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.native-targeted --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' /tmp/a028-qa-20261016/pytest_native.py -p no:cacheprovider -q fastfill/comparison/tests/test_a028.py fastfill/comparison/tests/test_a021_train.py fastfill/comparison/tests/test_a021_select.py fastfill/v1_1/tests/test_train_dpo_a021.py --basetemp=/tmp/a028-qa-20261016/tmp/native-targeted --junitxml=/tmp/a028-qa-20261016/native-targeted.xml
+  [native-broad] exit=-15 timeout=300s elapsed=84.906s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.native-broad --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' /tmp/a028-qa-20261016/pytest_native.py -p no:cacheprovider -q fastfill/comparison/tests --deselect=fastfill/comparison/tests/test_delivery.py::test_commit_is_recorded_only_for_clean_request_code --basetemp=/tmp/a028-qa-20261016/tmp/native-broad --junitxml=/tmp/a028-qa-20261016/native-broad.xml
+  [post-fix-static] exit=0 timeout=180s elapsed=0.612s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/static_checks.py
+  [post-fix-targeted] exit=0 timeout=180s elapsed=46.56s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-targeted --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q fastfill/comparison/tests/test_a028.py fastfill/comparison/tests/test_a021_train.py fastfill/comparison/tests/test_a021_select.py fastfill/v1_1/tests/test_train_dpo_a021.py --basetemp=/tmp/a028-qa-20261016/tmp/post-fix-targeted --junitxml=/tmp/a028-qa-20261016/post-fix-targeted.xml
+  [targeted-coverage-json] exit=0 timeout=180s elapsed=0.398s
+    /Users/slian/miniforge3/bin/python -B -m coverage json --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-targeted -o /tmp/a028-qa-20261016/coverage-targeted.json
+  [targeted-coverage-report] exit=0 timeout=180s elapsed=0.293s
+    /Users/slian/miniforge3/bin/python -B -m coverage report --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-targeted -m
+  [targeted-coverage-analysis] exit=1 timeout=180s elapsed=0.072s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/analyze_coverage.py coverage-targeted.json coverage-analysis-targeted.json
+  [targeted-coverage-analysis-r2] exit=0 timeout=180s elapsed=0.079s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/analyze_coverage.py coverage-targeted.json coverage-analysis-targeted.json
+  [post-fix-resume] exit=0 timeout=180s elapsed=14.68s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-resume --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q /tmp/a028-qa-20261016/test_j27_resume_qa.py --basetemp=/tmp/a028-qa-20261016/tmp/post-fix-resume --junitxml=/tmp/a028-qa-20261016/post-fix-resume.xml
+  [provisional-coverage-combine] exit=0 timeout=180s elapsed=0.304s
+    /Users/slian/miniforge3/bin/python -B -m coverage combine --data-file=/tmp/a028-qa-20261016/.coverage.provisional --keep /tmp/a028-qa-20261016/.coverage.post-fix-targeted /tmp/a028-qa-20261016/.coverage.post-fix-resume
+  [provisional-coverage-json] exit=0 timeout=180s elapsed=0.346s
+    /Users/slian/miniforge3/bin/python -B -m coverage json --data-file=/tmp/a028-qa-20261016/.coverage.provisional -o /tmp/a028-qa-20261016/coverage-provisional.json
+  [provisional-coverage-analysis] exit=0 timeout=180s elapsed=0.077s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/analyze_coverage.py coverage-provisional.json coverage-analysis-provisional.json
+  [post-fix-broad] exit=1 timeout=300s elapsed=230.171s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-broad --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q fastfill/comparison/tests --deselect=fastfill/comparison/tests/test_delivery.py::test_commit_is_recorded_only_for_clean_request_code --basetemp=/tmp/a028-qa-20261016/tmp/post-fix-broad --junitxml=/tmp/a028-qa-20261016/post-fix-broad.xml
+  [post-fix-comparison] exit=0 timeout=180s elapsed=103.938s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-comparison --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q fastfill/comparison/tests/test_report_v2.py fastfill/comparison/tests/test_geometry.py fastfill/comparison/tests/test_evaluate_pair.py fastfill/comparison/tests/test_evaluate_llm.py fastfill/comparison/tests/test_sample_vllm.py fastfill/comparison/tests/test_dpo_stages.py fastfill/comparison/tests/test_infer_shard.py fastfill/comparison/tests/test_infer.py fastfill/comparison/tests/test_onpolicy_dpo.py fastfill/comparison/tests/test_output_repair.py fastfill/comparison/tests/test_train_pair.py fastfill/comparison/tests/test_contract.py --basetemp=/tmp/a028-qa-20261016/tmp/post-fix-comparison --junitxml=/tmp/a028-qa-20261016/post-fix-comparison.xml
+  [completed-coverage-combine] exit=0 timeout=180s elapsed=0.235s
+    /Users/slian/miniforge3/bin/python -B -m coverage combine --data-file=/tmp/a028-qa-20261016/.coverage.completed --keep /tmp/a028-qa-20261016/.coverage.post-fix-targeted /tmp/a028-qa-20261016/.coverage.post-fix-resume /tmp/a028-qa-20261016/.coverage.post-fix-comparison
+  [completed-coverage-json] exit=0 timeout=180s elapsed=0.293s
+    /Users/slian/miniforge3/bin/python -B -m coverage json --data-file=/tmp/a028-qa-20261016/.coverage.completed -o /tmp/a028-qa-20261016/coverage-completed.json
+  [completed-coverage-analysis] exit=0 timeout=180s elapsed=0.078s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/analyze_coverage.py coverage-completed.json coverage-analysis.json
+  [report-checkpoint] exit=0 timeout=180s elapsed=0.073s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/finalize_qa.py
+  [broad-collect-order] exit=0 timeout=60s elapsed=20.152s
+    /Users/slian/miniforge3/bin/python -B -m pytest -p no:cacheprovider -q --collect-only fastfill/comparison/tests --deselect=fastfill/comparison/tests/test_delivery.py::test_commit_is_recorded_only_for_clean_request_code --basetemp=/tmp/a028-qa-20261016/tmp/broad-collect
+  [post-fix-broad-persistent] exit=0 timeout=900s elapsed=495.825s
+    /Users/slian/miniforge3/bin/python -B -m coverage run --data-file=/tmp/a028-qa-20261016/.coverage.post-fix-broad-persistent --branch '--include=*/fastfill/comparison/a028.py,*/fastfill/comparison/a021_train.py' -m pytest -p no:cacheprovider -q --durations=15 fastfill/comparison/tests --deselect=fastfill/comparison/tests/test_delivery.py::test_commit_is_recorded_only_for_clean_request_code --basetemp=/tmp/a028-qa-20261016/tmp/post-fix-broad-persistent --junitxml=/tmp/a028-qa-20261016/post-fix-broad-persistent.xml
+  [git-fixture-authorized] exit=0 timeout=180s elapsed=0.826s
+    /Users/slian/miniforge3/bin/python -B -m pytest -p no:cacheprovider -q fastfill/comparison/tests/test_delivery.py::test_commit_is_recorded_only_for_clean_request_code --basetemp=/tmp/a028-qa-20261016/tmp/git-fixture-authorized --junitxml=/tmp/a028-qa-20261016/git-fixture-authorized.xml
+  [final-coverage-combine] exit=0 timeout=180s elapsed=0.238s
+    /Users/slian/miniforge3/bin/python -B -m coverage combine --data-file=/tmp/a028-qa-20261016/.coverage.final --keep /tmp/a028-qa-20261016/.coverage.post-fix-targeted /tmp/a028-qa-20261016/.coverage.post-fix-resume /tmp/a028-qa-20261016/.coverage.post-fix-comparison /tmp/a028-qa-20261016/.coverage.post-fix-broad-persistent
+  [final-coverage-json] exit=0 timeout=180s elapsed=0.281s
+    /Users/slian/miniforge3/bin/python -B -m coverage json --data-file=/tmp/a028-qa-20261016/.coverage.final -o /tmp/a028-qa-20261016/coverage.json
+  [final-coverage-analysis] exit=0 timeout=180s elapsed=0.073s
+    /Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -B /tmp/a028-qa-20261016/analyze_coverage.py
+  [final-coverage-report] exit=0 timeout=180s elapsed=0.234s
+    /Users/slian/miniforge3/bin/python -B -m coverage report --data-file=/tmp/a028-qa-20261016/.coverage.final -m

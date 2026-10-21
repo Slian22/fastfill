@@ -1,0 +1,10 @@
+{
+  "id": "D2",
+  "description": "Matched admitted train count",
+  "value": 98754,
+  "source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/sft-joint-001/lengths.json",
+  "json_pointer": "/train/accepted_count",
+  "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

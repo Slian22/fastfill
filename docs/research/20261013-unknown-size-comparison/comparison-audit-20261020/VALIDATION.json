@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "source": "/Users/slian/Desktop/3D/Worldedge/OptiScene/paper/FastFill-all-comparisons-bilingual.tex",
+  "pdf": "/Users/slian/Desktop/3D/Worldedge/OptiScene/paper/FastFill-all-comparisons-bilingual.pdf",
+  "pages": 68,
+  "summary_tables": 75,
+  "summary_source_files": 96,
+  "source_sha256": "66f22d9ebe06670034ea1abd668ea32b50aefa73398ddeee452fc220aae32242",
+  "pdf_sha256": "b17bb47135ac6215fff23661b490b99d302575f60c5cc761b957b95ccf89b936",
+  "compile": "isolated latexmk -xelatex; no companion .tex/.bib or image input",
+  "warnings": [],
+  "source_export": "87 CSVs,61295 logical rows exactly preserved;89 full JSON documents; historical38712 numeric rows and disk630 numeric rows (not additive independent experiments)",
+  "numeric_consistency_assertions": 35465,
+  "visual_review": "Root pages1-24; paper_literature25-46;disk_results47-68; all final pages inspected. Three split-table identity columns corrected; source paths kept on same page.",
+  "content_review": "repo_results: all50 current summary tables,1266 display rows and4387 numeric cells matched before formatting fix;560 relevant numeric cells and full identity columns rechecked after fix. Long metadata cells retained verbatim in M notes.",
+  "scope": "Available local repository and mounted harddisk archives; no new inference and no live remote status claim."
+}

@@ -1,0 +1,42 @@
+{
+  "verdict": "No deployment-blocking issue found in scoped independent cross-review",
+  "production_or_test_edits": false,
+  "files": [
+    {
+      "file": "fastfill/v1_1/verify_outputs.py",
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "lines": 263,
+      "full_read": true
+    },
+    {
+      "file": "fastfill/v1_1/evaluate_v1_1.py",
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "lines": 687,
+      "full_read": true
+    },
+    {
+      "file": "fastfill/v1_1/tests/test_verify_outputs.py",
+      "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "lines": 219,
+      "full_read": true
+    },
+    {
+      "file": "fastfill/v1_1/tests/test_evaluation_resume.py",
+      "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "lines": 255,
+      "full_read": true
+    }
+  ],
+  "focused_tests_passed": 46,
+  "old_frozen_cli_smoke": "Passed with 2 worker processes, four full fixture cells, cached_cells=0, old source has no verify_outputs.py",
+  "old_frozen_cli_evidence": "/tmp/fastfill-v11-reaudit-20261011/oldscore-cli-crossreview.json",
+  "notes": [
+    "Rescoring uses score_v1_1 on room and raw output, compares every scored field and rebuilt summary exactly.",
+    "Preflight binds original runner interpreter, root, code, data, model, states and complete artifact hashes; final preflight rejects drift.",
+    "Optional cache requires complete verifier/content/runtime/state bindings and exact cell proof shape.",
+    "Running and failed receipts replace previous passes once verification starts; original predictions/metrics remain unchanged.",
+    "Generated and scored chunks require payload digests plus ordered identities and generation-to-score hash.",
+    "Legacy unsigned chunks are rejected by new evaluator; current old runs should remain on old snapshot and receive separate independent rescoring, not be silently migrated.",
+    "Receipt proves deterministic rescoring of persisted text, not generation authenticity or model quality."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "CAPACITY_COMPLETE",
+  "quality_claim": false,
+  "batch_size": 16,
+  "dev_cases": 16,
+  "generation_seconds": 138.96599860599963,
+  "generated_tokens": 22937,
+  "tokens_per_second": 165.05476325206453,
+  "peak_allocated_bytes": 26188830720,
+  "peak_reserved_bytes": 28290580480,
+  "max_prompt_tokens": 1610,
+  "max_new_tokens": 2048,
+  "gpu_total_bytes": 102005473280
+}

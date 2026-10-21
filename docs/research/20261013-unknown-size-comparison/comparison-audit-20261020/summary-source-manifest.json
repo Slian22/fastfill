@@ -1,0 +1,578 @@
+[
+  {
+    "id": "S001",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/comparison-audit-20261020/repo-results.json",
+    "bytes": 52108869,
+    "sha256": "f1e4a07c1cc8a86dd937239575fe8f7624e35dfe94f7f35d3ba8115765eaa3f4"
+  },
+  {
+    "id": "S002",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_dev.csv",
+    "bytes": 2856,
+    "sha256": "cf509ae452f5cfae3809bf31b4141ecfbca17e9413d3ad0c38488a9508617302"
+  },
+  {
+    "id": "S003",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_stages.csv",
+    "bytes": 7987,
+    "sha256": "441a3cf001537e9e0f28e21a6910d2356a3002f38722a6950454fc98c20366f5"
+  },
+  {
+    "id": "S004",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T1.csv",
+    "bytes": 733,
+    "sha256": "7991fa3d39421889a8d96b1c31f2188f9ddc81578c4fbe8a692e28213e6314f4"
+  },
+  {
+    "id": "S005",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_differences.csv",
+    "bytes": 5260,
+    "sha256": "8981e60a10433264bf5373ce115650c6de8be68746ac62b6c8534af36e4c08e4"
+  },
+  {
+    "id": "S006",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5.csv",
+    "bytes": 10710,
+    "sha256": "64251d3f0ba008f269d5572ac82571212999062d8fd4538f1aabc697b7043219"
+  },
+  {
+    "id": "S007",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5_cost.csv",
+    "bytes": 1180,
+    "sha256": "2eb7e9b6a0f69ad2d7f22c9568bfe31ef72e97aebf8dcd3df0005f4d320c834b"
+  },
+  {
+    "id": "S008",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T6.csv",
+    "bytes": 874,
+    "sha256": "639222c785dfebc47864ad48e5091ef2c55bcf44ca1e3f28d5743095aba8a199"
+  },
+  {
+    "id": "S009",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/decision-012/decision.json",
+    "bytes": 6977,
+    "sha256": "8349c0b038a03f53167649bfc16c27f97e15affce5abcd1a5cf5518f5a23791f"
+  },
+  {
+    "id": "S010",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/levels.csv",
+    "bytes": 210622,
+    "sha256": "efbbc93e1f8c2f29687ad5ce9479e9494aca239f5c39813cdb54008fe1fde15a"
+  },
+  {
+    "id": "S011",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/levels.csv",
+    "bytes": 618244,
+    "sha256": "fe6190ffc127dc72f60eca11c4954b7b26e775b1016cfdf37a3c8f55608a4064"
+  },
+  {
+    "id": "S012",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/levels.csv",
+    "bytes": 652493,
+    "sha256": "90a761741899e0196bbb3e84d35030fcffa4df2c2d563304b60bc675c57853c6"
+  },
+  {
+    "id": "S013",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/ablation-016/ablation.json",
+    "bytes": 1369426,
+    "sha256": "268ef081b2ded81a2976d6117efcceb94c777f29e30201362497c4bca8724daa"
+  },
+  {
+    "id": "S014",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/dev-selection.json",
+    "bytes": 5523,
+    "sha256": "5d9f65a3a87e2b1be34cf3c346f3217bfb2cfde4ea34ffac529ad4b6ce260ce6"
+  },
+  {
+    "id": "S015",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/final-selection.json",
+    "bytes": 5486,
+    "sha256": "063403903c3b7e280567777bb0de05ee1d95828508559f4107a3fc202d3d2b5b"
+  },
+  {
+    "id": "S016",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/summary-arm.json",
+    "bytes": 14505,
+    "sha256": "ab9a74b1acfc75043303000ad9f4656029919a76a097078c8572744e4b962b30"
+  },
+  {
+    "id": "S017",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/summary-r.json",
+    "bytes": 13895,
+    "sha256": "c3424a7842b0cc86d4369bb4729e4dfca1dd18f2adcac186251d5d0c50cffd9d"
+  },
+  {
+    "id": "S018",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/probe-report.json",
+    "bytes": 994,
+    "sha256": "d71b23a3d14b4eb8defb7cb92fcef0df0fe3818ffb56e60c56225023a5a4b118"
+  },
+  {
+    "id": "S019",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/levels.csv",
+    "bytes": 256109,
+    "sha256": "2767eb4fa719877bcb6b64e61e006abfaedf447c55d9dd2e48beb0ce38614826"
+  },
+  {
+    "id": "S020",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/levels.csv",
+    "bytes": 14545,
+    "sha256": "84f37dc7b2b3035018429a6789d18face8997dca21ef260517963a2b5df96a40"
+  },
+  {
+    "id": "S021",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/levels.csv",
+    "bytes": 16415,
+    "sha256": "29fe05444368b3bea08334cd9bfbf62ec3d1ef6315d18aea363546ed5bbce8a3"
+  },
+  {
+    "id": "S022",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/levels.csv",
+    "bytes": 102016,
+    "sha256": "0aad01ec73adb82bec830bb5e0885a3935edc26f7627a1e888d668fe8be654a1"
+  },
+  {
+    "id": "S023",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/contrasts.csv",
+    "bytes": 289275,
+    "sha256": "fb0a89d25ace06048efad27305c07908cec0bec1d9c86d07ab972b71edd6278c"
+  },
+  {
+    "id": "S024",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/levels.csv",
+    "bytes": 81049,
+    "sha256": "3a33a4748bba8adee38e8daa0e37114d092e6800bb62e913a176048b4d7f7239"
+  },
+  {
+    "id": "S025",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/paired.json",
+    "bytes": 4797,
+    "sha256": "ccb1c77b1cb925e0d8e258104b23cfe3352616778d077c703fa20e3cc79d8a6a"
+  },
+  {
+    "id": "S026",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-dev/results.json",
+    "bytes": 4583,
+    "sha256": "7f908d10488617a04a67c03fd4b337e28aa7d8c0c0584d8dc9dc4fdf7afde465"
+  },
+  {
+    "id": "S027",
+    "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/a025/test-eval-geometry/results.json",
+    "bytes": 3629,
+    "sha256": "4f48d4cebe34abd9fd8a419ec66acf959f691977fe3610beec23de673e29c1f9"
+  },
+  {
+    "id": "S028",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-test/sc-vs-s-judge.json",
+    "bytes": 446,
+    "sha256": "de8b8f3dd101b82e03f493135c9d0f64e28335d1df70973c014557192d35249a"
+  },
+  {
+    "id": "S029",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/fid-summary-A-S.json",
+    "bytes": 56144,
+    "sha256": "7bde8b4ac22dba0c903e0090f05c38c0ebab9f1be689dfb7964ec85515b56626"
+  },
+  {
+    "id": "S030",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/fid-011-visual-002/fid-summary.json",
+    "bytes": 7396,
+    "sha256": "a35c38e25e43ec2bda72f6fd1ce0fa6121f1609c1e1cca3f77bafa4b3ee8833f"
+  },
+  {
+    "id": "S031",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/mesh-collision-019/summary.json",
+    "bytes": 48933,
+    "sha256": "5d967ee1ea558d37f35db4266a41382f101a732ad5c6c2a1dcd92df55c586715"
+  },
+  {
+    "id": "S032",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-A.json",
+    "bytes": 14415,
+    "sha256": "3ef499b63ed97e43f50ead05f67d12c25bdd1131f6a37416891600b7a78067b1"
+  },
+  {
+    "id": "S033",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-S.json",
+    "bytes": 14385,
+    "sha256": "d841d32e4dcea5f344a40ffa301370f4c00abff26e369f9da990c0d899be7054"
+  },
+  {
+    "id": "S034",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-visual-002/aggregate.csv",
+    "bytes": 3667,
+    "sha256": "396df7a1e247a89c55d2316d636a2f7f864338c466156676bcb9fe1f62a81cc8"
+  },
+  {
+    "id": "S035",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/aggregate.csv",
+    "bytes": 3676,
+    "sha256": "0b0d6817e1f4adf7ebfbdae2d1292cf24ffa36fb56920be60a5687ebfd9b8663"
+  },
+  {
+    "id": "S036",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/judge-A-S-aggregate.csv",
+    "bytes": 1985,
+    "sha256": "63dc01ba7f9d671972e7f5e1cf1f4244e0cea58b2e51d2a5e852d37c2851d3e5"
+  },
+  {
+    "id": "S037",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-test/judge-SC-aggregate.csv",
+    "bytes": 1438,
+    "sha256": "15e77c2756f6e94df2f0c5258eef4d1b5148c4c95039daffb2958b13d70f4622"
+  },
+  {
+    "id": "S038",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/judge-agreement-023/means.csv",
+    "bytes": 1621,
+    "sha256": "9ba99c1f0b9495bf246590a06297cf5bcaf8c0fd120b642a4e2829a356503e5a"
+  },
+  {
+    "id": "S039",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/judge-agreement-023/agreement.json",
+    "bytes": 3774,
+    "sha256": "c4a4c296f30e2989ad4719b70435586f49e3fffc8221a288dfc9c1aef92f0221"
+  },
+  {
+    "id": "S040",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/levels.csv",
+    "bytes": 32213,
+    "sha256": "aeaca5a6177632a22f001449b6dc848c7f0cf2a1a8f7575766c344271f631286"
+  },
+  {
+    "id": "S041",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/levels.csv",
+    "bytes": 125856,
+    "sha256": "a0c5d212416da8347f044665ff50c0d5e100dce79483aa7c3776891f75600dc6"
+  },
+  {
+    "id": "S042",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/summary.csv",
+    "bytes": 735929,
+    "sha256": "1c5c30c558671934069653fe9f10596cc3506f6c724c37f74f3e8a85d530139e"
+  },
+  {
+    "id": "S043",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/results.json",
+    "bytes": 1015604,
+    "sha256": "a7229c430b7fab48b5e95ae98e5cecad8d3d854a35a245046651e13056ec650c"
+  },
+  {
+    "id": "S044",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llmrows-main7-cell05-main-20261007b-e5/report.json",
+    "bytes": 52732,
+    "sha256": "e3cef7b2ca8ca4fdf0c1866e2ccc2f763b9bc74069fdb9804cc25bfb95c7e5f7"
+  },
+  {
+    "id": "S045",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llmrows-main7-cell05-main-20261007b-e5-argmax/report.json",
+    "bytes": 52859,
+    "sha256": "200cb3dccf45496c6b6daa6068d8176c16d99becd8c044242ffcdfd63c80206e"
+  },
+  {
+    "id": "S046",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llm-prompt-300-eval/report.json",
+    "bytes": 51369,
+    "sha256": "c16aa5899760094eb74243de6f2c11267f925db33831179d06ecbc4e202aba18"
+  },
+  {
+    "id": "S047",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llm-harness-300-eval/report.json",
+    "bytes": 51187,
+    "sha256": "507f84572e7bc1d70a070bbbd99e969dec4dedc9e759f7bb7503e66bbc6e3ce8"
+  },
+  {
+    "id": "S048",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/validation-report.json",
+    "bytes": 53756,
+    "sha256": "f97220058a602d427a33b39557d4857ba05edaa01e476d83de8b769e34d4faa3"
+  },
+  {
+    "id": "S049",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5/report.json",
+    "bytes": 160273,
+    "sha256": "a0fac08feeb6d4e5f8243a3d0ca7f8188e5455b7d560c17cc88f322d34c08434"
+  },
+  {
+    "id": "S050",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5-argmax/report.json",
+    "bytes": 62659,
+    "sha256": "03169160933a56b4bf1cddcd5682bf766997018726d9b3d2bb2d4009ebc89a37"
+  },
+  {
+    "id": "S051",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+    "bytes": 63752,
+    "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2"
+  },
+  {
+    "id": "S052",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/eval-sets-20261009/arrange-llm300-full-gt/summary.json",
+    "bytes": 26793,
+    "sha256": "814ae1a838c5fa6f23e169fa21733bcae696a0b919f55eb4f720499d39a4bebb"
+  },
+  {
+    "id": "S053",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/eval-sets-20261009/arrange-test-doors-300-gt/summary.json",
+    "bytes": 26825,
+    "sha256": "df1ddd26057e775d06927198a14ff79ca1b298b0e022e8c20b125204b9436a82"
+  },
+  {
+    "id": "S054",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261011-v11-clean-dpo/evaluation_full/research-summary.json",
+    "bytes": 1027667,
+    "sha256": "3994d56d6d90bf4b173281c3e8f6e395f2a843c30664fef9be1e9a9da3a59656"
+  },
+  {
+    "id": "S055",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261011-v11-clean-dpo/roomgenbench_v1_1/summary.json",
+    "bytes": 4886,
+    "sha256": "77cbc9dd8aada1c4bec11889359fd06777d128aa71055f554541e81b08b4be4a"
+  },
+  {
+    "id": "S056",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261011-v11-clean-dpo/roomgenbench_clean_final/summary.json",
+    "bytes": 5354,
+    "sha256": "b7b6ace6b2d74eca4e91ddc6d10d7cdd2909f4673d78954e9d0b20a264a42dd5"
+  },
+  {
+    "id": "S057",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/RoomGenBench/results/eval/scores.json",
+    "bytes": 23980,
+    "sha256": "10feebf90cb02e97230edb317d1597971d66a04be4fd663dfbc4939818bcfb37"
+  },
+  {
+    "id": "S058",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/RoomGenBench/results/eval/per_asset.csv",
+    "bytes": 152181,
+    "sha256": "25ccc75201993f4c753e6296d7a696c3b0a0113d27adf3cd6f49a925932923de"
+  },
+  {
+    "id": "S059",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/RoomGenBench/bench/CONTRACT.md",
+    "bytes": 5068,
+    "sha256": "9ec2351cb8538e138b977f8f8e8f30a0492e60473318c0362e79d4f2c0577a28"
+  },
+  {
+    "id": "S060",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/RoomGenBench/README.md",
+    "bytes": 12659,
+    "sha256": "4cfc4695484c075a1188cd3a33100db1c5e486bb734cd34f2cdd520f5df18660"
+  },
+  {
+    "id": "S061",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/evidence/dataset-scan-summary.json",
+    "bytes": 1745,
+    "sha256": "cbf5cc4147f55096eafe28ef6c34c71c49d3b4bdecd9f1fcca8c15ed487e1484"
+  },
+  {
+    "id": "S062",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/evidence/version-comparison.json",
+    "bytes": 6518,
+    "sha256": "7bdd447bba9a0c35d468bf62856504c76f359752b2967b3a0d7a06fec14a3300"
+  },
+  {
+    "id": "S063",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.3/evidence/recheck-front/geometric_distribution.json",
+    "bytes": 25777,
+    "sha256": "eaa62f4910fafbe18246e0dd1df277dbcc30ae0107429895c7aa7e7c7ecb19b7"
+  },
+  {
+    "id": "S064",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/multisource-20261006/pilot-fixed-sample-comparison.json",
+    "bytes": 20152,
+    "sha256": "c3a6fa50b0d4a3de5c0217dccbd02346a1b4f80641193196f05d96997faf5b14"
+  },
+  {
+    "id": "S065",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/server-direct-bbox-20261006/server-evidence/outputs/pilot-summary.json",
+    "bytes": 6705,
+    "sha256": "5aababe1f62ab2ef22ae291f1015e35785fc98d97a4399f5138eaaf535c4cdd5"
+  },
+  {
+    "id": "S066",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261011-v11-clean-dpo/paper-metrics-20261013/fid-smoke.json",
+    "bytes": 148,
+    "sha256": "7449963e7868f3da62e61b7d8697daaba76e09dff4477068bacf33da14a58ea0"
+  },
+  {
+    "id": "S067",
+    "path": "/Volumes/harddisk/fastfillout/runs/llmrows-main4-cell05-main-20261008a-e5-yawcls008/report.json",
+    "bytes": 65470,
+    "sha256": "55138ee38f38e38a351df6a57be540054b58cdfb41f6fdf55abd1c05f2fe0d59"
+  },
+  {
+    "id": "S068",
+    "path": "/Volumes/harddisk/fastfillout/runs/llmrows-main4-cell05-main-20261008a-e5-yawcls008-argmax/report.json",
+    "bytes": 65586,
+    "sha256": "b97fb84a638d3729fa20c1ff838a699d2c65c01f72be6ae72fb2e3a2b6047a11"
+  },
+  {
+    "id": "S069",
+    "path": "/Volumes/harddisk/fastfillout/runs/llmrows-main4-cell05-main-20261008a-e5-yawcls05/report.json",
+    "bytes": 65343,
+    "sha256": "9ae513edc564402bbca7f5da06fcd0bfe9d0d43a17677a24c08ea636628ca4ee"
+  },
+  {
+    "id": "S070",
+    "path": "/Volumes/harddisk/fastfillout/runs/llmrows-main4-cell05-main-20261008a-e5-yawcls05-argmax/report.json",
+    "bytes": 65555,
+    "sha256": "5229b531ea278df9f86b681023870b7283cfeefb71eddbc0191a20360db24bde"
+  },
+  {
+    "id": "S071",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/llm/llm-prompt-300-eval/report.json",
+    "bytes": 64006,
+    "sha256": "7edf9cbc8046063bd997abee8a8cb653fcc3de8a8a39b8f71a8d63d552374e7a"
+  },
+  {
+    "id": "S072",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/llm/llm-harness-300-eval/report.json",
+    "bytes": 63768,
+    "sha256": "8719ae3efbd55ff76ba2ae56284c6dc944f57bed9a52c4e823c20f87974dbf41"
+  },
+  {
+    "id": "S073",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/llm-compare.json",
+    "bytes": 64602,
+    "sha256": "1113fc3e8a5fe64ebe617123c5988445b0dfe36f0b00f0c0443470f275476ab1"
+  },
+  {
+    "id": "S074",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/base-test-minimal-argmax.json",
+    "bytes": 89612,
+    "sha256": "d393a2174044a20425c2cc55260c273f97fe27c7dc21d4f18399c54d6f93f97b"
+  },
+  {
+    "id": "S075",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/base-test-minimal-spread.json",
+    "bytes": 90908,
+    "sha256": "7e6de6f9566f3daef1e72b21d1fc9ccb4bdac3b8b1131fc9d0d93c00e56158a3"
+  },
+  {
+    "id": "S076",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/ctrl-test-minimal-argmax.json",
+    "bytes": 92324,
+    "sha256": "f97287ae6c6eb60291beb9fa108632b860317c0af4222c8e645d53ae06245464"
+  },
+  {
+    "id": "S077",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/ctrl-test-minimal-spread.json",
+    "bytes": 93730,
+    "sha256": "d384024def2fff5ce8a2159856845b38cb1c79c835e86d939b1713a8da13798e"
+  },
+  {
+    "id": "S078",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/final-test-minimal-argmax.json",
+    "bytes": 92409,
+    "sha256": "cd9fab86e6ab5cb605c4d136c2c381802013a855386d4de2978a17359f678d43"
+  },
+  {
+    "id": "S079",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/final-test-minimal-spread.json",
+    "bytes": 93596,
+    "sha256": "57ea89d99168db37342d5f3275bb30cbb7a738dd25c8c374ef2bc061b1f59736"
+  },
+  {
+    "id": "S080",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/base-test-full-argmax.json",
+    "bytes": 96340,
+    "sha256": "81c6a2fe274c88e502f8b70ab23bf78f3e85162d14649fc5f2dc7e2b5c30e5c2"
+  },
+  {
+    "id": "S081",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/base-test-full-spread.json",
+    "bytes": 97861,
+    "sha256": "ac8acf40b2f187a5ff5534c5890e4ce46b8b7882b950d2b7aed04988f5c15d27"
+  },
+  {
+    "id": "S082",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/ctrl-test-full-argmax.json",
+    "bytes": 99473,
+    "sha256": "05691966d058fd22a5272f7d4cee1aebe4e710f48cd4352bca66f6672e62364a"
+  },
+  {
+    "id": "S083",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/ctrl-test-full-spread.json",
+    "bytes": 100496,
+    "sha256": "e3637137706868c333198eb7b825067cb575e2601280a9f1d0b39d64f2c00387"
+  },
+  {
+    "id": "S084",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/final-test-full-argmax.json",
+    "bytes": 99377,
+    "sha256": "346b397ee096eaa5bc611d0d1c5b822c5e5c533e887951fa5d0a900263006588"
+  },
+  {
+    "id": "S085",
+    "path": "/Volumes/harddisk/fastfillout/runs/analysis/final/final-test-full-spread.json",
+    "bytes": 100402,
+    "sha256": "772cd0e5ab705707c677223dc34f52edbed4f0979f91af7ccbb4b1077130849e"
+  },
+  {
+    "id": "S086",
+    "path": "/Volumes/harddisk/FastFill_v2_multisource_20261006/pilot-fixed-sample-comparison.json",
+    "bytes": 20152,
+    "sha256": "c3a6fa50b0d4a3de5c0217dccbd02346a1b4f80641193196f05d96997faf5b14"
+  },
+  {
+    "id": "S087",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls008/bathroom.handoff/diagnostics.json",
+    "bytes": 24045,
+    "sha256": "bf7c03d1dc5b92c4c39afcebd3049e57e7eabe0e7ff9e5d1b9ba3e183f2f0719"
+  },
+  {
+    "id": "S088",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls008/bedroom.handoff/diagnostics.json",
+    "bytes": 23935,
+    "sha256": "a9b7b4ccdd19f9fd4b5fb30f457e479746649bbe839893715aa2839d7e6d62db"
+  },
+  {
+    "id": "S089",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls008/gym.handoff/diagnostics.json",
+    "bytes": 13389,
+    "sha256": "674ac7b5c3dabde8258866fea747b8b6c3b538b04ee49344a10acadf567a5898"
+  },
+  {
+    "id": "S090",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls008/livingroom.handoff/diagnostics.json",
+    "bytes": 24412,
+    "sha256": "d0f910a248c4bc416dc1a317356d52962f242a35bc95499fcedac7bdf4c0b818"
+  },
+  {
+    "id": "S091",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls008/restaurant.handoff/diagnostics.json",
+    "bytes": 56377,
+    "sha256": "06a0879a63874ee3c9124bd503654d3e5dbe81b9790490431a063fc30c709049"
+  },
+  {
+    "id": "S092",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls05/bathroom.handoff/diagnostics.json",
+    "bytes": 25311,
+    "sha256": "4607dccdea17692e2c93b702dd841cd48dcd44df2f37ece9f07ddfcbdb31d1a7"
+  },
+  {
+    "id": "S093",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls05/bedroom.handoff/diagnostics.json",
+    "bytes": 23935,
+    "sha256": "15708ee1a7072618fbfd91471068943125a6df9ea94be3650923fd3a4c49329c"
+  },
+  {
+    "id": "S094",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls05/gym.handoff/diagnostics.json",
+    "bytes": 13600,
+    "sha256": "f9b82715df97e187179eca619b80c5fa734b327c02839e2492c90d6d96dd1e75"
+  },
+  {
+    "id": "S095",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls05/livingroom.handoff/diagnostics.json",
+    "bytes": 25889,
+    "sha256": "f9cef7087be2f30f6e58ffbadd41bdfbe3b6de5e92eb1ca52853e7c8b2cd0bec"
+  },
+  {
+    "id": "S096",
+    "path": "/Volumes/harddisk/fastfillout/runs/roomgenbench/best-main4-cell05-main-20261008a-e5-yawcls05/restaurant.handoff/diagnostics.json",
+    "bytes": 61863,
+    "sha256": "69b0f5c88da8ef7f266c2eb488d37cc871f7bd719f01a388af99a2c2747afc43"
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "utc": "2026-10-13T07:33:28.176551+00:00",
+  "files": [
+    {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/validate.py",
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "coverage": "selected source read; full-file SHA fresh from server",
+      "ranges": [
+        [
+          99,
+          111
+        ]
+      ],
+      "local_path": "fastfill/validate.py",
+      "local_sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158"
+    },
+    {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/pose_targets.py",
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "coverage": "selected source read; full-file SHA fresh from server",
+      "ranges": [
+        [
+          215,
+          242
+        ]
+      ],
+      "local_path": "fastfill/comparison/pose_targets.py",
+      "local_sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba"
+    },
+    {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/main_data.py",
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "coverage": "selected source read; full-file SHA fresh from server",
+      "ranges": [
+        [
+          145,
+          163
+        ],
+        [
+          175,
+          186
+        ],
+        [
+          291,
+          306
+        ]
+      ],
+      "local_path": "fastfill/comparison/main_data.py",
+      "local_sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d"
+    }
+  ],
+  "findings": [
+    "Window categories are excluded from fixed_blocking, which drives common admission and repair. Wrong window widths remain prompt errors and may affect fixed_collisions, but direct fixed-blocking-gate change is not established.",
+    "Train P poses are deliberately repaired; dev P preserves reference poses. P/J teacher differences are not automatically data errors."
+  ]
+}

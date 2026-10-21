@@ -1,0 +1,48 @@
+{
+  "frozen_sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+  "current_sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+  "frozen_regression_cases": [
+    {
+      "field": "pos",
+      "case": "[1, 2, 0]",
+      "frozen_accepted": true
+    },
+    {
+      "field": "yaw",
+      "case": "30",
+      "frozen_accepted": true
+    },
+    {
+      "field": "on",
+      "case": "'fixed_0001'",
+      "frozen_accepted": true
+    },
+    {
+      "field": "description",
+      "case": "'at x=1, y=2'",
+      "frozen_accepted": true
+    },
+    {
+      "field": "category",
+      "case": "None",
+      "frozen_accepted": true
+    },
+    {
+      "field": "category",
+      "case": "''",
+      "frozen_accepted": true
+    },
+    {
+      "field": "category",
+      "case": "' '",
+      "frozen_accepted": true
+    },
+    {
+      "field": "category",
+      "case": "123",
+      "frozen_accepted": true
+    }
+  ],
+  "current_test_result": "independent pytest: 42 passed, 99 subtests passed",
+  "review": "seven added lines enforce exact per-arm movable field sets and nonblank string category; public request() / parse_prediction() independently remain looser; current contract producer already emits exact fields. No current training-data contamination inferred."
+}

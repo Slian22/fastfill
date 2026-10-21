@@ -1,0 +1,2291 @@
+{
+  "status": "PINNED_A028_SOURCE",
+  "commit": "7373495ca9e35391a5981653997be5485f64e9b6",
+  "created_utc": "2026-10-16T02:58:41.455375+00:00",
+  "protocol": "amendment-028-27b-joint-arm-20261015",
+  "budget_gpu_hours": 80,
+  "initial_gpu_hours_ceiling": 73,
+  "paid_api_calls_allowed": 0,
+  "files": {
+    "docs/research/20261013-unknown-size-comparison/amendment-028-27b-joint-arm-20261015.md": {
+      "bytes": 2832,
+      "sha256": "171e3a659d6e14841c813d2873936e19c60da9975eaad1361726d5e5ec89a06b",
+      "mode": 436
+    },
+    "fastfill/README.md": {
+      "bytes": 42348,
+      "sha256": "77fb37d7a69293c4d16f92b2a586cc6b1199d3de03ac4308c8c3810eaa4ebf7b",
+      "mode": 436
+    },
+    "fastfill/RELEASE_v3.2.md": {
+      "bytes": 6763,
+      "sha256": "9a9f938010837049085c8b2199635c8f24715e41a6266098f2e7e4538474a5b1",
+      "mode": 436
+    },
+    "fastfill/RELEASE_v3.4_candidate.md": {
+      "bytes": 24632,
+      "sha256": "20720fc3506f99be382bf2e1683f7431195a42cbd1d1bbac7772840ed9c6db5c",
+      "mode": 436
+    },
+    "fastfill/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": 436
+    },
+    "fastfill/adapters/__init__.py": {
+      "bytes": 2453,
+      "sha256": "fabd6ee3dd917ac07e284ed9044a1932d2826208f8bd9b51a0cdaecbec6b031d",
+      "mode": 436
+    },
+    "fastfill/adapters/__main__.py": {
+      "bytes": 43,
+      "sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "mode": 436
+    },
+    "fastfill/adapters/ase.py": {
+      "bytes": 2511,
+      "sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "mode": 436
+    },
+    "fastfill/adapters/hssd200.py": {
+      "bytes": 30031,
+      "sha256": "e2dcb05c2e75f37331208cf7d74b38a87be131d05a8489654af78fc5de58df9c",
+      "mode": 436
+    },
+    "fastfill/adapters/il3d_3dfront.py": {
+      "bytes": 32624,
+      "sha256": "212dcec472fc55f4f562924fe8ce5e89e523ff6a79c179e0bbcea511b842e823",
+      "mode": 436
+    },
+    "fastfill/adapters/il3d_synthetic.py": {
+      "bytes": 11847,
+      "sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "mode": 436
+    },
+    "fastfill/adapters/interiorgs.py": {
+      "bytes": 24311,
+      "sha256": "d33559c4ea75c954b806943028fc7bd51dc0fc8a01d2a6bd7ec527fa64303f23",
+      "mode": 436
+    },
+    "fastfill/adapters/internscenes.py": {
+      "bytes": 12185,
+      "sha256": "2e1afec9ff5950a3ef7907f9304d7ea555a6a28f66f1dcddd94e6a41f63a3e75",
+      "mode": 436
+    },
+    "fastfill/adapters/internscenes_3rscan.py": {
+      "bytes": 628,
+      "sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "mode": 436
+    },
+    "fastfill/adapters/internscenes_arkit.py": {
+      "bytes": 786,
+      "sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "mode": 436
+    },
+    "fastfill/adapters/internscenes_mp3d.py": {
+      "bytes": 1294,
+      "sha256": "5e061adc04baac1c9cc492f234795323ca5ccd646698377097f183dd478ef1cd",
+      "mode": 436
+    },
+    "fastfill/adapters/internscenes_scannet.py": {
+      "bytes": 433,
+      "sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "mode": 436
+    },
+    "fastfill/adapters/m3dlayout_infinigen.py": {
+      "bytes": 3069,
+      "sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "mode": 436
+    },
+    "fastfill/adapters/mansionworld.py": {
+      "bytes": 16013,
+      "sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "mode": 436
+    },
+    "fastfill/adapters/multiscan.py": {
+      "bytes": 8102,
+      "sha256": "e5a426bd60df4a10efdaf509e188f2c095db93c9542849e61d6bb269bc5125fd",
+      "mode": 436
+    },
+    "fastfill/adapters/optiscene_holodeck.py": {
+      "bytes": 3590,
+      "sha256": "a5f55bd45162d9d62e5b1401cd5b0cc9ee8210d5f019a43c8f79f9b3d05a4d88",
+      "mode": 436
+    },
+    "fastfill/adapters/sage10k.py": {
+      "bytes": 18581,
+      "sha256": "c2c124e3925c051a13fcd4599e03d30f61de45ed5db514eaf02fef84f7f04d26",
+      "mode": 436
+    },
+    "fastfill/adapters/scan2cad.py": {
+      "bytes": 7712,
+      "sha256": "c0674bb111e5bc533804ccd448f29ea50ade14d56f285225f6b2cdaafe7d9bbf",
+      "mode": 436
+    },
+    "fastfill/adapters/scannetpp.py": {
+      "bytes": 2743,
+      "sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "mode": 436
+    },
+    "fastfill/adapters/scenesmith.py": {
+      "bytes": 8533,
+      "sha256": "e3f8d9e2c0a00d6937b93db7f37d4bd801962e8573f6a4789bfeae6912ca0452",
+      "mode": 436
+    },
+    "fastfill/adapters/spatialgen.py": {
+      "bytes": 2104,
+      "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+      "mode": 436
+    },
+    "fastfill/adapters/spatiallm.py": {
+      "bytes": 13193,
+      "sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "mode": 436
+    },
+    "fastfill/adapters/structured3d.py": {
+      "bytes": 11454,
+      "sha256": "287877698b90d51fbe2330aac158fc893c0892078d3c2a77d7fbd1a1bf934ca7",
+      "mode": 436
+    },
+    "fastfill/adapters/unified.py": {
+      "bytes": 5643,
+      "sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "mode": 436
+    },
+    "fastfill/adapters/upright_bounds.py": {
+      "bytes": 1950,
+      "sha256": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f",
+      "mode": 436
+    },
+    "fastfill/anchors.py": {
+      "bytes": 20534,
+      "sha256": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5",
+      "mode": 436
+    },
+    "fastfill/build.py": {
+      "bytes": 44612,
+      "sha256": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d",
+      "mode": 436
+    },
+    "fastfill/comparison/__init__.py": {
+      "bytes": 203,
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "mode": 436
+    },
+    "fastfill/comparison/a021_diag.py": {
+      "bytes": 39073,
+      "sha256": "9bec2bacff5f8ee7bdaa62a4876389956e8213ccf5d0b3ca19f216e56ab6fd88",
+      "mode": 436
+    },
+    "fastfill/comparison/a021_select.py": {
+      "bytes": 62300,
+      "sha256": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50",
+      "mode": 436
+    },
+    "fastfill/comparison/a021_train.py": {
+      "bytes": 56366,
+      "sha256": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+      "mode": 436
+    },
+    "fastfill/comparison/a028.py": {
+      "bytes": 24720,
+      "sha256": "13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47",
+      "mode": 436
+    },
+    "fastfill/comparison/ablation_016.py": {
+      "bytes": 37168,
+      "sha256": "7e7d814a8919a8d8db41b04909da725fb95a5439477cfbdbe242565bbb342079",
+      "mode": 436
+    },
+    "fastfill/comparison/agents_016.py": {
+      "bytes": 24867,
+      "sha256": "de5544f996644a8d9f242a46e0233bd4ad50c12bafd3dd0abfe97e1729a0a5c4",
+      "mode": 436
+    },
+    "fastfill/comparison/best_of_n.py": {
+      "bytes": 23590,
+      "sha256": "690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894",
+      "mode": 436
+    },
+    "fastfill/comparison/contract.py": {
+      "bytes": 13793,
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "mode": 436
+    },
+    "fastfill/comparison/corpus.py": {
+      "bytes": 15194,
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "mode": 436
+    },
+    "fastfill/comparison/critic_025.py": {
+      "bytes": 52444,
+      "sha256": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca",
+      "mode": 436
+    },
+    "fastfill/comparison/critic_batch_025.py": {
+      "bytes": 10889,
+      "sha256": "e831b83d9c848293ef86bffbe76ff179cdac5fa7f181ebae77affb63c75a3149",
+      "mode": 436
+    },
+    "fastfill/comparison/critic_client_025.py": {
+      "bytes": 4473,
+      "sha256": "2af1f839334228283ecc2cee28df28e2fa56e0f4a1f9c277761033b8cb60307d",
+      "mode": 436
+    },
+    "fastfill/comparison/data.py": {
+      "bytes": 12802,
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "mode": 436
+    },
+    "fastfill/comparison/decide_012.py": {
+      "bytes": 8153,
+      "sha256": "fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea",
+      "mode": 436
+    },
+    "fastfill/comparison/delivery.py": {
+      "bytes": 46981,
+      "sha256": "7af604e3ec45f829845fdcca42d2e68bf587db932be872da3683cf7415669ee3",
+      "mode": 436
+    },
+    "fastfill/comparison/dev_select.py": {
+      "bytes": 35961,
+      "sha256": "066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db",
+      "mode": 436
+    },
+    "fastfill/comparison/distill_018.py": {
+      "bytes": 32074,
+      "sha256": "58ee35a67b49ccc29501187c27d01f016d02facf437c0b553c44a0c42f5c56b4",
+      "mode": 436
+    },
+    "fastfill/comparison/distill_018_chain.py": {
+      "bytes": 57136,
+      "sha256": "466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9",
+      "mode": 436
+    },
+    "fastfill/comparison/diverse_026.py": {
+      "bytes": 3121,
+      "sha256": "981102a924216730d982d39b2c71f1b030fc66488435ffddffe32a51320e5e3b",
+      "mode": 436
+    },
+    "fastfill/comparison/downstream.py": {
+      "bytes": 21263,
+      "sha256": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+      "mode": 436
+    },
+    "fastfill/comparison/dpo_stages.py": {
+      "bytes": 44844,
+      "sha256": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "mode": 436
+    },
+    "fastfill/comparison/eval_data.py": {
+      "bytes": 15289,
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "mode": 436
+    },
+    "fastfill/comparison/evaluate_llm.py": {
+      "bytes": 21643,
+      "sha256": "d2f4f893c7af1f6f193191e108b57851718bbe4c51c5e00fabe5e690348b009f",
+      "mode": 436
+    },
+    "fastfill/comparison/evaluate_pair.py": {
+      "bytes": 11021,
+      "sha256": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+      "mode": 436
+    },
+    "fastfill/comparison/fid.py": {
+      "bytes": 26245,
+      "sha256": "6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5",
+      "mode": 436
+    },
+    "fastfill/comparison/final_011.py": {
+      "bytes": 9261,
+      "sha256": "1ead002f739de7aa346fc3ba311ca38ab5b5451a244014074788aec137dd6f77",
+      "mode": 436
+    },
+    "fastfill/comparison/final_tables.py": {
+      "bytes": 19581,
+      "sha256": "6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18",
+      "mode": 436
+    },
+    "fastfill/comparison/frontier_026.py": {
+      "bytes": 48439,
+      "sha256": "f4f2ed2b92d148d11b222935cb4ba9e7c3fe7a23690b8a14fd8c5d01539e0582",
+      "mode": 436
+    },
+    "fastfill/comparison/geometry.py": {
+      "bytes": 13688,
+      "sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "mode": 436
+    },
+    "fastfill/comparison/infer.py": {
+      "bytes": 22231,
+      "sha256": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "mode": 436
+    },
+    "fastfill/comparison/infer_shard.py": {
+      "bytes": 26331,
+      "sha256": "5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_010_cpu.sbatch": {
+      "bytes": 4441,
+      "sha256": "d065f993581b43d764e26b8cd8925bfc2cdd97ab09746b711d761b8bf7dbc898",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_010_infer_shard.sbatch": {
+      "bytes": 4897,
+      "sha256": "8a82c1a4f52f88285be742114a99084e0ecb9306e931500b574d6a97107a2f9d",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_013.sbatch": {
+      "bytes": 14722,
+      "sha256": "e2aa141ac3e0e7b19c26591c38d33d28cf180a7a57908fbaa33ee484b2b6b472",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_014.sbatch": {
+      "bytes": 6878,
+      "sha256": "7cf063aa917ac0bd98a0e71b5f0bb15344cfb173e87badd2fd5f38965fa385a4",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_016.sbatch": {
+      "bytes": 6548,
+      "sha256": "30b232ca8e219a8e3467d19af67f9275104cb18d740c512fd947b88f44fd2959",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_018.sbatch": {
+      "bytes": 15617,
+      "sha256": "11ad37766439455fb7c71ddab0a6eba5854905ddf580477ade3a30a69e1550e3",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_020.sbatch": {
+      "bytes": 5098,
+      "sha256": "464d328a95a1a8645d4fb84ad9f70cb7beb349a3156716fee7c906065401b6cd",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_021_eval.sbatch": {
+      "bytes": 8481,
+      "sha256": "db52a25bf739990af0ffd2a8c84b8700f74410b781f4233f4c1e3c9bcb44169c",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_021_train.sbatch": {
+      "bytes": 9949,
+      "sha256": "5ee965ccbc7f21a015107d16ee25e83d54581640e9e59c55504fa08a73540aeb",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_dpo_cpu.sbatch": {
+      "bytes": 2542,
+      "sha256": "e4aeb75adbc39c666a3b8af94f6d7a35cfca2a0a0383941c2e879d8a9a71d206",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_dpo_generate.sbatch": {
+      "bytes": 2579,
+      "sha256": "90c55effcd2527cd3a12841ddaec93d287805ccf1ca98889429396db1b800027",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_dpo_infer_shard.sbatch": {
+      "bytes": 3565,
+      "sha256": "bbb6f26fe43c8992b1d11c9d7330fa31f0685940ee364401e26c1e7dbdb063b9",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_dpo_train.sbatch": {
+      "bytes": 2752,
+      "sha256": "750986a4a140252b137b5ad38c5e96989bf440d1825145a3d692b45b8bbe9dfe",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_geometry.sbatch": {
+      "bytes": 1378,
+      "sha256": "6d4c8c7a123c5180a9d25828243d6112b35f042cbdf460cdac4d3c4624d872b3",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_infer.sbatch": {
+      "bytes": 2173,
+      "sha256": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_infer_merge.sbatch": {
+      "bytes": 1624,
+      "sha256": "0ab1bd45228aa60826f5035ac0d83d91d44b93a3f060486fdae1a10ef8e1361d",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_infer_plan.sbatch": {
+      "bytes": 1609,
+      "sha256": "10a896fa03725861b2be431d52f981d126d5d9d4cfe4b3cdfef931e735d81c43",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_infer_probe.sbatch": {
+      "bytes": 1939,
+      "sha256": "f04b73de1f39a151935a1105f764a727dedeeb6f9ece81462cf520e9c806e892",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_infer_shard.sbatch": {
+      "bytes": 3010,
+      "sha256": "6870ce8f4ba058fd91b7a6faa0822696e7b8e2895c7f17b1d802a802827a5749",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_llm_agent.sbatch": {
+      "bytes": 3960,
+      "sha256": "54d352a2718b3500d83906f2293570ec97ad794bcb1979066e852d1ac05370b5",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_llm_open.sbatch": {
+      "bytes": 6896,
+      "sha256": "549701f081e404238d037de09c6bdbed45ab97689180139242382e15baf2ee23",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_main.sbatch": {
+      "bytes": 1731,
+      "sha256": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_pilot.sbatch": {
+      "bytes": 1572,
+      "sha256": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a",
+      "mode": 436
+    },
+    "fastfill/comparison/isambard_sample_vllm.sbatch": {
+      "bytes": 5233,
+      "sha256": "6b11b0a110b6738edbdf02d28e8dd2725e7d6a88b81725d9c3465c876ea54058",
+      "mode": 436
+    },
+    "fastfill/comparison/judge_agreement_023.py": {
+      "bytes": 4396,
+      "sha256": "028240144a36adc65966e007e5151dcd3109f30f3e48f8b608a9ea522e79c7d0",
+      "mode": 436
+    },
+    "fastfill/comparison/judge_batch.py": {
+      "bytes": 33362,
+      "sha256": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf",
+      "mode": 436
+    },
+    "fastfill/comparison/judge_bundle_025.py": {
+      "bytes": 15296,
+      "sha256": "abec92a2de6fbc233dde0cd1745d7044a415899b770672ff9b00df9e40eab59a",
+      "mode": 436
+    },
+    "fastfill/comparison/llm_agent.py": {
+      "bytes": 32570,
+      "sha256": "55245c524dbf61691c1c3ada786e551833c5c0f702842b3fade986b24e0f93fc",
+      "mode": 436
+    },
+    "fastfill/comparison/llm_open.py": {
+      "bytes": 29241,
+      "sha256": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+      "mode": 436
+    },
+    "fastfill/comparison/main_data.py": {
+      "bytes": 21463,
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "mode": 436
+    },
+    "fastfill/comparison/mesh_collision.py": {
+      "bytes": 32921,
+      "sha256": "0ade41b9d0ad8e59cd5be7dd0e9c93f944e09ea15f214d6656f19df86ab2369d",
+      "mode": 436
+    },
+    "fastfill/comparison/onpolicy_dpo.py": {
+      "bytes": 61862,
+      "sha256": "af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_eval.py": {
+      "bytes": 84500,
+      "sha256": "68f93f7a5606e3b6fe36dd8047b3cf72320dbc6162113053944ac18f45e5e0f7",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/README.md": {
+      "bytes": 6152,
+      "sha256": "4a489c398b28745793d4b729a55703cd24c4c3e3cf109d36b8fd9e6dfe1c32f7",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/UPSTREAM.json": {
+      "bytes": 3451,
+      "sha256": "293e00404590bca15bf59c2f7ed1df9f18bb7bb62b4b5fc93597aa6af9b4fd45",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/VENDORED.md": {
+      "bytes": 6083,
+      "sha256": "31b08a3706eac61d28fb4d5ca8ba748272b073377b056b6577fc696121706cd5",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/default_prompt.txt": {
+      "bytes": 1534,
+      "sha256": "39cd6c2331bc74b76bec7e87e62365e5d86b1947b9a5660c22fed0a92444ad55",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/environment.yml": {
+      "bytes": 254,
+      "sha256": "490ed14240ee7b21bbc46124dac2eceefd59b714874f37722f6b0f96565ce950",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/main.py": {
+      "bytes": 3967,
+      "sha256": "c808d2967f5097fbec7ddf80da1ae0cfebf7f9534e97d12b5b9b336b41f69378",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/prompt.py": {
+      "bytes": 5968,
+      "sha256": "dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/scripts/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/scripts/dpo_train.py": {
+      "bytes": 4264,
+      "sha256": "34ba07e471a66ab95eb62a5d437d9fa6d224b8fd1465a18d471a9d7b66cee360",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/scripts/inference.py": {
+      "bytes": 1762,
+      "sha256": "36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/scripts/merge_lora.py": {
+      "bytes": 1185,
+      "sha256": "0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/scripts/sft_train.py": {
+      "bytes": 2415,
+      "sha256": "342b854a642e58bdebe62c2048e555871261615c33443359bed8d5e68d261450",
+      "mode": 436
+    },
+    "fastfill/comparison/optiscene_official/utils.py": {
+      "bytes": 1242,
+      "sha256": "09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f",
+      "mode": 436
+    },
+    "fastfill/comparison/output_repair.py": {
+      "bytes": 51955,
+      "sha256": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+      "mode": 436
+    },
+    "fastfill/comparison/overnight.py": {
+      "bytes": 42737,
+      "sha256": "13389f273b896ea18ea6bfc454498c6742730fc9d3bb279ed5ccb63760ff6093",
+      "mode": 436
+    },
+    "fastfill/comparison/placers_020.py": {
+      "bytes": 28812,
+      "sha256": "94553211107fc37578a3dc6213a22a81871930ac5789b267ee561514a8250add",
+      "mode": 436
+    },
+    "fastfill/comparison/pose_targets.py": {
+      "bytes": 15302,
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "mode": 436
+    },
+    "fastfill/comparison/reference_rows.py": {
+      "bytes": 10093,
+      "sha256": "9a3d5fa0226955ae57562fd9b82595d7076a2803eb853b8db83ef9b3bb47378e",
+      "mode": 436
+    },
+    "fastfill/comparison/render_assets.py": {
+      "bytes": 37520,
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "mode": 436
+    },
+    "fastfill/comparison/report_v2.py": {
+      "bytes": 83694,
+      "sha256": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0",
+      "mode": 436
+    },
+    "fastfill/comparison/room_families.py": {
+      "bytes": 27647,
+      "sha256": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c",
+      "mode": 436
+    },
+    "fastfill/comparison/sample_vllm.py": {
+      "bytes": 23718,
+      "sha256": "d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9",
+      "mode": 436
+    },
+    "fastfill/comparison/scale_curve.py": {
+      "bytes": 47989,
+      "sha256": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413",
+      "mode": 436
+    },
+    "fastfill/comparison/server_api_judge.py": {
+      "bytes": 27054,
+      "sha256": "21513b00b431809c9eaa3145f9898637112e43c6a3a0768a91c9c94f77c505e2",
+      "mode": 436
+    },
+    "fastfill/comparison/setup_optiscene_env.sh": {
+      "bytes": 3732,
+      "sha256": "dfc6445034a5c12aafe7bd3c7b2970a35b30af027f1398ed7fa9b3508e25e93c",
+      "mode": 436
+    },
+    "fastfill/comparison/size_prior.py": {
+      "bytes": 11001,
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "mode": 436
+    },
+    "fastfill/comparison/sizers_020.py": {
+      "bytes": 45470,
+      "sha256": "a6a4ac09780fad6da6ad2f6cc43be79aa3899d79abe845f27ae8fcdaf5139f0d",
+      "mode": 436
+    },
+    "fastfill/comparison/stage_table.py": {
+      "bytes": 44237,
+      "sha256": "e2e3d6946426c1b7750e8073f948806c69f32cfea3455a1a8242382618c8a6fc",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_011.sh": {
+      "bytes": 4789,
+      "sha256": "2a72ceeba17dea3a91dc973eee7c671e349a6697dd3f56786fb52309224bdc44",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_013.sh": {
+      "bytes": 9410,
+      "sha256": "86f48e156197854bc6f15fd18041c01b2c2759f4106da98609a76c2542e02def",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_014.sh": {
+      "bytes": 6397,
+      "sha256": "db34534b9231a1fde7c7ba1c29b376978d5fb13bbd187d0ef92283d1b2d9b965",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_015.sh": {
+      "bytes": 8383,
+      "sha256": "ebe9a5bc7129f3b062da786c4ffe584ea4f5ccd29f3387ee6fc9d47b97e969b1",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_016_ablation.sh": {
+      "bytes": 6776,
+      "sha256": "1c462a4174b34d1cb44db7f5911de51ed47c3b6b88232613162e38d08cc81571",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_016_agents.sh": {
+      "bytes": 11607,
+      "sha256": "448c659723f10154cade8e51ac5f0641a275a9ddc6f30f1ae0cb015df634f3d3",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_016_scale.sh": {
+      "bytes": 4839,
+      "sha256": "ed74ac0eb9091dc1fcd472453f11ff45dd4483f1af102f290569559b9ca1bbec",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_018_chain.sh": {
+      "bytes": 13819,
+      "sha256": "b638f6f0abd2a2b6fd25c83c820461a26deaff1e28b913318de6f93bdb7bc8d3",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_018_teacher.sh": {
+      "bytes": 8100,
+      "sha256": "1c30dc965f987e45c75a8004a166f56020fb322ba00924bad977433a9d9120ca",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_020_placers.sh": {
+      "bytes": 16463,
+      "sha256": "1a49804308f7165eec2858d7502763f9bcf446f3f203e71285daea8f4e2ac9f6",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_020_sizers.sh": {
+      "bytes": 7449,
+      "sha256": "faac9c5ba0fc788942347aeddcd53ae94206b82c1442aa1c0e6fdde9f1b19750",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_021_diag.sh": {
+      "bytes": 6292,
+      "sha256": "0ff1c5339d8cab76be9a7f9295d4ac41be19f543eabc41ee2e3d8372ad5a44e3",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_021_eval.sh": {
+      "bytes": 10184,
+      "sha256": "3dd98146ab068a92b67b7a8896ecca240705cbbd43312a3e58e814af2ac4953c",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_021_train.sh": {
+      "bytes": 10937,
+      "sha256": "89bf40569036550c75af05f0e13ad12278f00582dc4cabfdfe4645aa668932ef",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_023_judge.sh": {
+      "bytes": 3250,
+      "sha256": "c5bcd643b526224e0f5b8cf4c3e9ff0d6c88912fd6d989019a9250ed387b8056",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_025.sh": {
+      "bytes": 2443,
+      "sha256": "502f5644eeb38c2dfbc292cb7ba22de40cb734e097d25571324344f0bc1241e5",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_026_diverse.sh": {
+      "bytes": 5923,
+      "sha256": "7aa47d0875cc69540379c8557fa170b825bdfa127991e8ba56ff99d9d29c7d97",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_028.sh": {
+      "bytes": 10165,
+      "sha256": "e9a125fc525cf19239e1a9740485dff391d43e579aae04a324c96214981f3343",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_dev_selection.sh": {
+      "bytes": 4520,
+      "sha256": "19364d7f70e25a130912fb0f6d822f7e965639fc07d94fc888e565795d9c836a",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_dpo_stages.sh": {
+      "bytes": 5113,
+      "sha256": "bc5e0e9828ba540d7425b2c65c4177bc650c81281230f8773219a22f56254f2b",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_final_010.sh": {
+      "bytes": 7687,
+      "sha256": "a7ab8cd0681eeef86c5d5d437f225349d9e4c2b916d41a20c1c41c95f2fcf36c",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_infer_v2.sh": {
+      "bytes": 3501,
+      "sha256": "ba90c3aad57845eedb56635b0ede774c22d859cece9ec6c8acd789061416b63f",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_llm_open.sh": {
+      "bytes": 3916,
+      "sha256": "cf380016279d7b86f701f02e0dccf5df3b4a7553aa2523fc14f3dd155bc9f41f",
+      "mode": 509
+    },
+    "fastfill/comparison/submit_sample_vllm.sh": {
+      "bytes": 4685,
+      "sha256": "3df537cde16f5e0c1ec9ef4c984a179a6e3336a0816226a4c2bf3a4d31b64530",
+      "mode": 436
+    },
+    "fastfill/comparison/submit_test_012.sh": {
+      "bytes": 5878,
+      "sha256": "839c91a5a9b7d38eef80005eba4fd253350dc6f94dd3c7d2e4f9df29f001ac18",
+      "mode": 436
+    },
+    "fastfill/comparison/test_apply_012.py": {
+      "bytes": 24962,
+      "sha256": "59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_a021_diag.py": {
+      "bytes": 31528,
+      "sha256": "b65ad06b36dcae0ad10ff6b800cf633c628bdb49f1716ac66a60c663f9d52ddc",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_a021_select.py": {
+      "bytes": 44892,
+      "sha256": "c26c1bef80fa4df67295698f4b529ed623d550ca96e3f757e2077450568faf7c",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_a021_train.py": {
+      "bytes": 38355,
+      "sha256": "4122cd26dbdd0da69c7253882ef4df8fe2d0cf51e085ce8d04dc64d7eb7d9d11",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_a028.py": {
+      "bytes": 27427,
+      "sha256": "ae3582f7f775c5332e09b7363ea969469cca6673ee88b080a16f96bb386e7992",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_ablation_016.py": {
+      "bytes": 36237,
+      "sha256": "625b643b2091aced512fe3f762033437817b25888eebdfb549011b0e18939e0d",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_agents_016.py": {
+      "bytes": 16361,
+      "sha256": "08610080956c9b441dccdda7a352db8d1430060b1d44d5e929eec6c8fdd06394",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_best_of_n.py": {
+      "bytes": 15213,
+      "sha256": "629fcfac06e7d09d284cab273f5ba0680cfa344bf5399956fc54a3104aa7379f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_context_plan.py": {
+      "bytes": 9650,
+      "sha256": "10690e6c74a3fab18d56e84ee23aa07204a887b75bcf52dce40ca877f27ab5c0",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_contract.py": {
+      "bytes": 17273,
+      "sha256": "92058117a35f85d646890e942bc076ab353a206b86cb6ac853f56a9d35a0ef41",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_corpus.py": {
+      "bytes": 20965,
+      "sha256": "506f95e3d12aa83d6c6de567dbd2f1d151ab07efa7440c40bccdfd331f0771d1",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_critic_025.py": {
+      "bytes": 21540,
+      "sha256": "464bbf32883a80b44291f5308181260b41238487b1f8d64a51ccb2c3499766ee",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_critic_client_025.py": {
+      "bytes": 13510,
+      "sha256": "e71b3671672d893464e4f7d3548740827cd1b0465cf43f3d37a259d6f8ceb9b1",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_data.py": {
+      "bytes": 7636,
+      "sha256": "cb03689a0700c7f1fd67556dd40b7ab824cbab2e6446790e8f1db1fe7ff3da66",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_delivery.py": {
+      "bytes": 23444,
+      "sha256": "565692c50e7e1cb756423008439ca2d5d7cc5678d157e4e49823c618b20d3886",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_dev_select.py": {
+      "bytes": 39250,
+      "sha256": "b147d812fbdb8acdfb69d60bffd62118b0993a856bcd3e260e64eb19cfb2542f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_distill_018_chain.py": {
+      "bytes": 54679,
+      "sha256": "5d18ae3e771b4d1964a327a7dd062f7bbede01c82bc1a66ab134033667cc6c7c",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_distill_018_teacher.py": {
+      "bytes": 33278,
+      "sha256": "28b7256ac4602016e3987f72101cdbf81264f8ac8cf7200e412f8f5b7bbbada9",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_diverse_026.py": {
+      "bytes": 17205,
+      "sha256": "1874c05fc728d215cdde53236387fd0bc9e9b160ff55eef6c485844882f61aca",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_downstream.py": {
+      "bytes": 9362,
+      "sha256": "fafc120130d63e7d7ab405d1917c008963ed11193402d97cc26a7132a40075e6",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_dpo_stages.py": {
+      "bytes": 48595,
+      "sha256": "17838ca84f74b83fea95a43fd2eb302d1f255abe0790ea087a4cb78190ffe8be",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_eval_data.py": {
+      "bytes": 13464,
+      "sha256": "71798cc35e2168ce77ff766141bd946a9e8875173d99ef90d084af4c79c94205",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_evaluate_llm.py": {
+      "bytes": 8744,
+      "sha256": "96b2d6fc2a79d48b9af499df9ffa68a97d90e8906db3fb0064f11cbe2f75df7c",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_evaluate_pair.py": {
+      "bytes": 4818,
+      "sha256": "5767035039283d393c52dc3817cff860f17cdf472f08ba442a8d34e80dd4e27c",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_fid.py": {
+      "bytes": 19285,
+      "sha256": "e68d935bf51d90b65e542b75d580a4a3df54ae8c7625d2c8258c2a1bea8a62e4",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_final_011.py": {
+      "bytes": 14144,
+      "sha256": "a88f534e7a3c6afe529ddd5c41d43be79aa67a7c8effc558d507052c355471ef",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_final_tables.py": {
+      "bytes": 14885,
+      "sha256": "90d29fceb8a73262dada110615f86571b0f9b75cd712a5154a6dd454ddaa0765",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_frontier_026.py": {
+      "bytes": 10931,
+      "sha256": "e1021c2950c42da1c69865f2763b875fb8a22fa7481d2ebfde32361d6ec9c487",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_geometry.py": {
+      "bytes": 14115,
+      "sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_infer.py": {
+      "bytes": 22846,
+      "sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_infer_shard.py": {
+      "bytes": 25233,
+      "sha256": "13678a66a88598dc671c1fc8782c647f18fdaaa1c701266bf098b0d5f6d4d919",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_judge_agreement_023.py": {
+      "bytes": 1151,
+      "sha256": "9914e89c8231c094e6f197e61647db3722826d6b765d4a26420f3ccbf43adead",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_judge_batch.py": {
+      "bytes": 31959,
+      "sha256": "ea952f7c5fc930ae262c0e193275035ce8f1f99a7cbe4c551791b1bd133fbebc",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_judge_bundle_025.py": {
+      "bytes": 10598,
+      "sha256": "593af5c561042c0f0103224c744765566348941b448b53eacb9e4888803628b5",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_llm_agent.py": {
+      "bytes": 22973,
+      "sha256": "3d41db61ecd1a3c307576a7cbee3f98db1bfcbacd05c4e315f773455fb8ca60f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_llm_open.py": {
+      "bytes": 46976,
+      "sha256": "e7d9cef243c19a326b62669e104cb9f68b0783a93fc82a76e9ba9c77fb48476b",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_main_data.py": {
+      "bytes": 19872,
+      "sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_mesh_collision.py": {
+      "bytes": 9441,
+      "sha256": "e14dd73c9d1ac131a8dbf9ad3f5df8685e95096310a5308191451845ac38a645",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_onpolicy_dpo.py": {
+      "bytes": 63718,
+      "sha256": "96553359f3fd27c82def8a32202f5f8639e3691e4fba7c837470a8a9a448a29f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_optiscene_eval.py": {
+      "bytes": 72973,
+      "sha256": "efe970bdf3a505484abf8170b332cd2e3fe4f2fbda34447ae458c448b28bdd7e",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_output_repair.py": {
+      "bytes": 24894,
+      "sha256": "733c44cb426bb4a08cf4cb3b306524ff90d50387d037a48674317f48ced13880",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_overnight.py": {
+      "bytes": 32510,
+      "sha256": "449ceb8f7a01437adbe20ff9fe5322079c3e9bd9f17ee0b172bcfee17d6953a8",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_placers_020.py": {
+      "bytes": 36860,
+      "sha256": "41edb50447acc5281f3e4f198eee4b0c9ca31a439e14f69a13152624f0dc2614",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_pose_targets.py": {
+      "bytes": 21127,
+      "sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_render_assets.py": {
+      "bytes": 26140,
+      "sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_report_v2.py": {
+      "bytes": 50279,
+      "sha256": "6717a16dcc6d5e745b6ee8be5a9a52f1df2338cd0c036dac618bd0b968b30727",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_room_families.py": {
+      "bytes": 19348,
+      "sha256": "d8a74da38fbb6081af27724a0ce12968702c91580910aafa9996b609d8a346db",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_sample_vllm.py": {
+      "bytes": 22349,
+      "sha256": "27cffb4c9c6df5094c2d25745d55a4a81cf4426a787c28db5fcf1333a984ce61",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_scale_curve.py": {
+      "bytes": 25592,
+      "sha256": "21c3faaaf52092c9e9dff9eaa7541dbc744e4f39b7fbad62ccfaa662797e132c",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_server_api_judge.py": {
+      "bytes": 4170,
+      "sha256": "28672cc3f74c34ae85cc03594de2a280c4fa71b5573982508247b24f71cb6c7f",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_size_prior.py": {
+      "bytes": 17852,
+      "sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_sizers_020.py": {
+      "bytes": 25157,
+      "sha256": "4733136c94b496678ef5c273dfff90b3fc85aa954ef7971dd6fd826b93ee1d30",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_stage_table.py": {
+      "bytes": 28218,
+      "sha256": "a13fe8509be0bfc29089cdbb3574e740327ab8a90e17b074afac0b5cd9c52022",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_test_apply_012.py": {
+      "bytes": 16780,
+      "sha256": "81b00ac9253e74e6b231ed05034a25f5efd4092a102c9fa081319fa3bed905f5",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_train_pair.py": {
+      "bytes": 51898,
+      "sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_visual_024.py": {
+      "bytes": 13116,
+      "sha256": "8e1c1fa7d08ffa6bf46631864dec87b085138d71b032951678ed8f0209d0436d",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_visual_cases.py": {
+      "bytes": 13294,
+      "sha256": "7b82cc616fd62650fb8dbe79db2f24813d600fb02e789fa9e323d7d6a27df390",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_visual_final.py": {
+      "bytes": 2418,
+      "sha256": "004ca0b7868a5bbdaebe1adfd56419295e478f4cc1417d00698f54250ddef9b8",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_visual_pipeline.py": {
+      "bytes": 32276,
+      "sha256": "0b7c91e6d0dd4e8f980aad9da6e96c7e6b397d6d7323f4d0c1cc2c8fe56e4c42",
+      "mode": 436
+    },
+    "fastfill/comparison/tests/test_visual_resource_binding.py": {
+      "bytes": 17071,
+      "sha256": "af411bc451f5471acdab3c8e0fbd934e82b6decc5a21d6e4004b4db60f466370",
+      "mode": 436
+    },
+    "fastfill/comparison/train_pair.py": {
+      "bytes": 23264,
+      "sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "mode": 436
+    },
+    "fastfill/comparison/train_pair_helpers.py": {
+      "bytes": 20149,
+      "sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "mode": 436
+    },
+    "fastfill/comparison/visual_024.py": {
+      "bytes": 30812,
+      "sha256": "cfcaff4ee05fbb90c3b95f574e79796deae04c22c06d92610f52ff50df0b7271",
+      "mode": 436
+    },
+    "fastfill/comparison/visual_cases.py": {
+      "bytes": 19205,
+      "sha256": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298",
+      "mode": 436
+    },
+    "fastfill/comparison/visual_final.py": {
+      "bytes": 5001,
+      "sha256": "29a7864477d4770d30eccbbc52dd989ffc45662ebd0b76295f4c8d74ed0db6d3",
+      "mode": 436
+    },
+    "fastfill/comparison/visual_pipeline.py": {
+      "bytes": 32308,
+      "sha256": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99",
+      "mode": 436
+    },
+    "fastfill/download.py": {
+      "bytes": 5651,
+      "sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "mode": 436
+    },
+    "fastfill/download_full.sh": {
+      "bytes": 1666,
+      "sha256": "728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03",
+      "mode": 509
+    },
+    "fastfill/evaluate.py": {
+      "bytes": 13856,
+      "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "mode": 436
+    },
+    "fastfill/inspect_ir.py": {
+      "bytes": 4025,
+      "sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "mode": 436
+    },
+    "fastfill/interface.py": {
+      "bytes": 48155,
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "mode": 436
+    },
+    "fastfill/merge_lora.py": {
+      "bytes": 3622,
+      "sha256": "9c8bcfc3e0e8070cebe99b1aaf57b55d19334c7b85c0bfea2d8ba2d76cf9b0c3",
+      "mode": 436
+    },
+    "fastfill/requirements.txt": {
+      "bytes": 483,
+      "sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "mode": 436
+    },
+    "fastfill/scene.py": {
+      "bytes": 21001,
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "mode": 436
+    },
+    "fastfill/serve.py": {
+      "bytes": 11625,
+      "sha256": "24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd",
+      "mode": 436
+    },
+    "fastfill/split.py": {
+      "bytes": 5289,
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "mode": 436
+    },
+    "fastfill/system/__init__.py": {
+      "bytes": 109,
+      "sha256": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882",
+      "mode": 436
+    },
+    "fastfill/system/cli.py": {
+      "bytes": 3180,
+      "sha256": "023ce88b47a14ead4ff1d013daf16a31812593cb5395ea8714480e7badb4de8b",
+      "mode": 436
+    },
+    "fastfill/system/evaluate.py": {
+      "bytes": 60680,
+      "sha256": "3e1538bca317279f01ba803a424fedb8db738b0011994494eb3f52b685c36123",
+      "mode": 436
+    },
+    "fastfill/system/isambard_022.sbatch": {
+      "bytes": 7384,
+      "sha256": "46d6608d2c6bda97ebf7df544831356f35b80dbd4ecf752c5eef587eaa72622a",
+      "mode": 436
+    },
+    "fastfill/system/package.py": {
+      "bytes": 24913,
+      "sha256": "4487a9486e20307e9d5c43857d7ca939ef788a72264e9508c8533babc3cd90e0",
+      "mode": 436
+    },
+    "fastfill/system/pipeline.py": {
+      "bytes": 42349,
+      "sha256": "b8956e1b36677fc2ddc0f8c1b42ed9489f6bcc9ec02d4ddacdfed88f8aacdfda",
+      "mode": 436
+    },
+    "fastfill/system/submit_022.sh": {
+      "bytes": 8792,
+      "sha256": "0458e9f1c1a3dce5e98c03e530462f02bf33c4ab080409a39ffb3fd38bb94a5a",
+      "mode": 509
+    },
+    "fastfill/system/tests/test_evaluate_package.py": {
+      "bytes": 39935,
+      "sha256": "75af9945223e1915c749434404406fe1ccc6f48594ba3b2f5e05f6682090494a",
+      "mode": 436
+    },
+    "fastfill/system/tests/test_pipeline.py": {
+      "bytes": 34115,
+      "sha256": "32b4ea52cf0b4ce280611f9b5afc87af67295a85a0e622ea5883f3f44cf50381",
+      "mode": 436
+    },
+    "fastfill/tests/test_adapter_repairs.py": {
+      "bytes": 24463,
+      "sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "mode": 436
+    },
+    "fastfill/tests/test_build_repairs.py": {
+      "bytes": 8989,
+      "sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "mode": 436
+    },
+    "fastfill/tests/test_embedded_contracts.py": {
+      "bytes": 686,
+      "sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "mode": 436
+    },
+    "fastfill/tests/test_qa_repairs.py": {
+      "bytes": 24336,
+      "sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "mode": 436
+    },
+    "fastfill/tests/test_runtime_repairs.py": {
+      "bytes": 20544,
+      "sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "mode": 436
+    },
+    "fastfill/tests/test_source_fidelity_v34.py": {
+      "bytes": 24571,
+      "sha256": "a62cb0bb768f2ea99ecac0a80e413d40906bdbc985f2510d295f7204aa4797fd",
+      "mode": 436
+    },
+    "fastfill/tests/test_source_opening_correction.py": {
+      "bytes": 22203,
+      "sha256": "9461a219cf51fab8e0f5d816078503db4770aa5151eb374aaaa6959642632ca0",
+      "mode": 436
+    },
+    "fastfill/tests/test_source_tilt_correction.py": {
+      "bytes": 21409,
+      "sha256": "c4adde0c9cd9afbf23f7deef4545e356aaaf9069299e6a3140f9797244b0af59",
+      "mode": 436
+    },
+    "fastfill/tests/test_training_repairs.py": {
+      "bytes": 12721,
+      "sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "mode": 436
+    },
+    "fastfill/tests/test_v1_1_audit_pairs.py": {
+      "bytes": 9769,
+      "sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "mode": 436
+    },
+    "fastfill/tests/test_v34_build.py": {
+      "bytes": 19784,
+      "sha256": "7fcf3fcdf8895170d0afdbe4a72ea087694eb55f8236d7d590bbd701bbdee7b0",
+      "mode": 436
+    },
+    "fastfill/tools/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": 436
+    },
+    "fastfill/tools/ablation_check.py": {
+      "bytes": 2350,
+      "sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "mode": 436
+    },
+    "fastfill/tools/qa_report.py": {
+      "bytes": 19906,
+      "sha256": "c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045",
+      "mode": 436
+    },
+    "fastfill/tools/visualize.py": {
+      "bytes": 5732,
+      "sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "mode": 436
+    },
+    "fastfill/train.py": {
+      "bytes": 17848,
+      "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "mode": 436
+    },
+    "fastfill/v1_1/__init__.py": {
+      "bytes": 93,
+      "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "mode": 436
+    },
+    "fastfill/v1_1/audit_pairs.py": {
+      "bytes": 11211,
+      "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "mode": 436
+    },
+    "fastfill/v1_1/audit_report.py": {
+      "bytes": 7535,
+      "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "mode": 436
+    },
+    "fastfill/v1_1/automate.py": {
+      "bytes": 16934,
+      "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "mode": 436
+    },
+    "fastfill/v1_1/build_dpo.py": {
+      "bytes": 20160,
+      "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "mode": 436
+    },
+    "fastfill/v1_1/build_v1_1.py": {
+      "bytes": 9437,
+      "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "mode": 436
+    },
+    "fastfill/v1_1/evaluate_v1_1.py": {
+      "bytes": 32181,
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "mode": 436
+    },
+    "fastfill/v1_1/evaluation_protocol.py": {
+      "bytes": 12916,
+      "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "mode": 436
+    },
+    "fastfill/v1_1/isambard_v1_1_audit.sbatch": {
+      "bytes": 2154,
+      "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "mode": 436
+    },
+    "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch": {
+      "bytes": 3008,
+      "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "mode": 436
+    },
+    "fastfill/v1_1/isambard_v1_1_evaluate.sbatch": {
+      "bytes": 1578,
+      "sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "mode": 436
+    },
+    "fastfill/v1_1/isambard_v1_1_pipeline.sbatch": {
+      "bytes": 10964,
+      "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "mode": 436
+    },
+    "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch": {
+      "bytes": 1906,
+      "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "mode": 436
+    },
+    "fastfill/v1_1/postprocess.py": {
+      "bytes": 27498,
+      "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "mode": 436
+    },
+    "fastfill/v1_1/research_report.py": {
+      "bytes": 16116,
+      "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "mode": 436
+    },
+    "fastfill/v1_1/roomgenbench_v1_1.py": {
+      "bytes": 23082,
+      "sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "mode": 436
+    },
+    "fastfill/v1_1/scene_v1_1.py": {
+      "bytes": 14645,
+      "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_audit_report.py": {
+      "bytes": 8851,
+      "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_automate.py": {
+      "bytes": 12096,
+      "sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_automation_lineage.py": {
+      "bytes": 12150,
+      "sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_build_dpo_integrity.py": {
+      "bytes": 17111,
+      "sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py": {
+      "bytes": 11029,
+      "sha256": "c751e6022ade7a1965d5ac5ae6b9e70e11e2c5a5adef37d06caf89f406708183",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_evaluation_protocol.py": {
+      "bytes": 9363,
+      "sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_evaluation_resume.py": {
+      "bytes": 11849,
+      "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_research_report.py": {
+      "bytes": 9271,
+      "sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_roomgenbench_recovery.py": {
+      "bytes": 10781,
+      "sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_train_dpo_a021.py": {
+      "bytes": 9915,
+      "sha256": "bf70a0f41975155e9f1de6f16d7c00cf7a5d2357bd063a69ff9ac03961fdfafc",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_train_dpo_init_adapter.py": {
+      "bytes": 13350,
+      "sha256": "080f1ab85c037ec03e446eface31cc79286cdbd8d9e615619b5127138376d2a2",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_train_dpo_rpo.py": {
+      "bytes": 2427,
+      "sha256": "e5fbb9365f83e143b3300467b31bffc19669837634bbae9f2b13532876458c69",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_training_guard.py": {
+      "bytes": 13197,
+      "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_verified_sbatch.py": {
+      "bytes": 7705,
+      "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "mode": 436
+    },
+    "fastfill/v1_1/tests/test_verify_outputs.py": {
+      "bytes": 10505,
+      "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "mode": 436
+    },
+    "fastfill/v1_1/train_dpo.py": {
+      "bytes": 35506,
+      "sha256": "6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739",
+      "mode": 436
+    },
+    "fastfill/v1_1/training_guard.py": {
+      "bytes": 16003,
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "mode": 436
+    },
+    "fastfill/v1_1/verify_outputs.py": {
+      "bytes": 14393,
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "mode": 436
+    },
+    "fastfill/v2/.coveragerc": {
+      "bytes": 82,
+      "sha256": "165cd2d15cb9e2577d6ef5f6284d179bfea1820a960083e1e88bbb2b8691e8e4",
+      "mode": 436
+    },
+    "fastfill/v2/README.md": {
+      "bytes": 94870,
+      "sha256": "07f7b9c9eee88d529e982d7a8a777319fde8e78ebc242f7adcd64fc4dd71d129",
+      "mode": 436
+    },
+    "fastfill/v2/__init__.py": {
+      "bytes": 120,
+      "sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "mode": 436
+    },
+    "fastfill/v2/adapters.py": {
+      "bytes": 8744,
+      "sha256": "d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae",
+      "mode": 436
+    },
+    "fastfill/v2/audit.py": {
+      "bytes": 21299,
+      "sha256": "6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b",
+      "mode": 436
+    },
+    "fastfill/v2/autorun.py": {
+      "bytes": 41441,
+      "sha256": "e6826078fee1c774f9e8e1854a22d1cfc2ae309fdd0289ec1cf73b081e289d62",
+      "mode": 436
+    },
+    "fastfill/v2/batch.py": {
+      "bytes": 27270,
+      "sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "mode": 436
+    },
+    "fastfill/v2/bbox_visualization.py": {
+      "bytes": 7416,
+      "sha256": "65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09",
+      "mode": 436
+    },
+    "fastfill/v2/boxes.py": {
+      "bytes": 5541,
+      "sha256": "ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284",
+      "mode": 436
+    },
+    "fastfill/v2/cohort.py": {
+      "bytes": 8215,
+      "sha256": "7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138",
+      "mode": 436
+    },
+    "fastfill/v2/configs/direct_request.json": {
+      "bytes": 176,
+      "sha256": "ac60d02fd13fc77e9ca78013ba23cb8b2503254172c94202e4edf4c086a8f874",
+      "mode": 436
+    },
+    "fastfill/v2/configs/main7-cell05-main-20261007b-e5.json": {
+      "bytes": 1988,
+      "sha256": "ec5ec2c077d633cf03eb366c2abe3b369624908e152a706b0f7a69d978e6806c",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_bbox_full_fixed.json": {
+      "bytes": 1332,
+      "sha256": "af286700d721fa783f826698afdc1a70d7c271503aa4ddfd2a32f608b310c94d",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_bbox_pilot.json": {
+      "bytes": 1328,
+      "sha256": "22d8527a62e48eee2d6e88135965afc151a34bd327f62eb1a921a65c4751e066",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_3gpu_grid.json": {
+      "bytes": 1989,
+      "sha256": "63fc6155a811c1f01e829e0d25889b42e7a4df3adb507880b2c13dc4e637f1df",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_3gpu_grid_cell05.json": {
+      "bytes": 1988,
+      "sha256": "55f3d2e5d31eec7a86ab15dbab69ae0204de5d25cc0a54a82894ed6d1f810e71",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell02.json": {
+      "bytes": 1988,
+      "sha256": "ef063db51c2156f31774fa50edc453111ac89b4ddc2b1bcf723bcc49f61b89ae",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell10.json": {
+      "bytes": 1988,
+      "sha256": "b5acc19a59264d948225f66611735bffac4e0fca81a2864180b6f2bdd56f0dba",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_4gpu_regression.json": {
+      "bytes": 1986,
+      "sha256": "8d7b9030a250145610b4c9e5eac8dd262fd45113857652ec103eda14f4d9c017",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_main_world7.json": {
+      "bytes": 1987,
+      "sha256": "c8a545860aad2eff8b7f1e0439a900883737c5ca020342281e9a79ff4e38a1ed",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_pilot.json": {
+      "bytes": 1328,
+      "sha256": "c61200ee1a5b4c3884d50bd8c1405e47f596ce0bbce82ca13a33ee1102dcebc4",
+      "mode": 436
+    },
+    "fastfill/v2/configs/qwen3_8b_pilot_1gpu.json": {
+      "bytes": 1983,
+      "sha256": "825c2a8a04e8277b24a5902e547ab9172ac616fe5691897f230c00ed9976b8a0",
+      "mode": 436
+    },
+    "fastfill/v2/configs/smoke.json": {
+      "bytes": 978,
+      "sha256": "54f64563863decabd4487fdf85d18712e565a23f48160a2f0021096e4f84b8b4",
+      "mode": 436
+    },
+    "fastfill/v2/configs/structured.json": {
+      "bytes": 1326,
+      "sha256": "be1baa6783e86cb0fd6043442b668d440107ed0a3dad602a9aac70b7fed3c6db",
+      "mode": 436
+    },
+    "fastfill/v2/configs/structured_bev_box.json": {
+      "bytes": 1379,
+      "sha256": "b8c14d2c07bf2a99b6177fa50a4d4a7e4095c1e236ec88cd23d9a3b8bd857862",
+      "mode": 436
+    },
+    "fastfill/v2/configs/structured_fixed.json": {
+      "bytes": 1327,
+      "sha256": "f1859b3d851215f308cfe61c14cc5fde52a1541fd7a8bb5aeaf19e83d0243d4c",
+      "mode": 436
+    },
+    "fastfill/v2/data.py": {
+      "bytes": 6919,
+      "sha256": "042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3",
+      "mode": 436
+    },
+    "fastfill/v2/direct_layout.py": {
+      "bytes": 22267,
+      "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "mode": 436
+    },
+    "fastfill/v2/evaluate.py": {
+      "bytes": 74557,
+      "sha256": "45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08",
+      "mode": 436
+    },
+    "fastfill/v2/geometry.py": {
+      "bytes": 3855,
+      "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "mode": 436
+    },
+    "fastfill/v2/io.py": {
+      "bytes": 8324,
+      "sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "mode": 436
+    },
+    "fastfill/v2/legacy_bridge.py": {
+      "bytes": 18415,
+      "sha256": "ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced",
+      "mode": 436
+    },
+    "fastfill/v2/legacy_build.py": {
+      "bytes": 17044,
+      "sha256": "aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f",
+      "mode": 436
+    },
+    "fastfill/v2/legacy_evidence.py": {
+      "bytes": 7825,
+      "sha256": "a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85",
+      "mode": 436
+    },
+    "fastfill/v2/legacy_verify.py": {
+      "bytes": 39302,
+      "sha256": "3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527",
+      "mode": 436
+    },
+    "fastfill/v2/llm_baseline.py": {
+      "bytes": 14882,
+      "sha256": "bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459",
+      "mode": 436
+    },
+    "fastfill/v2/llm_structured.py": {
+      "bytes": 20851,
+      "sha256": "b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0",
+      "mode": 436
+    },
+    "fastfill/v2/losses.py": {
+      "bytes": 14231,
+      "sha256": "600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd",
+      "mode": 436
+    },
+    "fastfill/v2/matching.py": {
+      "bytes": 11770,
+      "sha256": "d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d",
+      "mode": 436
+    },
+    "fastfill/v2/minimal_data.py": {
+      "bytes": 18193,
+      "sha256": "bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975",
+      "mode": 436
+    },
+    "fastfill/v2/model.py": {
+      "bytes": 15864,
+      "sha256": "0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c",
+      "mode": 436
+    },
+    "fastfill/v2/multisource_data.py": {
+      "bytes": 31172,
+      "sha256": "43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c",
+      "mode": 436
+    },
+    "fastfill/v2/multisource_verify.py": {
+      "bytes": 43205,
+      "sha256": "881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230",
+      "mode": 436
+    },
+    "fastfill/v2/objective.py": {
+      "bytes": 2679,
+      "sha256": "54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595",
+      "mode": 436
+    },
+    "fastfill/v2/ops/README.md": {
+      "bytes": 6067,
+      "sha256": "ad64da27b6254ba342cbef0e52bdddc269965d5b1074a39a0d5dca180852c2c5",
+      "mode": 436
+    },
+    "fastfill/v2/ops/compare.py": {
+      "bytes": 11525,
+      "sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "mode": 436
+    },
+    "fastfill/v2/ops/crosscheck.py": {
+      "bytes": 2462,
+      "sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "mode": 436
+    },
+    "fastfill/v2/ops/diag_ablation.py": {
+      "bytes": 20089,
+      "sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "mode": 436
+    },
+    "fastfill/v2/ops/isambard_analysis.sbatch": {
+      "bytes": 1278,
+      "sha256": "37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61",
+      "mode": 509
+    },
+    "fastfill/v2/ops/isambard_autorun.sbatch": {
+      "bytes": 1029,
+      "sha256": "de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad",
+      "mode": 436
+    },
+    "fastfill/v2/ops/isambard_dryrun.sh": {
+      "bytes": 7574,
+      "sha256": "29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941",
+      "mode": 509
+    },
+    "fastfill/v2/ops/isambard_inputs.py": {
+      "bytes": 20816,
+      "sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "mode": 436
+    },
+    "fastfill/v2/ops/isambard_setup.sbatch": {
+      "bytes": 6082,
+      "sha256": "d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a",
+      "mode": 436
+    },
+    "fastfill/v2/ops/isambard_submit.sh": {
+      "bytes": 644,
+      "sha256": "344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330",
+      "mode": 509
+    },
+    "fastfill/v2/ops/llm_compare.py": {
+      "bytes": 13029,
+      "sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "mode": 436
+    },
+    "fastfill/v2/ops/make_sample.sh": {
+      "bytes": 11422,
+      "sha256": "52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a",
+      "mode": 436
+    },
+    "fastfill/v2/ops/rebuild_and_publish.sh": {
+      "bytes": 3254,
+      "sha256": "4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b",
+      "mode": 509
+    },
+    "fastfill/v2/ops/report.py": {
+      "bytes": 52895,
+      "sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "mode": 436
+    },
+    "fastfill/v2/ops/rescore_llm.sh": {
+      "bytes": 651,
+      "sha256": "ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0",
+      "mode": 436
+    },
+    "fastfill/v2/ops/run_checkpoint.sh": {
+      "bytes": 1770,
+      "sha256": "624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8",
+      "mode": 436
+    },
+    "fastfill/v2/ops/run_plan.sh": {
+      "bytes": 19245,
+      "sha256": "5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0",
+      "mode": 509
+    },
+    "fastfill/v2/ops/run_reference.sh": {
+      "bytes": 452,
+      "sha256": "574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b",
+      "mode": 436
+    },
+    "fastfill/v2/ops/run_structured.sh": {
+      "bytes": 928,
+      "sha256": "42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb",
+      "mode": 436
+    },
+    "fastfill/v2/ops/sample_validation.py": {
+      "bytes": 6645,
+      "sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "mode": 436
+    },
+    "fastfill/v2/ops/selftest_shift.py": {
+      "bytes": 2925,
+      "sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "mode": 436
+    },
+    "fastfill/v2/ops/start_autorun_retrain.sh": {
+      "bytes": 710,
+      "sha256": "a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c",
+      "mode": 436
+    },
+    "fastfill/v2/ops/stratify.py": {
+      "bytes": 25132,
+      "sha256": "a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291",
+      "mode": 436
+    },
+    "fastfill/v2/ops/vlm_judge.py": {
+      "bytes": 30516,
+      "sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "mode": 436
+    },
+    "fastfill/v2/predict.py": {
+      "bytes": 6634,
+      "sha256": "55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b",
+      "mode": 436
+    },
+    "fastfill/v2/qualified_data.py": {
+      "bytes": 14730,
+      "sha256": "97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640",
+      "mode": 436
+    },
+    "fastfill/v2/regularizers.py": {
+      "bytes": 5440,
+      "sha256": "8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1",
+      "mode": 436
+    },
+    "fastfill/v2/requirements-roomgenbench.txt": {
+      "bytes": 219,
+      "sha256": "941b59b9401a3372df1d8860fd25ce8d0406e31bf555e8ca48c4544b87da6a9f",
+      "mode": 436
+    },
+    "fastfill/v2/requirements.txt": {
+      "bytes": 288,
+      "sha256": "7a729381f5418b8fd60180006e90ff1f4ed28d452b05d47b1eecbf5af77ed1a7",
+      "mode": 436
+    },
+    "fastfill/v2/review_data.py": {
+      "bytes": 16159,
+      "sha256": "59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184",
+      "mode": 436
+    },
+    "fastfill/v2/roomgenbench.py": {
+      "bytes": 27325,
+      "sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+      "mode": 436
+    },
+    "fastfill/v2/runtime.py": {
+      "bytes": 25998,
+      "sha256": "8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993",
+      "mode": 436
+    },
+    "fastfill/v2/schema.py": {
+      "bytes": 16369,
+      "sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "mode": 436
+    },
+    "fastfill/v2/serve.py": {
+      "bytes": 4409,
+      "sha256": "66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3",
+      "mode": 436
+    },
+    "fastfill/v2/size_range.py": {
+      "bytes": 1691,
+      "sha256": "0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165",
+      "mode": 436
+    },
+    "fastfill/v2/tests/fixtures/validation_rows_fix20261006.jsonl": {
+      "bytes": 17894,
+      "sha256": "c7e267cfc193f4953f65fc4c7ccc8a92bcbe317333d80273073665f98e154ebe",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_accumulation_tail.py": {
+      "bytes": 10513,
+      "sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_active_objective_distributed.py": {
+      "bytes": 5555,
+      "sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_active_objective_training.py": {
+      "bytes": 9494,
+      "sha256": "a91887bc39b6fc41892836337011d550ef7e1f152565198c673fa1c646a4e2e4",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_asset_attribute_contract.py": {
+      "bytes": 5135,
+      "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_audit_c2_uniform_yaw.py": {
+      "bytes": 2328,
+      "sha256": "caf9b340c43cc43c234db31dae26ebcb260885ecd7b4534088c7f797496d10ec",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_augment_repair_fix20261006.py": {
+      "bytes": 8197,
+      "sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_autorun.py": {
+      "bytes": 25183,
+      "sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_batch.py": {
+      "bytes": 4551,
+      "sha256": "4bfd87258e77adeaee8b955a7c6be63633287949552a0a2f8cf835e6c419f9c8",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_batch_augment_fix20261006.py": {
+      "bytes": 19288,
+      "sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_batch_handoff_r2.py": {
+      "bytes": 16038,
+      "sha256": "c1815879aee64d8ac612efc1568c250ec3728da7dea85fe741e454fb537db4f3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_bounded_io.py": {
+      "bytes": 709,
+      "sha256": "8e5e3cf560af60214a7b6f631037d9ed9915dabc17231babfb2957b0ce5bb1a7",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_complete_cohort.py": {
+      "bytes": 8554,
+      "sha256": "759e8b4371f86e16b808c7dfe9d9f68172a8e2245455fb4ab01e8ae49ce84b70",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_constraint_schema.py": {
+      "bytes": 1328,
+      "sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_data.py": {
+      "bytes": 11153,
+      "sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_data_builder_fix20261006.py": {
+      "bytes": 17066,
+      "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_data_policy_r2.py": {
+      "bytes": 12649,
+      "sha256": "1741715ed2a49f1135ecf0511719d64dda5d72cdd8b9531da1f2d160054995e8",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_direct_layout.py": {
+      "bytes": 24752,
+      "sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_evaluate_fix20261006.py": {
+      "bytes": 11062,
+      "sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_evaluation_failure_latency.py": {
+      "bytes": 3933,
+      "sha256": "05087e2ea6a6eb662c0c281c60904033f9c17ddda79e8c8c983b33250ceca64c",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_execution.py": {
+      "bytes": 6177,
+      "sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_fixed_capability_review.py": {
+      "bytes": 3598,
+      "sha256": "ec5d1d6b9205c07413580dd306045e7873c15ec4f6bf555a9a19130b98efa455",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_followups_r2.py": {
+      "bytes": 1552,
+      "sha256": "ea2349f67aebd4820a320e8505e0bc124ae98558fde4475a80a78ac71c600173",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_geometry_core.py": {
+      "bytes": 2380,
+      "sha256": "02a0045211b9981308802b9a2c33e84b39cb81cc2c1b4b6a7fa74d3dd39f8028",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_integrator_fix20261006.py": {
+      "bytes": 7272,
+      "sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_isambard_inputs.py": {
+      "bytes": 5113,
+      "sha256": "df7dbc686157973d6e91ecc8f4f741332d471dba70ace968f90c87030ecd8f5f",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_leak_guards_fix20261006.py": {
+      "bytes": 8868,
+      "sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_bridge.py": {
+      "bytes": 4996,
+      "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_bridge_geometry.py": {
+      "bytes": 9938,
+      "sha256": "449a5f14ee92ff20f963307c27a12737c99af1dcb7705cff94ad4ad7cde090b3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_build.py": {
+      "bytes": 11701,
+      "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_evidence.py": {
+      "bytes": 5274,
+      "sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_verify.py": {
+      "bytes": 12926,
+      "sha256": "4aae1dde53cbd6347011a7e38ab4c37613be114e4e7631815858d60b0ca8ccb4",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_legacy_workers.py": {
+      "bytes": 2708,
+      "sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_llm_baseline.py": {
+      "bytes": 10326,
+      "sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_llm_structured.py": {
+      "bytes": 15860,
+      "sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_loss_config_review.py": {
+      "bytes": 2422,
+      "sha256": "099603ffd92e2a031b9b7ccd3f33433c84ddee801d38f391749feaf0cbb7911f",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_losses_matching_fix20261006.py": {
+      "bytes": 6045,
+      "sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_matching.py": {
+      "bytes": 5548,
+      "sha256": "49a0076971a04aadb2f1bc54424a1598943cf01911cff5ccbe0c22088371b241",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_minimal_data.py": {
+      "bytes": 12717,
+      "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_model.py": {
+      "bytes": 6724,
+      "sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_model_loss_r2.py": {
+      "bytes": 14892,
+      "sha256": "9bb2ea4addd2f618d55007f706d9bee1fa983efb766cf2226e7c35a03bcdfd33",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_model_review_fixes.py": {
+      "bytes": 7918,
+      "sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_multisource_data.py": {
+      "bytes": 12080,
+      "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_multisource_verify.py": {
+      "bytes": 21166,
+      "sha256": "bc2211ad12facc2ef948d8399100338f5c70e226b7cf2af2b5af14a63ae04ff0",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_predict.py": {
+      "bytes": 3316,
+      "sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_qualified_data.py": {
+      "bytes": 6105,
+      "sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_reference_extent.py": {
+      "bytes": 8515,
+      "sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_regularizer_support_review.py": {
+      "bytes": 5373,
+      "sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_review_data.py": {
+      "bytes": 12158,
+      "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_review_repairs_r2.py": {
+      "bytes": 9638,
+      "sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_roomgenbench.py": {
+      "bytes": 16420,
+      "sha256": "425cdb3e844c139a8e1cef1d2afd5a05f481801b090f2e88112a40b66d44b185",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_roomgenbench_fix20261006.py": {
+      "bytes": 13190,
+      "sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round10_wall_decode.py": {
+      "bytes": 9019,
+      "sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round10_wall_selection.py": {
+      "bytes": 17136,
+      "sha256": "73145f4864e7e4e1b9d2929a3d13647a4126901f29f481213d037781b654a4f4",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round14_eval_math.py": {
+      "bytes": 20860,
+      "sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round3_data.py": {
+      "bytes": 9119,
+      "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round3_eval_handoff.py": {
+      "bytes": 9307,
+      "sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round3_resume.py": {
+      "bytes": 7137,
+      "sha256": "17b0da3ddd2bd869296b2d0b04ce6cc23fb022e6c3a150a277c203eee1476acb",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round4_matching.py": {
+      "bytes": 7146,
+      "sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round4_spread.py": {
+      "bytes": 9497,
+      "sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round5_spread.py": {
+      "bytes": 3545,
+      "sha256": "8de4bad64859834f2a580a839dd95737619a72d596d6a00ae1b5354df78cb726",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round5_train.py": {
+      "bytes": 11054,
+      "sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round6_leftovers.py": {
+      "bytes": 4105,
+      "sha256": "01eaa0419aeddf39bbff659c8911a80499647402e769b15cdf5d7d161a646a0b",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round6_roomgenbench.py": {
+      "bytes": 18659,
+      "sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_round7_reference.py": {
+      "bytes": 4535,
+      "sha256": "60ba06a16c7034173bfb35268171d0d8f88a148d04f6fdcb35e5d2c87969e65f",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_runtime.py": {
+      "bytes": 13225,
+      "sha256": "02347d2482a06fc2a7216dd62af5abcfc07f7214843dc207f321c946150fc657",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_runtime_cli.py": {
+      "bytes": 4193,
+      "sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_runtime_evaluation.py": {
+      "bytes": 9201,
+      "sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_runtime_preflight.py": {
+      "bytes": 645,
+      "sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_runtime_support_contract.py": {
+      "bytes": 10773,
+      "sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_schema_review.py": {
+      "bytes": 3547,
+      "sha256": "3e39974e02667fdbd44edf507c88f8a66d9c2fbf8fb355a7217115dc88f28e2d",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_size_range.py": {
+      "bytes": 3023,
+      "sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_slot_pooling_review.py": {
+      "bytes": 1846,
+      "sha256": "d42d8882aee7e3e38647bf5b8945f229ad05d5774d33b10500fdf9e6ee9269d9",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_spread_decode.py": {
+      "bytes": 3425,
+      "sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_supervision.py": {
+      "bytes": 7665,
+      "sha256": "fb9ea54d5235780c1887d633b97c9f2a55df7e9c276efca6f3eb3f23c91f8081",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_text_record_review.py": {
+      "bytes": 3516,
+      "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_text_sft.py": {
+      "bytes": 3776,
+      "sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_train_eval_r2.py": {
+      "bytes": 21360,
+      "sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_train_loop_fix20261006.py": {
+      "bytes": 22379,
+      "sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_training_record_review.py": {
+      "bytes": 9318,
+      "sha256": "8a851b7e8e8b89c9e8879a1c509cc83a092e7e28b2b26790d027ad9a2d37f2c3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_validation.py": {
+      "bytes": 4866,
+      "sha256": "b3475409ef63b20722603bd5db6ef69aee9b3e456a9cff2e1ee54d5159011659",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_validation_floor_front_review.py": {
+      "bytes": 5525,
+      "sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_verify_bundle.py": {
+      "bytes": 2250,
+      "sha256": "4fe758935f7b5a38bb35247aa209fd0763b286bdef2c1fdc229467a1c30eb698",
+      "mode": 436
+    },
+    "fastfill/v2/tests/test_vlm_judge.py": {
+      "bytes": 8127,
+      "sha256": "7cab3052819aac9e6819535e7d8920be17a922f41c5b46b665eea768cd9e0d1c",
+      "mode": 436
+    },
+    "fastfill/v2/text_sft.py": {
+      "bytes": 12132,
+      "sha256": "0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da",
+      "mode": 436
+    },
+    "fastfill/v2/train.py": {
+      "bytes": 50698,
+      "sha256": "5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8",
+      "mode": 436
+    },
+    "fastfill/v2/validation.py": {
+      "bytes": 22294,
+      "sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "mode": 436
+    },
+    "fastfill/v2/verify_bundle.py": {
+      "bytes": 3367,
+      "sha256": "812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a",
+      "mode": 436
+    },
+    "fastfill/validate.py": {
+      "bytes": 11838,
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "mode": 436
+    },
+    "requirements-dev.txt": {
+      "bytes": 10,
+      "sha256": "2b2dd8832894d04e9a90066c50d3a008b01b2916b9b5683d335865e7d402a613",
+      "mode": 436
+    },
+    "requirements.txt": {
+      "bytes": 29,
+      "sha256": "c91703e3fc3dab43ce94cd69e9f95905c468e1bf60ebe88343f81cfc8807df71",
+      "mode": 436
+    }
+  }
+}

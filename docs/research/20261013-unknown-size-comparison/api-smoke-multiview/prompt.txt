@@ -1,0 +1,44 @@
+You are an expert in interior design and human-centric spatial planning. Your task is to evaluate
+ the quality of the following room layout renders based on how well they match the user’s design
+ preferences, which are provided below (in triple backquotes).
+ Please assign a numerical score from **0 to 10** (0 = completely inconsistent, 10 = perfectly
+ aligned) considering the following three aspects:
+1. Functionality and Activity-based Alignment
+- Does the layout support natural and efficient use of the space for daily activities (e.g., sleeping,
+working, relaxing, walking)?
+- Are key object groupings (e.g., desk and chair, bed and nightstand) placed functionally and
+ accessibly?
+- Is there sufficient circulation space to ensure human accessibility?
+ 2. Layout and Furniture Placement
+- Are the furniture pieces arranged in a logical, practical way within the room boundaries?
+- Are objects positioned with respect to common design principles (e.g., not blocking windows
+ or doors, aligned to walls where appropriate)?
+- Are there overlaps or unnatural collisions between objects?
+ 3. Aesthetic Coherence
+- Is the overall layout visually balanced and spacious?
+- Does the arrangement exhibit good proportions, symmetry or asymmetry, and grouping where
+ needed?
+- Is the furniture distribution harmonious and pleasing to the eye, according to the user’s stated
+ aesthetic preferences?
+ User Preferences:
+“‘A synthetic studio room should contain one bed and one bathtub, with clear access and a usable circulation path. The fixed opening should remain accessible. No particular decorative style is specified.”’
+After considering all the above, return your evaluation in the following JSON format:
+
+           {
+           ‘‘‘{
+             "functionality_score": X,
+           "layout_score": Y,
+             "aesthetics_score": Z,
+             "overall_score": M,
+           "comments": "Brief explanation of your judgment."
+             }‘‘‘
+           }
+Scoring Guidelines:
+- Scores should be integers from 0 to 10.
+- The overall score can be the average or holistic assessment across the three criteria.
+- Include a brief justification of your scores in the "comments" field (1–3 sentences).
+Note: The goal is to measure how well the generated layout adheres to functional, spatial, and
+aesthetic expectations given the user’s input. Be fair and critical.
+
+
+The two images show the SAME synthetic room: one perspective view and one top view. Judge them together. This is a capability smoke, not a benchmark model output.

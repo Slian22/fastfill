@@ -1,0 +1,1436 @@
+{
+  "scene_key": "fastfill_ad338f4074b8f66d",
+  "room_type": "bedroom",
+  "geometry_only": true,
+  "objects": [
+    {
+      "id": "obj_0000",
+      "type": "bed",
+      "description": "A teak platform bed with an organic rectangular silhouette, tapered legs, and a low\u2011slung mid\u2011century modern profile",
+      "asset_key": "bed_c080bd93",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.06,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 1.98,
+        "height": 1.01
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0001",
+      "type": "nightstand",
+      "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+      "asset_key": "nightstand_c11a1e47",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.21,
+        "y": 0.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.29,
+        "height": 0.61
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0002",
+      "type": "nightstand",
+      "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+      "asset_key": "nightstand_c11a1e47",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.21,
+        "y": 3.17,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.29,
+        "height": 0.61
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0003",
+      "type": "dresser",
+      "description": "A low teak dresser with a wide rectangular base, straight\u2011edged drawers and a smooth organic finish",
+      "asset_key": "dresser_daa86aa4",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.22,
+        "y": 2.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.69,
+        "length": 0.3,
+        "height": 0.78
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0004",
+      "type": "wardrobe",
+      "description": "A tall teak wardrobe with a narrow rectangular footprint, tapered legs and a sleek vertical silhouette",
+      "asset_key": "wardrobe_e3c4eb1e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.88,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.5,
+        "height": 1.78
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0005",
+      "type": "chair",
+      "description": "A mid\u2011century lounge chair with an elongated curved back, tapered wooden legs and a low\u2011slung seat",
+      "asset_key": "chair_adc7540b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.65,
+        "height": 0.9
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0006",
+      "type": "bench",
+      "description": "A teak foot bench with a short rectangular seat, rounded front edge and compact low profile",
+      "asset_key": "bench_b48a7b47",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.45,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 1.07,
+        "length": 0.5,
+        "height": 0.5
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0007",
+      "type": "plant",
+      "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+      "asset_key": "plant_f79e4cf7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 2.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.28,
+        "length": 0.3,
+        "height": 0.58
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0008",
+      "type": "plant",
+      "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+      "asset_key": "plant_f79e4cf7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.45,
+        "y": 3.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.28,
+        "length": 0.3,
+        "height": 0.58
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0009",
+      "type": "lamp",
+      "description": "A tapered floor lamp with a slender cylindrical stem, a narrow conical shade and a warm wooden finish",
+      "asset_key": "lamp_7ef0116d",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.98,
+        "y": 0.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.25,
+        "length": 0.3,
+        "height": 1.5
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0010",
+      "type": "sculpture",
+      "description": "An organic wooden sculpture with a curving abstract form, smooth polished surface and natural teak hue",
+      "asset_key": "sculpture_c33efaa8",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.05,
+        "y": 3.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.38,
+        "length": 0.29,
+        "height": 0.6
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0011",
+      "type": "floorplant",
+      "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+      "asset_key": "floorplant_5759acd5",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.65,
+        "y": 4.24,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.39,
+        "length": 0.39,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0012",
+      "type": "floorplant",
+      "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+      "asset_key": "floorplant_5759acd5",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.94,
+        "y": 0.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.39,
+        "length": 0.39,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0013",
+      "type": "floorplant",
+      "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+      "asset_key": "floorplant_7c472977",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.94,
+        "y": 2.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.38,
+        "length": 0.38,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0014",
+      "type": "floorplant",
+      "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+      "asset_key": "floorplant_7c472977",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.94,
+        "y": 4.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.38,
+        "length": 0.38,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0015",
+      "type": "floorlamp",
+      "description": "A tall slender floor lamp with a white conical shade, a slender metal pole and a soft diffused light at the top",
+      "asset_key": "floorlamp_ca5fddbd",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.05,
+        "y": 2.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.35,
+        "length": 0.45,
+        "height": 1.5
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0016",
+      "type": "tablelamp",
+      "description": "A mustard table lamp with a squat cylindrical base, a conical shade and a warm metal finish",
+      "asset_key": "tablelamp_e242f3bb",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.33999999999999997,
+        "y": 0.97,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.13,
+        "length": 0.13,
+        "height": 0.38
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0017",
+      "type": "book_1",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "asset_key": "book_1_31c7b925",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 2.38,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.2,
+        "height": 0.05
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0018",
+      "type": "book_2",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "asset_key": "book_2_31c7b925",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 2.59,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.29,
+        "length": 0.2,
+        "height": 0.05
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0019",
+      "type": "book_3",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "asset_key": "book_3_31c7b925",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.25,
+        "y": 3.01,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.29,
+        "length": 0.2,
+        "height": 0.05
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0020",
+      "type": "book_5",
+      "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+      "asset_key": "book_5_31c7b925",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.26999999999999996,
+        "y": 2.3449999999999998,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.29,
+        "length": 0.2,
+        "height": 0.05
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0021",
+      "type": "smartphone",
+      "description": "A smartphone on a minimalist stand with a thin rectangular base and a low profile",
+      "asset_key": "smartphone_725d0fb3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.32999999999999996,
+        "y": 0.74,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0022",
+      "type": "print_1",
+      "description": "A small framed print with a rectangular canvas, thin wooden frame and a subtle matte finish",
+      "asset_key": "print_1_0f244aba",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.37,
+        "y": 3.9,
+        "z": 2.3
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.06,
+        "height": 0.39500000000000035
+      },
+      "place_id": "obj_0035",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0023",
+      "type": "mirror",
+      "description": "A small round mirror with a thin silver rim and a flat reflective surface",
+      "asset_key": "mirror_c176f962",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.4,
+        "y": 2.4299999999999997,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.24
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0024",
+      "type": "charger",
+      "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+      "asset_key": "charger_b1e8a779",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.19,
+        "y": 0.7,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.19,
+        "height": 0.05
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0025",
+      "type": "wirelesspad",
+      "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+      "asset_key": "wirelesspad_a0836ffb",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.07,
+        "y": 0.84,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.14,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0026",
+      "type": "booknightstand2",
+      "description": "A rectangular hardcover book with a vintage 1950s style cover and slightly rounded edges",
+      "asset_key": "booknightstand2_ee252036",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 3.22,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.19,
+        "height": 0.05
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0027",
+      "type": "charger2",
+      "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+      "asset_key": "charger2_b1e8a779",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 3.0100000000000002,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.19,
+        "height": 0.05
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0028",
+      "type": "smartphone2",
+      "description": "A sleek rectangular smartphone on a slim stand, with a glossy black back and a low\u2011profile base",
+      "asset_key": "smartphone2_49145dab",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.32,
+        "y": 3.3200000000000003,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0029",
+      "type": "wirelesspad2",
+      "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+      "asset_key": "wirelesspad2_a0836ffb",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.33999999999999997,
+        "y": 3.05,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.14,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0030",
+      "type": "shelfbook_3",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "asset_key": "shelfbook_3_1182cfba",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.13,
+        "y": 3.5,
+        "z": 2.3
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.3
+      },
+      "place_id": "obj_0035",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0031",
+      "type": "shelfbook_4",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "asset_key": "shelfbook_4_1182cfba",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.13,
+        "y": 4.13,
+        "z": 2.3
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.3
+      },
+      "place_id": "obj_0035",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0032",
+      "type": "shelfbook_5",
+      "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+      "asset_key": "shelfbook_5_1182cfba",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.39,
+        "y": 4.1,
+        "z": 2.3
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.3
+      },
+      "place_id": "obj_0035",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0033",
+      "type": "smartphone",
+      "description": "A slim rectangular smartphone on a minimalist stand, with a glossy black back and a thin metal base",
+      "asset_key": "smartphone_d4ec0e14",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.1,
+        "y": 1.06,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0034",
+      "type": "charger",
+      "description": "A small square wireless charger pad with a smooth matte finish, subtle LED indicator and a minimalist design",
+      "asset_key": "charger_b73b1d2a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 0.9,
+        "z": 0.61
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.04
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0035",
+      "type": "shelf",
+      "description": "A single piece of thin and upright wall\u2011mounted teak shelf with a long rectangular panel and subtle angled brackets",
+      "asset_key": "shelf_f32faf38",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.26,
+        "y": 3.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.05,
+        "length": 0.38,
+        "height": 1.1
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0036",
+      "type": "art",
+      "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+      "asset_key": "art_d06be516",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.0499999999999998,
+        "y": 4.185,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.6,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0037",
+      "type": "art",
+      "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+      "asset_key": "art_d06be516",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.05,
+        "y": 0.315,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.6,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0038",
+      "type": "mirror",
+      "description": "A single piece of thin and upright oval teak frame mirror with a smooth polished surface and a subtle curved wooden border",
+      "asset_key": "mirror_e8a05912",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 2.8,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.3,
+        "height": 0.03
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0039",
+      "type": "clock",
+      "description": "A single piece of thin and upright olive\u2011green wall clock with a round face, minimalist hands and a matte finish",
+      "asset_key": "clock_d81c4696",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.88,
+        "y": 3.05,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.39,
+        "length": 0.5,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0040",
+      "type": "art",
+      "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+      "asset_key": "art_ebdee9c4",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 0.265,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0041",
+      "type": "art",
+      "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+      "asset_key": "art_ebdee9c4",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.05,
+        "y": 4.235,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0042",
+      "type": "wallart",
+      "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+      "asset_key": "wallart_a95802ee",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.115,
+        "y": 2.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0043",
+      "type": "wallart",
+      "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+      "asset_key": "wallart_a95802ee",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.085,
+        "y": 2.65,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0044",
+      "type": "wallclock",
+      "description": "A single piece of thin and upright wall clock with an olive colour face, circular shape, minimalist hands and a brushed metal frame",
+      "asset_key": "wallclock_58f24241",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.45,
+        "y": 0.17,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.2,
+        "height": 0.2
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0045",
+      "type": "art",
+      "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+      "asset_key": "art_21d25d08",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.45,
+        "y": 0.26,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.49,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0046",
+      "type": "art",
+      "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+      "asset_key": "art_21d25d08",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.65,
+        "y": 0.26,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.49,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0047",
+      "type": "clock",
+      "description": "A single piece of thin and upright wall clock with an olive-colored face, circular shape, and minimalist hands.",
+      "asset_key": "clock_91139896",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.89,
+        "y": 3.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.39,
+        "length": 0.49,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0048",
+      "type": "book_10",
+      "description": "A hardcover book with a rectangular shape, featuring a slightly textured cover in a vintage 1950s style, with a slim spine and crisp pages.",
+      "asset_key": "book_10_14d29158",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 3.9,
+        "z": 2.3
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.28,
+        "length": 0.18,
+        "height": 0.05
+      },
+      "place_id": "obj_0035",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0049",
+      "type": "smartphone",
+      "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+      "asset_key": "smartphone_d365de1e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.38,
+        "y": 2.62,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0050",
+      "type": "smartphone",
+      "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+      "asset_key": "smartphone_d365de1e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.35,
+        "y": 2.8,
+        "z": 0.78
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    }
+  ],
+  "fixed_objects": [
+    {
+      "id": "door_1",
+      "category": "door",
+      "size_local_m": [
+        0.1,
+        0.9,
+        2.05
+      ],
+      "bottom_center_m": [
+        2.9,
+        4.5,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966
+    }
+  ],
+  "constraints": [],
+  "room": {
+    "dimensions": {
+      "width": 4.2,
+      "length": 4.5,
+      "height": 2.7
+    },
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "ceiling_height": 2.7,
+    "walls": [
+      {
+        "id": "wall_00",
+        "start_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 4.2,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_01",
+        "start_point": {
+          "x": 4.2,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 4.2,
+          "y": 4.5,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_02",
+        "start_point": {
+          "x": 4.2,
+          "y": 4.5,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 4.5,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_03",
+        "start_point": {
+          "x": 0.0,
+          "y": 4.5,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      }
+    ],
+    "doors": [
+      {
+        "id": "door_1",
+        "wall_id": "wall_02",
+        "position_on_wall": 0.3095238095238096,
+        "width": 0.9,
+        "height": 2.05
+      }
+    ],
+    "windows": []
+  }
+}

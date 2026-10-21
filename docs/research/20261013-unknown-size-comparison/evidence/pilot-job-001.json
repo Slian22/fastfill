@@ -1,0 +1,14 @@
+{
+  "job_id": "7365478",
+  "command": [
+    "sbatch",
+    "--parsable",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pilot-35fc86dcf65e/pilot-35fc86dcf65e/fastfill/comparison/isambard_pilot.sbatch",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pilot-35fc86dcf65e/pilot-35fc86dcf65e",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pilot-35fc86dcf65e/pilot-35fc86dcf65e/data/pilot-v3",
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/pilot-001"
+  ],
+  "gpu_hour_cap": 0.5,
+  "snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pilot-35fc86dcf65e/pilot-35fc86dcf65e",
+  "output": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/pilot-001"
+}

@@ -1,0 +1,128 @@
+% Standalone English evaluation-design draft; no measured results are asserted.
+% Compile: latexmk -xelatex WorldEdge-Table1-proposal.tex
+% Research memo: docs/research/20261020-worldedge-table1/README.md
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=19mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,booktabs,tabularx,array,microtype}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,urlcolor=blue!50!black,linkcolor=blue!50!black]{hyperref}
+\usepackage{placeins}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\emergencystretch}{2em}
+\newcommand{\NE}{\textit{NE}}
+\newcommand{\up}{\ensuremath{\uparrow}}
+\newcommand{\head}[1]{\shortstack{#1}}
+\title{WorldEdge: Proposed Main Evaluation Table}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\vspace{-2em}
+This design evaluates task-conditioned, persistent world generation and its utility for a fixed embodied executor. It separates world verification from actual task execution. All entries below are unmeasured placeholders; the candidate baselines require a documented capability and adapter audit before inclusion.
+
+\begin{table}[htbp]
+\centering\small
+\caption{\textbf{World quality and downstream task execution: proposed design.} All methods receive the same preregistered task specifications, paired world seeds, robot embodiment, executor, observation interface, and budgets. Rates are percentages. \NE{} means not evaluated; it is not zero. The external-system and internal-ablation groups answer different comparisons and must retain separate interpretations.}
+\label{tab:main}
+\textbf{(a) World generation and independent verification}\par\smallskip
+\begin{tabularx}{\linewidth}{@{}Xrrrrrr@{}}
+\toprule
+World generator & \head{Ready\up} & \head{Spec\up} & \head{Physics\up} & \head{Access\up} & \head{Interact\up} & \head{Persist\up} \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Candidate complete systems; common-interface evaluation}} \\
+SceneSmith (adapted) & \NE & \NE & \NE & \NE & \NE & \NE \\
+EmbodiedGen V2 (adapted) & \NE & \NE & \NE & \NE & \NE & \NE \\
+SceneCode (adapted) & \NE & \NE & \NE & \NE & \NE & \NE \\
+WorldEdge (full) & \NE & \NE & \NE & \NE & \NE & \NE \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{WorldEdge ablations; shared assets and remaining components}} \\
+One-shot generation & \NE & \NE & \NE & \NE & \NE & \NE \\
+Without layout refinement & \NE & \NE & \NE & \NE & \NE & \NE \\
+Without articulated assets & \NE & \NE & \NE & \NE & \NE & \NE \\
+Without state persistence & \NE & \NE & \NE & \NE & \NE & \NE \\
+\bottomrule
+\end{tabularx}
+
+\medskip
+\textbf{(b) Downstream task success with a fixed agent}\par\smallskip
+\begin{tabularx}{\linewidth}{@{}Xrrrrr@{}}
+\toprule
+World generator & \head{Navigation\\SR\up} & \head{Interaction\\SR\up} & \head{Cross-room\\SR\up} & \head{Revisit-state\\SR\up} & \head{Macro E2E\\SR [95\% CI]\up} \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Candidate complete systems; same executor across rows}} \\
+SceneSmith (adapted) & \NE & \NE & \NE & \NE & \NE \\
+EmbodiedGen V2 (adapted) & \NE & \NE & \NE & \NE & \NE \\
+SceneCode (adapted) & \NE & \NE & \NE & \NE & \NE \\
+WorldEdge (full) & \NE & \NE & \NE & \NE & \NE \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{WorldEdge ablations; the task requirements remain unchanged}} \\
+One-shot generation & \NE & \NE & \NE & \NE & \NE \\
+Without layout refinement & \NE & \NE & \NE & \NE & \NE \\
+Without articulated assets & \NE & \NE & \NE & \NE & \NE \\
+Without state persistence & \NE & \NE & \NE & \NE & \NE \\
+\bottomrule
+\end{tabularx}
+\par\smallskip
+\begin{minipage}{\linewidth}\footnotesize
+\textbf{Coverage.} Publish materialized/requested, admitted/requested, and executed/requested counts for every row in an accompanying coverage ledger. Access, interaction, and persistence use fixed, task-defined eligible sets, with identical denominators across methods.\par
+\textbf{Scope.} A method not evaluated on a mandatory task family cannot receive a comparable Macro E2E score. A method evaluated in that family and failing to support a requirement receives a failure, not N/A. Reference/scripted executors and native-versus-adapted results must be labeled separately.
+\end{minipage}
+\end{table}
+\FloatBarrier
+
+\section{World metrics}
+\textbf{Spec} is the fraction satisfying every required object identity, category/count, initial relation and state, protected constraint, and difficulty bound. Task goals must be unsatisfied initially. Generation must not simplify or replace the frozen specification.
+
+\textbf{Physics} requires actual simulator loading and prescribed collision, support, boundary, and short-duration stability checks. Geometric thresholds, simulation duration, robot embodiment, and collision geometry are fixed on development data. Failed objects remain in the accounting; deleting unstable objects cannot improve the score without a specification penalty.
+
+\textbf{Access} requires collision-aware routes from the designated start to every required observation or interaction region for the specified robot. It is a world-level prerequisite check, not navigation-policy success. A connected room graph or a large connected floor area alone is insufficient.
+
+\textbf{Interact} requires a physical trace from fixed, independent probes of task-relevant affordances, such as reaching a prescribed articulation state or placing a specified object stably. Probes run on a reset or clone of the same delivered world. Passing primitive probes does not certify solvability of an entire long-horizon task; a failed probe leaves capability uncertified rather than proving impossibility.
+
+\textbf{Persist} checks protected state after prescribed edits, expansion, departure, and re-entry or reload. Compare against the authoritative event history: preserve legal changes and reject unintended changes to object IDs, assets, poses, joint states, containment, and existing topology. Use a world-level all-required-constraints pass rate, with state and pose tolerances declared in advance.
+
+\textbf{Ready} is the jointly verified yield, computed per request:
+\begin{equation}
+ \mathrm{Ready}=\frac{1}{N}\sum_{i=1}^{N}
+ M_i\,V_i^{\mathrm{spec}}V_i^{\mathrm{phys}}V_i^{\mathrm{access}}
+ V_i^{\mathrm{interact}}V_i^{\mathrm{persist}},
+\end{equation}
+where $M_i$ indicates materialization and each $V_i$ indicates a verified pass. Only a condition declared inapplicable by the task specification before generation is assigned one without a test. Missing measurements are not passes. Do not multiply the marginal column means. This is evidence of specified checks, not an oracle guarantee of complete task solvability.
+
+\section{Agent tasks and success}
+The task families are a proposed WorldEdge design. Navigation involves target search and arrival without manipulation. Interaction includes local pick/place and articulation, reported separately in the appendix. Cross-room tasks require transport or composition across rooms. Revisit-state tasks require changing a state, leaving or expanding the world, returning, and acting using the updated identity and state. For exclusive assignment, use the preregistered precedence: revisit-state, cross-room, local interaction, navigation. Action horizon and history lag are additional stratification variables.
+
+Success must be verified from actual simulator trajectories, including identity, temporal dependencies, protected constraints, and final-state retention. A generated plan, a symbolic solver result, or a language-model success declaration is insufficient. Freeze the executor checkpoint, prompt, memory, sensors, controller, action abstractions, and budget across rows. Disclose any privileged observations, snap actions, or teleportation.
+
+Panel (a) uses unique world-generation requests. Panel (b) assigns a fixed number $K$ of executor seeds to every generated world. For family $f$, $N_f$ counts all preregistered episode slots (world requests times $K$), and $S_f$ counts complete executions satisfying the frozen task contract. A generation failure contributes $K$ unsuccessful slots; these are not $K$ independent worlds. Report both world and episode counts. Then
+\begin{equation}
+ \mathrm{E2E\!\!-\!\!SR}_f=\frac{S_f}{N_f},\qquad
+ \mathrm{Macro\ E2E\ SR}=\frac14\sum_{f=1}^{4}\frac{S_f}{N_f}.
+\end{equation}
+Generation, asset, initialization, specification, and genuine execution failures remain in the system denominator. Their causes are recorded separately and must not all be attributed to agent capability. With an actual mandatory admission gate admitting $A_f$ episode slots,
+\begin{equation}
+ \frac{S_f}{N_f}=\frac{A_f}{N_f}\frac{S_f}{A_f}.
+\end{equation}
+When $A_f=0$, E2E SR is zero and conditional SR is undefined (N/A). Conditional success is a diagnostic; it is not a substitute for the all-request endpoint. The identity holds within each family, not by multiplying macro-averaged terms. Independent certification is not necessarily a runtime gate, and the agent can succeed on an uncertified instance.
+
+\section{Comparison and reporting protocol}
+Pair methods on externally fixed task cards and world seeds. Prevent trivially easy or already-completed worlds through frozen initial conditions, affordances, density bounds, dependency depth, and history requirements. Audit realized difficulty without selecting a favorable subset after observing results. Primary intervals retain nested executor seeds and account for house/world and task-template dependence. When task templates and world families are crossed, use a design-appropriate multiway cluster procedure or hierarchical model rather than one-way episode resampling. Preregister one primary baseline contrast on Macro E2E SR; handle the multiplicity of any additional confirmatory claims.
+
+Unrelated infrastructure failures receive a fixed retry procedure and an explicit unresolved count. If $U_f$ episode outcomes remain unknown in family $f$, report $[S_f/N_f,(S_f+U_f)/N_f]$. The Macro E2E identification bounds are $[\frac14\sum_f S_f/N_f,\frac14\sum_f(S_f+U_f)/N_f]$, separate from sampling confidence intervals. Do not silently drop unresolved outcomes or declare a completed comparison. Determine test-set size from an independent pilot and cluster-aware power or precision planning.
+
+A separate learning-utility experiment should compare no adaptation, random curriculum, C1, C2, and C1+C2 under matched experience budgets and the same frozen held-out worlds. Table~\ref{tab:main} measures world-builder utility under a fixed policy; it does not establish transferable learning gains. Report visual quality, component diagnostics, partial goal completion, navigation SPL, latency, total cost, and growth curves separately.
+
+\paragraph{Primary methodological references.}
+\href{https://arxiv.org/html/2503.14756v3}{SceneEval} separates specification fidelity from spatial plausibility;
+\href{https://proceedings.mlr.press/v306/pfaff26a.html}{SceneSmith} evaluates physics and scene quality;
+\href{https://arxiv.org/html/2312.09067}{Holodeck} separates layout quality from downstream navigation;
+\href{https://arxiv.org/html/2411.00081}{PARTNR} evaluates trajectory propositions and constraints;
+\href{https://arxiv.org/pdf/1912.01734}{ALFRED} distinguishes task success from partial goal completion;
+\href{https://arxiv.org/html/2505.16928}{Infinity-THOR} separates memory questions from online actions;
+\href{https://arxiv.org/html/2012.02096}{PAIRED} motivates evaluating curriculum utility on held-out tasks. The proposed metric aggregation, task-family partition, and persistence probes are WorldEdge-specific design choices.
+
+\paragraph{Current measurement boundary.}
+The audited WorldEdge pipeline contains world-generation, session, and symbolic-solver components, but a complete, comparable physical task-execution study on its generated mesh/articulated worlds was not found. Existing FastFill strict admission, symbolic completion, and route matching must not populate Panel (b). No new experimental measurements are reported in this document.
+\end{document}

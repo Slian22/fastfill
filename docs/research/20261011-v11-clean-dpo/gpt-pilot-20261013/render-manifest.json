@@ -1,0 +1,169 @@
+{
+  "blender_version": "5.2.1 LTS",
+  "renderer_sha256": "70d526b7d3a04d90510f6dcf259d6976c5b87a015a7e30a1bcedb6bd76fc26f5",
+  "wrapper_sha256": "e64b256cbb3fc165a7ac4a1311a418cf01ccfc8a5b51a500c746543e129350dd",
+  "engine": "Cycles CPU",
+  "samples": 16,
+  "resolution": [
+    960,
+    720
+  ],
+  "background": "opaque white",
+  "geometry_modified": false,
+  "views": [
+    "perspective dollhouse; near walls hidden",
+    "orthographic top"
+  ],
+  "records": [
+    {
+      "scene": "gym",
+      "files": [
+        {
+          "path": "roomgenbench_clean_final/gym_assembled/fastfill_5c09d03d9c8754aa.glb",
+          "sha256": "481792558b3f8ec71d7e8a29a129956a85cb854ff3cfd1a114d251735e99eef0",
+          "bytes": 12308452
+        },
+        {
+          "path": "roomgenbench_clean_final/gym_assembled/fastfill_5c09d03d9c8754aa.json",
+          "sha256": "e6f8123d39daf1b94751e3b882c382da0b5e8852275b6f279336ee34007d8f77",
+          "bytes": 41042
+        },
+        {
+          "path": "roomgenbench_clean_final/gym/condition.json",
+          "sha256": "f2912e2dc3598e5c0bf98c1a7341faeae2e6541143450b71216d81c89c2d5761",
+          "bytes": 8469
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/gym_persp.png",
+          "sha256": "61ff7c76b3aee0e2ae5ad4ef3f77a863d794c7bdfa700acd545bbc7b2147b5b0",
+          "bytes": 833283
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/gym_top.png",
+          "sha256": "827d2c038a3feeef1f319b0002b49a90c0a16616d46798ea0d6935a5e013a8fb",
+          "bytes": 668473
+        }
+      ]
+    },
+    {
+      "scene": "restaurant",
+      "files": [
+        {
+          "path": "roomgenbench_clean_final/restaurant_assembled/fastfill_7e162665a305737f.glb",
+          "sha256": "f3a2997eb00317fb5a0a38b9ba7fadf820523548d583fafaea3ded95876e8cbd",
+          "bytes": 14531108
+        },
+        {
+          "path": "roomgenbench_clean_final/restaurant_assembled/fastfill_7e162665a305737f.json",
+          "sha256": "346614e854db334da6972876b9bd0af6ae14237dfa5036e793b897b4dae6d316",
+          "bytes": 151826
+        },
+        {
+          "path": "roomgenbench_clean_final/restaurant/condition.json",
+          "sha256": "8bb8ccbb194f23f203f78193f771332f8bbdae1ad38975eebba8aab825730887",
+          "bytes": 33275
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/restaurant_persp.png",
+          "sha256": "d1ed84bd20012d627d51f08a1130f268142151ba182fd87bbc33acf82abc2198",
+          "bytes": 995602
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/restaurant_top.png",
+          "sha256": "0c598e31f53521eb55823578115d3508f861e98530b4aaa8f07a977ee49af02b",
+          "bytes": 755711
+        }
+      ]
+    },
+    {
+      "scene": "livingroom",
+      "files": [
+        {
+          "path": "roomgenbench_clean_final/livingroom_assembled/fastfill_1479bf8e6b66552d.glb",
+          "sha256": "da3692bb116ab32b15e1ba7a1ddbcaf633eacfd8699562f1e4649312dc2610b5",
+          "bytes": 14487688
+        },
+        {
+          "path": "roomgenbench_clean_final/livingroom_assembled/fastfill_1479bf8e6b66552d.json",
+          "sha256": "a01a99ee1c985e0997bc32dc46c9cf0caf7f3f2bf389e333b9641e62b57ad661",
+          "bytes": 66811
+        },
+        {
+          "path": "roomgenbench_clean_final/livingroom/condition.json",
+          "sha256": "9de0cb512529427325ddeacb343c8bc6918979b9c2ca0f611082593d0cb89b5e",
+          "bytes": 14259
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/livingroom_persp.png",
+          "sha256": "5a3198e95188084c04009b88ed44d99a5af43ef7a83a17e3441f4260e6522fcb",
+          "bytes": 869679
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/livingroom_top.png",
+          "sha256": "14b9741e3d56a4944ba83940833f5681f01034b9a43a9d3de0cd81e245a5d894",
+          "bytes": 699404
+        }
+      ]
+    },
+    {
+      "scene": "bedroom",
+      "files": [
+        {
+          "path": "roomgenbench_clean_final/bedroom_assembled/fastfill_6212361fabde7fd5.glb",
+          "sha256": "3f78f6305969db3ba8ef1713dd34aa306f99e5222c0070ef8e34ced2deec6a1f",
+          "bytes": 14512444
+        },
+        {
+          "path": "roomgenbench_clean_final/bedroom_assembled/fastfill_6212361fabde7fd5.json",
+          "sha256": "a2f7717563a972009598ed579bc09157c3b7657b6b6e26ba12f578ad1fbcaba6",
+          "bytes": 63443
+        },
+        {
+          "path": "roomgenbench_clean_final/bedroom/condition.json",
+          "sha256": "d81d57353f38a3bad79a717f4513c344f19d9cdc08b10d9000085e44e34771cf",
+          "bytes": 12506
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/bedroom_persp.png",
+          "sha256": "72803476d5afa31b7618de0eee9cac198eb4be9acb1a616142e96e368c03d665",
+          "bytes": 866378
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/bedroom_top.png",
+          "sha256": "b054baea98a5d04dd767ea134e54915190866e9d5270062a433aea58f222e93c",
+          "bytes": 732572
+        }
+      ]
+    },
+    {
+      "scene": "bathroom",
+      "files": [
+        {
+          "path": "roomgenbench_clean_final/bathroom_assembled/fastfill_f5afdfbf933c395d.glb",
+          "sha256": "d0cc7583c6520e8d606690eb794984180302a758cc0e5cbd1615d427610aa3a7",
+          "bytes": 15124104
+        },
+        {
+          "path": "roomgenbench_clean_final/bathroom_assembled/fastfill_f5afdfbf933c395d.json",
+          "sha256": "440bab3e4d3cce5b44fd6cbc1327c89cfe29b902a917c776bccdc06a423fd962",
+          "bytes": 70009
+        },
+        {
+          "path": "roomgenbench_clean_final/bathroom/condition.json",
+          "sha256": "a54ba96fea1a003dedc229b29de218744ecbc817c7c2e4ea51cc303338214633",
+          "bytes": 15229
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/bathroom_persp.png",
+          "sha256": "40fa47f31f182573b2f7966171fc6e6b05ee54e418472c02d88fe8c356e849a0",
+          "bytes": 863467
+        },
+        {
+          "path": "gpt-pilot-20261013/renders/bathroom_top.png",
+          "sha256": "248201929b051893e2f42477614d4f10fe36b0c0057e89d4611d4496109fe263",
+          "bytes": 709975
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "train": {
+    "path": "/tmp/fastfill-v11-automation-20261011/train.jsonl",
+    "sha256": "6ab4c001e566718ce3e89a51de08912edbc9ba2aa740fe4284741e04bd6650a0",
+    "stats": {
+      "rows": 144150,
+      "eligible_5flags": 103319,
+      "input_object_target_geometry_keys": 0,
+      "area_desc_rows": 144150,
+      "multiple_objects": 132186,
+      "prior_order_diff_rows": 101728,
+      "has_supported_object": 54663,
+      "objects": 1779614,
+      "has_repeated_category": 90324
+    },
+    "sources": {
+      "HSSD200": 1876,
+      "IL3D_3dfront": 18054,
+      "IL3D_synthetic": 6277,
+      "InteriorGS": 4877,
+      "InternScenes_3rscan": 1200,
+      "InternScenes_arkit": 4528,
+      "InternScenes_gen": 12552,
+      "InternScenes_mp3d": 1258,
+      "InternScenes_scannet": 1309,
+      "Scan2CAD": 18,
+      "MansionWorld": 19396,
+      "MultiScan": 114,
+      "OptiScene_holodeck": 8946,
+      "SAGE-10k": 8977,
+      "SpatialLM": 42068,
+      "Structured3D": 12700
+    },
+    "examples": [],
+    "duplicate_uids": []
+  },
+  "dev_rooms": {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/data/v3.2/dev_rooms.jsonl",
+    "sha256": "e0c2a6fdb44778e83f91273122fb5f7a4489cdb2c6fcf49ffc118ab15671c97f",
+    "stats": {
+      "rows": 8167,
+      "area_desc_rows": 8167,
+      "multiple_objects": 7484,
+      "prior_order_diff_rows": 5828,
+      "has_supported_object": 3294,
+      "objects": 102563,
+      "has_repeated_category": 5187
+    },
+    "sources": {
+      "HSSD200": 86,
+      "IL3D_3dfront": 939,
+      "IL3D_synthetic": 349,
+      "InteriorGS": 268,
+      "InternScenes_3rscan": 61,
+      "InternScenes_arkit": 280,
+      "InternScenes_gen": 828,
+      "InternScenes_mp3d": 89,
+      "InternScenes_scannet": 80,
+      "MansionWorld": 1153,
+      "MultiScan": 2,
+      "OptiScene_holodeck": 497,
+      "SAGE-10k": 503,
+      "SpatialLM": 2239,
+      "Structured3D": 793
+    },
+    "examples": [],
+    "duplicate_uids": []
+  },
+  "dev_constrained_rooms": {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/data/v3.2/dev_constrained_rooms.jsonl",
+    "sha256": "d54e28c06b4b3714b6e76b544230c6edb45dd592e966dec6b916ce068f16e2e2",
+    "stats": {
+      "rows": 8035,
+      "area_desc_rows": 8035,
+      "multiple_objects": 7453,
+      "prior_order_diff_rows": 5815,
+      "has_supported_object": 3292,
+      "objects": 102384,
+      "has_repeated_category": 5179
+    },
+    "sources": {
+      "HSSD200": 83,
+      "IL3D_3dfront": 923,
+      "IL3D_synthetic": 344,
+      "InteriorGS": 251,
+      "InternScenes_3rscan": 61,
+      "InternScenes_arkit": 275,
+      "InternScenes_gen": 828,
+      "InternScenes_mp3d": 75,
+      "InternScenes_scannet": 80,
+      "MansionWorld": 1150,
+      "MultiScan": 2,
+      "OptiScene_holodeck": 497,
+      "SAGE-10k": 503,
+      "SpatialLM": 2201,
+      "Structured3D": 762
+    },
+    "examples": [],
+    "duplicate_uids": []
+  },
+  "test_rooms": {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/data/v3.2/test_rooms.jsonl",
+    "sha256": "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303",
+    "stats": {
+      "rows": 8647,
+      "area_desc_rows": 8647,
+      "multiple_objects": 7946,
+      "prior_order_diff_rows": 6192,
+      "has_supported_object": 3482,
+      "objects": 108253,
+      "has_repeated_category": 5469
+    },
+    "sources": {
+      "HSSD200": 138,
+      "IL3D_3dfront": 872,
+      "IL3D_synthetic": 316,
+      "InteriorGS": 311,
+      "InternScenes_3rscan": 70,
+      "InternScenes_arkit": 229,
+      "InternScenes_gen": 660,
+      "InternScenes_mp3d": 18,
+      "InternScenes_scannet": 104,
+      "Scan2CAD": 1,
+      "MansionWorld": 1313,
+      "MultiScan": 6,
+      "OptiScene_holodeck": 503,
+      "SAGE-10k": 489,
+      "SceneSmith": 364,
+      "SpatialGen": 45,
+      "SpatialLM": 2461,
+      "Structured3D": 747
+    },
+    "examples": [],
+    "duplicate_uids": []
+  },
+  "test_constrained_rooms": {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/data/v3.2/test_constrained_rooms.jsonl",
+    "sha256": "0bb4edaab1ceca5ee794ba5ae99ff8ee8aff26b48e46ae723259cc50900c727d",
+    "stats": {
+      "rows": 8533,
+      "area_desc_rows": 8533,
+      "multiple_objects": 7911,
+      "prior_order_diff_rows": 6177,
+      "has_supported_object": 3482,
+      "objects": 108086,
+      "has_repeated_category": 5460
+    },
+    "sources": {
+      "HSSD200": 132,
+      "IL3D_3dfront": 859,
+      "IL3D_synthetic": 309,
+      "InteriorGS": 294,
+      "InternScenes_3rscan": 70,
+      "InternScenes_arkit": 227,
+      "InternScenes_gen": 660,
+      "InternScenes_mp3d": 16,
+      "InternScenes_scannet": 103,
+      "Scan2CAD": 1,
+      "MansionWorld": 1313,
+      "MultiScan": 6,
+      "OptiScene_holodeck": 503,
+      "SAGE-10k": 488,
+      "SceneSmith": 363,
+      "SpatialGen": 45,
+      "SpatialLM": 2416,
+      "Structured3D": 728
+    },
+    "examples": [],
+    "duplicate_uids": []
+  }
+}

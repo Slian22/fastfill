@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "python": "3.13.1 (v3.13.1:06714517797, Dec  3 2024, 14:00:22) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "script_sha256": "52a1cbb6a32cb942e8d5f17cd36e2dcadcf59cfb2edaf11b4e20695c4e8d094d",
+  "release_manifest_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/.release/v3.2/data/v3.2/MANIFEST.json",
+  "release_manifest_sha256": "664eecdcdaea593bc7f8653ea544b46e415f1c0bc8bf7e09065fbe89796caf6e",
+  "test_sha256": "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303",
+  "sources": {
+    "SpatialLM": {
+      "release_scanned": 54376,
+      "train": 42068,
+      "dev": 2239,
+      "test": 2461,
+      "test_objects": 12360,
+      "test_fixed": 8099,
+      "test_groups": 619,
+      "test_boundary_types": {
+        "polygon": 2461
+      },
+      "test_flag_rooms": {
+        "fixed_collision": 314,
+        "oob_objects": 310,
+        "z_snapped": 41,
+        "room_filling_object": 79,
+        "single_object": 355,
+        "overlapping_furniture": 16,
+        "hidden_m2": 2
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "spatiallm:scene_000044",
+      "first_uid": "spatiallm:scene_000044::room_0"
+    },
+    "IL3D_3dfront": {
+      "release_scanned": 21832,
+      "train": 18054,
+      "dev": 939,
+      "test": 872,
+      "test_objects": 5710,
+      "test_fixed": 1657,
+      "test_groups": 284,
+      "test_boundary_types": {
+        "polygon": 871,
+        "hull": 1
+      },
+      "test_flag_rooms": {
+        "oob_objects": 142,
+        "fixed_collision": 23,
+        "single_object": 35,
+        "overlapping_furniture": 42,
+        "room_filling_object": 5,
+        "z_snapped": 3
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "3dfront:3f60d6b9-49ba-45d9-bf03-966069127e75",
+      "first_uid": "il3d:b57ce9be-86d4-11f0-a478-60cf84ae2082"
+    },
+    "InteriorGS": {
+      "release_scanned": 6607,
+      "train": 4877,
+      "dev": 268,
+      "test": 311,
+      "test_objects": 3878,
+      "test_fixed": 1277,
+      "test_groups": 54,
+      "test_boundary_types": {
+        "polygon": 311
+      },
+      "test_flag_rooms": {
+        "no_front_fixed": 204,
+        "hidden_m2": 57,
+        "z_snapped": 13,
+        "oob_objects": 17,
+        "room_filling_object": 3,
+        "fixed_collision": 74,
+        "overlapping_furniture": 7,
+        "single_object": 88,
+        "hidden_obstacle": 35,
+        "small_area_m2": 1
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "interiorgs:0051_839903",
+      "first_uid": "interiorgs:0051_839903::room_0"
+    },
+    "HSSD200": {
+      "release_scanned": 2351,
+      "train": 1876,
+      "dev": 86,
+      "test": 138,
+      "test_objects": 1767,
+      "test_fixed": 200,
+      "test_groups": 14,
+      "test_boundary_types": {
+        "polygon": 138
+      },
+      "test_flag_rooms": {
+        "oob_objects": 35,
+        "z_snapped": 1,
+        "single_object": 10,
+        "room_filling_object": 3,
+        "fixed_collision": 8,
+        "overlapping_furniture": 4,
+        "small_area_m2": 2,
+        "hidden_m2": 1
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "hssd:103997403_171030405",
+      "first_uid": "HSSD200:103997403_171030405:0"
+    },
+    "Structured3D": {
+      "release_scanned": 22894,
+      "train": 12700,
+      "dev": 793,
+      "test": 747,
+      "test_objects": 3479,
+      "test_fixed": 4030,
+      "test_groups": 172,
+      "test_boundary_types": {
+        "polygon": 747
+      },
+      "test_flag_rooms": {
+        "single_object": 175,
+        "fixed_collision": 132,
+        "hidden_m2": 41,
+        "z_snapped": 11,
+        "hidden_obstacle": 14,
+        "oob_objects": 54,
+        "room_filling_object": 25,
+        "overlapping_furniture": 6
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "structured3d:scene_00020",
+      "first_uid": "structured3d_00020_room_1065"
+    },
+    "InternScenes_arkit": {
+      "release_scanned": 5040,
+      "train": 4528,
+      "dev": 280,
+      "test": 229,
+      "test_objects": 3381,
+      "test_fixed": 422,
+      "test_groups": 229,
+      "test_boundary_types": {
+        "hull": 229
+      },
+      "test_flag_rooms": {
+        "fixed_collision": 21,
+        "z_snapped": 50,
+        "tilted": 134,
+        "overlapping_furniture": 4,
+        "hidden_m2": 5,
+        "hidden_obstacle": 4,
+        "single_object": 1,
+        "oob_objects": 4
+      },
+      "test_tilted_objects": 283,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "arkit:41125438",
+      "first_uid": "InternScenes_arkit::ARKitScenes:arkitscenes/Training/41125438"
+    },
+    "InternScenes_mp3d": {
+      "release_scanned": 1601,
+      "train": 1258,
+      "dev": 89,
+      "test": 18,
+      "test_objects": 145,
+      "test_fixed": 66,
+      "test_groups": 2,
+      "test_boundary_types": {
+        "hull": 18
+      },
+      "test_flag_rooms": {
+        "single_object": 1,
+        "z_snapped": 5,
+        "tilted": 7,
+        "fixed_collision": 1,
+        "hidden_m2": 1,
+        "hidden_obstacle": 1
+      },
+      "test_tilted_objects": 16,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "mp3d:S9hNv5qa7GM",
+      "first_uid": "InternScenes_mp3d::Matterport3D:matterport3d/S9hNv5qa7GM/region0"
+    },
+    "InternScenes_scannet": {
+      "release_scanned": 1513,
+      "train": 1309,
+      "dev": 80,
+      "test": 104,
+      "test_objects": 2260,
+      "test_fixed": 291,
+      "test_groups": 49,
+      "test_boundary_types": {
+        "hull": 104
+      },
+      "test_flag_rooms": {
+        "tilted": 87,
+        "z_snapped": 31,
+        "fixed_collision": 19,
+        "overlapping_furniture": 5,
+        "hidden_m2": 4,
+        "hidden_obstacle": 3
+      },
+      "test_tilted_objects": 451,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "scannet:scene0018",
+      "first_uid": "InternScenes_scannet::ScanNet:scannet/scene0018_00"
+    },
+    "InternScenes_3rscan": {
+      "release_scanned": 1334,
+      "train": 1200,
+      "dev": 61,
+      "test": 70,
+      "test_objects": 1077,
+      "test_fixed": 114,
+      "test_groups": 24,
+      "test_boundary_types": {
+        "hull": 70
+      },
+      "test_flag_rooms": {
+        "tilted": 62,
+        "hidden_m2": 5,
+        "z_snapped": 30,
+        "fixed_collision": 13,
+        "hidden_obstacle": 3,
+        "overlapping_furniture": 3
+      },
+      "test_tilted_objects": 226,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "3rscan:0958220d-e2c2-2de1-9710-c37018da1883",
+      "first_uid": "InternScenes_3rscan::3RScan:3rscan/09582205-e2c2-2de1-9475-1cdac7639e60"
+    },
+    "Scan2CAD": {
+      "release_scanned": 1506,
+      "train": 18,
+      "dev": 0,
+      "test": 1,
+      "test_objects": 6,
+      "test_fixed": 0,
+      "test_groups": 1,
+      "test_boundary_types": {
+        "polygon": 1
+      },
+      "test_flag_rooms": {
+        "oob_objects": 1
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "scannet:scene0287",
+      "first_uid": "Scan2CAD::scene0287_00"
+    },
+    "MultiScan": {
+      "release_scanned": 273,
+      "train": 114,
+      "dev": 2,
+      "test": 6,
+      "test_objects": 37,
+      "test_fixed": 26,
+      "test_groups": 4,
+      "test_boundary_types": {
+        "hull": 6
+      },
+      "test_flag_rooms": {
+        "z_snapped": 2,
+        "oob_objects": 1,
+        "fixed_collision": 3
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "multiscan:scene_00031",
+      "first_uid": "MultiScan::scene_00031_00"
+    },
+    "OptiScene_holodeck": {
+      "release_scanned": 9977,
+      "train": 8946,
+      "dev": 497,
+      "test": 503,
+      "test_objects": 3362,
+      "test_fixed": 0,
+      "test_groups": 503,
+      "test_boundary_types": {
+        "polygon": 503
+      },
+      "test_flag_rooms": {},
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "holodeck:HOLODECK-bathroom-101",
+      "first_uid": "optiscene:HOLODECK-bathroom-101"
+    },
+    "IL3D_synthetic": {
+      "release_scanned": 6954,
+      "train": 6277,
+      "dev": 349,
+      "test": 316,
+      "test_objects": 1515,
+      "test_fixed": 43,
+      "test_groups": 316,
+      "test_boundary_types": {
+        "polygon": 316
+      },
+      "test_flag_rooms": {
+        "z_snapped": 5,
+        "fixed_collision": 1,
+        "single_object": 9
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "il3d:74697698-94ff-11f0-9d02-60cf84ae2082",
+      "first_uid": "il3d:74697698-94ff-11f0-9d02-60cf84ae2082"
+    },
+    "SAGE-10k": {
+      "release_scanned": 10027,
+      "train": 8977,
+      "dev": 503,
+      "test": 489,
+      "test_objects": 24183,
+      "test_fixed": 667,
+      "test_groups": 489,
+      "test_boundary_types": {
+        "polygon": 489
+      },
+      "test_flag_rooms": {
+        "tilted": 359,
+        "single_object": 3,
+        "oob_objects": 2
+      },
+      "test_tilted_objects": 2005,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "sage:layout_fbe37513",
+      "first_uid": "SAGE-10k::layout_fbe37513::0"
+    },
+    "MansionWorld": {
+      "release_scanned": 27884,
+      "train": 19396,
+      "dev": 1153,
+      "test": 1313,
+      "test_objects": 24392,
+      "test_fixed": 5192,
+      "test_groups": 16,
+      "test_boundary_types": {
+        "polygon": 1313
+      },
+      "test_flag_rooms": {
+        "single_object": 17
+      },
+      "test_tilted_objects": 0,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "mansionworld:office_corporate_hq_6f_400_fp005",
+      "first_uid": "MansionWorld::mansionworld/office_corporate_hq_6f_400_fp005#0/F1_main_lobby"
+    },
+    "InternScenes_gen": {
+      "release_scanned": 14089,
+      "train": 12552,
+      "dev": 828,
+      "test": 660,
+      "test_objects": 12516,
+      "test_fixed": 2696,
+      "test_groups": 293,
+      "test_boundary_types": {
+        "polygon": 660
+      },
+      "test_flag_rooms": {
+        "z_snapped": 23,
+        "fixed_collision": 5,
+        "tilted": 11,
+        "oob_objects": 5
+      },
+      "test_tilted_objects": 12,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 0,
+      "first_group": "internscenes:gen/10010",
+      "first_uid": "InternScenes_gen::bathroom/10010"
+    },
+    "SpatialGen": {
+      "release_scanned": 48,
+      "train": 0,
+      "dev": 0,
+      "test": 45,
+      "test_objects": 226,
+      "test_fixed": 149,
+      "test_groups": 45,
+      "test_boundary_types": {
+        "polygon": 45
+      },
+      "test_flag_rooms": {
+        "oob_objects": 10,
+        "fixed_collision": 1,
+        "single_object": 5,
+        "hidden_m2": 5,
+        "hidden_obstacle": 2,
+        "tilted": 2,
+        "room_filling_object": 1
+      },
+      "test_tilted_objects": 2,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 45,
+      "first_group": "spatialgen:spatialgen_scene_00000",
+      "first_uid": "spatialgen_scene_00000::room_0"
+    },
+    "SceneSmith": {
+      "release_scanned": 364,
+      "train": 0,
+      "dev": 0,
+      "test": 364,
+      "test_objects": 7959,
+      "test_fixed": 26,
+      "test_groups": 210,
+      "test_boundary_types": {
+        "polygon": 364
+      },
+      "test_flag_rooms": {
+        "tilted": 258,
+        "overlapping_furniture": 3,
+        "z_snapped": 7,
+        "oob_objects": 4,
+        "fixed_collision": 5,
+        "single_object": 2
+      },
+      "test_tilted_objects": 1268,
+      "test_unknown_front_objects": 0,
+      "test_eval_only_rooms": 364,
+      "first_group": "scenesmith:scene_000",
+      "first_uid": "SceneSmith::scene_000"
+    }
+  },
+  "ir_inventory_names": [
+    "ASE.jsonl",
+    "HSSD200.jsonl",
+    "IL3D_3dfront.jsonl",
+    "IL3D_synthetic.jsonl",
+    "InteriorGS.jsonl",
+    "InternScenes_3rscan.jsonl",
+    "InternScenes_arkit.jsonl",
+    "InternScenes_gen.jsonl",
+    "InternScenes_mp3d.jsonl",
+    "InternScenes_scannet.jsonl",
+    "M3DLayout_infinigen.jsonl",
+    "MansionWorld.jsonl",
+    "MultiScan.jsonl",
+    "OptiScene_holodeck.jsonl",
+    "SAGE-10k.jsonl",
+    "Scan2CAD.jsonl",
+    "ScanNetpp.jsonl",
+    "SceneSmith.jsonl",
+    "SpatialGen.jsonl",
+    "SpatialLM.jsonl",
+    "Structured3D.jsonl"
+  ],
+  "limitations": "Existing release statistics and exact test record metadata only. Mesh coverage was independently checked only for the two source subset; no new raw-source crawl."
+}

@@ -1,0 +1,22 @@
+{
+  "snapshot": "pilot-process-40884b893d47",
+  "archive": "/tmp/pilot-process-40884b893d47.tar.gz",
+  "archive_sha256": "2d38dc07813ef30f19f2e64ef806df623fd8dfe8d9cfee3af474e80c5ed9336e",
+  "code_sha256": {
+    "fastfill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+    "fastfill/train.py": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+    "fastfill/anchors.py": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+    "fastfill/validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+    "fastfill/build.py": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+    "fastfill/split.py": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+    "fastfill/comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+    "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+    "fastfill/comparison/size_prior.py": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+    "fastfill/comparison/data.py": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+    "fastfill/comparison/train_pair.py": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+    "fastfill/comparison/train_pair_helpers.py": "cb50aeb5540544b3c0caa1471715327857d1417408fc11e4434420b2b0e8401c",
+    "fastfill/comparison/isambard_pilot.sbatch": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a"
+  },
+  "change": "isolated training and fresh-load processes; explicit main target policy and checkpoints supported"
+}

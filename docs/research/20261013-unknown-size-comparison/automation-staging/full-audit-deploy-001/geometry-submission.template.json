@@ -1,0 +1,20 @@
+{
+  "absolute_deadline_unix": 1792302800,
+  "cancellation_receipt_sha256": null,
+  "dependency": "afterok:7367626:7367628",
+  "destination_amendment_sha256": null,
+  "job_id": null,
+  "raw_sbatch_stdout": null,
+  "resources": {
+    "cpus_per_task": 32,
+    "gres": "none",
+    "mem": "96G",
+    "nodes": 1,
+    "ntasks": 1,
+    "time": "02:00:00"
+  },
+  "script_sha256": "acd418f69c670ddded8d2fa079dac7a4cfc7a619bf67ce24faee82d239e5d2ee",
+  "snapshot_manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2",
+  "status": "TEMPLATE_NOT_SUBMITTED",
+  "submission_attempts": 1
+}

@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "id": "D1",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "D2",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "D3",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "T1",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "T2",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "V1",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "V2",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "V3",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "V4",
+      "status": "exact_field_verified"
+    },
+    {
+      "id": "V5",
+      "status": "exact_field_verified"
+    }
+  ],
+  "verified": 10,
+  "scope": "Exact cited field only; not scientific claim approval."
+}

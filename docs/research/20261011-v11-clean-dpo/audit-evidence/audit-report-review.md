@@ -1,0 +1,17 @@
+# Audit report gate independent review
+
+Read the complete final `audit_report.py`, all 21 tests, and the connected output verifier, training-lineage verifier and frozen research synthesis paths. Also read both newly added Slurm wrappers and all 12 shell behavior tests.
+
+No confirmed P0/P1 finding in the reviewed gate. The sequence is fail closed for expected data/runtime errors: all three model output verifications and both DPO lineage checks precede synthesis; any failure suppresses inferential comparisons and publishes an incomplete report. The interpretation addendum requires exact equality with all frozen cohort SHA-256 values and a nonempty diagnostic-only limitations list. The report itself never generates new model outputs or modifies original predictions/metrics.
+
+The output verifier invokes its worker in the frozen runner interpreter, checks that interpreter and frozen scorer imports, validates current data/model/code and all full completion receipts, and independently recomputes scoring from saved model text. Reuse is tied to artifact bindings, verifier bytes and runtime identity. This matters because the deployed training Python is 3.12.15 and evaluation Python is 3.11.17; direct metric recomputation across those versions exhibited only tiny floating summation differences, while the evaluation interpreter reproduced all four SFT metrics exactly.
+
+The frozen synthesis subprocess uses the runner interpreter with `-I`, explicitly imports from the frozen code root, calls `build_report` (which does not publish), then returns JSON. Only after verification does the gate publish the final JSON and Markdown with the diagnostic interpretation.
+
+A P2 module-path availability issue was identified and corrected during review: `_verify_outputs` originally ran `python -m fastfill.v1_1.verify_outputs` with an ambient working directory that could prioritize the old frozen package. It now executes the explicit sibling `verify_outputs.py`; that script's bootstrap subsequently isolates the frozen scorer. The frozen source does not need to be changed.
+
+The final gate also resolves the addendum drift concern: it records the initial addendum identity, compares it again before publication and removes inferential output on mismatch. The receipt retains the initial identity. Malformed synthesis payloads are explicitly rejected before `.get` access or publication. Regression tests exercise both paths. No remaining confirmed P0/P1/P2 was found in this gate.
+
+The GPU wrapper checks the frozen runner root/output/run contract, runs the new read-only lineage gate and only then executes the old frozen evaluator. Failures propagate; all paths are quoted. The CPU wrapper binds the prepared output/run and retrieves interpreter/scorer paths as JSON data, fixes its working directory and PYTHONPATH to the helper root, then selects either SFT reproduction or the final audited report. Both scripts explicitly disable requeue and use bounded six-hour allocations. Their behavior tests include spaces and shell metacharacters in paths, path mismatches, gate/evaluator failures and CPU/GPU resource declarations.
+
+Final reviewer validation: 21 audit report tests passed (0.12 s); 12 wrapper behavior tests passed (1.94 s). Earlier 16 geometry recovery tests also passed. The author's executable-line coverage artifact reports audit_report.py 121/122 lines (99.18%); this is code-execution coverage and is not conflated with full-file source-read coverage. No production edits or server changes were made by the reviewer.

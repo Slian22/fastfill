@@ -1,0 +1,1315 @@
+                                                            Scaling Sim-to-Real VLA Reinforcement
+                                                             Learning with Generative 3D Worlds
+                                                                              Andrew Choi, Xinjie Wang, Zhizhong Su, and Wei Xu†
+                                                                                    Horizon Robotics † Corresponding author
+                                                                            https://horizonrobotics.github.io/gail/scale-vla-rl
+
+                                          Real-world Data                         Scene Designer            3D World Generative Model                      Generated Scenes
+                                                                                                                                      Diverse 3D objects
+                                                                                                                                                           In-distribution
+
+
+                                                                                                                       Diverse 3D backgrounds
+                                           put the blue block on red arch
+                                                                                   Task Description:
+arXiv:2603.18532v4 [cs.RO] 29 Sep 2026
+
+
+
+
+                                                                                   "put the teapot on
+                                                                                                                                                             put the cucumber    put the tennis ball
+                                                                                  top of the notebook"
+                                                                                                                                                              in the colander     in the gray basket
+
+                                                                                                                                                            Diverse distractors
+                                           put the banana in the colander         Imitation Policy               RL Fine-tune in Sim
+
+                                                                                                         Pretrained prior
+                                                                                                                            (s,r)         a
+                                                                                                                                    env
+
+                                                                                                                                                            put the green apple  put the pepper
+                                              put the cup on the plate
+                                                                                                                                                             in the fruit bowl grinder on the tray
+                                                                                              Massive parallelization + domain randomization
+
+
+
+
+                                         put the knife on the cutting board
+                                                                                Sim-to-real Transfer
+                                                                                                                                                            put the purple cup put the white mouse
+                                                                                                     "put the broccoli in the mug."                            on the tray       on the mousepad
+
+                                                                                                                                                            Out-of-distribution
+
+                                                 open the microwave
+
+
+
+
+                                                                                                                                                            put the chess pawn   put the lego brick
+                                                                                                                                                            on the chessboard      in the bucket
+                                           fold the cloth from the bottom                            "put the blue pen in the bowl."
+
+
+                                         Figure 1: Overall pipeline diagram. Real-world data trains an imitation policy πpre . Task descriptions
+                                         are fed to a language-driven scene designer, which forwards layouts to a 3D world generative model to
+                                         produce fully generated scenes. πθ is trained across these scenes, initialized from πpre , with massive
+                                         parallelization and domain randomization. Finally, the trained πθ is deployed in the real world.
+
+                                                      Abstract: The strong performance of large vision–language models (VLMs)
+                                                      trained with reinforcement learning (RL) has motivated similar approaches for fine-
+                                                      tuning vision–language–action (VLA) models in robotics. Many recent works fine-
+                                                      tune VLAs directly in the real world to avoid addressing the sim-to-real gap. While
+                                                      real-world RL circumvents sim-to-real issues, it inherently limits the generality
+                                                      of the resulting VLA, as scaling scene and object diversity in the physical world
+                                                      is prohibitively difficult. This leads to the paradoxical outcome of transforming
+                                                      a broadly pretrained model into an overfitted, scene-specific policy. Training in
+                                                      simulation can instead provide access to diverse scenes, but designing those scenes
+                                                      is also costly. In this work, we show that VLAs can be RL fine-tuned across broad
+                                                      scene and object distributions and with reduced labor by leveraging 3D world
+                                                      generative models. Using these models together with a language-driven scene
+                                                      designer, we generate 100 diverse interactive scenes containing unique objects and
+                                                      backgrounds, enabling scalable and highly parallel policy learning. Starting from a
+                                                      pretrained imitation baseline, our approach increases simulation success from 9.7%
+                                                      up to 79.8% while achieving a 1.25× speedup in task completion time. We further
+                                                      demonstrate successful sim-to-real transfer enabled by the quality of the generated
+                                                      scenes together with domain randomization, improving real-world success from
+                                                      21.7% to 75% and achieving a 1.13× speedup. Finally, we further highlight the
+                                                      benefits of leveraging the effectively unlimited data from 3D world generative
+                                                      models through an ablation study showing that increasing scene diversity directly
+                                                      improves zero-shot generalization. Video results are available at our project page.
+
+                                         10th Conference on Robot Learning (CoRL 2026), Austin TX, USA.
+         Keywords: Sim-to-Real RL, VLA, Robot Manipulation, Generative Simulation
+
+1   Introduction
+
+Though internet-scale training of VLMs has seen explosive success, the performance of VLAs has
+comparatively lagged behind. As of recently, the dominant pipeline for training robot foundation
+models consists of leveraging all layers of the “data pyramid”: 1) pretraining a VLM backbone on
+internet-scale data, 2) further pretraining via imitation learning on large-scale robot datasets [1, 2],
+and 3) task- and embodiment-specific fine-tuning via imitation learning, real-world reinforcement
+learning, or sim-to-real reinforcement learning. While the first two stages are largely addressed by
+training on publicly available data, the third stage often requires significant human involvement.
+For imitation learning and offline RL, this involvement comes in the form of manual real-world data
+collection. For real-world RL, human-in-the-loop (HIL) supervision is often required to achieve
+sufficient sample efficiency [3, 4]. Conversely, sim-to-real RL eliminates the need for manual data
+collection and HIL by instead generating an abundance of data through massive parallelization [5], but
+introduces new challenges in the form of visual and dynamic sim-to-real gaps. Furthermore, though
+elements of the learning pipeline such as environment resets and reward detection are significantly
+easier in simulation, designing the 3D environments themselves—albeit a one-time cost—also
+requires substantial human effort.
+An often-overlooked drawback of real-world fine-tuning is the loss of generality that arises when
+training on only a small number of scenes. Because scaling scene diversity in the physical world is
+prohibitively expensive, most prior work fine-tunes VLAs in narrowly scoped settings. As a result,
+fine-tuning frequently transforms a broadly pretrained VLA into an overfitted, scene-specific policy.
+In this paper, we show that generative 3D world models can automatically construct large training
+distributions of interactive environments for RL fine-tuning of VLAs, enabling scalable sim-to-real
+learning beyond the small number of hand-designed environments used in prior work. A snapshot of
+the overall pipeline can be seen in Fig. 1. Overall, our main contributions involve showing that
+1. Reinforcement learning and 3D world generative models strongly complement the large
+   capacity of VLAs. We introduce a language-driven scene designer that converts task descriptions
+   into structured scene layouts, which are then used by a 3D world generative model to produce fully
+   interactive environments. Paired with highly parallelized RL, this enables VLAs to be fine-tuned
+   across a wide variety of scenes without requiring manual scene design. In this work, we fine-tune a
+   pretrained VLA in simulation, achieving up to a 70.1-percentage-point improvement in success
+   rate and a 1.25× task completion speedup across 100 unique generated scenes.
+2. Increasing scene diversity substantially improves zero-shot generalization. Through extensive
+   ablations in simulation, we show that zero-shot generalization scales positively with training
+   distribution diversity. Results show that fine-tuning on 50 scenes can increase zero-shot success
+   rate by 24.7 percentage points compared to fine-tuning on a single scene.
+3. Techniques for sim-to-real transfer of shallow models carry over to VLAs. We achieve strong
+   sim-to-real deployment results by leveraging 1) high-fidelity generated 3D objects and scenes, 2)
+   simple domain randomization, and 3) using PD control with gravity compensation. We achieve a
+   53.3-percentage-point improvement in success rate and a 1.13× task completion speedup
+   across 12 scenes and 240 real-world experiments.
+4. RL fine-tuning flow matching VLAs into Gaussian policies is effective. We demonstrate that
+   PPOFlow—a PPO-based [6] variant of ReinFlow [7]—effectively fine-tunes large pretrained flow
+   matching VLAs. PPOFlow can transform a multi-step flow matching policy into a single-step
+   Gaussian policy, which was previously thought to harm performance [8]. Instead, our findings
+   directly support the recent work of Pan et al. [9] in that the multimodality of diffusion models is
+   not an important factor for having a high-performing robot policy. Furthermore, we demonstrate
+   an inference latency speedup of 2.36× through PPOFlow by removing the need for iterative
+   denoising of actions, similar to consistency policies [10, 11, 3]. More details can be seen in Sec. B.
+
+
+                                                   2
+2   Related Work
+
+VLA models. Motivated by the successes of VLMs in computer vision and NLP, large open-source
+robot datasets, both physical [12, 1] and synthetic [2, 13], have been created to facilitate supervised
+pretraining of VLAs. Using such datasets, a series of open-source robot VLAs have been released,
+such as OpenVLA [14], SpatialVLA [15], GraspVLA [2], π0 [16], π0.5 [17], and many more. A
+common strategy is to then supervised fine-tune a pretrained model with imitation learning on
+task-specific demonstration data [18]. Though straightforward, such approaches often suffer in
+performance when encountering out-of-distribution states [19] and recent work has suggested that
+dataset fragmentation introduces unwanted shortcut learning of VLAs [20]. Given this, there has
+been an increasing trend of instead using reinforcement learning to fine-tune VLAs.
+
+Learning in real. One popular strategy for RL fine-tuning VLAs has been to perform RL directly in
+the real world [3, 21, 4, 22, 23, 24, 25]. Though RL in real circumvents issues arising from sim-to-real
+gap, such methods must handle tedious issues that don’t arise in simulation. One key consideration
+is how to administer the reward signal. For simplicity, most methods often rely on a sparse success
+reward signal, which is then administered by either a trained reward model [21, 23, 3, 26], human
+engineered checkers [24], or a human labeler [4]. Some approaches have used more dense reward
+formulations such as steps-to-go [22]. Another consideration is how to perform scene resets, which
+can be handled by manual resets [3, 4], scripted resets [3, 25], or learning the reset task [21, 23, 24].
+Lastly, it has become increasingly evident that a combination of offline RL and human-in-the-
+loop learning is a key necessity to get reasonable sample efficiency when executing RL on real
+hardware [23, 3, 4]. Though such methods have shown impressive results for learning tasks on a
+set scene and objects in a reasonable amount of time, the ability to maintain the generality of such
+policies in both scene and object space through scaling is a major question, especially given the
+necessity for human guidance.
+
+Learning in simulation. The other method of RL fine-tuning VLAs is to do so in simulation [27, 28,
+5]. Compared to real, training in simulation offers numerous benefits, such as oracle success detection,
+automatic resets, and access to privileged information for teacher-student training setups [29, 30,
+31, 32]. Due to the domain difference, special consideration must be taken to ensure that such
+policies transfer from sim-to-real successfully. Several strategies for handling the sim-to-real gap
+exist including domain randomization [29, 33], real-to-sim delta action models [34], real-to-sim
+physical property estimation [35], real-to-sim scene reconstruction [36, 31, 37], and more (albeit
+many of these methods have been used on smaller models, rather than foundation-scale). Training
+shallow models from scratch often requires heavily engineered reward functions [29, 34, 33]. With
+this, fine-tuning VLAs has immense benefits over shallow models as a well-trained VLA prior only
+requires a sparse reward and massive parallelization to learn [5]. Recent works for RL fine-tuning
+VLAs include leveraging real-to-sim-to-real robot video synthesis for leveraging both the real data
+and scalability of simulation [27] as well as learning within learned world models [28]. In contrast to
+these prior works, our main focus in this manuscript is to instead explore a different angle: can RL
+fine-tuning be done for as wide of a scene distribution as possible? And if so, how does increasing
+scene diversity improve zero-shot generalization?
+
+3D world generative models. Constructing large-scale, realistic 3D simulation environments remains
+a fundamental bottleneck for sim-to-real reinforcement learning. Existing 3D generative paradigms
+(e.g., TRELLIS [38], WorldGen [39]) primarily focus on producing static visual assets that lack
+physical interactivity. Although recent works such as Holodeck [40] and RoboGen [41] attempt to
+procedurally construct interactive environments, end-to-end generation of task-level physical scenes
+remains challenging. Recently, emerging generative engines, exemplified by EmbodiedGen [42, 43],
+have enabled natural language-driven generation of interactive 3D scenes. In this work, we explore
+the integration of generative 3D engines as a low-cost, highly parallelizable pipeline for scalable
+scene generation, enabling large-scale RL fine-tuning of VLA models in simulation.
+
+
+                                                   3
+Figure 2: Overview of the simulation environment generation pipeline. A GPT-4o-powered scene
+designer converts task descriptions into structured scene graphs over semantic roles and spatial
+relations, which are instantiated into fully interactive 3D worlds. A quality assurance loop filters
+physically implausible configurations before simulation, enabling scalable, on-demand generation of
+diverse environments for RL training.
+
+
+3   Methodology
+Generative simulation. To construct large-scale, physically interactive 3D environments for sim-
+to-real reinforcement learning, we employ ManiSkill 3 [44] as our GPU-parallelized simulator and
+extend EmbodiedGen [42, 43] into a comprehensive simulation environment generation backend. As
+illustrated in Fig. 2, EmbodiedGen takes a structured scene tree layout as input and produces a fully
+interactive physical 3D world via its text-to-3D asset generation and layout composition interfaces.
+We develop a scene designer powered by GPT-4o [45] that automatically produces valid scene layouts
+from task descriptions. Given an instruction such as “put the pen in the pen holder”, the scene
+designer parses it into a structured scene graph comprising core semantic roles (background, context,
+distractors, manipulation targets, and the robot) along with their spatial relations (e.g., ON, IN).
+This graph-based representation enables flexible, compositional control over scene complexity and
+distractor density, allowing systematic modulation of training difficulty. Each generated scene is then
+passed through an automated GPT-4o-driven quality assurance loop that checks physical plausibility
+and geometric consistency, discarding configurations that would cause simulation instability.
+
+Markov decision process. We formulate our learning problem as a finite-horizon partially observable
+Markov decision process (POMDP) with state space S, action space A, and discount factor γ ∈ [0, 1].
+At each timestep t, the agent receives an observation ot and selects an action at according to a policy
+π(at | ot ). An observation consists of an RGB image I ∈ RH×W ×3 , language instruction e ∈ RL ,
+and proprioceptive information in the form of (xyz, rpy, gripper) end-effector pose q ∈ R7 . This full
+observation is given by ot = [It , et , qt ]. Actions are represented as (end-effector delta-pose, binary
+gripper) action chunks A ∈ RC×7 , where C denotes the action chunk length. We treat each action
+chunk as a single decision step, resulting in a continuous action space A ⊂ RC×7         . The objective
+                                                                                     PT −1
+is to learn a policy that maximizes the expected discounted return J(π) = Eπ [ t=0 γ t rt ], where
+T denotes the episode horizon. We use a sparse rule-based success reward computed directly from
+simulator states and object relations (Eq. A.1).
+
+Flow matching models. For RL fine-tuning to work with solely a sparse reward signal, we look to
+use a pretrained robot foundation model to boost sample efficiency [5]. In this work, we use π0 [16]
+as our baseline imitation model and pretrain it on BridgeV2 [12]. The π0 model consists of a VLM
+backbone Eθ and an action expert head vθ (left of Fig. 3). It is trained using a rectified flow-matching
+objective
+          Lflow (θ) = Eot ,A1t ∼D,ϵ∼N (0,I), τ ∼U (0,1) ∥vθ (Aτt , KVθ (ot ), τ ) − (A1t − ϵ)∥22 ,
+                                                                                               
+                                                                                                      (1)
+where D denotes the demonstration dataset, τ ∈ [0, 1] is the continuous integration time, KVθ (ot )
+denotes the key-value tensors of Eθ (ot ) for cross-attention, and Aτt = τ A1t + (1 − τ )ϵ. Robot
+
+
+                                                   4
+                                                                        value
+
+                                                                    value head              noise head
+                                                                                stop-grad
+                                          action
+               Gemma                      expert                                                           action
+                                (2B)                (300M)                      Gemma                      expert
+         SigLip                                                    SigLip
+            (400M)
+
+
+                     "put the cucumber                                           "put the cucumber
+                                         [0.236, ..., 1.00]                                          [0.236, ..., 1.00]
+                      in the colander"                                            in the colander"
+
+
+
+Figure 3: Architecture diagram of the π0 model as a pretrained imitation model πpre (left) and then
+modified for RL fine-tuning, πθ (right).
+
+
+actions are generated by numerically integrating the learned ODE
+                                  dAτt
+                                         = vθ (Aτt , KVθ (ot ), τ ),                                                      (2)
+                                   dτ
+where A0t ∼ N (0, I). We denote the resulting pretrained imitation policy as πpre .
+
+PPOFlow. As flow matching models are deterministic, the importance ratio cannot be computed,
+preventing standard PPO updates. ReinFlow solves this by injecting learnable noise σϕ (Aτt , zt , τ ) into
+the numerical integration process, where zt denotes the stop-gradient hidden state zt = sg(Eθ (ot )).
+This effectively converts each integration step Aτt +∆τ = Aτt + vθ (Aτt , KVθ (ot ), τ )∆τ into a
+Gaussian sample
+                               Â = Aτt + vθ (Aτt , KVθ (ot ), τ )∆τ,                                  (3)
+                                   Aτt +∆τ ∼ N (Â, σϕ (Aτt , zt , τ )).                      (4)
+Let us denote the number of numerical integration steps as K = 1/∆τ . This then allows us to
+compute the joint log probability of the denoising process for a particular step t as
+                                                        K−1                               
+                                                                         (k+1)∆τ
+                                                        X
+            log π(A0t , ..., A1t |ot ) = log N (0, I) +     log π At             |Ak∆τ
+                                                                                   t   , ot . (5)
+                                                                  k=0
+In addition to the noise head σϕ , we also add a value head Vψ (zt ) for estimating the state value.
+A full diagram of πθ can be observed on the right side of Fig. 3. We can then directly use the log
+probability (Eq. 5) to compute the following power-scaled importance ratio, which is then used along
+with the value from Vψ in the original PPO clipped objective
+                                                                            s
+                                                πθ (A0t , ..., A1t |ot )
+                                             
+                                       r̂t =                                   ,                  (6)
+                                               πθ,old (A0t , ..., A1t |ot )
+                                           h                                      i
+                     LPPOFlow (θ, ϕ) = Et min r̂t Ât , clip(r̂t , 1 − ϵ, 1 + ϵ)Ât ,             (7)
+where Ât is the advantage estimate computed with GAE [46], ϵ is the clipping range, and s ∈ (0, 1]
+is a scaling factor that reduces variance and helps enforce the importance ratio to stay within a more
+stable numerical range [47].
+
+4   Experiments
+Experiment design. To study the effect of scaling the number of scenes N , we generate 100
+unique scenes and denote this full set as W (see Sec. C for details and metrics). We define
+the axes of scene diversity as variation in background environments and object assets. Vari-
+ations in camera pose, robot pose, object pose, and lighting are treated separately as domain
+randomization rather than scene diversity. Consequently, scaling N primarily measures the
+effect of broadening the distribution of backgrounds and objects encountered during RL fine-
+tuning. In this work, we focus on a pick-and-place task in which, given a language com-
+mand, the policy must grasp an object and place it on top of another amid several distractors.
+
+                                                              5
+To evaluate out-of-distribution (OOD) generalization, we construct
+                                                                          Interbotix
+three randomly sampled subsets of W, each containing 50 scenes,          WidowX 250S
+denoted Hi for i ∈ {0, 1, 2}. For each subset, the corresponding
+OOD set is defined as H̄i = W \ Hi . Using each Hi , we train three                     Logitech
+                                                                                          C922
+independent runs for each N ∈ {1, 3, 10, 25, 50}, where training                         Webcam
+uses the first N scenes under a fixed ordering of Hi . In addition, we
+train N = 100 runs on the full set W. Since N = 100 necessarily
+uses the full scene set, we instead report three random-seed runs for
+this setting. For embodiment, we use an Interbotix WidowX 250S                 Experiment
+manipulator with a single external Logitech C922 webcam for vision                Area
+
+(Fig. 4). Real-world evaluation is conducted on an NVIDIA RTX
+4090 GPU.
+                                                                         Figure 4: Experiment setup.
+Baselines and external evaluation benchmarks. The initial flow-matching imitation policy πpre
+serves as a baseline and uses K = 10 and action chunk size C = 4. πpre is trained on BridgeV2,
+which is predominantly pick-and-place (over 70%), with the remainder consisting of tasks such as
+sweeping, towel folding, and drawer opening. This yields a strong initialization that is well aligned
+with our task as well as a reference point for measuring the effect of RL fine-tuning. To investigate
+the benefits of training on generated scenes, we introduce another baseline in which we RL fine-tune
+a policy on three manually designed Bridge tabletop scenes from SimplerEnv [48]. We evaluate
+OOD generalization on these SimplerEnv scenes and two additional manually constructed external
+benchmarks: (1) 18 scenes using 25 Google Scanned Objects assets [49], with repetitions across
+scenes and 18 assets semantically OOD to W, and (2) 25 scenes using 100 Hunyuan3D-2.1-generated
+assets [50], with 48 assets semantically OOD. Neither external asset source is used during RL training,
+allowing us to evaluate generalization under both asset-source and generator shifts. Additional details
+and qualitative examples for each scene set are provided in Secs. E, F, G, and H.
+
+Training details. For training, we use 8 NVIDIA RTX 6000 Ada GPUs to LoRA fine-tune the VLM
+Eθ and fully fine-tune the action expert vθ over 5 days. The value head Vψ and noise head σϕ are
+shallow MLPs and are also fully fine-tuned. Training curves are shown in Fig. 5. To enable successful
+sim-to-real transfer, we rely on three factors: (1) the high fidelity of generated objects and scenes,
+(2) domain randomization, and (3) PD control with
+gravity compensation. With gravity compensation
+enabled, we found that explicit system identification
+was largely unnecessary, provided that both simula-
+tion and real-world controllers could reach the ma-
+jority of target poses with sufficiently low tracking
+error, thereby minimizing the dynamics sim-to-real
+gap. We use an action chunk size of C = 4 and
+set the number of integration steps to K = 1. All
+other training hyperparameters and domain random-
+ization ranges are provided in Tables A.1 and A.2,
+respectively.                                                Figure 5: Training curves for all N .
+
+Fixed compute budget. Note that in Fig. 5, the final training success rates decrease monotonically as
+N increases. This behavior is expected, as we use the same batch size and mini-batch size for all runs;
+consequently, each scene receives fewer samples, scaling linearly with 1/N . Though computationally
+impractical, we hypothesize that scaling the batch size and mini-batch size proportionally with
+N could mitigate this effect. Importantly, a fixed compute budget disadvantages larger N , since
+the policy must learn over a broader scene distribution while receiving fewer samples from each
+individual scene. Despite this reduced per-scene sampling, OOD performance improves substantially
+with N before saturating around N = 25–50, as shown in the next section. We hypothesize that
+beyond N = 25–50, the benefits of additional scene diversity are increasingly offset by reduced
+per-scene coverage under the fixed compute budget.
+
+
+                                                  6
+Table 1: Simulation evaluation results. For a certain policy (row), results are color coded as OOD,
+ID , and mixture . ∆G = SRID −SROOD denotes the ID–OOD generalization gap in percentage
+points; dashes indicate ID or mixture evaluations, or cases without a defined ID reference. ∗ denotes
+random-seed runs rather than scene-split runs.
+
+                       EG ID scenes Hi (N )               EG OOD scenes H̄i (50)               EG all scenes W (100)
+ Policy
+                 SR (%) [↑]    TF (s) [↓]      ∆G     SR (%) [↑]    TF (s) [↓]     ∆G     SR (%) [↑]    TF (s) [↓]     ∆G
+ N = 0 (πpre )       −             −            −        9.6          10.3          −        9.7         10.0           −
+ N = 3 (SE)          −             −            −        36.5          8.5         60.2      36.0         8.6          60.7
+ N =1            94.3 ± 2.6    7.7 ± 0.9        −     53.2 ± 5.5    9.0 ± 0.5      41.1   51.6 ± 5.3   9.0 ± 0.3        −
+ N =3            88.7 ± 4.7    7.6 ± 0.5        −     61.3 ± 1.8    8.7 ± 0.5      27.4   60.0 ± 4.6   8.8 ± 0.5        −
+ N = 10          87.0 ± 3.3    7.7 ± 0.4        −     72.4 ± 0.4    8.2 ± 0.2      14.6   72.1 ± 0.9   8.2 ± 0.1        −
+ N = 25          84.3 ± 2.4    7.9 ± 0.2        −     77.6 ± 0.8    8.1 ± 0.2      6.7    78.3 ± 0.5   8.1 ± 0.1        −
+ N = 50          80.5 ± 0.4    7.9 ± 0.1        −     77.9 ± 0.9    8.0 ± 0.2      2.6    79.2 ± 0.3   7.9 ± 0.1        −
+ N = 100∗            −             −            −         −             −           −     78.9 ± 0.9   8.1 ± 0.1        −
+                       SimplerEnv scenes (3)             Google scanned scenes (18)          Hunyuan3D-2.1 scenes (25)
+ Policy
+                 SR (%) [↑]    TF (s) [↓]      ∆G     SR (%) [↑]    TF (s) [↓]     ∆G     SR (%) [↑]    TF (s) [↓]     ∆G
+ N = 0 (πpre )      23.7          9.6           −        12.1          8.1          −        10.2         9.0           −
+ N = 3 (SE)        96.7           6.7           −        35.2          8.6         61.5      38.4         8.5          58.3
+ N =1            36.1 ± 10.4   9.3 ± 1.7       58.2   42.3 ± 4.8    9.3 ± 0.2      52.0   42.7 ± 3.8   9.6 ± 0.3       51.6
+ N =3            47.4 ± 2.3    9.8 ± 0.6       41.3   48.8 ± 7.3    9.3 ± 0.3      39.9   50.0 ± 5.0   9.4 ± 0.2       38.7
+ N = 10          54.3 ± 9.2    9.2 ± 0.4       32.7   59.3 ± 2.6    8.8 ± 0.1      27.7   58.2 ± 2.9   8.9 ± 0.2       28.8
+ N = 25          70.1 ± 5.4    8.4 ± 0.1       14.2   62.7 ± 0.6    8.8 ± 0.1      21.6   61.8 ± 0.3   9.0 ± 0.1       22.5
+ N = 50          68.4 ± 5.5    8.5 ± 0.6       12.1   62.5 ± 0.4    8.8 ± 0.1      18.0   63.3 ± 0.4   8.9 ± 0.2       17.2
+ N = 100∗        74.3 ± 4.1    8.3 ± 0.3       4.6    60.7 ± 0.9    9.0 ± 0.1      18.2   62.5 ± 1.4   8.9 ± 0.0       16.4
+
+
+
+
+Effect of number of scenes N . Table 1 reports simulation results as a function of the number of
+training scenes N , while Fig. 6 visualizes the corresponding success-rate scaling trends. We evaluate
+average success rate (SR), average time to finish (TF), and the ID–OOD generalization gap ∆G
+across six sets of evaluation scenes. TF is averaged over successful episodes only. Because ∆G can
+also decrease as ID performance falls, we interpret it jointly with absolute OOD success rather than
+as a standalone measure of generalization. Results reported with standard deviation are averaged over
+three independent runs. For N ≤ 50, these runs use different scene subsets Hi , while N = 100 uses
+three random seeds over the full set W. Each scene is evaluated over 100 episodes.
+For policies trained on EmbodiedGen (EG) scenes,
+increasing N produces a clear trade-off between in-
+distribution (ID) and out-of-distribution (OOD) per-
+formance. As N increases up to N = 50, success
+on the training scenes Hi decreases under the fixed
+compute budget, while absolute OOD performance
+improves substantially. For example, ID success de-
+creases from 94.3% at N = 1 to 80.5% at N = 50,
+while EG OOD success improves from 53.2% to
+77.9%. Correspondingly, ∆G decreases monoton-
+ically from 41.1 points at N = 1 to 27.4 at N = 3, Figure 6: Success rate as a function of N .
+14.6 at N = 10, 6.7 at N = 25, and only 2.6 points
+at N = 50. Together, the increasing OOD success rates and shrinking ID–OOD gaps indicate that
+increasing scene diversity reduces over-specialization to the training environments.
+This trend extends to OOD benchmarks spanning asset-source and generator shifts. On SimplerEnv,
+success increases from 36.1% at N = 1 to 74.3% at N = 100, while ∆G decreases from 58.2 to 4.6
+points. On Google Scanned Objects, success increases from 42.3% at N = 1 to 62.7% at N = 25,
+while ∆G decreases from 52.0 to 21.6 points. On Hunyuan3D-2.1, success increases from 42.7% at
+N = 1 to 63.3% at N = 50, while ∆G decreases from 51.6 to 17.2 points. As seen in Fig. 6, the
+largest gains in absolute OOD success occur by approximately N = 25–50, after which performance
+begins to saturate. At N = 100, success remains comparable on EG and Hunyuan3D-2.1, decreases
+slightly on Google Scanned Objects, and increases further on SimplerEnv to 74.3%. This saturation is
+
+
+                                                             7
+Table 2: Sim-to-real evaluation results. Objects or attributes that are OOD during RL training are
+highlighted. Attributes in parentheses were not included in the language command. Columns are
+color coded as success , failure , and time metrics.
+
+Scene             Language Command                                                         Scene Distractors
+0                 “put the banana on the bowl.”                        broccoli, strawberry, plate
+1                 “put the broccoli on the mug.”                       knife, cutting board
+2                 “put the mushroom on the bowl.”                      banana, broccoli, plate
+3                 “put the spoon on the napkin.”                       fork, plate
+4                 “put the (pink) eraser on the notebook.”             black pen, mug
+5                 “put the (yellow) brush on the bowl.”                banana, yellow marker
+6                 “put the white eraser on the mug.”                   pink eraser, black pen, blue pen
+7                 “put the red knife on the cutting board.”            regular knife
+8                 “put the blue pen on the (blue) bowl.”               black pen, white eraser, basket
+9                 “put the green marker on the basket.”                red marker, yellow marker, dry erase eraser, cardboard box
+10                “put the screwdriver on the basket.”                 knife, black marker
+11                “put the blue teacup on the yellow teacup.”          purple teacup, pink teapot, blue plate, yellow plate
+
+                           Imitation baseline πpre                                           N = 100
+        PSR [↑]   SR [↑]       DFR [↓]       SFR [↓]     TF (s) [↓]   PSR [↑]    SR [↑]     DFR [↓]     SFR [↓]       TF (s) [↓]
+0        0.8        0.6           0.4          0.0      10.7 ± 6.3     0.9        0.9         0.1         0.0         7.4 ± 1.5
+1        0.4        0.2           0.8          0.0      13.3 ± 2.0     1.0        0.7         0.3         0.0        10.4 ± 7.5
+2        0.3        0.1           0.9          0.0         11.5        0.9        0.9         0.1         0.0         8.4 ± 2.5
+3        0.2        0.1           0.7          0.5         6.1         0.8        0.7         0.1         0.2        12.2 ± 5.1
+4        0.4        0.3           0.7          0.1      11.0 ± 4.9     1.0        1.0          −           −         10.2 ± 4.2
+5        0.6        0.3           0.7          0.0      10.5 ± 1.1     1.0        1.0          −           −          9.5 ± 3.9
+6        0.4        0.2           0.8          0.0      7.8 ± 0.1      1.0        0.7         0.3         0.0        11.1 ± 5.5
+7        0.7        0.2           0.2          0.6      14.6 ± 0.6     0.8        0.8         0.0         0.2        12.2 ± 6.5
+8        0.3        0.1           0.9          0.0         29.6        0.9        0.7         0.2         0.1        12.2 ± 7.4
+9        0.6        0.3           0.6          0.1      9.2 ± 1.8      0.7        0.6         0.4         0.0         8.8 ± 2.0
+10       0.2        0.0           0.8          0.3          −          0.6        0.5         0.2         0.3        10.4 ± 5.5
+11       0.5        0.2           0.5          0.6      11.6 ± 2.0     1.0        0.5         0.5         0.0        11.0 ± 2.0
+All      0.45     0.217         0.667         0.183     11.5 ± 5.5    0.883      0.75        0.183       0.067       10.2 ± 5.1
+
+
+
+consistent with the fixed-compute trade-off discussed above, where additional scene diversity comes
+at the cost of reduced per-scene coverage.
+The policy trained on the three manually designed SimplerEnv scenes achieves 96.7% success
+on those same scenes but transfers substantially worse to EG (36.0%), Google Scanned Objects
+(35.2%), and Hunyuan3D-2.1 (38.4%), with corresponding ∆G values of 60.7, 61.5, and 58.3 points,
+respectively. In comparison, the N = 3 EG policies achieve ∆G values ranging from 27.4 to 41.3
+points, highlighting the limited coverage of the three manually designed scenes compared to the
+broader distribution provided by EG-generated environments. Overall, policies trained on 50–100
+generated scenes achieve approximately 79% success on W, compared to 9.7% for the imitation
+baseline πpre , while reducing average completion time from about 10 s to 8 s. Though some RL-
+in-real works report success rates exceeding 90%, these results are typically obtained in narrowly
+defined settings [3, 23]. Our goal is not to saturate such constrained settings, but to demonstrate that
+generative simulation enables a scalable training distribution for RL fine-tuning of VLAs.
+
+Sim-to-real performance. For real-world evaluation, we deploy both the initial imitation policy
+πpre and an N = 100 checkpoint that achieves 79.8% success on the full simulation scene set W.
+Table 2 reports sim-to-real evaluation results across 12 scenes and 240 real-world trials. Each scene
+is evaluated using 10 trials per policy. We report partial success rate (PSR), defined as correctly
+grasping and lifting the target object, overall task success rate (SR), dynamics failure rate (DFR),
+semantic failure rate (SFR), and time to finish (TF). DFR measures failures caused by execution
+errors such as inaccurate grasp attempts or dropped objects, while SFR measures failures caused by
+incorrect task interpretation (e.g., interacting with the wrong object). These failure categories are
+not mutually exclusive, as a single failure may involve both semantic and dynamics-related errors.
+Qualitative examples of the real-world scenes are provided in Sec. I.
+Overall performance improves substantially after RL fine-tuning. Partial success increases from
+45% for πpre to 88.3%, indicating a large improvement in reliable object acquisition. Overall task
+
+
+                                                                  8
+success improves even more, increasing from 21.7% to 75%. In addition to higher success rates, the
+RL policy produces more efficient behavior, reducing the average completion time from 11.5 s to
+10.2 s. Examining the failure breakdown reveals that most errors of the imitation baseline arise from
+dynamics-related issues. Across all trials, the baseline exhibits a DFR of 66.7%, which decreases
+to 18.3% after RL fine-tuning, indicating a substantial improvement in manipulation robustness.
+Semantic failures are comparatively less frequent but also decrease from 18.3% to 6.7%, suggesting
+improved task grounding and object selection.
+Performance gains are consistent across nearly all scenes. For example, scene 10 introduces a
+screwdriver that does not appear in the RL training distribution, yet the RL policy achieves an
+SR of 50% compared to 0% for the baseline. Similarly, scene 11 evaluates a teacup stacking task
+involving unseen object instances and task composition, where the RL policy improves SR from 20%
+to 50% while maintaining perfect partial success (100%). Overall, these results demonstrate that
+policies fine-tuned in large-scale generative simulation transfer effectively to real-world manipulation.
+RL fine-tuning improves both low-level execution robustness and high-level task success while
+maintaining generalization to previously unseen objects, attributes, and task variations. Qualitative
+examples of the imitation and RL policy rollouts across different scenes are shown in Sec. J.
+
+5   Conclusion
+
+In this work, we explored the use of 3D world generative models for scaling sim-to-real reinforcement
+learning of vision–language–action (VLA) policies. By leveraging generative simulation to automati-
+cally construct diverse interactive environments, we fine-tuned a pretrained VLA across 100 unique
+scenes using massively parallel RL while avoiding the cost of manual scene design. Our results show
+that increasing scene diversity substantially improves OOD generalization across EmbodiedGen,
+SimplerEnv, Google Scanned Objects, and Hunyuan3D-2.1 evaluation scenes, with the largest gains
+occurring by approximately N = 25–50 under a fixed compute budget. Furthermore, RL fine-tuning
+on the generated scenes improves simulation success rates by up to 70.1 percentage points, while
+sim-to-real deployment yields a 53.3-percentage-point improvement in real-world task success. Be-
+yond improved performance, our findings highlight the complementary roles of generative simulation
+and RL. Generative 3D world models provide a scalable source of diverse training environments,
+while RL enables efficient adaptation of large pretrained policies using only sparse rewards. Our
+language-driven scene designer further reduces engineering effort by automatically translating task
+descriptions into structured environments for simulation. Together, these components form a practical
+pipeline for scaling robot foundation models while minimizing the need for additional real-world
+data collection or human-in-the-loop training.
+
+Limitations and future work. We note that the experiments in this work focus on pick-and-place
+tasks, primarily due to current limitations in the types of objects that EmbodiedGen [42, 43] can
+reliably generate. Pick-and-place tasks also constitute a large portion of existing robot datasets,
+accounting for over 70% of BridgeV2. More broadly, our experiments do not establish that the
+observed scaling trends generalize across manipulation skills, VLA backbones, embodiments, or all
+forms of distribution shift. In particular, we primarily vary backgrounds and object assets; shifts in
+task semantics, language phrasing and composition, robot embodiment, and interaction dynamics
+remain for future study. Additionally, the training compute budget is fixed across N , causing
+per-scene coverage to decrease as the number of training scenes grows. Consequently, this setup
+disadvantages larger N policies and the observed saturation at N = 25–50 may partly reflect compute
+limitations rather than an inherent limit to the benefits of scene diversity. Looking forward, we aim
+to extend the current framework to support richer manipulation behaviors such as articulated object
+manipulation, tool use, and multi-stage tasks. Scaling the distribution of automatically generated
+scenes and tasks will enable RL fine-tuning of VLAs on a broader range of interaction distributions,
+further improving generalization and robustness. Nevertheless, we believe this work represents an
+important first step toward demonstrating the potential of combining generative simulation with RL
+to scale the fine-tuning of VLA models.
+
+
+                                                   9
+References
+ [1] O. X.-E. Collaboration. Open X-Embodiment: Robotic learning datasets and RT-X models.
+     arXiv, 2023.
+
+ [2] S. Deng, M. Yan, S. Wei, H. Ma, Y. Yang, J. Chen, Z. Zhang, T. Yang, X. Zhang, H. Cui,
+     Z. Zhang, and H. Wang. GraspVLA: a grasping foundation model pre-trained on billion-scale
+     synthetic action data. In 9th Annual Conference on Robot Learning, 2025. URL https:
+     //openreview.net/forum?id=zEC8TOXDkH.
+
+ [3] Y. Chen, S. Tian, S. Liu, Y. Zhou, H. Li, and D. Zhao. Conrft: A reinforced fine-tuning method
+     for vla models via consistency policy. In Proceedings of Robotics: Science and Systems, RSS
+     2025, Los Angeles, CA, USA, Jun 21-25, 2025, 2025. doi:10.15607/RSS.2025.XXI.019.
+
+ [4] P. Intelligence, A. Amin, R. Aniceto, A. Balakrishna, K. Black, K. Conley, G. Connors,
+     J. Darpinian, K. Dhabalia, J. DiCarlo, D. Driess, M. Equi, A. Esmail, Y. Fang, C. Finn,
+     C. Glossop, T. Godden, I. Goryachev, L. Groom, H. Hancock, K. Hausman, G. Hussein, B. Ichter,
+     S. Jakubczak, R. Jen, T. Jones, B. Katz, L. Ke, C. Kuchi, M. Lamb, D. LeBlanc, S. Levine,
+     A. Li-Bell, Y. Lu, V. Mano, M. Mothukuri, S. Nair, K. Pertsch, A. Z. Ren, C. Sharma, L. X. Shi,
+     L. Smith, J. T. Springenberg, K. Stachowicz, W. Stoeckle, A. Swerdlow, J. Tanner, M. Torne,
+                                                                                              ∗
+     Q. Vuong, A. Walling, H. Wang, B. Williams, S. Yoo, L. Yu, U. Zhilinsky, and Z. Zhou. π0.6  :a
+     vla that learns from experience. arXiv, 2025. URL https://arxiv.org/abs/2511.14759.
+
+ [5] H. Li, Y. Zuo, J. Yu, Y. Zhang, Y. Zhaohui, K. Zhang, X. Zhu, Y. Zhang, T. Chen, G. Cui,
+     D. Wang, D. Luo, Y. Fan, Y. Sun, J. Zeng, J. Pang, S. Zhang, Y. Wang, Y. Mu, B. Zhou, and
+     N. Ding. SimpleVLA-RL: Scaling VLA training via reinforcement learning. In The Fourteenth
+     International Conference on Learning Representations, 2026. URL https://openreview.
+     net/forum?id=TQhSodCM4r.
+
+ [6] J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov. Proximal policy optimization
+     algorithms. arXiv, 2017. URL https://arxiv.org/abs/1707.06347.
+
+ [7] T. Zhang, C. Yu, S. Su, and Y. Wang. Reinflow: Fine-tuning flow matching policy with
+     online reinforcement learning. In The Thirty-ninth Annual Conference on Neural Information
+     Processing Systems, 2025. URL https://openreview.net/forum?id=ACagRwCCqu.
+
+ [8] A. Z. Ren, J. Lidard, L. L. Ankile, A. Simeonov, P. Agrawal, A. Majumdar, B. Burchfiel, H. Dai,
+     and M. Simchowitz. Diffusion policy policy optimization. In The Thirteenth International
+     Conference on Learning Representations, 2025. URL https://openreview.net/forum?
+     id=mEpqHvbD2h.
+
+ [9] C. Pan, G. Anantharaman, N.-C. Huang, C. Jin, D. Pfrommer, C. Yuan, F. Permenter, G. Qu,
+     N. M. Boffi, G. Shi, and M. Simchowitz. Much ado about noising: Dispelling the myths of gener-
+     ative robotic control. In The Fourteenth International Conference on Learning Representations,
+     2026. URL https://openreview.net/forum?id=LzWKuxTKuW.
+
+[10] Y. Chen, H. Li, and D. Zhao. Boosting continuous control with consistency policy. In Pro-
+     ceedings of the 23rd International Conference on Autonomous Agents and Multiagent Systems,
+     AAMAS ’24, page 335–344, Richland, SC, 2024. International Foundation for Autonomous
+     Agents and Multiagent Systems. ISBN 9798400704864.
+
+[11] A. Prasad, K. Lin, J. Wu, L. Zhou, and J. Bohg. Consistency Policy: Accelerated Visuomotor
+     Policies via Consistency Distillation. In Proceedings of Robotics: Science and Systems, Delft,
+     Netherlands, July 2024. doi:10.15607/RSS.2024.XX.071.
+
+[12] H. Walke, K. Black, A. Lee, M. J. Kim, M. Du, C. Zheng, T. Zhao, P. Hansen-Estruch, Q. Vuong,
+     A. He, V. Myers, K. Fang, C. Finn, and S. Levine. Bridgedata v2: A dataset for robot learning
+     at scale. In Conference on Robot Learning (CoRL), 2023.
+
+
+                                                10
+[13] T. Chen, Z. Chen, B. Chen, Z. Cai, Y. Liu, Q. Liang, Z. Li, X. Lin, Y. Ge, Z. Gu, et al. Robotwin
+     2.0: A scalable data generator and benchmark with strong domain randomization for robust
+     bimanual robotic manipulation. arXiv preprint arXiv:2506.18088, 2025.
+[14] M. J. Kim, K. Pertsch, S. Karamcheti, T. Xiao, A. Balakrishna, S. Nair, R. Rafailov, E. P.
+     Foster, P. R. Sanketi, Q. Vuong, T. Kollar, B. Burchfiel, R. Tedrake, D. Sadigh, S. Levine,
+     P. Liang, and C. Finn. Openvla: An open-source vision-language-action model. In Proceedings
+     of The 8th Conference on Robot Learning, volume 270 of Proceedings of Machine Learning
+     Research, pages 2679–2713. PMLR, 06–09 Nov 2025. URL https://proceedings.mlr.
+     press/v270/kim25c.html.
+[15] D. Qu, H. Song, Q. Chen, Y. Yao, X. Ye, Y. Ding, Z. Wang, J. Gu, B. Zhao, D. Wang, and X. Li.
+     Spatialvla: Exploring spatial representations for visual-language-action model. arXiv, 2025.
+     URL https://arxiv.org/abs/2501.15830.
+[16] K. Black, N. Brown, D. Driess, A. Esmail, M. R. Equi, C. Finn, N. Fusai, L. Groom, K. Hausman,
+     B. Ichter, S. Jakubczak, T. Jones, L. Ke, S. Levine, A. Li-Bell, M. Mothukuri, S. Nair, K. Pertsch,
+     L. X. Shi, L. Smith, J. Tanner, Q. Vuong, A. Walling, H. Wang, and U. Zhilinsky. π0 : A vision-
+     language-action flow model for general robot control. In Proceedings of Robotics: Science and
+     Systems, LosAngeles, CA, USA, June 2025. doi:10.15607/RSS.2025.XXI.010.
+[17] K. Black, N. Brown, J. Darpinian, K. Dhabalia, D. Driess, A. Esmail, M. R. Equi, C. Finn,
+     N. Fusai, M. Y. Galliker, D. Ghosh, L. Groom, K. Hausman, brian ichter, S. Jakubczak,
+     T. Jones, L. Ke, D. LeBlanc, S. Levine, A. Li-Bell, M. Mothukuri, S. Nair, K. Pertsch, A. Z.
+     Ren, L. X. Shi, L. Smith, J. T. Springenberg, K. Stachowicz, J. Tanner, Q. Vuong, H. Walke,
+     A. Walling, H. Wang, L. Yu, and U. Zhilinsky. π0.5 : a vision-language-action model with
+     open-world generalization. In 9th Annual Conference on Robot Learning, 2025. URL https:
+     //openreview.net/forum?id=vlhoswksBO.
+[18] M. J. Kim, C. Finn, and P. Liang. Fine-Tuning Vision-Language-Action Models: Optimizing
+     Speed and Success. In Proceedings of Robotics: Science and Systems, LosAngeles, CA, USA,
+     June 2025. doi:10.15607/RSS.2025.XXI.017.
+[19] J. Liu, F. Gao, B. Wei, X. Chen, Q. Liao, Y. Wu, C. Yu, and Y. Wang. What can RL bring to VLA
+     generalization? an empirical study. In The Thirty-ninth Annual Conference on Neural Informa-
+     tion Processing Systems, 2026. URL https://openreview.net/forum?id=qmBMPInbZC.
+[20] Y. Xing, X. Luo, J. Xie, L. Gao, H. T. Shen, and J. Song. Shortcut learning in generalist robot
+     policies: The role of dataset diversity and fragmentation. In 9th Annual Conference on Robot
+     Learning, 2025. URL https://openreview.net/forum?id=PTJopl2uaU.
+[21] A. Sharma, A. M. Ahmed, R. Ahmad, and C. Finn. Self-improving robots: End-to-end
+     autonomous visuomotor reinforcement learning. In 7th Annual Conference on Robot Learning,
+     2023. URL https://openreview.net/forum?id=ApxLUk8U-l.
+[22] S. K. S. Ghasemipour, A. Wahid, J. Tompson, P. R. Sanketi, and I. Mordatch. Self-improving
+     embodied foundation models. In The Thirty-ninth Annual Conference on Neural Information
+     Processing Systems, 2025. URL https://openreview.net/forum?id=KXMIIVUB9U.
+[23] J. Yang, M. S. Mark, B. Vu, A. Sharma, J. Bohg, and C. Finn. Robot fine-tuning made easy:
+     Pre-training rewards and policies for autonomous real-world reinforcement learning. In 2024
+     IEEE International Conference on Robotics and Automation (ICRA), pages 4804–4811, 2024.
+     doi:10.1109/ICRA57147.2024.10610421.
+[24] H. R. Walke, J. H. Yang, A. Yu, A. Kumar, J. Orbik, A. Singh, and S. Levine. Don’t start from
+     scratch: Leveraging prior data to automate robotic reinforcement learning. In Proceedings
+     of The 6th Conference on Robot Learning, volume 205 of Proceedings of Machine Learning
+     Research, pages 1652–1662. PMLR, 14–18 Dec 2023. URL https://proceedings.mlr.
+     press/v205/walke23a.html.
+
+
+                                                  11
+[25] R. Mendonca and D. Pathak. Continuously improving mobile manipulation with autonomous
+     real-world RL. In RSS 2024 Workshop: Data Generation for Robotics, 2024. URL https:
+     //openreview.net/forum?id=qASoq07bXh.
+[26] Y. Du, K. Konyushkova, M. Denil, A. Raju, J. Landon, F. Hill, N. de Freitas, and S. Cabi.
+     Vision-language models as success detectors. In Proceedings of The 2nd Conference on Lifelong
+     Learning Agents, volume 232 of Proceedings of Machine Learning Research, pages 120–136.
+     PMLR, 22–25 Aug 2023. URL https://proceedings.mlr.press/v232/du23b.html.
+[27] Y. Fang, Y. Yang, X. Zhu, K. Zheng, G. Bertasius, D. Szafir, and M. Ding. Rebot: Scaling
+     robot learning with real-to-sim-to-real robotic video synthesis. arXiv, 2025. URL https:
+     //arxiv.org/abs/2503.14526.
+[28] H. Li, P. Ding, R. Suo, Y. Wang, Z. Ge, D. Zang, K. Yu, M. Sun, H. Zhang, D. Wang, and
+     W. Su. Vla-rft: Vision-language-action reinforcement fine-tuning with verified rewards in world
+     simulators. arXiv, 2025. URL https://arxiv.org/abs/2510.00406.
+[29] H. Zhang, H. Yu, L. Zhao, A. Choi, Q. Bai, Y. Yang, and W. Xu. Learning multi-stage pick-
+     and-place with a legged mobile manipulator. IEEE Robotics and Automation Letters, 10(11):
+     11419–11426, 2025. doi:10.1109/LRA.2025.3608425.
+[30] R. Singh, A. Allshire, A. Handa, N. Ratliff, and K. V. Wyk. Dextrah-rgb: Visuomotor policies
+     to grasp anything with dexterous hands. arXiv, 2025. URL https://arxiv.org/abs/2412.
+     01791.
+[31] P. Dan, K. Kedia, A. Chao, E. Duan, M. A. Pace, W.-C. Ma, and S. Choudhury. X-sim: Cross-
+     embodiment learning via real-to-sim-to-real. In 9th Annual Conference on Robot Learning,
+     2025. URL https://openreview.net/forum?id=BO7qo66YJ2.
+[32] Z. Chen, Q. Yan, Y. Chen, T. Wu, J. Zhang, Z. Ding, J. Li, Y. Yang, and H. Dong. Clutter-
+     dexgrasp: A sim-to-real system for general dexterous grasping in cluttered scenes. In 9th
+     Annual Conference on Robot Learning, 2025. URL https://openreview.net/forum?id=
+     4XKKUifQ9c.
+[33] T. He, Z. Wang, H. Xue, Q. Ben, Z. Luo, W. Xiao, Y. Yuan, X. Da, F. Castañeda, S. Sastry, C. Liu,
+     G. Shi, L. Fan, and Y. Zhu. Viral: Visual sim-to-real at scale for humanoid loco-manipulation.
+     arXiv, 2025. URL https://arxiv.org/abs/2511.15200.
+[34] T. He, J. Gao, W. Xiao, Y. Zhang, Z. Wang, J. Wang, Z. Luo, G. He, N. Sobanbabu, C. Pan,
+     Z. Yi, G. Qu, K. Kitani, J. K. Hodgins, L. Fan, Y. Zhu, C. Liu, and G. Shi. ASAP: Aligning
+     Simulation and Real-World Physics for Learning Agile Humanoid Whole-Body Skills. In
+     Proceedings of Robotics: Science and Systems, LosAngeles, CA, USA, June 2025. doi:
+     10.15607/RSS.2025.XXI.066.
+[35] M. Wang, S. Tian, A. Swann, O. Shorinwa, J. Wu, and M. Schwager. Phys2real: Fusing vlm
+     priors with interactive online adaptation for uncertainty-aware sim-to-real manipulation. arXiv,
+     2025. URL https://arxiv.org/abs/2510.11689.
+[36] H. Sun, H. Wang, C. Ma, S. Zhang, J. Ye, X. Chen, and X. Lan. Prism: Projection-based reward
+     integration for scene-aware real-to-sim-to-real transfer with few demonstrations. arXiv, 2025.
+     URL https://arxiv.org/abs/2504.20520.
+[37] T. G. W. Lum, O. Y. Lee, K. Liu, and J. Bohg. Crossing the human-robot embodiment gap with
+     sim-to-real RL using one human demonstration. In 9th Annual Conference on Robot Learning,
+     2025. URL https://openreview.net/forum?id=CgGSFtjplI.
+[38] J. Xiang, Z. Lv, S. Xu, Y. Deng, R. Wang, B. Zhang, D. Chen, X. Tong, and J. Yang. Structured
+     3d latents for scalable and versatile 3d generation. In 2025 IEEE/CVF Conference on Computer
+     Vision and Pattern Recognition (CVPR), pages 21469–21480, 2025. doi:10.1109/CVPR52734.
+     2025.02000.
+
+
+                                                 12
+[39] Z. Xie. Worldgen: Generate any 3d scene in seconds. GitHub repository, 2025.
+[40] Y. Yang, F.-Y. Sun, L. Weihs, E. Vanderbilt, A. Herrasti, W. Han, J. Wu, N. Haber, R. Krishna,
+     L. Liu, C. Callison-Burch, M. Yatskar, A. Kembhavi, and C. Clark. Holodeck: Language guided
+     generation of 3d embodied ai environments. In 2024 IEEE/CVF Conference on Computer
+     Vision and Pattern Recognition (CVPR), pages 16277–16287, 2024. doi:10.1109/CVPR52733.
+     2024.01536.
+[41] Y. Wang, Z. Xian, F. Chen, T.-H. Wang, Y. Wang, K. Fragkiadaki, Z. Erickson, D. Held,
+     and C. Gan. Robogen: Towards unleashing infinite data for automated robot learning via
+     generative simulation. In Forty-first International Conference on Machine Learning, 2024. URL
+     https://openreview.net/forum?id=SQIDlJd3hN.
+
+[42] X. Wang, L. Liu, Y. Cao, R. Wu, W. Qin, D. Wang, W. Sui, and Z. Su. Embodiedgen:
+     Towards a generative 3d world engine for embodied intelligence. arXiv, 2025. URL https:
+     //arxiv.org/abs/2506.10600.
+[43] X. Wang, L. Liu, T. Ding, A. Choi, C. Huang, M. Zhao, Z. Li, J. Jiang, C. Yu, S. Liu, W. Xu,
+     and Z. Su. Embodiedgen v2: An agentic, simulation-ready 3d world engine for embodied ai.
+     arXiv, 2026. URL https://arxiv.org/abs/2607.07459.
+[44] S. Tao, F. Xiang, A. Shukla, Y. Qin, X. Hinrichsen, X. Yuan, C. Bao, X. Lin, Y. Liu, T. kai
+     Chan, Y. Gao, X. Li, T. Mu, N. Xiao, A. Gurha, V. N. Rajesh, Y. W. Choi, Y.-R. Chen, Z. Huang,
+     R. Calandra, R. Chen, S. Luo, and H. Su. Maniskill3: Gpu parallelized robotics simulation and
+     rendering for generalizable embodied ai. Robotics: Science and Systems, 2025.
+
+[45] J. Achiam, S. Adler, S. Agarwal, L. Ahmad, I. Akkaya, F. L. Aleman, D. Almeida,
+     J. Altenschmidt, S. Altman, S. Anadkat, et al. Gpt-4 technical report. arXiv preprint
+     arXiv:2303.08774, 2023.
+[46] J. Schulman, P. Moritz, S. Levine, M. Jordan, and P. Abbeel. High-dimensional continuous
+     control using generalized advantage estimation. arXiv, 2018. URL https://arxiv.org/
+     abs/1506.02438.
+[47] C. Zheng, S. Liu, M. Li, X.-H. Chen, B. Yu, C. Gao, K. Dang, Y. Liu, R. Men, A. Yang, J. Zhou,
+     and J. Lin. Group sequence policy optimization. arXiv, 2025. URL https://arxiv.org/
+     abs/2507.18071.
+
+[48] X. Li, K. Hsu, J. Gu, O. Mees, K. Pertsch, H. R. Walke, C. Fu, I. Lunawat, I. Sieh, S. Kir-
+     mani, S. Levine, J. Wu, C. Finn, H. Su, Q. Vuong, and T. Xiao. Evaluating real-world robot
+     manipulation policies in simulation. In 8th Annual Conference on Robot Learning, 2024. URL
+     https://openreview.net/forum?id=LZh48DTg71.
+[49] L. Downs et al. Google scanned objects: A high-quality dataset of 3d scanned household items.
+     arXiv, 2022.
+
+[50] H. Team. Hunyuan3d 2.1: From images to high-fidelity 3d assets with production-ready pbr
+     material. arXiv, 2025.
+[51] A. Wagenmaker, Y. Zhang, M. Nakamoto, S. Park, W. Yagoub, A. Nagabandi, A. Gupta, and
+     S. Levine. Steering your diffusion policy with latent space reinforcement learning. In 9th
+     Annual Conference on Robot Learning, 2025. URL https://openreview.net/forum?id=
+     jU7AbGq3se.
+[52] D. McAllister, S. Ge, B. Yi, C. M. Kim, E. Weber, H. Choi, H. Feng, and A. Kanazawa.
+     Flow matching policy gradients. In The Fourteenth International Conference on Learning
+     Representations, 2026. URL https://openreview.net/forum?id=eoEmoKoQpJ.
+
+
+
+
+                                                13
+A     Training Details
+
+In this section, we list the training parameters used for all policies in Table A.1. We also summarize
+several practical observations encountered during training:
+1. Several training strategies were evaluated, including:
+    (a) Freezing the VLM and LoRA fine-tuning the action head.
+    (b) Freezing the VLM and fully fine-tuning the action head.
+    (c) Freezing the SigLip vision encoder, LoRA fine-tuning Gemma, and LoRA fine-tuning the
+        action head.
+    (d) LoRA fine-tuning the VLM and LoRA fine-tuning the action head.
+    (e) LoRA fine-tuning the VLM and fully fine-tuning the action head.
+    Overall, we found that freezing the VLM (a, b) significantly lowers the training ceiling and
+    often leads to model collapse during prolonged training, where task success rates initially peak,
+    then saturate, and eventually decline toward zero. As a result, updating the VLM is crucial for
+    stable learning. Fully fine-tuning the action head consistently outperformed the corresponding
+    configuration that LoRA fine-tunes it. Freezing the SigLip vision encoder reduced success rates
+    monotonically by a few percent compared to LoRA fine-tuning it. Since LoRA fine-tuning the
+    entire VLM did not noticeably affect sim-to-real performance, we adopt option (e) in this work.
+2. Adding the scaling exponent s to the importance ratio (Eq. 6) is crucial for stabilizing training and
+   preventing immediate collapse. Without it, the computed log probabilities can spike to very large
+   values, causing many updates to fall near the clipping threshold and resulting in the majority of
+   gradients being clipped.
+
+
+                                      Table A.1: Training parameters.
+               Parameter                       Value   Parameter                        Value
+               number of environments         192      action chunk size C                  4
+               batch size                   19200      number of integration steps K        1
+               mini batch size               1920      learning rate                    2e−5
+               episode length                  25      gradient global norm clip          0.5
+               discount factor γ             0.99      clipping ratio ϵ                   0.2
+               UTD ratio                        1      importance ratio scale s           0.2
+               LoRA rank                       32      σϕ log min                       −2.5
+               control frequency (Hz)           5      σϕ log max                       −2.0
+
+
+Domain randomization. Domain randomization ranges can be seen in Table A.2. For lighting, we
+use the same lighting setup as the one in SimplerEnv’s Bridge setting [48]. For camera position
+randomization, we first record the intersection point between the camera’s principal ray and the table
+in the default configuration. We then compute a new camera orientation such that the principal ray
+of the perturbed camera re-aligns with this original intersection point. We found that control-delay
+randomization was unnecessary due to the use of action chunks (C = 4), which allow the majority of
+actions to be executed with minimal latency.
+
+                               Table A.2: Domain randomization ranges.
+       Parameter                       Value            Parameter                       Value
+       object x-position (m)           [0.2, 0.4]       robot z-height perturb (m)      [0, 0.05]
+       object y-position (m)           [−0.15, 0.15]    robot joint pos perturb (rad)   [−0.1, 0.1]6
+       object yaw orientation (rad)    [0, 2π]          camera xyz-position (m)         [−0.05, 0.05]3
+       ambient light RGB color         [0, 0.6]3        directional light brightness    [0.5, 1.5]
+
+
+
+
+                                                       14
+Rewards. We employ a sparse success reward, enabled by the strong pre-training of the VLA during
+the imitation phase. An episode is considered successful if
+              success = contact(A, B) ∧ ¬ contact(A, table) ∧ ¬ contact(A, robot),                    (A.1)
+where A denotes the manipulated object and B denotes the target object onto which A is placed.
+
+B    Does Multimodality Matter? Effect of K
+
+In this work, we set K = 1, effectively converting the flow-matching policy πpre into a single-step
+Gaussian policy πθ during RL fine-tuning. While prior work such as Diffusion Steering [51] and Flow
+Policy Optimization (FPO) [52] demonstrate that flow-matching models can be fine-tuned without
+collapsing into a Gaussian policy, we found that: (1) PPOFlow led to significantly more stable and
+repeatable training, and (2) single-step (K = 1) RL fine-tuning exhibited no observable degradation
+in policy performance compared to maintaining multimodality (K > 1).
+We validate the latter through an ablation over K ∈ {1, 2, 4} on the entire scene–task set W,
+where larger K enables greater expressivity by chaining multiple Gaussian transitions, with K = 1
+corresponding to a unimodal policy. From the left side of Table B.1, performance remains comparable
+across K ∈ {1, 2, 4}, with success rates differing by only approximately 2–2.5 percentage points.
+Since these results are based on a single run per setting, we do not interpret the small differences as
+evidence that K = 1 is inherently superior to K > 1. Rather, the results show that K = 1 preserves
+comparable task performance while substantially reducing computational cost. Our findings align
+with recent work by Pan et al. [9], which argues that multimodality is not the primary driver of
+diffusion-based policy performance in robot manipulation. We hypothesize that multimodality is
+most beneficial during imitation learning when the demonstration distribution itself is multimodal [8].
+In contrast, under reward-guided optimization, unimodal Gaussian policies appear sufficient for
+effective policy improvement.
+Beyond task performance, reducing K substantially improves computational efficiency. As shown in
+Table B.1, K = 1 achieves a 1.17× speedup in backward pass time relative to K = 2 and a 1.45×
+speedup relative to K = 4. Inference gains are even more pronounced. Compared to the original
+imitation setting of K = 10, K = 1 yields a 2.72× speedup in inference latency under a regular
+forward pass and a 2.36× speedup when using torch.compile. These improvements stem from
+eliminating iterative denoising steps, effectively reducing the policy to a single forward pass, similar
+in spirit to consistency policies [10, 11, 3]. Overall, K = 1 maintains comparable task performance
+while substantially reducing both training and inference cost.
+
+                      Table B.1: Effect of K on RL fine-tuning and inference.
+                                                                          Inference Latency (s) [↓]
+     K          RL SR (%) [↑]    RL TF (s) [↓]   Backward Time (s) [↓]
+                                                                          Reg.    torch.compile
+     K = 10          N/A             N/A                  N/A            0.267          0.172
+     K=4            77.29            7.76               108.80           0.153          0.107
+     K=2            77.23            8.36                87.55           0.120          0.086
+     K=1            79.75            7.94                74.74           0.098          0.073
+
+
+
+
+                                                  15
+C    Generative Simulation Metrics
+
+Table C.1 reports the profiling statistics of the generative simulation pipeline illustrated in Fig. 2.
+Across 100 generated environments, the system produces 516 unique object assets, averaging 5.16 in-
+teractive objects per scene. Because the asset generation pipeline proceeds from text to a background-
+removed foreground image and then to a 3D asset, we deploy a GPT-4o-based automated quality
+assurance (QA) loop at multiple stages. The Semantic Appearance checker serves as an early filter on
+the intermediate foreground image, verifying whether it matches the target object category and key
+visual attributes. If this check fails, the system immediately resamples the text-to-image seed and
+retries, preventing semantically incorrect intermediate outputs from propagating into the downstream
+image-to-3D stage. The Mesh Geometry checker then evaluates whether the generated 3D mesh is
+complete and free of major geometric defects. Finally, the Cross-modal Text-to-3D Alignment checker
+assesses whether the final 3D asset remains semantically consistent with the original text description,
+thereby capturing semantic drift introduced during 3D generation. Combined with this GPT-4o-based
+QA-driven rejection-and-retry mechanism, assets require only 1.37 generation attempts on average to
+satisfy all constraints. Manual inspection shows that 85% of the generated environments are directly
+usable for end-to-end reinforcement learning without human intervention. The remaining failures
+are mainly due to scale mismatches or imperfect initial object placements (representative failure
+case see Fig. C.1), which are generally minor and can be rectified with minimal manual adjustment.
+Under fully online sequential generation on a single NVIDIA RTX 4090 GPU, the pipeline requires
+46.8 ± 5.0 minutes per scene. When reusable interactive assets are drawn from a pre-built asset
+library, the scene generation time is reduced to approximately 2 minutes per environment.
+
+Table C.1: Profiling statistics of the generative simulation pipeline (Fig. 2). Results are aggregated
+over 100 generated scenes under sequential execution on a single NVIDIA RTX 4090 GPU. QA pass
+rates denote stage-wise single-attempt pass rates, and average attempts are measured per accepted
+object asset.
+           Category                     Metric                                   Value
+           Generation Scale             Total generated environments              100
+                                        Total unique 3D object assets             516
+                                        Avg. interactive assets per scene         5.16
+                                        Total background assets                   100
+           Generation Efficiency        Total time per scene                46.8 ± 5.0 min
+                                           ⌞ Time per background asset      25.0 ± 3.2 min
+                                           ⌞ Time per object asset           3.9 ± 1.6 min
+           Automated QA Pass Rates      Semantic Appearance                      83.3%
+                                        Mesh Geometry                            75.2%
+                                        Cross-modal Text-to-3D Alignment         91.9%
+                                        Average attempts per valid asset          1.37
+           Manual Inspection            Final environment acceptance rate        85%
+
+
+Auto-scaling of objects. Since the WidowX 250S manipulator (Fig. 4) used in this work has a narrow
+gripper width of at most 74 mm, many generated objects are too large to be grasped. To address this,
+we automatically scale down oversized objects (based on their mesh bounding boxes) to ensure they
+are graspable. We also reduce mesh resolution to simplify contact computation.
+
+
+
+
+                                                  16
+ Semantic Appearance Checker                   Mesh Geometry Checker                           Cross-modal Text-to-3D Alignment Checker
+
+
+
+
+ Prompt: matte black ceramic jar with a narrow Prompt: simple round wooden table with a        Prompt: black plastic remote control with
+ neck and slightly textured finish.            light natural finish.                           raised tactile buttons.
+ X Two objects are present, jar lacks          X Overlapping and redundant leg geometry.       X Geometry resembles a handle, not a remote
+ narrow neck and textured finish.                                                              control.
+
+
+
+
+ Tasks desc: Put the carrot on the plate on    Tasks desc: Pick up the mushroom and place it   Tasks desc: Pick up the carrot and put it in the
+ the table.                                    in the saucepan.                                soup pot.
+ X Due to a Scene Designer error, the carrot   X The mushroom is too large for the robotic     X The carrot starts at the table edge and easily
+ is initialized directly on the plate.         arm to grasp.                                   rolls off, making it hard to grasp.
+
+
+Figure C.1: Representative failure cases in the generative simulation pipeline. Top: failures
+detected by the automated QA modules, including semantic appearance mismatch, mesh defects, and
+text-to-3D semantic drift. Bottom: residual failures identified by manual inspection after all automated
+checks pass, including incorrect initialization, scale mismatch, and unstable object placement.
+
+
+D       Foundation Model Candidates
+
+In addition to π0 , we also considered OpenVLA [14], but observed a significant real-to-sim perfor-
+mance gap1 . Beyond this gap, the larger size of OpenVLA (7B parameters) compared to π0 (3B)
+made the latter a more practical choice. We also evaluated SpatialVLA [15]. Although it exhibited
+strong real-to-sim transfer, we found its inference latency to be substantially higher than that of π0 .
+Overall, we selected π0 for its smaller model size (3B), strong real-to-sim transfer, and low inference
+latency.
+We note that, rather than using the π0 model released by Physical Intelligence, we adopt a model
+from a third-party repository (https://github.com/allenzren/open-pi-zero), as it provides
+a checkpoint pretrained on BridgeV2 (denoted πpre ). In parallel with this paper’s experiments, we
+also fine-tuned the official π0 and π0.5 [17] models from Physical Intelligence on BridgeV2. We
+found that while the official π0 achieved comparable task success to πpre , the newer π0.5 performed
+worse than both across multiple random seeds. Thus, we use πpre throughout this work, although we
+expect RL fine-tuning to yield substantial gains regardless of the initial imitation policy, provided
+that the starting success rate is sufficiently high.
+
+
+
+
+    1
+     See https://github.com/openvla/openvla/issues/7#issuecomment-2330572696 for analysis
+by the authors on the OpenVLA real-to-sim gap.
+
+
+                                                                    17
+E     EmbodiedGen Scenes
+
+    Move the green cube and Pick up the orange and          Put the broccoli on the    Pick up the knife and put it Put the pen in the pen
+    put it into the yellow cube place it on the blue napkin white dish on the table    in the utensil holder        holder on the table
+
+
+
+
+    Put the red cup on the      Put the pear in the pot on Put the teacup on the       Put the wooden spoon on Put the teacup on the plate
+    tray on the table           the table                  plate on the table          the white plate         on wooden striped table
+
+
+
+
+    Put the yellow cup on the    Put the cucumber on the Put the tomato into the       Put the potato into the     Put the cup onto the tray
+    wooden tray                  plate                   bowl                          basket
+
+
+
+
+    Put the purple cup onto     Put the green apple into   Pick up the banana and      Put the teacup on the       Put the marker in the pen
+    the tray                    the fruit bowl             place it on the napkin      plate                       holder
+
+
+
+
+    Put the lemon on the        Pick up the orange and     Put the cucumber in the     Put the carrot on the plate Put the chess pawn on
+    plate                       place it on the napkin     metal colander                                          the chessboard square
+
+
+
+
+    Put the blue cup on the     Pick up the spoon and       Put the apple into the fruit Place the orange on the   Pick up the pear and
+    tray                        place it on the white plate bowl                         green napkin              place it in the basket
+
+
+
+
+    Place the eraser on the     Pick up the orange and     Put the knife on the        Place the spoon on the      Pick up the spatula and
+    notebook                    place it in the bowl       wooden cutting board        saucer                      put it on the plate
+
+
+
+
+    Put the glue stick in the   Pick up the strawberry and Put the pencil sharpener    Put the red block into the Put the lego brick in the
+    plastic bin                 put it on the small saucer on the green tray           blue box                   plastic bucket
+
+
+
+
+     Figure E.1: Generated example simulation scenes for RL fine-tuning. Zoom in for details.
+
+
+                                                                       18
+                               Table E.1: EmbodiedGen generated scenes 0–99.
+Scene   Language Command                  Distractors                Scene   Language Command                Distractors
+
+0       green cube → yellow cube          keyboard                   50      white mouse → mouse pad         black mouse, keyboard
+1       carrot → plate                    knife, bowl                51      water bottle → tray             mug, plate
+2       ceramic teapot → tray             mug, plate                 52      apple → fruit plate             glass cup
+3       orange → blue napkin              plate                      53      orange → round plate            fork, square plate
+4       banana → red napkin               mug, plate                 54      spoon → plate                   glass, fork, napkin
+5       broccoli → white dish             cutting board              55      cup → tray                      spoon, plate, bowl
+6       tomato → saucepan                 –                          56      cup → tray                      napkin, plate
+7       cucumber → metal colander         knife, cutting board       57      banana → plate                  fork, orange, napkin
+8       knife → round container           spoon, plate               58      potato → basket                 knife, onion, cutting board
+9       orange → blue napkin              spoon, plate               59      tomato → bowl                   spoon, potato, plate
+10      red cup → tray                    fork, plate                60      black pen → round container     stapler, red pencil, notebook
+11      spoon → black jar                 plate                      61      cucumber → plate                knife, carrot, cutting board
+12      pen → round container             book                       62      blue cup → tray                 spoon, plate
+13      pear → pot                        mug, plate                 63      spoon → white plate             fork, glass
+14      apple → plate                     book                       64      apple → fruit bowl              knife, plate
+15      wooden spoon → white plate        glass cup, napkin          65      orange → green napkin           salt shaker, plate
+16      teacup → plate                    spoon, napkin              66      banana → plate                  fork, glass
+17      orange → bowl                     spoon, plate               67      lemon → metal bowl              knife, plate
+18      marker → round container          coffee mug, notebook       68      tomato → white plate            fork, napkin
+19      yellow cup → wooden tray          remote control, book       69      pear → basket                   mug, plate
+20      green apple → basket              knife, plate               70      red marker → pen holder         mug, notebook
+21      white ping-pong ball → blue cup   remote control, book       71      eraser → notebook               pen
+22      cucumber → basket                 knife, cutting board       72      green apple → tray              fork, plate
+23      carrot → plate                    knife, cutting board       73      teacup → saucer                 spoon, napkin
+24      mushroom → pot                    knife, cutting board       74      knife → cutting board           spoon, plate
+25      ceramic teapot → tray             mug, plate                 75      banana → basket                 mug, plate
+26      cucumber → metal colander         knife, cutting board       76      lemon → napkin                  fork, plate
+27      knife → utensil holder            salt shaker, plate         77      mushroom → saucepan             spoon, plate
+28      orange → napkin                   knife, plate               78      potato → plate                  fork, glass
+29      lemon → plate                     fork, napkin               79      yellow cup → basket             spoon, plate
+30      orange → bowl                     knife, cutting board       80      apple → cutting board           knife, plate
+31      tennis ball → gray basket         coffee mug, book           81      spoon → saucer                  cup, plate
+32      marker → round container          coffee mug, notebook       82      spatula → plate                 salt shaker, bowl
+33      yellow cup → wooden tray          fork, napkin               83      red block → blue box            lamp, book
+34      green eraser → red box            pen, notebook              84      banana → bowl                   spoon, plate
+35      fork → metal tray                 napkin, plate              85      pear → napkin                   spoon, plate
+36      apple → basket                    knife, plate               86      red apple → wicker basket       mug, plate
+37      spoon → black jar                 napkin, plate              87      green lime → white bowl         knife, plate
+38      pen → pen holder                  notebook                   88      yellow banana → cutting board   knife, bowl
+39      pear → pot                        knife, plate               89      strawberry → small saucer       fork, napkin
+40      teacup → plate                    spoon                      90      carrot → soup pot               knife, cutting board
+41      banana → napkin                   fork, plate                91      soup spoon → empty bowl         plate, napkin
+42      wooden spoon → white plate        salt shaker, napkin        92      pepper grinder → metal tray     salt shaker, napkin
+43      marker → pen holder               coffee mug, notebook       93      red marker → white mug          mouse, keyboard
+44      green apple → basket              salt shaker, plate         94      eraser → open notebook          pen
+45      apple → basket                    fork, plate                95      glue stick → plastic bin        stapler, mouse pad
+46      red cup → tray                    salt shaker, napkin        96      pencil sharpener → green tray   book
+47      cucumber → basket                 knife, cutting board       97      lego brick → plastic bucket     remote control, book
+48      green apple → fruit bowl          red apple, knife, plate    98      chess pawn → chessboard         mug, book
+49      purple cup → tray                 spoon, red cup, plate      99      sponge → sink basin             towel
+
+
+
+
+                                                                    19
+Figure E.2: Success rates for EG scenes 0-24.
+
+
+
+
+                     20
+Figure E.3: Success rates for EG scenes 25-49.
+
+
+
+
+                     21
+Figure E.4: Success rates for EG scenes 50-74.
+
+
+
+
+                     22
+Figure E.5: Success rates for EG scenes 75-99.
+
+
+
+
+                     23
+F    SimplerEnv Scenes
+
+
+
+
+    Figure F.1: SimplerEnv scenes with domain randomization used for training and evaluation.
+
+We use the three manually designed tabletop scenes from SimplerEnv [48] both to train an N = 3
+baseline policy and to OOD evaluate EmbodiedGen-trained policies. To be able to use the same
+domain randomization techniques as those in Table A.2, we remove the static png background so that
+camera pose and lighting randomization can properly take effect (Fig. F.1).
+
+
+
+
+                                               24
+G    Google Scanned Objects Scenes
+
+
+
+
+Figure G.1: Google Scanned Objects scenes shown with domain randomization disabled. Evaluation
+was performed with domain randomization enabled.
+
+
+
+                            Table G.1: Google scanned scenes 0–17.
+           Scene   Language Command                    Distractors
+           0       green measuring tape → white tray   purple sponge, black mouse
+           1       green tape → plate                  gold sprinkles bottle, cereal bowl
+           2       can opener → plate                  coffee mug, green tape roll
+           3       purple sponge → white tray          black mouse, white textured mug
+           4       hammer → white tray                 gold sprinkles bottle, cereal bowl
+           5       flashlight → white tray             coffee mug, green tape roll
+           6       black mouse → white tray            purple sponge, white textured mug
+           7       green speaker → plate               purple sponge, black mouse
+           8       white teapot → plate                coffee mug, green tape roll
+           9       white spoon rest → white tray       purple sponge, black mouse
+           10      light blue lunch box → white tray   coffee mug, green tape roll
+           11      green turtle toy → plate            coffee mug, green tape roll
+           12      shoe → white tray                   purple sponge, black mouse
+           13      red butter dish → round plate       porcelain tray, windup dog
+           14      yellow school bus → plate           gold sprinkles bottle, cereal bowl
+           15      dark gray rhino → white tray        windup dog, pink gum box
+           16      yellow candy bar → white tray       coffee mug, green tape roll
+           17      screwdriver → white tray            purple sponge, black mouse
+
+
+
+
+                                               25
+H        Hunyuan3D-2.1 Scenes
+
+
+
+
+Figure H.1: Hunyuan3D-2.1 scenes shown with domain randomization disabled. Evaluation was
+performed with domain randomization enabled.
+
+
+
+                               Table H.1: Hunyuan3D-2.1 generated scenes 0–24.
+    Scene   Language Command         Distractors                    Scene   Language Command               Distractors
+
+    0       carrot → tray            sticky notes, earbud case      13      green measuring tape → tray    USB drive, staples box
+    1       toothbrush → soap dish   mouthwash cup, AC remote       14      glue stick → round container   juice, Scotch tape
+    2       spatula → tray           flashlight, potato chips       15      white mouse → tray             cheese sticks
+    3       apple → basket           pill organizer, chewing gum    16      green fork → plate             chili, stamp
+    4       pear → bowl              staples box, USB drive         17      glasses case → tray            Coke can, cutter knife
+    5       knife → tray             Scotch tape                    18      black remote → red holder      capsicum, spice jar
+    6       orange peeler → tray     stamp, chili                   19      pink comb → tray               bowl
+    7       bottle opener → tray     diffuser bottle, vase          20      purple garlic → bowl           hand sanitizer
+    8       yellow bottle → tray     wine glass, coaster            21      red can → tray                 wrench
+    9       milk carton → tray       Coke can, coffee cup           22      orange bottle → tray           pill organizer, pen holder
+    10      green eraser → tray      presenter clicker, pliers      23      flashlight → tray              gamepad
+    11      brown egg → plate        USB charger                    24      earbud case → tray             thermos
+    12      white stapler → tray     biscuit box, wrench
+
+
+
+
+                                                                   26
+I   Sim-to-real Scenes
+
+
+
+
+                 Figure I.1: All objects used in the sim-to-real experiments.
+
+
+
+
+          Figure I.2: Example of 10 trial object randomization (scene 1 in Table 2).
+
+
+
+
+                                             27
+J    Real-world Rollout Examples
+
+
+
+
+IL
+
+
+
+
+RL
+Figure J.1: IL: semantic failure. RL: success. A trial example of the red knife → cutting board task
+(scene 7 from Table 2). The imitation learning (IL) policy first grasps the red knife but immediately
+drops it after entering an out-of-distribution state. It then grasps and lifts the knife once more before
+dropping it again and eventually timing out. In comparison, the reinforcement learning (RL) policy
+grasps the red knife and deliberately places it on the cutting board.
+
+
+
+
+IL
+
+
+
+
+RL
+Figure J.2: IL: dynamics failure. RL: success. A trial example of the green marker → basket task
+(scene 9 from Table 2). The IL policy initially misses the grasp on the green marker and then pushes
+the basket away. It makes two regrasp attempts before finally lifting the marker, but places it next to
+the basket instead and eventually times out. In comparison, the RL policy correctly places the green
+marker inside the basket.
+
+
+
+
+                                                   28
+IL
+
+
+
+
+RL
+Figure J.3: IL: dynamics and semantic failure. RL: success. A trial example of the screwdriver
+→ basket task (scene 10 from Table 2). The IL policy attempts to grasp the screwdriver but misses.
+It then becomes confused and grasps the knife instead, placing it in the basket and failing due to
+incorrect task execution. In comparison, the RL policy correctly places the screwdriver in the basket.
+
+
+
+
+IL
+
+
+
+
+RL
+Figure J.4: IL: dynamics and semantic failure. RL: success. A trial example of the blue teacup
+→ yellow teacup stacking task (scene 11 from Table 2). The IL policy first misses the grasp on the
+blue teacup and then moves toward the yellow teacup twice. It subsequently becomes confused and
+attempts to grasp the purple teacup instead, eventually timing out. In comparison, the RL policy
+quickly grasps the correct teacup and stacks it onto the yellow one.
+
+
+
+
+                                                 29
+     IL
+
+
+
+
+     RL
+
+
+
+
+Figure J.5: IL: dynamics failure. RL: dynamics failure. A trial example of the white eraser → mug
+task (scene 6 from Table 2). The IL policy misses the grasp on the white eraser several times before
+ultimately hovering, leading to a timeout. In contrast, the RL policy successfully grasps and lifts the
+white eraser, but it slips from the grasp and falls onto the black pen, confusing the policy. The policy
+then grasps and clears the black pen before returning to the white eraser, but still times out.
+
+
+
+
+     IL
+
+
+
+
+     RL
+
+
+
+
+Figure J.6: IL: dynamics failure. RL: dynamics failure. A trial example of the broccoli → mug
+task (scene 1 from Table 2). The IL policy repeatedly misses the grasp on the broccoli and eventually
+times out. In contrast, the RL policy quickly grasps the broccoli and attempts to place it into the mug,
+but it hits the edge and rolls out of reach of the manipulator. A significant portion of failures was
+caused by objects moving out of reach, preventing regrasp attempts.
+
+
+
+
+                                                  30
+

@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-13T07:14:33.379694+00:00",
+  "job_id": "7367962",
+  "gpu_requested": 0,
+  "cpus": 4,
+  "memory": "32G",
+  "walltime": "00:45:00",
+  "remote_evidence": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence",
+  "files": {
+    "full-audit-data-inputs.py": "7ba325fbcd564518fefdc0cc9672b0973463686b01488029a1b18178f46468bf",
+    "full-audit-data-inputs.sbatch": "7d7727357205528f6387db6e5a0582dcaf148a6ac39622acc503f5ab96b87d09"
+  },
+  "scope": "complete paired input and target scan plus full tokenizer length reconciliation; no model training"
+}

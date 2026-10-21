@@ -1,0 +1,54 @@
+{
+  "cycles": [
+    {
+      "primary_states": {
+        "7365659": "COMPLETED",
+        "7365681": "RUNNING",
+        "7365682": "RUNNING",
+        "7367626": "PENDING",
+        "7367628": "PENDING",
+        "7368009": "PENDING"
+      },
+      "queue_receipt": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/receipts/0002-jobs.json",
+      "queue_sha256": "98da94e1ef8e24dee7b3196c56dbdec5f5eee50abe281b743789f59869a204f3",
+      "sacct_receipt": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/receipts/0001-jobs.json",
+      "sacct_sha256": "1ae5709f485526bfea2a8a594c13e403aa94b0e8179db377887567b637c1bbee"
+    },
+    {
+      "primary_states": {
+        "7365659": "COMPLETED",
+        "7365681": "RUNNING",
+        "7365682": "RUNNING",
+        "7367626": "PENDING",
+        "7367628": "PENDING",
+        "7368009": "PENDING"
+      },
+      "queue_receipt": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/receipts/0004-jobs.json",
+      "queue_sha256": "7d60eb95751f5cd91bd93bc52e93eb7c1a03f7aa06a8050fdc692c0ddbac4358",
+      "sacct_receipt": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/receipts/0003-jobs.json",
+      "sacct_sha256": "0b240174ac5aa5767035158fc524577f1bd6868ed4b41dea70809169815af1d0"
+    }
+  ],
+  "driver_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 133.1326784999983,
+    "failures": [],
+    "pid": 96318,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791877471.252914
+  },
+  "observed_unix": 1791877477.495855,
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "sacct_start_spacing_seconds": 128.247211933136,
+  "status": "two_complete_cycles_verified"
+}

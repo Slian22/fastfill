@@ -1,0 +1,823 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-13T07:31:05.287345+00:00",
+  "workspace": "/Users/slian/Desktop/3D/Worldedge/OptiScene",
+  "scope": "This sidecar static code review for finite known-case extraction and full-audit-data-geometry.py. Case evidence is separately inventoried in full-audit-data-known-cases.json.",
+  "coverage_policy": "Only verifiable full or selected static reads in the retained review record are claimed. Whole-file hashing does not imply whole-file static review. Other agents and historical auditors are not counted as this reviewer.",
+  "reviewed_code_files": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry.py",
+      "sha256": "460f08eea3214e47d36dd4d2af78a0e041d2f51949c9d845fd0882fac6122c79",
+      "bytes": 15146,
+      "total_lines": 299,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "full",
+      "line_ranges_inclusive": [
+        [
+          1,
+          299
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Entire scanner including source-locator resolution, all population loops, bound-ID reverse mapping, aggregation and result emission.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [],
+      "submitted_job_comparison": {
+        "job_id": "7367978",
+        "launch_record_path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry-launch.json",
+        "recorded_submitted_sha256": "460f08eea3214e47d36dd4d2af78a0e041d2f51949c9d845fd0882fac6122c79",
+        "local_equals_submitted_hash": true
+      }
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry.sbatch",
+      "sha256": "ef796bb57e6825a174a7ee10b872ad516286ff91ab8252374d6337fdf3b281eb",
+      "bytes": 1004,
+      "total_lines": 22,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "full",
+      "line_ranges_inclusive": [
+        [
+          1,
+          22
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Entire submitted launcher; resource and path binding only; not a scheduler-state review.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [],
+      "submitted_job_comparison": {
+        "job_id": "7367978",
+        "launch_record_path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry-launch.json",
+        "recorded_submitted_sha256": "ef796bb57e6825a174a7ee10b872ad516286ff91ab8252374d6337fdf3b281eb",
+        "local_equals_submitted_hash": true
+      }
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-inputs.py",
+      "sha256": "7ba325fbcd564518fefdc0cc9672b0973463686b01488029a1b18178f46468bf",
+      "bytes": 15824,
+      "total_lines": 269,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          135,
+          180
+        ],
+        [
+          235,
+          269
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Frozen-code references, bound populations and qualified-ledger SHA checks; tokenizer loop was not fully statically read.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": []
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "bytes": 13793,
+      "total_lines": 288,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          115,
+          190
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Inventory validation, both bound namespaces, bidirectional original-ID sidecar.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/corpus-snapshot-v2.json",
+          "receipt_sha256": "a657b0e9f83934c3a4463346f6d46e59be81ea67d742806090c3df8b7d710db3",
+          "snapshot": "corpus-097e351ad6d3",
+          "relative_code_path": "comparison/contract.py",
+          "recorded_snapshot_sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        },
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+          "receipt_sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+          "snapshot": "main-data-50a274bc4c46",
+          "relative_code_path": "comparison/contract.py",
+          "recorded_snapshot_sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/main_data.py",
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "bytes": 21463,
+      "total_lines": 401,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          125,
+          205
+        ],
+        [
+          225,
+          365
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Separate P pose repair, qualification, bound-room publication, dev handling and dataset manifest lineage.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+          "receipt_sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+          "snapshot": "main-data-50a274bc4c46",
+          "relative_code_path": "comparison/main_data.py",
+          "recorded_snapshot_sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/eval_data.py",
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "bytes": 15289,
+      "total_lines": 280,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          125,
+          225
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Test-population iteration, binding, sidecars and request publication.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+          "receipt_sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+          "snapshot": "main-data-50a274bc4c46",
+          "relative_code_path": "comparison/eval_data.py",
+          "recorded_snapshot_sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/corpus.py",
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "bytes": 15194,
+      "total_lines": 334,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          150,
+          188
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Prepared-record publication and historical split/identity preservation. Additional search-hit lines not counted as full coverage.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": [
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/corpus-snapshot-v2.json",
+          "receipt_sha256": "a657b0e9f83934c3a4463346f6d46e59be81ea67d742806090c3df8b7d710db3",
+          "snapshot": "corpus-097e351ad6d3",
+          "relative_code_path": "comparison/corpus.py",
+          "recorded_snapshot_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        },
+        {
+          "receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+          "receipt_sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+          "snapshot": "main-data-50a274bc4c46",
+          "relative_code_path": "comparison/corpus.py",
+          "recorded_snapshot_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+          "local_matches_recorded_snapshot": true,
+          "verification_type": "local bytes compared with recorded frozen-snapshot digest; not a fresh remote byte read of this file"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "sha256": "b2eb88d7c2d6b97c27d8551d8ca80dd1d4aa64f6b8fa75b1bd93a1b7cacf779a",
+      "bytes": 26474,
+      "total_lines": 394,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "selected",
+      "line_ranges_inclusive": [
+        [
+          192,
+          245
+        ],
+        [
+          286,
+          325
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Opening index preservation, window geometry and room meta.house/meta.source_room_id resolver contract.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": []
+    },
+    {
+      "path": ".release/audits/2026-09-28/source-check/designer/join_opening.py",
+      "sha256": "44030d4163f95361d0553ec482e1abda3118d961bf84e0c8574d25cf56c4df8f",
+      "bytes": 3861,
+      "total_lines": 56,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "full",
+      "line_ranges_inclusive": [
+        [
+          1,
+          56
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Historical strict-window selector, original-ID construction, saved-fixed identity join. Read only; not rerun.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": []
+    },
+    {
+      "path": ".release/audits/2026-09-28/source-check/designer/interior_edge_repro.py",
+      "sha256": "f58ca3595cff3beb9d4c9869af64691fca1cf6edb2cf1bf209eafbd318d29992",
+      "bytes": 1415,
+      "total_lines": 20,
+      "location_kind": "local_workspace",
+      "static_read_coverage": "full",
+      "line_ranges_inclusive": [
+        [
+          1,
+          20
+        ]
+      ],
+      "read_by": "this_sidecar",
+      "scope_notes": "Historical thin-box reproduction and exact ins_291 room-UID evidence; only ins_291 directly joined in this script. Read only; not rerun.",
+      "hash_measurement": "whole local file bytes; static coverage remains the explicit ranges",
+      "snapshot_receipt_comparisons": []
+    }
+  ],
+  "frozen_v3_2_adapter_hash_comparison": {
+    "archive": {
+      "path": ".release/v3.2/fastfill-v3.2-code.zip",
+      "sha256": "5a68d72bab15f2f044a5a18958596bbe7680ead1c185ca3d972476922cc078e9",
+      "bytes": 209605
+    },
+    "method": "stdlib zipfile reads and SHA256 only; archive not extracted and adapters not imported",
+    "members": [
+      {
+        "archive_member": "fastfill/adapters/__init__.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "d415f5df39339acfcbc34b9a4ea94b0ece9c0b43c17019db469e1d1b54bb4b0f",
+        "frozen_v3_2_bytes": 2033,
+        "local_path": "fastfill/adapters/__init__.py",
+        "local_sha256": "d415f5df39339acfcbc34b9a4ea94b0ece9c0b43c17019db469e1d1b54bb4b0f",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/__main__.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+        "frozen_v3_2_bytes": 43,
+        "local_path": "fastfill/adapters/__main__.py",
+        "local_sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/ase.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+        "frozen_v3_2_bytes": 2511,
+        "local_path": "fastfill/adapters/ase.py",
+        "local_sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/hssd200.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "1c755e3a198ab82c22f31e9dcea01c5f9b820fad542590603eaa6f647db20264",
+        "frozen_v3_2_bytes": 28793,
+        "local_path": "fastfill/adapters/hssd200.py",
+        "local_sha256": "1c755e3a198ab82c22f31e9dcea01c5f9b820fad542590603eaa6f647db20264",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+          "recorded_sha256": "1c755e3a198ab82c22f31e9dcea01c5f9b820fad542590603eaa6f647db20264",
+          "recorded_prior_coverage": "complete",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/il3d_3dfront.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "b2eb88d7c2d6b97c27d8551d8ca80dd1d4aa64f6b8fa75b1bd93a1b7cacf779a",
+        "frozen_v3_2_bytes": 26474,
+        "local_path": "fastfill/adapters/il3d_3dfront.py",
+        "local_sha256": "b2eb88d7c2d6b97c27d8551d8ca80dd1d4aa64f6b8fa75b1bd93a1b7cacf779a",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "selected",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "b2eb88d7c2d6b97c27d8551d8ca80dd1d4aa64f6b8fa75b1bd93a1b7cacf779a",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/il3d_synthetic.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+        "frozen_v3_2_bytes": 11847,
+        "local_path": "fastfill/adapters/il3d_synthetic.py",
+        "local_sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/interiorgs.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "93103b3bb0f894976a1a2d0088dc20043564cc578f5255ad3afa6a022325a5cf",
+        "frozen_v3_2_bytes": 24303,
+        "local_path": "fastfill/adapters/interiorgs.py",
+        "local_sha256": "93103b3bb0f894976a1a2d0088dc20043564cc578f5255ad3afa6a022325a5cf",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "93103b3bb0f894976a1a2d0088dc20043564cc578f5255ad3afa6a022325a5cf",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/internscenes.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "4350a77e704fbbb7968abcd4ff4c543b4f07c2d3ae8146568b6718fce17230ac",
+        "frozen_v3_2_bytes": 10426,
+        "local_path": "fastfill/adapters/internscenes.py",
+        "local_sha256": "4350a77e704fbbb7968abcd4ff4c543b4f07c2d3ae8146568b6718fce17230ac",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/internscenes_3rscan.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+        "frozen_v3_2_bytes": 628,
+        "local_path": "fastfill/adapters/internscenes_3rscan.py",
+        "local_sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/internscenes_arkit.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+        "frozen_v3_2_bytes": 786,
+        "local_path": "fastfill/adapters/internscenes_arkit.py",
+        "local_sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/internscenes_mp3d.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "c09dbffaa8b976292df07c4e019b14662757b8ae097a918c87ad08a51a0e3e06",
+        "frozen_v3_2_bytes": 1251,
+        "local_path": "fastfill/adapters/internscenes_mp3d.py",
+        "local_sha256": "c09dbffaa8b976292df07c4e019b14662757b8ae097a918c87ad08a51a0e3e06",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/internscenes_scannet.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+        "frozen_v3_2_bytes": 433,
+        "local_path": "fastfill/adapters/internscenes_scannet.py",
+        "local_sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/m3dlayout_infinigen.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+        "frozen_v3_2_bytes": 3069,
+        "local_path": "fastfill/adapters/m3dlayout_infinigen.py",
+        "local_sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/mansionworld.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+        "frozen_v3_2_bytes": 16013,
+        "local_path": "fastfill/adapters/mansionworld.py",
+        "local_sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/multiscan.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "b09cb470d3a81c940b89189536b21a52e6d5d74e4c40ddf91c86304f1d6bc9a1",
+        "frozen_v3_2_bytes": 7808,
+        "local_path": "fastfill/adapters/multiscan.py",
+        "local_sha256": "b09cb470d3a81c940b89189536b21a52e6d5d74e4c40ddf91c86304f1d6bc9a1",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+          "recorded_sha256": "b09cb470d3a81c940b89189536b21a52e6d5d74e4c40ddf91c86304f1d6bc9a1",
+          "recorded_prior_coverage": "complete",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/optiscene_holodeck.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "64a61204c688da7500fadbbc10be06e4863e53388918f5c1c4d725d6405f406c",
+        "frozen_v3_2_bytes": 2700,
+        "local_path": "fastfill/adapters/optiscene_holodeck.py",
+        "local_sha256": "64a61204c688da7500fadbbc10be06e4863e53388918f5c1c4d725d6405f406c",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+          "recorded_sha256": "64a61204c688da7500fadbbc10be06e4863e53388918f5c1c4d725d6405f406c",
+          "recorded_prior_coverage": "full production file read",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/sage10k.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "eb390cd62c9e58e03e4a4484c34eb5e7de344a456ba56cbcb947b3ed8524bf32",
+        "frozen_v3_2_bytes": 18024,
+        "local_path": "fastfill/adapters/sage10k.py",
+        "local_sha256": "eb390cd62c9e58e03e4a4484c34eb5e7de344a456ba56cbcb947b3ed8524bf32",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/scan2cad.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "eb82a6a602c4e6689d9871a4baa443b69502b376b6b751c4fd3e869271b7ac04",
+        "frozen_v3_2_bytes": 5735,
+        "local_path": "fastfill/adapters/scan2cad.py",
+        "local_sha256": "eb82a6a602c4e6689d9871a4baa443b69502b376b6b751c4fd3e869271b7ac04",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+          "recorded_sha256": "eb82a6a602c4e6689d9871a4baa443b69502b376b6b751c4fd3e869271b7ac04",
+          "recorded_prior_coverage": "complete",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/scannetpp.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+        "frozen_v3_2_bytes": 2743,
+        "local_path": "fastfill/adapters/scannetpp.py",
+        "local_sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+          "recorded_sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+          "recorded_prior_coverage": "complete",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/scenesmith.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "00465a214c8c678953107e41124ce45ffbcd17ffe805d0fdb8cb157e54186847",
+        "frozen_v3_2_bytes": 8537,
+        "local_path": "fastfill/adapters/scenesmith.py",
+        "local_sha256": "00465a214c8c678953107e41124ce45ffbcd17ffe805d0fdb8cb157e54186847",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/spatialgen.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "b9344dd58586de328ab25a3d9c66f8da7c75b22d3c7c1714674b38de8a139995",
+        "frozen_v3_2_bytes": 910,
+        "local_path": "fastfill/adapters/spatialgen.py",
+        "local_sha256": "b9344dd58586de328ab25a3d9c66f8da7c75b22d3c7c1714674b38de8a139995",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/spatiallm.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+        "frozen_v3_2_bytes": 13193,
+        "local_path": "fastfill/adapters/spatiallm.py",
+        "local_sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      },
+      {
+        "archive_member": "fastfill/adapters/structured3d.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "99f3d27fa229ace9730c1681713d7f090949dfe20fa1b8df365432d53c95b03c",
+        "frozen_v3_2_bytes": 8556,
+        "local_path": "fastfill/adapters/structured3d.py",
+        "local_sha256": "99f3d27fa229ace9730c1681713d7f090949dfe20fa1b8df365432d53c95b03c",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed",
+        "historical_audit_record": {
+          "evidence_path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+          "recorded_sha256": "99f3d27fa229ace9730c1681713d7f090949dfe20fa1b8df365432d53c95b03c",
+          "recorded_prior_coverage": "complete",
+          "attribution": "2026-09-28 prior auditor; not this sidecar static-read coverage"
+        },
+        "frozen_v3_2_equals_historical_audit_digest": true
+      },
+      {
+        "archive_member": "fastfill/adapters/unified.py",
+        "frozen_location_kind": "archived_v3.2_code",
+        "frozen_v3_2_sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+        "frozen_v3_2_bytes": 5643,
+        "local_path": "fastfill/adapters/unified.py",
+        "local_sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+        "local_equals_frozen_v3_2": true,
+        "measurement_coverage": "hash_only; not a full static source review",
+        "this_sidecar_static_coverage": "not_claimed"
+      }
+    ],
+    "summary": {
+      "python_members": 24,
+      "local_equal_to_archive": 24,
+      "members_with_prior_audit_digest": 11,
+      "prior_digest_equal": 11
+    }
+  },
+  "sft_snapshot_adapter_availability": {
+    "snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470",
+    "measurement": "read-only explicit 24 code paths, no dataset reads",
+    "files": [
+      {
+        "relative_path": "fastfill/adapters/__init__.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/__init__.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/__main__.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/__main__.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/ase.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/ase.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/hssd200.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/hssd200.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/il3d_3dfront.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/il3d_3dfront.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/il3d_synthetic.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/il3d_synthetic.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/interiorgs.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/interiorgs.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/internscenes.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/internscenes.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/internscenes_3rscan.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/internscenes_3rscan.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/internscenes_arkit.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/internscenes_arkit.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/internscenes_mp3d.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/internscenes_mp3d.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/internscenes_scannet.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/internscenes_scannet.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/m3dlayout_infinigen.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/m3dlayout_infinigen.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/mansionworld.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/mansionworld.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/multiscan.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/multiscan.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/optiscene_holodeck.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/optiscene_holodeck.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/sage10k.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/sage10k.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/scan2cad.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/scan2cad.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/scannetpp.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/scannetpp.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/scenesmith.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/scenesmith.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/spatialgen.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/spatialgen.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/spatiallm.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/spatiallm.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/structured3d.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/structured3d.py",
+        "status": "missing"
+      },
+      {
+        "relative_path": "fastfill/adapters/unified.py",
+        "remote_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/adapters/unified.py",
+        "status": "missing"
+      }
+    ],
+    "interpretation": "All 24 queried adapter paths were absent from the explicitly named SFT snapshot. No current frozen-SFT adapter digest is claimed. This check does not establish adapter availability in other snapshots."
+  },
+  "snapshot_receipt_evidence": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/corpus-snapshot-v2.json",
+      "sha256": "a657b0e9f83934c3a4463346f6d46e59be81ea67d742806090c3df8b7d710db3",
+      "bytes": 1189,
+      "total_lines": 18
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+      "sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+      "bytes": 1703,
+      "total_lines": 23
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry-launch.json",
+      "sha256": "3557b4e5a0879062539d683cae2556bd5e7146d9fd852452fa2a6c0fd15a3457",
+      "bytes": 497,
+      "total_lines": 15
+    }
+  ],
+  "historical_adapter_hash_evidence": [
+    {
+      "path": ".release/audits/2026-09-28/source-check/scanned/code-coverage.json",
+      "sha256": "22a724e9d2aa651c726abbcc21cffe00a651be38bbd39fd5389a5c1a020d0226",
+      "bytes": 1146,
+      "total_lines": 32
+    },
+    {
+      "path": ".release/audits/2026-09-28/source-check/designer/code-coverage.json",
+      "sha256": "aecd716f2884d97cec4528b7ad6e0dea261ec1a97e8de869687384e2adce7182",
+      "bytes": 1477,
+      "total_lines": 42
+    }
+  ],
+  "review_conclusion": {
+    "remaining_source_case_join": "No demonstrated additional count-corrupting logic defect. Original-ID reverse maps include both fixed and movable records; both resolvers run before raw observation and later stages.",
+    "supplemental_P_J_check": {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry.py",
+      "lines_inclusive": [
+        236,
+        250
+      ],
+      "status": "invalid_as_error_test",
+      "reason": "P receives deliberate independent pose repair; differences from J minus size are descriptive divergence, not target-binding failure. Original code/result preserved by this sidecar. Parent handles explicit reclassification.",
+      "supporting_code_path": "fastfill/comparison/main_data.py",
+      "supporting_lines_inclusive": [
+        171,
+        203
+      ],
+      "frozen_receipt_path": "docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json"
+    },
+    "reporting_bounds": [
+      "Resolved locator indices count emitted UID/object cases, not unique input locators; unmatched input locators have no explicit output disposition.",
+      "Source/finding zero-count entries are omitted; raw-file glob does not assert exactly 18 sources.",
+      "Exposure joins do not independently remeasure geometry or establish semantic-front errors."
+    ],
+    "geometry_job_counts": "Parent-reported completed counts not independently recomputed in this code inventory; the 84 MB result was not fully statically reviewed here."
+  },
+  "limitations": [
+    "This is not a full static audit of all adapters or all production files. 24 archived/local adapter hash matches are byte-identity measurements only.",
+    "Historical code-coverage files describe the prior auditor, not this sidecar. No prior full-read claim is inherited.",
+    "Selected production-file coverage is exact listed line intervals; discovery search hits elsewhere are not promoted to full reads.",
+    "Local production hashes matching frozen snapshot receipts bind these selected reads to recorded code versions; remote comparison-file bytes were not newly fetched.",
+    "v3.2 archived adapters matching local files does not independently prove which adapter generated every frozen IR record. Corpus rebuilding can consume pre-existing frozen IR without importing adapters.",
+    "No source datasets, meshes, models, training jobs or scanner were run. SSH checked only 24 explicit source-code paths; no directory or corpus scan.",
+    "Only this inventory file was written in this task. Existing scanner, launch record, known-cases artifact and geometry result were left unchanged.",
+    "Earlier summarized task context lacking reconstructable source line coverage is not used to claim additional full source review."
+  ]
+}

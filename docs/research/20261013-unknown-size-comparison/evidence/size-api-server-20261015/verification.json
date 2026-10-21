@@ -1,0 +1,98 @@
+{
+  "status": "REAL_SERVER_SMOKE_VERIFIED",
+  "quality_claim": "two-room functional test only",
+  "total_api_calls": 3,
+  "maximum_api_calls": 12,
+  "previous_attempts": [
+    {
+      "case": "no-prior",
+      "job_id": "7450325",
+      "api_calls": 1,
+      "failure": "GPU free memory81.95GiB below87.4GiB requirement; no placer output"
+    }
+  ],
+  "cases": {
+    "missing-category": {
+      "job_id": "7450324",
+      "uid": "MansionWorld::mansionworld/residential_family_apartment_8f_150_fp002#2/F4_common_bathroom",
+      "room_type": "bathroom",
+      "objects": 2,
+      "api_objects": 1,
+      "api_calls": 1,
+      "tokens": {
+        "input_tokens": 4528,
+        "output_tokens": 22,
+        "reasoning_tokens": 0
+      },
+      "runtime_seconds": 307.988996420012,
+      "checker_pass": true,
+      "strict_accepted": true,
+      "final_stage": "placer",
+      "placer_complete": true,
+      "size_preserved_through_S1_and_export": true,
+      "furniture": [
+        {
+          "id": "obj_0002",
+          "category": "floor vanity cabinet",
+          "size": [
+            0.57,
+            0.98,
+            0.98
+          ],
+          "source": "prior_category_room_type"
+        },
+        {
+          "id": "obj_0001",
+          "category": "small bathroom shelf",
+          "size": [
+            0.25,
+            0.45,
+            0.8
+          ],
+          "source": "api"
+        }
+      ]
+    },
+    "no-prior": {
+      "job_id": "7450423",
+      "uid": "HSSD200:102344328:6",
+      "room_type": "kitchen",
+      "objects": 2,
+      "api_objects": 2,
+      "api_calls": 1,
+      "tokens": {
+        "input_tokens": 4574,
+        "output_tokens": 80,
+        "reasoning_tokens": 39
+      },
+      "runtime_seconds": 301.77899257300305,
+      "checker_pass": true,
+      "strict_accepted": true,
+      "final_stage": "placer",
+      "placer_complete": true,
+      "size_preserved_through_S1_and_export": true,
+      "furniture": [
+        {
+          "id": "obj_0001",
+          "category": "bench",
+          "size": [
+            0.45,
+            1.2,
+            0.45
+          ],
+          "source": "api"
+        },
+        {
+          "id": "obj_0002",
+          "category": "lamp stand",
+          "size": [
+            0.4,
+            0.4,
+            1.6
+          ],
+          "source": "api"
+        }
+      ]
+    }
+  }
+}

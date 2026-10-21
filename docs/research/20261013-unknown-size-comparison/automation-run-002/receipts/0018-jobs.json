@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=30",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=2",
+    "-o",
+    "ControlMaster=no",
+    "-o",
+    "ControlPath=/tmp/ff-u6uv-koee4y6n/control.sock",
+    "u6uv.aip2.isambard",
+    "squeue -h -j 7365659,7365681,7365682,7367626,7367628,7367629 -o '%i|%T|%r'"
+  ],
+  "finished_unix": 1791872355.609364,
+  "returncode": 0,
+  "stage": "jobs",
+  "started_unix": 1791872351.580668,
+  "status": "finished",
+  "stderr": "",
+  "stdout": "7367629|PENDING|Dependency\n7367628|PENDING|Dependency\n7367626|PENDING|Dependency\n7365681|RUNNING|None\n7365682|RUNNING|None\n",
+  "timeout_seconds": 120
+}

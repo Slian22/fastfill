@@ -1,0 +1,241 @@
+{
+  "schema_version": "fastfill.v2",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "gym",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        5,
+        0.0
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        0.0,
+        6
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.95,
+          2.05
+        ],
+        "bottom_center_m": [
+          2.25,
+          6.0,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "category": "bench",
+      "description": "A distressed wooden weight bench with a rectangular seat, slatted back, and floral patterned upholstery, featuring a rugged finish and chunky legs",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0001",
+      "category": "treadmill",
+      "description": "A pastel-colored treadmill with a sleek curved console, soft pastel accents on the frame, and low\u2011profile running deck",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0002",
+      "category": "elliptical",
+      "description": "A floral\u2011covered elliptical machine with an oval foot platform, rounded handles, and a glossy finish that displays a continuous flower motif",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0003",
+      "category": "sofa",
+      "description": "A floral\u2011patterned sofa with a low\u2011slung rectangular seat, rounded back cushions, and a soft fabric finish displaying pastel flowers",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0004",
+      "category": "sideboard",
+      "description": "A distressed wooden sideboard with a long rectangular top, multiple lower drawers, and a weathered finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0005",
+      "category": "cabinet",
+      "description": "A distressed storage cabinet with a rectangular body, two doors, and floral decals on the front, featuring a weathered wood texture and sturdy legs",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0006",
+      "category": "cabinet",
+      "description": "A distressed storage cabinet with a rectangular body, two doors, and floral decals on the front, featuring a weathered wood texture and sturdy legs",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0007",
+      "category": "bookshelf",
+      "description": "A vintage bookshelf with a tall rectangular frame, multiple open shelves, and a dark stained wood finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0008",
+      "category": "dispenser",
+      "description": "A water dispenser with a slim cylindrical body, brushed metal finish, and a small rectangular tap panel",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0009",
+      "category": "plant_1",
+      "description": "A potted green plant with a cylindrical pot, matte terracotta finish, and a lush leafy canopy that spreads outward",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0010",
+      "category": "plant_2",
+      "description": "A potted green plant with a cylindrical pot, matte terracotta finish, and a lush leafy canopy that spreads outward",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0011",
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0012",
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0013",
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0014",
+      "category": "stool",
+      "description": "A distressed wooden stool with a squat cylindrical seat, short tapered legs, and a weathered finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0015",
+      "category": "stool",
+      "description": "A distressed wooden stool with a squat cylindrical seat, short tapered legs, and a weathered finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0016",
+      "category": "dumbbell_1",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0017",
+      "category": "dumbbell_2",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0018",
+      "category": "dumbbell_3",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0019",
+      "category": "dumbbell_4",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0020",
+      "category": "barbell",
+      "description": "A standard barbell with a long straight steel shaft, rotating sleeves, and a polished chrome finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0021",
+      "category": "mirror",
+      "description": "A single piece of thin and upright vintage wall mirror with an ornate silver frame and slightly tarnished surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0022",
+      "category": "towelrack",
+      "description": "A single piece of thin and upright distressed towel rack with a horizontal bar and rustic metal finish, mounted on the wall",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0023",
+      "category": "clock",
+      "description": "A single piece of thin and upright pastel wall clock with a circular face, soft pastel numbers, and a minimalist metal frame",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0024",
+      "category": "painting",
+      "description": "A single piece of thin and upright floral wall painting with a rectangular canvas, vibrant flower illustration, and a stretched canvas texture",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0025",
+      "category": "painting",
+      "description": "A single piece of thin and upright floral wall painting with a rectangular canvas, vibrant flower illustration, and a stretched canvas texture",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0026",
+      "category": "speaker",
+      "description": "A retro speaker with a rectangular front grille, rounded corners, and a glossy black finish with chrome accents",
+      "support_parent": "obj_0004"
+    },
+    {
+      "id": "obj_0027",
+      "category": "candle",
+      "description": "A scented candle with a cylindrical glass holder, smooth surface, and a soft pastel tinted wax inside",
+      "support_parent": "obj_0004"
+    },
+    {
+      "id": "obj_0028",
+      "category": "vase",
+      "description": "A floral vase with a tall cylindrical glass body, clear finish, and a delicate floral pattern etched around the neck",
+      "support_parent": "obj_0007"
+    },
+    {
+      "id": "obj_0029",
+      "category": "vase",
+      "description": "A floral vase with a tall cylindrical glass body, clear finish, and a delicate floral pattern etched around the neck",
+      "support_parent": "obj_0007"
+    },
+    {
+      "id": "obj_0030",
+      "category": "magazine",
+      "description": "A fitness magazine with a thin rectangular stack, glossy cover, and a colorful printed layout",
+      "support_parent": "obj_0004"
+    },
+    {
+      "id": "obj_0031",
+      "category": "magazine",
+      "description": "A fitness magazine with a thin rectangular stack, glossy cover, and a colorful printed layout",
+      "support_parent": "obj_0004"
+    }
+  ],
+  "constraints": []
+}

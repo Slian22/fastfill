@@ -1,0 +1,3814 @@
+{
+  "schema_version": "fastfill.bbox-scene.v1",
+  "frame": "right_handed_z_up",
+  "units": "meters",
+  "geometry_kind": "predicted_local_obb_envelope",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "livingroom",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        4.5,
+        0.0
+      ],
+      [
+        4.5,
+        5
+      ],
+      [
+        0.0,
+        5
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.9,
+          2.05
+        ],
+        "bottom_center_m": [
+          2.82,
+          5.0,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "target_size_local_m": [
+        0.93,
+        1.68,
+        0.83
+      ],
+      "bottom_center_m": [
+        0.53,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "sofa",
+      "description": "A low-profile teak sofa with organic curves, tapered legs, and a sleek rectangular silhouette, finished in natural teak with a warm honey tone and a subtle grain texture",
+      "bbox": {
+        "center_m": [
+          0.53,
+          2.05,
+          0.415
+        ],
+        "size_local_m": [
+          0.93,
+          1.68,
+          0.83
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.065,
+            1.21,
+            0.0
+          ],
+          [
+            0.9950000000000001,
+            1.21,
+            0.0
+          ],
+          [
+            0.9950000000000001,
+            2.8899999999999997,
+            0.0
+          ],
+          [
+            0.065,
+            2.8899999999999997,
+            0.0
+          ],
+          [
+            0.065,
+            1.21,
+            0.83
+          ],
+          [
+            0.9950000000000001,
+            1.21,
+            0.83
+          ],
+          [
+            0.9950000000000001,
+            2.8899999999999997,
+            0.83
+          ],
+          [
+            0.065,
+            2.8899999999999997,
+            0.83
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0001",
+      "target_size_local_m": [
+        0.3,
+        1.1,
+        0.75
+      ],
+      "bottom_center_m": [
+        4.28,
+        2.65,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "mediaconsole",
+      "description": "A low teak media console with a long rectangular footprint, flat top surface, and subtle recessed storage compartments, finished in natural teak with a smooth matte texture",
+      "bbox": {
+        "center_m": [
+          4.28,
+          2.65,
+          0.375
+        ],
+        "size_local_m": [
+          0.3,
+          1.1,
+          0.75
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.430000000000001,
+            3.2,
+            0.0
+          ],
+          [
+            4.13,
+            3.2,
+            0.0
+          ],
+          [
+            4.13,
+            2.0999999999999996,
+            0.0
+          ],
+          [
+            4.430000000000001,
+            2.0999999999999996,
+            0.0
+          ],
+          [
+            4.430000000000001,
+            3.2,
+            0.75
+          ],
+          [
+            4.13,
+            3.2,
+            0.75
+          ],
+          [
+            4.13,
+            2.0999999999999996,
+            0.75
+          ],
+          [
+            4.430000000000001,
+            2.0999999999999996,
+            0.75
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0002",
+      "target_size_local_m": [
+        0.59,
+        0.69,
+        0.4
+      ],
+      "bottom_center_m": [
+        1.65,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "coffeetable",
+      "description": "A rectangular teak coffee table with clean straight edges, a thin top slab, and tapered legs, showcasing a natural teak finish with a light amber hue",
+      "bbox": {
+        "center_m": [
+          1.65,
+          2.05,
+          0.2
+        ],
+        "size_local_m": [
+          0.59,
+          0.69,
+          0.4
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            1.9449999999999998,
+            2.395,
+            0.0
+          ],
+          [
+            1.355,
+            2.3949999999999996,
+            0.0
+          ],
+          [
+            1.355,
+            1.7049999999999998,
+            0.0
+          ],
+          [
+            1.9449999999999998,
+            1.7049999999999998,
+            0.0
+          ],
+          [
+            1.9449999999999998,
+            2.395,
+            0.4
+          ],
+          [
+            1.355,
+            2.3949999999999996,
+            0.4
+          ],
+          [
+            1.355,
+            1.7049999999999998,
+            0.4
+          ],
+          [
+            1.9449999999999998,
+            1.7049999999999998,
+            0.4
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0003",
+      "target_size_local_m": [
+        0.9,
+        0.9,
+        0.98
+      ],
+      "bottom_center_m": [
+        1.65,
+        0.85,
+        0.0
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "bbox": {
+        "center_m": [
+          1.65,
+          0.85,
+          0.49
+        ],
+        "size_local_m": [
+          0.9,
+          0.9,
+          0.98
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            2.1,
+            0.39999999999999997,
+            0.0
+          ],
+          [
+            2.1,
+            1.3,
+            0.0
+          ],
+          [
+            1.2,
+            1.3,
+            0.0
+          ],
+          [
+            1.2,
+            0.39999999999999997,
+            0.0
+          ],
+          [
+            2.1,
+            0.39999999999999997,
+            0.98
+          ],
+          [
+            2.1,
+            1.3,
+            0.98
+          ],
+          [
+            1.2,
+            1.3,
+            0.98
+          ],
+          [
+            1.2,
+            0.39999999999999997,
+            0.98
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0004",
+      "target_size_local_m": [
+        0.9,
+        0.9,
+        0.98
+      ],
+      "bottom_center_m": [
+        1.65,
+        3.25,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966,
+      "category": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "bbox": {
+        "center_m": [
+          1.65,
+          3.25,
+          0.49
+        ],
+        "size_local_m": [
+          0.9,
+          0.9,
+          0.98
+        ],
+        "yaw_rad": -1.5707963267948966,
+        "corners_m": [
+          [
+            1.2,
+            3.7,
+            0.0
+          ],
+          [
+            1.2,
+            2.8,
+            0.0
+          ],
+          [
+            2.1,
+            2.8,
+            0.0
+          ],
+          [
+            2.1,
+            3.7,
+            0.0
+          ],
+          [
+            1.2,
+            3.7,
+            0.98
+          ],
+          [
+            1.2,
+            2.8,
+            0.98
+          ],
+          [
+            2.1,
+            2.8,
+            0.98
+          ],
+          [
+            2.1,
+            3.7,
+            0.98
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0005",
+      "target_size_local_m": [
+        0.3,
+        0.98,
+        0.8
+      ],
+      "bottom_center_m": [
+        3.65,
+        4.78,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966,
+      "category": "sideboard",
+      "description": "A low teak sideboard with a sleek rectangular shape, flat top, and narrow legs, featuring a single drawer front and a natural teak finish with a soft grain pattern",
+      "bbox": {
+        "center_m": [
+          3.65,
+          4.78,
+          0.4
+        ],
+        "size_local_m": [
+          0.3,
+          0.98,
+          0.8
+        ],
+        "yaw_rad": -1.5707963267948966,
+        "corners_m": [
+          [
+            3.16,
+            4.930000000000001,
+            0.0
+          ],
+          [
+            3.16,
+            4.63,
+            0.0
+          ],
+          [
+            4.14,
+            4.63,
+            0.0
+          ],
+          [
+            4.14,
+            4.930000000000001,
+            0.0
+          ],
+          [
+            3.16,
+            4.930000000000001,
+            0.8
+          ],
+          [
+            3.16,
+            4.63,
+            0.8
+          ],
+          [
+            4.14,
+            4.63,
+            0.8
+          ],
+          [
+            4.14,
+            4.930000000000001,
+            0.8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0006",
+      "target_size_local_m": [
+        0.35,
+        1.1,
+        1.51
+      ],
+      "bottom_center_m": [
+        4.26,
+        1.05,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "bookshelf",
+      "description": "A tall teak bookshelf with a narrow rectangular profile, multiple open shelves, and slender vertical legs, finished in natural teak with a warm, slightly textured surface",
+      "bbox": {
+        "center_m": [
+          4.26,
+          1.05,
+          0.755
+        ],
+        "size_local_m": [
+          0.35,
+          1.1,
+          1.51
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.435,
+            1.6,
+            0.0
+          ],
+          [
+            4.085,
+            1.6,
+            0.0
+          ],
+          [
+            4.085,
+            0.5,
+            0.0
+          ],
+          [
+            4.435,
+            0.5,
+            0.0
+          ],
+          [
+            4.435,
+            1.6,
+            1.51
+          ],
+          [
+            4.085,
+            1.6,
+            1.51
+          ],
+          [
+            4.085,
+            0.5,
+            1.51
+          ],
+          [
+            4.435,
+            0.5,
+            1.51
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0007",
+      "target_size_local_m": [
+        0.39,
+        0.39,
+        1.48
+      ],
+      "bottom_center_m": [
+        1.05,
+        0.26,
+        0.0
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "lamp",
+      "description": "A tripod floor lamp with three slender tapered legs that spread outward, supporting a tall cylindrical shade, finished in brushed metal with a matte black finish",
+      "bbox": {
+        "center_m": [
+          1.05,
+          0.26,
+          0.74
+        ],
+        "size_local_m": [
+          0.39,
+          0.39,
+          1.48
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            1.245,
+            0.065,
+            0.0
+          ],
+          [
+            1.245,
+            0.455,
+            0.0
+          ],
+          [
+            0.855,
+            0.455,
+            0.0
+          ],
+          [
+            0.855,
+            0.065,
+            0.0
+          ],
+          [
+            1.245,
+            0.065,
+            1.48
+          ],
+          [
+            1.245,
+            0.455,
+            1.48
+          ],
+          [
+            0.855,
+            0.455,
+            1.48
+          ],
+          [
+            0.855,
+            0.065,
+            1.48
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0008",
+      "target_size_local_m": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "bottom_center_m": [
+        0.45,
+        0.65,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "bbox": {
+        "center_m": [
+          0.45,
+          0.65,
+          0.3
+        ],
+        "size_local_m": [
+          0.55,
+          0.55,
+          0.6
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.175,
+            0.375,
+            0.0
+          ],
+          [
+            0.7250000000000001,
+            0.375,
+            0.0
+          ],
+          [
+            0.7250000000000001,
+            0.925,
+            0.0
+          ],
+          [
+            0.175,
+            0.925,
+            0.0
+          ],
+          [
+            0.175,
+            0.375,
+            0.6
+          ],
+          [
+            0.7250000000000001,
+            0.375,
+            0.6
+          ],
+          [
+            0.7250000000000001,
+            0.925,
+            0.6
+          ],
+          [
+            0.175,
+            0.925,
+            0.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0009",
+      "target_size_local_m": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "bottom_center_m": [
+        0.45,
+        3.45,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "bbox": {
+        "center_m": [
+          0.45,
+          3.45,
+          0.3
+        ],
+        "size_local_m": [
+          0.55,
+          0.55,
+          0.6
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.175,
+            3.1750000000000003,
+            0.0
+          ],
+          [
+            0.7250000000000001,
+            3.1750000000000003,
+            0.0
+          ],
+          [
+            0.7250000000000001,
+            3.725,
+            0.0
+          ],
+          [
+            0.175,
+            3.725,
+            0.0
+          ],
+          [
+            0.175,
+            3.1750000000000003,
+            0.6
+          ],
+          [
+            0.7250000000000001,
+            3.1750000000000003,
+            0.6
+          ],
+          [
+            0.7250000000000001,
+            3.725,
+            0.6
+          ],
+          [
+            0.175,
+            3.725,
+            0.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0010",
+      "target_size_local_m": [
+        0.65,
+        0.65,
+        0.45
+      ],
+      "bottom_center_m": [
+        2.65,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "ottoman",
+      "description": "A mustard upholstered ottoman with a low-slung rectangular shape, soft padded top, and short stubby legs, covered in a velvety fabric with a muted mustard hue",
+      "bbox": {
+        "center_m": [
+          2.65,
+          2.05,
+          0.225
+        ],
+        "size_local_m": [
+          0.65,
+          0.65,
+          0.45
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            2.9749999999999996,
+            2.375,
+            0.0
+          ],
+          [
+            2.3249999999999997,
+            2.375,
+            0.0
+          ],
+          [
+            2.325,
+            1.7249999999999996,
+            0.0
+          ],
+          [
+            2.975,
+            1.7249999999999999,
+            0.0
+          ],
+          [
+            2.9749999999999996,
+            2.375,
+            0.45
+          ],
+          [
+            2.3249999999999997,
+            2.375,
+            0.45
+          ],
+          [
+            2.325,
+            1.7249999999999996,
+            0.45
+          ],
+          [
+            2.975,
+            1.7249999999999999,
+            0.45
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0011",
+      "target_size_local_m": [
+        0.51,
+        0.51,
+        0.44
+      ],
+      "bottom_center_m": [
+        2.65,
+        1.25,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "pouf",
+      "description": "An olive fabric pouf with a rounded, squat silhouette, plush cushioning, and a smooth woven texture in an olive green shade",
+      "bbox": {
+        "center_m": [
+          2.65,
+          1.25,
+          0.22
+        ],
+        "size_local_m": [
+          0.51,
+          0.51,
+          0.44
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            2.905,
+            1.5050000000000001,
+            0.0
+          ],
+          [
+            2.395,
+            1.505,
+            0.0
+          ],
+          [
+            2.395,
+            0.9949999999999999,
+            0.0
+          ],
+          [
+            2.905,
+            0.9950000000000001,
+            0.0
+          ],
+          [
+            2.905,
+            1.5050000000000001,
+            0.44
+          ],
+          [
+            2.395,
+            1.505,
+            0.44
+          ],
+          [
+            2.395,
+            0.9949999999999999,
+            0.44
+          ],
+          [
+            2.905,
+            0.9950000000000001,
+            0.44
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0012",
+      "target_size_local_m": [
+        0.39,
+        0.38,
+        0.68
+      ],
+      "bottom_center_m": [
+        4.28,
+        4.61,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "plant",
+      "description": "A large leafy plant in a simple ceramic pot, featuring a tall, slender trunk and abundant broad green foliage that creates a lush, organic presence",
+      "bbox": {
+        "center_m": [
+          4.28,
+          4.61,
+          0.34
+        ],
+        "size_local_m": [
+          0.39,
+          0.38,
+          0.68
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.4750000000000005,
+            4.800000000000001,
+            0.0
+          ],
+          [
+            4.085,
+            4.800000000000001,
+            0.0
+          ],
+          [
+            4.085,
+            4.42,
+            0.0
+          ],
+          [
+            4.4750000000000005,
+            4.42,
+            0.0
+          ],
+          [
+            4.4750000000000005,
+            4.800000000000001,
+            0.68
+          ],
+          [
+            4.085,
+            4.800000000000001,
+            0.68
+          ],
+          [
+            4.085,
+            4.42,
+            0.68
+          ],
+          [
+            4.4750000000000005,
+            4.42,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0013",
+      "target_size_local_m": [
+        0.37,
+        0.35,
+        0.68
+      ],
+      "bottom_center_m": [
+        0.25,
+        4.65,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "plant3",
+      "description": "A modest floor plant in a tall narrow pot, featuring a single stalk of long, arching foliage with a deep green hue",
+      "bbox": {
+        "center_m": [
+          0.25,
+          4.65,
+          0.34
+        ],
+        "size_local_m": [
+          0.37,
+          0.35,
+          0.68
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.065,
+            4.4750000000000005,
+            0.0
+          ],
+          [
+            0.435,
+            4.4750000000000005,
+            0.0
+          ],
+          [
+            0.435,
+            4.825,
+            0.0
+          ],
+          [
+            0.065,
+            4.825,
+            0.0
+          ],
+          [
+            0.065,
+            4.4750000000000005,
+            0.68
+          ],
+          [
+            0.435,
+            4.4750000000000005,
+            0.68
+          ],
+          [
+            0.435,
+            4.825,
+            0.68
+          ],
+          [
+            0.065,
+            4.825,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0014",
+      "target_size_local_m": [
+        0.1,
+        0.1,
+        0.05
+      ],
+      "bottom_center_m": [
+        4.12,
+        2.77,
+        0.75
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "remote",
+      "description": "A small rectangular plastic remote control with ergonomic curves, matte black finish and a grid of tactile buttons",
+      "bbox": {
+        "center_m": [
+          4.12,
+          2.77,
+          0.775
+        ],
+        "size_local_m": [
+          0.1,
+          0.1,
+          0.05
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.150997521057108,
+            2.8335543365028237,
+            0.75
+          ],
+          [
+            4.056445663497176,
+            2.800997521057108,
+            0.75
+          ],
+          [
+            4.089002478942892,
+            2.7064456634971763,
+            0.75
+          ],
+          [
+            4.183554336502824,
+            2.739002478942892,
+            0.75
+          ],
+          [
+            4.150997521057108,
+            2.8335543365028237,
+            0.8
+          ],
+          [
+            4.056445663497176,
+            2.800997521057108,
+            0.8
+          ],
+          [
+            4.089002478942892,
+            2.7064456634971763,
+            0.8
+          ],
+          [
+            4.183554336502824,
+            2.739002478942892,
+            0.8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0015",
+      "target_size_local_m": [
+        0.2,
+        0.38,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.29,
+        2.9,
+        0.75
+      ],
+      "yaw_rad": 3.12413936106985,
+      "category": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "bbox": {
+        "center_m": [
+          4.29,
+          2.9,
+          0.785
+        ],
+        "size_local_m": [
+          0.2,
+          0.38,
+          0.07
+        ],
+        "yaw_rad": 3.12413936106985,
+        "corners_m": [
+          [
+            4.393300726738723,
+            3.088225821435986,
+            0.75
+          ],
+          [
+            4.193331187707445,
+            3.0917163027234427,
+            0.75
+          ],
+          [
+            4.186699273261277,
+            2.711774178564014,
+            0.75
+          ],
+          [
+            4.386668812292555,
+            2.708283697276557,
+            0.75
+          ],
+          [
+            4.393300726738723,
+            3.088225821435986,
+            0.8200000000000001
+          ],
+          [
+            4.193331187707445,
+            3.0917163027234427,
+            0.8200000000000001
+          ],
+          [
+            4.186699273261277,
+            2.711774178564014,
+            0.8200000000000001
+          ],
+          [
+            4.386668812292555,
+            2.708283697276557,
+            0.8200000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0016",
+      "target_size_local_m": [
+        0.2,
+        0.38,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.3,
+        2.29,
+        0.75
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "bbox": {
+        "center_m": [
+          4.3,
+          2.29,
+          0.785
+        ],
+        "size_local_m": [
+          0.2,
+          0.38,
+          0.07
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.3999999999999995,
+            2.48,
+            0.75
+          ],
+          [
+            4.2,
+            2.48,
+            0.75
+          ],
+          [
+            4.2,
+            2.1,
+            0.75
+          ],
+          [
+            4.3999999999999995,
+            2.1,
+            0.75
+          ],
+          [
+            4.3999999999999995,
+            2.48,
+            0.8200000000000001
+          ],
+          [
+            4.2,
+            2.48,
+            0.8200000000000001
+          ],
+          [
+            4.2,
+            2.1,
+            0.8200000000000001
+          ],
+          [
+            4.3999999999999995,
+            2.1,
+            0.8200000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0017",
+      "target_size_local_m": [
+        0.19,
+        0.25,
+        0.06
+      ],
+      "bottom_center_m": [
+        4.2,
+        0.98,
+        1.51
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "coffeebook_7",
+      "description": "A thick square coffee table book with a 1950s retro cover, vibrant colors and a glossy finish, rectangular shape with slightly rounded corners",
+      "bbox": {
+        "center_m": [
+          4.2,
+          0.98,
+          1.54
+        ],
+        "size_local_m": [
+          0.19,
+          0.25,
+          0.06
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.2491282453747905,
+            1.1291187966233445,
+            1.51
+          ],
+          [
+            4.06947971601092,
+            1.0672608472764846,
+            1.51
+          ],
+          [
+            4.15087175462521,
+            0.8308812033766555,
+            1.51
+          ],
+          [
+            4.33052028398908,
+            0.8927391527235153,
+            1.51
+          ],
+          [
+            4.2491282453747905,
+            1.1291187966233445,
+            1.57
+          ],
+          [
+            4.06947971601092,
+            1.0672608472764846,
+            1.57
+          ],
+          [
+            4.15087175462521,
+            0.8308812033766555,
+            1.57
+          ],
+          [
+            4.33052028398908,
+            0.8927391527235153,
+            1.57
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0018",
+      "target_size_local_m": [
+        0.11,
+        0.17,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.4,
+        2.39,
+        0.4
+      ],
+      "yaw_rad": -2.844886680750757,
+      "category": "magazine_1",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "bbox": {
+        "center_m": [
+          1.4,
+          2.39,
+          0.54
+        ],
+        "size_local_m": [
+          0.11,
+          0.17,
+          0.28
+        ],
+        "yaw_rad": -2.844886680750757,
+        "corners_m": [
+          [
+            1.4277451666765342,
+            2.4873663480166086,
+            0.4
+          ],
+          [
+            1.3225516435206004,
+            2.4552054604971074,
+            0.4
+          ],
+          [
+            1.3722548333234657,
+            2.2926336519833916,
+            0.4
+          ],
+          [
+            1.4774483564793994,
+            2.324794539502893,
+            0.4
+          ],
+          [
+            1.4277451666765342,
+            2.4873663480166086,
+            0.68
+          ],
+          [
+            1.3225516435206004,
+            2.4552054604971074,
+            0.68
+          ],
+          [
+            1.3722548333234657,
+            2.2926336519833916,
+            0.68
+          ],
+          [
+            1.4774483564793994,
+            2.324794539502893,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0019",
+      "target_size_local_m": [
+        0.11,
+        0.17,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.58,
+        1.7,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "magazine_2",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "bbox": {
+        "center_m": [
+          1.58,
+          1.7,
+          0.54
+        ],
+        "size_local_m": [
+          0.11,
+          0.17,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.6043302285291041,
+            1.7982753274210854,
+            0.4
+          ],
+          [
+            1.5003231852131793,
+            1.762462830430798,
+            0.4
+          ],
+          [
+            1.555669771470896,
+            1.6017246725789145,
+            0.4
+          ],
+          [
+            1.6596768147868208,
+            1.6375371695692018,
+            0.4
+          ],
+          [
+            1.6043302285291041,
+            1.7982753274210854,
+            0.68
+          ],
+          [
+            1.5003231852131793,
+            1.762462830430798,
+            0.68
+          ],
+          [
+            1.555669771470896,
+            1.6017246725789145,
+            0.68
+          ],
+          [
+            1.6596768147868208,
+            1.6375371695692018,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0020",
+      "target_size_local_m": [
+        0.11,
+        0.17,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.89,
+        2.21,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "magazine_3",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "bbox": {
+        "center_m": [
+          1.89,
+          2.21,
+          0.54
+        ],
+        "size_local_m": [
+          0.11,
+          0.17,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.914330228529104,
+            2.3082753274210854,
+            0.4
+          ],
+          [
+            1.8103231852131791,
+            2.2724628304307983,
+            0.4
+          ],
+          [
+            1.8656697714708959,
+            2.1117246725789145,
+            0.4
+          ],
+          [
+            1.9696768147868207,
+            2.1475371695692016,
+            0.4
+          ],
+          [
+            1.914330228529104,
+            2.3082753274210854,
+            0.68
+          ],
+          [
+            1.8103231852131791,
+            2.2724628304307983,
+            0.68
+          ],
+          [
+            1.8656697714708959,
+            2.1117246725789145,
+            0.68
+          ],
+          [
+            1.9696768147868207,
+            2.1475371695692016,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0021",
+      "target_size_local_m": [
+        0.19,
+        0.19,
+        0.19
+      ],
+      "bottom_center_m": [
+        1.5,
+        2.2,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "bbox": {
+        "center_m": [
+          1.5,
+          2.2,
+          0.495
+        ],
+        "size_local_m": [
+          0.19,
+          0.19,
+          0.19
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.5588952900085051,
+            2.320753239355365,
+            0.4
+          ],
+          [
+            1.379246760644635,
+            2.258895290008505,
+            0.4
+          ],
+          [
+            1.4411047099914949,
+            2.079246760644635,
+            0.4
+          ],
+          [
+            1.620753239355365,
+            2.1411047099914953,
+            0.4
+          ],
+          [
+            1.5588952900085051,
+            2.320753239355365,
+            0.5900000000000001
+          ],
+          [
+            1.379246760644635,
+            2.258895290008505,
+            0.5900000000000001
+          ],
+          [
+            1.4411047099914949,
+            2.079246760644635,
+            0.5900000000000001
+          ],
+          [
+            1.620753239355365,
+            2.1411047099914953,
+            0.5900000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0022",
+      "target_size_local_m": [
+        0.19,
+        0.19,
+        0.19
+      ],
+      "bottom_center_m": [
+        1.7,
+        2.3,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "bbox": {
+        "center_m": [
+          1.7,
+          2.3,
+          0.495
+        ],
+        "size_local_m": [
+          0.19,
+          0.19,
+          0.19
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.758895290008505,
+            2.420753239355365,
+            0.4
+          ],
+          [
+            1.579246760644635,
+            2.3588952900085047,
+            0.4
+          ],
+          [
+            1.6411047099914948,
+            2.179246760644635,
+            0.4
+          ],
+          [
+            1.820753239355365,
+            2.241104709991495,
+            0.4
+          ],
+          [
+            1.758895290008505,
+            2.420753239355365,
+            0.5900000000000001
+          ],
+          [
+            1.579246760644635,
+            2.3588952900085047,
+            0.5900000000000001
+          ],
+          [
+            1.6411047099914948,
+            2.179246760644635,
+            0.5900000000000001
+          ],
+          [
+            1.820753239355365,
+            2.241104709991495,
+            0.5900000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0023",
+      "target_size_local_m": [
+        0.07,
+        0.2,
+        0.26
+      ],
+      "bottom_center_m": [
+        1.36,
+        2.19,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "openbook",
+      "description": "An open hardcover book with visible pages, classic binding and a neutral cover, rectangular shape with slightly rounded corners",
+      "bbox": {
+        "center_m": [
+          1.36,
+          2.19,
+          0.53
+        ],
+        "size_local_m": [
+          0.07,
+          0.2,
+          0.26
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.3605363347002604,
+            2.295946742965932,
+            0.4
+          ],
+          [
+            1.2943500344083083,
+            2.273156972153931,
+            0.4
+          ],
+          [
+            1.3594636652997398,
+            2.0840532570340677,
+            0.4
+          ],
+          [
+            1.4256499655916919,
+            2.106843027846069,
+            0.4
+          ],
+          [
+            1.3605363347002604,
+            2.295946742965932,
+            0.66
+          ],
+          [
+            1.2943500344083083,
+            2.273156972153931,
+            0.66
+          ],
+          [
+            1.3594636652997398,
+            2.0840532570340677,
+            0.66
+          ],
+          [
+            1.4256499655916919,
+            2.106843027846069,
+            0.66
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0024",
+      "target_size_local_m": [
+        0.2,
+        0.3,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.2,
+        1.1,
+        1.51
+      ],
+      "yaw_rad": 3.12413936106985,
+      "category": "book_1",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "bbox": {
+        "center_m": [
+          4.2,
+          1.1,
+          1.545
+        ],
+        "size_local_m": [
+          0.2,
+          0.3,
+          0.07
+        ],
+        "yaw_rad": 3.12413936106985,
+        "corners_m": [
+          [
+            4.302602630481232,
+            1.2482319136297304,
+            1.51
+          ],
+          [
+            4.102633091449953,
+            1.2517223949171872,
+            1.51
+          ],
+          [
+            4.097397369518768,
+            0.9517680863702698,
+            1.51
+          ],
+          [
+            4.297366908550047,
+            0.948277605082813,
+            1.51
+          ],
+          [
+            4.302602630481232,
+            1.2482319136297304,
+            1.58
+          ],
+          [
+            4.102633091449953,
+            1.2517223949171872,
+            1.58
+          ],
+          [
+            4.097397369518768,
+            0.9517680863702698,
+            1.58
+          ],
+          [
+            4.297366908550047,
+            0.948277605082813,
+            1.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0025",
+      "target_size_local_m": [
+        0.2,
+        0.3,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.2,
+        0.6,
+        1.51
+      ],
+      "yaw_rad": -2.9670597283903604,
+      "category": "book_2",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "bbox": {
+        "center_m": [
+          4.2,
+          0.6,
+          1.545
+        ],
+        "size_local_m": [
+          0.2,
+          0.3,
+          0.07
+        ],
+        "yaw_rad": -2.9670597283903604,
+        "corners_m": [
+          [
+            4.272433548651182,
+            0.7650859807185242,
+            1.51
+          ],
+          [
+            4.07547199804874,
+            0.7303563451851381,
+            1.51
+          ],
+          [
+            4.127566451348819,
+            0.43491401928147577,
+            1.51
+          ],
+          [
+            4.32452800195126,
+            0.4696436548148618,
+            1.51
+          ],
+          [
+            4.272433548651182,
+            0.7650859807185242,
+            1.58
+          ],
+          [
+            4.07547199804874,
+            0.7303563451851381,
+            1.58
+          ],
+          [
+            4.127566451348819,
+            0.43491401928147577,
+            1.58
+          ],
+          [
+            4.32452800195126,
+            0.4696436548148618,
+            1.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0026",
+      "target_size_local_m": [
+        0.2,
+        0.3,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.2,
+        1.48,
+        1.51
+      ],
+      "yaw_rad": -2.844886680750757,
+      "category": "book_3",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "bbox": {
+        "center_m": [
+          4.2,
+          1.48,
+          1.545
+        ],
+        "size_local_m": [
+          0.2,
+          0.3,
+          0.07
+        ],
+        "yaw_rad": -2.844886680750757,
+        "corners_m": [
+          [
+            4.2517747198878935,
+            1.652682883866729,
+            1.51
+          ],
+          [
+            4.060513768695286,
+            1.5942085429221815,
+            1.51
+          ],
+          [
+            4.148225280112107,
+            1.307317116133271,
+            1.51
+          ],
+          [
+            4.339486231304714,
+            1.3657914570778185,
+            1.51
+          ],
+          [
+            4.2517747198878935,
+            1.652682883866729,
+            1.58
+          ],
+          [
+            4.060513768695286,
+            1.5942085429221815,
+            1.58
+          ],
+          [
+            4.148225280112107,
+            1.307317116133271,
+            1.58
+          ],
+          [
+            4.339486231304714,
+            1.3657914570778185,
+            1.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0027",
+      "target_size_local_m": [
+        0.2,
+        0.3,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.4,
+        0.88,
+        1.51
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "book_4",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "bbox": {
+        "center_m": [
+          4.4,
+          0.88,
+          1.545
+        ],
+        "size_local_m": [
+          0.2,
+          0.3,
+          0.07
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.5,
+            1.03,
+            1.51
+          ],
+          [
+            4.300000000000001,
+            1.03,
+            1.51
+          ],
+          [
+            4.300000000000001,
+            0.73,
+            1.51
+          ],
+          [
+            4.5,
+            0.73,
+            1.51
+          ],
+          [
+            4.5,
+            1.03,
+            1.58
+          ],
+          [
+            4.300000000000001,
+            1.03,
+            1.58
+          ],
+          [
+            4.300000000000001,
+            0.73,
+            1.58
+          ],
+          [
+            4.5,
+            0.73,
+            1.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0028",
+      "target_size_local_m": [
+        0.2,
+        0.3,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.3,
+        1.29,
+        1.51
+      ],
+      "yaw_rad": 2.9670597283903604,
+      "category": "book_8",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "bbox": {
+        "center_m": [
+          4.3,
+          1.29,
+          1.545
+        ],
+        "size_local_m": [
+          0.2,
+          0.3,
+          0.07
+        ],
+        "yaw_rad": 2.9670597283903604,
+        "corners_m": [
+          [
+            4.42452800195126,
+            1.4203563451851382,
+            1.51
+          ],
+          [
+            4.227566451348818,
+            1.4550859807185241,
+            1.51
+          ],
+          [
+            4.17547199804874,
+            1.1596436548148619,
+            1.51
+          ],
+          [
+            4.372433548651181,
+            1.124914019281476,
+            1.51
+          ],
+          [
+            4.42452800195126,
+            1.4203563451851382,
+            1.58
+          ],
+          [
+            4.227566451348818,
+            1.4550859807185241,
+            1.58
+          ],
+          [
+            4.17547199804874,
+            1.1596436548148619,
+            1.58
+          ],
+          [
+            4.372433548651181,
+            1.124914019281476,
+            1.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0029",
+      "target_size_local_m": [
+        0.1,
+        0.07,
+        0.14
+      ],
+      "bottom_center_m": [
+        4.38,
+        1.59,
+        1.51
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "plant",
+      "description": "A small potted succulent with a round terracotta pot, smooth green leaves and a compact growth habit",
+      "bbox": {
+        "center_m": [
+          4.38,
+          1.59,
+          1.58
+        ],
+        "size_local_m": [
+          0.1,
+          0.07,
+          0.14
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.4158810433739655,
+            1.639371557868834,
+            1.51
+          ],
+          [
+            4.321329185814034,
+            1.6068147424231183,
+            1.51
+          ],
+          [
+            4.344118956626034,
+            1.5406284421311662,
+            1.51
+          ],
+          [
+            4.438670814185966,
+            1.5731852575768819,
+            1.51
+          ],
+          [
+            4.4158810433739655,
+            1.639371557868834,
+            1.65
+          ],
+          [
+            4.321329185814034,
+            1.6068147424231183,
+            1.65
+          ],
+          [
+            4.344118956626034,
+            1.5406284421311662,
+            1.65
+          ],
+          [
+            4.438670814185966,
+            1.5731852575768819,
+            1.65
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0030",
+      "target_size_local_m": [
+        0.17,
+        0.17,
+        0.16
+      ],
+      "bottom_center_m": [
+        1.4,
+        1.8,
+        0.4
+      ],
+      "yaw_rad": -2.844886680750757,
+      "category": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "bbox": {
+        "center_m": [
+          1.4,
+          1.8,
+          0.48000000000000004
+        ],
+        "size_local_m": [
+          0.17,
+          0.17,
+          0.16
+        ],
+        "yaw_rad": -2.844886680750757,
+        "corners_m": [
+          [
+            1.4564343093554253,
+            1.9061374991582907,
+            0.4
+          ],
+          [
+            1.2938625008417093,
+            1.8564343093554254,
+            0.4
+          ],
+          [
+            1.3435656906445745,
+            1.6938625008417094,
+            0.4
+          ],
+          [
+            1.5061374991582905,
+            1.7435656906445747,
+            0.4
+          ],
+          [
+            1.4564343093554253,
+            1.9061374991582907,
+            0.56
+          ],
+          [
+            1.2938625008417093,
+            1.8564343093554254,
+            0.56
+          ],
+          [
+            1.3435656906445745,
+            1.6938625008417094,
+            0.56
+          ],
+          [
+            1.5061374991582905,
+            1.7435656906445747,
+            0.56
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0031",
+      "target_size_local_m": [
+        0.17,
+        0.17,
+        0.16
+      ],
+      "bottom_center_m": [
+        1.7,
+        1.8,
+        0.4
+      ],
+      "yaw_rad": -2.844886680750757,
+      "category": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "bbox": {
+        "center_m": [
+          1.7,
+          1.8,
+          0.48000000000000004
+        ],
+        "size_local_m": [
+          0.17,
+          0.17,
+          0.16
+        ],
+        "yaw_rad": -2.844886680750757,
+        "corners_m": [
+          [
+            1.7564343093554253,
+            1.9061374991582907,
+            0.4
+          ],
+          [
+            1.5938625008417093,
+            1.8564343093554254,
+            0.4
+          ],
+          [
+            1.6435656906445746,
+            1.6938625008417094,
+            0.4
+          ],
+          [
+            1.8061374991582906,
+            1.7435656906445747,
+            0.4
+          ],
+          [
+            1.7564343093554253,
+            1.9061374991582907,
+            0.56
+          ],
+          [
+            1.5938625008417093,
+            1.8564343093554254,
+            0.56
+          ],
+          [
+            1.6435656906445746,
+            1.6938625008417094,
+            0.56
+          ],
+          [
+            1.8061374991582906,
+            1.7435656906445747,
+            0.56
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0032",
+      "target_size_local_m": [
+        0.1,
+        0.18,
+        0.26
+      ],
+      "bottom_center_m": [
+        1.89,
+        2.4,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "magazine",
+      "description": "A glossy magazine with a rectangular shape, vibrant cover artwork and thin, glossy pages",
+      "bbox": {
+        "center_m": [
+          1.89,
+          2.4,
+          0.53
+        ],
+        "size_local_m": [
+          0.1,
+          0.18,
+          0.26
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.9079747948788215,
+            2.501375079526796,
+            0.4
+          ],
+          [
+            1.81342293731889,
+            2.4688182640810803,
+            0.4
+          ],
+          [
+            1.8720252051211783,
+            2.2986249204732037,
+            0.4
+          ],
+          [
+            1.9665770626811099,
+            2.3311817359189195,
+            0.4
+          ],
+          [
+            1.9079747948788215,
+            2.501375079526796,
+            0.66
+          ],
+          [
+            1.81342293731889,
+            2.4688182640810803,
+            0.66
+          ],
+          [
+            1.8720252051211783,
+            2.2986249204732037,
+            0.66
+          ],
+          [
+            1.9665770626811099,
+            2.3311817359189195,
+            0.66
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0033",
+      "target_size_local_m": [
+        0.1,
+        0.07,
+        0.01
+      ],
+      "bottom_center_m": [
+        4.36,
+        2.53,
+        0.75
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "remote",
+      "description": "A plastic remote control with an ergonomic rectangular shape, matte black finish and tactile raised buttons",
+      "bbox": {
+        "center_m": [
+          4.36,
+          2.53,
+          0.755
+        ],
+        "size_local_m": [
+          0.1,
+          0.07,
+          0.01
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.395881043373966,
+            2.579371557868834,
+            0.75
+          ],
+          [
+            4.301329185814034,
+            2.546814742423118,
+            0.75
+          ],
+          [
+            4.324118956626035,
+            2.4806284421311657,
+            0.75
+          ],
+          [
+            4.418670814185966,
+            2.5131852575768816,
+            0.75
+          ],
+          [
+            4.395881043373966,
+            2.579371557868834,
+            0.76
+          ],
+          [
+            4.301329185814034,
+            2.546814742423118,
+            0.76
+          ],
+          [
+            4.324118956626035,
+            2.4806284421311657,
+            0.76
+          ],
+          [
+            4.418670814185966,
+            2.5131852575768816,
+            0.76
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0034",
+      "target_size_local_m": [
+        0.19,
+        0.27,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.1000000000000005,
+        2.57,
+        0.75
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "bbox": {
+        "center_m": [
+          4.1000000000000005,
+          2.57,
+          0.785
+        ],
+        "size_local_m": [
+          0.19,
+          0.27,
+          0.07
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.195,
+            2.705,
+            0.75
+          ],
+          [
+            4.005000000000001,
+            2.705,
+            0.75
+          ],
+          [
+            4.005000000000001,
+            2.4349999999999996,
+            0.75
+          ],
+          [
+            4.195,
+            2.4349999999999996,
+            0.75
+          ],
+          [
+            4.195,
+            2.705,
+            0.8200000000000001
+          ],
+          [
+            4.005000000000001,
+            2.705,
+            0.8200000000000001
+          ],
+          [
+            4.005000000000001,
+            2.4349999999999996,
+            0.8200000000000001
+          ],
+          [
+            4.195,
+            2.4349999999999996,
+            0.8200000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0035",
+      "target_size_local_m": [
+        0.19,
+        0.27,
+        0.07
+      ],
+      "bottom_center_m": [
+        4.3,
+        3.23,
+        0.75
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "bbox": {
+        "center_m": [
+          4.3,
+          3.23,
+          0.785
+        ],
+        "size_local_m": [
+          0.19,
+          0.27,
+          0.07
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.395,
+            3.365,
+            0.75
+          ],
+          [
+            4.205,
+            3.365,
+            0.75
+          ],
+          [
+            4.205,
+            3.0949999999999998,
+            0.75
+          ],
+          [
+            4.395,
+            3.0949999999999998,
+            0.75
+          ],
+          [
+            4.395,
+            3.365,
+            0.8200000000000001
+          ],
+          [
+            4.205,
+            3.365,
+            0.8200000000000001
+          ],
+          [
+            4.205,
+            3.0949999999999998,
+            0.8200000000000001
+          ],
+          [
+            4.395,
+            3.0949999999999998,
+            0.8200000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0036",
+      "target_size_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "bottom_center_m": [
+        3.69,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "bbox": {
+        "center_m": [
+          3.69,
+          4.79,
+          0.9
+        ],
+        "size_local_m": [
+          0.1,
+          0.1,
+          0.2
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            3.720997521057108,
+            4.853554336502824,
+            0.8
+          ],
+          [
+            3.6264456634971762,
+            4.820997521057108,
+            0.8
+          ],
+          [
+            3.659002478942892,
+            4.726445663497176,
+            0.8
+          ],
+          [
+            3.7535543365028237,
+            4.759002478942892,
+            0.8
+          ],
+          [
+            3.720997521057108,
+            4.853554336502824,
+            1.0
+          ],
+          [
+            3.6264456634971762,
+            4.820997521057108,
+            1.0
+          ],
+          [
+            3.659002478942892,
+            4.726445663497176,
+            1.0
+          ],
+          [
+            3.7535543365028237,
+            4.759002478942892,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0037",
+      "target_size_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "bottom_center_m": [
+        4.01,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "bbox": {
+        "center_m": [
+          4.01,
+          4.79,
+          0.9
+        ],
+        "size_local_m": [
+          0.1,
+          0.1,
+          0.2
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.040997521057108,
+            4.853554336502824,
+            0.8
+          ],
+          [
+            3.946445663497176,
+            4.820997521057108,
+            0.8
+          ],
+          [
+            3.979002478942892,
+            4.726445663497176,
+            0.8
+          ],
+          [
+            4.0735543365028235,
+            4.759002478942892,
+            0.8
+          ],
+          [
+            4.040997521057108,
+            4.853554336502824,
+            1.0
+          ],
+          [
+            3.946445663497176,
+            4.820997521057108,
+            1.0
+          ],
+          [
+            3.979002478942892,
+            4.726445663497176,
+            1.0
+          ],
+          [
+            4.0735543365028235,
+            4.759002478942892,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0038",
+      "target_size_local_m": [
+        0.45,
+        0.45,
+        0.05
+      ],
+      "bottom_center_m": [
+        1.05,
+        4.71,
+        1.2
+      ],
+      "yaw_rad": -1.5707963267948966,
+      "category": "wallart",
+      "description": "A single piece of thin and upright geometric mustard wall art with bold angular shapes, a flat rectangular panel, and a matte mustard finish that adds a graphic accent",
+      "bbox": {
+        "center_m": [
+          1.05,
+          4.71,
+          1.2249999999999999
+        ],
+        "size_local_m": [
+          0.45,
+          0.45,
+          0.05
+        ],
+        "yaw_rad": -1.5707963267948966,
+        "corners_m": [
+          [
+            0.8250000000000001,
+            4.935,
+            1.2
+          ],
+          [
+            0.8250000000000001,
+            4.485,
+            1.2
+          ],
+          [
+            1.2750000000000001,
+            4.485,
+            1.2
+          ],
+          [
+            1.2750000000000001,
+            4.935,
+            1.2
+          ],
+          [
+            0.8250000000000001,
+            4.935,
+            1.25
+          ],
+          [
+            0.8250000000000001,
+            4.485,
+            1.25
+          ],
+          [
+            1.2750000000000001,
+            4.485,
+            1.25
+          ],
+          [
+            1.2750000000000001,
+            4.935,
+            1.25
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0039",
+      "target_size_local_m": [
+        0.4,
+        0.4,
+        0.04
+      ],
+      "bottom_center_m": [
+        3.65,
+        0.27,
+        1.2
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "wallart",
+      "description": "A single piece of thin and upright geometric wall art composed of interlocking triangles, bold primary colors on a matte background",
+      "bbox": {
+        "center_m": [
+          3.65,
+          0.27,
+          1.22
+        ],
+        "size_local_m": [
+          0.4,
+          0.4,
+          0.04
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            3.85,
+            0.07,
+            1.2
+          ],
+          [
+            3.85,
+            0.47000000000000003,
+            1.2
+          ],
+          [
+            3.4499999999999997,
+            0.47000000000000003,
+            1.2
+          ],
+          [
+            3.4499999999999997,
+            0.07,
+            1.2
+          ],
+          [
+            3.85,
+            0.07,
+            1.24
+          ],
+          [
+            3.85,
+            0.47000000000000003,
+            1.24
+          ],
+          [
+            3.4499999999999997,
+            0.47000000000000003,
+            1.24
+          ],
+          [
+            3.4499999999999997,
+            0.07,
+            1.24
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0040",
+      "target_size_local_m": [
+        0.09,
+        0.2,
+        0.25
+      ],
+      "bottom_center_m": [
+        4.05,
+        0.83,
+        1.51
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "bbox": {
+        "center_m": [
+          4.05,
+          0.83,
+          1.635
+        ],
+        "size_local_m": [
+          0.09,
+          0.2,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.059991520456253,
+            0.9392024245105037,
+            1.51
+          ],
+          [
+            3.974894848652315,
+            0.9099012906093595,
+            1.51
+          ],
+          [
+            4.040008479543746,
+            0.7207975754894962,
+            1.51
+          ],
+          [
+            4.125105151347685,
+            0.7500987093906404,
+            1.51
+          ],
+          [
+            4.059991520456253,
+            0.9392024245105037,
+            1.76
+          ],
+          [
+            3.974894848652315,
+            0.9099012906093595,
+            1.76
+          ],
+          [
+            4.040008479543746,
+            0.7207975754894962,
+            1.76
+          ],
+          [
+            4.125105151347685,
+            0.7500987093906404,
+            1.76
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0041",
+      "target_size_local_m": [
+        0.09,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        4.38,
+        0.6,
+        1.51
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "bbox": {
+        "center_m": [
+          4.38,
+          0.6,
+          1.635
+        ],
+        "size_local_m": [
+          0.09,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.391619361228539,
+            0.7044748316325071,
+            1.51
+          ],
+          [
+            4.3065226894246,
+            0.6751736977313629,
+            1.51
+          ],
+          [
+            4.368380638771461,
+            0.49552516836749283,
+            1.51
+          ],
+          [
+            4.4534773105753995,
+            0.524826302268637,
+            1.51
+          ],
+          [
+            4.391619361228539,
+            0.7044748316325071,
+            1.76
+          ],
+          [
+            4.3065226894246,
+            0.6751736977313629,
+            1.76
+          ],
+          [
+            4.368380638771461,
+            0.49552516836749283,
+            1.76
+          ],
+          [
+            4.4534773105753995,
+            0.524826302268637,
+            1.76
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0042",
+      "target_size_local_m": [
+        0.09,
+        0.18,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.35,
+        1.97,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "magazine_1",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "bbox": {
+        "center_m": [
+          1.35,
+          1.97,
+          0.54
+        ],
+        "size_local_m": [
+          0.09,
+          0.18,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.3632472020008253,
+            2.0697472387545104,
+            0.4
+          ],
+          [
+            1.2781505301968867,
+            2.040446104853366,
+            0.4
+          ],
+          [
+            1.336752797999175,
+            1.8702527612454893,
+            0.4
+          ],
+          [
+            1.4218494698031134,
+            1.8995538951466335,
+            0.4
+          ],
+          [
+            1.3632472020008253,
+            2.0697472387545104,
+            0.68
+          ],
+          [
+            1.2781505301968867,
+            2.040446104853366,
+            0.68
+          ],
+          [
+            1.336752797999175,
+            1.8702527612454893,
+            0.68
+          ],
+          [
+            1.4218494698031134,
+            1.8995538951466335,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0043",
+      "target_size_local_m": [
+        0.09,
+        0.18,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.67,
+        2.0300000000000002,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "magazine_3",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "bbox": {
+        "center_m": [
+          1.67,
+          2.0300000000000002,
+          0.54
+        ],
+        "size_local_m": [
+          0.09,
+          0.18,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.6832472020008251,
+            2.129747238754511,
+            0.4
+          ],
+          [
+            1.5981505301968866,
+            2.1004461048533667,
+            0.4
+          ],
+          [
+            1.6567527979991747,
+            1.9302527612454896,
+            0.4
+          ],
+          [
+            1.7418494698031133,
+            1.9595538951466338,
+            0.4
+          ],
+          [
+            1.6832472020008251,
+            2.129747238754511,
+            0.68
+          ],
+          [
+            1.5981505301968866,
+            2.1004461048533667,
+            0.68
+          ],
+          [
+            1.6567527979991747,
+            1.9302527612454896,
+            0.68
+          ],
+          [
+            1.7418494698031133,
+            1.9595538951466338,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0044",
+      "target_size_local_m": [
+        0.14,
+        0.14,
+        0.1
+      ],
+      "bottom_center_m": [
+        1.5,
+        1.9999999999999998,
+        0.4
+      ],
+      "yaw_rad": 3.12413936106985,
+      "category": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "bbox": {
+        "center_m": [
+          1.5,
+          1.9999999999999998,
+          0.45
+        ],
+        "size_local_m": [
+          0.14,
+          0.14,
+          0.1
+        ],
+        "yaw_rad": 3.12413936106985,
+        "corners_m": [
+          [
+            1.5712110071115573,
+            2.0687676702103373,
+            0.4
+          ],
+          [
+            1.4312323297896625,
+            2.071211007111557,
+            0.4
+          ],
+          [
+            1.4287889928884427,
+            1.9312323297896623,
+            0.4
+          ],
+          [
+            1.5687676702103375,
+            1.9287889928884425,
+            0.4
+          ],
+          [
+            1.5712110071115573,
+            2.0687676702103373,
+            0.5
+          ],
+          [
+            1.4312323297896625,
+            2.071211007111557,
+            0.5
+          ],
+          [
+            1.4287889928884427,
+            1.9312323297896623,
+            0.5
+          ],
+          [
+            1.5687676702103375,
+            1.9287889928884425,
+            0.5
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0045",
+      "target_size_local_m": [
+        0.14,
+        0.14,
+        0.1
+      ],
+      "bottom_center_m": [
+        1.8,
+        2.01,
+        0.4
+      ],
+      "yaw_rad": -2.844886680750757,
+      "category": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "bbox": {
+        "center_m": [
+          1.8,
+          2.01,
+          0.45
+        ],
+        "size_local_m": [
+          0.14,
+          0.14,
+          0.1
+        ],
+        "yaw_rad": -2.844886680750757,
+        "corners_m": [
+          [
+            1.8464753135868208,
+            2.0974073522480037,
+            0.4
+          ],
+          [
+            1.712592647751996,
+            2.056475313586821,
+            0.4
+          ],
+          [
+            1.7535246864131793,
+            1.9225926477519957,
+            0.4
+          ],
+          [
+            1.8874073522480042,
+            1.9635246864131788,
+            0.4
+          ],
+          [
+            1.8464753135868208,
+            2.0974073522480037,
+            0.5
+          ],
+          [
+            1.712592647751996,
+            2.056475313586821,
+            0.5
+          ],
+          [
+            1.7535246864131793,
+            1.9225926477519957,
+            0.5
+          ],
+          [
+            1.8874073522480042,
+            1.9635246864131788,
+            0.5
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0046",
+      "target_size_local_m": [
+        0.1,
+        0.2,
+        0.28
+      ],
+      "bottom_center_m": [
+        1.87,
+        1.72,
+        0.4
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "hardcover",
+      "description": "A thick hardcover book with a stiff rectangular spine, a slightly textured cloth cover and rounded page edges",
+      "bbox": {
+        "center_m": [
+          1.87,
+          1.72,
+          0.54
+        ],
+        "size_local_m": [
+          0.1,
+          0.2,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            1.8847191133342502,
+            1.8308302652827895,
+            0.4
+          ],
+          [
+            1.7901672557743185,
+            1.7982734498370738,
+            0.4
+          ],
+          [
+            1.85528088666575,
+            1.6091697347172105,
+            0.4
+          ],
+          [
+            1.9498327442256818,
+            1.6417265501629261,
+            0.4
+          ],
+          [
+            1.8847191133342502,
+            1.8308302652827895,
+            0.68
+          ],
+          [
+            1.7901672557743185,
+            1.7982734498370738,
+            0.68
+          ],
+          [
+            1.85528088666575,
+            1.6091697347172105,
+            0.68
+          ],
+          [
+            1.9498327442256818,
+            1.6417265501629261,
+            0.68
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0047",
+      "target_size_local_m": [
+        0.06,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        4.17,
+        2.0900000000000003,
+        0.75
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "bbox": {
+        "center_m": [
+          4.17,
+          2.0900000000000003,
+          0.875
+        ],
+        "size_local_m": [
+          0.06,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.16743658259455,
+            2.18959130931565,
+            0.75
+          ],
+          [
+            4.11070546805859,
+            2.1700572200482204,
+            0.75
+          ],
+          [
+            4.17256341740545,
+            1.9904086906843506,
+            0.75
+          ],
+          [
+            4.2292945319414095,
+            2.00994277995178,
+            0.75
+          ],
+          [
+            4.16743658259455,
+            2.18959130931565,
+            1.0
+          ],
+          [
+            4.11070546805859,
+            2.1700572200482204,
+            1.0
+          ],
+          [
+            4.17256341740545,
+            1.9904086906843506,
+            1.0
+          ],
+          [
+            4.2292945319414095,
+            2.00994277995178,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0048",
+      "target_size_local_m": [
+        0.06,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        4.42,
+        2.62,
+        0.75
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "bbox": {
+        "center_m": [
+          4.42,
+          2.62,
+          0.875
+        ],
+        "size_local_m": [
+          0.06,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.41743658259455,
+            2.71959130931565,
+            0.75
+          ],
+          [
+            4.36070546805859,
+            2.7000572200482202,
+            0.75
+          ],
+          [
+            4.42256341740545,
+            2.5204086906843504,
+            0.75
+          ],
+          [
+            4.4792945319414095,
+            2.53994277995178,
+            0.75
+          ],
+          [
+            4.41743658259455,
+            2.71959130931565,
+            1.0
+          ],
+          [
+            4.36070546805859,
+            2.7000572200482202,
+            1.0
+          ],
+          [
+            4.42256341740545,
+            2.5204086906843504,
+            1.0
+          ],
+          [
+            4.4792945319414095,
+            2.53994277995178,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0049",
+      "target_size_local_m": [
+        0.05,
+        0.2,
+        0.28
+      ],
+      "bottom_center_m": [
+        3.2,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "bbox": {
+        "center_m": [
+          3.2,
+          4.79,
+          0.9400000000000001
+        ],
+        "size_local_m": [
+          0.05,
+          0.2,
+          0.28
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            3.191081148944267,
+            4.892691061421361,
+            0.8
+          ],
+          [
+            3.1438052201643014,
+            4.876412653698503,
+            0.8
+          ],
+          [
+            3.208918851055733,
+            4.6873089385786395,
+            0.8
+          ],
+          [
+            3.256194779835699,
+            4.703587346301497,
+            0.8
+          ],
+          [
+            3.191081148944267,
+            4.892691061421361,
+            1.08
+          ],
+          [
+            3.1438052201643014,
+            4.876412653698503,
+            1.08
+          ],
+          [
+            3.208918851055733,
+            4.6873089385786395,
+            1.08
+          ],
+          [
+            3.256194779835699,
+            4.703587346301497,
+            1.08
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0050",
+      "target_size_local_m": [
+        0.05,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        3.38,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "bbox": {
+        "center_m": [
+          3.38,
+          4.79,
+          0.925
+        ],
+        "size_local_m": [
+          0.05,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            3.372708989716553,
+            4.887963468543364,
+            0.8
+          ],
+          [
+            3.325433060936587,
+            4.871685060820506,
+            0.8
+          ],
+          [
+            3.387291010283447,
+            4.692036531456636,
+            0.8
+          ],
+          [
+            3.4345669390634126,
+            4.708314939179494,
+            0.8
+          ],
+          [
+            3.372708989716553,
+            4.887963468543364,
+            1.05
+          ],
+          [
+            3.325433060936587,
+            4.871685060820506,
+            1.05
+          ],
+          [
+            3.387291010283447,
+            4.692036531456636,
+            1.05
+          ],
+          [
+            3.4345669390634126,
+            4.708314939179494,
+            1.05
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0051",
+      "target_size_local_m": [
+        0.05,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        3.58,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "bbox": {
+        "center_m": [
+          3.58,
+          4.79,
+          0.925
+        ],
+        "size_local_m": [
+          0.05,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            3.572708989716553,
+            4.887963468543364,
+            0.8
+          ],
+          [
+            3.5254330609365874,
+            4.871685060820506,
+            0.8
+          ],
+          [
+            3.587291010283447,
+            4.692036531456636,
+            0.8
+          ],
+          [
+            3.6345669390634128,
+            4.708314939179494,
+            0.8
+          ],
+          [
+            3.572708989716553,
+            4.887963468543364,
+            1.05
+          ],
+          [
+            3.5254330609365874,
+            4.871685060820506,
+            1.05
+          ],
+          [
+            3.587291010283447,
+            4.692036531456636,
+            1.05
+          ],
+          [
+            3.6345669390634128,
+            4.708314939179494,
+            1.05
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0052",
+      "target_size_local_m": [
+        0.05,
+        0.19,
+        0.25
+      ],
+      "bottom_center_m": [
+        3.8,
+        4.79,
+        0.8
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "bbox": {
+        "center_m": [
+          3.8,
+          4.79,
+          0.925
+        ],
+        "size_local_m": [
+          0.05,
+          0.19,
+          0.25
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            3.792708989716553,
+            4.887963468543364,
+            0.8
+          ],
+          [
+            3.745433060936587,
+            4.871685060820506,
+            0.8
+          ],
+          [
+            3.8072910102834467,
+            4.692036531456636,
+            0.8
+          ],
+          [
+            3.8545669390634125,
+            4.708314939179494,
+            0.8
+          ],
+          [
+            3.792708989716553,
+            4.887963468543364,
+            1.05
+          ],
+          [
+            3.745433060936587,
+            4.871685060820506,
+            1.05
+          ],
+          [
+            3.8072910102834467,
+            4.692036531456636,
+            1.05
+          ],
+          [
+            3.8545669390634125,
+            4.708314939179494,
+            1.05
+          ]
+        ]
+      }
+    }
+  ]
+}

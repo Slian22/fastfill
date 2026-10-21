@@ -1,0 +1,29 @@
+{
+  "date_utc": "2026-10-13T07:11:54.724727+00:00",
+  "scope": "local current fastfill/comparison production code; frozen server snapshot not changed",
+  "red": {
+    "regression_tests": 2,
+    "subtest_failures": 8,
+    "reason": "shared pos/yaw/on/description and missing/invalid category not rejected by old _check_pair"
+  },
+  "green": {
+    "train_pair_tests_passed": 42,
+    "subtests_passed": 99,
+    "comparison_tests_passed": 674,
+    "comparison_seconds": 18.65
+  },
+  "coverage": {
+    "covered_lines": 4521,
+    "num_statements": 4979,
+    "percent_covered": 90.80136573609158,
+    "percent_covered_display": "91",
+    "missing_lines": 458,
+    "excluded_lines": 0
+  },
+  "test_command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -m coverage run --data-file=docs/research/20261013-unknown-size-comparison/evidence/full-audit.coverage --source=fastfill/comparison -m pytest -q fastfill/comparison/tests",
+  "changed_files": {
+    "fastfill/comparison/train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+    "fastfill/comparison/tests/test_train_pair.py": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5"
+  },
+  "limits": "CPU tests with mocks for ML/GPU/network/Blender. No new scientific quality score. Real training corpus full-scan audit separate."
+}

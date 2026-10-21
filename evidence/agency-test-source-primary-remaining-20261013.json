@@ -1,0 +1,950 @@
+{
+  "schema_version": 1,
+  "audit": "agency-test-source-primary-remaining-20261013",
+  "status": "complete_for_original_bounded_inventory",
+  "audit_date": "2026-10-13",
+  "scope": {
+    "ledger": "evidence/agency-full-test-source-coverage-20261013.json",
+    "ledger_sha256_at_assignment": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc",
+    "inventory_files": 121,
+    "selector": "files with read_status == unreviewed, excluding the union of all delegation_ready_batches[].paths",
+    "assigned_files": 15,
+    "assigned_lines": 5997,
+    "exclusions": [
+      "All delegation_ready_batches paths, including already completed v2-3; no source reread.",
+      "New test_source* correction files outside the original 121-file inventory.",
+      "Production code, current adapter changes, remote systems, and test execution.",
+      "Prior Sartre ledger/agent without accessible evidence ID."
+    ],
+    "parent_aggregation_note": "The parent's 13 residual gaps reflect reuse of geometry/final_tables. This report retains the original 15-file assignment and also establishes exact full-read reuse for train_pair and size_prior. It is separate from the parent's stated 681-pytest / 90.87% execution result, which was not validated or used as source-read proof here."
+  },
+  "methodology": {
+    "fresh": "Every source line, including comments, fixtures, embedded sample data, and assertions, was displayed and read in bounded numbered chunks with exact SHA verification. Reading names, counts, hashes, or parsing ASTs alone did not count as reading source.",
+    "reuse": "Requires an explicit complete-source read assertion and a matching reviewed SHA. Both accepted evidence files and all reused test sources are rehashed at final validation; no current handoff hash is substituted for an earlier read hash.",
+    "line_count": "len(UTF-8-decoded source.splitlines()); includes final unterminated line when present.",
+    "analysis": "Static review only. Counterexamples describe local oracle logic; they are not executed mutations or confirmed production failures. Coverage limitations are bounded to these exact sources and do not assert repository-wide absence.",
+    "statistics": "Exact census of the assigned source inventory, not a statistical quality estimate. Confidence intervals, significance, defect probabilities, pass rates, and execution line/branch coverage are not estimable from this evidence and are not asserted.",
+    "operations": {
+      "tests_executed": 0,
+      "project_source_imports_or_executions": 0,
+      "remote_calls": 0,
+      "production_or_test_edits": 0,
+      "shared_ledger_edits": 0,
+      "subagents_spawned": 0
+    },
+    "allowed_outputs": [
+      "evidence/agency-test-source-primary-remaining-20261013.json",
+      "evidence/agency-test-source-primary-remaining-20261013.md"
+    ]
+  },
+  "summary": {
+    "files": 15,
+    "lines": 5997,
+    "fresh_full_files": 11,
+    "fresh_full_lines": 4372,
+    "reused_full_files": 4,
+    "reused_full_lines": 1625,
+    "uncovered_files": 0,
+    "uncovered_lines": 0,
+    "concrete_test_oracle_gaps": 3,
+    "coverage_limitations": 5,
+    "confirmed_production_defects": 0,
+    "coverage_version_scope": "original_frozen_review_versions",
+    "expected_post_audit_changed_files": 1,
+    "current_working_tree_all_hashes_match": "not_claimed"
+  },
+  "reuse_evidence_sources": [
+    {
+      "path": "evidence/agency-full-audit-patch-review-20261013.md",
+      "sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+      "full_read_assertion": [
+        {
+          "line": 7,
+          "text": "Read all four requested production files and the three requested tests directly. The tests are under `fastfill/comparison/tests/`, not the repository-root `tests/` directory. Compared production source against `docs/research/20261013-unknown-size-comparison/automation-code/pipeline-9c4d97dbd736`. Independently checked all 33 files against that snapshot's `MANIFEST.json`: zero mismatches."
+        },
+        {
+          "line": 15,
+          "text": "`judge_batch.py` is byte-identical to the baseline. The frozen snapshot contains no copies of the requested test files, so their complete contents are supporting coverage, not a reconstructable test delta. Unchanged implementation issues, style, and speculative infrastructure changes are outside this review."
+        },
+        {
+          "line": 80,
+          "text": "All seven requested files were rehashed before report creation; none changed during this review. No production or test source was edited. The only repository file created by this review is this report; temporary probe output was written outside the repository. Existing edits and artifacts were preserved."
+        }
+      ],
+      "test_hash_rows": [
+        {
+          "line": 88,
+          "text": "| `fastfill/comparison/tests/test_geometry.py` | `f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f` |"
+        },
+        {
+          "line": 89,
+          "text": "| `fastfill/comparison/tests/test_final_tables.py` | `ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901` |"
+        },
+        {
+          "line": 90,
+          "text": "| `fastfill/comparison/tests/test_train_pair.py` | `29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5` |"
+        }
+      ]
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-unknownsize-data-review-20261013.md",
+      "sha256": "c85bd612630b5e8802888e070b272031615102ecaa6701ee411742dc6707501a",
+      "full_read_assertion": {
+        "line": 60,
+        "text": "- Tests were read in full; only the new hash-race test and small synthetic assertions were executed. No parent bulk checks were repeated. The synthetic assertions covered alias transitivity through unselected data, original IDs, raw preservation, own-fold/dev target independence, and centimeter quantization."
+      },
+      "test_hash_row": {
+        "line": 86,
+        "text": "| `fastfill/comparison/tests/test_size_prior.py` | `60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093` |"
+      }
+    }
+  ],
+  "reuse_decisions": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+      "sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+      "decision": "The full-read entries alone were insufficient for current exact-source reuse; accepted independent patch review supplies matching complete-read evidence.",
+      "entries": [
+        {
+          "pointer": "/code_files_read/6",
+          "path": "fastfill/comparison/tests/test_geometry.py",
+          "read_sha256": "638448c5505c9e31c87a87043753b8d3af25a867011847637a9bd2f0e9c86d1c",
+          "current_sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+          "changed_since_read": true
+        },
+        {
+          "pointer": "/code_files_read/8",
+          "path": "fastfill/comparison/tests/test_final_tables.py",
+          "read_sha256": "5518576d0b6240aa3706b155af58710783197800421a5c70c8dfcc5d478f5289",
+          "current_sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+          "changed_since_read": true
+        }
+      ],
+      "reason": "sha256_at_handoff matches current bytes but is not, by itself, an explicit full reread of those bytes."
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-context-length-review-20261013.md",
+      "sha256": "ccbfdb0666e09ff8b5b622cbea4b1e05e75147bdcdd4d5c7eef6b1192a0ee3b9",
+      "source_path": "fastfill/comparison/tests/test_infer.py",
+      "decision": "Fresh full read required.",
+      "reason": "Matching test hash at line 172 without an explicit complete-source read assertion is not sufficient."
+    },
+    {
+      "decision": "Other partial reads, inventory/manifests, old mismatched reviews, and execution receipts were not promoted to full-read credit."
+    }
+  ],
+  "files": [
+    {
+      "path": "fastfill/comparison/tests/test_final_tables.py",
+      "sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "inventory_sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "lines": 122,
+      "ledger_scope": "delegated_metric",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "reused_full",
+      "read_scope": {
+        "source_extent": "all lines 1-122 inclusive",
+        "mode": "Reuse explicit prior complete-source assertion and exact matching file SHA; no fresh source read in this turn.",
+        "fresh_read_spans": [],
+        "prior_full_read_evidence": {
+          "path": "evidence/agency-full-audit-patch-review-20261013.md",
+          "sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+          "full_read_assertion": [
+            {
+              "line": 7,
+              "text": "Read all four requested production files and the three requested tests directly. The tests are under `fastfill/comparison/tests/`, not the repository-root `tests/` directory. Compared production source against `docs/research/20261013-unknown-size-comparison/automation-code/pipeline-9c4d97dbd736`. Independently checked all 33 files against that snapshot's `MANIFEST.json`: zero mismatches."
+            },
+            {
+              "line": 15,
+              "text": "`judge_batch.py` is byte-identical to the baseline. The frozen snapshot contains no copies of the requested test files, so their complete contents are supporting coverage, not a reconstructable test delta. Unchanged implementation issues, style, and speculative infrastructure changes are outside this review."
+            },
+            {
+              "line": 80,
+              "text": "All seven requested files were rehashed before report creation; none changed during this review. No production or test source was edited. The only repository file created by this review is this report; temporary probe output was written outside the repository. Existing edits and artifacts were preserved."
+            }
+          ],
+          "test_hash_rows": [
+            {
+              "line": 89,
+              "text": "| `fastfill/comparison/tests/test_final_tables.py` | `ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901` |"
+            }
+          ]
+        }
+      },
+      "review_summary": "Reused independent complete-source review: frozen judge validation, positive-request strata, and failure/score retention. This turn validates provenance and hashes, not a new source analysis.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+        "lines": 122,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_geometry.py",
+      "sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "inventory_sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "lines": 271,
+      "ledger_scope": "delegated_metric",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "reused_full",
+      "read_scope": {
+        "source_extent": "all lines 1-271 inclusive",
+        "mode": "Reuse explicit prior complete-source assertion and exact matching file SHA; no fresh source read in this turn.",
+        "fresh_read_spans": [],
+        "prior_full_read_evidence": {
+          "path": "evidence/agency-full-audit-patch-review-20261013.md",
+          "sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+          "full_read_assertion": [
+            {
+              "line": 7,
+              "text": "Read all four requested production files and the three requested tests directly. The tests are under `fastfill/comparison/tests/`, not the repository-root `tests/` directory. Compared production source against `docs/research/20261013-unknown-size-comparison/automation-code/pipeline-9c4d97dbd736`. Independently checked all 33 files against that snapshot's `MANIFEST.json`: zero mismatches."
+            },
+            {
+              "line": 15,
+              "text": "`judge_batch.py` is byte-identical to the baseline. The frozen snapshot contains no copies of the requested test files, so their complete contents are supporting coverage, not a reconstructable test delta. Unchanged implementation issues, style, and speculative infrastructure changes are outside this review."
+            },
+            {
+              "line": 80,
+              "text": "All seven requested files were rehashed before report creation; none changed during this review. No production or test source was edited. The only repository file created by this review is this report; temporary probe output was written outside the repository. Existing edits and artifacts were preserved."
+            }
+          ],
+          "test_hash_rows": [
+            {
+              "line": 88,
+              "text": "| `fastfill/comparison/tests/test_geometry.py` | `f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f` |"
+            }
+          ]
+        }
+      },
+      "review_summary": "Reused independent complete-source review: cumulative raw-relative 0.1 m repair budget, support-tree rollback, and preserving a valid exactly-10 cm move. This turn validates provenance and hashes, not a new source analysis.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+        "lines": 271,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_infer.py",
+      "sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "inventory_sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "lines": 415,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-415 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            140
+          ],
+          [
+            141,
+            280
+          ],
+          [
+            281,
+            415
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: request/sidecar hashes, ordered cardinality and failure receipts, interruption accounting, training identity, token budgets, paired input plans, and mocked local model/runtime wiring.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+        "lines": 415,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_main_data.py",
+      "sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "inventory_sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "lines": 413,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-413 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            210
+          ],
+          [
+            211,
+            413
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: training-only and out-of-fold size priors, paired input equality, failure retention, identity closure, teacher/output corruption, rounded geometry, consumed-byte races, manifests, and bounded worker reproducibility.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+        "lines": 413,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_overnight.py",
+      "sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "inventory_sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "lines": 601,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-601 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            200
+          ],
+          [
+            201,
+            400
+          ],
+          [
+            401,
+            601
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: configuration validation, exclusive artifacts, staged failure/timeout handling, frozen resources, subprocess ownership/retries, and a mocked render/judge pipeline. Failure endstate contents remain weakly asserted in one parametrized regression.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+        "lines": 601,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_pose_targets.py",
+      "sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "inventory_sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "lines": 394,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-394 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            200
+          ],
+          [
+            201,
+            394
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: inventory preservation, support chains, cardinal placement, concavity, obstacles, rounding, ceilings, graph rejection, bounded search, and authoritative final checks. Acceptance follows the selected geometric policy.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+        "lines": 394,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_render_assets.py",
+      "sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "inventory_sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "lines": 556,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-556 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            190
+          ],
+          [
+            191,
+            380
+          ],
+          [
+            381,
+            556
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: axes, mesh fitting, normals, triangulation, texture/resource provenance, camera independence, unknown height, malformed ledger records, and mocked Blender publication/imports.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+        "lines": 556,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_size_prior.py",
+      "sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "inventory_sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "lines": 315,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "reused_full",
+      "read_scope": {
+        "source_extent": "all lines 1-315 inclusive",
+        "mode": "Reuse explicit prior complete-source assertion and exact matching file SHA; no fresh source read in this turn.",
+        "fresh_read_spans": [],
+        "prior_full_read_evidence": {
+          "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-unknownsize-data-review-20261013.md",
+          "sha256": "c85bd612630b5e8802888e070b272031615102ecaa6701ee411742dc6707501a",
+          "full_read_assertion": [
+            {
+              "line": 60,
+              "text": "- Tests were read in full; only the new hash-race test and small synthetic assertions were executed. No parent bulk checks were repeated. The synthetic assertions covered alias transitivity through unselected data, original IDs, raw preservation, own-fold/dev target independence, and centimeter quantization."
+            }
+          ],
+          "test_hash_row": {
+            "line": 86,
+            "text": "| `fastfill/comparison/tests/test_size_prior.py` | `60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093` |"
+          },
+          "test_hash_rows": [
+            {
+              "line": 86,
+              "text": "| `fastfill/comparison/tests/test_size_prior.py` | `60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093` |"
+            }
+          ]
+        }
+      },
+      "review_summary": "Reused complete-source data review with exact matching SHA: training-only/out-of-fold priors and held-out/development target perturbation checks. This turn validates provenance and hashes, not a new source analysis.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+        "lines": 315,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_train_pair.py",
+      "sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "inventory_sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "lines": 917,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "reused_full",
+      "read_scope": {
+        "source_extent": "all lines 1-917 inclusive",
+        "mode": "Reuse explicit prior complete-source assertion and exact matching file SHA; no fresh source read in this turn.",
+        "fresh_read_spans": [],
+        "prior_full_read_evidence": {
+          "path": "evidence/agency-full-audit-patch-review-20261013.md",
+          "sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+          "full_read_assertion": [
+            {
+              "line": 7,
+              "text": "Read all four requested production files and the three requested tests directly. The tests are under `fastfill/comparison/tests/`, not the repository-root `tests/` directory. Compared production source against `docs/research/20261013-unknown-size-comparison/automation-code/pipeline-9c4d97dbd736`. Independently checked all 33 files against that snapshot's `MANIFEST.json`: zero mismatches."
+            },
+            {
+              "line": 15,
+              "text": "`judge_batch.py` is byte-identical to the baseline. The frozen snapshot contains no copies of the requested test files, so their complete contents are supporting coverage, not a reconstructable test delta. Unchanged implementation issues, style, and speculative infrastructure changes are outside this review."
+            },
+            {
+              "line": 80,
+              "text": "All seven requested files were rehashed before report creation; none changed during this review. No production or test source was edited. The only repository file created by this review is this report; temporary probe output was written outside the repository. Existing edits and artifacts were preserved."
+            }
+          ],
+          "test_hash_rows": [
+            {
+              "line": 90,
+              "text": "| `fastfill/comparison/tests/test_train_pair.py` | `29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5` |"
+            }
+          ]
+        }
+      },
+      "review_summary": "Reused independent complete-source review: model-visible field allowlists and target policy/support-graph checks. This turn validates provenance and hashes, not a new source analysis.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+        "lines": 917,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+      "sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "inventory_sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "lines": 431,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-431 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            215
+          ],
+          [
+            216,
+            431
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: paired geometry/render/API/FID records, strict hashes, frozen selection, failure denominators, concurrency, malformed records, and synthetic large-denominator retention. The fake renderer emits identical pixels for every identity.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+        "lines": 431,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true,
+        "temporal_scope": "Historical validation at the recorded timestamp; not a current-version assertion after the expected fixture change."
+      },
+      "post_audit_version_status": {
+        "status": "expected_post_audit_change",
+        "reviewed_sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+        "reviewed_lines": 431,
+        "current_sha256": null,
+        "current_read_status": "not_reviewed_in_this_report",
+        "handoff": "Independent patch review will cover the changed fixture version."
+      }
+    },
+    {
+      "path": "fastfill/tests/test_adapter_repairs.py",
+      "sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "inventory_sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "lines": 491,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-491 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            170
+          ],
+          [
+            171,
+            340
+          ],
+          [
+            341,
+            491
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: retained adapter geometry regressions, independent corner/quaternion calculations, tilted/upright front directions, support/floor obstacles, mocked dataset inputs, and Interior room assignment. Two rejection tests permit vacuous loop assertions.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+        "lines": 491,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/tests/test_build_repairs.py",
+      "sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "inventory_sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "lines": 211,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-211 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            211
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: output preservation, staging/serialization failure, manifests, dependency drift, invalid input, serialized constraints, and geometry rejection. No new concrete assertion defect identified.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+        "lines": 211,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/tests/test_embedded_contracts.py",
+      "sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "inventory_sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "lines": 18,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-18 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            18
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read of the wrapper only: seven production modules are invoked as __main__. Their embedded implementation/assertion bodies were not read in this tranche.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+        "lines": 18,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/tests/test_qa_repairs.py",
+      "sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "inventory_sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "lines": 454,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-454 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            180
+          ],
+          [
+            181,
+            340
+          ],
+          [
+            341,
+            454
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: ablation equality, schema/reference/truth counts, provenance and replay corruption, streaming, fixed yaw, mandatory failure policy, and CLI report behavior. A metric-summary assertion permits empty or incomplete metric dictionaries.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+        "lines": 454,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    },
+    {
+      "path": "fastfill/tests/test_runtime_repairs.py",
+      "sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "inventory_sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "lines": 388,
+      "ledger_scope": "primary",
+      "ledger_read_status_at_assignment": "unreviewed",
+      "read_status": "fresh_full",
+      "read_scope": {
+        "source_extent": "all lines 1-388 inclusive",
+        "mode": "Direct complete source read in bounded, numbered, non-truncated chunks; byte SHA checked at each chunk.",
+        "fresh_read_spans": [
+          [
+            1,
+            200
+          ],
+          [
+            201,
+            388
+          ]
+        ],
+        "prior_full_read_evidence": null
+      },
+      "review_summary": "Fresh full read: request anchors and keepouts, fixed/window policies, support tolerance boundaries, handler envelopes/length limits, and embedded-selfcheck dispatch. Handler I/O and generation are synthetic; embedded production bodies remain outside this read scope.",
+      "final_hash_validation": {
+        "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+        "sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+        "lines": 388,
+        "matches_reviewed_sha256": true,
+        "matches_inventory_sha256": true
+      }
+    }
+  ],
+  "concrete_findings": [
+    {
+      "id": "PR-F1",
+      "classification": "concrete_test_oracle_gap",
+      "priority": "medium",
+      "title": "Interior rejection regressions can pass when all rooms disappear",
+      "evidence": [
+        {
+          "path": "fastfill/tests/test_adapter_repairs.py",
+          "start_line": 456,
+          "end_line": 473
+        }
+      ],
+      "observation": "The overlapping/nearest-room rejection test and parametrized invalid-boundary rejection test put their result assertions inside `for r in load_interior(scene)`. Neither first asserts the returned room count or identities.",
+      "counterexample": "For these inputs, a loader returning [] skips every assertion in those loops. This is a static counterexample to the local assertions, not an executed mutation or a claim that every adapter test would pass.",
+      "claim_at_risk": "The tests do not distinguish retaining rooms while refusing ambiguous object assignment from silently dropping the rooms, which can change dataset/geometry evaluation denominators.",
+      "recommendation": "Materialize the result, assert the expected room IDs and count for each input, then assert empty object assignments and unresolved reasons.",
+      "qualification": "Other cases do assert room cardinality. New correction tests outside the 121-file inventory were excluded; no claim is made about their coverage or current adapter correctness."
+    },
+    {
+      "id": "PR-F2",
+      "classification": "concrete_test_oracle_gap",
+      "priority": "medium",
+      "title": "Four pipeline failure cases do not assert truthful terminal status",
+      "evidence": [
+        {
+          "path": "fastfill/comparison/tests/test_overnight.py",
+          "start_line": 471,
+          "end_line": 484
+        },
+        {
+          "path": "fastfill/comparison/tests/test_overnight.py",
+          "start_line": 511,
+          "end_line": 516
+        },
+        {
+          "path": "fastfill/comparison/tests/test_overnight.py",
+          "start_line": 543,
+          "end_line": 548
+        }
+      ],
+      "observation": "The parametrized downstream-stop regression covers terminal_failure, dependency_never, timeout, and hash_mismatch. It checks that downstream work stops and that an endstate is truthy, but does not assert its failure/partial status, failure stage/reason, or persisted status content.",
+      "counterexample": "A nonempty endstate claiming completion for these failure paths would satisfy the endstate assertion if the existing stop/timing behavior were preserved. This was not executed.",
+      "claim_at_risk": "Failure retention and research-run completion claims are not fully guarded by this regression; a stopped failed run could be labeled complete.",
+      "recommendation": "Assert the expected terminal status and failure stage/reason per scenario and agreement with any persisted receipt.",
+      "qualification": "Separate ambiguous-submission and interrupt tests assert partial status; this finding is limited to the four listed scenarios and does not establish a production reporting defect."
+    },
+    {
+      "id": "PR-F3",
+      "classification": "concrete_test_oracle_gap",
+      "priority": "medium",
+      "title": "QA legality-summary equality accepts missing metric fields",
+      "evidence": [
+        {
+          "path": "fastfill/tests/test_qa_repairs.py",
+          "start_line": 322,
+          "end_line": 334
+        }
+      ],
+      "observation": "The test computes `expected = summarize([score(room, None)])[\"in_dist\"]` and compares `actual` with `{k: expected[k] for k in actual}`. It never asserts the required keys of `actual`.",
+      "counterexample": "If the existing `dev/in_dist` summary becomes {}, the comparison is {} == {}. A nonempty subset of the expected metrics can also pass. The preceding constraint-count assertions do not assert these legality-summary fields.",
+      "claim_at_risk": "Raw/repaired reference-legality reporting can silently lose metrics while this summary regression remains satisfied.",
+      "recommendation": "Assert the documented required key set and expected values, including independently specified geometry examples for critical legality metrics.",
+      "qualification": "This is an omission-sensitive assertion defect, not evidence that the present QA implementation emits an empty summary; no mutation or tests were executed."
+    }
+  ],
+  "coverage_limitations": [
+    {
+      "id": "PR-L1",
+      "classification": "coverage_limitation",
+      "title": "Identical synthetic images do not prove correct image-to-identity assignment",
+      "evidence": [
+        {
+          "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+          "start_line": 32,
+          "end_line": 104
+        },
+        {
+          "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+          "start_line": 117,
+          "end_line": 144
+        }
+      ],
+      "observation": "The fixture uses the same geometry across reference/candidate arms and the fake renderer writes the same flat RGB image for every UID, arm, and view. Hash/provenance assertions can validate records while being unable to distinguish a pixel-preserving permutation of image identities.",
+      "claim_boundary": "These tests support ledger/provenance behavior, not that distinct rendered evidence is paired with the intended room, arm, or view.",
+      "recommendation": "Use distinct deterministic image patterns per UID/arm/view and assert the selected bytes/features match the intended identity.",
+      "post_audit_version_notice": "The visual-pipeline observations apply to frozen SHA f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577 only. The expected fixture revision has not been read or assessed here; independent patch review owns its coverage."
+    },
+    {
+      "id": "PR-L2",
+      "classification": "coverage_limitation",
+      "title": "Mocked external stages do not substantiate real render/model/metric performance",
+      "evidence": [
+        {
+          "path": "fastfill/comparison/tests/test_infer.py",
+          "start_line": 320,
+          "end_line": 360
+        },
+        {
+          "path": "fastfill/comparison/tests/test_render_assets.py",
+          "start_line": 426,
+          "end_line": 445
+        },
+        {
+          "path": "fastfill/comparison/tests/test_render_assets.py",
+          "start_line": 498,
+          "end_line": 556
+        },
+        {
+          "path": "fastfill/comparison/tests/test_overnight.py",
+          "start_line": 574,
+          "end_line": 601
+        }
+      ],
+      "observation": "Model libraries and generation are substituted; Blender tests use fake bpy/render output; the pipeline uses synthetic image features and a fake judge. These are useful control-flow and provenance tests.",
+      "claim_boundary": "They provide no direct observation of actual Blender appearance, model memory/context fit, learned image-feature behavior, judge quality, or numeric research performance.",
+      "recommendation": "Keep these tests as offline contracts and require separately scoped, versioned real-backend evidence for those claims. Such work was neither authorized nor performed here."
+    },
+    {
+      "id": "PR-L3",
+      "classification": "coverage_limitation",
+      "title": "Geometric acceptance is relative to an explicit policy",
+      "evidence": [
+        {
+          "path": "fastfill/comparison/tests/test_pose_targets.py",
+          "start_line": 80,
+          "end_line": 83
+        },
+        {
+          "path": "fastfill/comparison/tests/test_pose_targets.py",
+          "start_line": 111,
+          "end_line": 127
+        },
+        {
+          "path": "fastfill/tests/test_runtime_repairs.py",
+          "start_line": 162,
+          "end_line": 172
+        },
+        {
+          "path": "fastfill/tests/test_runtime_repairs.py",
+          "start_line": 259,
+          "end_line": 294
+        }
+      ],
+      "observation": "Tests intentionally allow support overhang, selected tuck/window collision cases, and inclusive support tolerances. Pose acceptance also calls the production geometric checker.",
+      "claim_boundary": "Passing these contracts does not imply mesh-level collision freedom or physical stability. The policy choices are not reported as defects.",
+      "recommendation": "Name these tolerances/exemptions in geometry claims; any stronger physical claim needs separate independent oracles."
+    },
+    {
+      "id": "PR-L4",
+      "classification": "coverage_limitation",
+      "title": "Captured regressions and synthetic denominators cannot estimate population reliability",
+      "evidence": [
+        {
+          "path": "fastfill/tests/test_adapter_repairs.py",
+          "start_line": 1,
+          "end_line": 5
+        },
+        {
+          "path": "fastfill/tests/test_adapter_repairs.py",
+          "start_line": 23,
+          "end_line": 209
+        },
+        {
+          "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+          "start_line": 400,
+          "end_line": 431
+        }
+      ],
+      "observation": "The adapter fixtures retain 21 historical geometry-error cases; the visual selection case uses a synthetic 1009-case population with mocked backend failures. These are deliberately constructed regression fixtures, not representative outcome samples.",
+      "claim_boundary": "No real-corpus defect prevalence, model quality, success probability, or statistical confidence interval follows from these cases or their counts.",
+      "recommendation": "Use corpus-level sampled measurements with explicit selection and denominator rules for population claims; this report only gives exact deterministic source-read counts.",
+      "post_audit_version_notice": "The visual-pipeline observations apply to frozen SHA f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577 only. The expected fixture revision has not been read or assessed here; independent patch review owns its coverage."
+    },
+    {
+      "id": "PR-L5",
+      "classification": "coverage_limitation",
+      "title": "Embedded selfcheck wrappers do not constitute a read of embedded source",
+      "evidence": [
+        {
+          "path": "fastfill/tests/test_embedded_contracts.py",
+          "start_line": 1,
+          "end_line": 18
+        },
+        {
+          "path": "fastfill/tests/test_runtime_repairs.py",
+          "start_line": 365,
+          "end_line": 384
+        }
+      ],
+      "observation": "One wrapper invokes seven production modules with runpy, and runtime tests invoke three other modules plus an extracted serve main block. The serve extraction checks for an ast.Assert; the runpy wrappers primarily rely on invoked code to assert.",
+      "claim_boundary": "Full reading of these wrapper files closes their inventory entries only. It does not establish full-source review or substantive assertion coverage of production selfcheck bodies, and no selfchecks were run.",
+      "recommendation": "Track the embedded bodies separately if future source-audit scope includes them; do not count them as extra reviewed files here."
+    }
+  ],
+  "final_validation": {
+    "validated_at_utc": "2026-10-13T08:10:10.933326+00:00",
+    "method": "Rehashed exact bytes and recounted lines immediately before report creation; validated ledger selector, complete fresh spans, prior full-read assertions and hash-table rows, and all cited line bounds. No project code was imported or executed.",
+    "source_files_checked": 15,
+    "source_sha_matches": 15,
+    "line_count_matches": 15,
+    "changed_sources": 0,
+    "ledger_sha256": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc",
+    "ledger_matches_assignment": true,
+    "reuse_and_decision_evidence": [
+      {
+        "path": "evidence/agency-full-audit-patch-review-20261013.md",
+        "sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+        "matches": true,
+        "lines": 199
+      },
+      {
+        "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-unknownsize-data-review-20261013.md",
+        "sha256": "c85bd612630b5e8802888e070b272031615102ecaa6701ee411742dc6707501a",
+        "matches": true,
+        "lines": 89
+      },
+      {
+        "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+        "sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+        "matches": true,
+        "lines": 506
+      },
+      {
+        "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-context-length-review-20261013.md",
+        "sha256": "ccbfdb0666e09ff8b5b622cbea4b1e05e75147bdcdd4d5c7eef6b1192a0ee3b9",
+        "matches": true,
+        "lines": 174
+      }
+    ],
+    "version_boundary": "Original reviewed inventory bytes only. test_visual_pipeline.py is expected to change under the user-authorized Poincare fixture repair; preserve its reviewed SHA and defer new-version review to the independent patch reviewer. Other concurrent production/adapter changes and new correction tests remain outside scope.",
+    "temporal_scope": "Historical validation at 2026-10-13T08:10:10.933326+00:00 only; all match/count fields describe that snapshot.",
+    "current_working_tree_validation": "Not performed after the user reported expected changes to test_visual_pipeline.py; no current all-match claim.",
+    "expected_post_audit_changes": [
+      "fastfill/comparison/tests/test_visual_pipeline.py"
+    ]
+  },
+  "post_audit_updates": [
+    {
+      "recorded_at_utc": "2026-10-13T08:12:37.997891+00:00",
+      "basis": "User update; no source reread, rehash, execution, or independent verification of the new version.",
+      "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+      "status": "expected_post_audit_change",
+      "reviewed_sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "reviewed_lines": 431,
+      "authorized_change": "Poincare to fix valid fixtures only after sourceVIS resource requirements changed.",
+      "current_sha256": null,
+      "current_read_status": "not_reviewed_in_this_report",
+      "handoff": "Independent patch review will cover the changed fixture version.",
+      "reported_execution_context": {
+        "attribution": "User-reported, unverified here; not source-read evidence or results of this audit.",
+        "new_tests": 41,
+        "targeted_passes": 202,
+        "existing_visual_pipeline_fixture_failures": 25,
+        "reported_failure_cause": "missing resources"
+      },
+      "coverage_effect": "Original frozen-baseline coverage stays 15 files / 5997 lines (11 fresh / 4372 lines; 4 reused / 1625 lines). No current-working-tree all-match claim; new test_source files remain outside the historical inventory."
+    }
+  ]
+}

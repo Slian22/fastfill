@@ -1,0 +1,24 @@
+{
+  "utc_unix": 1791880308.259246,
+  "status": {
+    "api_submission_attempted": false,
+    "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 262.1881929170049,
+    "failures": [],
+    "pid": 90678,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791880248.424253
+  },
+  "processes": "84994     1 84994 /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python\n85042 84994 85042 /usr/bin/ssh\n90678 84994 90678 /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python\n90679 84994 90679 /usr/bin/caffeinate\n",
+  "all_owned_processes_alive": true,
+  "scope": "Second observation after parentexit; not logout/reboot persistence guarantee"
+}

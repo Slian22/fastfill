@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "date": "2026-10-20",
+  "pages": 4,
+  "languages": [
+    "English",
+    "Chinese"
+  ],
+  "compiled_with": "XeLaTeX via latexmk, TeX Live 2024",
+  "latex_warnings": 0,
+  "unresolved_references": 0,
+  "verified_citations": 4,
+  "original_source_hashes_verified": 16,
+  "numeric_checks": "Full-test denominators and paired differences validated; table cells generated from original CSV/JSON.",
+  "independent_review": "Metric/code and primary-literature reviews completed; all requested precision fixes applied.",
+  "visual_review": "All four final PDF pages rendered and inspected: no clipping, missing glyphs or overflow.",
+  "pdf_sha256": "1b08308a6c5b950846eb2da9c745e0f8f12ba3adccaa7e8682bf806b5489a7e6"
+}

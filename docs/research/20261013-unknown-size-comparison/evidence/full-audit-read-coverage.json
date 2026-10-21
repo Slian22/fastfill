@@ -1,0 +1,3570 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-13T08:19:25.913060+00:00",
+  "scope": "Original frozen first-party primary + delegated metric source inventory",
+  "status": "all_original_files_reviewed_at_recorded_versions",
+  "summary": {
+    "production": {
+      "files": 148,
+      "lines": 35051,
+      "read_status_counts": {
+        "fresh_full": 108,
+        "reused_hash_validated": 40
+      },
+      "changed_since_review": [
+        "fastfill/adapters/il3d_3dfront.py",
+        "fastfill/adapters/scan2cad.py",
+        "fastfill/adapters/spatialgen.py",
+        "fastfill/comparison/visual_pipeline.py"
+      ],
+      "reading_gaps": []
+    },
+    "test": {
+      "files": 121,
+      "lines": 25298,
+      "read_status_counts": {
+        "fresh_full": 103,
+        "reused_hash_validated": 18
+      },
+      "changed_since_review": [
+        "fastfill/comparison/tests/test_visual_pipeline.py"
+      ],
+      "reading_gaps": []
+    }
+  },
+  "files": [
+    {
+      "path": "fastfill/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 0,
+      "reviewed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 57,
+      "reviewed_sha256": "d415f5df39339acfcbc34b9a4ea94b0ece9c0b43c17019db469e1d1b54bb4b0f",
+      "current_sha256": "d415f5df39339acfcbc34b9a4ea94b0ece9c0b43c17019db469e1d1b54bb4b0f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/__main__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 3,
+      "reviewed_sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "current_sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/ase.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 46,
+      "reviewed_sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "current_sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/hssd200.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 424,
+      "reviewed_sha256": "1c755e3a198ab82c22f31e9dcea01c5f9b820fad542590603eaa6f647db20264",
+      "current_sha256": "1c755e3a198ab82c22f31e9dcea01c5f9b820fad542590603eaa6f647db20264",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 394,
+      "reviewed_sha256": "b2eb88d7c2d6b97c27d8551d8ca80dd1d4aa64f6b8fa75b1bd93a1b7cacf779a",
+      "current_sha256": "51c600230e1cfb79f929c11e4d98e9d9d7b94fd91f32b8555f3a2024d2e7814a",
+      "current_hash_matches": false,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/il3d_synthetic.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 150,
+      "reviewed_sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "current_sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/interiorgs.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 369,
+      "reviewed_sha256": "93103b3bb0f894976a1a2d0088dc20043564cc578f5255ad3afa6a022325a5cf",
+      "current_sha256": "93103b3bb0f894976a1a2d0088dc20043564cc578f5255ad3afa6a022325a5cf",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 183,
+      "reviewed_sha256": "4350a77e704fbbb7968abcd4ff4c543b4f07c2d3ae8146568b6718fce17230ac",
+      "current_sha256": "4350a77e704fbbb7968abcd4ff4c543b4f07c2d3ae8146568b6718fce17230ac",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_3rscan.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 12,
+      "reviewed_sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "current_sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_arkit.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 14,
+      "reviewed_sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "current_sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_mp3d.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 24,
+      "reviewed_sha256": "c09dbffaa8b976292df07c4e019b14662757b8ae097a918c87ad08a51a0e3e06",
+      "current_sha256": "c09dbffaa8b976292df07c4e019b14662757b8ae097a918c87ad08a51a0e3e06",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_scannet.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 10,
+      "reviewed_sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "current_sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/m3dlayout_infinigen.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 54,
+      "reviewed_sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "current_sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/mansionworld.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 234,
+      "reviewed_sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "current_sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/multiscan.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 120,
+      "reviewed_sha256": "b09cb470d3a81c940b89189536b21a52e6d5d74e4c40ddf91c86304f1d6bc9a1",
+      "current_sha256": "b09cb470d3a81c940b89189536b21a52e6d5d74e4c40ddf91c86304f1d6bc9a1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/optiscene_holodeck.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 45,
+      "reviewed_sha256": "64a61204c688da7500fadbbc10be06e4863e53388918f5c1c4d725d6405f406c",
+      "current_sha256": "64a61204c688da7500fadbbc10be06e4863e53388918f5c1c4d725d6405f406c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/sage10k.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 255,
+      "reviewed_sha256": "eb390cd62c9e58e03e4a4484c34eb5e7de344a456ba56cbcb947b3ed8524bf32",
+      "current_sha256": "eb390cd62c9e58e03e4a4484c34eb5e7de344a456ba56cbcb947b3ed8524bf32",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 96,
+      "reviewed_sha256": "eb82a6a602c4e6689d9871a4baa443b69502b376b6b751c4fd3e869271b7ac04",
+      "current_sha256": "aef249703105ecf5003be6b3e31bc4ffcdd2492bf96bf6f7b529a29b5987688e",
+      "current_hash_matches": false,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scannetpp.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 45,
+      "reviewed_sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "current_sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scenesmith.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 129,
+      "reviewed_sha256": "00465a214c8c678953107e41124ce45ffbcd17ffe805d0fdb8cb157e54186847",
+      "current_sha256": "00465a214c8c678953107e41124ce45ffbcd17ffe805d0fdb8cb157e54186847",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 19,
+      "reviewed_sha256": "b9344dd58586de328ab25a3d9c66f8da7c75b22d3c7c1714674b38de8a139995",
+      "current_sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+      "current_hash_matches": false,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/spatiallm.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 177,
+      "reviewed_sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "current_sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/structured3d.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 130,
+      "reviewed_sha256": "99f3d27fa229ace9730c1681713d7f090949dfe20fa1b8df365432d53c95b03c",
+      "current_sha256": "99f3d27fa229ace9730c1681713d7f090949dfe20fa1b8df365432d53c95b03c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 112,
+      "reviewed_sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "current_sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 239,
+      "reviewed_sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "current_sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/build.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 623,
+      "reviewed_sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "current_sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 5,
+      "reviewed_sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "current_sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 288,
+      "reviewed_sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "current_sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/corpus.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 334,
+      "reviewed_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "current_sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 263,
+      "reviewed_sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "current_sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/eval_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 280,
+      "reviewed_sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "current_sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/evaluate_pair.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 166,
+      "reviewed_sha256": "ace47c4a55394d7d2fc5f8b374706e66608ed8738c878a51c917c067ea949ccf",
+      "current_sha256": "ace47c4a55394d7d2fc5f8b374706e66608ed8738c878a51c917c067ea949ccf",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/fid.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 378,
+      "reviewed_sha256": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+      "current_sha256": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 171,
+      "reviewed_sha256": "b9758ce30311973e812035bd6b2c1a8b525ae2cc3682540dbcbde8ccf28ab0f9",
+      "current_sha256": "b9758ce30311973e812035bd6b2c1a8b525ae2cc3682540dbcbde8ccf28ab0f9",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 265,
+      "reviewed_sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "current_sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/infer.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 385,
+      "reviewed_sha256": "61090b654451d4663631aa9ae7643e597beb93458abd47ef32210978bec3a7bc",
+      "current_sha256": "61090b654451d4663631aa9ae7643e597beb93458abd47ef32210978bec3a7bc",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_geometry.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 24,
+      "reviewed_sha256": "90b7a9fd6b1d96ce29bc592dd89d3f4978286cdd535e1ec82174c57ab1f20732",
+      "current_sha256": "90b7a9fd6b1d96ce29bc592dd89d3f4978286cdd535e1ec82174c57ab1f20732",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 45,
+      "reviewed_sha256": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+      "current_sha256": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_main.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 41,
+      "reviewed_sha256": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee",
+      "current_sha256": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_pilot.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 39,
+      "reviewed_sha256": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a",
+      "current_sha256": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 523,
+      "reviewed_sha256": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+      "current_sha256": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/main_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 401,
+      "reviewed_sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "current_sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/overnight.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 723,
+      "reviewed_sha256": "663d33c6ae3cf629d0b6ae0277bc98be1dc0bdd05b5e8fab73a11b76dd05c492",
+      "current_sha256": "663d33c6ae3cf629d0b6ae0277bc98be1dc0bdd05b5e8fab73a11b76dd05c492",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/pose_targets.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 330,
+      "reviewed_sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "current_sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/render_assets.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 746,
+      "reviewed_sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "current_sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/size_prior.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 236,
+      "reviewed_sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "current_sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_context_plan.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 194,
+      "reviewed_sha256": "10690e6c74a3fab18d56e84ee23aa07204a887b75bcf52dce40ca877f27ab5c0",
+      "current_sha256": "10690e6c74a3fab18d56e84ee23aa07204a887b75bcf52dce40ca877f27ab5c0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 422,
+      "reviewed_sha256": "92058117a35f85d646890e942bc076ab353a206b86cb6ac853f56a9d35a0ef41",
+      "current_sha256": "92058117a35f85d646890e942bc076ab353a206b86cb6ac853f56a9d35a0ef41",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_corpus.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 460,
+      "reviewed_sha256": "506f95e3d12aa83d6c6de567dbd2f1d151ab07efa7440c40bccdfd331f0771d1",
+      "current_sha256": "506f95e3d12aa83d6c6de567dbd2f1d151ab07efa7440c40bccdfd331f0771d1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 151,
+      "reviewed_sha256": "cb03689a0700c7f1fd67556dd40b7ab824cbab2e6446790e8f1db1fe7ff3da66",
+      "current_sha256": "cb03689a0700c7f1fd67556dd40b7ab824cbab2e6446790e8f1db1fe7ff3da66",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_eval_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 281,
+      "reviewed_sha256": "71798cc35e2168ce77ff766141bd946a9e8875173d99ef90d084af4c79c94205",
+      "current_sha256": "71798cc35e2168ce77ff766141bd946a9e8875173d99ef90d084af4c79c94205",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_evaluate_pair.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 100,
+      "reviewed_sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "current_sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_fid.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 304,
+      "reviewed_sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "current_sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_final_tables.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 122,
+      "reviewed_sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "current_sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_geometry.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 271,
+      "reviewed_sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "current_sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_infer.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 415,
+      "reviewed_sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "current_sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_judge_batch.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 542,
+      "reviewed_sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "current_sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_main_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 413,
+      "reviewed_sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "current_sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_overnight.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 601,
+      "reviewed_sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "current_sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_pose_targets.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 394,
+      "reviewed_sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "current_sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_render_assets.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 556,
+      "reviewed_sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "current_sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_size_prior.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 315,
+      "reviewed_sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "current_sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_train_pair.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 917,
+      "reviewed_sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "current_sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_cases.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 269,
+      "reviewed_sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "current_sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 431,
+      "reviewed_sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "current_sha256": "365dd23012ebf5d73b536d9bb8135d9c7fa0548bac94036d7bcfd810592b8ffc",
+      "current_hash_matches": false,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/train_pair.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 459,
+      "reviewed_sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "current_sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/train_pair_helpers.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 400,
+      "reviewed_sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "current_sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 351,
+      "reviewed_sha256": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+      "current_sha256": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+      "current_hash_matches": true,
+      "evidence": [
+        "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_pipeline.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 418,
+      "reviewed_sha256": "4cd83a00fa503aecda90041848eb631c1fcd025b002b3ab1aac7edac023c4f61",
+      "current_sha256": "099ed3467bd3312665fd446d21304f9df176a04998d1c40b697b0e1fd974b29d",
+      "current_hash_matches": false,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/download.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 116,
+      "reviewed_sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "current_sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/download_full.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 27,
+      "reviewed_sha256": "728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03",
+      "current_sha256": "728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 230,
+      "reviewed_sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "current_sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/inspect_ir.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 87,
+      "reviewed_sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "current_sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/interface.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 641,
+      "reviewed_sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "current_sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 88,
+      "reviewed_sha256": "97b6b39878e6606d0391c8b2c8c00e123ef6391417ccadd59d58d4554cb02946",
+      "current_sha256": "97b6b39878e6606d0391c8b2c8c00e123ef6391417ccadd59d58d4554cb02946",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/scene.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 379,
+      "reviewed_sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "current_sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/serve.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 188,
+      "reviewed_sha256": "24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd",
+      "current_sha256": "24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/split.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 106,
+      "reviewed_sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "current_sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_adapter_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 491,
+      "reviewed_sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "current_sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_build_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 211,
+      "reviewed_sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "current_sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_embedded_contracts.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 18,
+      "reviewed_sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "current_sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_qa_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 454,
+      "reviewed_sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "current_sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_runtime_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 388,
+      "reviewed_sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "current_sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-primary-remaining-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_training_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 283,
+      "reviewed_sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "current_sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_v1_1_audit_pairs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 210,
+      "reviewed_sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "current_sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tools/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 0,
+      "reviewed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tools/ablation_check.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 48,
+      "reviewed_sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "current_sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tools/qa_report.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 420,
+      "reviewed_sha256": "c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045",
+      "current_sha256": "c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/tools/visualize.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 146,
+      "reviewed_sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "current_sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/train.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 283,
+      "reviewed_sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "current_sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 1,
+      "reviewed_sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "current_sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 245,
+      "reviewed_sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "current_sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 159,
+      "reviewed_sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "current_sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 323,
+      "reviewed_sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "current_sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 446,
+      "reviewed_sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "current_sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 215,
+      "reviewed_sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "current_sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 687,
+      "reviewed_sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "current_sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 279,
+      "reviewed_sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "current_sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 60,
+      "reviewed_sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "current_sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 63,
+      "reviewed_sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "current_sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 42,
+      "reviewed_sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "current_sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_pipeline.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 273,
+      "reviewed_sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "current_sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 51,
+      "reviewed_sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "current_sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 644,
+      "reviewed_sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "current_sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 262,
+      "reviewed_sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "current_sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 529,
+      "reviewed_sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "current_sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 320,
+      "reviewed_sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "current_sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_audit_report.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 181,
+      "reviewed_sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "current_sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automate.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 259,
+      "reviewed_sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "current_sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automation_lineage.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 250,
+      "reviewed_sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "current_sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_build_dpo_integrity.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 366,
+      "reviewed_sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "current_sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 259,
+      "reviewed_sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+      "current_sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_protocol.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 241,
+      "reviewed_sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "current_sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_resume.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 255,
+      "reviewed_sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "current_sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_research_report.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 188,
+      "reviewed_sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "current_sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_roomgenbench_recovery.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 209,
+      "reviewed_sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "current_sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_training_guard.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 286,
+      "reviewed_sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "current_sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verified_sbatch.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 169,
+      "reviewed_sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "current_sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verify_outputs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "reused_hash_validated",
+      "lines": 219,
+      "reviewed_sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "current_sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-test-source-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 409,
+      "reviewed_sha256": "34884c22c83c8a8a67ef9f9bb5edec558f6f3939a6f13bfbfef7d4c217b58a41",
+      "current_sha256": "34884c22c83c8a8a67ef9f9bb5edec558f6f3939a6f13bfbfef7d4c217b58a41",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 327,
+      "reviewed_sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "current_sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 263,
+      "reviewed_sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "current_sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/__init__.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 3,
+      "reviewed_sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "current_sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/adapters.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 165,
+      "reviewed_sha256": "d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae",
+      "current_sha256": "d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/audit.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 247,
+      "reviewed_sha256": "6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b",
+      "current_sha256": "6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/autorun.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 616,
+      "reviewed_sha256": "e6826078fee1c774f9e8e1854a22d1cfc2ae309fdd0289ec1cf73b081e289d62",
+      "current_sha256": "e6826078fee1c774f9e8e1854a22d1cfc2ae309fdd0289ec1cf73b081e289d62",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/batch.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 487,
+      "reviewed_sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "current_sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/bbox_visualization.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 127,
+      "reviewed_sha256": "65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09",
+      "current_sha256": "65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/boxes.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 123,
+      "reviewed_sha256": "ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284",
+      "current_sha256": "ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/cohort.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 163,
+      "reviewed_sha256": "7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138",
+      "current_sha256": "7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 127,
+      "reviewed_sha256": "042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3",
+      "current_sha256": "042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/direct_layout.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 373,
+      "reviewed_sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "current_sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/evaluate.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 1079,
+      "reviewed_sha256": "45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08",
+      "current_sha256": "45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/geometry.py",
+      "scope": "delegated_metric",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 78,
+      "reviewed_sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "current_sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/io.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 163,
+      "reviewed_sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "current_sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_bridge.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 285,
+      "reviewed_sha256": "ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced",
+      "current_sha256": "ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_build.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 267,
+      "reviewed_sha256": "aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f",
+      "current_sha256": "aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_evidence.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 157,
+      "reviewed_sha256": "a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85",
+      "current_sha256": "a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_verify.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 612,
+      "reviewed_sha256": "3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527",
+      "current_sha256": "3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/llm_baseline.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 261,
+      "reviewed_sha256": "bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459",
+      "current_sha256": "bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/llm_structured.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 320,
+      "reviewed_sha256": "b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0",
+      "current_sha256": "b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/losses.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 239,
+      "reviewed_sha256": "600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd",
+      "current_sha256": "600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/matching.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 193,
+      "reviewed_sha256": "d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d",
+      "current_sha256": "d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/minimal_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 313,
+      "reviewed_sha256": "bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975",
+      "current_sha256": "bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/model.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 269,
+      "reviewed_sha256": "0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c",
+      "current_sha256": "0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/multisource_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 536,
+      "reviewed_sha256": "43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c",
+      "current_sha256": "43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/multisource_verify.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 685,
+      "reviewed_sha256": "881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230",
+      "current_sha256": "881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/objective.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 61,
+      "reviewed_sha256": "54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595",
+      "current_sha256": "54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/compare.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 189,
+      "reviewed_sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "current_sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/crosscheck.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 50,
+      "reviewed_sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "current_sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/diag_ablation.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 372,
+      "reviewed_sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "current_sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_analysis.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 19,
+      "reviewed_sha256": "37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61",
+      "current_sha256": "37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_autorun.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 17,
+      "reviewed_sha256": "de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad",
+      "current_sha256": "de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_dryrun.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 123,
+      "reviewed_sha256": "29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941",
+      "current_sha256": "29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_inputs.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 289,
+      "reviewed_sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "current_sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_setup.sbatch",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 87,
+      "reviewed_sha256": "d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a",
+      "current_sha256": "d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_submit.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 10,
+      "reviewed_sha256": "344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330",
+      "current_sha256": "344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/llm_compare.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 190,
+      "reviewed_sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "current_sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/make_sample.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 153,
+      "reviewed_sha256": "52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a",
+      "current_sha256": "52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/rebuild_and_publish.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 47,
+      "reviewed_sha256": "4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b",
+      "current_sha256": "4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/report.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 639,
+      "reviewed_sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "current_sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/rescore_llm.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 11,
+      "reviewed_sha256": "ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0",
+      "current_sha256": "ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_checkpoint.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 24,
+      "reviewed_sha256": "624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8",
+      "current_sha256": "624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_plan.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 322,
+      "reviewed_sha256": "5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0",
+      "current_sha256": "5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_reference.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 9,
+      "reviewed_sha256": "574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b",
+      "current_sha256": "574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_structured.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 15,
+      "reviewed_sha256": "42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb",
+      "current_sha256": "42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/sample_validation.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 116,
+      "reviewed_sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "current_sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/selftest_shift.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 55,
+      "reviewed_sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "current_sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/start_autorun_retrain.sh",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 12,
+      "reviewed_sha256": "a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c",
+      "current_sha256": "a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/stratify.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 415,
+      "reviewed_sha256": "a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291",
+      "current_sha256": "a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/vlm_judge.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 533,
+      "reviewed_sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "current_sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/predict.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 113,
+      "reviewed_sha256": "55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b",
+      "current_sha256": "55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/qualified_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 217,
+      "reviewed_sha256": "97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640",
+      "current_sha256": "97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/regularizers.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 100,
+      "reviewed_sha256": "8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1",
+      "current_sha256": "8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/review_data.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 321,
+      "reviewed_sha256": "59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184",
+      "current_sha256": "59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/roomgenbench.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 444,
+      "reviewed_sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+      "current_sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/runtime.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 448,
+      "reviewed_sha256": "8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993",
+      "current_sha256": "8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/schema.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 324,
+      "reviewed_sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "current_sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/serve.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 87,
+      "reviewed_sha256": "66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3",
+      "current_sha256": "66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/size_range.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 38,
+      "reviewed_sha256": "0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165",
+      "current_sha256": "0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_accumulation_tail.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 206,
+      "reviewed_sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "current_sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 103,
+      "reviewed_sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "current_sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_active_objective_training.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 199,
+      "reviewed_sha256": "a91887bc39b6fc41892836337011d550ef7e1f152565198c673fa1c646a4e2e4",
+      "current_sha256": "a91887bc39b6fc41892836337011d550ef7e1f152565198c673fa1c646a4e2e4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_asset_attribute_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 97,
+      "reviewed_sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "current_sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_audit_c2_uniform_yaw.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 37,
+      "reviewed_sha256": "caf9b340c43cc43c234db31dae26ebcb260885ecd7b4534088c7f797496d10ec",
+      "current_sha256": "caf9b340c43cc43c234db31dae26ebcb260885ecd7b4534088c7f797496d10ec",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_augment_repair_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 125,
+      "reviewed_sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "current_sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_autorun.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 407,
+      "reviewed_sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "current_sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 102,
+      "reviewed_sha256": "4bfd87258e77adeaee8b955a7c6be63633287949552a0a2f8cf835e6c419f9c8",
+      "current_sha256": "4bfd87258e77adeaee8b955a7c6be63633287949552a0a2f8cf835e6c419f9c8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 324,
+      "reviewed_sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "current_sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch_handoff_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 247,
+      "reviewed_sha256": "c1815879aee64d8ac612efc1568c250ec3728da7dea85fe741e454fb537db4f3",
+      "current_sha256": "c1815879aee64d8ac612efc1568c250ec3728da7dea85fe741e454fb537db4f3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_bounded_io.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 20,
+      "reviewed_sha256": "8e5e3cf560af60214a7b6f631037d9ed9915dabc17231babfb2957b0ce5bb1a7",
+      "current_sha256": "8e5e3cf560af60214a7b6f631037d9ed9915dabc17231babfb2957b0ce5bb1a7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_complete_cohort.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 190,
+      "reviewed_sha256": "759e8b4371f86e16b808c7dfe9d9f68172a8e2245455fb4ab01e8ae49ce84b70",
+      "current_sha256": "759e8b4371f86e16b808c7dfe9d9f68172a8e2245455fb4ab01e8ae49ce84b70",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_constraint_schema.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 26,
+      "reviewed_sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "current_sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 232,
+      "reviewed_sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "current_sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_data_builder_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 261,
+      "reviewed_sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "current_sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_data_policy_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 222,
+      "reviewed_sha256": "1741715ed2a49f1135ecf0511719d64dda5d72cdd8b9531da1f2d160054995e8",
+      "current_sha256": "1741715ed2a49f1135ecf0511719d64dda5d72cdd8b9531da1f2d160054995e8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_direct_layout.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 469,
+      "reviewed_sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "current_sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 171,
+      "reviewed_sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "current_sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_evaluation_failure_latency.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 74,
+      "reviewed_sha256": "05087e2ea6a6eb662c0c281c60904033f9c17ddda79e8c8c983b33250ceca64c",
+      "current_sha256": "05087e2ea6a6eb662c0c281c60904033f9c17ddda79e8c8c983b33250ceca64c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_execution.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 117,
+      "reviewed_sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "current_sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_fixed_capability_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 72,
+      "reviewed_sha256": "ec5d1d6b9205c07413580dd306045e7873c15ec4f6bf555a9a19130b98efa455",
+      "current_sha256": "ec5d1d6b9205c07413580dd306045e7873c15ec4f6bf555a9a19130b98efa455",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_followups_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 25,
+      "reviewed_sha256": "ea2349f67aebd4820a320e8505e0bc124ae98558fde4475a80a78ac71c600173",
+      "current_sha256": "ea2349f67aebd4820a320e8505e0bc124ae98558fde4475a80a78ac71c600173",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_geometry_core.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 57,
+      "reviewed_sha256": "02a0045211b9981308802b9a2c33e84b39cb81cc2c1b4b6a7fa74d3dd39f8028",
+      "current_sha256": "02a0045211b9981308802b9a2c33e84b39cb81cc2c1b4b6a7fa74d3dd39f8028",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_integrator_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 146,
+      "reviewed_sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "current_sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_isambard_inputs.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 100,
+      "reviewed_sha256": "df7dbc686157973d6e91ecc8f4f741332d471dba70ace968f90c87030ecd8f5f",
+      "current_sha256": "df7dbc686157973d6e91ecc8f4f741332d471dba70ace968f90c87030ecd8f5f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 155,
+      "reviewed_sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "current_sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_bridge.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 97,
+      "reviewed_sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "current_sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_bridge_geometry.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 202,
+      "reviewed_sha256": "449a5f14ee92ff20f963307c27a12737c99af1dcb7705cff94ad4ad7cde090b3",
+      "current_sha256": "449a5f14ee92ff20f963307c27a12737c99af1dcb7705cff94ad4ad7cde090b3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_build.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 238,
+      "reviewed_sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "current_sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_evidence.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 126,
+      "reviewed_sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "current_sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_verify.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 266,
+      "reviewed_sha256": "4aae1dde53cbd6347011a7e38ab4c37613be114e4e7631815858d60b0ca8ccb4",
+      "current_sha256": "4aae1dde53cbd6347011a7e38ab4c37613be114e4e7631815858d60b0ca8ccb4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_workers.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 52,
+      "reviewed_sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "current_sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_baseline.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 174,
+      "reviewed_sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "current_sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_structured.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 246,
+      "reviewed_sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "current_sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_loss_config_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 51,
+      "reviewed_sha256": "099603ffd92e2a031b9b7ccd3f33433c84ddee801d38f391749feaf0cbb7911f",
+      "current_sha256": "099603ffd92e2a031b9b7ccd3f33433c84ddee801d38f391749feaf0cbb7911f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 125,
+      "reviewed_sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "current_sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_matching.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 124,
+      "reviewed_sha256": "49a0076971a04aadb2f1bc54424a1598943cf01911cff5ccbe0c22088371b241",
+      "current_sha256": "49a0076971a04aadb2f1bc54424a1598943cf01911cff5ccbe0c22088371b241",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_minimal_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 241,
+      "reviewed_sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "current_sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_model.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 147,
+      "reviewed_sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "current_sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_model_loss_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 270,
+      "reviewed_sha256": "9bb2ea4addd2f618d55007f706d9bee1fa983efb766cf2226e7c35a03bcdfd33",
+      "current_sha256": "9bb2ea4addd2f618d55007f706d9bee1fa983efb766cf2226e7c35a03bcdfd33",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_model_review_fixes.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 145,
+      "reviewed_sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "current_sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_multisource_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 219,
+      "reviewed_sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "current_sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_multisource_verify.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 350,
+      "reviewed_sha256": "bc2211ad12facc2ef948d8399100338f5c70e226b7cf2af2b5af14a63ae04ff0",
+      "current_sha256": "bc2211ad12facc2ef948d8399100338f5c70e226b7cf2af2b5af14a63ae04ff0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_predict.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 67,
+      "reviewed_sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "current_sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_qualified_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 127,
+      "reviewed_sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "current_sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_reference_extent.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 157,
+      "reviewed_sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "current_sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 103,
+      "reviewed_sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "current_sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 260,
+      "reviewed_sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "current_sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 153,
+      "reviewed_sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "current_sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_roomgenbench.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 273,
+      "reviewed_sha256": "425cdb3e844c139a8e1cef1d2afd5a05f481801b090f2e88112a40b66d44b185",
+      "current_sha256": "425cdb3e844c139a8e1cef1d2afd5a05f481801b090f2e88112a40b66d44b185",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 202,
+      "reviewed_sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "current_sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round10_wall_decode.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 140,
+      "reviewed_sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "current_sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round10_wall_selection.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 297,
+      "reviewed_sha256": "73145f4864e7e4e1b9d2929a3d13647a4126901f29f481213d037781b654a4f4",
+      "current_sha256": "73145f4864e7e4e1b9d2929a3d13647a4126901f29f481213d037781b654a4f4",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round14_eval_math.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 300,
+      "reviewed_sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "current_sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_data.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 163,
+      "reviewed_sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "current_sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_eval_handoff.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 140,
+      "reviewed_sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "current_sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_resume.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 122,
+      "reviewed_sha256": "17b0da3ddd2bd869296b2d0b04ce6cc23fb022e6c3a150a277c203eee1476acb",
+      "current_sha256": "17b0da3ddd2bd869296b2d0b04ce6cc23fb022e6c3a150a277c203eee1476acb",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_matching.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 126,
+      "reviewed_sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "current_sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_spread.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 135,
+      "reviewed_sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "current_sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round5_spread.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 57,
+      "reviewed_sha256": "8de4bad64859834f2a580a839dd95737619a72d596d6a00ae1b5354df78cb726",
+      "current_sha256": "8de4bad64859834f2a580a839dd95737619a72d596d6a00ae1b5354df78cb726",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round5_train.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 191,
+      "reviewed_sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "current_sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round6_leftovers.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 74,
+      "reviewed_sha256": "01eaa0419aeddf39bbff659c8911a80499647402e769b15cdf5d7d161a646a0b",
+      "current_sha256": "01eaa0419aeddf39bbff659c8911a80499647402e769b15cdf5d7d161a646a0b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 285,
+      "reviewed_sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "current_sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round7_reference.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 74,
+      "reviewed_sha256": "60ba06a16c7034173bfb35268171d0d8f88a148d04f6fdcb35e5d2c87969e65f",
+      "current_sha256": "60ba06a16c7034173bfb35268171d0d8f88a148d04f6fdcb35e5d2c87969e65f",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 216,
+      "reviewed_sha256": "02347d2482a06fc2a7216dd62af5abcfc07f7214843dc207f321c946150fc657",
+      "current_sha256": "02347d2482a06fc2a7216dd62af5abcfc07f7214843dc207f321c946150fc657",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_cli.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 72,
+      "reviewed_sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "current_sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_evaluation.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 132,
+      "reviewed_sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "current_sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_preflight.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 15,
+      "reviewed_sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "current_sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_support_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 171,
+      "reviewed_sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "current_sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_schema_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 83,
+      "reviewed_sha256": "3e39974e02667fdbd44edf507c88f8a66d9c2fbf8fb355a7217115dc88f28e2d",
+      "current_sha256": "3e39974e02667fdbd44edf507c88f8a66d9c2fbf8fb355a7217115dc88f28e2d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_size_range.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 73,
+      "reviewed_sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "current_sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_slot_pooling_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 40,
+      "reviewed_sha256": "d42d8882aee7e3e38647bf5b8945f229ad05d5774d33b10500fdf9e6ee9269d9",
+      "current_sha256": "d42d8882aee7e3e38647bf5b8945f229ad05d5774d33b10500fdf9e6ee9269d9",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_spread_decode.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 61,
+      "reviewed_sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "current_sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_supervision.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 168,
+      "reviewed_sha256": "fb9ea54d5235780c1887d633b97c9f2a55df7e9c276efca6f3eb3f23c91f8081",
+      "current_sha256": "fb9ea54d5235780c1887d633b97c9f2a55df7e9c276efca6f3eb3f23c91f8081",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_record_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 88,
+      "reviewed_sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "current_sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_sft.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 86,
+      "reviewed_sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "current_sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_eval_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 315,
+      "reviewed_sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "current_sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 399,
+      "reviewed_sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "current_sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-1-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_training_record_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 185,
+      "reviewed_sha256": "8a851b7e8e8b89c9e8879a1c509cc83a092e7e28b2b26790d027ad9a2d37f2c3",
+      "current_sha256": "8a851b7e8e8b89c9e8879a1c509cc83a092e7e28b2b26790d027ad9a2d37f2c3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_validation.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 91,
+      "reviewed_sha256": "b3475409ef63b20722603bd5db6ef69aee9b3e456a9cff2e1ee54d5159011659",
+      "current_sha256": "b3475409ef63b20722603bd5db6ef69aee9b3e456a9cff2e1ee54d5159011659",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_validation_floor_front_review.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 104,
+      "reviewed_sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "current_sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-2-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_verify_bundle.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 64,
+      "reviewed_sha256": "4fe758935f7b5a38bb35247aa209fd0763b286bdef2c1fdc229467a1c30eb698",
+      "current_sha256": "4fe758935f7b5a38bb35247aa209fd0763b286bdef2c1fdc229467a1c30eb698",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_vlm_judge.py",
+      "scope": "primary",
+      "role": "test",
+      "read_status": "fresh_full",
+      "lines": 137,
+      "reviewed_sha256": "7cab3052819aac9e6819535e7d8920be17a922f41c5b46b665eea768cd9e0d1c",
+      "current_sha256": "7cab3052819aac9e6819535e7d8920be17a922f41c5b46b665eea768cd9e0d1c",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-test-source-v2-3-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/text_sft.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 242,
+      "reviewed_sha256": "0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da",
+      "current_sha256": "0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/train.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 809,
+      "reviewed_sha256": "5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8",
+      "current_sha256": "5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/validation.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "fresh_full",
+      "lines": 403,
+      "reviewed_sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "current_sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/v2/verify_bundle.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 76,
+      "reviewed_sha256": "812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a",
+      "current_sha256": "812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    },
+    {
+      "path": "fastfill/validate.py",
+      "scope": "primary",
+      "role": "production",
+      "read_status": "reused_hash_validated",
+      "lines": 191,
+      "reviewed_sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "current_sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "current_hash_matches": true,
+      "evidence": [
+        "evidence/agency-full-code-coverage-20261013.json"
+      ]
+    }
+  ],
+  "input_evidence": [
+    {
+      "path": "evidence/agency-full-code-coverage-20261013.json",
+      "sha256": "0521374bed66c2dfad429a9aeee8722d69f2de7780583822d172f09633df69ce"
+    },
+    {
+      "path": "evidence/agency-full-test-source-coverage-20261013.json",
+      "sha256": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc"
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+      "sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149"
+    },
+    {
+      "path": "evidence/agency-test-source-v2-1-20261013.json",
+      "sha256": "82dc8f81300257ea934234cce0a371e972e4190d262b411921a0389fd3a901f1"
+    },
+    {
+      "path": "evidence/agency-test-source-v2-2-20261013.json",
+      "sha256": "3c780580515930b0bcf8acd87749ca4217c8f2688604dd170a13ba68ab7f6deb"
+    },
+    {
+      "path": "evidence/agency-test-source-v2-3-20261013.json",
+      "sha256": "b7e15ed1d44a78ddad21dec20655bcbfa60be42a6bead776ed192caf9c1e1bb3"
+    },
+    {
+      "path": "evidence/agency-test-source-primary-remaining-20261013.json",
+      "sha256": "a2b43f31609bfc16d5a87b42eb3b880d57f7f8dcd643128500c391ddf47622ac"
+    }
+  ],
+  "limits": [
+    "Full reading is not test execution, coverage or correctness proof.",
+    "Changed sources require separate patch review; old hashes remain explicit.",
+    "New correction files are outside this frozen inventory and reviewed separately.",
+    "Vendor roots, ancillary audit programs and historical copies are not claimed fully read."
+  ]
+}

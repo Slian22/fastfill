@@ -1,0 +1,5124 @@
+{
+  "schema_version": "fastfill.roomgenbench-assembly.v1",
+  "scene_key": "fastfill_7e162665a305737f",
+  "scene": "fastfill_7e162665a305737f",
+  "room_type": "restaurant",
+  "walls": [
+    {
+      "name": "shell_wall_0",
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_1",
+      "normal": [
+        1.0,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_2",
+      "normal": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_3",
+      "normal": [
+        -1.0,
+        -0.0,
+        0.0
+      ]
+    }
+  ],
+  "method": "embodiedgen_v2",
+  "assembly_complete": true,
+  "generated_mesh_success": true,
+  "requested_objects": 122,
+  "counts": {
+    "ok": 122
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_000",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0001",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_001",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0002",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_002",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0003",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_003",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0004",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_004",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0005",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_005",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0006",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_006",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0007",
+      "asset_key": "table_90a2dab3",
+      "type": "table",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_007",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.355706810951233,
+        0.6726195484861819,
+        0.6090688705444336
+      ],
+      "native_size_sage_local_m": [
+        1.355706810951233,
+        0.6090688705444336,
+        0.6726195484861819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.863,
+        1.478,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        1.17,
+        0.8999999999999999,
+        0.78
+      ],
+      "source_glb_sha256": "520023921eeb8215ebdcfd8f830b56f7c2f559fbc47b3a5e48a337ab3a33f5c3",
+      "source_sidecar_sha256": "cdee9a5f166224ca55322bb5ddacd600c8c8781d11a588746364617be70ef88e"
+    },
+    {
+      "id": "obj_0008",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_008",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0009",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_009",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0010",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_010",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0011",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_011",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0012",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_012",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0013",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_013",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0014",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_014",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0015",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_015",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0016",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_016",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0017",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_017",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0018",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_018",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0019",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_019",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0020",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_020",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0021",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_021",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0022",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_022",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0023",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_023",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0024",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_024",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0025",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_025",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0026",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_026",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0027",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_027",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0028",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_028",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0029",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_029",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0030",
+      "asset_key": "chair_572320dc",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_030",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5492033958435059,
+        0.7566961096163141,
+        0.5485567450523376
+      ],
+      "native_size_sage_local_m": [
+        0.5492033958435059,
+        0.5485567450523376,
+        0.7566961096163141
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.092,
+        1.094,
+        1.004
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.6,
+        0.76
+      ],
+      "source_glb_sha256": "e0714c9fd23541f409c28d6a8b62aaf25670a5653db37388ee325d1ef45d6b9c",
+      "source_sidecar_sha256": "b9a1a5f2ebe2e436ebafb4b39e215f5492fa16d3abb1dd1d11bb59cc330e78ff"
+    },
+    {
+      "id": "obj_0031",
+      "asset_key": "waterfeature_95a8f41d",
+      "type": "waterfeature",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_031",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3151256740093231,
+        0.11753138342464808,
+        0.3150487244129181
+      ],
+      "native_size_sage_local_m": [
+        0.3151256740093231,
+        0.3150487244129181,
+        0.11753138342464808
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.952,
+        0.952,
+        1.617
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.3,
+        0.19
+      ],
+      "source_glb_sha256": "1c4c282149113d3f76653ea8b97a140f4f19ccbd4619d936513fe932f2114e6a",
+      "source_sidecar_sha256": "bce3d36f5f0de328ac867d32c56651c311f59e6cfe95b6366c65acc1df83b9c6"
+    },
+    {
+      "id": "obj_0032",
+      "asset_key": "smalllamp_29ad0cb1",
+      "type": "smalllamp",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_032",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2980785667896271,
+        0.5531283456075471,
+        0.29767343401908875
+      ],
+      "native_size_sage_local_m": [
+        0.2980785667896271,
+        0.29767343401908875,
+        0.5531283456075471
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.308,
+        1.31,
+        0.904
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "985436ac3df24da7f1b0b92162feee865c356c7111acfabc671823a19b7669c6",
+      "source_sidecar_sha256": "2abbf7301e1ded455c5157c31e09e28d5350d1692ad8f13a3031d9636950c996"
+    },
+    {
+      "id": "obj_0033",
+      "asset_key": "smalllamp_29ad0cb1",
+      "type": "smalllamp",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_033",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2980785667896271,
+        0.5531283456075471,
+        0.29767343401908875
+      ],
+      "native_size_sage_local_m": [
+        0.2980785667896271,
+        0.29767343401908875,
+        0.5531283456075471
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.308,
+        1.31,
+        0.904
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "985436ac3df24da7f1b0b92162feee865c356c7111acfabc671823a19b7669c6",
+      "source_sidecar_sha256": "2abbf7301e1ded455c5157c31e09e28d5350d1692ad8f13a3031d9636950c996"
+    },
+    {
+      "id": "obj_0034",
+      "asset_key": "bambooplant_446884e7",
+      "type": "bambooplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_034",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38385871052742004,
+        0.9677539755939506,
+        0.48250365257263184
+      ],
+      "native_size_sage_local_m": [
+        0.38385871052742004,
+        0.48250365257263184,
+        0.9677539755939506
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.303,
+        1.036,
+        0.785
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.76
+      ],
+      "source_glb_sha256": "d88cc267cbe723ebb7564f6e6e9862ea56e2e63dcca769e485a23c7e752657b9",
+      "source_sidecar_sha256": "36786af6aee0ac889412bcd0bf817e2d2483d623223d1d43e826a21f90bc31f4"
+    },
+    {
+      "id": "obj_0035",
+      "asset_key": "bambooplant_446884e7",
+      "type": "bambooplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_035",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38385871052742004,
+        0.9677539755939506,
+        0.48250365257263184
+      ],
+      "native_size_sage_local_m": [
+        0.38385871052742004,
+        0.48250365257263184,
+        0.9677539755939506
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.303,
+        1.036,
+        0.785
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.76
+      ],
+      "source_glb_sha256": "d88cc267cbe723ebb7564f6e6e9862ea56e2e63dcca769e485a23c7e752657b9",
+      "source_sidecar_sha256": "36786af6aee0ac889412bcd0bf817e2d2483d623223d1d43e826a21f90bc31f4"
+    },
+    {
+      "id": "obj_0036",
+      "asset_key": "bambooplant_446884e7",
+      "type": "bambooplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_036",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38385871052742004,
+        0.9677539755939506,
+        0.48250365257263184
+      ],
+      "native_size_sage_local_m": [
+        0.38385871052742004,
+        0.48250365257263184,
+        0.9677539755939506
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.303,
+        1.036,
+        0.785
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.76
+      ],
+      "source_glb_sha256": "d88cc267cbe723ebb7564f6e6e9862ea56e2e63dcca769e485a23c7e752657b9",
+      "source_sidecar_sha256": "36786af6aee0ac889412bcd0bf817e2d2483d623223d1d43e826a21f90bc31f4"
+    },
+    {
+      "id": "obj_0037",
+      "asset_key": "bambooplant_446884e7",
+      "type": "bambooplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_037",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38385871052742004,
+        0.9677539755939506,
+        0.48250365257263184
+      ],
+      "native_size_sage_local_m": [
+        0.38385871052742004,
+        0.48250365257263184,
+        0.9677539755939506
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.303,
+        1.036,
+        0.785
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.76
+      ],
+      "source_glb_sha256": "d88cc267cbe723ebb7564f6e6e9862ea56e2e63dcca769e485a23c7e752657b9",
+      "source_sidecar_sha256": "36786af6aee0ac889412bcd0bf817e2d2483d623223d1d43e826a21f90bc31f4"
+    },
+    {
+      "id": "obj_0038",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_038",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        3.24,
+        3.241,
+        2.646
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.35
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0039",
+      "asset_key": "bench_8a1b5965",
+      "type": "bench",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_039",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.3428164720535278,
+        0.7224907550626085,
+        0.6062283217906952
+      ],
+      "native_size_sage_local_m": [
+        1.3428164720535278,
+        0.6062283217906952,
+        0.7224907550626085
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.782,
+        0.792,
+        0.692
+      ],
+      "fitted_size_sage_local_m": [
+        1.05,
+        0.48,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "8e7a91b84d184d7dba166c8487e43fbc9b8486f4edabfbb14d1524c12d4924b2",
+      "source_sidecar_sha256": "b47b9ebd480dc8c5f61372511af75aa56201f8c41d30cffe2202d244c93f63d4"
+    },
+    {
+      "id": "obj_0040",
+      "asset_key": "bench_8a1b5965",
+      "type": "bench",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_040",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.3428164720535278,
+        0.7224907550626085,
+        0.6062283217906952
+      ],
+      "native_size_sage_local_m": [
+        1.3428164720535278,
+        0.6062283217906952,
+        0.7224907550626085
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.782,
+        0.792,
+        0.692
+      ],
+      "fitted_size_sage_local_m": [
+        1.05,
+        0.48,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "8e7a91b84d184d7dba166c8487e43fbc9b8486f4edabfbb14d1524c12d4924b2",
+      "source_sidecar_sha256": "b47b9ebd480dc8c5f61372511af75aa56201f8c41d30cffe2202d244c93f63d4"
+    },
+    {
+      "id": "obj_0041",
+      "asset_key": "shoji_5918dcf8",
+      "type": "shoji",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_041",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8356145918369293,
+        0.830004230090708,
+        0.27248577773571014
+      ],
+      "native_size_sage_local_m": [
+        0.8356145918369293,
+        0.27248577773571014,
+        0.830004230090708
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.185,
+        0.734,
+        1.446
+      ],
+      "fitted_size_sage_local_m": [
+        0.99,
+        0.2,
+        1.2
+      ],
+      "source_glb_sha256": "3ef2737321d425bec321146dc904012ef4f2840fbe49149d6e8bf214e1c9286e",
+      "source_sidecar_sha256": "f43dd757dd683d7f0933b8b18b31d065e0ece0d0ef564b10fac534b0a020fc0d"
+    },
+    {
+      "id": "obj_0042",
+      "asset_key": "shoji_5918dcf8",
+      "type": "shoji",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_042",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8356145918369293,
+        0.830004230090708,
+        0.27248577773571014
+      ],
+      "native_size_sage_local_m": [
+        0.8356145918369293,
+        0.27248577773571014,
+        0.830004230090708
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.185,
+        0.734,
+        1.446
+      ],
+      "fitted_size_sage_local_m": [
+        0.99,
+        0.2,
+        1.2
+      ],
+      "source_glb_sha256": "3ef2737321d425bec321146dc904012ef4f2840fbe49149d6e8bf214e1c9286e",
+      "source_sidecar_sha256": "f43dd757dd683d7f0933b8b18b31d065e0ece0d0ef564b10fac534b0a020fc0d"
+    },
+    {
+      "id": "obj_0043",
+      "asset_key": "bamboo_8beb2728",
+      "type": "bamboo",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_043",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3698430359363556,
+        0.693365748913493,
+        0.34045112133026123
+      ],
+      "native_size_sage_local_m": [
+        0.3698430359363556,
+        0.34045112133026123,
+        0.693365748913493
+      ],
+      "yaw_snap_deg": 18.2,
+      "tip": null,
+      "scale": [
+        1.564,
+        1.781,
+        1.413
+      ],
+      "fitted_size_sage_local_m": [
+        0.5699999999999998,
+        0.5700000000000001,
+        0.98
+      ],
+      "source_glb_sha256": "db9439ad05377ff2005197836c469416c05fc7a7cd83623b2f96e9642ffeb4e4",
+      "source_sidecar_sha256": "88393d35662cdd29720fa697a190a93fc08cca13e793d0b871fde7e7efb78202"
+    },
+    {
+      "id": "obj_0044",
+      "asset_key": "bamboo_8beb2728",
+      "type": "bamboo",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_044",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3698430359363556,
+        0.693365748913493,
+        0.34045112133026123
+      ],
+      "native_size_sage_local_m": [
+        0.3698430359363556,
+        0.34045112133026123,
+        0.693365748913493
+      ],
+      "yaw_snap_deg": 18.2,
+      "tip": null,
+      "scale": [
+        1.564,
+        1.781,
+        1.413
+      ],
+      "fitted_size_sage_local_m": [
+        0.5699999999999998,
+        0.5700000000000001,
+        0.98
+      ],
+      "source_glb_sha256": "db9439ad05377ff2005197836c469416c05fc7a7cd83623b2f96e9642ffeb4e4",
+      "source_sidecar_sha256": "88393d35662cdd29720fa697a190a93fc08cca13e793d0b871fde7e7efb78202"
+    },
+    {
+      "id": "obj_0045",
+      "asset_key": "planter_0ac78a56",
+      "type": "planter",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_045",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.42086106538772583,
+        0.3488316124639823,
+        0.4205014407634735
+      ],
+      "native_size_sage_local_m": [
+        0.42086106538772583,
+        0.4205014407634735,
+        0.3488316124639823
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.927,
+        0.927,
+        1.749
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.61
+      ],
+      "source_glb_sha256": "4b0913cad4f5ba49f41c935f62df39ffa9b4e7cf603079b3ddd37916f61eeb81",
+      "source_sidecar_sha256": "059bd39c8bcce28883f0b8b23913c60d5af0c386a222889c146ba0c3070142aa"
+    },
+    {
+      "id": "obj_0046",
+      "asset_key": "planter_0ac78a56",
+      "type": "planter",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_046",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.42086106538772583,
+        0.3488316124639823,
+        0.4205014407634735
+      ],
+      "native_size_sage_local_m": [
+        0.42086106538772583,
+        0.4205014407634735,
+        0.3488316124639823
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.927,
+        0.927,
+        1.749
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.61
+      ],
+      "source_glb_sha256": "4b0913cad4f5ba49f41c935f62df39ffa9b4e7cf603079b3ddd37916f61eeb81",
+      "source_sidecar_sha256": "059bd39c8bcce28883f0b8b23913c60d5af0c386a222889c146ba0c3070142aa"
+    },
+    {
+      "id": "obj_0047",
+      "asset_key": "planter_0ac78a56",
+      "type": "planter",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_047",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.42086106538772583,
+        0.3488316124639823,
+        0.4205014407634735
+      ],
+      "native_size_sage_local_m": [
+        0.42086106538772583,
+        0.4205014407634735,
+        0.3488316124639823
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.927,
+        0.927,
+        1.749
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        0.61
+      ],
+      "source_glb_sha256": "4b0913cad4f5ba49f41c935f62df39ffa9b4e7cf603079b3ddd37916f61eeb81",
+      "source_sidecar_sha256": "059bd39c8bcce28883f0b8b23913c60d5af0c386a222889c146ba0c3070142aa"
+    },
+    {
+      "id": "obj_0048",
+      "asset_key": "woodenshelf_569ff9c6",
+      "type": "woodenshelf",
+      "place": "on_object",
+      "support_parent": "obj_0049",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_048",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5274907648563385,
+        1.076969861984253,
+        0.3419865071773529
+      ],
+      "native_size_sage_local_m": [
+        0.5274907648563385,
+        0.3419865071773529,
+        1.076969861984253
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.706,
+        0.292,
+        1.021
+      ],
+      "fitted_size_sage_local_m": [
+        0.9,
+        0.1,
+        1.1
+      ],
+      "source_glb_sha256": "da83e1c489e377ac865592ab9187a02c9d28e1495e288b6ef4ac274599fd853b",
+      "source_sidecar_sha256": "db293a47fe5f85eb0c7ee157e9775a53aeebccb85951061d86f9db1727e5fe72"
+    },
+    {
+      "id": "obj_0049",
+      "asset_key": "bookshelf_11eff3fa",
+      "type": "bookshelf",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_049",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6453191041946411,
+        1.3914042711257935,
+        0.28059937059879303
+      ],
+      "native_size_sage_local_m": [
+        0.6453191041946411,
+        0.28059937059879303,
+        1.3914042711257935
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        1.128,
+        1.069,
+        1.565
+      ],
+      "fitted_size_sage_local_m": [
+        1.5699999999999998,
+        0.30000000000000004,
+        1.0099999999999998
+      ],
+      "source_glb_sha256": "d7e2fd676a19635f6ff05a62b4196058352cab3326e07025903d47ac8dc2f807",
+      "source_sidecar_sha256": "bb26fb3a39b9ec8b7bc653d46021fe3c47e4a75a8c5f7664c70d5e02a269c0a7"
+    },
+    {
+      "id": "obj_0050",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_050",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0051",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_051",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0052",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_052",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0053",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_053",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0054",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_054",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0055",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_055",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0056",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_056",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0057",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_057",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0058",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_058",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0059",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_059",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0060",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_060",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0061",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_061",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0062",
+      "asset_key": "candle_1ea231f9",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_062",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12035610526800156,
+        0.132272632717104,
+        0.12033995985984802
+      ],
+      "native_size_sage_local_m": [
+        0.12035610526800156,
+        0.12033995985984802,
+        0.132272632717104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.496,
+        1.496,
+        2.873
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38
+      ],
+      "source_glb_sha256": "47014a76dc918ebfbf66f0663beeb2145853eb554865ef94004badd34b27e1f8",
+      "source_sidecar_sha256": "afbe7d3448fe81ae765979b14462bf13068743c3d5f2bc5f5daaaec7be6d8d66"
+    },
+    {
+      "id": "obj_0063",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_063",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0064",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_064",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0065",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_065",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0066",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_066",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0067",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_067",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0068",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_068",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0069",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_069",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.469,
+        0.47,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0070",
+      "asset_key": "vase_6ae3cbae",
+      "type": "vase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_070",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21310457587242126,
+        0.3681745013964246,
+        0.21274501085281372
+      ],
+      "native_size_sage_local_m": [
+        0.21310457587242126,
+        0.21274501085281372,
+        0.3681745013964246
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.422,
+        0.423,
+        0.543
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.2
+      ],
+      "source_glb_sha256": "23959277c087abe3aabe335695a317671020a53c83edcd5c9be449247a2df9d0",
+      "source_sidecar_sha256": "5ab49af1976f21e02dd4bb088ebbfba3b0bb77d4c7849b284bd9c353082a12b8"
+    },
+    {
+      "id": "obj_0071",
+      "asset_key": "candle_a22a59c1",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_071",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.11835357546806335,
+        0.11829578745710023,
+        0.11828133463859558
+      ],
+      "native_size_sage_local_m": [
+        0.11835357546806335,
+        0.11828133463859558,
+        0.11829578745710023
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.521,
+        1.522,
+        3.212
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38000000000000006
+      ],
+      "source_glb_sha256": "27bf8bcf578c7d7a67d166f5fdedc7a73bd22f2cf1b55a585dcfbcd2f6045d2a",
+      "source_sidecar_sha256": "e89e47bfa97e7621b3fd68d49c7f86d59c1de581955dd10b0fa2e7b1c91c22c6"
+    },
+    {
+      "id": "obj_0072",
+      "asset_key": "candle_a22a59c1",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_072",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.11835357546806335,
+        0.11829578745710023,
+        0.11828133463859558
+      ],
+      "native_size_sage_local_m": [
+        0.11835357546806335,
+        0.11828133463859558,
+        0.11829578745710023
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.521,
+        1.522,
+        3.212
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.18,
+        0.38000000000000006
+      ],
+      "source_glb_sha256": "27bf8bcf578c7d7a67d166f5fdedc7a73bd22f2cf1b55a585dcfbcd2f6045d2a",
+      "source_sidecar_sha256": "e89e47bfa97e7621b3fd68d49c7f86d59c1de581955dd10b0fa2e7b1c91c22c6"
+    },
+    {
+      "id": "obj_0073",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_073",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.072,
+        1.075,
+        1.125
+      ],
+      "fitted_size_sage_local_m": [
+        0.14,
+        0.14,
+        0.25
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0074",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0007",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_074",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.072,
+        1.075,
+        1.125
+      ],
+      "fitted_size_sage_local_m": [
+        0.14,
+        0.14,
+        0.25
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0075",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_075",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.996,
+        1.075,
+        1.125
+      ],
+      "fitted_size_sage_local_m": [
+        0.13,
+        0.14,
+        0.25
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0076",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_076",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.996,
+        0.998,
+        1.125
+      ],
+      "fitted_size_sage_local_m": [
+        0.13,
+        0.13,
+        0.25
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0077",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_077",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.919,
+        0.921,
+        1.26
+      ],
+      "fitted_size_sage_local_m": [
+        0.12,
+        0.12,
+        0.28
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0078",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_078",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.919,
+        0.921,
+        1.26
+      ],
+      "fitted_size_sage_local_m": [
+        0.12,
+        0.12,
+        0.28
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0079",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_079",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.919,
+        0.921,
+        1.26
+      ],
+      "fitted_size_sage_local_m": [
+        0.12,
+        0.12,
+        0.28
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0080",
+      "asset_key": "smallvase_721911ad",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_080",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13055983930826187,
+        0.22228277985414024,
+        0.1302613615989685
+      ],
+      "native_size_sage_local_m": [
+        0.13055983930826187,
+        0.1302613615989685,
+        0.22228277985414024
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.919,
+        0.921,
+        1.26
+      ],
+      "fitted_size_sage_local_m": [
+        0.12,
+        0.12,
+        0.28
+      ],
+      "source_glb_sha256": "335cf3dadab13bca6be6ca5fc39cb771a56a6eb808b58d25f9e416c2a737d7cb",
+      "source_sidecar_sha256": "ed73f7017d603d42be7c2c9d10dda23d7bc3c24a35d429f45e5a31c48afd13cb"
+    },
+    {
+      "id": "obj_0081",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_081",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0082",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_082",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0083",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_083",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0084",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0007",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_084",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0085",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_085",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0086",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_086",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0087",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_087",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0088",
+      "asset_key": "candle_093a4f56",
+      "type": "candle",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_088",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14788730442523956,
+        0.3550313847299549,
+        0.14762726426124573
+      ],
+      "native_size_sage_local_m": [
+        0.14788730442523956,
+        0.14762726426124573,
+        0.3550313847299549
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.15,
+        1.152,
+        1.07
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.16999999999999998,
+        0.38
+      ],
+      "source_glb_sha256": "440780f0c992ecc351aff0dacd6609b93896f1d98368d34e4f298bbee77999c5",
+      "source_sidecar_sha256": "2a010273f7c2a099d22c8099ab312043ba3bf0283f5df7ce5c8614e14abadd56"
+    },
+    {
+      "id": "obj_0089",
+      "asset_key": "bamboovase_9003c1de",
+      "type": "bamboovase",
+      "place": "on_object",
+      "support_parent": "obj_0048",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_089",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22752156108617783,
+        0.26303493670093303,
+        0.22768211364746094
+      ],
+      "native_size_sage_local_m": [
+        0.22752156108617783,
+        0.22768211364746094,
+        0.26303493670093303
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.879,
+        0.878,
+        1.597
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.42
+      ],
+      "source_glb_sha256": "5868aa193f42433031cdd272aae9f76d9d32eb9302a12caae514c4942678da6e",
+      "source_sidecar_sha256": "96fe42288b48121c154375ec527c609bed364c195ff574fa0c05bea02e2e5445"
+    },
+    {
+      "id": "obj_0090",
+      "asset_key": "bamboovase_9003c1de",
+      "type": "bamboovase",
+      "place": "on_object",
+      "support_parent": "obj_0048",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_090",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22752156108617783,
+        0.26303493670093303,
+        0.22768211364746094
+      ],
+      "native_size_sage_local_m": [
+        0.22752156108617783,
+        0.22768211364746094,
+        0.26303493670093303
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.879,
+        0.878,
+        1.597
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.42
+      ],
+      "source_glb_sha256": "5868aa193f42433031cdd272aae9f76d9d32eb9302a12caae514c4942678da6e",
+      "source_sidecar_sha256": "96fe42288b48121c154375ec527c609bed364c195ff574fa0c05bea02e2e5445"
+    },
+    {
+      "id": "obj_0091",
+      "asset_key": "bamboovase_9003c1de",
+      "type": "bamboovase",
+      "place": "on_object",
+      "support_parent": "obj_0048",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_091",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22752156108617783,
+        0.26303493670093303,
+        0.22768211364746094
+      ],
+      "native_size_sage_local_m": [
+        0.22752156108617783,
+        0.22768211364746094,
+        0.26303493670093303
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.879,
+        0.878,
+        1.597
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.42
+      ],
+      "source_glb_sha256": "5868aa193f42433031cdd272aae9f76d9d32eb9302a12caae514c4942678da6e",
+      "source_sidecar_sha256": "96fe42288b48121c154375ec527c609bed364c195ff574fa0c05bea02e2e5445"
+    },
+    {
+      "id": "obj_0092",
+      "asset_key": "candlee05ebbed_6a50d51a",
+      "type": "candlee05ebbed",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_092",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.08744525909423828,
+        0.30221694707870483,
+        0.08740837126970291
+      ],
+      "native_size_sage_local_m": [
+        0.08744525909423828,
+        0.08740837126970291,
+        0.30221694707870483
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.83,
+        1.83,
+        1.125
+      ],
+      "fitted_size_sage_local_m": [
+        0.15999999999999998,
+        0.16,
+        0.34
+      ],
+      "source_glb_sha256": "4a8010debdb444c1bb7f4672ef9b67509903fc4edf9f70ede1fd64d4d1a97154",
+      "source_sidecar_sha256": "697c8cc5ed41fc3e95908cc7888ad6ce9b41729ceb29c2415c7ec6eb349d7ebe"
+    },
+    {
+      "id": "obj_0093",
+      "asset_key": "smallvasee05ebbed_5fa415d9",
+      "type": "smallvasee05ebbed",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_093",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.17371916770935059,
+        0.3241973007679917,
+        0.17375874519348145
+      ],
+      "native_size_sage_local_m": [
+        0.17371916770935059,
+        0.17375874519348145,
+        0.3241973007679917
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.633,
+        0.633,
+        0.864
+      ],
+      "fitted_size_sage_local_m": [
+        0.10999999999999999,
+        0.11,
+        0.28
+      ],
+      "source_glb_sha256": "53a5265efafe4c124aaa3408e2ac9c587a109794b21463dcef13fe759b0a245b",
+      "source_sidecar_sha256": "059daf819736503b1e340765af1c8133ca31fcf7cac429aded71bd7db400003a"
+    },
+    {
+      "id": "obj_0094",
+      "asset_key": "candl00972562_6a50d51a",
+      "type": "candl00972562",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_094",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13830475509166718,
+        0.49860623478889465,
+        0.1380612924695015
+      ],
+      "native_size_sage_local_m": [
+        0.13830475509166718,
+        0.1380612924695015,
+        0.49860623478889465
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.446,
+        1.449,
+        0.682
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "efb50057190a3cfe6177245cfcb7db1178ba9563150a1add430ca59947b1c4b0",
+      "source_sidecar_sha256": "99bb23ec53e7c673a9b49de3edaf25f94af0ba8c16f30515079ee5d6a555b9a2"
+    },
+    {
+      "id": "obj_0095",
+      "asset_key": "candl00972562_6a50d51a",
+      "type": "candl00972562",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_095",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13830475509166718,
+        0.49860623478889465,
+        0.1380612924695015
+      ],
+      "native_size_sage_local_m": [
+        0.13830475509166718,
+        0.1380612924695015,
+        0.49860623478889465
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.446,
+        1.449,
+        0.682
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "efb50057190a3cfe6177245cfcb7db1178ba9563150a1add430ca59947b1c4b0",
+      "source_sidecar_sha256": "99bb23ec53e7c673a9b49de3edaf25f94af0ba8c16f30515079ee5d6a555b9a2"
+    },
+    {
+      "id": "obj_0096",
+      "asset_key": "smallvase00972562_5fa415d9",
+      "type": "smallvase00972562",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_096",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.34828734397888184,
+        0.5685130927304272,
+        0.3487037569284439
+      ],
+      "native_size_sage_local_m": [
+        0.34828734397888184,
+        0.3487037569284439,
+        0.5685130927304272
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.316,
+        0.315,
+        0.493
+      ],
+      "fitted_size_sage_local_m": [
+        0.11,
+        0.11000000000000001,
+        0.28
+      ],
+      "source_glb_sha256": "22ec796fed6721fd9b30cb280132f0dae26b0b9f742bb25b95198e7b08b4d1ba",
+      "source_sidecar_sha256": "7a3199169d293a427ce7dd6377b7964c8502a8fa9d04d5da7cdb0c9121640c7d"
+    },
+    {
+      "id": "obj_0097",
+      "asset_key": "candl62acd997_6a50d51a",
+      "type": "candl62acd997",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_097",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1041998341679573,
+        0.454031378030777,
+        0.10464324057102203
+      ],
+      "native_size_sage_local_m": [
+        0.1041998341679573,
+        0.10464324057102203,
+        0.454031378030777
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.919,
+        1.911,
+        0.749
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "158e201a59530b8331dec63e20ac2f33b23f7ce5d3ba11eb622ed56e625ffe6e",
+      "source_sidecar_sha256": "06611fe9ea60aae01a9f60b12291e7c03bbe4f1ae99f0623d1bcb86bfc33699d"
+    },
+    {
+      "id": "obj_0098",
+      "asset_key": "smallvase62acd997_5fa415d9",
+      "type": "smallvase62acd997",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_098",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12694117426872253,
+        0.3665064366759907,
+        0.12676221877336502
+      ],
+      "native_size_sage_local_m": [
+        0.12694117426872253,
+        0.12676221877336502,
+        0.3665064366759907
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.867,
+        0.868,
+        0.764
+      ],
+      "fitted_size_sage_local_m": [
+        0.10999999999999999,
+        0.10999999999999999,
+        0.28
+      ],
+      "source_glb_sha256": "4e1644fc74148328a8bae6a77e9aae4d3c45361d47df55b9440395cd5b24da8e",
+      "source_sidecar_sha256": "c69e0feff67a597df2a69460a457a698ac5b3db89d0f17a5876ab466c5ba68bc"
+    },
+    {
+      "id": "obj_0099",
+      "asset_key": "candl1b1936d3_6a50d51a",
+      "type": "candl1b1936d3",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_099",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13691087067127228,
+        0.25354123115539573,
+        0.13706561923027039
+      ],
+      "native_size_sage_local_m": [
+        0.13691087067127228,
+        0.13706561923027039,
+        0.25354123115539573
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.461,
+        1.459,
+        1.341
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "66547fe22573473ca9fa21be96c6e9322c99cae37b45af028cacf1b3d65375c1",
+      "source_sidecar_sha256": "6db283adcda2f14b5858f227146786994f55177ea8edd1863330f64a16575aa9"
+    },
+    {
+      "id": "obj_0100",
+      "asset_key": "candl5dbf1081_6a50d51a",
+      "type": "candl5dbf1081",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_100",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10470187664031982,
+        0.28711745142936707,
+        0.10456167906522751
+      ],
+      "native_size_sage_local_m": [
+        0.10470187664031982,
+        0.10456167906522751,
+        0.28711745142936707
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.91,
+        1.913,
+        1.184
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "c45e4d2904ac1dd483b49fdbe352445e43d3daaf154919b51d3910fae2acf6e3",
+      "source_sidecar_sha256": "f4693d565dab4ca7af221918c26d8317fea1af771b35e55f7d0dd297833115cd"
+    },
+    {
+      "id": "obj_0101",
+      "asset_key": "candl5dbf1081_6a50d51a",
+      "type": "candl5dbf1081",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_101",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10470187664031982,
+        0.28711745142936707,
+        0.10456167906522751
+      ],
+      "native_size_sage_local_m": [
+        0.10470187664031982,
+        0.10456167906522751,
+        0.28711745142936707
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.91,
+        1.913,
+        1.184
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "c45e4d2904ac1dd483b49fdbe352445e43d3daaf154919b51d3910fae2acf6e3",
+      "source_sidecar_sha256": "f4693d565dab4ca7af221918c26d8317fea1af771b35e55f7d0dd297833115cd"
+    },
+    {
+      "id": "obj_0102",
+      "asset_key": "smallvase5dbf1081_5fa415d9",
+      "type": "smallvase5dbf1081",
+      "place": "on_object",
+      "support_parent": "obj_0004",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_102",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14937316626310349,
+        0.3391194045543672,
+        0.1493731588125229
+      ],
+      "native_size_sage_local_m": [
+        0.14937316626310349,
+        0.1493731588125229,
+        0.3391194045543672
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.669,
+        0.669,
+        0.826
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.28
+      ],
+      "source_glb_sha256": "6491d37b4585e8fdd2d3a836b1f6553d529e438e8e97f468bf73564e62e5cca0",
+      "source_sidecar_sha256": "8e7c7c9734b34483b5f2d03770c0e5d823b6785208ff3c2e82f22bea22e27363"
+    },
+    {
+      "id": "obj_0103",
+      "asset_key": "candl676d809f_6a50d51a",
+      "type": "candl676d809f",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_103",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.09861451387405396,
+        0.25353485345840465,
+        0.09855261072516441
+      ],
+      "native_size_sage_local_m": [
+        0.09861451387405396,
+        0.09855261072516441,
+        0.25353485345840465
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        2.028,
+        2.029,
+        1.341
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "9eab01757629f7e24a544b7bcf0cb3a6b0c256edd81e870ca5b2edc505cd39bc",
+      "source_sidecar_sha256": "f9bed5f74f2b4eb5795332c7c00fb9bd52282e33ba337a88e8c4b6ae437f9e2a"
+    },
+    {
+      "id": "obj_0104",
+      "asset_key": "candlfeb570fd_6a50d51a",
+      "type": "candlfeb570fd",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_104",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.11529199779033661,
+        0.30345994234085094,
+        0.11529199779033661
+      ],
+      "native_size_sage_local_m": [
+        0.11529199779033661,
+        0.11529199779033661,
+        0.30345994234085094
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.735,
+        1.735,
+        1.12
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.33999999999999997
+      ],
+      "source_glb_sha256": "80a56062916d65a1a9a4e6fec493bd6c30975c60861ca317e71b96fd4a94845d",
+      "source_sidecar_sha256": "5f83332a1b25c901f4379d1e90e2bb93b74abf5310fc1814f5307c751407d2da"
+    },
+    {
+      "id": "obj_0105",
+      "asset_key": "candlfeb570fd_6a50d51a",
+      "type": "candlfeb570fd",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_105",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.11529199779033661,
+        0.30345994234085094,
+        0.11529199779033661
+      ],
+      "native_size_sage_local_m": [
+        0.11529199779033661,
+        0.11529199779033661,
+        0.30345994234085094
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.735,
+        1.735,
+        1.12
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.33999999999999997
+      ],
+      "source_glb_sha256": "80a56062916d65a1a9a4e6fec493bd6c30975c60861ca317e71b96fd4a94845d",
+      "source_sidecar_sha256": "5f83332a1b25c901f4379d1e90e2bb93b74abf5310fc1814f5307c751407d2da"
+    },
+    {
+      "id": "obj_0106",
+      "asset_key": "smallvasefeb570fd_5fa415d9",
+      "type": "smallvasefeb570fd",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_106",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12175058573484421,
+        0.25171313141618157,
+        0.12168913334608078
+      ],
+      "native_size_sage_local_m": [
+        0.12175058573484421,
+        0.12168913334608078,
+        0.25171313141618157
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.821,
+        0.822,
+        1.112
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.28
+      ],
+      "source_glb_sha256": "bbbac71c3a42194950d7372fe95ee79772bd45f3f0df7d5415f1684ce81a24e8",
+      "source_sidecar_sha256": "79b1e9678ab94d4f8e126b1f60d1f682794da282a033466903ca627e8bd2cf96"
+    },
+    {
+      "id": "obj_0107",
+      "asset_key": "candle29a978e_6a50d51a",
+      "type": "candle29a978e",
+      "place": "on_object",
+      "support_parent": "obj_0007",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_107",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18551909923553467,
+        0.3247624933719635,
+        0.18583625555038452
+      ],
+      "native_size_sage_local_m": [
+        0.18551909923553467,
+        0.18583625555038452,
+        0.3247624933719635
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.078,
+        1.076,
+        1.047
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.2,
+        0.34
+      ],
+      "source_glb_sha256": "392942ca4a240487afbff4fb87fd562438e053cf241b1f0f541818eabd41966d",
+      "source_sidecar_sha256": "ddf3682cbf2bda20f236d3d2b92d2bf4236b0c30c112ee9193767fb58b2fa5a8"
+    },
+    {
+      "id": "obj_0108",
+      "asset_key": "smallvase29a978e_5fa415d9",
+      "type": "smallvase29a978e",
+      "place": "on_object",
+      "support_parent": "obj_0007",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_108",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18840903043746948,
+        0.41176541914319387,
+        0.18795664608478546
+      ],
+      "native_size_sage_local_m": [
+        0.18840903043746948,
+        0.18795664608478546,
+        0.41176541914319387
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.796,
+        0.798,
+        0.607
+      ],
+      "fitted_size_sage_local_m": [
+        0.14999999999999997,
+        0.15,
+        0.25
+      ],
+      "source_glb_sha256": "833301a9c29b5e0391cb26c4ef8639001fbddd6d8e216e566a0283788ae3eead",
+      "source_sidecar_sha256": "a52f7300e930ede58d5b6806ec5f729a57dfb41ae84d031c8b9189e2cc1ad669"
+    },
+    {
+      "id": "obj_0109",
+      "asset_key": "wallart_831b500a",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_109",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.6029152870178223,
+        0.7999656531501387,
+        0.03463435918092728
+      ],
+      "native_size_sage_local_m": [
+        1.6029152870178223,
+        0.03463435918092728,
+        0.7999656531501387
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.374,
+        5.775,
+        1.0
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.2,
+        0.8
+      ],
+      "source_glb_sha256": "2a796d70385c32a7f60359abc1b98d0b930b4e757dc86d27607f438e5eac50e3",
+      "source_sidecar_sha256": "5ac4cb4106f78e72dd3d7f1d5842d5e06604518097007b849e83eada8cac18ff"
+    },
+    {
+      "id": "obj_0110",
+      "asset_key": "wallart_831b500a",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_110",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.6029152870178223,
+        0.7999656531501387,
+        0.03463435918092728
+      ],
+      "native_size_sage_local_m": [
+        1.6029152870178223,
+        0.03463435918092728,
+        0.7999656531501387
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.374,
+        5.775,
+        1.0
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.2,
+        0.8
+      ],
+      "source_glb_sha256": "2a796d70385c32a7f60359abc1b98d0b930b4e757dc86d27607f438e5eac50e3",
+      "source_sidecar_sha256": "5ac4cb4106f78e72dd3d7f1d5842d5e06604518097007b849e83eada8cac18ff"
+    },
+    {
+      "id": "obj_0111",
+      "asset_key": "wallart_9efb0599",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_111",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6706015467643738,
+        0.800000011920929,
+        0.009472945239394903
+      ],
+      "native_size_sage_local_m": [
+        0.6706015467643738,
+        0.009472945239394903,
+        0.800000011920929
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.88,
+        21.113,
+        1.137
+      ],
+      "fitted_size_sage_local_m": [
+        0.59,
+        0.2,
+        0.91
+      ],
+      "source_glb_sha256": "4786d33a6de4d5fd26b92eca26badbeedefa1f51d9d5114eb996c72764cb0a13",
+      "source_sidecar_sha256": "2584dc0f1d859b803489f314ad30fa91003c5319df89813979c6d58a3ace8d91"
+    },
+    {
+      "id": "obj_0112",
+      "asset_key": "wallart_9efb0599",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_112",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6706015467643738,
+        0.800000011920929,
+        0.009472945239394903
+      ],
+      "native_size_sage_local_m": [
+        0.6706015467643738,
+        0.009472945239394903,
+        0.800000011920929
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.88,
+        21.113,
+        1.137
+      ],
+      "fitted_size_sage_local_m": [
+        0.59,
+        0.2,
+        0.91
+      ],
+      "source_glb_sha256": "4786d33a6de4d5fd26b92eca26badbeedefa1f51d9d5114eb996c72764cb0a13",
+      "source_sidecar_sha256": "2584dc0f1d859b803489f314ad30fa91003c5319df89813979c6d58a3ace8d91"
+    },
+    {
+      "id": "obj_0113",
+      "asset_key": "wallart_d8ca508a",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_113",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5396177768707275,
+        0.7248362701780025,
+        0.07423781603574753
+      ],
+      "native_size_sage_local_m": [
+        0.5396177768707275,
+        0.07423781603574753,
+        0.7248362701780025
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.112,
+        2.559,
+        1.242
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.19,
+        0.8999999999999999
+      ],
+      "source_glb_sha256": "95120c2a46cda06d7189cf67ee730400625904fbb0fd927be21b765b838471d0",
+      "source_sidecar_sha256": "2b40aa626d5934860b6b4e4d94a569da5aa4e183c3b0a4da963c2f1a040f7d98"
+    },
+    {
+      "id": "obj_0114",
+      "asset_key": "wallart_d8ca508a",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_114",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5396177768707275,
+        0.7248362701780025,
+        0.07423781603574753
+      ],
+      "native_size_sage_local_m": [
+        0.5396177768707275,
+        0.07423781603574753,
+        0.7248362701780025
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.112,
+        2.559,
+        1.242
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.19,
+        0.8999999999999999
+      ],
+      "source_glb_sha256": "95120c2a46cda06d7189cf67ee730400625904fbb0fd927be21b765b838471d0",
+      "source_sidecar_sha256": "2b40aa626d5934860b6b4e4d94a569da5aa4e183c3b0a4da963c2f1a040f7d98"
+    },
+    {
+      "id": "obj_0115",
+      "asset_key": "teaset_8efbaf00",
+      "type": "teaset",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_115",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.35523921251296997,
+        0.1518334099164349,
+        0.25605151057243347
+      ],
+      "native_size_sage_local_m": [
+        0.35523921251296997,
+        0.25605151057243347,
+        0.1518334099164349
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.563,
+        0.273,
+        0.659
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.07,
+        0.1
+      ],
+      "source_glb_sha256": "c92dd2d50e479534f2c193292cf2157ec0555d072dc27b659ba2b05bfbb900f4",
+      "source_sidecar_sha256": "0fd0ecd8d45a3f7a05de674286714f4b130ab958be54bfe525604db22495c1c1"
+    },
+    {
+      "id": "obj_0116",
+      "asset_key": "teaset_8efbaf00",
+      "type": "teaset",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_116",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.35523921251296997,
+        0.1518334099164349,
+        0.25605151057243347
+      ],
+      "native_size_sage_local_m": [
+        0.35523921251296997,
+        0.25605151057243347,
+        0.1518334099164349
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.563,
+        0.273,
+        0.659
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.07,
+        0.1
+      ],
+      "source_glb_sha256": "c92dd2d50e479534f2c193292cf2157ec0555d072dc27b659ba2b05bfbb900f4",
+      "source_sidecar_sha256": "0fd0ecd8d45a3f7a05de674286714f4b130ab958be54bfe525604db22495c1c1"
+    },
+    {
+      "id": "obj_0117",
+      "asset_key": "teaset_8efbaf00",
+      "type": "teaset",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_117",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.35523921251296997,
+        0.1518334099164349,
+        0.25605151057243347
+      ],
+      "native_size_sage_local_m": [
+        0.35523921251296997,
+        0.25605151057243347,
+        0.1518334099164349
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.563,
+        0.273,
+        0.659
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.07,
+        0.1
+      ],
+      "source_glb_sha256": "c92dd2d50e479534f2c193292cf2157ec0555d072dc27b659ba2b05bfbb900f4",
+      "source_sidecar_sha256": "0fd0ecd8d45a3f7a05de674286714f4b130ab958be54bfe525604db22495c1c1"
+    },
+    {
+      "id": "obj_0118",
+      "asset_key": "smallvase_0448167b",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_118",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12451095506548882,
+        0.29961449539405294,
+        0.1544020026922226
+      ],
+      "native_size_sage_local_m": [
+        0.12451095506548882,
+        0.1544020026922226,
+        0.29961449539405294
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.583,
+        0.668
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "9f6bb054e299db8df2923dac16f7017eefdea5bcc0ba9e421004df740835f60e",
+      "source_sidecar_sha256": "07638a3fbe7f5b604e0e7da2faf300b7b3703072b5531f04816176a0f8b1d1c8"
+    },
+    {
+      "id": "obj_0119",
+      "asset_key": "smallvase_0448167b",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_119",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12451095506548882,
+        0.29961449539405294,
+        0.1544020026922226
+      ],
+      "native_size_sage_local_m": [
+        0.12451095506548882,
+        0.1544020026922226,
+        0.29961449539405294
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.583,
+        0.668
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "9f6bb054e299db8df2923dac16f7017eefdea5bcc0ba9e421004df740835f60e",
+      "source_sidecar_sha256": "07638a3fbe7f5b604e0e7da2faf300b7b3703072b5531f04816176a0f8b1d1c8"
+    },
+    {
+      "id": "obj_0120",
+      "asset_key": "smallvase_0448167b",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_120",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12451095506548882,
+        0.29961449539405294,
+        0.1544020026922226
+      ],
+      "native_size_sage_local_m": [
+        0.12451095506548882,
+        0.1544020026922226,
+        0.29961449539405294
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.583,
+        0.668
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "9f6bb054e299db8df2923dac16f7017eefdea5bcc0ba9e421004df740835f60e",
+      "source_sidecar_sha256": "07638a3fbe7f5b604e0e7da2faf300b7b3703072b5531f04816176a0f8b1d1c8"
+    },
+    {
+      "id": "obj_0121",
+      "asset_key": "smallvase_0448167b",
+      "type": "smallvase",
+      "place": "on_object",
+      "support_parent": "obj_0000",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_121",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12451095506548882,
+        0.29961449539405294,
+        0.1544020026922226
+      ],
+      "native_size_sage_local_m": [
+        0.12451095506548882,
+        0.1544020026922226,
+        0.29961449539405294
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.583,
+        0.668
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "9f6bb054e299db8df2923dac16f7017eefdea5bcc0ba9e421004df740835f60e",
+      "source_sidecar_sha256": "07638a3fbe7f5b604e0e7da2faf300b7b3703072b5531f04816176a0f8b1d1c8"
+    }
+  ],
+  "room": {
+    "width": 6.0,
+    "length": 8.0,
+    "height": 2.7,
+    "height_source": "condition",
+    "source_height_m": 2.7,
+    "floor_known": true,
+    "boundary_known": true,
+    "shell_geometry_kind": "reference_build_shell_polygon_walls",
+    "wall_normal_source": "floor_polygon_winding",
+    "display_floor_z_m": 0.0,
+    "source_floor_z_m": 0.0
+  },
+  "fixed_bbox_proxies": 0,
+  "condition": {
+    "schema_version": "fastfill.v2",
+    "room": {
+      "frame": "right_handed_z_up",
+      "room_type": "restaurant",
+      "floor_polygon_xy_m": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6,
+          0.0
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          0.0,
+          8
+        ]
+      ],
+      "floor_z_m": 0.0,
+      "height_m": 2.7,
+      "boundary_known": true,
+      "floor_known": true,
+      "fixed_objects": [
+        {
+          "id": "door_1",
+          "category": "door",
+          "size_local_m": [
+            0.1,
+            0.95,
+            2.05
+          ],
+          "bottom_center_m": [
+            2.88,
+            8.0,
+            0.0
+          ],
+          "yaw_rad": -1.5707963267948966
+        }
+      ]
+    },
+    "objects": [
+      {
+        "id": "obj_0000",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0001",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0002",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0003",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0004",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0005",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0006",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0007",
+        "category": "table",
+        "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0008",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0009",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0010",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0011",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0012",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0013",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0014",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0015",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0016",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0017",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0018",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0019",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0020",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0021",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0022",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0023",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0024",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0025",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0026",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0027",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0028",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0029",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0030",
+        "category": "chair",
+        "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0031",
+        "category": "waterfeature",
+        "description": "A bowl\u2011shaped ceramic water feature with bamboo accents, wide circular basin, smooth rim and a shallow depth",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0032",
+        "category": "smalllamp",
+        "description": "A small lamp with a bamboo base, compact cylindrical form, warm\u2011glowing light and a smooth matte finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0033",
+        "category": "smalllamp",
+        "description": "A small lamp with a bamboo base, compact cylindrical form, warm\u2011glowing light and a smooth matte finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0034",
+        "category": "bambooplant",
+        "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0035",
+        "category": "bambooplant",
+        "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0036",
+        "category": "bambooplant",
+        "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0037",
+        "category": "bambooplant",
+        "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0038",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0039",
+        "category": "bench",
+        "description": "A natural bamboo bench with an elongated rectangular seat, slender vertical slats, and a smooth polished finish, giving a sleek minimalist look.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0040",
+        "category": "bench",
+        "description": "A natural bamboo bench with an elongated rectangular seat, slender vertical slats, and a smooth polished finish, giving a sleek minimalist look.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0041",
+        "category": "shoji",
+        "description": "A bamboo shoji screen composed of thin vertical bamboo slats woven into a lattice pattern, framed by a lightweight wooden frame, providing a semi\u2011transparent partition.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0042",
+        "category": "shoji",
+        "description": "A bamboo shoji screen composed of thin vertical bamboo slats woven into a lattice pattern, framed by a lightweight wooden frame, providing a semi\u2011transparent partition.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0043",
+        "category": "bamboo",
+        "description": "A natural bamboo plant with slender green stalks emerging from a smooth ceramic pot, featuring a rounded pot base and a slightly tapered foliage.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0044",
+        "category": "bamboo",
+        "description": "A natural bamboo plant with slender green stalks emerging from a smooth ceramic pot, featuring a rounded pot base and a slightly tapered foliage.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0045",
+        "category": "planter",
+        "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0046",
+        "category": "planter",
+        "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0047",
+        "category": "planter",
+        "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0048",
+        "category": "woodenshelf",
+        "description": "A low\u2011profile wooden shelf with a natural bamboo finish, rectangular with clean straight edges and subtle grain texture, supported by four short legs",
+        "support_parent": "obj_0049"
+      },
+      {
+        "id": "obj_0049",
+        "category": "bookshelf",
+        "description": "A low wooden bookshelf finished in natural bamboo, rectangular with four evenly spaced shelves, clean straight lines and a light matte grain",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0050",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0051",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0052",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0053",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0054",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0055",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0056",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0057",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0058",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0059",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0060",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0061",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0062",
+        "category": "candle",
+        "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0063",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0064",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0065",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0066",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0067",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0068",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0069",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0070",
+        "category": "vase",
+        "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0071",
+        "category": "candle",
+        "description": "A white candle with a bamboo base, featuring a slender cylindrical wax body and a subtle embossed bamboo texture on the base.",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0072",
+        "category": "candle",
+        "description": "A white candle with a bamboo base, featuring a slender cylindrical wax body and a subtle embossed bamboo texture on the base.",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0073",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0074",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0007"
+      },
+      {
+        "id": "obj_0075",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0076",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0077",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0078",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0079",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0080",
+        "category": "smallvase",
+        "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0081",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0082",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0083",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0084",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0007"
+      },
+      {
+        "id": "obj_0085",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0086",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0087",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0088",
+        "category": "candle",
+        "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0089",
+        "category": "bamboovase",
+        "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+        "support_parent": "obj_0048"
+      },
+      {
+        "id": "obj_0090",
+        "category": "bamboovase",
+        "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+        "support_parent": "obj_0048"
+      },
+      {
+        "id": "obj_0091",
+        "category": "bamboovase",
+        "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+        "support_parent": "obj_0048"
+      },
+      {
+        "id": "obj_0092",
+        "category": "candlee05ebbed",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0093",
+        "category": "smallvasee05ebbed",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0094",
+        "category": "candl00972562",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0095",
+        "category": "candl00972562",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0096",
+        "category": "smallvase00972562",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0097",
+        "category": "candl62acd997",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0098",
+        "category": "smallvase62acd997",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0099",
+        "category": "candl1b1936d3",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0100",
+        "category": "candl5dbf1081",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0101",
+        "category": "candl5dbf1081",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0102",
+        "category": "smallvase5dbf1081",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0004"
+      },
+      {
+        "id": "obj_0103",
+        "category": "candl676d809f",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0104",
+        "category": "candlfeb570fd",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0105",
+        "category": "candlfeb570fd",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0106",
+        "category": "smallvasefeb570fd",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0107",
+        "category": "candle29a978e",
+        "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+        "support_parent": "obj_0007"
+      },
+      {
+        "id": "obj_0108",
+        "category": "smallvase29a978e",
+        "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+        "support_parent": "obj_0007"
+      },
+      {
+        "id": "obj_0109",
+        "category": "wallart",
+        "description": "A single piece of thin and upright Zen calligraphy artwork, rectangular flat panel with subtle brush strokes and a matte finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0110",
+        "category": "wallart",
+        "description": "A single piece of thin and upright Zen calligraphy artwork, rectangular flat panel with subtle brush strokes and a matte finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0111",
+        "category": "wallart",
+        "description": "A single piece of thin and upright painting featuring Zen calligraphy in black ink on a light rice\u2011paper background, the frame is a narrow wooden strip",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0112",
+        "category": "wallart",
+        "description": "A single piece of thin and upright painting featuring Zen calligraphy in black ink on a light rice\u2011paper background, the frame is a narrow wooden strip",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0113",
+        "category": "wallart",
+        "description": "A single piece of thin and upright Zen\u2011inspired abstract painting, featuring soft brush strokes in muted earth tones on a lightweight canvas, framed with a narrow bamboo border",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0114",
+        "category": "wallart",
+        "description": "A single piece of thin and upright Zen\u2011inspired abstract painting, featuring soft brush strokes in muted earth tones on a lightweight canvas, framed with a narrow bamboo border",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0115",
+        "category": "teaset",
+        "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0116",
+        "category": "teaset",
+        "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0117",
+        "category": "teaset",
+        "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0118",
+        "category": "smallvase",
+        "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0119",
+        "category": "smallvase",
+        "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0120",
+        "category": "smallvase",
+        "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+        "support_parent": "obj_0000"
+      },
+      {
+        "id": "obj_0121",
+        "category": "smallvase",
+        "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+        "support_parent": "obj_0000"
+      }
+    ],
+    "constraints": []
+  },
+  "fit_policy": "roomgenbench_anisotropic_yaw_snap_tip",
+  "original_asset_geometry_acceptance": "not_checked",
+  "support_verification": "not_checked",
+  "validator": "not_attempted",
+  "physics": "not_attempted",
+  "host_commit": "not_attempted",
+  "reference_assembler": {
+    "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/RoomGenBench/bench/assemble.py",
+    "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f"
+  }
+}

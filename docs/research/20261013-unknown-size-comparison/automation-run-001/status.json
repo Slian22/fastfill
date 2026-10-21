@@ -1,0 +1,26 @@
+{
+  "api_submission_attempted": false,
+  "config_sha256": "6ae0968044ef10df7145cbae8a861c2738463016f5cb3ffa109963f643fa574f",
+  "counts": {
+    "jobs_completed": 1,
+    "jobs_known": 6,
+    "jobs_observed": 6
+  },
+  "elapsed_seconds": 187.889223416998,
+  "failures": [
+    {
+      "reason": "signal interruption",
+      "stage": "jobs",
+      "type": "KeyboardInterrupt"
+    }
+  ],
+  "pid": 20243,
+  "reason": "interrupted",
+  "remote_batch": null,
+  "remote_job": null,
+  "remote_may_be_active": false,
+  "schema_version": 1,
+  "stage": "jobs",
+  "status": "partial",
+  "updated_unix": 1791870987.9508271
+}

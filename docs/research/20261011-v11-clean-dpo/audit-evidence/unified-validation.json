@@ -1,0 +1,13 @@
+{
+  "command": "/Users/slian/miniforge3/bin/python -m pytest fastfill/tests fastfill/v1_1/tests -q",
+  "result": "428 passed, 90 subtests passed in 18.31s",
+  "helper_source_sha256": "a560b279eef244d7e0dc95110d32c542f0f50c5cdbf65fe8359b7deca3568473",
+  "source_unchanged_after_archive": true,
+  "compileall_v1_1": true,
+  "git_diff_check": true,
+  "test_log": "unified-tests.log",
+  "coverage_kind": "CPython executable-line tracing, not branch coverage",
+  "post_deployment_source_check": "All executable source files remain identical; findings/research-log/research-state are intentionally updated living documents outside the deployed snapshot.",
+  "deployment_transaction_tests": "10 passed in0.19s; fake scheduler and real tempfile installation tests",
+  "independent_old_snapshot_smoke": "4cells,2spawnworkers,cached_cells0,exit0; old frozen root contains no verifier module"
+}

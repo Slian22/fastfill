@@ -1,0 +1,1692 @@
+                                                     SceneEval: Evaluating Semantic Coherence in Text-Conditioned
+                                                                      3D Indoor Scene Synthesis
+
+                                              Hou In Ivan Tam1 , Hou In Derek Pun1 , Austin T. Wang1 , Angel X. Chang1,2 , Manolis Savva1
+                                                       1
+                                                         Simon Fraser University, 2 Alberta Machine Intelligence Institute (Amii)
+                                                                             https://3dlg-hcvc.github.io/SceneEval/
+arXiv:2503.14756v3 [cs.GR] 7 Mar 2026
+
+
+
+
+                                                                Abstract                                                                      A bedroom with a bed,
+                                                                                                                                              two nightstands, and a
+                                        Despite recent advances in text-conditioned 3D indoor
+                                                                                                                                              wardrobe that is in the
+                                        scene generation, there remain gaps in the evaluation of
+                                        these methods. Existing metrics often measure realism                                                 corner of the room.
+                                        by comparing generated scenes to a set of ground-truth                                        Explicit                  Implicit
+                                        scenes, but they overlook how well scenes follow the in-                                                   Bed    ü   No colliding objects
+                                        put text and capture implicit expectations of plausibility.                             Objects       Wardrobe    ü   No floating objects
+                                                                                                                                          Nightstand *2   ü   Scene navigable
+                                        We present SceneEval, an evaluation framework designed
+                                                                                                                                Relationships             ü   Functional sides of
+                                        to address these limitations. SceneEval introduces fine-                                   Wardrobe in corner         objects accessible
+                                        grained metrics for explicit user requirements—including
+                                        object counts, attributes, and spatial relationships—and            Figure 1. Explicit vs. implicit requirements. Explicit requirements
+                                        complementary metrics for implicit expectations such as             are communicated explicitly by the user in the text description,
+                                        support, collisions, and navigability. Together, these pro-         while implicit requirements are assumed but not necessarily stated.
+                                        vide interpretable and comprehensive assessments of scene
+                                        quality. To ground evaluation, we curate SceneEval-500,                 Text-conditioned generation has been a popular research
+                                        a benchmark of 500 text descriptions with detailed annota-          direction, allowing users to specify scenes through natu-
+                                        tions of expected scene properties. This dataset establishes        ral language. Just as homeowners can convey their dream
+                                        a common reference for reproducible and systematic com-             home to interior designers and scriptwriters can describe
+                                        parison across scene generation methods. We evaluate six            story scenes to set designers, natural language is an intuitive
+                                        recent scene generation approaches using SceneEval and              way for users to describe a desired scene to scene synthe-
+                                        demonstrate its ability to provide detailed assessments of          sis methods. Depending on user expertise and needs, these
+                                        the generated scenes, highlighting strengths and areas for          descriptions can be minimalistic (“a cozy living room”), or
+                                        improvement across multiple dimensions. Our results iden-           more detailed (“a living room with a brown sofa facing a
+                                        tify significant gaps in current methods, underscoring the          TV and a dining table with four chairs”). The flexibility
+                                        need for further research toward practical and controllable         and expressiveness of text allows users to specify their de-
+                                        scene synthesis.                                                    sires without needing to understand the intricacies of 3D
+                                                                                                            modeling. This flexibility also poses unique challenges for
+                                                                                                            scene synthesis methods, as they must understand and inter-
+                                                                                                            pret the text descriptions to generate scenes that meet user
+                                        1. Introduction                                                     requirements. Users’ unspoken expectations, such as object
+                                        Digital 3D indoor scenes are essential for various appli-           placements adhering to the laws of physics, further com-
+                                        cations, including robotics simulation, game development,           plicate this process. Nonetheless, an ideal scene synthesis
+                                        and film production. However, authoring 3D scenes manu-             method should be able to generate scenes that satisfy both
+                                        ally is laborious, making automatic scene synthesis a long-         explicit and implicit user requirements.
+                                        standing research problem. Scene synthesis faces two pri-              Despite recent advances in scene generation methods,
+                                        mary challenges: adhering to explicit user requirements and         there is a lack of systematic evaluation of the fidelity of the
+                                        meeting implicit expectations, such as physical plausibility,       generated scenes against the input text descriptions. Com-
+                                        which users often assume but do not explicitly specify. As          monly used metrics fall into two categories. Distributional
+                                        shown in Fig. 1, both are crucial for practical applications.       metrics, such as Fréchet Inception Distance (FID) [23]
+
+
+                                                                                                        1
+and categorical KL divergence, assess how realistic gen-                                   Objs: [              Evaluation Metrics
+erated scenes are compared to a dataset of ground-truth                                       sofa: {…},
+                                                                                              …                            Fidelity
+scenes. However, this dependence on reference datasets                                     ],
+                                                                                                             Object Count      Object Attribute
+makes them unsuitable for open-universe scene generation,                                  Arch: [
+where no ground truth exists. Cross-modal metrics, such                                       wall: {…},        Object-Object Relationship
+                                                                                              …
+as CLIP score [22], measure text–scene alignment by com-                                                     Object-Architecture Relationship
+                                                                                           ]
+puting similarity between rendered scene images and the                                                                Plausibility
+input text descriptions, but they provide only a coarse sense                                               Navigability    Support    Collision
+                                                                                           Annotations
+of correspondence. Neither type of metric reveals which                                                    Object Accessibility Out of Bounds
+specific constraints from the text are satisfied or violated,
+                                                                                  Object Mapping
+limiting insight into a method’s strengths and weaknesses.                        • sofa – obj 0
+Beyond explicit fidelity to text, evaluation of implicit ex-                      • chair – obj 2
+pectations is also incomplete, with prior work relying on             Figure 2. Overview. Given a generated scene and its correspond-
+isolated metrics such as collisions or out-of-bounds viola-           ing annotated properties, SceneEval first matches object instances
+tions, which overlook broader aspects of physical plausi-             in the scene to the annotated categories. It then evaluates the scene
+bility (e.g., a scene may have no collisions yet remain un-           on a comprehensive set of fidelity and plausibility metrics.
+navigable). In contrast, text-conditioned generation in 2D
+modalities like image and video has seen more comprehen-              proaches in generating scenes that fulfill explicit user re-
+sive evaluation. Yet 3D scene synthesis introduces unique             quirements and meet implicit expectations, underscoring
+challenges due to the added spatial dimension and physi-              the need for further research in this area. We believe Sce-
+cal constraints, making it non-trivial to adapt 2D evaluation         neEval, together with SceneEval-500, will serve as a valu-
+metrics to 3D scenes and highlighting the need for a dedi-            able resource for developing methods that better align with
+cated evaluation framework tailored to 3D scene synthesis.            user needs. We will publicly release our code and dataset.
+    To make systematic evaluation possible, there must be a
+shared benchmark that all methods can be evaluated against.           2. Related Work
+However, prior work often uses ad hoc text descriptions and           3D Indoor Scene Generation. Digital 3D indoor scene
+relies on qualitative inspection or user studies without an-          generation has been an active research area for decades.
+notated ground truth, hindering reproducible, fine-grained            Early work focused on developing systems to help users
+comparison. To address this, we curate SceneEval-500, a               manually place objects in 3D scenes [7, 47]. Subsequent
+collection of 500 indoor scene descriptions of varying com-           work has focused on automating generation with rule-
+plexity, each annotated with fine-grained ground-truth scene          based [10–12, 43, 61], data-driven [9, 16, 29, 38, 45, 62]
+properties. Each description is broken down into verifi-              and deep learning methods [24, 33, 34, 41, 42, 44, 49–
+able components, including object counts, attributes, spatial         51, 54, 55, 58, 63, 64]. These methods typically take a room
+relationships, and architectural relations, providing a stan-         type, floor plan shape, scene graph, or text description as in-
+dardized reference for assessing explicit user requirements.          put and aim to generate a 3D scene that satisfies the require-
+    Building on SceneEval-500, we introduce SceneEval, a              ments. In particular, text-conditioned generation has always
+comprehensive framework that assesses both the satisfac-              been a popular direction for the appeal of specifying scenes
+tion of explicit user requirements and the physical plau-             with natural language. With the advancement of large lan-
+sibility of generated scenes. SceneEval defines four met-             guage models (LLMs) and vision language models (VLMs),
+rics for explicit constraints: object count, object attributes,       many recent works [2, 8, 15, 19, 21, 25, 37, 48, 56, 59] in-
+object–object relationships, and object–architecture rela-            corporate them as both a text parser and a spatial prior for
+tionships, capturing the fine-grained details specified in the        generating scenes with varying success.
+input text. It further incorporates metrics for implicit expec-       Evaluation of Text-conditioned Generation.               Text-
+tations, including collisions, support, accessibility, out-of-        conditioned generation is widely studied across modalities
+bounds, and navigability, offering a holistic view of phys-           such as text, images, video, and 3D shapes, each with met-
+ical plausibility. By jointly evaluating explicit and implicit        rics for measuring quality against input text. In text genera-
+dimensions, SceneEval establishes a standardized bench-               tion, metrics like BLEU [40], ROUGE [35], METEOR [5],
+mark that reveals the strengths and limitations of existing           CIDEr [52], SPICE [3], and BERTScore [66] assess align-
+and future methods.                                                   ment with reference text. For images, CLIPScore [22],
+    We evaluate six recent scene generation methods using             BLIPScore [32], and VQAScore [36] evaluate text fidelity,
+SceneEval and demonstrate its effectiveness in providing              while VBench [27], VBench++ [28], and WorldScore [14]
+better insights into their strengths and weaknesses. Our              extend this to video and world generation. In 3D shape gen-
+results reveal that significant gaps remain in current ap-            eration, GPTEval3D [57] shows that GPT-4 [1] can assess
+
+
+                                                                  2
+text alignment and other aspects, while 3DGen-Bench [67]             Difficulty    Scenes      Words       Obj    ObjCount      ObjAttr     OORel      OARel
+builds on this using CLIP- and MLLM-based evaluators.                Easy              150      28.54     3.37         3.13        3.64       1.34        1.67
+                                                                     Medium            200      43.75     6.86         6.00        4.81       4.46        1.67
+More recently, BlenderGym [20] introduces VLM-based                  Hard              150      87.54    16.61        12.12       11.59      10.21        3.50
+evaluation for scene editing, such as modifying object poses
+or materials. However, these metrics do not transfer well to         Table 1. Statistics of SceneEval-500. Our dataset contains scene
+3D scene generation. Compared to 2D images, 3D scene de-             descriptions of three difficulty levels with increasing number of
+                                                                     objects specified (Obj). Each description is annotated with the
+scriptions are more ambiguous because of the added dimen-
+                                                                     expected properties in terms of object count (ObjCount), object
+sion. For example, placing an object “to the left” of another
+                                                                     attributes (ObjAttr), object-object relationships (OORel), and
+can be interpreted differently depending on the viewpoint.           object-architecture relationships (OARel).
+While GPTEval3D and 3DGen-Bench provide holistic eval-
+uations, they lack the precision needed for fine-grained                                     A gym-purpose basement featuring a treadmill and an
+scene fidelity, offering only high-level insights. These par-         Description            exercise bike positioned against one wall, with a tall mirror
+                                                                                             mounted on a wall directly facing the exercise bike.
+ticularities, combined with the implicit expectations people
+have for plausible 3D environments, make evaluating text-             Object Count                                Object-Object Relationship
+conditioned 3D scene generation a unique challenge.                    eq,1,treadmill                   eq,1,face,
+                                                                                                                            Exactly 1 face relationship where
+Evaluation of Text-conditioned Scene Generation. De-                   eq,1,exercise_bike               exercise_bike,
+                                                                                                                            a mirror is facing an exercise bike
+                                                                       eq,1,mirror Exactly 1 mirror     mirror
+spite advances in scene generation, evaluation metrics have                                                Object-Architecture Relationship
+mostly focused on distributional similarity between real              Object Attribute
+                                                                                                        eq,1,against,treadmill,wall       Exactly 1 on
+                                                                       eq,1,mirror,tall                 eq,1,against,exercise_bike,wall   relationship where a
+and generated scenes. Common measures include Fréchet
+                                                                       Exactly 1 mirror that is tall    eq,1,on,mirror,wall               mirror is on a wall
+Inception Distance (FID) [23], its CLIP-based variant
+FIDCLIP [31], Kernel Inception Distance (KID) [6], scene             Figure 3. Example entry of medium difficulty in SceneEval-500.
+classification accuracy (SCA), and categorical Kullback-             The scene description describes a basement room, a rarely-seen
+Leibler divergence (CKL). These metrics compare render-              type in existing datasets. The annotation includes the expected
+ings or category distributions but do not evaluate scenes            scene properties, such as number of objects, specified in the text.
+against input text, often necessitating user studies. To ad-
+                                                                     rely on annotations that describe the expected properties
+dress this gap, recent works [19, 21, 25, 26, 37, 53, 56, 59]
+                                                                     of a scene given its description, including object counts,
+adopt CLIPScore and other text-image similarity metrics,
+                                                                     attributes, and spatial relationships among objects and be-
+while others [8, 19, 56] follow GPTEval3D [57] in us-
+                                                                     tween objects and architecture. Given a generated scene
+ing GPT-4 [1] or other MLLMs as evaluators. These ap-
+                                                                     and its annotations, SceneEval first establishes a correspon-
+proaches measure overall correspondence between descrip-
+                                                                     dence between the scene’s objects and the annotated cate-
+tions and renderings but provide little insight into which as-
+                                                                     gories (Sec. 3.2), which then serves as the basis for comput-
+pects of the text are preserved or lost. Other directions in-
+                                                                     ing our fidelity metrics (Sec. 3.3) and plausibility metrics
+volve annotating existing datasets with text descriptions and
+                                                                     (Sec. 3.4). See the appendix for details on our dataset, im-
+relationships [34, 60], as well as scene-graph-based evalu-
+                                                                     plementation details of our metrics, and the VLM prompts.
+ations [63, 64]. In contrast, SceneEval evaluates generated
+scenes against fine-grained properties specified in the in-          3.1. SceneEval-500
+put text, enabling a more detailed assessment of fidelity.
+SceneEval further incorporates metrics for implicit expec-           To evaluate how well generated scenes satisfy explicit re-
+tations such as object accessibility and navigability, which         quirements, we need structured annotations that translate
+are not the focus of prior work.                                     natural language into machine-checkable constraints. The
+                                                                     Visual Genome dataset [30] uses this idea in the 2D image
+3. SceneEval                                                         domain by extracting scene graphs from images to capture
+                                                                     objects and their relationships. Analogously, we capture the
+Our goal is to evaluate how well a generated scene matches           key properties of 3D indoor scenes as described in text by
+the user’s request and whether it forms a physically plau-           providing the textual scene graph [46]. To this end, we in-
+sible environment. We capture these two dimensions as                troduce SceneEval-500, a dataset of 500 scene descriptions
+fidelity (satisfying explicitly specified constraints such as        with annotations on the expected scene properties. During
+object counts and attributes) and plausibility (satisfying           annotation, we take each free-form description and provide
+implicit expectations such as avoiding object collisions).           a graph that specifies which objects should appear, what at-
+While many recent works rely heavily on VLMs as eval-                tributes they should have, and how they are arranged relative
+uators, we deliberately restrict their use to cases where they       to one another and to the surrounding architecture. This de-
+are truly necessary. Whenever possible, we employ direct             composition allows complex text descriptions to be checked
+geometric checks, reducing reliance on VLM outputs and               component by component, providing a structured basis for
+improving interpretability. To enable such evaluation, we            evaluating scene quality.
+
+
+                                                                 3
+Field                              Schema                                                                   Example                       Meaning
+Object Count                       quantifier, quantity, object category                                    ge,2,bed                      At least two beds.
+Object Attribute                   quantifier, quantity, object category, attribute                         eq,1,bed,king-size            Exactly one bed that is king-size.
+Object-Object Relationship         quantifier, quantity, relationship, object category 1, ...               eq,1,left,bed,lamp            Exactly one lamp to the left of a bed.
+Object-Architecture Relationship   quantifier, quantity, relationship, object category, architecture type   gt,2,against,bookshelf,wall   More than two bookshelves against a wall.
+
+Table 2. Annotation schema for SceneEval-500. Each row shows the schema, an example annotation, and its natural-language interpreta-
+tion. See App. A.1 for more details on the schema.
+
+                A teenager’s bedroom features a comfortable twin bed with a             produces new free-form descriptions and then fills in the
+                backboard in the far corner, with boxes underneath it. At the
+                foot of the bed is a small desk equipped with a monitor, an
+                                                                                        corresponding annotations. However, the raw LLM outputs
+                external keyboard and mouse, and a desk lamp on the right for           often contain systematic errors, including missing annota-
+                visibility, accompanied by a rolling chair. Next to the bed, a          tions, hallucination of constraints from earlier generations,
+Manual          nightstand with an additional floor lamp nearby provides space
+                for a phone and other valuables. A sizable wooden wardrobe with
+                                                                                        inconsistent formatting, and reduced diversity with longer
+                multiple drawers offers ample storage for clothes, while a coffee       generation history. To address these issues, we carefully
+                table beside it holds books and board games. In the center of the       validate all generated entries: reading each description, re-
+                room, a tan-colored rug creates a cozy spot to sit, and the walls
+                are adorned with various posters and pictures.                          jecting ones that are too similar to existing entries, prompt-
+                A luxurious master bedroom features a canopy bed with an
+                                                                                        ing the model for greater variation when needed, and cor-
+                upholstered headboard. Two white nightstands stand beside               recting annotation errors by referencing the validated text.
+                it; one supports a marble table lamp and a photo frame, the             See App. D.3 for a discussion of the LLM’s failure modes.
+                other holds a green potted plant and an alarm clock. A tufted
+                bench sits at the foot of the bed. Along one wall, a double-door        This process ensures consistency with the manually cre-
+Generated
+                wardrobe with patterned panels provides storage. Opposite,              ated annotations while preserving diversity in the dataset.
+                a wooden vanity desk topped with three metal candlesticks and           In practice, most automatically generated outputs required
+                a decorative tray is paired with an armless cushioned stool. A
+                tall floor plant and a tripod floor lamp flank the desk on the          at least one manual edit, indicating that further work is
+                left and right, respectively. Above a low dresser, a wall-mounted       needed for fully automatic generation. Nevertheless, this
+                mirror reflects a crystal chandelier hanging from the ceiling.          semi-automatic approach substantially improves scalability,
+                A plush area rug covers the floor under the bed.
+                                                                                        yielding 400 additional entries on top of the 100 manually
+Table 3. Two hard descriptions from SceneEval-500, written by a                         created ones. Tab. 3 presents examples of manually written
+human annotator (top) and generated by an LLM (bottom).                                 and LLM-generated (and manually validated) descriptions
+                                                                                        and shows that they are comparable in quality.
+    We first constructed the dataset by manually writing 100                               Together, the manual and semi-automatic processes re-
+scene descriptions based on personal experience and refer-                              sult in a total of 500 scene descriptions with annotations.
+ence images of homes and apartments. Each description                                   These cover ten common room types: bedroom, living
+depicts an indoor environment with an emphasis on the ob-                               room, dining room, playroom, gaming room, kitchen, bath-
+jects it contains and their spatial relationships. We did not                           room, basement, den, and office. We organize the dataset
+impose a rigid template (e.g., always writing each sentence                             into three difficulty levels based on the complexity of the de-
+as “object 1, relationship, object 2”), as our goal was to cap-                         scriptions. Easy descriptions specify at most four large fur-
+ture the diversity of how people naturally describe scenes.                             niture objects (e.g., bed, sofa). Medium descriptions spec-
+We then carefully annotated each description according to                               ify five to eight objects, with up to three being small objects
+our schema (Tab. 2), ensuring that the annotations faithfully                           (e.g., cup, book). Hard descriptions contain at least nine ob-
+reflect the content of the description. In doing so, we paid                            jects, with no restriction on type, and may involve multiple
+special attention to nuances such as whether quantities are                             rooms. Tab. 1 summarizes the dataset statistics.
+expressed exactly (e.g., “there are two chairs”) or relatively
+(e.g., “there are chairs,” which implies more than one but                              3.2. Object Matching
+not an exact number). Fig. 3 shows an example entry from                                Given a scene generated from a description in our dataset,
+the dataset. Together, the annotations form a structured rep-                           we first need to establish reliable correspondences between
+resentation of the described scene that can be automatically                            the objects in the scene and the categories specified in the
+checked against a generated scene.                                                      annotations. This step is necessary because metadata of
+    While this manual process ensures high quality, it does                             objects in generated scenes may be incomplete or unreli-
+not scale to the size needed for systematic evaluation. With                            able, making direct comparison to annotations infeasible.
+recent advances in LLMs, we experimented with using an                                  To address this, SceneEval renders a front-view image for
+LLM (o4-mini-2025-04-16 [39]) to scale up the dataset by                                each object and uses a VLM to check whether it matches
+generating additional scene descriptions together with their                            the annotated categories. Each annotated category can have
+annotations. We prompt the model with small batches of                                  zero or more corresponding instances in the scene, and cat-
+three to five descriptions at a time, using a set of manu-                              egories without a match remain unmatched. This mapping
+ally written entries as in-context examples. The model first                            then serves as the basis for evaluating fidelity metrics.
+
+
+                                                                                    4
+3.3. Text Fidelity Metrics                                             ships and report the percentage of satisfied specifications.
+Text fidelity is the extent to which a generated scene                    Together, these four metrics provide complementary as-
+matches its input text description. Because a description              pects of fidelity: object presence, object properties, spatial
+specifies objects, their attributes, and how they are arranged         relations among objects, and spatial relations to the archi-
+relative to one another and to the surrounding architecture,           tecture.
+a comprehensive evaluation must consider all of these as-
+                                                                       3.4. Plausibility Metrics
+pects. To this end, SceneEval introduces four metrics: ob-
+ject count, object attribute, object–object relationship, and          Text descriptions specify what a scene should contain, but
+object–architecture relationship. Each metric builds on the            they often leave implicit many assumptions that humans
+previous one, starting from the simplest requirement (hav-             naturally expect. For example, a description rarely states
+ing the right objects) and progressively addressing more de-           that objects should not intersect, that they should be stably
+tailed constraints.                                                    placed on surfaces, or that a person should be able to walk
+Object Count (CNT) is the most basic check: whether the                around the room. Yet these assumptions are essential for
+number of objects in the scene matches the quantities spec-            scenes to be physically plausible and practically usable. To
+ified in the description. For example, the text may require            capture them, SceneEval evaluates five aspects of plausibil-
+two chairs and one table. Using the object mapping, we                 ity: object collision, object support, scene navigability, ob-
+compare the instance counts in the scene to the annotated              ject accessibility, and object out-of-bounds. Together, these
+quantities and report the percentage of satisfied specifica-           metrics move from basic physical feasibility toward more
+tions. This metric confirms that the building blocks of the            functional and spatial considerations.
+scene are present, but it does not verify whether the objects          Object Collision (COL) is the most fundamental require-
+look as intended.                                                      ment: objects in a scene should not intersect with one an-
+Object Attribute (ATR) extends the evaluation to whether               other. We perform mesh-based collision tests between all
+objects have the correct attributes, such as a red sofa or a           pairs of objects and report the percentage of objects that are
+wooden table. We render two images for each relevant ob-               in collision. This ensures that scenes do not violate basic
+ject: one front view and one with a 170 cm human figure for            physical constraints, but it does not guarantee that objects
+scale. These are provided to a VLM together with the anno-             are placed in a stable way.
+tated attributes, and the model judges whether the objects             Object Support (SUP) addresses this by checking whether
+satisfy them. This metric captures how well the scene re-              objects are stably supported. We classify objects into four
+flects the descriptive details, but it still ignores how objects       support types: ground, object, wall, and ceiling,
+are placed relative to one another.                                    by using a VLM to judge from rendered images. Based on
+Object–Object Relationship (OOR) addresses this gap by                 the assigned type, we apply ray casting to verify whether
+checking whether the placements of objects satisfy the spa-            objects are supported by other objects or by architectural
+tial relationships specified in the description. For example,          elements. We report the percentage of objects that are cor-
+a sofa next to a coffee table or a chair in front of a desk. We        rectly supported. See App. B.2 for more details. This metric
+define 13 types of spatial relationships, including inside,            ensures stability, but it does not address whether the overall
+side of, and next to (see App. B.3). Because annota-                   arrangement allows people to move through the space.
+tions are written in open vocabulary, we additionally map              Scene Navigability (NAV) evaluates whether the arrange-
+annotated relationships to these categories using a VLM                ment of objects leaves sufficient connected free space for
+(e.g., “at the foot of a bed” is mapped to front of and                movement. A scene with poor navigability may trap regions
+next to). We then apply geometric techniques such as                   behind objects, making parts of the room unreachable. Fol-
+ray casting, point sampling, and position analysis to verify           lowing PhyScene [58], we define free space as the floor area
+these relationships. Appendix B.2 provides further imple-              not occupied by objects or architectural elements, and mea-
+mentation details. This metric evaluates relative position-            sure navigability as the ratio of the largest connected free
+ing among objects, but many descriptions also tie objects to           space to the total free space. We compute this by project-
+architectural elements.                                                ing the scene onto a 2D occupancy mask and applying con-
+Object–Architecture Relationship (OAR) completes the                   nected component analysis. While this evaluates movement
+set by checking relationships between objects and archi-               at the room level, it does not ensure that individual objects
+tectural elements. For instance, a sofa against a wall or              remain usable.
+a rug in the middle of a room. We define 10 such rela-                 Object Accessibility (ACC) addresses this by checking
+tionships, including against wall, corner room, and                    whether the functional sides of objects are accessible. Ob-
+hang ceiling (see App. B.3). The architectural refer-                  jects such as sofas, beds, and wardrobes have sides intended
+ence can be a wall, floor, ceiling, door, window, or room.             for interaction (e.g., the front of a sofa, the three sides of a
+We use a similar process as in OOR to verify these relation-           bed, or the front of a wardrobe). For each object, we use
+
+
+                                                                   5
+a VLM to identify functional sides based on its description,          tural elements (floors, walls, windows, doors, and ceilings)
+then apply a 2D occupancy analysis similar to NAV to check            in addition to objects. For other methods, we provide a 6
+whether those sides are blocked. We report accessibility as           m × 6 m square floor plan shape with walls as input. Gen-
+the ratio of unoccupied pixels to the total functional area,          erations requiring a GPU are run on a single NVIDIA RTX
+taking the best score if multiple sides exist. This metric            4090 with 24 GB of VRAM, totaling less than 2 hours of
+complements navigability by focusing on the usability of              GPU time across all methods. For all VLM usage, we use
+individual objects.                                                   GPT-4o-2024-08-06 [1] with the default parameters. Note
+Object Out-of-Bounds (OOB) ensures that objects remain                that while we choose to evaluate these six methods, SceneE-
+inside the floor plan of the scene. Without this check, a             val is a general evaluation framework applicable to a wide
+method could trivially satisfy the previous four metrics by           range of scene generation methods.
+placing objects outside the room. To prevent such cases, we
+sample points on each object’s surface and cast rays toward           4.2. Analysis
+the floor. If fewer than 99% of the points intersect the floor,       Fig. 4 shows several generated scenes from the methods
+the object is considered out-of-bounds. This final metric             given text descriptions from SceneEval-500 and the corre-
+enforces consistency with the room layout, complementing              sponding evaluation. Tab. 4 presents the overall quantitative
+the checks provided by the other four metrics.                        results. We also report the average peak GPU memory us-
+   Together, these five metrics capture complementary as-             age and generation time per scene, with a breakdown by
+pects of plausibility: avoiding collisions, ensuring stable           description difficulty in Tab. 6 in the appendix.
+support, enabling movement, preserving object usability,                  To assess whether SceneEval aligns with human judg-
+and respecting room boundaries.                                       ment, we manually evaluated 500 scenes generated from the
+                                                                      100 manual descriptions for fidelity. We found agreement
+4. Experiments                                                        rates of 89.8%, 83.5%, 94.6%, and 94.1%, and Cohen’s
+                                                                      kappas of 0.75, 0.56, 0.72, and 0.77 for CNT, ATR, OOR,
+4.1. Evaluated Methods
+                                                                      and OAR, respectively. We also conducted a user study
+We evaluate ATISS [41], DiffuScene [51], In-                          with 10 participants on 125 scenes, yielding agreements of
+structScene [34], LayoutGPT [15], LayoutVLM [48],                     89.5%, 89.9%, 91.7%, and 88.1%, with Cohen’s kappas of
+and Holodeck [59]. ATISS is an early transformer-based                0.72, 0.57, 0.58, and 0.56. These show that SceneEval is
+model that generates indoor scenes conditioned on the room            consistent with human judgment. See the appendix for the
+type and floor plan shape. While it cannot be conditioned             user study instructions.
+on text descriptions, it is often used as a baseline in recent            SceneEval provides interpretable evaluation. Exist-
+work, and we include it to evaluate the importance of being           ing distributional and cross-modal metrics such as FID,
+able to condition on text descriptions. All other methods             KID, SCA, or CLIPsim (Tab. 5, last column in Tab. 4, com-
+we evaluate can be conditioned on text descriptions.                  puted with Long-CLIP-L [65]) allow relative comparison
+DiffuScene models scene generation as a diffusion process.            between methods, but they provide little insight into why
+InstructScene incorporates a semantic scene graph as an               one method is better than another. For example, the higher
+intermediate representation and uses graph diffusion to               FID or lower CLIPsim of DiffuScene does not illuminate
+generate scenes. LayoutGPT is a pioneering work that uses             whether this is due to poor scene layout, unrealistic ob-
+LLM to generate indoor scenes as CSS code. Following the              ject appearances, or other visual inconsistencies. Simi-
+trend of using VLMs for world knowledge, Holodeck is an               larly, Holodeck’s +1.2 improvement in CLIPsim over In-
+extensive system designed to generate multi-room indoor               structScene is hard to interpret—does it reflect more ac-
+scenes for embodied AI simulation, and LayoutVLM is a                 curate object attributes, fewer collisions, or simply render-
+recent method that incorporates differentiable optimization           ing differences? These image-based metrics are sensitive to
+into a VLM-based framework for generating scene layouts.              rendering, making them unreliable when comparing meth-
+   ATISS, DiffuScene, and InstructScene are all trained on            ods that use different asset sources. In addition, reliance
+the 3D-FRONT dataset [17, 18]. While LayoutGPT does                   on specific scene datasets for evaluation also renders prior
+not involve training, it provides scenes from 3D-FRONT                metrics inapplicable to models that do not have a refer-
+as in-context examples to the LLM. Holodeck and Lay-                  ence dataset, which is often the case for newer VLM-based
+outVLM do not require a pre-existing scene dataset and                methods. In contrast, SceneEval evaluates scenes directly
+use assets from Objaverse [13]. All methods use retrieval             against input text descriptions, disentangling object counts,
+to obtain 3D assets for the scenes, and we use the same               attributes, relationships, and plausibility. This provides in-
+asset sources as in the original work. DiffuScene and In-             terpretable feedback on which constraints are satisfied and
+structScene cannot be conditioned on a floor plan shape,              which are violated, offering deeper diagnostic value across
+while the others can. Only Holodeck can generate architec-            a broader range of methods. This interpretability advantage
+
+
+                                                                  6
+                                                              A simple bedroom featuring a twin bed against the wall, with a
+
+
+
+
+                                                 Annotation
+                                                              wardrobe positioned in the corner of the room, and a desk next to
+                                                              the window.
+
+                                                               Object Count         Object Attribute          Object-Object Relationship
+                                                               Bed      x1 ✓        Bed – Twin x1 ✓           None
+                                                               Wardrobe x1 ✗
+                                                               Desk     x1 ✓        Support              Object-Architecture Relationship
+
+
+
+
+                                                Output
+                                                                                    Bed      ✓           Bed – against wall              x1 ✗
+                                                               Navigability         Desk     ✓           Wardrobe – room corner          x1 ✗
+                                                                                                         Desk – next to window           x1 ✗
+
+                                                                                    Object Accessibility          Out of Bounds          Collision
+                                                                                    Bed        100%               Bed      ✗             Bed      ✗
+ DiffuScene | Easy                                                  100%            Desk       100%               Desk     ✗             Desk     ✗
+
+
+
+                                                              A living room with a marble table in front of a four-seater sofa. The
+                                                 Annotation
+
+
+
+
+                                                              sofa is positioned in the corner of the room, with two bean bags
+                                                              placed next to the table. A lamp hangs from the ceiling.
+
+                                                              Object Count          Object Attribute                 Object-Object Relationship
+                                                              Table      x1 ✗       Table – Marble       x1 ✗        Table – front of sofa       x1 ✗
+                                                              Sofa       x1 ✓       Sofa – Four-seater   x1 ✓        Sofa – facing table         x1 ✗
+                                                              Bean Bag   x2 ✗                                        Bean bag – next to table    x2 ✗
+                                                              Lamp       x1 ✗
+                                                Output
+
+
+
+
+                                                              Navigability          Support                  Object-Architecture Relationship
+                                                                                    11/12 objects            Sofa – room corner                 x1 ✗
+                                                                                                             Lamp – hang from ceiling           x1 ✗
+
+                                                                                    Object Accessibility             Out of Bounds          Collision
+ InstructScene | Medium                                                             Average 86.38%                   1/12 objects           6/12 objects
+                                                                   100%
+
+                                                              A modern living room featuring an L-shaped sofa facing a wall-mounted TV above
+                                                              a floating media cabinet. Two leather accent chairs face a glass coffee table in the
+                                                Annotation
+
+
+
+
+                                                              center, which displays two art books. A bar cart stocked with glasses and bottles
+                                                              stands in the corner, while three pendant lights hang gracefully from the ceiling. The
+                                                              sofa is flanked by two side tables, one of which holds a table lamp, and a large
+                                                              abstract painting decorates the wall.
+
+                                                               Object Count         Object Attribute          Object-Object Relationship
+                                                               6/13 satisfied       2/6 satisfied             3/9 satisfied
+                                                Output
+
+
+
+
+                                                                Navigability          Object                  Object-Architecture
+                                                                                      Accessibility           Relationship
+                                                                                      Average 100%            2/5 satisfied
+ Holodeck | Hard
+                                                                                      Support            Out of Bounds          Collision
+                                                                     99.99%           20/28 objects      0/28 objects           8/28 objects
+
+
+Figure 4. Examples of scenes generated using text descriptions in SceneEval-500 and the corresponding evaluation results using SceneEval.
+Our dataset has scene descriptions with annotations of three difficulty levels: easy, medium, and hard. SceneEval provides a comprehensive
+evaluation of the generated scenes on fidelity and plausibility.
+
+
+becomes even more important when evaluating plausibility,                       tion. A scene may appear plausible under one metric while
+where single metrics can be misleading.                                         failing badly under another, which makes it essential to
+                                                                                evaluate multiple aspects together. For example, Layout-
+   Scene plausibility requires comprehensive evalua-
+
+
+                                                                            7
+                                         Fidelity                                                             Plausbility                                     Resource
+                 ↑ CNT%         ↑ ATR%        ↑ OOR%          ↑ OAR%          ↓ COLob%        ↓ COLsc%     ↑ SUP%     ↑ NAV%          ↑ ACC%    ↓ OOB%     MemGB    Timesec   CLIPsim
+ATISS                11.18         7.40              1.07            8.03           50.36         75.20       90.90           99.83     85.55      10.86     0.15      1.52     15.69
+                                                                   †                                                        †                    †
+DiffuScene           11.99         9.28              3.20            8.21           31.81         62.80       75.40           99.44     81.86      25.79     1.82     11.50     16.33
+LayoutGPT            11.84         8.05              1.18            4.87           11.46         27.20       30.13           99.99     47.26      72.25        -      8.86     16.51
+                                                                 †                                                          †                    †
+InstructScene        14.14        11.53              3.59          10.20            55.00         85.80       80.79           98.99     77.47      19.43     1.50      4.64     16.44
+LayoutVLM            35.59        20.20              6.03          19.39            32.13         57.80       76.90           99.65     85.19       4.89     3.76     89.09     15.83
+Holodeck             32.64        28.49             11.52         37.27             15.91         72.20       63.21          99.60      89.65      1.44         -     98.87     17.63
+
+Table 4. Evaluation of scene generation methods with SceneEval on our dataset. We report averages across all scenes along with peak
+GPU memory usage and generation time. † indicates floor mask-based metrics where the method cannot be conditioned on it. Holodeck
+achieves the strongest overall fidelity, though LayoutVLM slightly surpasses it on object counts. While LayoutGPT appears to perform well
+on plausibility metrics, its high OOB suggests that it is not respecting the scene boundaries, showing the importance of a comprehensive
+evaluation. We also compare against CLIP similarity between scene images and their text descriptions to show correlation with SceneEval.
+
+
+                                                InstructScene                       LayoutGPT             in creating methods that align with actual user needs.
+                                 ↓ FID      ↓ FIDCLIP       ↓ KID×1e-3      SCA       ↓ FID
+                ATISS           119.73        6.95             0.39         59.17     30.02
+                                                                                                              Limits of fine-grained fidelity. All methods, includ-
+Bedroom
+                DiffuScene      123.09        7.13             0.39         60.49       -                 ing Holodeck, struggle when it comes to fine-grained con-
+                LayoutGPT         -             -                -            -       29.88
+                InstructScene   114.78        6.65             0.32         56.02       -                 straints. Even the best method satisfies fewer than 30%
+                ATISS           117.67        6.08            17.60         69.38     85.40               of attribute requirements. We hypothesize that this reflects
+                DiffuScene      122.20        6.10            16.49         72.92       -                 limitations in retrieval mechanisms, which often fail to re-
+Living Room
+                LayoutGPT         -             -               -             -       78.60
+                InstructScene   110.39        5.37            8.16          65.42       -                 trieve objects with the right attributes, compounded by lim-
+                ATISS           137.10        8.49            23.60         67.61       -                 ited diversity in the underlying datasets. As a result, de-
+                DiffuScene      145.48        8.63            24.08         70.57       -
+Dining Room
+                LayoutGPT         -             -               -             -         -                 scriptive details such as color, material, or style are not well
+                InstructScene   129.76        7.67            13.24         64.20       -                 captured. Performance is even weaker on object-object re-
+Table 5. Commonly reported metrics reproduced from In-                                                    lationships: no method satisfies more than 20% of the spec-
+structScene [34] and LayoutGPT [15]. These metrics provide a                                              ified constraints. At this rate, users have little to no con-
+coarse sense of similarity to ground-truth scenes but do not re-                                          trol over how objects are placed with respect to each other,
+veal whether methods satisfy specific textual constraints or im-                                          which is a critical limitation for practical applications. To-
+plicit plausibility requirements.                                                                         gether, these results show that while current models can
+                                                                                                          capture object categories and sometimes counts, they fail
+GPT achieves the best scores in object collision and scene
+                                                                                                          to translate richer textual specifications into scene structure.
+navigability, suggesting its scenes are both physically con-
+                                                                                                          Closing this gap is an important direction for future research
+sistent and easy to move through. However, it simultane-
+                                                                                                          toward practical scene synthesis.
+ously has the worst out-of-bounds and support rates, reveal-
+ing that many objects are either placed outside the room
+or without stable support. By doing so, LayoutGPT can                                                     5. Conclusion
+trivially reduce collisions and free up navigable space, giv-
+ing the illusion of plausibility. This case illustrates why                                               We presented SceneEval, a comprehensive framework for
+partial evaluation is misleading: without OOB or support                                                  evaluating text-conditioned 3D indoor scene generation. By
+checks, LayoutGPT would have been judged the most plau-                                                   defining metrics that separately assess explicit user require-
+sible method. In contrast, SceneEval exposes such failure                                                 ments and implicit expectations, SceneEval enables more
+modes by combining complementary metrics that together                                                    interpretable and diagnostic evaluation than commonly used
+provide a complete view of scene plausibility.                                                            metrics. To support systematic evaluation, we curated
+    Holodeck has the best overall fidelity. Across the four                                               SceneEval-500, a benchmark of 500 scene descriptions with
+fidelity metrics, Holodeck achieves the strongest overall                                                 fine-grained annotations, which establishes a shared refer-
+performance, though LayoutVLM slightly surpasses it on                                                    ence point for future research. Our experiments on six re-
+object counts. In contrast, several other methods struggle                                                cent methods revealed consistent shortcomings in the meth-
+even with simple constraints such as producing the cor-                                                   ods’ ability to satisfy detailed user constraints and ensure
+rect number of objects. A common factor among these                                                       physical plausibility. These limitations highlight the impor-
+weaker methods is their reliance on the 3D-FRONT dataset,                                                 tance of evaluation frameworks that reveal the true capabil-
+whose limited diversity may contribute to poor generaliza-                                                ities of existing methods. We believe SceneEval, together
+tion. While 3D-FRONT has been a valuable resource for                                                     with SceneEval-500, will be a valuable tool for building
+training scene generation models, these results suggest that                                              scene generation methods that better align with user needs
+future work should examine the effectiveness of this dataset                                              and expectations.
+
+
+                                                                                                   8
+Acknowledgments                                                         [11] Bob Coyne and Richard Sproat. WordsEye: An automatic
+                                                                             text-to-scene conversion system. In Proceedings of the 28th
+This work was funded in part by the Sony Research Award                      Annual Conference on Computer Graphics and Interactive
+Program, a CIFAR AI Chair, a Canada Research Chair,                          Techniques, pages 487–496, 2001.
+NSERC Discovery Grants, and enabled by support from the                 [12] Matt Deitke, Eli VanderBilt, Alvaro Herrasti, Luca Weihs,
+Digital Research Alliance of Canada. We thank Nao Yam-                       Kiana Ehsani, Jordi Salvador, Winson Han, Eric Kolve,
+ato, Yotaro Shimose, and other members on the Sony team                      Aniruddha Kembhavi, and Roozbeh Mottaghi. ProcTHOR:
+for their feedback. We also thank Qirui Wu, Xiaohao Sun,                     Large-scale embodied AI using procedural generation. In
+and Han-Hung Lee for helpful discussions.                                    Advances in Neural Information Processing Systems, pages
+                                                                             5982–5994, 2022. 2
+References                                                              [13] Matt Deitke, Dustin Schwenk, Jordi Salvador, Luca Weihs,
+                                                                             Oscar Michel, Eli VanderBilt, Ludwig Schmidt, Kiana
+ [1] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ah-                   Ehsani, Aniruddha Kembhavi, and Ali Farhadi. Objaverse:
+     mad, Ilge Akkaya, Florencia Leoni Aleman, Diogo Almeida,                A universe of annotated 3D objects. In Proceedings of the
+     Janko Altenschmidt, Sam Altman, Shyamal Anadkat, et al.                 IEEE Conference on Computer Vision and Pattern Recogni-
+     GPT-4 technical report. arXiv preprint arXiv:2303.08774,                tion (CVPR), pages 13142–13153, 2023. 6, 24
+     2023. 2, 3, 6, 16, 24                                              [14] Haoyi Duan, Hong-Xing Yu, Sirui Chen, Li Fei-Fei, and Ji-
+ [2] Rio Aguina-Kang, Maxim Gumin, Do Heon Han, Stew-                        ajun Wu. WorldScore: A unified evaluation benchmark for
+     art Morris, Seung Jean Yoo, Aditya Ganeshan, R Kenny                    world generation. arXiv preprint arXiv:2504.00983, 2025. 2
+     Jones, Qiuhong Anna Wei, Kailiang Fu, and Daniel Ritchie.          [15] Weixi Feng, Wanrong Zhu, Tsu-jui Fu, Varun Jampani, Ar-
+     Open-universe indoor scene generation using LLM program                 jun Akula, Xuehai He, Sugato Basu, Xin Eric Wang, and
+     synthesis and uncurated object databases. arXiv preprint                William Yang Wang. LayoutGPT: Compositional visual
+     arXiv:2403.09675, 2024. 2                                               planning and generation with large language models. In
+ [3] Peter Anderson, Basura Fernando, Mark Johnson, and                      Advances in Neural Information Processing Systems, pages
+     Stephen Gould. SPICE: Semantic propositional image cap-                 18225–18250, 2023. 2, 6, 8, 24
+     tion evaluation. In Proceedings of the European Conference         [16] Matthew Fisher, Daniel Ritchie, Manolis Savva, Thomas
+     on Computer Vision (ECCV), pages 382–398, 2016. 2                       Funkhouser, and Pat Hanrahan. Example-based synthesis
+ [4] Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin                 of 3D object arrangements. ACM Transactions on Graph-
+     Ge, Sibo Song, Kai Dang, Peng Wang, Shijie Wang, Jun                    ics (TOG), 31(6):1–11, 2012. 2
+     Tang, et al. Qwen2.5-VL Technical Report. arXiv preprint           [17] Huan Fu, Bowen Cai, Lin Gao, Ling-Xiao Zhang, Jiaming
+     arXiv:2502.13923, 2025. 16, 24                                          Wang, Cao Li, Qixun Zeng, Chengyue Sun, Rongfei Jia,
+ [5] Satanjeev Banerjee and Alon Lavie. METEOR: An auto-                     Binqiang Zhao, et al. 3D-FRONT: 3D furnished rooms
+     matic metric for MT evaluation with improved correlation                with layouts and semantics. In Proceedings of the IEEE In-
+     with human judgments. In Proceedings of the ACL Workshop                ternational Conference on Computer Vision (ICCV), pages
+     on Intrinsic and Extrinsic Evaluation Measures for Machine              10913–10922, 2021. 6, 24
+     Translation and/or Summarization, pages 65–72, 2005. 2             [18] Huan Fu, Rongfei Jia, Lin Gao, Mingming Gong, Binqiang
+ [6] Mikołaj Bińkowski, Dougal J. Sutherland, Michael Arbel,                Zhao, Steve Maybank, and Dacheng Tao. 3D-FUTURE: 3D
+     and Arthur Gretton. Demystifying MMD GANs. In Pro-                      furniture shape with texture. International Journal of Com-
+     ceedings of the International Conference on Learning Rep-               puter Vision (IJCV), 129:3313–3337, 2021. 6, 24
+     resentations (ICLR), 2018. 3                                       [19] Rao Fu, Zehao Wen, Zichen Liu, and Srinath Sridhar. Any-
+ [7] Richard W Bukowski and Carlo H. Séquin. Object associa-                Home: Open-vocabulary generation of structured and tex-
+     tions: A simple and practical approach to virtual 3D manipu-            tured 3D homes. In Proceedings of the European Conference
+     lation. In Proceedings of the 1995 Symposium on Interactive             on Computer Vision (ECCV), pages 52–70, 2024. 2, 3
+     3D Graphics, pages 131–ff., 1995. 2                                [20] Yunqi Gu, Ian Huang, Jihyeon Je, Guandao Yang, and
+ [8] Ata Çelen, Guo Han, Konrad Schindler, Luc Van Gool,                    Leonidas Guibas. BlenderGym: Benchmarking Founda-
+     Iro Armeni, Anton Obukhov, and Xi Wang. I-Design:                       tional Model Systems for Graphics Editing. arXiv preprint
+     Personalized LLM interior designer.           arXiv preprint            arXiv:2504.01786, 2025. 3
+     arXiv:2404.02838, 2024. 2, 3                                       [21] Zeqi Gu, Yin Cui, Zhaoshuo Li, Fangyin Wei, Yunhao
+ [9] Angel Chang, Will Monroe, Manolis Savva, Christopher                    Ge, Jinwei Gu, Ming-Yu Liu, Abe Davis, and Yifan Ding.
+     Potts, and Christopher D Manning. Text to 3D scene genera-              ArtiScene: Language-driven artistic 3D scene generation
+     tion with rich lexical grounding. In Proceedings of the 53rd            through image intermediary. In Proceedings of the Computer
+     Annual Meeting of the Association for Computational Lin-                Vision and Pattern Recognition Conference, pages 2891–
+     guistics and the 7th International Joint Conference on Nat-             2901, 2025. 2, 3
+     ural Language Processing (Volume 1: Long Papers), pages            [22] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras,
+     53–62, 2015. 2                                                          and Yejin Choi. CLIPScore: A reference-free evaluation
+[10] Sharon Rose Clay and Jane Wilhelms. Put: Language-based                 metric for image captioning. In Proceedings of the Confer-
+     interactive manipulation of objects. IEEE Computer Graph-               ence on Empirical Methods in Natural Language Processing
+     ics and Applications, 16(2):31–39, 1996. 2                              (EMNLP), 2021. 2
+
+
+                                                                    9
+[23] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner,                      In Proceedings of the International Conference on Learning
+     Bernhard Nessler, and Sepp Hochreiter. GANs trained by                   Representations (ICLR), 2024. 2, 3, 6, 8, 24
+     a two time-scale update rule converge to a local nash equi-         [35] Chin-Yew Lin. ROUGE: A package for automatic evaluation
+     librium. In Advances in Neural Information Processing Sys-               of summaries. In Text Summarization Branches Out, pages
+     tems, 2017. 1, 3                                                         74–81, 2004. 2
+[24] Siyi Hu, Diego Martin Arroyo, Stephanie Debats, Fabian              [36] Zhiqiu Lin, Deepak Pathak, Baiqi Li, Jiayao Li, Xide Xia,
+     Manhardt, Luca Carlone, and Federico Tombari. Mixed                      Graham Neubig, Pengchuan Zhang, and Deva Ramanan.
+     diffusion for 3D indoor scene synthesis. arXiv preprint                  Evaluating text-to-visual generation with image-to-text gen-
+     arXiv:2405.21066, 2024. 2                                                eration. In Proceedings of the European Conference on Com-
+[25] Ziniu Hu, Ahmet Iscen, Aashi Jain, Thomas Kipf, Yisong                   puter Vision (ECCV), pages 366–384, 2024. 2
+     Yue, David A Ross, Cordelia Schmid, and Alireza Fathi.              [37] Lu Ling, Chen-Hsuan Lin, Tsung-Yi Lin, Yifan Ding, Yu
+     SceneCraft: An LLM agent for synthesizing 3D scenes as                   Zeng, Yichen Sheng, Yunhao Ge, Ming-Yu Liu, Aniket Bera,
+     Blender code. In Proceedings of the International Con-                   and Zhaoshuo Li. Scenethesis: A language and vision
+     ference on Machine Learning (ICML), pages 19252–19282,                   agentic framework for 3D scene generation. arXiv preprint
+     2024. 2, 3                                                               arXiv:2505.02836, 2025. 2, 3
+[26] Rui Huang, Guangyao Zhai, Zuria Bauer, Marc Pollefeys,
+                                                                         [38] Rui Ma, Akshay Gadi Patil, Matthew Fisher, Manyi Li,
+     Federico Tombari, Leonidas Guibas, Gao Huang, and Fran-
+                                                                              Sören Pirk, Binh-Son Hua, Sai-Kit Yeung, Xin Tong,
+     cis Engelmann. Video perception models for 3D scene syn-
+                                                                              Leonidas Guibas, and Hao Zhang. Language-driven synthe-
+     thesis. arXiv preprint arXiv:2506.20601, 2025. 3
+                                                                              sis of 3D scenes from scene databases. ACM Transactions
+[27] Ziqi Huang, Yinan He, Jiashuo Yu, Fan Zhang, Chenyang                    on Graphics (TOG), 37(6):1–16, 2018. 2
+     Si, Yuming Jiang, Yuanhan Zhang, Tianxing Wu, Qingyang
+                                                                         [39] OpenAI. OpenAI o3 and o4-mini System Card. 2025. 4, 24
+     Jin, Nattapol Chanpaisit, et al. VBench: Comprehensive
+     benchmark suite for video generative models. In Proceed-            [40] Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing
+     ings of the IEEE Conference on Computer Vision and Pattern               Zhu. BLEU: A method for automatic evaluation of machine
+     Recognition (CVPR), pages 21807–21818, 2024. 2                           translation. In Proceedings of the 40th annual meeting of the
+                                                                              Association for Computational Linguistics, pages 311–318,
+[28] Ziqi Huang, Fan Zhang, Xiaojie Xu, Yinan He, Jiashuo Yu,
+                                                                              2002. 2
+     Ziyue Dong, Qianli Ma, Nattapol Chanpaisit, Chenyang Si,
+     Yuming Jiang, et al. VBench++: Comprehensive and ver-               [41] Despoina Paschalidou, Amlan Kar, Maria Shugrina, Karsten
+     satile benchmark suite for video generative models. arXiv                Kreis, Andreas Geiger, and Sanja Fidler. ATISS: Autoregres-
+     preprint arXiv:2411.13503, 2024. 2                                       sive transformers for indoor scene synthesis. In Advances
+[29] Mohammad Keshavarzi, Aakash Parikh, Xiyu Zhai, Melody                    in Neural Information Processing Systems, pages 12013–
+     Mao, Luisa Caldas, and Allen Y Yang. SceneGen: Genera-                   12026, 2021. 2, 6, 24
+     tive contextual scene augmentation using scene graph priors.        [42] Nicholas Pfaff, Hongkai Dai, Sergey Zakharov, Shun
+     arXiv preprint arXiv:2009.12395, 2020. 2                                 Iwase, and Russ Tedrake. Steerable scene generation with
+[30] Ranjay Krishna, Yuke Zhu, Oliver Groth, Justin Johnson,                  post training and inference-time search. arXiv preprint
+     Kenji Hata, Joshua Kravitz, Stephanie Chen, Yannis Kalan-                arXiv:2505.04831, 2025. 2
+     tidis, Li-Jia Li, David A Shamma, et al. Visual genome:             [43] Alexander Raistrick, Lingjie Mei, Karhan Kayan, David
+     Connecting language and vision using crowdsourced dense                  Yan, Yiming Zuo, Beining Han, Hongyu Wen, Meenal
+     image annotations. International Journal of Computer Vi-                 Parakh, Stamatis Alexandropoulos, Lahav Lipson, et al. In-
+     sion (IJCV), 123(1):32–73, 2017. 3                                       finigen Indoors: Photorealisltic indoor scenes using proce-
+[31] Tuomas Kynkäänniemi, Tero Karras, Miika Aittala, Timo                  dural generation. In Proceedings of the IEEE Conference
+     Aila, and Jaakko Lehtinen. The role of ImageNet classes                  on Computer Vision and Pattern Recognition (CVPR), pages
+     in Fréchet inception distance. In Proceedings of the Inter-             21783–21794, 2024. 2
+     national Conference on Learning Representations (ICLR),             [44] Daniel Ritchie, Kai Wang, and Yu-an Lin. Fast and flexi-
+     2023. 3                                                                  ble indoor scene synthesis via deep convolutional generative
+[32] Junnan Li, Dongxu Li, Silvio Savarese, and Steven Hoi.                   models. In Proceedings of the IEEE Conference on Com-
+     BLIP-2: Bootstrapping language-image pre-training with                   puter Vision and Pattern Recognition (CVPR), pages 6175–
+     frozen image encoders and large language models. In In-                  6183, 2019. 2
+     ternational conference on machine learning, pages 19730–            [45] Manolis Savva, Angel X Chang, Pat Hanrahan, Matthew
+     19742. PMLR, 2023. 2                                                     Fisher, and Matthias Nießner. Pigraphs: Learning interaction
+[33] Manyi Li, Akshay Gadi Patil, Kai Xu, Siddhartha Chaudhuri,               snapshots from observations. ACM Transactions on Graph-
+     Owais Khan, Ariel Shamir, Changhe Tu, Baoquan Chen,                      ics (TOG), 35(4):1–12, 2016. 2
+     Daniel Cohen-Or, and Hao Zhang. GRAINS: Generative re-              [46] Sebastian Schuster, Ranjay Krishna, Angel Chang, Li Fei-
+     cursive autoencoders for indoor scenes. ACM Transactions                 Fei, and Christopher D Manning. Generating semantically
+     on Graphics (TOG), 38(2):1–16, 2019. 2                                   precise scene graphs from textual descriptions for improved
+[34] Chenguo Lin and Yadong MU. InstructScene: Instruction-                   image retrieval. In Proceedings of the fourth workshop on
+     driven 3D indoor scene synthesis with semantic graph prior.              vision and language, pages 70–80, 2015. 3
+
+
+                                                                    10
+[47] Mikio Shinya and Marie-Claire Forgue. Laying out objects               [59] Yue Yang, Fan-Yun Sun, Luca Weihs, Eli VanderBilt, Alvaro
+     with geometric and physical constraints. The Visual Com-                    Herrasti, Winson Han, Jiajun Wu, Nick Haber, Ranjay Kr-
+     puter, 11:188–201, 1995. 2                                                  ishna, Lingjie Liu, et al. Holodeck: Language guided genera-
+[48] Fan-Yun Sun, Weiyu Liu, Siyi Gu, Dylan Lim, Goutam Bhat,                    tion of 3D embodied AI environments. In Proceedings of the
+     Federico Tombari, Manling Li, Nick Haber, and Jiajun Wu.                    IEEE Conference on Computer Vision and Pattern Recogni-
+     LayoutVLM: Differentiable optimization of 3D layout via                     tion (CVPR), pages 16277–16287, 2024. 2, 3, 6, 24
+     vision-language models. In Proceedings of the IEEE Confer-             [60] Zhaoda Ye, Xinhan Zheng, Yang Liu, and Yuxin Peng.
+     ence on Computer Vision and Pattern Recognition (CVPR),                     RelScene: A benchmark and baseline for spatial relations
+     pages 29469–29478, 2025. 2, 6, 24                                           in text-driven 3D scene generation. In Proceedings of the
+[49] Qi Sun, Hang Zhou, Wengang Zhou, Li Li, and Houqiang                        32nd ACM International Conference on Multimedia, pages
+     Li. Forest2Seq: Revitalizing order prior for sequential indoor              10563–10571, 2024. 3
+     scene synthesis. In Proceedings of the European Conference             [61] Yi-Ting Yeh, Lingfeng Yang, Matthew Watson, Noah D
+     on Computer Vision (ECCV), pages 251–268, 2024. 2                           Goodman, and Pat Hanrahan. Synthesizing open worlds with
+[50] Xiaohao Sun, Divyam Goel, and Angel X Chang. Semlay-                        constraints using locally annealed reversible jump MCMC.
+     outdiff: Semantic layout generation with diffusion model for                ACM Transactions on Graphics (TOG), 31(4):1–11, 2012. 2
+     indoor scene synthesis. arXiv preprint arXiv:2508.18597,               [62] Lap Fai Yu, Sai Kit Yeung, Chi Keung Tang, Demetri Ter-
+     2025.                                                                       zopoulos, Tony F Chan, and Stanley J Osher. Make it
+[51] Jiapeng Tang, Yinyu Nie, Lev Markhasin, Angela Dai, Justus                  Home: Automatic optimization of furniture arrangement.
+     Thies, and Matthias Nießner. DiffuScene: Denoising diffu-                   ACM Transactions on Graphics (TOG), 30(4), 2011. 2
+     sion models for generative indoor scene synthesis. In Pro-             [63] Guangyao Zhai, Evin Pınar Örnek, Shun-Cheng Wu,
+     ceedings of the IEEE Conference on Computer Vision and                      Yan Di, Federico Tombari, Nassir Navab, and Benjamin
+     Pattern Recognition (CVPR), pages 20507–20518, 2024. 2,                     Busam. CommonScenes: Generating commonsense 3D in-
+     6, 24                                                                       door scenes with scene graphs. In Advances in Neural Infor-
+[52] Ramakrishna Vedantam, C Lawrence Zitnick, and Devi                          mation Processing Systems, pages 30026–30038, 2023. 2,
+     Parikh. CIDEr: Consensus-based image description evalu-                     3
+     ation. In Proceedings of the IEEE Conference on Computer               [64] Guangyao Zhai, Evin Pınar Örnek, Dave Zhenyu Chen, Ruo-
+     Vision and Pattern Recognition (CVPR), pages 4566–4575,                     tong Liao, Yan Di, Nassir Navab, Federico Tombari, and
+     2015. 2                                                                     Benjamin Busam. EchoScene: Indoor scene generation via
+[53] Can Wang, Hongliang Zhong, Menglei Chai, Mingming He,                       information echo over scene graph diffusion. In Proceedings
+     Dongdong Chen, and Jing Liao. Chat2Layout: Interactive                      of the European Conference on Computer Vision (ECCV),
+     3D furniture layout with a multimodal LLM. arXiv preprint                   pages 167–184, 2024. 2, 3
+     arXiv:2407.21333, 2024. 3                                              [65] Beichen Zhang, Pan Zhang, Xiaoyi Dong, Yuhang Zang, and
+[54] Kai Wang, Manolis Savva, Angel X Chang, and Daniel                          Jiaqi Wang. Long-CLIP: Unlocking the long-text capability
+     Ritchie. Deep convolutional priors for indoor scene syn-                    of CLIP. In Proceedings of the European Conference on
+     thesis. ACM Transactions on Graphics (TOG), 37(4):1–14,                     Computer Vision (ECCV), page 310–325, 2024. 6, 24
+     2018. 2                                                                [66] Tianyi Zhang, Varsha Kishore, Felix Wu, Kilian Q Wein-
+[55] Kai Wang, Yu-An Lin, Ben Weissmann, Manolis Savva, An-                      berger, and Yoav Artzi. BERTScore: Evaluating text gener-
+     gel X Chang, and Daniel Ritchie. PlanIT: Planning and in-                   ation with BERT. In Proceedings of the International Con-
+     stantiating indoor scenes with relation graph and spatial prior             ference on Learning Representations (ICLR), 2020. 2
+     networks. ACM Transactions on Graphics (TOG), 38(4):1–
+                                                                            [67] Yuhan Zhang, Mengchen Zhang, Tong Wu, Tengfei Wang,
+     15, 2019. 2
+                                                                                 Gordon Wetzstein, Dahua Lin, and Ziwei Liu. 3DGen-
+[56] Yian Wang, Xiaowen Qiu, Jiageng Liu, Zhehuan Chen, Jit-                     Bench: Comprehensive Benchmark Suite for 3D Generative
+     ing Cai, Yufei Wang, Tsun-Hsuan Wang, Zhou Xian, and                        Models. arXiv preprint arXiv:2503.21745, 2025. 3
+     Chuang Gan. Architect: Generating vivid and interactive 3D
+     scenes with hierarchical 2D inpainting. In Advances in Neu-
+     ral Information Processing Systems, pages 67575–67603,
+     2024. 2, 3
+[57] Tong Wu, Guandao Yang, Zhibing Li, Kai Zhang, Ziwei Liu,
+     Leonidas Guibas, Dahua Lin, and Gordon Wetzstein. GPT-
+     4V(ision) is a human-aligned evaluator for text-to-3D gen-
+     eration. In Proceedings of the IEEE Conference on Com-
+     puter Vision and Pattern Recognition (CVPR), pages 22227–
+     22238, 2024. 2, 3
+[58] Yandan Yang, Baoxiong Jia, Peiyuan Zhi, and Siyuan
+     Huang. PhyScene: Physically interactable 3D scene synthe-
+     sis for embodied AI. In Proceedings of the IEEE Conference
+     on Computer Vision and Pattern Recognition (CVPR), pages
+     16262–16272, 2024. 2, 5
+
+
+                                                                       11
+             SceneEval: Evaluating Semantic Coherence in Text-Conditioned
+                              3D Indoor Scene Synthesis
+                                               Supplementary Material
+                                                                                                                                      mouse                       jug
+                                                                                                                                                reading_chair               teapot
+
+Appendices                                                                                                         display_shelf     candle
+                                                                                                                                                  ﬂoor_lamp sideboard                      electronic_peripheral
+
+                                                                                                          writing_desk         dining_chair                                        light
+                                                                                                picture
+                                                                                                                                                     dining_table board_game
+                                                                                                                                                                         ofﬁce_chair
+
+
+In this appendix, we provide details about our SceneEval-                                       blanket
+                                                                                                              sconce
+                                                                                                                           lamp couch book                                                                         wall_light
+
+
+                                                                                                                                                                  coffee_table
+                                                                                                     bed chair sofa
+                                                                                        ﬂoor_cushion        bathtub
+                                                                                                                                                                                                                            picture_frame
+500 dataset in App. A, the implementation details of our                            mirror                   box
+                                                                                                                                                                        doll                        wall_cabinet
+                                                                                                                                                                                      shelf
+                                                                              display_cabinet                           sink   dresser
+                                                                                                                              side_table bar_stool  fridge                                               clock          utility_cart
+
+metrics in App. B, experimental results of running SceneE-                         potted_plant wine_cabinet basket pendant_light
+                                                                                                                                                                           bookshelf bottle
+                                                                                                                                                                                                                           wall_lamp
+
+val with an open-source VLM in App. C, and limitations of                 chandelier desk_lamp plate tv_stand rug    cabinet cup
+                                                                                                                                                                  nightstand
+                                                                                                                                                                                                                        serving_cart
+
+
+
+                                                                                                            table desk
+                                                                                                                                                                                                         napkin
+                                                                       wall_shelf
+                                                                                      painting                                                       ofﬁce_desk
+our work in App. D. We also provide the details of our user                          bean_bag                         bar_table plant                                 bowl
+
+                                                                                  paper        area_rug armchair             sofa_chair
+                                                                                                                                                              towel
+                                                                                                                                                                     wardrobe
+study in App. E, the vision language model (VLM) prompts                                toilet pillow vanity    monitor                         tray ottoman      laptop
+
+
+                                                                           gaming_desk toy_box                stool
+                                                                                                                      vase
+                                                                                                                               bar_cart
+                                                                                                                             bookcase               screen wallet   tv
+we used in App. F, and information about scientific artifacts                                   rolling_chair
+                                                                                                                   bedside_table   table_lamp treadmill  soap
+                                                                                                 poster
+involved and AI assistant usage in this work in Apps. G                                                                  plush_toy            keyboard
+                                                                                                                                                         glass     ceiling_light
+
+
+
+and H.                                                                 Figure 5. Word cloud showing the most frequent object categories
+                                                                       in SceneEval-500.
+A. Dataset Details
+                                                                       ment in an object-architecture relationship annotation entry.
+We provide additional details about our SceneEval-500                  It can be one of the following: wall, floor, ceiling,
+dataset below, including the annotation schema (App. A.1)              window, door, or room. It can also be a more specific
+and the data collection process (App. A.2).                            room type (e.g., bedroom, kitchen) for scenes with multiple
+                                                                       rooms.
+A.1. Annotation Schema                                                 Relationship specifies the relationship between objects in
+SceneEval-500 contains four annotation fields: object                  an object-object relationship annotation entry and the rela-
+count, object attribute, object-object relationships, and              tionship between an object and an architectural element in
+object-architecture relationships. Tab. 2 shows the anno-              an object-architecture relationship annotation entry. It is an
+tation schema for each field along with examples. We de-               open-vocabulary string that specifies exactly one relation-
+scribe the schema below.                                               ship using a preposition (e.g., in front of, against), a verb
+Quantifier and quantity are used to specify the count of               (e.g., face, hang), or a prepositional phrase (e.g., at the foot
+an annotation entry. For example, they are used to specify             of, at the corner of).
+the number of objects in the scene for the object count field
+and the number of objects that have a specific attribute for
+                                                                       A.2. Manual Data Collection Process
+the object attribute field. The quantifier can be one of the           Tab. 7 shows examples of scene descriptions and annota-
+following: eq (equal), gt (greater than), lt (less than),              tions in SceneEval-500. Below, we provide further details
+ge (greater than or equal), or le (less than or equal). The            about manual curation of the initial 100 scene descriptions
+quantity is an non-negative integer.                                   and annotations.
+Object category specifies the object category of interest in               The first 100 scene descriptions and annotations in
+an annotation entry. It is an open-vocabulary string that              SceneEval-500 are written by the authors in English. The
+specifies exactly one object category using a noun (e.g.,              annotators are primarily from Asia, aged between 20 and
+bed) or a noun phrase (e.g., office chair). In object-object           30, have lived in Western countries, and speak English as
+relationships, multiple object categories are used to specify          their second language. They have backgrounds in computer
+what objects are involved in a relationship, with the first ob-        science, are familiar with the task of scene generation, and
+ject category being the anchor object that the relationship is         have been informed of the purpose of the dataset.
+based on. Fig. 5 shows the most frequent object categories                 During the data collection process, the annotators were
+in SceneEval-500.                                                      first given the definition of the difficulty levels, the annota-
+Attribute specifies the attribute of an object in an object            tion schema, and the target number of scenes to guide the
+attribute annotation entry. It is an open-vocabulary string            annotation process. They were then asked to write scene
+that specifies exactly one attribute using an adjective. For           descriptions that are diverse and cover a wide range of ob-
+example, it can be color (e.g., red), material (e.g., wooden),         ject categories and relationships, drawing inspiration from
+shape (e.g., round), size (e.g., large), style (e.g., modern),         their daily lives or from online sources. At the same time,
+or more specific attributes (e.g., queen-size).                        they were asked to annotate the scenes they wrote according
+Architecture type specifies the type of architectural ele-             to the annotation schema. Both the scene descriptions and
+
+
+                                                                  12
+                                            Fidelity                                                             Plausbility
+                Difficulty   ↑ CNT%    ↑ ATR%    ↑ OOR%        ↑ OAR%           ↓ COLob%         ↓ COLsc%     ↑ SUP%     ↑ NAV%            ↑ ACC%    ↓ OOB%
+                Easy           18.72     13.00          2.49            8.40           53.12         79.33       90.38             99.92     84.56        11.38
+ATISS           Medium         12.93      8.32          1.46            7.81           50.53         73.50       91.50             99.80     85.81        10.14
+                Hard            8.09      5.13          0.65            8.00           47.27         73.33       90.65             99.76     86.22        11.30
+                                                                    †                                                          †                      †
+                Easy           20.64     15.20          4.48          8.00             33.52         64.67       74.48           99.51       81.32      26.56
+                                                                    †                                                          †                      †
+DiffuScene      Medium         14.26     11.03          4.26          9.31             31.42         62.50       75.10           99.41       82.72      25.29
+                                                                    †                                                          †                      †
+                Hard            8.25      6.45          2.42          7.62             30.50         61.33       76.80           99.41       81.32      25.63
+                Easy           24.47     15.75          3.98            4.40           12.50         30.00       31.85          99.98        48.34        71.75
+LayoutGPT       Medium         14.18      9.37          1.46            5.11           11.07         25.50       29.45         100.00        48.18        72.38
+                Hard            7.04      4.90          0.65            4.95           10.88         26.67       29.19         100.00        44.86        72.60
+                                                                †                                                              †                      †
+                Easy           23.19     16.48          9.45        10.40              56.11         89.33       77.58           98.41       77.14      24.31
+                                                                †                                                              †                      †
+InstructScene   Medium         17.51     13.74          4.38        12.01              52.64         84.00       80.55           98.86       78.02      19.03
+                                                                    †                                                          †                      †
+                Hard            9.57      8.76          2.35          8.95             56.92         84.67       84.69           99.74       77.11      14.50
+                Easy           39.36     20.88          9.45        24.40              33.17         66.00       79.23             99.37     82.49         4.52
+LayoutVLM       Medium         41.70     25.29          7.18        23.65              33.33         57.00       73.31             99.60     86.15         4.96
+                Hard           30.58     17.17          4.90        14.29              29.45         50.67       78.62             99.99     87.88         5.23
+                Easy           44.47     39.19         22.89        38.00              16.20         70.67       60.83             99.61     89.75         1.57
+Holodeck        Medium         36.61     32.99         14.81        39.64              16.26         70.00       64.40             99.57     90.06         1.31
+                Hard           26.95     22.64          8.10        35.43              15.23         76.67       63.96             99.64     89.07         1.49
+
+Table 6. Breakdown of evaluation results by difficulty using SceneEval with the SceneEval-500 dataset on six recent scene generation
+methods. We report the values for each metric averaged across all scenes in each difficulty level. † indicates numbers related to the floor
+plan shape but the method cannot be conditioned on it. As the difficulty increases, the performance of the methods at generating scenes with
+the correct number of objects decreases. Compared to the other methods, Holodeck has the best overall performance across all difficulty
+levels.
+
+
+annotations were validated by the authors to ensure quality                         Difficulty    Scene Description
+and consistency. In addition, the scene descriptions were                                         A simple bedroom featuring a twin bed against the wall,
+passed through an VLM to check for grammatical errors                               Easy          with a wardrobe positioned in the corner of the room,
+and typos. No personal identifiable information was col-                                          and a desk next to the window.
+lected during the whole data collection process.                                                  This entertaining basement layout features a large gaming
+                                                                                                  setup with two monitors on a desk against one wall, while
+                                                                                                  a comfy bean bag chair is positioned nearby for casual
+                                                                                    Medium
+                                                                                                  seating. Across from the gaming area, a small cabinet
+B. Metric Implementation Details                                                                  with a mini fridge and a popcorn machine on top
+                                                                                                  completes the setup.
+We provide details about about the object renderings used                                         This cozy bedroom features a full-size bed against a wall
+in SceneEval in App. B.1, additional implementation details                                       with two nightstands on each side where the left one has a
+for our metrics in App. B.2, and details about the predefined                                     small clock. A small desk sits in the corner with a
+spatial relationships used in our object-object relationship                                      comfortable chair for studying or working. Opposite the
+                                                                                                  bed, a spacious dresser provides additional storage.
+and object-architecture relationship metrics in App. B.3.
+                                                                                                  Adjacent to the bedroom, the living room has a recliner
+                                                                                    Hard          and an ottoman facing a low coffee table with a small
+                                                                                                  vase and magazines. A large bookshelf in the corner holds
+B.1. Object Renderings                                                                            books and board games, while an wide couch provides
+                                                                                                  space for gatherings. Just off the living room, a small
+In SceneEval, we use three types of object renderings across                                      gaming room with a gaming console and two beanbag
+our metrics: 1) Front View: The object is positioned in                                           chairs offers a dedicated space for entertainment,
+the center of the image, zoomed in, and rendered from the                                         complete with a small shelf for controllers and headsets.
+front with no other objects visible. 2) Size Reference: The                         Table 7. Example scene descriptions for the three difficulty lev-
+object is rendered with a 170 cm tall human figure on the                           els in SceneEval-500. The easy description specifies three large
+left side for size reference. 3) Surrounding Context: The                           furniture objects. The medium one specifies three large and four
+object is positioned in the center of the image and zoomed                          small objects. The hard description specifies 14 large and 13 small
+out to show the surrounding context. These renderings help                          objects.
+an LLM to understand the object’s appearance, size, and
+context, respectively, for various evaluation tasks. Fig. 7
+shows example renderings of these three rendering types.
+
+
+                                                                               13
+Figure 6. Interface for semi-automatic data generation. Top left: Conversation history with the VLM. Bottom left: Controls for sending
+in-context examples and generating scene descriptions and annotations. Top right: Editable textbox containing the generated scene
+description. Bottom right: Editable tables containing the corresponding generated annotations. Each generated scene-description and
+annotation pair is manually validated before saving.
+
+                                                                        relationships. All mapped relationships must be satisfied for
+                                                                        an object combination to satisfy the original specification.
+
+
+
+                                                                        B.2.2. Object Support
+
+  Front View        Size Reference        Surrounding Context           To evaluate whether an object is stably supported, we
+                                                                        first give two rendered images (front view and surround-
+Figure 7. Example renderings of the three object rendering types        ing context) to an LLM and ask it to determine the sup-
+used in SceneEval: Front View, Size Reference, and Surrounding          port type of the object (one of: ground, object, wall,
+Context.                                                                or ceiling). Based on the type, we determine the ob-
+                                                                        ject’s support direction in its local frame (e.g., downward
+B.2. Implementation Details
+                                                                        for ground and backward for wall) and cast rays towards
+We provide additional details for object-object relationship            that direction, from the object mesh vertices that are clos-
+and object support metrics below.                                       est in that direction, and check for ray contacts with other
+                                                                        geometries in the scene within 1 cm. Wall and ceiling
+B.2.1. Object-Object Relationship                                       objects are considered supported if there are any valid con-
+For each object-object relationship in the annotations, we              tact points. (e.g., a ceiling lamp hanging from one point on
+first map the annotated relationship into one or more of the            the ceiling). For ground and object types, we construct
+13 predefined spatial relationships (see App. B.3) using an             a convex hull from the contact points and project the object
+LLM. After mapping, we locate all objects in the scene that             centroid in the gravity direction. The object is considered
+match the categories specified in the relationship. We con-             supported if the projection is within the hull. We repeat this
+sider all possible object combinations and compute a rela-              process for all object instances and report the percentage of
+tionship score for each of them using the predefined spatial            objects that are supported.
+
+
+                                                                   14
+B.3. Predefined Spatial Relationships                                   extension is applied to object B’s bounding box.
+                                                                        Middle of determines whether an object A is in the middle
+B.3.1. Object-Object Relationships
+                                                                        of another object B (e.g., a pillow is in the middle of a bed).
+Our object-object relationship metric uses a set of 13 prede-           We compute the distance between the centroids of object A
+fined spatial relationships between objects. We describe the            and object B in 2D (ignoring the vertical axis) and apply
+implementation details of these relationships below. Unless             a Gaussian with mean 0.0 and standard deviation 0.25 to
+otherwise specified, we use a threshold of 0.5 to determine             compute the score.
+if a relationship is positive or negative.                              Surround determines whether a group of objects N sur-
+Inside and Outside determine whether an object A is inside              rounds a central object B (e.g., two chairs and two arm-
+or outside another object B (e.g., a cup is inside a cabinet).          chairs surround a table). First, we calculate the ideal angle
+We sample points within object A’s bounding box and com-                A for uniformly distributing the objects in N around object
+pute a score based on the percentage of points that are inside                       2π
+                                                                        B as A = |N    | and the mean distance D between the cen-
+object B’s bounding box.                                                troids of objects in N and object B. Next, we compute the
+Face determines whether an object A is facing another ob-               distance deviation di and angle deviation ai from the ideal
+ject B (e.g., a sofa is facing a TV). We sample points within           distance and angle for each object i in N . Each deviation
+object A’s bounding box and shoot rays from these points in             is normalized by D and A, respectively, and clipped to be
+the direction of object A’s front vector. If there are no inter-        within [0, 1]. Finally, the score s is computed as:
+sections with object B, the relationship is negative. Other-
+wise, we take the mean coordinates of all intersection points
+and compute a score based on the angle between the front                              s = \frac {1}{2|N|} \sum _{i=1}^{|N|} (1 - d_i)^2 + (1 - a_i)^2    (1)
+vector of object A and the vector from object A’s centroid to
+the mean intersection point (ignoring the vertical axis). The
+                                                                        Next to, Near, Across, and Far determine whether an
+score is 1.0 if the angle is 0.0, and drops to 0.0 as the angle
+                                                                        object A is within a certain distance from another object
+approaches 30.0 degrees.
+                                                                        B (e.g., a TV is near a plant). next to is defined as
+Side of determines whether an object A is on one of the                 0 ≤ d ≤ 0.5, near is defined as 0.5 ≤ d ≤ 1.5, across
+six sides (top, bottom, left, right, front, back) of another            is defined as 1.5 ≤ d ≤ 4.0, and far is defined as d ≥ 4.0,
+object B (e.g., a nightstand is on the left side of a bed). We          where d is the distance in meters between the closest points
+sample points within object A’s bounding box and compute                of the two objects. The score is 1 if d falls within the spec-
+a score based on the percentage of points that are on the               ified range, and drops as d deviates from the range using a
+specific side of object B’s bounding box (in object B’s local           Gaussian with mean 0.0 and standard deviation 0.25.
+coordinate frame), excluding points that are inside object
+B’s bounding box. Object B’s bounding box is extended by                B.3.2. Object-Architecture Relationships
+25% in each dimension to account for slight misalignment.               Our object-architecture relationship metric uses a set of 10
+Side region determines whether an object A is in one of                 predefined spatial relationships between objects and archi-
+the six side regions of another object B (e.g., a book is on            tecture. We describe the implementation details of these re-
+the left side of a bookshelf). The difference between this              lationships below. Same as the object-object relationships,
+relationship and side of is that object A can be inside                 we use a threshold of 0.5 to determine if a relationship is
+object B’s bounding box. The implementation is the same                 positive or negative.
+as side of, except that points inside object B’s bounding               Next to, Near, Across, and Far are defined the same as in
+box are not excluded and no extension is applied to object              the object-object relationships.
+B’s bounding box.                                                       Inside room determines whether an object A is inside a
+Long short side determines whether an object A is on the                room (e.g., a chair is inside a living room). We sample
+long or short side of another object B (e.g., a chair is on the         points within object A’s bounding box and cast rays towards
+long side of a table). The long and short sides are deter-              the room’s floor plane. The score is computed based on
+mined based on object B’s bounding box dimensions. We                   the percentage of points that intersect with the room’s floor
+sample points within object A’s bounding box and compute                plane.
+a score based on the percentage of points that are on the               Middle room determines whether an object A is in the
+long or short sides of object B.                                        middle of a room (e.g., a rug is in the middle of a room).
+On top determines whether an object A is on top of another              We compute the distance between the centroid of object A
+object B (e.g., a book is on top of a table). This relationship         and the room’s centroid in 2D (ignoring the vertical axis)
+is specific for objects that are precisely placed on top of an-         and apply a Gaussian with mean 0.0 and standard deviation
+                                                                        o          o
+other object. The implementation is the same as side of,                2 + (1 − r ), where o is the longer side of the object’s 2D
+with the top side of object B as the reference side, and no             dimensions, and r is the mean 2D room dimensions to com-
+
+
+                                                                   15
+pute the score, taking into account the object’s size and the          Qwen2.5-VL-7B-Instruct are lower than those achieved
+room’s size.                                                           with GPT-4o (a significantly larger and more capable
+Corner room determines whether an object A is in a corner              model) — particularly for the attribute metric, which solely
+of a room (e.g., a plant is in a corner of a room). For every          relies on the VLM for evaluation — they still follow the
+pair of walls in the room, we compute the distance scores              same general trends and remain within a reasonable range.
+between object A and the two walls similar to the next to              This highlights the benefit of using stronger VLMs for
+relationship but with a range of 0 ≤ d ≤ 0.8 in meters                 specific perception components (such as attribute recogni-
+and a Gaussian with mean 0.0 and standard deviation 0.25.              tion), while also demonstrating that SceneEval’s evaluation
+We also compute the dot product between the front vectors              pipeline is modular and not overly dependent on any single
+of the two walls to determine if they are perpendicular. If            model.
+they are perpendicular, the score for this pair of walls is the
+product of the two distance scores. The final score is the             D. Limitations
+maximum score among all pairs of walls.
+                                                                       While our dataset and metrics provide a better coverage of
+On wall determines whether an object A is on a wall (e.g., a
+                                                                       important aspects of scene generation compared to existing
+painting is on a wall). We first compute a score sf based on
+                                                                       metrics, they are not perfect. We provide a discussion of
+the percentage of points sampled within object A’s bound-
+                                                                       the limitations of SceneEval, SceneEval-500, and our semi-
+ing box that lie in front of the wall. Next, we compute a
+                                                                       automatic data generation process below.
+score sd based on the closest distance between object A
+and the wall similar to the next to relationship but with a            D.1. Limitations in SceneEval
+range of 0 ≤ d ≤ 0.01 in meters and a Gaussian function
+                                                                       First, our metrics currently do not consider whether objects
+of mean 0.0 and standard deviation 0.01. The final score is
+                                                                       in the generated scenes are placed according to “common
+the product of sf and sd .
+                                                                       sense” expectations, even if they are not explicitly specified
+Against wall determines whether an object A is against a
+                                                                       in the input text descriptions. For example, large furniture
+wall (e.g., a sofa is against a wall). The implementation is
+                                                                       items, like bookshelves, are typically placed against walls,
+the same as on wall, except that the range for d is 0 ≤
+                                                                       except when they are used to divide spaces. Such common
+d ≤ 0.3 and the Gaussian function has a standard deviation
+                                                                       sense expectations are crucial for realism of the generated
+of 0.1.
+                                                                       scenes and is an important aspect for evaluating scene gen-
+Hang ceiling determines whether an object A is hanging
+                                                                       eration models. Unfortunately, such expectations are less
+from the ceiling (e.g., a light is hanging from the ceiling).
+                                                                       well-defined. As a result, incorporating them into the eval-
+The implementation is similar to next to, except that the
+                                                                       uation metrics is challenging and requires further research.
+reference element is the ceiling, the range for d is 0 ≤ d ≤
+                                                                          Second, SceneEval’s execution time currently scales
+0.01, and the Gaussian function has a standard deviation of
+                                                                       with the number of objects in the scene. As scenes get more
+0.03.
+                                                                       complex, the time required to perform object matching and
+                                                                       compute the metrics also increases, as there are more ob-
+C. SceneEval with Open-Source VLM
+                                                                       jects to process. Exploring parallelization and other opti-
+To assess the generality of our framework, we re-ran Sce-              mization techniques to reduce the execution time is an im-
+neEval on 500 scenes generated from the 100 manually                   portant direction for future work.
+written descriptions using Qwen2.5-VL-7B-Instruct [4], a
+publicly available open-source VLM that we were able to                D.2. Limitations in SceneEval-500
+run locally with available resources.                                  While our dataset includes a broader range of room types
+    The overall evaluation trends remain consistent with               than prior work, its scale remains limited compared to
+those obtained using our original model (GPT-4o [1]).                  datasets in other domains (e.g., image), which often contain
+Agreement with our manual evaluation across the four                   thousands to millions of entries. Expanding the dataset fur-
+fidelity metrics is 80.65% (Object Count), 76.64% (At-                 ther, especially through scalable automatic methods, would
+tribute), 91.11% (Object-Object Relationship), and 87.72%              allow for more comprehensive evaluations and a deeper
+(Object-Architecture Relationship), with Cohen’s kappas of             analysis of model capabilities.
+0.50, 0.26, 0.43, and 0.47, respectively. For the user study,              Additionally, the authors who created the initial 100 de-
+we report agreement using only the subset of user-rated                scriptions and annotations, and who validated and corrected
+scenes that overlap with the 100 manual descriptions. On               the semi-automatically generated ones, are primarily from
+this subset, agreement is 77.55%, 75.00%, 78.67%, and                  Asia and have lived in Western countries. None are trained
+83.48%, with Cohen’s kappas of 0.48, 0.12, 0.32, and 0.48,             interior designers or architects. As a result, the dataset may
+respectively.                                                          reflect cultural assumptions and expectations that are not
+    These results show that while agreement scores using               universally representative.
+
+
+                                                                  16
+D.3. Semi-Automatic Data Generation Limitations                        to a dedicated cloud storage location.
+Despite the advantages of semi-automatic data generation
+over manually writing descriptions and annotations, it is not
+                                                                       F. VLM Prompts
+without its challenges. During data generation, we encoun-             SceneEval uses an VLM to assist in parts of the evaluation
+tered four main failure modes that limit scalability and pre-          framework. We provide the system prompt in App. F.1 and
+vent fully automatic generation:                                       the evaluation task prompts in App. F.2. Additionally, we
+Missing annotations. The most common issue is the omis-                provide the prompts for semi-automatic data generation in
+sion of object attributes and object-object relationships.             App. F.3.
+Specifically, 101 missing attributes (e.g., “wooden”) were
+identified and manually added during the generation of 210             F.1. System Prompt
+medium and hard scene descriptions. Additionally, we man-              The system prompt provides the VLM with the overall con-
+ually added 154 missing object-object relationships. Many              text about the tasks and the role it plays in the evaluation
+cases involved the omission of one among multiple con-                 framework.
+straints for an object; for instance, given the description “On
+                                                                       system: >
+the desk, a pen is right of a laptop,” the annotation “pen on            You are an expert in interior design.
+desk” was missing. Such omissions are especially common                  You have seen thousands of interior designs and have a
+                                                                         ,→  good understanding of the spatial arrangement of
+in hard scenes, whose descriptions are longer and contain                ,→  objects in a room.
+more attributes and relations.                                           Now, you are working as an evaluator for a design
+                                                                         ,→  company.
+Hallucination. During consecutive generation with a                      Use your expertise in interior design to evaluate the
+lengthy conversation history, the VLM often erroneously in-              ,→  spatial arrangement of objects in the given scene
+                                                                         ,→  according to the task instructions.
+cludes annotations from previously generated descriptions.               When you are required to include object descriptions
+This issue becomes more frequent after generating more                   ,→  in your response, respond exactly as they are
+                                                                         ,→  provided in the task instructions word for word.
+than five descriptions and their annotations. It also affects            When you are required to give a specific side for a
+the anchor index field, where the VLM may output incor-                  ,→  response to a relationship, use only the sides
+                                                                         ,→  provided in the task instructions.
+rect values (e.g., specifying an index of 14 when only two
+objects are involved in the relationship).                             F.2. Evaluation Task Prompts
+Inconsistency in object attributes. The VLM occasionally
+merges multiple attributes into a single non-atomic entry.             There are six tasks in SceneEval that use an VLM for assis-
+For example, it may produce “round wooden” as one at-                  tance. We provide the prompts for each task below.
+tribute instead of “round” and “wooden”. This violates our             F.2.1. Object Matching
+expectation that each attribute is independent, and requires
+                                                                       This task asks the VLM to match objects in the scene to the
+manual splitting during validation.
+                                                                       object categories specified in the ground truth annotation.
+Decreasing diversity. In addition to increased hallucina-              Given a front-view image of an object and the object cate-
+tion, we observed that with longer generation history, the             gories, the VLM is asked to determine if the object belongs
+VLM tends to produce scene descriptions with reduced di-               to any of the specified categories and provide a justification.
+versity in object selection or spatial arrangement, requiring
+manual intervention such as resetting the conversation his-            obj_matching: >
+                                                                         The user specified the scene to contain objects of
+tory or prompting with specific scene ideas.                             ,→  certain categories.
+    These limitations currently prevent fully automatic                  To facilitate further evaluation, you need to match
+                                                                         ,→  the objects in the scene to the object categories
+dataset generation. Improving the generation process re-                 ,→  specified by the user.
+mains an important direction for future work toward build-               You are provided an image of one of the objects in the
+                                                                         ,→  scene.
+ing larger and more diverse datasets with reduced manual                 Does the object in the image belong to any of the
+effort.                                                                  ,→  object categories specified by the user?
+                                                                         Respond in the given response schema. Here are two
+                                                                         ,→  example responses:
+                                                                         ```
+E. User Study Details                                                    provided_categories: ["chair", "table", "lamp"]
+                                                                         matched: True
+Fig. 8 shows the interface used in our user study. Partici-              matched_category: "chair"
+                                                                         reason: "The object in the image is a chair."
+pants are presented with a 3D scene in an interactive viewer,            ```
+enabling them to freely inspect specific details while evalu-            ```
+                                                                         provided_categories: ["chair", "table", "lamp"]
+ating the listed scene properties. Participants are instructed           matched: False
+to carefully examine both the scene and the expected prop-               matched_category: ""
+                                                                         reason: "The object in the image is a sofa, which does
+erties, selecting True or False to indicate whether each prop-           ,→  not match any of the specified categories."
+erty is satisfied. Once complete, they save their responses              ```
+
+
+
+                                                                  17
+Figure 8. Interface used for the user study. Top left: Study instructions and interface guidelines. Bottom left: Scene properties to evaluate.
+Right: Interactive 3D viewer with free camera control for detailed inspection.
+
+  If the object in the image does not belong to any of                      category: "chair",
+  ,→  the object categories specified by the user,                          num_instances: 3,
+  ,→  respond with "matched: False" and                                     [
+  ,→  "matched_category: "".                                                  {
+  Here is the list of object categories that the user                            "instance": 0,
+  ,→  specified to match against:                                                "attribute": "red",
+  "<TARGET_CATEGORIES>"                                                          "satisfied": True,
+                                                                                 "reason": "This chair is red."
+                                                                              },
+F.2.2. Object Attribute                                                       {
+                                                                                 "instance": 1,
+This task asks the VLM to determine if the objects in the                        "attribute": "red",
+scene satisfy the attribute requirements in the annotations.                     "satisfied": False,
+                                                                                 "reason": "This chair is blue."
+For each object of interest, the VLM is provided with two                     },
+images: one from the front view and one with a human                          ...
+                                                                            ]
+model on the side for scale. The VLM is asked to determine                  ```
+if the object satisfies the attribute requirements and provide              The attribute requirements are as follows:
+                                                                            "<OBJ_ATTRIBUTES>"
+a reason for its decision.                                                  Here are the renderings of "<OBJ_COUNT>" instances of
+                                                                            ,→   object with category "<OBJ_CATEGORY>" in the
+obj_attribute: >
+                                                                            ,→   scene.
+  The user specified the scene to contain objects with
+  ,→  certain attributes.
+  You are provided with images of instances of objects                    F.2.3. Object Support Type
+  ,→  in the scene with the same category.
+  There are two images for each object instance: one                      This task asks the VLM to identify the support type of ob-
+  ,→  from the front view and one with a 170cm human
+  ,→  model for scale.                                                    jects in the scene. For each object, the VLM is provided
+  The images are in the following order: obj1_front,                      with two images: one from the front view and one slightly
+  ,→  obj1_scale, obj2_front, obj2_scale, ...
+  Given these images, how many of these objects satisfy                   zoomed out to show the surrounding area. The VLM is
+  ,→  the attribute requirements specified by the user?                   asked to pick the support type of the object from the pre-
+  Note that the human model is included in the images
+  ,→  solely for scale reference and should not be                        defined types and provide a reason for its decision.
+  ,→  considered as part of the evaluation.
+  Respond in the given response schema. Here is an                        obj_support_type: >
+  ,→  example response:                                                     Objects in the scene are placed on the ground, on
+  ```                                                                       ,→  wall, on ceiling, or on other objects.
+
+
+                                                                     18
+  You are given two images of an object in the scene:                   ```
+  ,→  one from the front view and one slightly zoomed                   [
+  ,→  out to show the surrounding area.                                   {
+  Using the images, identify the support type of the                           "obj_description": "bed.n.01 - bed description",
+  ,→  object.                                                                  "functonal_sides": ["front", "left", "right"],
+  The support type of an object is the surface on which                        "reason": "These three sides of a bed have equal
+  ,→  the object is placed.                                                    ,→  importance for accessibility and as long as
+  Here are the support types for objects:                                      ,→  one of them is accessible, the bed is
+  - ground: The object is placed on the ground. (e.g.,                         ,→  considered properly placed."
+  ,→  "table on the ground")                                              },
+  - wall: The object is placed on the wall. (e.g.,                        {
+  ,→  "painting on the wall")                                                  "obj_description": "chair.n.01 - chair
+  - ceiling: The object is placed on the ceiling. (e.g.,                       ,→  description",
+  ,→  "lamp hanging from the ceiling")                                         "functonal_sides": ["front", "back", "left",
+  - object: The object is placed on a surface of another                       ,→  "right"],
+  ,→  object. (e.g., "book on the table")                                      "reason": "All four sides of a chair are
+  Respond in the given response schema. Here is two                            ,→  functional because it can be moved and used
+  ,→  example responses:                                                       ,→  from any side."
+  ```                                                                     },
+  support_type: "ground",                                                 {
+  reason: "The table is placed on the ground."                                 "obj_description": "cup.n.01 - cup description",
+  ```                                                                          "functonal_sides": [],
+  ```                                                                          "reason": "Cups are small objects that do not have
+  support_type: "wall",                                                        ,→  functional sides."
+  reason: "The painting is placed on the wall."                           }
+  ```                                                                     ...
+  If the object appears to be a ceiling light, carefully                ]
+  ,→  consider the image as it may be difficult to see                  ```
+  ,→  that the object is hanging from the ceiling.                      The descriptions of the objects in the scene are as
+                                                                        ,→  follows:
+                                                                        "<OBJ_DESCRIPTIONS>"
+F.2.4. Object Functional Sides
+This task asks the VLM to identify the functional sides of
+objects in the scene. The functional sides of an object are           F.2.5. Object Relationship Mapping
+the sides that need to be accessible for the object to be used        This task asks the VLM to map open-vocabulary object-
+properly. The VLM is provided with descriptions of the ob-            object relationships in the annotations to predefined spatial
+jects in the scene and asked to identify the functional sides         relationship types. For each input relationship, the VLM
+of each object with a justification.                                  can choose multiple relationship types if multiple types are
+obj_functional_sides: >
+                                                                      required to fully describe the relationship. The prompt pro-
+  Objects in the scene have functional sides that are                 vides the definition of the predefined spatial relationship
+  ,→  important for their placement and use.                          types, with examples and guidelines for mapping the rela-
+  The functional sides of an object are the sides that
+  ,→  need to be accessible for the object to be used                 tionships. The VLM is asked to provide the mapped re-
+  ,→  properly.                                                       lationship types for each input relationship along with the
+  Here, only consider these four sides of an object:
+  ,→  ["front", "back", "left", "right"].                             necessary information.
+  If an object is placed in a scene, at least one of its
+  ,→  functional sides should be accessible for the
+  ,→  object to be considered properly placed.                        obj_relationship_mapping: >
+  If an object has multiple functional sides, this means                The user specified the scene to contain certain
+  ,→  that the object can be used from any of these                     ,→  relationships between objects.
+  ,→  sides and there is no difference in importance                    An object-object relationship is a spatial
+  ,→  between them.                                                     ,→  relationship between two or more objects in the
+  Otherwise, only consider the most important functional                ,→  scene.
+  ,→  side as the sole functional side of the object.                   In which, an anchor object is the object that is used
+  Here are some examples of different cases:                            ,→  as a reference point to compare against.
+  - Objects that have equal importance for their                        Here are some examples to illustrate the concept of
+  ,→  functional sides:                                                 ,→  anchor object:
+    - bed: ["front", "left", "right"]                                   - "chair next to the table": the table is the anchor
+    - dining_table: ["front", "back", "left", "right"]                  ,→  object.
+  - Objects that have a significant front side:                         - "lamp near the sofa": the sofa is the anchor object.
+    - desk: ["front"]                                                   You are provided with manually annotated relationships
+    - sofa: ["front"]                                                   ,→  between objects in the scene.
+  - Objects that can be moved so all sides are                          The task is to map the mentioned relationships into
+  ,→  functional:                                                       ,→  one or more of the predefined spatial relationship
+    - dining_chair: ["front", "back", "left", "right"]                  ,→  type here:
+    - stool: ["front", "back", "left", "right"]                         - inside_of: The target object is inside the anchor
+  You are provided with descriptions of the objects in                  ,→  object. (e.g., "cup inside the cabinet")
+  ,→  the scene.                                                        - outside_of: The target object is outside the anchor
+  The task is to identify the functional sides of each                  ,→  object. (e.g., "toy outside the box")
+  ,→  of the objects.                                                   - face_to: The target object is facing the anchor
+  Note that for small objects like cups and books that                  ,→  object. (e.g., "sofa facing the TV")
+  ,→  are placed on a surface, do not consider their                    - side_of: The target object is at one of the six
+  ,→  functional sides and respond with an empty list.                  ,→  sides (left, right, front, back, top, bottom) of
+  Respond in the given response schema. Here is an                      ,→  the anchor object. (e.g., "nightstand left of the
+  ,→  example response:                                                 ,→  bed")
+
+
+                                                                 19
+- side_region: The target object is inside the anchor            ```
+,→   object at one of the six sides (left, right,                [
+,→   front, back, top, bottom). (e.g., "book on the                {
+,→   left side of the shelf", "phone on the left side                   "relationship": "beneath - objects: box, bed, with
+,→   of the table")                                                     ,→  the object with index: 0 being the anchor",
+- long_short_side_of: The target object is                              "anchor_object": "bed",
+,→   specifically at a long or short side of the anchor                 "other_objects": ["box"],
+,→   object. (e.g., "book at the long side of the                       "other_object_counts": [1],
+,→   table")                                                            "relationship_types": ["side_region"],
+- on_top: The target object is on top of the anchor                     "sides": ["bottom"],
+,→   object at its top-most surface and not inside it.                  "reason": "Box beneath the bed is considered as
+,→   (e.g., "book on top of the table", but not                         ,→  the box being inside the bed at the bottom
+,→   applicable for "book on a "bookshelf" because the                  ,→  side."
+,→   book is technically inside the bookshelf - use                },
+,→   inside_of instead)                                            {
+- middle_of: The target object is in the middle of the                  "relationship": "next_to - objects: lamp, chair,
+,→   anchor object. (This only compares the objects in                  ,→  with the object with index: 0 being the
+,→   2D, e.g., "pillow in the middle of the bed")                       ,→  anchor",
+- surround: Multiple target objects (can be different                   "anchor_object": "lamp",
+,→   types) are circled around one anchor object.                       "other_objects": ["chair"],
+,→   (e.g., "four chairs surrounding the table")                        "other_object_counts": [1],
+- next_to: The target object is next to the anchor                      "relationship_types": ["next_to"],
+,→   object within 0 to 0.5m (e.g., "chair next to the                  "sides": [None],
+,→   table")                                                            "reason": "Chair next to the lamp is considered as
+- near: The target object is near the anchor object                     ,→  the chair being next to the lamp."
+,→   within 0.5 to 1.5m. (e.g., "sofa near the TV")                },
+- across_from: The target object is far from the                   {
+,→   anchor object within 1.5 to 4m. (e.g., "lamp                       "relationship": "at the foot of - objects: bed,
+,→   across the room from the sofa")                                    ,→  table, with the object with index: 0 being the
+- far: The target object is far from the anchor object                  ,→  anchor",
+,→   beyond 4m. (e.g., "painting far from the bed")                     "anchor_object": "bed",
+- None: None of the predefined spatial relationships                    "other_objects": ["table"],
+,→   above match the relationship                                       "other_object_counts": [1],
+You can choose multiple relationship types for a                        "relationship_types": ["side_of", "next_to"],
+,→   single input relationship if it requires multiple                  "sides": ["front", None],
+,→   types to fully describe the relationship.                          "reason": "Table at the foot of the bed is
+Here is an example of relationships that require                        ,→  considered as the table being at the front
+,→   multiple types to fully describe them:                             ,→  side of the bed and next to it."
+- "table at the foot of the bed" needs both "side_of"              },
+,→   and "next_to" relationship types to fully describe            {
+,→   it.                                                                "relationship": "surround - objects: table,
+Here are some additional guidelines for mapping the                     ,→  chair:0, chair:1, chair:2, sofa, with the
+,→   relationships:                                                     ,→  object with index: 0 being the anchor",
+- When choosing side_of and side_region, you must also                  "anchor_object": "table",
+,→   specify the side of the anchor object (left,                       "other_objects": ["chair", "sofa"],
+,→   right, front, back, top, bottom).                                  "other_object_counts": [3, 1],
+- When choosing long_short_side_of, you must also                       "relationship_type": ["surround"],
+,→   specify the side of the anchor object (long,                       "side": [None],
+,→   short).                                                            "reason": "Three chairs and a sofa surrounding the
+- For side ambiguous relationships, like "next to" or                   ,→  table is considered as the chairs and the sofa
+,→   "adjacent to", simply choose the distance-based                    ,→  surrounding the table."
+,→   relationship (next_to, near, across_from, far).               },
+- When you choose multiple types for a single                      {
+,→   relationship, and some of the types require                        "relationship": "diagnoally across - objects:
+,→   specifying a side, you must specify the side for                   ,→  table, chair, with the object with index: 0
+,→   all types in the same order as the types are                       ,→  being the anchor",
+,→   listed.                                                            "anchor_object": "table",
+  - Use "None" for the side when a type does not                        "other_objects": ["chair"],
+   ,→  require specifying a side.                                       "other_object_counts": [1],
+  - For example, if you choose both "side_of" and                       "relationship_types": None
+   ,→  "next_to" for a relationship, you must specify                   "sides": [None],
+   ,→  the sides as ["front", None].                                    "reason": "No appropriate relationship type found
+- Even if the relationship type does not require                        ,→  for this relationship - chair diagonally
+,→   specifying a side, you must still provide a side                   ,→  across the table."
+,→   as "None" in the response at the corresponding                }
+,→   index.                                                        ...
+- When the anchor object is not specified (i.e., when            ]
+,→   the anchor index is -1), put the first object in            ```
+,→   the relationship as the anchor object in your               The annotated relationships between objects in the
+,→   response.                                                   ,→  scene are as follows:
+- The other_object_counts are the number of objects              "<RELATIONSHIPS>"
+,→   that are part of the relationship for each object
+,→   category in other_objects in the same order.
+- When none of the predefined spatial relationships
+                                                               F.2.6. Architectural Relationship Mapping
+,→   match the relationship, put "None" as the                 This task asks the VLM to map open-vocabulary relation-
+,→   relationship type and provide a reason. (Do not
+,→   put an empty list.)                                       ships between objects and architectural elements in the an-
+Respond in the given response schema. Here is an               notations to predefined spatial relationship types. Similar
+,→   example response:
+                                                               to the object relationship mapping task, the VLM is pro-
+
+
+                                                          20
+vided with the definitions of the predefined spatial relation-                 "relationship_type": "on_wall",
+                                                                               "specific_floors": [],
+ship types, with examples and guidelines for mapping the                       "reason": "The painting is on the wall."
+relationships. The VLM is asked to provide the mapped re-                 },
+                                                                          {
+lationship types for each input relationship along with the                    "relationship": "along - object: bookshelf, with
+necessary information.                                                         ,→  respect to architectural element: wall"
+                                                                               "target_object": "bookshelf",
+arch_relationship_mapping: >                                                   "architectural_element_type": "wall",
+  The user specified the scene to contain certain                              "relationship_type": "against_wall",
+  ,→   relationships between objects and architectural                         "specific_floors": [],
+  ,→   elements.                                                               "reason": "The bookshelf is along a wall means
+  An architectural element is a structural component of                        ,→  that it is in front of and against the wall."
+  ,→   a building, such as a wall, floor, ceiling, or                     },
+  ,→   room.                                                              {
+  Here are some examples of relationships between                              "relationship": "corner - object: chair, with
+  ,→   objects and architectural elements:                                     ,→  respect to architectural element: bedroom"
+  - "painting on the wall"                                                     "target_object": "chair",
+  - "bookshelf against the wall"                                               "arch_element_type": "room",
+  You are provided with manually annotated relationships                       "relationship_type": "corner_of_room",
+  ,→   between objects and architectural elements in the                       "specific_floors": ["floor_bedroom_001", ...]
+  ,→   scene.                                                                  "reason": "The chair is at the corner of the
+  The task is to map the mentioned relationships into                          ,→  room."
+  ,→   one of the predefined spatial relationship type:                   }
+  - inside_room: The target object is inside the room.                    ...
+  ,→   (e.g., "sofa inside the room")                                   ]
+  - middle_of_room: The target object is in the middle                  ```
+  ,→   of the room. (e.g., "table in the middle of the                  The annotated relationships between objects and
+  ,→   room")                                                           ,→  architectural elements in the scene are as
+  - next_to: The target object is next to an                            ,→  follows:
+  ,→   architectural element within 0 to 0.5m. (e.g.,                   "<RELATIONSHIPS>"
+  ,→   "chair next to the wall")                                        Here are all the floors in the scene that you can
+  - near: The target object is near an architectural                    ,→  choose from:
+  ,→   element within 0.5 to 1.5m. (e.g., "lamp near the                "<FLOOR_IDS>"
+  ,→   door")
+  - across_from: The target object is far from an
+  ,→   architectural element within 1.5 to 4m. (e.g.,                 F.3. Semi-Automatic Data Generation
+  ,→   "art across from the wall")
+  - far: The target object is far from an architectural               The semi-automatic data generation process uses a VLM to
+  ,→   element beyond 4m. (e.g., "table far from the
+  ,→   window")                                                       generate scenes descriptions and annotations given a set of
+  - on_wall: The target object is on the wall (must be                manually created entries as in-content examples.
+  ,→   directly in front of the wall). (e.g., "painting
+  ,→   on the wall")
+  - against_wall: The target object is against the wall               F.3.1. System Prompt
+  ,→   (must be directly in front of the wall). (e.g.,
+  ,→   "bookshelf against the wall")                                  The system prompt provides the VLM with the task descrip-
+  - corner_of_room: The target object is at the corner                tion, the annotation schema, and other relevant guidelines.
+  ,→   of the room. (e.g., "chair at the corner of the
+  ,→   room")                                                         system: >
+  - hang_from_ceiling: The target object is hanging from                You are tasked to generate annotations for scenes
+  ,→   the ceiling. (e.g., "lamp hanging from the                       ,→   given a text description of the scene.
+  ,→   ceiling")                                                        There are four types of annotations that you need to
+  - None: None of the predefined spatial relationships                  ,→   generate:
+  ,→   above match the relationship                                     - Object Count: The number of objects in the scene.
+  Here are some additional guidelines for mapping the                   ,→   The schema is:
+  ,→   relationships:                                                     - {eq, lt, gt, le,
+  - When specifying the architectural element type,                        ,→   ge},<instance_count>,<obj_reference>
+  ,→   select from the following: ["wall", "floor",                       - e.g., "eq,3,chair" means that there are exactly 3
+  ,→   "ceiling", "room", "window", "door"].                               ,→   chairs in the scene
+  - When choosing floor or room, you must also specify                    - <obj_reference> is the category name of the
+  ,→   the specific floors from the provided list of                       ,→   object, e.g., "chair", "table", "lamp", and not
+  ,→   floor IDs.                                                          ,→   the object instance name
+    - If the IDs are not informative enough and you                          - The object category must not include a
+     ,→   cannot determine the specific floor, choose all                     ,→  descriptive attribute
+     ,→   floors in the scene.                                               - e.g., "fridge" instead of "mini_fridge", as
+    - If the relationship is not specific to a floor,                         ,→  "mini" can be captured in the object
+     ,→   choose all floors in the scene.                                     ,→  attributes
+  - When none of the predefined spatial relationships                        - On the other hand, "floor_lamp" is acceptable as
+  ,→   match the relationship, put "None" as the                              ,→  it is a specific type of lamp and because
+  ,→   relationship type and provide a reason.                                ,→  "floor" is not an attribute
+  Respond in the given response schema. Here is an                      - Object Attribute: The attributes of the objects in
+  ,→   example response:                                                ,→   the scene. The schema is:
+  ```                                                                     - {eq, lt, gt, le,
+  [                                                                        ,→   ge},<instance_count>,<obj_reference>,<attribute>
+    {                                                                     - e.g., "eq,1,chair,red" means that there is exactly
+       "relationship": "on - object: painting, with                        ,→   1 red chair in the scene
+        ,→  respect to architectural element: wall"                       - All <obj_reference> must refer to an object
+       "target_object": "painting",                                        ,→   category that is mentioned in the object count
+       "architectural_element_type": "wall",                               ,→   for the same scene
+
+
+                                                                 21
+- Object-Object Relationship: The relationships                  F.3.2. In-Content Example
+,→   between objects in the scene. The schema is:
+  - {eq, lt, gt, le,                                             This prompt provides the VLM with a set of scene descrip-
+   ,→   ge},<instance_count>,<relationship>,                     tions and their corresponding annotations as in-content ex-
+   ,→   <anchor_index>,<obj_reference_0>,
+   ,→   <obj_reference_1>,<obj_reference_n>                      amples.
+  - e.g., "eq,1,front,0,desk,chair" means that the
+   ,→   object at index 0 (desk) is the anchor object            show_examples: >
+   ,→   and a chair is in front of it, and there is                Here are <NUM_EXAMPLES> manually annotated examples of
+   ,→   exactly 1 such relationship in the scene                   ,→  the scene descriptions and their corresponding
+  - <obj_refernce> is category name of the object,                 ,→  annotations:
+   ,→   e.g., "chair", "table", "lamp", and not the                <IN_CONTEXT_EXAMPLES>
+   ,→   object instance name                                       Note that the annotations are in the same format as
+  - All <obj_reference> must refer to an object                    ,→  described above.
+   ,→    category that is mentioned in the object count            The annotations are exhaustive and cover all the
+   ,→    for the same scene                                        ,→  objects in the scene.
+  - Note that the <relatioship> must be broken into                Observe and learn from the examples, I will then ask
+   ,→    pairwise relationships, except for "surround" as          ,→  you to generate annotations for a new scene
+   ,→    in "three chairs surrounding the table"                   ,→  description.
+     - e.g., "two chairs next to the table" should be
+      ,→   broken into as "eq,2,next,0,table,chair"              F.3.3. Generate Scene Description
+     - e.g., "two nightstands on two sides of the bed"
+      ,→   should be broken into two relationships:              This task asks the VLM to generate scene descriptions.
+      ,→   "eq,1,left,0,bed,nightstand" and                      There are two versions of the prompt: one for generating
+      ,→   "eq,1,right,0,bed,nightstand"
+  - The <anchor_index> is the index of the anchor                a single scene description and one for generating multiple
+   ,→   object in the scene description where the                scene descriptions.
+   ,→   corresponding object is the reference point for
+   ,→   the relationship                                         generate_description: >
+     - The index starts from 0 and is based on the                 Let's start a new cycle of generating scene
+      ,→   order of the objects in the scene description           ,→   descriptions and annotations.
+     - The anchor object can be any object in the scene            Your first task is to generate a scene description.
+     - e.g., in the relationship                                   There are three difficulty levels: easy, medium, and
+      ,→   "eq,1,left,0,bed,nightstand", the anchor                ,→   hard.
+      ,→   object is the bed (index 0) and the nightstand          - Easy:
+      ,→   is to the left of it                                      - Total number of all objects: <= 4
+     - e.g., in the relationship                                     - At most 4 large furniture objects (e.g., bed,
+      ,→   "eq,1,face,0,desk,chair", the anchor object is             ,→  sofa, table, chair)
+      ,→   the desk (index 0) and the chair is facing it             - Zero small objects (e.g., lamp, vase, book)
+     - Fix the anchor index to be 0 and instead                    - Medium:
+      ,→   re-arrange the obj_references as needed                   - Total number of all objects: 5 to 8
+- Object-Architecture Relationship: The relationships                - 0 to 3 small objects (e.g., lamp, vase, book)
+,→   between objects and architectural elements in the               - Remaining objects are large furniture objects
+,→   scene. The schema is:                                            ,→  (e.g., bed, sofa, table, chair)
+  - {eq, lt, gt, le,                                               - Hard:
+   ,→   ge},<instance_count>,<relationship>,                         - Total number of all objects: >= 9
+   ,→   <obj_reference>,<arch_reference>                             - No limit on the number of small objects (e.g.,
+  - e.g., "eq,1,against,bookshelf,wall" means that the                ,→  lamp, vase, book)
+   ,→   bookshelf is against the wall, and there is                The examples you have seen are of the same difficulty
+   ,→   exactly 1 such relationship in the scene                   ,→   level as the one you are going to generate.
+  - <obj_reference> is the category name of the                    Use your knowledge of the world and the examples you
+   ,→   object, e.g., "chair", "table", "lamp", and not            ,→   have seen to generate a scene description.
+   ,→   the object instance name                                   But you do not need to base your scene description on
+  - All <obj_reference> must refer to an object                    ,→   the examples you have seen.
+   ,→   category that is mentioned in the object count             Be creative, you do not need to follow the examples.
+   ,→   for the same scene                                         Avoid viewpoint-dependent descriptions like left wall,
+  - <arch_reference> can be one of the following:                  ,→   right wall, etc as these are not meaningful in the
+   ,→   ["wall", "floor", "ceiling", "room", "window",             ,→   context of a 3D environment.
+   ,→   "door"] or a specific room type, e.g.,                     Only use ASCII characters in the scene description, no
+   ,→   "bedroom", "living_room", "kitchen", etc                   ,→   special characters.
+     - It cannot be a specific instance of a category,             Have variety in the way you write. It can be started
+      ,→   e.g., "wall_1", "floor_2", "ceiling_3",                 ,→   with "A" or "There is" at first but you should
+      ,→   "room_4", or "kitchen_5", etc                           ,→   move away from them as you generate more
+  - You do not need to specify something is on the                 ,→   descriptions.
+   ,→   floor as it is expected and adding one for each            Use different sentence structures and avoid repetitive
+   ,→   object is redundant                                        ,→   phrases.
+The difference between object-object relationships and             While having variety, you should also maintain
+,→   object-architecture relationships is that the                 ,→   clarity.
+,→   former is between two objects (or more if                     Describe object styles and how they are arranged in
+,→   "surround"), while the latter is between an object            ,→   the scene - object-object relationships and
+,→   and an architectural element.                                 ,→   object-architecture relationships, as needed.
+For example, door, window, wall, floor, and ceiling                Here are specific instructions from the user:
+,→   are architectural elements and any relationship               --- Begin user instructions ---
+,→   with them must be an object-architecture                      <INSTRUCTION>
+,→   relationship.                                                 --- End user instructions ---
+Otherwise, if the relationship only involves objects,              Now, generate a <DIFFICULTY> scene description for the
+,→   it is an object-object relationship.                          ,→   user.
+{eq, lt, gt, le, ge} are the quantifier operators for              Respond in the given response schema. Here is an
+,→   equal, less than, greater than, less than or equal            ,→   example response:
+,→   to, and greater than or equal to respectively.                ```
+
+
+
+                                                            22
+  {                                                                       num_small_objects: 0,
+      difficulty_level: "easy", (copy the difficulty level                reason: (explain how you generated the scene
+      ,→  from the user)                                                  ,→  description)
+      instruction: "Generate a simple bedroom", (copy the             },
+      ,→  instruction from the user)                                  ...
+      generated_scene_description: "A bedroom with a red            ]
+      ,→  bed, and a nightstand on the left side of the             ```
+      ,→  bed with a wardrobe in the corner",
+      total_num_objects: 3,                                       F.3.4. Generate Annotations
+      num_large_objects: 3,
+      num_small_objects: 0,                                       This task asks the VLM to generate annotations for the
+      reason: (explain how you generated the scene
+      ,→  description)                                            scene descriptions. There are two versions of the prompt:
+  }                                                               one for generating annotations for a single scene descrip-
+  ```
+batch_generate_descriptions: >                                    tion and one for generating annotations for multiple scene
+  Let's start a new cycle of generating scene                     descriptions.
+  ,→   descriptions and annotations.
+  Your first task is to generate some scene                       generate_annotations: >
+  ,→   descriptions.                                                Now, you are going to generate annotations for the
+  There are three difficulty levels: easy, medium, and              ,→   scene description you have just generated.
+  ,→   hard.                                                        Use what you have learned from the in-context
+  - Easy:                                                           ,→   examples.
+    - Total number of all objects: <= 4                             The user may have edited the scene description, so
+    - At most 4 large furniture objects (e.g., bed,                 ,→   here is the final scene description:
+     ,→   sofa, table, chair)                                       --- Begin scene description ---
+    - Zero small objects (e.g., lamp, vase, book)                   <SCENE_DESCRIPTION>
+  - Medium:                                                         --- End scene description ---
+    - Total number of all objects: 5 to 8                           Read the scene description carefully and generate
+    - 0 to 3 small objects (e.g., lamp, vase, book)                 ,→   annotations for it.
+    - Remaining objects are large furniture objects                 Before generating the annotations, go over the
+     ,→   (e.g., bed, sofa, table, chair)                           ,→   definitions of the four types of annotations
+  - Hard:                                                           ,→   again.
+    - Total number of all objects: >= 9                             After that, go over the examples again and understand
+    - No limit on the number of small objects (e.g.,                ,→   how the annotations should be generated.
+     ,→   lamp, vase, book)                                         The annotations should be exhaustive and cover all the
+  The examples you have seen are of the same difficulty             ,→   objects in the scene.
+  ,→   level as the ones you are going to generate.                 The annotations should be in the same format as
+  Use your knowledge of the world and the examples you              ,→   described above.
+  ,→   have seen to generate scene descriptions.                    Use underscore instead of space or hyphen in all
+  But you do not need to base your scene descriptions on            ,→   annotations.
+  ,→   the examples you have seen.                                  If the description mentions absence of an object, you
+  Be creative, you do not need to follow the examples.              ,→   should add an annotation for it (e.g.,
+  Avoid viewpoint-dependent descriptions like left wall,            ,→   "eq,0,chair").
+  ,→   right wall, etc as these are not meaningful in the           Note that if something is facing another object, not
+  ,→   context of a 3D environment.                                 ,→   only can you use "front", you can also say
+  Only use ASCII characters in the scene description, no            ,→   "facing".
+  ,→   special characters.                                          Respond in the given response schema. Here is an
+  Have variety in the way you write. It can be started              ,→   example response:
+  ,→   with "A" or "There is" at first but you should               ```
+  ,→   move away from them as you generate more                     {
+  ,→   descriptions.                                                  scene_description: "a bedroom with a red bed, and a
+  Use different sentence structures and avoid repetitive               ,→  nightstand on the left side of the bed with a
+  ,→   phrases.                                                        ,→  wardrobe in the corner",
+  While having variety, you should also maintain                      obj_counts: ["eq,1,bed", "eq,1,nightstand"],
+  ,→   clarity.                                                       obj_attributes: ["eq,1,red,bed"],
+  Describe object styles and how they are arranged in                 obj_obj_relationships:
+  ,→   the scene - object-object relationships and                     ,→  ["eq,1,left,0,bed,nightstand"],
+  ,→   object-architecture relationships, as needed.                  obj_arch_relationships:
+  Here are specific instructions from the user:                        ,→  ["eq,1,corner,wardrobe,room"],
+  --- Begin user instructions ---                                     reason: (explain how you generated the annotations)
+  <INSTRUCTION>                                                     }
+  --- End user instructions ---                                     ```
+  Now, generate <NUM_DESCRIPTIONS> <DIFFICULTY> scene             batch_generate_annotations: >
+  ,→   descriptions for the user.                                   Now, you are going to generate annotations for a set
+  Respond in the given response schema. Here is an                  ,→   of scene descriptions you have just generated.
+  ,→   example response:                                            Use what you have learned from the in-context
+  ```                                                               ,→   examples.
+  [                                                                 The user may have edited the scene descriptions, so
+    {                                                               ,→   here are the final scene descriptions:
+       difficulty_level: "easy", (copy the difficulty               --- Begin all scene description ---
+        ,→  level from the user)                                    <SCENE_DESCRIPTIONS>
+       instruction: "Generate a simple bedroom", (copy              --- End all scene description ---
+        ,→  the instruction from the user)                          Read the scene descriptions carefully and generate
+       generated_scene_description: "A bedroom with a red           ,→   annotations for each of them.
+        ,→  bed, and a nightstand on the left side of the           Before generating the annotations, go over the
+        ,→  bed with a wardrobe in the corner",                     ,→   definitions of the four types of annotations
+       total_num_objects: 3,                                        ,→   again.
+       num_large_objects: 3,                                        After that, go over the examples again and understand
+                                                                    ,→   how the annotations should be generated.
+
+
+                                                             23
+  The annotations should be exhaustive and cover all the
+  ,→   objects in the scenes.
+  The annotations should be in the same format as
+  ,→   described above.
+  Use underscore instead of space or hyphen in all
+  ,→   annotations.
+  If the description mentions absence of an object, you
+  ,→   should add an annotation for it (e.g.,
+  ,→   "eq,0,chair").
+  Note that if something is facing another object, not
+  ,→   only can you use "front", you can also say
+  ,→   "facing".
+  Order the annotations to be consistent with the order
+  ,→   of the scene descriptions.
+  Respond in the given response schema. Here is an
+  ,→   example response:
+  ```
+  [
+    {
+       scene_description: "a bedroom with a red bed, and
+       ,→  a nightstand on the left side of the bed with
+       ,→  a wardrobe in the corner",
+       obj_counts: ["eq,1,bed", "eq,1,nightstand"],
+       obj_attributes: ["eq,1,red,bed"],
+       obj_obj_relationships:
+       ,→  ["eq,1,left,0,bed,nightstand"],
+       obj_arch_relationships:
+       ,→  ["eq,1,corner,wardrobe,room"],
+       reason: (explain how you generated the
+       ,→  annotations)
+    },
+    ...
+  ]
+  ```
+
+
+G. Scientific Artifacts
+The licenses for the datasets and code used in this work
+are as follows. For datasets, 3D-FRONT [17] and 3D-
+FUTURE [18] are available under their respective terms of
+use1,2 . Objaverse [13] is available under the ODC-By v1.0
+license. For code, ATISS [41] is available under its NVIDIA
+Source Code License3 . DiffuScene [51] is under its terms of
+use4 . Holodeck [59], Long-CLIP [65] and Qwen2.5-VL [4]
+are available under Apache License 2.0. InstructScene [34]
+and LayoutGPT [15] are available under the MIT License.
+LayoutVLM [48] does not have a license specified in its
+repository. GPT-4o [1] and o4-mini [39] is under the Ope-
+nAI terms of use5 . Our use of these datasets and code is in
+compliance with their respective licenses.
+
+H. AI Assistant Usage
+GPT-4o [1] is used in this work in parts of the evaluation
+framework, and o4-mini [39] is used in our data generation
+process. For experiments involving an open-source model,
+we used Qwen2.5-VL [4]. We also used GitHub Copilot6
+and ChatGPT7 to assist in writing code and checking for
+grammatical errors and typos in the paper.
+  1 3D-FRONT Terms of Use
+  2 3D-FUTURE Terms of Use
+  3 ATISS NVIDIA Source Code License
+  4 DiffuScene Terms of Use
+  5 https://openai.com/policies/terms-of-use/
+  6 https://github.com/features/copilot
+  7 https://chat.openai.com/
+
+
+
+
+                                                               24
+

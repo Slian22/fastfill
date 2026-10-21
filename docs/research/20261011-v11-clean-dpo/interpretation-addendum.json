@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "research_status": "diagnostic_only",
+  "reason": "Fresh source/data audit found reference-derived input ordering; recorded before clean-DPO evaluation outcomes.",
+  "dataset_sha256": {
+    "dev_rooms": "e0c2a6fdb44778e83f91273122fb5f7a4489cdb2c6fcf49ffc118ab15671c97f",
+    "dev_constrained_rooms": "d54e28c06b4b3714b6e76b544230c6edb45dd592e966dec6b916ce068f16e2e2",
+    "test_rooms": "0b28d10c015bbd9f39151113085c84a05a8117ea3facfa5553e095d10deff303",
+    "test_constrained_rooms": "0bb4edaab1ceca5ee794ba5ae99ff8ee8aff26b48e46ae723259cc50900c727d"
+  },
+  "limitations": [
+    "Object order and category-index assignment inherit reference footprint dimensions and pose tie-breaking from V1 canonicalization. Removing explicit size fields does not remove this target-derived information. These results do not establish performance for arbitrary object lists with unknown sizes.",
+    "The frozen SFT/DPO stage comparison remains a diagnostic comparison under that original input contract. Its inferential labels describe only the preregistered checker proxy on these cohorts; they do not establish general size-unknown deployment validity, causal benefits of cleaning alone, or physical mesh quality.",
+    "A target-independent input order requires a separately versioned data contract, rebuilt training/evaluation data and a new training protocol. Existing generated outputs and metrics are preserved; the scoring function and model recipe are not changed retrospectively.",
+    "This report is published only after independent CPU rescoring of all saved outputs with the original frozen scorer and interpreter, and verification of the DPO model training/merge lineage. Failure is reported as incomplete without inferential conclusions."
+  ]
+}

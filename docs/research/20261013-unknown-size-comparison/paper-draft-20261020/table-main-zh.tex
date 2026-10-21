@@ -1,0 +1,15 @@
+\begin{table}[ht]
+\centering\small
+\caption{相同 8,647 请求的阶段对照。比例单位为百分比；OOR 与尺寸误差仅对完整输出取均值。}
+\label{tab:stages-zh}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+阶段 & 完整率 \up & GSR \up & 严格准入 \up & OOR \down & 尺寸误差 \down \\
+\midrule
+27B-P 原始输出 & 99.95 & 44.34 & 21.61 & 0.2560 & 0.2824 \\
+27B-P + S1 修复 & 99.95 & 74.22 & 29.13 & 0.1526 & 0.2824 \\
++ O2：检查器触发 & 100.00 & 89.01 & 34.35 & 0.1081 & 0.2824 \\
++ O2：检查器／严格准入触发 & 100.00 & 89.55 & 49.42 & 0.0996 & 0.2824 \\
+\bottomrule
+\end{tabular}
+\end{table}

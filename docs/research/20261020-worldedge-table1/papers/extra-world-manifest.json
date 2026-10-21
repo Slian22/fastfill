@@ -1,0 +1,52 @@
+[
+  {
+    "id": "physcene",
+    "url": "https://physcene.github.io/assets/paper/CVPR24_PhyScene.pdf",
+    "version": "CVPR 2024 author combined PDF",
+    "pages": 18,
+    "sha256": "32df2a46b750a6b8adc49e90f39fa0d4ee5211a1ef160160836403e97a5ab011",
+    "bytes": 26685146,
+    "retrieved_utc": "2026-10-20T18:09:30.256549+00:00",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/physcene.pdf"
+  },
+  {
+    "id": "robogen",
+    "url": "https://raw.githubusercontent.com/mlresearch/v235/main/assets/wang24cc/wang24cc.pdf",
+    "version": "ICML 2024 PMLR camera-ready",
+    "pages": 48,
+    "sha256": "c47b75cdaf74a1b5c37be8da48d7712debcc2eca1558edfe45a61577a4b8fc20",
+    "bytes": 3250275,
+    "retrieved_utc": "2026-10-20T18:09:24.232559+00:00",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/robogen.pdf"
+  },
+  {
+    "id": "mesatask",
+    "url": "https://proceedings.nips.cc/paper_files/paper/2025/file/b078eaadc927d7f7ae67371c1363195b-Paper-Conference.pdf",
+    "version": "NeurIPS 2025 proceedings",
+    "pages": 43,
+    "sha256": "8c725ac795f34c25f7307a18ab1a0b1c04c91cafc7c82f892527d3b8d926f8e5",
+    "bytes": 7185703,
+    "retrieved_utc": "2026-10-20T18:09:46.452099+00:00",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/mesatask.pdf"
+  },
+  {
+    "id": "evaltasks",
+    "url": "https://arxiv.org/pdf/2410.08172",
+    "version": "arXiv:2410.08172v1, 2024-10-10; confirmed on PDF page 1",
+    "pages": 22,
+    "sha256": "23b11b9a327891478927a2f196be0b39c905c39721ebeeadcf7e51c1310923d5",
+    "bytes": 4136651,
+    "retrieved_utc": "2026-10-20T18:09:24.260953+00:00",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/evaltasks.pdf"
+  },
+  {
+    "id": "physcene3d",
+    "url": "https://arxiv.org/pdf/2606.01649v2",
+    "version": "arXiv 2606.01649v2 2026-06-03; abstract reports ICML2026 acceptance",
+    "pages": 23,
+    "sha256": "50d833b5cbf484f97f875e46dea2343ad4fb937e7b79579cfb2085c133675c22",
+    "bytes": 2025535,
+    "retrieved_utc": "2026-10-20T18:11:19.584187+00:00",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/physcene3d.pdf"
+  }
+]

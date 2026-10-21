@@ -1,0 +1,14 @@
+{
+  "job_id": "7368012",
+  "utc": "2026-10-13T07:42:27.272812+00:00",
+  "files": {
+    "full-audit-data-payloads.py": "3aa24780842743894bf6452b83465845db65e4affa16d9b9b661a1b73e48bc4a",
+    "full-audit-data-payloads.sbatch": "fd5d90a239ede5845f35281c455ce20ca88e2fe5e526c37d2b72ee432bfcdb0a"
+  },
+  "resources": {
+    "cpu": 2,
+    "mem_gb": 8,
+    "time_minutes": 10,
+    "gpu": 0
+  }
+}

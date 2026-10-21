@@ -1,0 +1,38 @@
+........................................................................ [  4%]
+........................................................................ [  9%]
+........................................................................ [ 14%]
+........................................................................ [ 19%]
+........................................................................ [ 23%]
+........................................................................ [ 28%]
+........................................................................ [ 33%]
+........................................................................ [ 38%]
+........................................................................ [ 43%]
+............................................................. [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+.............s.ss...............................................s....... [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 71%]
+................................................ [ 74%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+.................................................................................................................................... [ 92%]
+........................................................................ [ 97%]
+.....................................                                    [100%]
+============================= slowest 15 durations =============================
+12.71s call     fastfill/comparison/tests/test_scale_curve.py::test_curves_slopes_substitution_rules_and_tolerances
+12.01s call     fastfill/comparison/tests/test_output_repair.py::ParityTests::test_incremental_audit_matches_the_frozen_checker
+9.45s setup    fastfill/comparison/tests/test_delivery.py::test_dpo_candidate_package_leads_with_the_evaluated_policy_and_pins_code
+8.90s call     fastfill/comparison/tests/test_scale_curve.py::test_cap_rule_from_inference_runs_and_rules_after_s1
+8.78s call     fastfill/comparison/tests/test_dev_select.py::test_final_reports_tables_and_delivers_with_complete_agent_evaluations_only
+8.75s call     fastfill/comparison/tests/test_llm_open.py::test_submit_default_order_and_abort_lists_submitted_jobs
+7.57s call     fastfill/comparison/tests/test_llm_open.py::test_submit_016_runs_pilots_first_then_fulls_under_a_gpu_ceiling
+6.78s call     fastfill/comparison/tests/test_stage_table.py::test_selected_row_refuses_unbound_selection_or_lineage[_candidate_lineage-lineage receipt is not joint/dpo2]
+6.31s call     fastfill/comparison/tests/test_delivery.py::test_refuses_without_a_reproducible_selected_decision[_drop_decision-no delivery decision]
+6.19s call     fastfill/comparison/tests/test_ablation_016.py::test_score_pairs_every_seed_reports_b_bins_means_and_claims_only_on_seed_agreement
+6.11s call     fastfill/comparison/tests/test_distill_018_teacher.py::test_submit_018_teacher_chain_runs_shards_side_by_side_under_the_gpu_cap
+5.79s call     fastfill/comparison/tests/test_a021_select.py::test_common_vllm_selection_confirms_the_27b_arm_and_writes_its_test_rows
+5.39s call     fastfill/comparison/tests/test_report_v2.py::test_amendment_011_agent_disclosures
+5.23s call     fastfill/comparison/tests/test_a021_diag.py::test_ledger_greedy_k1_copies_recombination_and_013_agreement
+5.12s call     fastfill/comparison/tests/test_stage_table.py::test_selected_row_refuses_unbound_selection_or_lineage[_scores_edited-artifact hash mismatch: scores.json]
+1498 passed, 4 skipped, 1 deselected, 191 subtests passed in 494.09s (0:08:14)

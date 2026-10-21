@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-13T08:24:44.500068+00:00",
+  "pytest_passed": 722,
+  "seconds": 32.05,
+  "command": "python3 -m coverage run --source=fastfill/comparison -m pytest -q fastfill/comparison/tests",
+  "python": "/usr/local/bin/python3",
+  "coverage": {
+    "covered_lines": 4561,
+    "num_statements": 5009,
+    "percent_covered": 91.05609902176083,
+    "file_count": 20,
+    "scope": "fastfill/comparison production files; test source excluded from totals"
+  },
+  "changed_sha256": {
+    "fastfill/comparison/visual_pipeline.py": "099ed3467bd3312665fd446d21304f9df176a04998d1c40b697b0e1fd974b29d",
+    "fastfill/comparison/tests/test_visual_pipeline.py": "365dd23012ebf5d73b536d9bb8135d9c7fa0548bac94036d7bcfd810592b8ffc",
+    "fastfill/comparison/tests/test_visual_resource_binding.py": "af411bc451f5471acdab3c8e0fbd934e82b6decc5a21d6e4004b4db60f466370"
+  },
+  "limits": "GPU/network/Blender mocked; not quality metrics; all comparison tests passed in existing local driver interpreter.",
+  "coverage_including_test_files": {
+    "covered_lines": 10338,
+    "num_statements": 10809,
+    "percent_covered": 95.64252012212046,
+    "percent_covered_display": "96",
+    "missing_lines": 471,
+    "excluded_lines": 0
+  }
+}

@@ -1,0 +1,59 @@
+{"stage":"raw","seconds":3.94,"file":"HSSD200.jsonl","total":2351}
+{"stage":"raw","seconds":9.34,"file":"IL3D_3dfront.jsonl","total":24183}
+{"stage":"raw","seconds":10.64,"file":"IL3D_synthetic.jsonl","total":31137}
+{"stage":"raw","seconds":18.9,"file":"InteriorGS.jsonl","total":37744}
+{"stage":"raw","seconds":19.64,"file":"InternScenes_3rscan.jsonl","total":39078}
+{"stage":"raw","seconds":21.85,"file":"InternScenes_arkit.jsonl","total":44118}
+{"stage":"raw","seconds":32.37,"file":"InternScenes_gen.jsonl","total":58207}
+{"stage":"raw","seconds":32.97,"file":"InternScenes_mp3d.jsonl","total":59808}
+{"stage":"raw","seconds":33.88,"file":"InternScenes_scannet.jsonl","total":61321}
+{"stage":"raw","seconds":48.09,"file":"MansionWorld.jsonl","total":89205}
+{"stage":"raw","seconds":48.31,"file":"MultiScan.jsonl","total":89478}
+{"stage":"raw","seconds":49.97,"file":"OptiScene_holodeck.jsonl","total":99455}
+{"stage":"raw","seconds":68.09,"file":"SAGE-10k.jsonl","total":109482}
+{"stage":"raw","seconds":68.45,"file":"Scan2CAD.jsonl","total":110988}
+{"stage":"raw","seconds":68.87,"file":"SceneSmith.jsonl","total":111352}
+{"stage":"raw","seconds":68.89,"file":"SpatialGen.jsonl","total":111400}
+{"stage":"raw","seconds":83.26,"file":"SpatialLM.jsonl","total":165776}
+{"stage":"raw","seconds":92.21,"file":"Structured3D.jsonl","total":188670}
+{"stage":"prepared","seconds":93.82,"rows":10000}
+{"stage":"prepared","seconds":95.35,"rows":20000}
+{"stage":"prepared","seconds":96.82,"rows":30000}
+{"stage":"prepared","seconds":98.99,"rows":40000}
+{"stage":"prepared","seconds":101.36,"rows":50000}
+{"stage":"prepared","seconds":104.83,"rows":60000}
+{"stage":"prepared","seconds":108.34,"rows":70000}
+{"stage":"prepared","seconds":110.25,"rows":80000}
+{"stage":"prepared","seconds":111.83,"rows":90000}
+{"stage":"prepared","seconds":118.12,"rows":100000}
+{"stage":"prepared","seconds":119.39,"rows":110000}
+{"stage":"prepared","seconds":120.66,"rows":120000}
+{"stage":"prepared","seconds":122.02,"rows":130000}
+{"stage":"prepared","seconds":123.33,"rows":140000}
+{"stage":"prepared","seconds":124.57,"rows":150000}
+{"stage":"prepared","seconds":125.71,"rows":160000}
+{"stage":"prior","seconds":136.67,"name":"full","rooms":124843}
+{"stage":"prior","seconds":140.01,"name":"0","rooms":100139}
+{"stage":"prior","seconds":142.82,"name":"1","rooms":100241}
+{"stage":"prior","seconds":145.63,"name":"2","rooms":100384}
+{"stage":"prior","seconds":148.94,"name":"3","rooms":98061}
+{"stage":"prior","seconds":151.79,"name":"4","rooms":100547}
+Traceback (most recent call last):
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py", line 724, in main
+    run(audit, root)
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py", line 687, in run
+    remaining_payloads(audit, path, manifests[key], entries, populations)
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py", line 600, in remaining_payloads
+    for _, row, _ in audit.rows(path, expected):
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py", line 149, in rows
+    before, h, fields, sources = signature(path), hashlib.sha256(), Counter(), Counter()
+                                 ^^^^^^^^^^^^^^^
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py", line 83, in signature
+    s = path.stat()
+        ^^^^^^^^^^^
+  File "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/lib/python3.12/pathlib.py", line 840, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev_constrained_rooms.jsonl'
+{"status": "COMPLETE", "utc": "2026-10-13T07:39:53.872238+00:00", "slurm_job_id": "7368003", "issues": {}, "counts": {"train": {"records": 98923, "poses_different": 58796, "poses_equal": 40127}, "dev": {"records": 8167, "poses_different": 0, "poses_equal": 8167}}, "files": {"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/train.jsonl": {"sha256": "e35674f0149e1df5d122f2803e410f0a038ed8777a96316d346a0f6207be111c", "complete_scan": true, "records": 98923}, "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/train.jsonl": {"sha256": "92d8ec98e65cd5279b94fd6c2a353349b2cf8514ebb2100d1dee8ad5b8ac582d", "complete_scan": true, "records": 98923}, "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/dev.jsonl": {"sha256": "1faf7340d8fd1ecadcdadeb17f498d19cf0ef9ca30fa5dacd553d2a380dc459e", "complete_scan": true, "records": 8167}, "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/dev.jsonl": {"sha256": "36d85a82e83260096cf8a97a5e799a858fd6892e99077f56387fc992374be73c", "complete_scan": true, "records": 8167}, "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/main_data.py": {"sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d", "policy_evidence": "_candidate pose repair; _write_data unrepaired dev"}, "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-p-target-check.py": {"sha256": "a255debda75967520f8e51751552d0c065b64457a311d1dad9f4077b6580ab0c"}}, "correction": "geometry-7367978 P_target_differs_from_J_minus_size was an invalid audit invariant for pose-repaired TRAIN. Treat its count as descriptive, not a dataset error. This supplement checks the intended split-specific contract. Training target bytes were independently bound to qualification hashes in inputs-7367962."}

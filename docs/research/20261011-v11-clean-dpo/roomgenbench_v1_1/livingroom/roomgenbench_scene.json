@@ -1,0 +1,1488 @@
+{
+  "scene_key": "fastfill_0e176bdee0a49c2d",
+  "room_type": "livingroom",
+  "geometry_only": true,
+  "objects": [
+    {
+      "id": "obj_0000",
+      "type": "sofa",
+      "description": "A low-profile teak sofa with organic curves, tapered legs, and a sleek rectangular silhouette, finished in natural teak with a warm honey tone and a subtle grain texture",
+      "asset_key": "sofa_89520518",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.53,
+        "y": 2.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.78,
+        "length": 0.93,
+        "height": 0.83
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0001",
+      "type": "mediaconsole",
+      "description": "A low teak media console with a long rectangular footprint, flat top surface, and subtle recessed storage compartments, finished in natural teak with a smooth matte texture",
+      "asset_key": "mediaconsole_bbd4de9a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.28,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.3,
+        "height": 0.8
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0002",
+      "type": "coffeetable",
+      "description": "A rectangular teak coffee table with clean straight edges, a thin top slab, and tapered legs, showcasing a natural teak finish with a light amber hue",
+      "asset_key": "coffeetable_9f2c0345",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.65,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.69,
+        "length": 0.59,
+        "height": 0.4
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0003",
+      "type": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "asset_key": "armchair_2eaaa0e3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.65,
+        "y": 0.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.9,
+        "height": 0.98
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0004",
+      "type": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "asset_key": "armchair_2eaaa0e3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.65,
+        "y": 3.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.9,
+        "height": 0.98
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0005",
+      "type": "sideboard",
+      "description": "A low teak sideboard with a sleek rectangular shape, flat top, and narrow legs, featuring a single drawer front and a natural teak finish with a soft grain pattern",
+      "asset_key": "sideboard_2013e423",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.65,
+        "y": 4.78,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.95,
+        "length": 0.3,
+        "height": 0.8
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0006",
+      "type": "bookshelf",
+      "description": "A tall teak bookshelf with a narrow rectangular profile, multiple open shelves, and slender vertical legs, finished in natural teak with a warm, slightly textured surface",
+      "asset_key": "bookshelf_f2f519ac",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.26,
+        "y": 1.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.35,
+        "height": 1.51
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0007",
+      "type": "lamp",
+      "description": "A tripod floor lamp with three slender tapered legs that spread outward, supporting a tall cylindrical shade, finished in brushed metal with a matte black finish",
+      "asset_key": "lamp_6598e9ef",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 0.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.48,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0008",
+      "type": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "asset_key": "endtable_4b24803a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.45,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.58,
+        "height": 0.6
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0009",
+      "type": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "asset_key": "endtable_4b24803a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.45,
+        "y": 3.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.58,
+        "height": 0.6
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0010",
+      "type": "ottoman",
+      "description": "A mustard upholstered ottoman with a low-slung rectangular shape, soft padded top, and short stubby legs, covered in a velvety fabric with a muted mustard hue",
+      "asset_key": "ottoman_c176a0c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.65,
+        "y": 2.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.65,
+        "length": 0.65,
+        "height": 0.48
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0011",
+      "type": "pouf",
+      "description": "An olive fabric pouf with a rounded, squat silhouette, plush cushioning, and a smooth woven texture in an olive green shade",
+      "asset_key": "pouf_0724d713",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.45,
+        "y": 0.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.55,
+        "length": 0.55,
+        "height": 0.48
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0012",
+      "type": "plant",
+      "description": "A large leafy plant in a simple ceramic pot, featuring a tall, slender trunk and abundant broad green foliage that creates a lush, organic presence",
+      "asset_key": "plant_a032a5ef",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.65,
+        "y": 4.71,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.45,
+        "height": 0.65
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0013",
+      "type": "plant3",
+      "description": "A modest floor plant in a tall narrow pot, featuring a single stalk of long, arching foliage with a deep green hue",
+      "asset_key": "plant3_90639c4c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.25,
+        "y": 4.73,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.4,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0014",
+      "type": "remote",
+      "description": "A small rectangular plastic remote control with ergonomic curves, matte black finish and a grid of tactile buttons",
+      "asset_key": "remote_ca6d6e87",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.37,
+        "y": 3.48,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.1,
+        "height": 0.04
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0015",
+      "type": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "asset_key": "book_1eb11b5b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.29,
+        "y": 2.7,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.38,
+        "length": 0.27,
+        "height": 0.07
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0016",
+      "type": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "asset_key": "book_1eb11b5b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.3,
+        "y": 3.2,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.38,
+        "length": 0.27,
+        "height": 0.07
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0017",
+      "type": "coffeebook_7",
+      "description": "A thick square coffee table book with a 1950s retro cover, vibrant colors and a glossy finish, rectangular shape with slightly rounded corners",
+      "asset_key": "coffeebook_7_30e912c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.2,
+        "y": 1.37,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.25,
+        "length": 0.2,
+        "height": 0.05
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0018",
+      "type": "magazine_1",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "asset_key": "magazine_1_e95696c0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.69,
+        "y": 2.9899999999999998,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.13,
+        "height": 0.04
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0019",
+      "type": "magazine_2",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "asset_key": "magazine_2_e95696c0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.8099999999999996,
+        "y": 3.0900000000000003,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.13,
+        "height": 0.04
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0020",
+      "type": "magazine_3",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "asset_key": "magazine_3_e95696c0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.96,
+        "y": 3.3099999999999996,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.13,
+        "height": 0.04
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0021",
+      "type": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "asset_key": "cup_0bc98868",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 3.1,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.24
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0022",
+      "type": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "asset_key": "cup_0bc98868",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.8,
+        "y": 3.29,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.19,
+        "height": 0.19
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0023",
+      "type": "openbook",
+      "description": "An open hardcover book with visible pages, classic binding and a neutral cover, rectangular shape with slightly rounded corners",
+      "asset_key": "openbook_5c894fcd",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.94,
+        "y": 2.73,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.07,
+        "height": 0.25
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0024",
+      "type": "book_1",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "asset_key": "book_1_b13d31c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.2,
+        "y": 1.19,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.28,
+        "height": 0.07
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0025",
+      "type": "book_2",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "asset_key": "book_2_b13d31c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.21,
+        "y": 0.8,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.28,
+        "height": 0.07
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0026",
+      "type": "book_3",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "asset_key": "book_3_b13d31c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.2,
+        "y": 1.5,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.31,
+        "length": 0.25,
+        "height": 0.07
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0027",
+      "type": "book_4",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "asset_key": "book_4_b13d31c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.29,
+        "y": 0.5,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.31,
+        "length": 0.2,
+        "height": 0.07
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0028",
+      "type": "book_8",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "asset_key": "book_8_b13d31c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.3,
+        "y": 0.99,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.31,
+        "length": 0.2,
+        "height": 0.07
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0029",
+      "type": "plant",
+      "description": "A small potted succulent with a round terracotta pot, smooth green leaves and a compact growth habit",
+      "asset_key": "plant_73a581a1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.38,
+        "y": 1.59,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.1
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0030",
+      "type": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "asset_key": "cup_8d9019f3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.4,
+        "y": 2.8,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.2
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0031",
+      "type": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "asset_key": "cup_8d9019f3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.7,
+        "y": 2.8,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.2
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0032",
+      "type": "magazine",
+      "description": "A glossy magazine with a rectangular shape, vibrant cover artwork and thin, glossy pages",
+      "asset_key": "magazine_b1014fbe",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.3600000000000003,
+        "y": 3.25,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.14,
+        "height": 0.2
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0033",
+      "type": "remote",
+      "description": "A plastic remote control with an ergonomic rectangular shape, matte black finish and tactile raised buttons",
+      "asset_key": "remote_2b854bf0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.35,
+        "y": 3.62,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.02
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0034",
+      "type": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "asset_key": "book3_4e60a6c2",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.2,
+        "y": 3.52,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.28,
+        "length": 0.2,
+        "height": 0.06
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0035",
+      "type": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "asset_key": "book3_4e60a6c2",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.09,
+        "y": 3.0,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.27,
+        "length": 0.19,
+        "height": 0.07
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0036",
+      "type": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "asset_key": "vase3_1aa50579",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.4,
+        "y": 4.68,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.2
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0037",
+      "type": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "asset_key": "vase3_1aa50579",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.8,
+        "y": 4.68,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.2
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0038",
+      "type": "wallart",
+      "description": "A single piece of thin and upright geometric mustard wall art with bold angular shapes, a flat rectangular panel, and a matte mustard finish that adds a graphic accent",
+      "asset_key": "wallart_9875b205",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.25,
+        "y": 2.05,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.47,
+        "length": 0.47,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0039",
+      "type": "wallart",
+      "description": "A single piece of thin and upright geometric wall art composed of interlocking triangles, bold primary colors on a matte background",
+      "asset_key": "wallart_3c06e227",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 4.65,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.51,
+        "length": 0.39,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0040",
+      "type": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "asset_key": "novel_569a3979",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.38,
+        "y": 1.27,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0041",
+      "type": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "asset_key": "novel_569a3979",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.43,
+        "y": 0.6,
+        "z": 1.51
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.09,
+        "height": 0.25
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0042",
+      "type": "magazine_1",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "asset_key": "magazine_1_e498ad7c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.57,
+        "y": 2.78,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.07,
+        "height": 0.28
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0043",
+      "type": "magazine_3",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "asset_key": "magazine_3_e498ad7c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.68,
+        "y": 3.2,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.07,
+        "height": 0.28
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0044",
+      "type": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "asset_key": "cup_e624ad87",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 3.3,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.15,
+        "height": 0.1
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0045",
+      "type": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "asset_key": "cup_e624ad87",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.8600000000000003,
+        "y": 2.9299999999999997,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.15,
+        "height": 0.1
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0046",
+      "type": "hardcover",
+      "description": "A thick hardcover book with a stiff rectangular spine, a slightly textured cloth cover and rounded page edges",
+      "asset_key": "hardcover_84262d4d",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.8499999999999996,
+        "y": 2.75,
+        "z": 0.4
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.1,
+        "height": 0.28
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0047",
+      "type": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "asset_key": "volume_8601d877",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.11,
+        "y": 3.24,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0048",
+      "type": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "asset_key": "volume_8601d877",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.16,
+        "y": 2.46,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0049",
+      "type": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "asset_key": "tome_44be784b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.3,
+        "y": 4.8,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0050",
+      "type": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "asset_key": "tome_44be784b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.5,
+        "y": 4.8,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0051",
+      "type": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "asset_key": "tome_44be784b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.7,
+        "y": 4.8,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0052",
+      "type": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "asset_key": "tome_44be784b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.9,
+        "y": 4.8,
+        "z": 0.8
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.19,
+        "length": 0.06,
+        "height": 0.25
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    }
+  ],
+  "fixed_objects": [
+    {
+      "id": "door_1",
+      "category": "door",
+      "size_local_m": [
+        0.1,
+        0.9,
+        2.05
+      ],
+      "bottom_center_m": [
+        2.82,
+        5.0,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966
+    }
+  ],
+  "constraints": [],
+  "room": {
+    "dimensions": {
+      "width": 4.5,
+      "length": 5.0,
+      "height": 2.7
+    },
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "ceiling_height": 2.7,
+    "walls": [
+      {
+        "id": "wall_00",
+        "start_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 4.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_01",
+        "start_point": {
+          "x": 4.5,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 4.5,
+          "y": 5,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_02",
+        "start_point": {
+          "x": 4.5,
+          "y": 5,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 5,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_03",
+        "start_point": {
+          "x": 0.0,
+          "y": 5,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      }
+    ],
+    "doors": [
+      {
+        "id": "door_1",
+        "wall_id": "wall_02",
+        "position_on_wall": 0.37333333333333335,
+        "width": 0.9,
+        "height": 2.05
+      }
+    ],
+    "windows": []
+  }
+}

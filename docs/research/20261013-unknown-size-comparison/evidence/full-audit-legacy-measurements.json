@@ -1,0 +1,306 @@
+{
+  "created_utc": "2026-10-13T07:12:40.323548+00:00",
+  "files": {
+    "v2_raw": {
+      "path": "outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5-argmax/report.json",
+      "sha256": "03169160933a56b4bf1cddcd5682bf766997018726d9b3d2bb2d4009ebc89a37"
+    },
+    "v2_spread": {
+      "path": "outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5/report.json",
+      "sha256": "a0fac08feeb6d4e5f8243a3d0ca7f8188e5455b7d560c17cc88f322d34c08434"
+    },
+    "relations": {
+      "path": "outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+      "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2"
+    }
+  },
+  "v2": {
+    "v2_raw": {
+      "checkpoint": "/home/jovyan/shanliantian/fastfill/runs/main7-cell05-main-20261007b-e5/model-step-6357",
+      "requests": 4455,
+      "skipped_non_rectangular_rooms": 4165,
+      "projection": "minimal",
+      "schema_success": 0.9988776655443322,
+      "reference": {
+        "bottom_center_error_m": {
+          "mean": 2.6426894846586415,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "log_size_error": {
+          "mean": 0.2964263480951696,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "yaw_error_rad": {
+          "mean": 0.6727230728247874,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "bev_iou": {
+          "mean": 0.043856592165146646,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "log_size_error_plain_convention": {
+          "mean": 0.29623588611272805,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "yaw_error_rad_plain_convention": {
+          "mean": 0.6775007281488123,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "box_equivalent_objects": 371,
+        "yaw_error_rad_by_symmetry_order": {
+          "2": {
+            "mean": 0.67713014089254,
+            "valid_objects": 51719
+          },
+          "4": {
+            "mean": 0.05835877795659763,
+            "valid_objects": 371
+          }
+        }
+      },
+      "target_geometry_valid": 0.0,
+      "target_validation_not_run": 5,
+      "stage_failures": {
+        "model_schema": 5,
+        "target_geometry": 4455,
+        "asset_resolution": null,
+        "actual_first_pass": null
+      },
+      "baseline_context": {
+        "room_center_position": {
+          "bottom_center_error_m": {
+            "mean": 2.2638095903524587,
+            "valid_objects": 52741
+          }
+        },
+        "category_mean_position": {
+          "bottom_center_error_m": {
+            "mean": 2.2553416841475866,
+            "valid_objects": 52741
+          }
+        },
+        "category_median_size": {
+          "log_size_error": {
+            "mean": 0.3935735101421278,
+            "valid_objects": 43508
+          }
+        },
+        "uniform_yaw": {
+          "yaw_error_rad": {
+            "mean": 0.7826357705852105,
+            "valid_objects": 52741
+          }
+        },
+        "category_fallback_objects": 9584,
+        "requests": 4455,
+        "scope": "all evaluation rows with valid labels, independent of model parsing",
+        "fit": "evaluation_set_leave_one_out"
+      }
+    },
+    "v2_spread": {
+      "checkpoint": "/home/jovyan/shanliantian/fastfill/runs/main7-cell05-main-20261007b-e5/model-step-6357",
+      "requests": 4455,
+      "skipped_non_rectangular_rooms": 4165,
+      "projection": "minimal",
+      "schema_success": 0.9988776655443322,
+      "reference": {
+        "bottom_center_error_m": {
+          "mean": 2.6628867122973636,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "log_size_error": {
+          "mean": 0.29633890569945587,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "yaw_error_rad": {
+          "mean": 0.700307148753127,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "bev_iou": {
+          "mean": 0.043832777800347375,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "log_size_error_plain_convention": {
+          "mean": 0.2962450449126253,
+          "valid_objects": 42857,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "yaw_error_rad_plain_convention": {
+          "mean": 0.7050555621246115,
+          "valid_objects": 52090,
+          "scope": "parsed predictions with valid labels; schema failures included in success denominator"
+        },
+        "box_equivalent_objects": 371,
+        "yaw_error_rad_by_symmetry_order": {
+          "2": {
+            "mean": 0.7045207174764947,
+            "valid_objects": 51719
+          },
+          "4": {
+            "mean": 0.11291749699073685,
+            "valid_objects": 371
+          }
+        }
+      },
+      "target_geometry_valid": 0.0,
+      "target_validation_not_run": 5,
+      "stage_failures": {
+        "model_schema": 5,
+        "target_geometry": 4455,
+        "asset_resolution": null,
+        "actual_first_pass": null
+      },
+      "baseline_context": {
+        "room_center_position": {
+          "bottom_center_error_m": {
+            "mean": 2.2638095903524587,
+            "valid_objects": 52741
+          }
+        },
+        "category_mean_position": {
+          "bottom_center_error_m": {
+            "mean": 2.2553416841475866,
+            "valid_objects": 52741
+          }
+        },
+        "category_median_size": {
+          "log_size_error": {
+            "mean": 0.3935735101421278,
+            "valid_objects": 43508
+          }
+        },
+        "uniform_yaw": {
+          "yaw_error_rad": {
+            "mean": 0.7826357705852105,
+            "valid_objects": 52741
+          }
+        },
+        "category_fallback_objects": 9584,
+        "requests": 4455,
+        "scope": "all evaluation rows with valid labels, independent of model parsing",
+        "fit": "evaluation_set_leave_one_out"
+      }
+    }
+  },
+  "relations": {
+    "rooms": 300,
+    "common_rooms": 293,
+    "missing": {
+      "gt": 0,
+      "ff-spread": 0,
+      "ff-argmax": 0,
+      "llm-prompt": 7,
+      "llm-harness": 0,
+      "room-centre": 0,
+      "random": 0,
+      "shuffled": 0,
+      "yaw-flipped": 0,
+      "mirrored": 0
+    },
+    "rel_hold": {
+      "gt": [
+        0.7135790812620081,
+        0.6530265133466352,
+        0.7758181187601919,
+        123
+      ],
+      "ff-spread": [
+        0.43296030978957806,
+        0.37266745788087247,
+        0.4987546780229706,
+        123
+      ],
+      "ff-argmax": [
+        0.2534531863800156,
+        0.20012195629573679,
+        0.31178489193733094,
+        123
+      ],
+      "llm-prompt": [
+        0.7304027950369413,
+        0.6726469995677313,
+        0.7840042483487606,
+        123
+      ],
+      "llm-harness": [
+        0.7643650387552827,
+        0.7115065783358465,
+        0.8143195050207245,
+        123
+      ],
+      "room-centre": [
+        0.04317281634354805,
+        0.01748983739837398,
+        0.07575072962268081,
+        123
+      ],
+      "random": [
+        0.2450697225087469,
+        0.20119470694165817,
+        0.29484456938725234,
+        123
+      ],
+      "shuffled": [
+        0.22526434721556673,
+        0.17618016130211253,
+        0.28042976445415463,
+        123
+      ],
+      "yaw-flipped": [
+        0.34139022675608044,
+        0.28287927237622357,
+        0.4004010341510341,
+        123
+      ],
+      "mirrored": [
+        0.7135790812620081,
+        0.6530265133466352,
+        0.7758181187601919,
+        123
+      ]
+    },
+    "inputs": {
+      "rows": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llm-harness-300/rows.jsonl",
+      "rows_sha256": "e02da65e6844630eba506952ee1f059655552a2d14e1af763eb787cc2d0152ea",
+      "relations": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/eval-sets-20261009/relations.json",
+      "relations_sha256": "bd39bd1766e08f066c260d253502d83bf47cb06e651ba21524f94a4e5262342d",
+      "layouts": {
+        "ff-spread": {
+          "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llmrows-main7-cell05-main-20261007b-e5/outcomes.jsonl",
+          "sha256": "43618fbceed95ac70170da739ae6da64d6d5a75e23fef25a5c793917fa89622d"
+        },
+        "ff-argmax": {
+          "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llmrows-main7-cell05-main-20261007b-e5-argmax/outcomes.jsonl",
+          "sha256": "c1a97f49b9c900327b5448dc827bd66cae151e5e7dbb9dd216f806a068c922a9"
+        },
+        "llm-prompt": {
+          "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llm-prompt-300/predictions.jsonl",
+          "sha256": "a59d886c05ebc776460338a04623e4792f1ffbe545c5e6539915b612f8804f0c"
+        },
+        "llm-harness": {
+          "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/outputs/fastfill_v2/comparison-20261007b/llm-harness-300/predictions.jsonl",
+          "sha256": "fd27a5bb57fcd6f08d8161e7d7ca2e7090c39eb55c55f7ea0887b18cb398575d"
+        }
+      },
+      "implementation_sha256": "597be271059bc6bcdd4e1f211052455b87be86ad0168bdc0e35eba5920314354",
+      "door_block_share": 0.05
+    },
+    "interpretation": "Exploratory validation subset; common successful rooms only, relation subset n=123; not independent blind comparison. Intervals are historical room-bootstrap, not new componentbootstrap."
+  },
+  "limitations": [
+    "Different legacy v2 task/data/model from current text J0/P0; no pooled ranking.",
+    "Category-prior legacy baseline statistics must be audited before fair-comparison claims.",
+    "Geometry validity zero may include unknown evidence; not equivalent to all physical layouts wrong.",
+    "Numbers extracted from existing report JSON, not regenerated outputs."
+  ]
+}

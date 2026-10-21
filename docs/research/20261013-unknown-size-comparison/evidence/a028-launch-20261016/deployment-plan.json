@@ -1,0 +1,9 @@
+{
+  "commit": "7373495ca9e35391a5981653997be5485f64e9b6",
+  "snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-7373495ca9",
+  "archive": "/tmp/fastfill-a028-7373495ca9.tar",
+  "archive_bytes": 7239680,
+  "archive_sha256": "a576016ec46f67051481168d61874873f646b383759d6109c8b5da8a84aa474f",
+  "file_count": 456,
+  "source_branch": "codex/a028-recovery-20261016"
+}

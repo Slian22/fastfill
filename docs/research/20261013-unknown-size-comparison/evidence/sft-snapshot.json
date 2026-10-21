@@ -1,0 +1,17 @@
+{
+  "snapshot": "sft-c8f792a65470",
+  "archive": "/tmp/sft-c8f792a65470.tar.gz",
+  "archive_sha256": "2c3e7eb02cd3959fda620475cb2ab89a1a9d64d8779f72d0b876cc54182e3303",
+  "code_sha256": {
+    "fastfill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+    "fastfill/anchors.py": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+    "fastfill/validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+    "fastfill/train.py": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+    "fastfill/comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+    "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+    "fastfill/comparison/train_pair_helpers.py": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+    "fastfill/comparison/train_pair.py": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+    "fastfill/comparison/isambard_main.sbatch": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee"
+  }
+}

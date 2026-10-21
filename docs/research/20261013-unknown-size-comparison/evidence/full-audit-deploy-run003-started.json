@@ -1,0 +1,18 @@
+{
+  "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+  "effective_config_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config-run003.json",
+  "observed_unix": 1791877358.678027,
+  "output_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003",
+  "processes": {
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "deadline_unix": 1792302800,
+    "driver_pid": 96318,
+    "effective_driver_budget_seconds": 425451,
+    "launcher_pid": 40191,
+    "master_pid": 40239,
+    "wake_pid": 96319
+  },
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "runtime_config_path": "/tmp/ff-audit-controller-2m973_n1/state/driver-config.json",
+  "ssh_control_path": "/tmp/ff-audit-ssh-oo470s58/control.sock"
+}

@@ -1,0 +1,10 @@
+{
+  "method": "stdlib trace, full executable lines, subprocesses excluded",
+  "tests_exitcode": 0,
+  "covered": 121,
+  "executable": 122,
+  "percent": 99.18,
+  "missing": [
+    159
+  ]
+}

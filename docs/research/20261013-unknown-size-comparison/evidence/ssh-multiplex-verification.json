@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "evidence": [
+    "debug1: mux_client_request_session: master session id: 2"
+  ],
+  "control_path": "/tmp/ff-u6uv-44da3imw/control.sock",
+  "observed_unix": 1791870820.0960891
+}

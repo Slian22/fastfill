@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-10-11T17:04:21.521157+00:00",
+  "run_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+  "queue": [
+    "7252889|PENDING|0:00|(Dependency)|afterany:7252877(unfulfilled),afterany:7252879(unfulfilled),afterany:7252881(unfulfilled)",
+    "7252881|PENDING|0:00|(Dependency)|afterany:7252880(unfulfilled)",
+    "7252880|PENDING|0:00|(Dependency)|afterany:7252875(unfulfilled)",
+    "7252879|PENDING|0:00|(Dependency)|afterany:7252878(unfulfilled)",
+    "7252878|PENDING|0:00|(Dependency)|afterany:7252875(unfulfilled)",
+    "7252877|PENDING|0:00|(Dependency)|afterany:7252876(unfulfilled)",
+    "7252875|PENDING|0:00|(Dependency)|afterany:7252874(unfulfilled)",
+    "7252874|PENDING|0:00|(Resources)|(null)",
+    "7252876|RUNNING|5:12|nid010057|(null)"
+  ],
+  "progress.json": {
+    "chunk": 0,
+    "completed_rows": 256,
+    "expected_rows": 8167,
+    "identity_sha256": "4726649f9a73d425911e36e5f6d997eb25e74fbdc8753f328f9d7c2604085629",
+    "status": "running"
+  },
+  "completion.json": null,
+  "chunk_artifacts": [
+    {
+      "file": "000000.scored.json",
+      "bytes": 508669
+    },
+    {
+      "file": "000001.generated.json",
+      "bytes": 155055
+    },
+    {
+      "file": "000000.generated.json",
+      "bytes": 228630
+    }
+  ],
+  "eval_log_tail": [
+    "Processed prompts:  95%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258c| 244/256 [00:09<00:00, 23.70it/s, est. speed input: 18963.62 toks/s, output: 6558.31 toks/s]",
+    "Processed prompts:  96%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258b| 247/256 [00:09<00:00, 21.48it/s, est. speed input: 18897.87 toks/s, output: 6638.63 toks/s]",
+    "Processed prompts:  98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a| 250/256 [00:09<00:00, 13.43it/s, est. speed input: 18308.51 toks/s, output: 6540.56 toks/s]",
+    "Processed prompts:  98%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u258a| 252/256 [00:10<00:00, 12.44it/s, est. speed input: 18120.36 toks/s, output: 6552.71 toks/s]",
+    "Processed prompts:  99%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2589| 254/256 [00:10<00:00, 13.44it/s, est. speed input: 18153.09 toks/s, output: 6635.22 toks/s]",
+    "Processed prompts: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 256/256 [00:10<00:00,  6.25it/s, est. speed input: 16936.24 toks/s, output: 6271.69 toks/s]",
+    "Processed prompts: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 256/256 [00:10<00:00,  6.25it/s, est. speed input: 16936.24 toks/s, output: 6271.69 toks/s]",
+    "Processed prompts: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 256/256 [00:10<00:00, 23.28it/s, est. speed input: 16936.24 toks/s, output: 6271.69 toks/s]"
+  ]
+}

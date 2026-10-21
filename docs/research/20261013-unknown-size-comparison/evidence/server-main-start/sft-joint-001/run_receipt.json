@@ -1,0 +1,136 @@
+{
+  "config": {
+    "data": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1",
+    "base": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B",
+    "out": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001",
+    "max_steps": null,
+    "epochs": 1.0,
+    "max_len": 8192,
+    "grad_accum": 4,
+    "bs": 1,
+    "arm": "joint",
+    "run_purpose": "matched_sft",
+    "checkpoint_steps": 1000,
+    "max_new_tokens": 8192,
+    "preflight_only": false,
+    "lora": {
+      "r": 32,
+      "lora_alpha": 64,
+      "lora_dropout": 0.05,
+      "bias": "none",
+      "task_type": "CAUSAL_LM",
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "learning_rate": 5e-05,
+    "seed": 42,
+    "data_seed": 42,
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "gradient_checkpointing": true,
+    "gradient_checkpointing_kwargs": {
+      "use_reentrant": false
+    },
+    "lr_scheduler_type": "cosine",
+    "weight_decay": 0.0,
+    "max_grad_norm": 1.0,
+    "dev_generations_per_arm": 2,
+    "do_sample": false,
+    "num_beams": 1,
+    "enable_thinking": false,
+    "visible_gpus_required": 1,
+    "world_size_required": 1,
+    "walltime_control": "parent allocation/shared timeout",
+    "disk_free_bytes_before": 188806520979456,
+    "versions": {
+      "torch": "2.13.0+cu126",
+      "transformers": "5.14.1",
+      "peft": "0.21.0",
+      "accelerate": "1.15.0",
+      "tokenizers": "0.22.2",
+      "safetensors": "0.8.0"
+    },
+    "quality_claim": false,
+    "resume_supported": false,
+    "flag_filter": null,
+    "resume_limitation": "fresh runs only; periodic saves are evidence, not approved resume points",
+    "save_strategy": "steps",
+    "save_total_limit": 2,
+    "evaluator": "fastfill.comparison.contract.validate_output",
+    "evidence_scope": "matched_sft_execution_two_dev_cases_no_quality_promotion"
+  },
+  "data": {
+    "manifest_sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+    "files": {
+      "bound_rooms.jsonl": "bb3d2448761cf49be0d52f00b1a42dde4290d959d7b04420513342a1fd8efea2",
+      "common-admission.jsonl": "d33581f64819be8d69329ff0c17eb0acbeaf297f7237cf235dcd71fe87c3f3fe",
+      "dev_rooms.jsonl": "ef6f9f9e73851bfe8a49e58dede977b98dbc6579e2bbc029ad114e817289bda1",
+      "inventory-sidecar.json": "f5d8dd0268748637e55c6b36be749a303799485b978fcba4f3129f10c9db2b12",
+      "joint/MANIFEST.json": "b960ae80bbb3be2861a3f8b42d46bf71cc11240daf272796a99544bea936e6df",
+      "joint/dev.jsonl": "1faf7340d8fd1ecadcdadeb17f498d19cf0ef9ca30fa5dacd553d2a380dc459e",
+      "joint/train.jsonl": "e35674f0149e1df5d122f2803e410f0a038ed8777a96316d346a0f6207be111c",
+      "placement/MANIFEST.json": "c61abab89ba7bbdd82bbf4b2aaf9e5d41da09ab1859bae1d05e20eeb63b0ea78",
+      "placement/dev.jsonl": "36d85a82e83260096cf8a97a5e799a858fd6892e99077f56387fc992374be73c",
+      "placement/train.jsonl": "92d8ec98e65cd5279b94fd6c2a353349b2cf8514ebb2100d1dee8ad5b8ac582d",
+      "prior-fit-pool.json": "366611c684661d018d4c29978d49b44710b5ce2f494aac9d6b0a7348b0fea870",
+      "size-priors.json": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+      "split-manifest.json": "48e60337748c1699f98d93b4b4747247004737aba1c0b95e9baad442287500dc",
+      "train_rooms.jsonl": "afb4ebda8122c5178ce3370d497cdec98643e3a4570a7f74fb596adced96b324"
+    },
+    "counts": {
+      "train": 98923,
+      "dev": 8167
+    },
+    "target_policy": "fixed_estimated_size_pose_repaired_v1"
+  },
+  "base": {
+    "repository": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B",
+    "files": {
+      "config.json": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+      "generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2",
+      "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "model-00001-of-00005.safetensors": "31d6a825ae35f11fb85b195b4c42c146c051e446433125a215336abdf95cbf5f",
+      "model-00002-of-00005.safetensors": "5991236cea6fe21f3d43cab0f0e84448734fbbe0789816202989f2ddc9d18282",
+      "model-00003-of-00005.safetensors": "c5185c4794be2d8a9784d5753c9922db38df478ce11f9ed0b415b7304d896836",
+      "model-00004-of-00005.safetensors": "b5ee7de71fbf17db3d5704e0c8f2bc7d005ca9e1d7ca2aeb19827b0cfcaa917a",
+      "model-00005-of-00005.safetensors": "20c2d6366ab85c90786ccdd829cd2b9e7d30ef3b2ebbb998280e7e4014b542ff",
+      "model.safetensors.index.json": "f9fdbcb91c23971c13ec5d5f2573d2349e8f61f2f049371ec699281748fdb1bc",
+      "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "receipt_hashes": {
+      ".cache/huggingface/download/config.json.metadata": "66f98487da453a3395fd2d496d785cb54a0f8ee9168ef0f16c4a9ef5505134c3",
+      ".cache/huggingface/download/generation_config.json.metadata": "890832dedc9b198d7f76da0e625a68ab12f0345b189d3ebd9f47f7e369f4fb72",
+      ".cache/huggingface/download/merges.txt.metadata": "49fcfcfc1286cc57c57e96a55dc06f7a70a34a6888ee7c2d7ac1ededd4339fa5",
+      ".cache/huggingface/download/model-00001-of-00005.safetensors.metadata": "28dcd391b157b5c06e29d9a51514bfcbe84d89512c9a5cfc8f3dc65448081c26",
+      ".cache/huggingface/download/model-00002-of-00005.safetensors.metadata": "166b6387e53c2a5283ef4e8ca1fe381a0ef75abfb6a78d07f1bae681edd53a0c",
+      ".cache/huggingface/download/model-00003-of-00005.safetensors.metadata": "5416c9529ef017d801289ff018cecdc51d69d1f4b01a63587aa163b92c615f63",
+      ".cache/huggingface/download/model-00004-of-00005.safetensors.metadata": "bac20744daa53fe18dd4055b77e1a16c7d9e04d34bcca9396c61dfee330af137",
+      ".cache/huggingface/download/model-00005-of-00005.safetensors.metadata": "960920fb97c0271f477e9a8e3f3bd830413ee395ff5307f76eef11d0e9271b82",
+      ".cache/huggingface/download/model.safetensors.index.json.metadata": "68c0b3adab24e9a8f679a8bfc8cda62ea1afc80f22af2e7898c05f801b6c7cff",
+      ".cache/huggingface/download/tokenizer.json.metadata": "26e0963a84e4898df4e79e741d38a82e930d42bc7840ce78a8de31611e0755e9",
+      ".cache/huggingface/download/tokenizer_config.json.metadata": "44385b9d29fdfdca213befd9e042be7b618582f75f269d9fe4d40484cffbbb39",
+      ".cache/huggingface/download/vocab.json.metadata": "a1bea1979086175e83c7d58f074d2e05b1831de9f96ff3867ec5e239998a3002",
+      ".cache/huggingface/trees/b968826d9c46dd6066d109eabc6255188de91218.json": "ba7faf9f34fbf63576ae8e5163e48ee9428aa090956217d7fedb6ff4a28dcb94"
+    },
+    "weight_hashes_freshly_verified": true,
+    "max_position_embeddings": 40960
+  },
+  "code_sha256": {
+    "fastfill/comparison/train_pair.py": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+    "fastfill/comparison/train_pair_helpers.py": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+    "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+    "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+    "fastfill/train.py": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74"
+  }
+}

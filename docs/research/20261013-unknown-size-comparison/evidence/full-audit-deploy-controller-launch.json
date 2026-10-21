@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "-B",
+    "-u",
+    "/tmp/ff-audit-controller-2m973_n1/controller.py",
+    "--spec",
+    "/tmp/ff-audit-controller-2m973_n1/spec.json",
+    "--state",
+    "/tmp/ff-audit-controller-2m973_n1/state"
+  ],
+  "control_dir": "/tmp/ff-audit-ssh-oo470s58",
+  "controller_dir": "/tmp/ff-audit-controller-2m973_n1",
+  "controller_pid": 40191,
+  "controller_sha256": "083083f2035dad664599468c10911c4eb79de0ebd7af13622e6341b789bf6b56",
+  "deadline_unix": 1792302800,
+  "driver_released": false,
+  "review_report_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/evidence/agency-full-audit-patch-review-20261013.md",
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "spec_sha256": "61ca71a156645338dae271cc262413fbda886f8a998aca27a3da18ae38949ab0",
+  "ssh_control_path": "/tmp/ff-audit-ssh-oo470s58/control.sock",
+  "started_unix": 1791876872.095232,
+  "state_dir": "/tmp/ff-audit-controller-2m973_n1/state"
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "config": {
+    "protocol": "canonical-asset-v1",
+    "resolution": 512,
+    "samples": 32,
+    "threads": 4,
+    "device": "CPU",
+    "transparent": false,
+    "top": true,
+    "denoise": true,
+    "script_sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583"
+  },
+  "cases": [
+    {
+      "uid": "synthetic-dev-holo-front-smoke",
+      "stage": null,
+      "case_index": 0,
+      "status": "rendered",
+      "images": {
+        "candidate": {
+          "perspective": "/private/tmp/unknownsize-render-smoke/receipt-preset-v2/0000-66c0df2bfe17/candidate/perspective.png",
+          "top": "/private/tmp/unknownsize-render-smoke/receipt-preset-v2/0000-66c0df2bfe17/candidate/top.png"
+        }
+      },
+      "image_sha256": {
+        "candidate": {
+          "perspective": "3a23dd3828c3c6c3d7fcff41676eb2f0ced9b4b55d1314a9daadfd0e6dc9de2b",
+          "top": "e691d60ff4bb5d48defcca3f3ca2440c937f5a6d22af316c263a741ead07054b"
+        }
+      },
+      "layout_variant": "provided",
+      "height_provenance": {
+        "input_height": 2.8,
+        "effective_height": 2.8,
+        "imputed": false,
+        "policy": "case_height"
+      },
+      "cameras": {
+        "perspective": {
+          "view": "perspective",
+          "target": [
+            2.75,
+            2.4,
+            1.4
+          ],
+          "fov_degrees": 50,
+          "location": [
+            8.238953213659741,
+            -3.088953213659742,
+            8.261191517074677
+          ]
+        },
+        "top": {
+          "view": "top",
+          "target": [
+            2.75,
+            2.4,
+            1.4
+          ],
+          "location": [
+            2.75,
+            2.4,
+            13.8
+          ],
+          "ortho_scale": 6.324999999999999
+        }
+      },
+      "assets": [
+        {
+          "id": "tub",
+          "layout": "candidate",
+          "asset_id": "800d3c5569b94abfa2da7976504d589d",
+          "mesh_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/800d3c5569b94abfa2da7976504d589d/raw_model3.obj",
+          "sha256": "e0457898d11b591072224345a4c809d88dcb5f6a7bc6d4a230c346ac0cd3f6b2",
+          "mtl_overrides": {},
+          "flip_winding": true,
+          "materials": [
+            {
+              "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/800d3c5569b94abfa2da7976504d589d/raw_model3.mtl",
+              "sha256": "831e9d000bc4d8c676b24b244fb185c229c1ee176150cd03790ab5ce2f45aced",
+              "texture_sha256": {
+                "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/800d3c5569b94abfa2da7976504d589d/albedo.jpg": "4d00d6d18ab0ea96ab6f023bc720e1f67c8b2563bf056ac426461646e9a3e10e",
+                "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/800d3c5569b94abfa2da7976504d589d/normal.jpg": "5e72727e6e16c9bd9fae72117eee01c9ab3a9d634fc7de2834594c681eee396f"
+              }
+            }
+          ]
+        },
+        {
+          "id": "bed",
+          "layout": "candidate",
+          "asset_id": "21f34649-749e-4481-aef4-abf73263c950",
+          "mesh_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/21f34649-749e-4481-aef4-abf73263c950/raw_model.obj",
+          "sha256": "658ebfc02d0c6b87521712f3e01a204c6000289a59886594099a3509b522674e",
+          "mtl_overrides": {},
+          "flip_winding": false,
+          "materials": [
+            {
+              "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/21f34649-749e-4481-aef4-abf73263c950/model.mtl",
+              "sha256": "27423b63e1b0572dae937383c6d7d8af59d988f8a1e3473b737ced85e70300c1",
+              "texture_sha256": {
+                "/Users/slian/Desktop/3D/Worldedge/OptiScene/huggingface/3D-SynthPlace_Scenes_Assets/assets_data/21f34649-749e-4481-aef4-abf73263c950/texture.png": "566d01c380b7e15b5d3310e5d977714019700236b882fdebc444129f11ecc40e"
+              }
+            }
+          ]
+        }
+      ],
+      "input_sha256": "d2c32f075083c02cc88d1e122cea37f7facc90b108587b2e9a38b798e79d1aad",
+      "asset_mapping_sha256": "d52509a1807463df4f29f6533146b15adb36f6f79db7db735b31ef098f05abe1",
+      "archive_record_sha256": null,
+      "layout_sha256": {
+        "candidate": "6cb082a70ad596681e3bc2ad9a915381f6e1826c35ead06b90396946194e6b3d"
+      },
+      "blender_version": "5.2.1 LTS"
+    }
+  ]
+}

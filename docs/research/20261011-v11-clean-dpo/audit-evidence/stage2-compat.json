@@ -1,0 +1,27 @@
+[
+  {
+    "seed": 0,
+    "byte_identical": true,
+    "sha256": "e45260d9b8c575a7334c33bdb26a8a0678dd7bb1e009bc58512abab5cb6059fd"
+  },
+  {
+    "seed": 1,
+    "byte_identical": true,
+    "sha256": "aae33e402ad26b0dd15980582af2e7530a0bd2139108443311d2c23ccfe10398"
+  },
+  {
+    "seed": 2,
+    "byte_identical": true,
+    "sha256": "a4bd2ccaddc36aef016a86f2b9666a2fefb59943e6b0f1c7b1500fd51004e305"
+  },
+  {
+    "seed": 42,
+    "byte_identical": true,
+    "sha256": "dfdca9f3e1790888809126ff808b95249c3e96cefc34c71414fbe05327d4cf08"
+  },
+  {
+    "seed": 99,
+    "byte_identical": true,
+    "sha256": "cf55dfd0c1eec875f10816e8b592e10fddda86d3cb128896659458824467e471"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=30",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=2",
+    "-o",
+    "ControlMaster=no",
+    "-o",
+    "ControlPath=/tmp/ff-u6uv-koee4y6n/control.sock",
+    "u6uv.aip2.isambard",
+    "sacct -n -P -j 7365659,7365681,7365682,7367626,7367628,7367629 --format=JobIDRaw,State,ExitCode"
+  ],
+  "finished_unix": 1791871966.1485062,
+  "returncode": 0,
+  "stage": "jobs",
+  "started_unix": 1791871961.9359,
+  "status": "finished",
+  "stderr": "",
+  "stdout": "7365659|COMPLETED|0:0\n7365659.batch|COMPLETED|0:0\n7365681|RUNNING|0:0\n7365681.batch|RUNNING|0:0\n7365682|RUNNING|0:0\n7365682.batch|RUNNING|0:0\n7367626|PENDING|0:0\n7367628|PENDING|0:0\n7367629|PENDING|0:0\n",
+  "timeout_seconds": 120
+}

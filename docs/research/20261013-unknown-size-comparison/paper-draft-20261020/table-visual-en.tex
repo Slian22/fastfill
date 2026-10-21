@@ -1,0 +1,13 @@
+\begin{table}[ht]
+\centering\small
+\caption{Historical visual subset (1,005 rooms). S uses the old checker trigger. KID is on its raw scale; $\pm$ is its recorded standard error. Mesh brackets are 95\% CIs.}
+\label{tab:visual-en}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Method & FID \down & KID \down & Mesh CF@500 (\%) \up \\
+\midrule
+27B-P raw (A) & 22.883 & $0.000678 \pm 0.000140$ & 57.51 [53.36, 61.32] \\
+Checker-trigger system (S) & 22.786 & $0.000700 \pm 0.000142$ & 77.51 [74.30, 80.62] \\
+\bottomrule
+\end{tabular}
+\end{table}

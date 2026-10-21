@@ -1,0 +1,40 @@
+{
+  "active_config_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config.json",
+  "active_config_sha256": "19337c42e43af295113362779d6315525006bd53aa2a7f6488e25080867b7b28",
+  "active_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "d1dc934be020778f936b7e429e75a1841ffaacfdd57f380af0a0c4bce550cb8b",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 5140.1371545,
+    "failures": [],
+    "pid": 42372,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791876460.290237
+  },
+  "geometry_destination_amendment": "Parent allows reuse of absent geometry-v1 only after pending/never-started cancellation receipt; no old artifact overwrite",
+  "no_remote_state_verified_by_this_preparation": true,
+  "old_controller": {
+    "driver": 42372,
+    "launcher": 41825,
+    "master": 41826,
+    "wake": 42373
+  },
+  "old_snapshot_manifest_sha256": "c6978421582e3132427dac8eab6d387364fcdb7fb62b2daed09d5bd8e7f48fa6",
+  "protected_jobs": {
+    "infer_joint": 7367626,
+    "infer_placement": 7367628,
+    "main_data": 7365659,
+    "train_joint": 7365681,
+    "train_placement": 7365682
+  },
+  "recorded_unix": 1791876562.802939,
+  "replace_only_if_pending_never_started": 7367629
+}

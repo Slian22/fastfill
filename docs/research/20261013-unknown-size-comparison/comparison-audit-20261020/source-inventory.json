@@ -1,0 +1,3088 @@
+{
+  "scope": "All CSV/JSON/MD/TSV files in current results plus completed a027; additional historical/disk inventories supplied separately.",
+  "files": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/README.md",
+      "relative_path": "results/README.md",
+      "bytes": 592,
+      "sha256": "2a2d19a9ec77d2b96cc714a24092a47827ae4dc841c8c94dd27262ced69307e0"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/candidates.json",
+      "relative_path": "results/a021-selection/candidates.json",
+      "bytes": 1798,
+      "sha256": "5164bd5db04e4c4c7721c66fa32ee4753defe3c71dd16764552775ec313374f5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/dev-selection.json",
+      "relative_path": "results/a021-selection/dev-selection.json",
+      "bytes": 5523,
+      "sha256": "5d9f65a3a87e2b1be34cf3c346f3217bfb2cfde4ea34ffac529ad4b6ce260ce6"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/final-report.md",
+      "relative_path": "results/a021-selection/final-report.md",
+      "bytes": 3135,
+      "sha256": "ce5811f57fbd513a3a4c8d388048b8ac9c3650e2844f8b817ca52fa3ddb92ade"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-selection/final-selection.json",
+      "relative_path": "results/a021-selection/final-selection.json",
+      "bytes": 5486,
+      "sha256": "063403903c3b7e280567777bb0de05ee1d95828508559f4107a3fc202d3d2b5b"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/probe-report.json",
+      "relative_path": "results/a021-test/probe-report.json",
+      "bytes": 994,
+      "sha256": "d71b23a3d14b4eb8defb7cb92fcef0df0fe3818ffb56e60c56225023a5a4b118"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/s1-report.md",
+      "relative_path": "results/a021-test/s1-report.md",
+      "bytes": 4091,
+      "sha256": "58341b28afb9dccc2c472604eccf0c689230bf87901e331884a8fb4b856da565"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/summary-arm.json",
+      "relative_path": "results/a021-test/summary-arm.json",
+      "bytes": 14505,
+      "sha256": "ab9a74b1acfc75043303000ad9f4656029919a76a097078c8572744e4b962b30"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a021-test/summary-r.json",
+      "relative_path": "results/a021-test/summary-r.json",
+      "bytes": 13895,
+      "sha256": "c3424a7842b0cc86d4369bb4729e4dfca1dd18f2adcac186251d5d0c50cffd9d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-dev/report-geometry.md",
+      "relative_path": "results/a025-dev/report-geometry.md",
+      "bytes": 2456,
+      "sha256": "540c094ba60771df543e1b6da37fd91d1f4e393d3788ecbe556c0a2297b70219"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-dev/report.md",
+      "relative_path": "results/a025-dev/report.md",
+      "bytes": 2935,
+      "sha256": "133aebebb660af730a1df80c97a7b8ff4fb8d9997231ffd54be8f7a871f7d75f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-dev/results-geometry.json",
+      "relative_path": "results/a025-dev/results-geometry.json",
+      "bytes": 3997,
+      "sha256": "c75382b7e4c915267d77bba5c359edad2dfbf3872bb60ada5306ab138a7aa84e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-dev/results.json",
+      "relative_path": "results/a025-dev/results.json",
+      "bytes": 4583,
+      "sha256": "7f908d10488617a04a67c03fd4b337e28aa7d8c0c0584d8dc9dc4fdf7afde465"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-test/judge-SC-aggregate.csv",
+      "relative_path": "results/a025-test/judge-SC-aggregate.csv",
+      "bytes": 1438,
+      "sha256": "15e77c2756f6e94df2f0c5258eef4d1b5148c4c95039daffb2958b13d70f4622",
+      "columns": [
+        "arm",
+        "stratum",
+        "selected",
+        "success",
+        "failed",
+        "functionality_count",
+        "functionality_missing",
+        "functionality_mean",
+        "layout_count",
+        "layout_missing",
+        "layout_mean",
+        "aesthetics_count",
+        "aesthetics_missing",
+        "aesthetics_mean",
+        "overall_count",
+        "overall_missing",
+        "overall_mean"
+      ],
+      "rows": 14
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-test/report-geometry.md",
+      "relative_path": "results/a025-test/report-geometry.md",
+      "bytes": 2287,
+      "sha256": "38004d4c18d6dcdc88ea9825b1eebcf28d98fb2cf24ed05d8cf5d0006ddf8bea"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/a025-test/sc-vs-s-judge.json",
+      "relative_path": "results/a025-test/sc-vs-s-judge.json",
+      "bytes": 446,
+      "sha256": "de8b8f3dd101b82e03f493135c9d0f64e28335d1df70973c014557192d35249a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/ablation-016/ablation-report.md",
+      "relative_path": "results/ablation-016/ablation-report.md",
+      "bytes": 28627,
+      "sha256": "d1fc7bf73156689427ee7d7e8b7c86655b2891f4e5c3221c15fe2aae02b8e64c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/ablation-016/ablation.json",
+      "relative_path": "results/ablation-016/ablation.json",
+      "bytes": 1369426,
+      "sha256": "268ef081b2ded81a2976d6117efcceb94c777f29e30201362497c4bca8724daa"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/L/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/L/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "314603193560e2b74aec746bc80ad965c9b84a453f76ea9d839ed24ab72367b8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/L/report.md",
+      "relative_path": "results/agents-sft-paired/L/report.md",
+      "bytes": 10512,
+      "sha256": "2a0c72f43c9d5acd38432a4f22efff693acae4d1c9ebb0c8e73d45ef92baa525"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O1a/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O1a/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "bf7a15a53d2f4bc2b3bff92759f9e17daa455f2c5bcf259d9691393ee4d4945c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O1a/report.md",
+      "relative_path": "results/agents-sft-paired/O1a/report.md",
+      "bytes": 9339,
+      "sha256": "99bfa8cfd7bf3a1417934b97892c3ec47a48ce3f55b49baa4eb239155fe9c933"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O1b/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O1b/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "647089d6341e4e65e014a6013eae56a5adbc92f25c20ad4867b00c9eb715b9aa"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O1b/report.md",
+      "relative_path": "results/agents-sft-paired/O1b/report.md",
+      "bytes": 10530,
+      "sha256": "de1b331d86e9837a78e40ce51b3369668d994381d4ec495078317d1e3253f663"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O2/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O2/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "2da6aee54f57bbfdf3172db5ab0ece4f97f88553698d9e45e0d8ceb7997167ba"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O2/report.md",
+      "relative_path": "results/agents-sft-paired/O2/report.md",
+      "bytes": 10556,
+      "sha256": "0ddf73aad71001da186b23e83538fe08a6ca1df52186c5d7192cc17a5aa32b0e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O3/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O3/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "97d84444f810c55dc01e1654e8ce7dfdf4d8222af55878977dbbbf8ea881c933"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O3/report.md",
+      "relative_path": "results/agents-sft-paired/O3/report.md",
+      "bytes": 10536,
+      "sha256": "2036c9a295b5a0a2b5602f1d1ea83526118288723f228c9c232c550e91f2bbe4"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O4/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O4/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "e0e9a4f5c7cb7a0081ecfa03e76b5bec1707b69a92541d4234ed76b4991c212a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O4/report.md",
+      "relative_path": "results/agents-sft-paired/O4/report.md",
+      "bytes": 10521,
+      "sha256": "8954a3bece52fb06600611f20ca61ec46fd5f35d360c1514c4804c2b52c5f46b"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O6/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O6/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "3b76b7bbeb283460b6d2edc5ab1d95a6e8272a8393e20bef1b9b0c9a467b5a9b"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O6/report.md",
+      "relative_path": "results/agents-sft-paired/O6/report.md",
+      "bytes": 10603,
+      "sha256": "aa11d5739b661b8537681104507a635fcf7a62481c0dfd9910c2a6258cc260a7"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O7/MANIFEST.json",
+      "relative_path": "results/agents-sft-paired/O7/MANIFEST.json",
+      "bytes": 589,
+      "sha256": "5d80f71a2311de55a57adc691d6a5d072decc0700fe888dd56d19a12f5aa0065"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/agents-sft-paired/O7/report.md",
+      "relative_path": "results/agents-sft-paired/O7/report.md",
+      "bytes": 10580,
+      "sha256": "f7f712724eda247d2760de6e51f32877887673d367e78448a4bb528a7041a9f5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/audit-sft-20261014/agency-audit-wf_b7ae99d6-8df.json",
+      "relative_path": "results/audit-sft-20261014/agency-audit-wf_b7ae99d6-8df.json",
+      "bytes": 107147,
+      "sha256": "f6537fefd086a5673a6168a90548bb5e48de66c5b862165173826b90abfdf7e8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/MANIFEST.json",
+      "relative_path": "results/compare-016-full-v1/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "bfd0aa2cb3a98e227094c713d5bd5b94a980140774e28ca2fa416c3468e1b285"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/contrasts.csv",
+      "relative_path": "results/compare-016-full-v1/contrasts.csv",
+      "bytes": 484826,
+      "sha256": "f7cd1597b136ea553459c834ec5379f7cd8e0783526cddba9879abb7a52cb7b5",
+      "columns": [
+        "label",
+        "subset",
+        "variant",
+        "comparison",
+        "setting",
+        "stage",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p_unadjusted",
+        "warnings"
+      ],
+      "rows": 2208
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/levels.csv",
+      "relative_path": "results/compare-016-full-v1/levels.csv",
+      "bytes": 618244,
+      "sha256": "fe6190ffc127dc72f60eca11c4954b7b26e775b1016cfdf37a3c8f55608a4064",
+      "columns": [
+        "label",
+        "subset",
+        "variant",
+        "system",
+        "stage",
+        "field",
+        "rate",
+        "ci_low",
+        "ci_high",
+        "bias_fp"
+      ],
+      "rows": 3312
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/report.md",
+      "relative_path": "results/compare-016-full-v1/report.md",
+      "bytes": 21369,
+      "sha256": "13b79c3079e929c403399a721009dd37b3cdbd24fc6d1a987854f13b65773d3a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-full-v1/results.json",
+      "relative_path": "results/compare-016-full-v1/results.json",
+      "bytes": 2672957,
+      "sha256": "79f0f75888fe568497830e78360a6c7448fc993bbf15edce6e1e40f560c8b862"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/MANIFEST.json",
+      "relative_path": "results/compare-016-pilot-v1/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "3c90f720ceed76f57b34adfc86dc3435f3f3166331db874e699dcdef11189522"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/contrasts.csv",
+      "relative_path": "results/compare-016-pilot-v1/contrasts.csv",
+      "bytes": 640019,
+      "sha256": "0283153f19b83984a7de64a7ef497cff8c19fc86211aa83cc401e08f827d5b13",
+      "columns": [
+        "label",
+        "subset",
+        "variant",
+        "comparison",
+        "setting",
+        "stage",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p_unadjusted",
+        "warnings"
+      ],
+      "rows": 3024
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/levels.csv",
+      "relative_path": "results/compare-016-pilot-v1/levels.csv",
+      "bytes": 652493,
+      "sha256": "90a761741899e0196bbb3e84d35030fcffa4df2c2d563304b60bc675c57853c6",
+      "columns": [
+        "label",
+        "subset",
+        "variant",
+        "system",
+        "stage",
+        "field",
+        "rate",
+        "ci_low",
+        "ci_high",
+        "bias_fp"
+      ],
+      "rows": 3696
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/report.md",
+      "relative_path": "results/compare-016-pilot-v1/report.md",
+      "bytes": 22984,
+      "sha256": "9ea1e99199248db74d1e300e316bae39d9a5d37a9a259bc85a23ca0d6b4dcda4"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/compare-016-pilot-v1/results.json",
+      "relative_path": "results/compare-016-pilot-v1/results.json",
+      "bytes": 3158718,
+      "sha256": "9d890fb055932fe6972d7ff436e7ea3b4e80a3b8aa2c91c7d3a59bd30270f75d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/decision-012/MANIFEST.json",
+      "relative_path": "results/decision-012/MANIFEST.json",
+      "bytes": 109,
+      "sha256": "d4b99ded4b93cce3eaaa2ef7b83587de294fdab1249e76f894de9bf781ad5bd1"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/decision-012/decision.json",
+      "relative_path": "results/decision-012/decision.json",
+      "bytes": 6977,
+      "sha256": "8349c0b038a03f53167649bfc16c27f97e15affce5abcd1a5cf5518f5a23791f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-010-001/MANIFEST.json",
+      "relative_path": "results/delivery-010-001/MANIFEST.json",
+      "bytes": 284,
+      "sha256": "21ce903d40bd318f49d6d4e48b7da7ad21c1cccb256b24dfde714abf36a52c37"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-010-001/MODEL_CARD.md",
+      "relative_path": "results/delivery-010-001/MODEL_CARD.md",
+      "bytes": 20772,
+      "sha256": "eefbb8439313fbe44a1a087e11f3536dd1e2efa68c44f9e7426071d7d403c527"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-010-001/delivery.json",
+      "relative_path": "results/delivery-010-001/delivery.json",
+      "bytes": 23449,
+      "sha256": "548fd9101ce68b2c36ea3d265b8ed15353290c1aa2d7bd01c7d2201949e27e5d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-022-final/ASSEMBLY.json",
+      "relative_path": "results/delivery-022-final/ASSEMBLY.json",
+      "bytes": 382,
+      "sha256": "ee7dbd195847297dd08b7d0d179b9a2cbf85f2383b11463c6968a0b60efa5b58"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-022-final/MANIFEST.json",
+      "relative_path": "results/delivery-022-final/MANIFEST.json",
+      "bytes": 284,
+      "sha256": "e3737a29930ec973b2b6b60e204c2a6e1fc945b092aad76119bcb5c31d0e3af4"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-022-final/MODEL_CARD.md",
+      "relative_path": "results/delivery-022-final/MODEL_CARD.md",
+      "bytes": 10023,
+      "sha256": "193a3fd325ccdf12725953d66257e5a5fc3f44df663ecfd37fc3f76f3f65ec4f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/delivery-022-final/delivery.json",
+      "relative_path": "results/delivery-022-final/delivery.json",
+      "bytes": 35010,
+      "sha256": "eb6564dfcb0db010da9a44eeb700749e424852ba22572a97899949068cbf8293"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/scores/MANIFEST.json",
+      "relative_path": "results/dev-selection-010/scores/MANIFEST.json",
+      "bytes": 1163,
+      "sha256": "b3f1f49f593729bf798612ad9db2295e943de1a1089fee85ebb3114f18faedeb"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/scores/scores.json",
+      "relative_path": "results/dev-selection-010/scores/scores.json",
+      "bytes": 9438,
+      "sha256": "6bbb7d7eedcd0958ad8e7d2ae106013932ef6e066121fd2b84f1567ccbd6ad4f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/scores-report-only/MANIFEST.json",
+      "relative_path": "results/dev-selection-010/scores-report-only/MANIFEST.json",
+      "bytes": 743,
+      "sha256": "12debf540b7cf777604f2effab1da7625c9c1ce2c87beae6322ecabe42769d8a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/scores-report-only/scores.json",
+      "relative_path": "results/dev-selection-010/scores-report-only/scores.json",
+      "bytes": 5908,
+      "sha256": "5e7e0b428119dacf95c4b8c807c06557b93e0442e32067d22599d4e987b9b50e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/selection.json",
+      "relative_path": "results/dev-selection-010/selection.json",
+      "bytes": 9395,
+      "sha256": "f094395f3be366930a39dec66c141410f2f6db560b18dd32448de35602114e13"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/submission-2.json",
+      "relative_path": "results/dev-selection-010/submission-2.json",
+      "bytes": 4307,
+      "sha256": "365fb31f6436bb7f491840b144c3cec305ac5fc52ccff7beb2664288d394ddfb"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/dev-selection-010/submission.json",
+      "relative_path": "results/dev-selection-010/submission.json",
+      "bytes": 3318,
+      "sha256": "39cb7d2e33d4a6c1cb84fd6a3d0d0381d981d39c2aa9cbb3ac684add56cb60c5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/MANIFEST.json",
+      "relative_path": "results/families-015/MANIFEST.json",
+      "bytes": 455,
+      "sha256": "53aa375d1cab6baac1e6f1d16aeca8974f36282a3d1e7c91a94137321fd8ba82"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/contrasts.csv",
+      "relative_path": "results/families-015/contrasts.csv",
+      "bytes": 234596,
+      "sha256": "68ebdc7c01f058a6f9153beb169e844e35fb5e9c4f39d4527b618b867ab34a9e",
+      "columns": [
+        "contrast",
+        "scope",
+        "rooms",
+        "components",
+        "flags",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "paired_n",
+        "warnings"
+      ],
+      "rows": 1836
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/families.json",
+      "relative_path": "results/families-015/families.json",
+      "bytes": 800352,
+      "sha256": "4ef3ce7210db2460ee620ad3c5e033f0dcd632434dc636c36f2f54621100c050"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/levels.csv",
+      "relative_path": "results/families-015/levels.csv",
+      "bytes": 125856,
+      "sha256": "a0c5d212416da8347f044665ff50c0d5e100dce79483aa7c3776891f75600dc6",
+      "columns": [
+        "population",
+        "scope",
+        "system",
+        "rooms",
+        "components",
+        "flags",
+        "sources",
+        "requests",
+        "complete_rooms",
+        "complete",
+        "geometry_success",
+        "downstream",
+        "bias_fp",
+        "size_log_mae",
+        "oor"
+      ],
+      "rows": 396
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/mapping.md",
+      "relative_path": "results/families-015/mapping.md",
+      "bytes": 7513,
+      "sha256": "085f00366b04a0d3d683338ec613208d4cb96d1b426a031129628c1808be5e21"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/report.md",
+      "relative_path": "results/families-015/report.md",
+      "bytes": 102688,
+      "sha256": "ee6bf4fb39ab7344e68255d298a92126a504e052f38a729449bcab717508b932"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/fid-011-visual-002/fid-summary.json",
+      "relative_path": "results/fid-011-visual-002/fid-summary.json",
+      "bytes": 7396,
+      "sha256": "a35c38e25e43ec2bda72f6fd1ce0fa6121f1609c1e1cca3f77bafa4b3ee8833f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/levels.csv",
+      "relative_path": "results/frontier-026-ablation-o2nt/levels.csv",
+      "bytes": 81049,
+      "sha256": "3a33a4748bba8adee38e8daa0e37114d092e6800bb62e913a176048b4d7f7239",
+      "columns": [
+        "panel",
+        "scope",
+        "big",
+        "subset",
+        "entry",
+        "requests",
+        "complete_rooms",
+        "escalated_share",
+        "big_used_share",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 356
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/paired.json",
+      "relative_path": "results/frontier-026-ablation-o2nt/paired.json",
+      "bytes": 4797,
+      "sha256": "ccb1c77b1cb925e0d8e258104b23cfe3352616778d077c703fa20e3cc79d8a6a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/report.md",
+      "relative_path": "results/frontier-026-ablation-o2nt/report.md",
+      "bytes": 24932,
+      "sha256": "b2e16ef43264bc703090817dffcb0e9aa762b6e8ad44aeb6a0e6a01847b0cf26"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/MANIFEST.json",
+      "relative_path": "results/frontier-026-v3/MANIFEST.json",
+      "bytes": 456,
+      "sha256": "860795d8a96dfd2ccb0ac0b09a02a794713287eb34855fce6e624a51e23b7aae"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/contrasts.csv",
+      "relative_path": "results/frontier-026-v3/contrasts.csv",
+      "bytes": 224988,
+      "sha256": "db90ce1352bf57f7406be4b0fc1b1e07d941e60fbea5bd0d36345fb4a3a00919",
+      "columns": [
+        "panel",
+        "scope",
+        "big",
+        "subset",
+        "comparison",
+        "rooms",
+        "components",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p"
+      ],
+      "rows": 1740
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/levels.csv",
+      "relative_path": "results/frontier-026-v3/levels.csv",
+      "bytes": 80359,
+      "sha256": "5c7ca03b78d118c399d425c0827a8892630d3e3a272d396fab786779fa92d739",
+      "columns": [
+        "panel",
+        "scope",
+        "big",
+        "subset",
+        "entry",
+        "requests",
+        "complete_rooms",
+        "escalated_share",
+        "big_used_share",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 356
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/report.md",
+      "relative_path": "results/frontier-026-v3/report.md",
+      "bytes": 24919,
+      "sha256": "306134af97ed3668b32f8078147343460bf0a84d348d8a4dde94e5c5ca725aac"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/results.json",
+      "relative_path": "results/frontier-026-v3/results.json",
+      "bytes": 774330,
+      "sha256": "5d646b6d9a337483abc24b7c7b71b4062fc842fceabe43fec2a0febaefaa73d9"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/MANIFEST.json",
+      "relative_path": "results/frontier-026-v4/MANIFEST.json",
+      "bytes": 456,
+      "sha256": "bfc2cc7f2b5f744e1f262bb1bb01b4e9de819b6471277847db7f99b4d4464478"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/contrasts.csv",
+      "relative_path": "results/frontier-026-v4/contrasts.csv",
+      "bytes": 289275,
+      "sha256": "fb0a89d25ace06048efad27305c07908cec0bec1d9c86d07ab972b71edd6278c",
+      "columns": [
+        "panel",
+        "scope",
+        "big",
+        "subset",
+        "comparison",
+        "rooms",
+        "components",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p"
+      ],
+      "rows": 2292
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/levels.csv",
+      "relative_path": "results/frontier-026-v4/levels.csv",
+      "bytes": 102016,
+      "sha256": "0aad01ec73adb82bec830bb5e0885a3935edc26f7627a1e888d668fe8be654a1",
+      "columns": [
+        "panel",
+        "scope",
+        "big",
+        "subset",
+        "entry",
+        "requests",
+        "complete_rooms",
+        "escalated_share",
+        "big_used_share",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 471
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/report.md",
+      "relative_path": "results/frontier-026-v4/report.md",
+      "bytes": 31142,
+      "sha256": "adffd201bf506326706b22d5e28f2985964f9763d11b6ff67fcceb340297b915"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/results.json",
+      "relative_path": "results/frontier-026-v4/results.json",
+      "bytes": 1015604,
+      "sha256": "a7229c430b7fab48b5e95ae98e5cecad8d3d854a35a245046651e13056ec650c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/NOT_IN_GIT.md",
+      "relative_path": "results/gpt-judge-023-astra-high/NOT_IN_GIT.md",
+      "bytes": 298,
+      "sha256": "691f99ea5f2f6ed36518f90cbcda9d6e576d635ed559e36debafdfff5bab6b4f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/aggregate.csv",
+      "relative_path": "results/gpt-judge-023-astra-high/aggregate.csv",
+      "bytes": 3676,
+      "sha256": "0b0d6817e1f4adf7ebfbdae2d1292cf24ffa36fb56920be60a5687ebfd9b8663",
+      "columns": [
+        "arm",
+        "stratum",
+        "selected",
+        "success",
+        "failed",
+        "functionality_count",
+        "functionality_missing",
+        "functionality_mean",
+        "layout_count",
+        "layout_missing",
+        "layout_mean",
+        "aesthetics_count",
+        "aesthetics_missing",
+        "aesthetics_mean",
+        "overall_count",
+        "overall_missing",
+        "overall_mean"
+      ],
+      "rows": 28
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/full.completion.json",
+      "relative_path": "results/gpt-judge-023-astra-high/full.completion.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/paired.csv",
+      "relative_path": "results/gpt-judge-023-astra-high/paired.csv",
+      "bytes": 1156,
+      "sha256": "8a9a87404005f021decfff305d5adaf26f170fa1967d3b0f6eab52bdeaf494e8",
+      "columns": [
+        "stratum",
+        "direction",
+        "selected_pairs",
+        "shared_successful",
+        "missing_pairs",
+        "functionality_count",
+        "functionality_mean_difference",
+        "layout_count",
+        "layout_mean_difference",
+        "aesthetics_count",
+        "aesthetics_mean_difference",
+        "overall_count",
+        "overall_mean_difference"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-023-astra-high/summary.json",
+      "relative_path": "results/gpt-judge-023-astra-high/summary.json",
+      "bytes": 259333,
+      "sha256": "9a4cc3ff2d679d8be6d5f99ec9b7eeb4bf6bfc7968380b7fa1d2f09980fc5441"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-visual-002/aggregate.csv",
+      "relative_path": "results/gpt-judge-visual-002/aggregate.csv",
+      "bytes": 3667,
+      "sha256": "396df7a1e247a89c55d2316d636a2f7f864338c466156676bcb9fe1f62a81cc8",
+      "columns": [
+        "arm",
+        "stratum",
+        "selected",
+        "success",
+        "failed",
+        "functionality_count",
+        "functionality_missing",
+        "functionality_mean",
+        "layout_count",
+        "layout_missing",
+        "layout_mean",
+        "aesthetics_count",
+        "aesthetics_missing",
+        "aesthetics_mean",
+        "overall_count",
+        "overall_missing",
+        "overall_mean"
+      ],
+      "rows": 28
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-visual-002/completion.json",
+      "relative_path": "results/gpt-judge-visual-002/completion.json",
+      "bytes": 16,
+      "sha256": "1b2f5a083325c33035cb246dcb6ceb08b00a036dfd9bf30e39aa76843a88af4f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/gpt-judge-visual-002/paired.csv",
+      "relative_path": "results/gpt-judge-visual-002/paired.csv",
+      "bytes": 1180,
+      "sha256": "329835a13f0b950a859cb64b477e91cf19e40e3de3d28108769fc43ad7ec4318",
+      "columns": [
+        "stratum",
+        "direction",
+        "selected_pairs",
+        "shared_successful",
+        "missing_pairs",
+        "functionality_count",
+        "functionality_mean_difference",
+        "layout_count",
+        "layout_mean_difference",
+        "aesthetics_count",
+        "aesthetics_mean_difference",
+        "overall_count",
+        "overall_mean_difference"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/judge-agreement-023/agreement.json",
+      "relative_path": "results/judge-agreement-023/agreement.json",
+      "bytes": 3774,
+      "sha256": "c4a4c296f30e2989ad4719b70435586f49e3fffc8221a288dfc9c1aef92f0221"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/judge-agreement-023/means.csv",
+      "relative_path": "results/judge-agreement-023/means.csv",
+      "bytes": 1621,
+      "sha256": "9ba99c1f0b9495bf246590a06297cf5bcaf8c0fd120b642a4e2829a356503e5a",
+      "columns": [
+        "judge",
+        "cases",
+        "arm",
+        "n",
+        "functionality",
+        "layout",
+        "aesthetics",
+        "overall"
+      ],
+      "rows": 16
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/mesh-collision-019/MANIFEST.json",
+      "relative_path": "results/mesh-collision-019/MANIFEST.json",
+      "bytes": 217216,
+      "sha256": "300362187a436f16f8a21479119cd58e4b576042e7e22f5cc0868a0ee97de890"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/mesh-collision-019/report.md",
+      "relative_path": "results/mesh-collision-019/report.md",
+      "bytes": 11335,
+      "sha256": "2dace949fbbfb047efccfaaafc5065fb04bdbecf673f761975931eefc1e59160"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/mesh-collision-019/summary.json",
+      "relative_path": "results/mesh-collision-019/summary.json",
+      "bytes": 48933,
+      "sha256": "5d967ee1ea558d37f35db4266a41382f101a732ad5c6c2a1dcd92df55c586715"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/MANIFEST.json",
+      "relative_path": "results/report-v2-JPL-001/MANIFEST.json",
+      "bytes": 1962,
+      "sha256": "5e5cd66f63d31a7ba6d4f806afca4a123ebad06b08c0c3131b3213aab69c21a9"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/S1.csv",
+      "relative_path": "results/report-v2-JPL-001/S1.csv",
+      "bytes": 7066,
+      "sha256": "c23da87fe9322411d4e601d8b0ab247a6ea223f2216b7556df0bb40b3d6dea76",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/S2.csv",
+      "relative_path": "results/report-v2-JPL-001/S2.csv",
+      "bytes": 374,
+      "sha256": "99cc4137cac0ef3fba6631fd68c3e3708b1c21638cdcf14e55a917c670ce2297",
+      "columns": [
+        "level",
+        "objects",
+        "J_size_iou",
+        "J_size_log_mae",
+        "P_size_iou",
+        "P_size_log_mae",
+        "prior_objects",
+        "prior_size_iou",
+        "prior_size_log_mae"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T1.csv",
+      "relative_path": "results/report-v2-JPL-001/T1.csv",
+      "bytes": 733,
+      "sha256": "7991fa3d39421889a8d96b1c31f2188f9ddc81578c4fbe8a692e28213e6314f4",
+      "columns": [
+        "endpoint",
+        "J",
+        "P",
+        "delta",
+        "delta_ci_low",
+        "delta_ci_high",
+        "delta_n",
+        "delta_p",
+        "n",
+        "p",
+        "p_holm",
+        "J_ci_low",
+        "J_ci_high",
+        "J_n",
+        "J_p",
+        "P_ci_low",
+        "P_ci_high",
+        "P_n",
+        "P_p"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T1_bias.csv",
+      "relative_path": "results/report-v2-JPL-001/T1_bias.csv",
+      "bytes": 565,
+      "sha256": "65f9ef81504545cc09f466007155468237ff31e27f2fec8988dd10003ff808b7",
+      "columns": [
+        "system",
+        "footprint",
+        "footprint_ci_low",
+        "footprint_ci_high",
+        "footprint_n",
+        "footprint_p",
+        "volume",
+        "volume_ci_low",
+        "volume_ci_high",
+        "volume_n",
+        "volume_p",
+        "scale_factor"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T1b.csv",
+      "relative_path": "results/report-v2-JPL-001/T1b.csv",
+      "bytes": 1145,
+      "sha256": "37632eb84c6e5e11aa9832fc004f1be48165f3237eb7a0a9780e49384b7cd15e",
+      "columns": [
+        "field",
+        "micro",
+        "micro_ci_low",
+        "micro_ci_high",
+        "micro_n",
+        "micro_p",
+        "macro",
+        "macro_ci_low",
+        "macro_ci_high",
+        "macro_n",
+        "macro_p"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T2.csv",
+      "relative_path": "results/report-v2-JPL-001/T2.csv",
+      "bytes": 7658,
+      "sha256": "1eea863add664ecdf2b099da7fe257effe8ae6905c2cc740452880684df824af",
+      "columns": [
+        "scope",
+        "requests",
+        "gt_success",
+        "gt_success_snapped",
+        "gt_oor",
+        "gt_oor_snapped",
+        "gt_oor_rotated",
+        "gt_oor_rotated_snapped",
+        "prior_size_iou",
+        "prior_size_log_mae",
+        "prior_bias_fp",
+        "prior_bias_vol",
+        "objects",
+        "global_fallback_object_rate",
+        "rooms_with_global_fallback_rate"
+      ],
+      "rows": 29
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T3.csv",
+      "relative_path": "results/report-v2-JPL-001/T3.csv",
+      "bytes": 20897,
+      "sha256": "755336f552b2a0725b3924b8d074fde98a629cec0498fca6a09b234d08992e00",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 26
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T4.csv",
+      "relative_path": "results/report-v2-JPL-001/T4.csv",
+      "bytes": 3146,
+      "sha256": "056eed2edad1b5d6bc82cef9b4014bc7f9d56634b662166b1177a51a77a0dbb7",
+      "columns": [
+        "stratum",
+        "system",
+        "requests",
+        "complete",
+        "oor",
+        "oor_rotated",
+        "gt_oor",
+        "gt_oor_rotated",
+        "fid",
+        "fid_n",
+        "fid_flag",
+        "kid",
+        "kid_se",
+        "gpt",
+        "gpt_success",
+        "gpt_requested"
+      ],
+      "rows": 24
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T4_paper.csv",
+      "relative_path": "results/report-v2-JPL-001/T4_paper.csv",
+      "bytes": 352,
+      "sha256": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156",
+      "columns": [
+        "stratum",
+        "FID",
+        "OOR",
+        "functionality",
+        "layout",
+        "aesthetics"
+      ],
+      "rows": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T5.csv",
+      "relative_path": "results/report-v2-JPL-001/T5.csv",
+      "bytes": 938,
+      "sha256": "a4baf6d440669eaa3ce9cf9b19bc1cffc2f0d40fa45e697810e2591dadaf2c21",
+      "columns": [
+        "scope",
+        "system",
+        "requests",
+        "complete_rate",
+        "geometry_success_rate",
+        "size_log_mae",
+        "size_iou",
+        "oor"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T5_contrasts.csv",
+      "relative_path": "results/report-v2-JPL-001/T5_contrasts.csv",
+      "bytes": 1845,
+      "sha256": "a6300c48c95c1ffc195b9f8610f8df34aa44aa1784548322e1723f72e5597321",
+      "columns": [
+        "scope",
+        "comparison",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p"
+      ],
+      "rows": 10
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T5_cost.csv",
+      "relative_path": "results/report-v2-JPL-001/T5_cost.csv",
+      "bytes": 336,
+      "sha256": "c76248c63ed971e0be32ac6f2c68bbf987fb6df2646598d54f2d8c797b80d3ce",
+      "columns": [
+        "system",
+        "model",
+        "gpu_hours_full_test_generation",
+        "output_tokens",
+        "input_tokens",
+        "reasoning",
+        "calls",
+        "gpu_hours",
+        "reasoning_tokens",
+        "latency_p50_s",
+        "answers_reaching_cap"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T6.csv",
+      "relative_path": "results/report-v2-JPL-001/T6.csv",
+      "bytes": 330,
+      "sha256": "b05c731840c25b6f0137ec9103c39c54b66bf76f75b9c84a317f689019df8550",
+      "columns": [
+        "system",
+        "requests",
+        "complete",
+        "token_cap_without_eos",
+        "invalid_json",
+        "invalid_schema_or_geometry",
+        "generation_or_api_failure",
+        "missing_output",
+        "incomplete",
+        "cap_rule_flipped_complete",
+        "invalid_output",
+        "answers_reaching_cap"
+      ],
+      "rows": 4
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/report.md",
+      "relative_path": "results/report-v2-JPL-001/report.md",
+      "bytes": 26083,
+      "sha256": "1d95dc30379036d2ceeb644277d0d094991aa5cd4659acd77e73468977650a77"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/results.json",
+      "relative_path": "results/report-v2-JPL-001/results.json",
+      "bytes": 149477,
+      "sha256": "8288e4eb805d01eec2781fab674f6f538954885ba35e32c34279f6ca7939dd17"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/MANIFEST.json",
+      "relative_path": "results/report-v2-JPL-002/MANIFEST.json",
+      "bytes": 1962,
+      "sha256": "54dd9463a459880ddba5f59773e9bda43e8d9a35f31289a29de1cfc4e3ed2d1c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/S1.csv",
+      "relative_path": "results/report-v2-JPL-002/S1.csv",
+      "bytes": 7128,
+      "sha256": "a6950baf39312af48d2ea5a3b82735fe7bba2c1348d2215b0a831a7fad621106",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/S2.csv",
+      "relative_path": "results/report-v2-JPL-002/S2.csv",
+      "bytes": 374,
+      "sha256": "99cc4137cac0ef3fba6631fd68c3e3708b1c21638cdcf14e55a917c670ce2297",
+      "columns": [
+        "level",
+        "objects",
+        "J_size_iou",
+        "J_size_log_mae",
+        "P_size_iou",
+        "P_size_log_mae",
+        "prior_objects",
+        "prior_size_iou",
+        "prior_size_log_mae"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T1.csv",
+      "relative_path": "results/report-v2-JPL-002/T1.csv",
+      "bytes": 733,
+      "sha256": "7991fa3d39421889a8d96b1c31f2188f9ddc81578c4fbe8a692e28213e6314f4",
+      "columns": [
+        "endpoint",
+        "J",
+        "P",
+        "delta",
+        "delta_ci_low",
+        "delta_ci_high",
+        "delta_n",
+        "delta_p",
+        "n",
+        "p",
+        "p_holm",
+        "J_ci_low",
+        "J_ci_high",
+        "J_n",
+        "J_p",
+        "P_ci_low",
+        "P_ci_high",
+        "P_n",
+        "P_p"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T1_bias.csv",
+      "relative_path": "results/report-v2-JPL-002/T1_bias.csv",
+      "bytes": 565,
+      "sha256": "65f9ef81504545cc09f466007155468237ff31e27f2fec8988dd10003ff808b7",
+      "columns": [
+        "system",
+        "footprint",
+        "footprint_ci_low",
+        "footprint_ci_high",
+        "footprint_n",
+        "footprint_p",
+        "volume",
+        "volume_ci_low",
+        "volume_ci_high",
+        "volume_n",
+        "volume_p",
+        "scale_factor"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T1b.csv",
+      "relative_path": "results/report-v2-JPL-002/T1b.csv",
+      "bytes": 1145,
+      "sha256": "37632eb84c6e5e11aa9832fc004f1be48165f3237eb7a0a9780e49384b7cd15e",
+      "columns": [
+        "field",
+        "micro",
+        "micro_ci_low",
+        "micro_ci_high",
+        "micro_n",
+        "micro_p",
+        "macro",
+        "macro_ci_low",
+        "macro_ci_high",
+        "macro_n",
+        "macro_p"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T2.csv",
+      "relative_path": "results/report-v2-JPL-002/T2.csv",
+      "bytes": 7914,
+      "sha256": "145a06277e2e9afd2b910d2670cff026f0fcb2a80532b7ba60486cee2c11d046",
+      "columns": [
+        "scope",
+        "requests",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "gt_oor",
+        "gt_oor_snapped",
+        "gt_oor_rotated",
+        "gt_oor_rotated_snapped",
+        "prior_size_iou",
+        "prior_size_log_mae",
+        "prior_bias_fp",
+        "prior_bias_vol",
+        "objects",
+        "global_fallback_object_rate",
+        "rooms_with_global_fallback_rate"
+      ],
+      "rows": 29
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T3.csv",
+      "relative_path": "results/report-v2-JPL-002/T3.csv",
+      "bytes": 21137,
+      "sha256": "b4767f2a14d93cc16dc4c89eafad7dcd6dd3e9022e6520dadf3780a3058108e4",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 26
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T4.csv",
+      "relative_path": "results/report-v2-JPL-002/T4.csv",
+      "bytes": 3146,
+      "sha256": "056eed2edad1b5d6bc82cef9b4014bc7f9d56634b662166b1177a51a77a0dbb7",
+      "columns": [
+        "stratum",
+        "system",
+        "requests",
+        "complete",
+        "oor",
+        "oor_rotated",
+        "gt_oor",
+        "gt_oor_rotated",
+        "fid",
+        "fid_n",
+        "fid_flag",
+        "kid",
+        "kid_se",
+        "gpt",
+        "gpt_success",
+        "gpt_requested"
+      ],
+      "rows": 24
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T4_paper.csv",
+      "relative_path": "results/report-v2-JPL-002/T4_paper.csv",
+      "bytes": 352,
+      "sha256": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156",
+      "columns": [
+        "stratum",
+        "FID",
+        "OOR",
+        "functionality",
+        "layout",
+        "aesthetics"
+      ],
+      "rows": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T5.csv",
+      "relative_path": "results/report-v2-JPL-002/T5.csv",
+      "bytes": 2558,
+      "sha256": "77d19e22d667866d25b238f55e5151d20044b689df30b6f983ac49a28b50042d",
+      "columns": [
+        "scope",
+        "system",
+        "requests",
+        "complete_rate",
+        "geometry_success_rate",
+        "size_log_mae",
+        "size_iou",
+        "oor",
+        "bias_fp",
+        "bias_fp_ci_low",
+        "bias_fp_ci_high",
+        "bias_fp_n",
+        "bias_fp_p",
+        "bias_vol",
+        "bias_vol_ci_low",
+        "bias_vol_ci_high",
+        "bias_vol_n",
+        "bias_vol_p",
+        "scale_factor",
+        "success_debiased_rate"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T5_contrasts.csv",
+      "relative_path": "results/report-v2-JPL-002/T5_contrasts.csv",
+      "bytes": 1845,
+      "sha256": "a6300c48c95c1ffc195b9f8610f8df34aa44aa1784548322e1723f72e5597321",
+      "columns": [
+        "scope",
+        "comparison",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p"
+      ],
+      "rows": 10
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T5_cost.csv",
+      "relative_path": "results/report-v2-JPL-002/T5_cost.csv",
+      "bytes": 336,
+      "sha256": "c76248c63ed971e0be32ac6f2c68bbf987fb6df2646598d54f2d8c797b80d3ce",
+      "columns": [
+        "system",
+        "model",
+        "gpu_hours_full_test_generation",
+        "output_tokens",
+        "input_tokens",
+        "reasoning",
+        "calls",
+        "gpu_hours",
+        "reasoning_tokens",
+        "latency_p50_s",
+        "answers_reaching_cap"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T6.csv",
+      "relative_path": "results/report-v2-JPL-002/T6.csv",
+      "bytes": 330,
+      "sha256": "b05c731840c25b6f0137ec9103c39c54b66bf76f75b9c84a317f689019df8550",
+      "columns": [
+        "system",
+        "requests",
+        "complete",
+        "token_cap_without_eos",
+        "invalid_json",
+        "invalid_schema_or_geometry",
+        "generation_or_api_failure",
+        "missing_output",
+        "incomplete",
+        "cap_rule_flipped_complete",
+        "invalid_output",
+        "answers_reaching_cap"
+      ],
+      "rows": 4
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/report.md",
+      "relative_path": "results/report-v2-JPL-002/report.md",
+      "bytes": 29707,
+      "sha256": "f211dbc573ef879d3ab3c3ec39644bfc66414104cd8f4d5f809a75ad99b4a997"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/results.json",
+      "relative_path": "results/report-v2-JPL-002/results.json",
+      "bytes": 157985,
+      "sha256": "4aa505f2c83778676121a2fe059f4856ae1b5080d2a8a3bb6934855380c3f46f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/MANIFEST.json",
+      "relative_path": "results/report-v2-dpo1-001/MANIFEST.json",
+      "bytes": 1609,
+      "sha256": "fef0e01faa7c64e6d7994b4e895d4ab1ec2e6387ee45d39db83d8f6bc79fb159"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/S1.csv",
+      "relative_path": "results/report-v2-dpo1-001/S1.csv",
+      "bytes": 6991,
+      "sha256": "560f554142f6b6b8171f1e0b855a571e13d0b1e1c00a24a26f0feec3256fa124",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/S2.csv",
+      "relative_path": "results/report-v2-dpo1-001/S2.csv",
+      "bytes": 372,
+      "sha256": "5f815c30f36db24416dbfdf677aef5f3695dc3941a89054df2ccaf8cc615e222",
+      "columns": [
+        "level",
+        "objects",
+        "J_size_iou",
+        "J_size_log_mae",
+        "P_size_iou",
+        "P_size_log_mae",
+        "prior_objects",
+        "prior_size_iou",
+        "prior_size_log_mae"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T1.csv",
+      "relative_path": "results/report-v2-dpo1-001/T1.csv",
+      "bytes": 704,
+      "sha256": "a25e4647149593d7ced7f7747008e55d242ea34ab295a93a7bc72a0aa89e11c0",
+      "columns": [
+        "endpoint",
+        "J",
+        "P",
+        "delta",
+        "delta_ci_low",
+        "delta_ci_high",
+        "delta_n",
+        "delta_p",
+        "n",
+        "p",
+        "p_holm",
+        "J_ci_low",
+        "J_ci_high",
+        "J_n",
+        "J_p",
+        "P_ci_low",
+        "P_ci_high",
+        "P_n",
+        "P_p"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T1_bias.csv",
+      "relative_path": "results/report-v2-dpo1-001/T1_bias.csv",
+      "bytes": 567,
+      "sha256": "be8b96e68099086ce66acfb5836dc01d4e47fa572e033536e225db95024a4b86",
+      "columns": [
+        "system",
+        "footprint",
+        "footprint_ci_low",
+        "footprint_ci_high",
+        "footprint_n",
+        "footprint_p",
+        "volume",
+        "volume_ci_low",
+        "volume_ci_high",
+        "volume_n",
+        "volume_p",
+        "scale_factor"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T1b.csv",
+      "relative_path": "results/report-v2-dpo1-001/T1b.csv",
+      "bytes": 1120,
+      "sha256": "38f9253d2a6ebe06b8e56830d2f3186bc22e50a2473cb7e4145bfbc0e9e822c2",
+      "columns": [
+        "field",
+        "micro",
+        "micro_ci_low",
+        "micro_ci_high",
+        "micro_n",
+        "micro_p",
+        "macro",
+        "macro_ci_low",
+        "macro_ci_high",
+        "macro_n",
+        "macro_p"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T2.csv",
+      "relative_path": "results/report-v2-dpo1-001/T2.csv",
+      "bytes": 7914,
+      "sha256": "145a06277e2e9afd2b910d2670cff026f0fcb2a80532b7ba60486cee2c11d046",
+      "columns": [
+        "scope",
+        "requests",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "gt_oor",
+        "gt_oor_snapped",
+        "gt_oor_rotated",
+        "gt_oor_rotated_snapped",
+        "prior_size_iou",
+        "prior_size_log_mae",
+        "prior_bias_fp",
+        "prior_bias_vol",
+        "objects",
+        "global_fallback_object_rate",
+        "rooms_with_global_fallback_rate"
+      ],
+      "rows": 29
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T3.csv",
+      "relative_path": "results/report-v2-dpo1-001/T3.csv",
+      "bytes": 20620,
+      "sha256": "512e77fe497f055ea9c4fca6b72dd9e843fb5685854b80729a789483ae196ad9",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 26
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T4.csv",
+      "relative_path": "results/report-v2-dpo1-001/T4.csv",
+      "bytes": 1582,
+      "sha256": "20e9cd6d1a0ac43795b3ab282be8323ebee3339b4d69acdde2de5a1b0f44552f",
+      "columns": [
+        "stratum",
+        "system",
+        "requests",
+        "complete",
+        "oor",
+        "oor_rotated",
+        "gt_oor",
+        "gt_oor_rotated",
+        "fid",
+        "fid_n",
+        "fid_flag",
+        "kid",
+        "kid_se",
+        "gpt",
+        "gpt_success",
+        "gpt_requested"
+      ],
+      "rows": 12
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T4_paper.csv",
+      "relative_path": "results/report-v2-dpo1-001/T4_paper.csv",
+      "bytes": 352,
+      "sha256": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156",
+      "columns": [
+        "stratum",
+        "FID",
+        "OOR",
+        "functionality",
+        "layout",
+        "aesthetics"
+      ],
+      "rows": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T6.csv",
+      "relative_path": "results/report-v2-dpo1-001/T6.csv",
+      "bytes": 238,
+      "sha256": "b629cd00b53f226d71d7c1684ae4c68cff7cffd6d0071db5cbe52d859d24412f",
+      "columns": [
+        "system",
+        "requests",
+        "complete",
+        "token_cap_without_eos",
+        "invalid_json",
+        "invalid_schema_or_geometry",
+        "generation_or_api_failure",
+        "missing_output",
+        "incomplete",
+        "cap_rule_flipped_complete"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/report.md",
+      "relative_path": "results/report-v2-dpo1-001/report.md",
+      "bytes": 24019,
+      "sha256": "6444c285ac1f89571af5397c584515a1d22c182d05c74c6d4e2fbd01100f43de"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/results.json",
+      "relative_path": "results/report-v2-dpo1-001/results.json",
+      "bytes": 135661,
+      "sha256": "aea2755f54f3dcff62b66fd435aa8d16cc75b44650b101b906ce816f9c6ec7dd"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/MANIFEST.json",
+      "relative_path": "results/report-v2-selected-001/MANIFEST.json",
+      "bytes": 2700,
+      "sha256": "3c14e3c54ce539932f32e298b8f67a342f7776cb6fa9e5051f2a40870e7a2d07"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/S1.csv",
+      "relative_path": "results/report-v2-selected-001/S1.csv",
+      "bytes": 7132,
+      "sha256": "e6e93edc4277e52b267a42fe42dc237d8caab959776f3c6d9335bf36f769fd84",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/S2.csv",
+      "relative_path": "results/report-v2-selected-001/S2.csv",
+      "bytes": 375,
+      "sha256": "64971b6524169a74c48344d893cb940de84c571958f7d51985715600c7edb068",
+      "columns": [
+        "level",
+        "objects",
+        "J_size_iou",
+        "J_size_log_mae",
+        "P_size_iou",
+        "P_size_log_mae",
+        "prior_objects",
+        "prior_size_iou",
+        "prior_size_log_mae"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T1.csv",
+      "relative_path": "results/report-v2-selected-001/T1.csv",
+      "bytes": 733,
+      "sha256": "996ff21c9b82a91c16b2ab216b6bf786b1f588318e4c47b8864a0c81f133a20e",
+      "columns": [
+        "endpoint",
+        "J",
+        "P",
+        "delta",
+        "delta_ci_low",
+        "delta_ci_high",
+        "delta_n",
+        "delta_p",
+        "n",
+        "p",
+        "p_holm",
+        "J_ci_low",
+        "J_ci_high",
+        "J_n",
+        "J_p",
+        "P_ci_low",
+        "P_ci_high",
+        "P_n",
+        "P_p"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T1_bias.csv",
+      "relative_path": "results/report-v2-selected-001/T1_bias.csv",
+      "bytes": 564,
+      "sha256": "47c0645b5dfcdb5f84ea2283f4d584ca6c3b2a7032f6ccb37fd0e70fe6ac0fd9",
+      "columns": [
+        "system",
+        "footprint",
+        "footprint_ci_low",
+        "footprint_ci_high",
+        "footprint_n",
+        "footprint_p",
+        "volume",
+        "volume_ci_low",
+        "volume_ci_high",
+        "volume_n",
+        "volume_p",
+        "scale_factor"
+      ],
+      "rows": 3
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T1b.csv",
+      "relative_path": "results/report-v2-selected-001/T1b.csv",
+      "bytes": 1166,
+      "sha256": "baa4905fd5f26966a4bd3fbc89aaa5da94bd4b2b51b87d771ea47537ad94b348",
+      "columns": [
+        "field",
+        "micro",
+        "micro_ci_low",
+        "micro_ci_high",
+        "micro_n",
+        "micro_p",
+        "macro",
+        "macro_ci_low",
+        "macro_ci_high",
+        "macro_n",
+        "macro_p"
+      ],
+      "rows": 7
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T2.csv",
+      "relative_path": "results/report-v2-selected-001/T2.csv",
+      "bytes": 7914,
+      "sha256": "145a06277e2e9afd2b910d2670cff026f0fcb2a80532b7ba60486cee2c11d046",
+      "columns": [
+        "scope",
+        "requests",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "gt_oor",
+        "gt_oor_snapped",
+        "gt_oor_rotated",
+        "gt_oor_rotated_snapped",
+        "prior_size_iou",
+        "prior_size_log_mae",
+        "prior_bias_fp",
+        "prior_bias_vol",
+        "objects",
+        "global_fallback_object_rate",
+        "rooms_with_global_fallback_rate"
+      ],
+      "rows": 29
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T3.csv",
+      "relative_path": "results/report-v2-selected-001/T3.csv",
+      "bytes": 21131,
+      "sha256": "a446b85b8b88fbd84590adc50a518d7ef27bcd80a3cd2eda57a7071bcebdbac3",
+      "columns": [
+        "scope",
+        "requests",
+        "J_a",
+        "P_a",
+        "J_a1",
+        "P_a1",
+        "common_complete",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "debiased",
+        "debiased_ci_low",
+        "debiased_ci_high",
+        "debiased_n",
+        "debiased_p",
+        "bias_fp_J",
+        "bias_fp_J_ci_low",
+        "bias_fp_J_ci_high",
+        "bias_fp_J_n",
+        "bias_fp_J_p",
+        "bias_fp_P",
+        "bias_fp_P_ci_low",
+        "bias_fp_P_ci_high",
+        "bias_fp_P_n",
+        "bias_fp_P_p",
+        "bias_vol_J",
+        "bias_vol_J_ci_low",
+        "bias_vol_J_ci_high",
+        "bias_vol_J_n",
+        "bias_vol_J_p",
+        "bias_vol_P",
+        "bias_vol_P_ci_low",
+        "bias_vol_P_ci_high",
+        "bias_vol_P_n",
+        "bias_vol_P_p",
+        "size_log_mae_J",
+        "size_log_mae_J_ci_low",
+        "size_log_mae_J_ci_high",
+        "size_log_mae_J_n",
+        "size_log_mae_J_p",
+        "size_log_mae_P",
+        "size_log_mae_P_ci_low",
+        "size_log_mae_P_ci_high",
+        "size_log_mae_P_n",
+        "size_log_mae_P_p",
+        "components",
+        "flags",
+        "gt_success",
+        "gt_success_snapped",
+        "prior_size_log_mae"
+      ],
+      "rows": 26
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T4.csv",
+      "relative_path": "results/report-v2-selected-001/T4.csv",
+      "bytes": 13683,
+      "sha256": "de1c8f58e736ca741d739d0c47112a2e103d0994693a5b542ce9d5bc4c68b3c9",
+      "columns": [
+        "stratum",
+        "system",
+        "requests",
+        "complete",
+        "oor",
+        "oor_rotated",
+        "gt_oor",
+        "gt_oor_rotated",
+        "fid",
+        "fid_n",
+        "fid_flag",
+        "kid",
+        "kid_se",
+        "gpt",
+        "gpt_success",
+        "gpt_requested"
+      ],
+      "rows": 108
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T4_paper.csv",
+      "relative_path": "results/report-v2-selected-001/T4_paper.csv",
+      "bytes": 352,
+      "sha256": "ff5daa065666dca930463e72bd4ad2612e1580e9d0de5c6119bd19de83e59156",
+      "columns": [
+        "stratum",
+        "FID",
+        "OOR",
+        "functionality",
+        "layout",
+        "aesthetics"
+      ],
+      "rows": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5.csv",
+      "relative_path": "results/report-v2-selected-001/T5.csv",
+      "bytes": 10710,
+      "sha256": "64251d3f0ba008f269d5572ac82571212999062d8fd4538f1aabc697b7043219",
+      "columns": [
+        "scope",
+        "system",
+        "requests",
+        "complete_rate",
+        "geometry_success_rate",
+        "size_log_mae",
+        "size_iou",
+        "oor",
+        "bias_fp",
+        "bias_fp_ci_low",
+        "bias_fp_ci_high",
+        "bias_fp_n",
+        "bias_fp_p",
+        "bias_vol",
+        "bias_vol_ci_low",
+        "bias_vol_ci_high",
+        "bias_vol_n",
+        "bias_vol_p",
+        "scale_factor",
+        "success_debiased_rate"
+      ],
+      "rows": 36
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5_contrasts.csv",
+      "relative_path": "results/report-v2-selected-001/T5_contrasts.csv",
+      "bytes": 11059,
+      "sha256": "4620e06541d724e1ef8d5bfe4f1ff43dc0e5438480435b0896cf80aa54e25f2c",
+      "columns": [
+        "scope",
+        "comparison",
+        "geometry_success",
+        "geometry_success_ci_low",
+        "geometry_success_ci_high",
+        "geometry_success_n",
+        "geometry_success_p",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p"
+      ],
+      "rows": 66
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5_cost.csv",
+      "relative_path": "results/report-v2-selected-001/T5_cost.csv",
+      "bytes": 1180,
+      "sha256": "2eb7e9b6a0f69ad2d7f22c9568bfe31ef72e97aebf8dcd3df0005f4d320c834b",
+      "columns": [
+        "system",
+        "model",
+        "gpu_hours_full_test_generation",
+        "output_tokens",
+        "input_tokens",
+        "reasoning",
+        "calls",
+        "gpu_hours",
+        "reasoning_tokens",
+        "latency_p50_s",
+        "answers_reaching_cap"
+      ],
+      "rows": 10
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T6.csv",
+      "relative_path": "results/report-v2-selected-001/T6.csv",
+      "bytes": 874,
+      "sha256": "639222c785dfebc47864ad48e5091ef2c55bcf44ca1e3f28d5743095aba8a199",
+      "columns": [
+        "system",
+        "requests",
+        "complete",
+        "token_cap_without_eos",
+        "invalid_json",
+        "invalid_schema_or_geometry",
+        "generation_or_api_failure",
+        "missing_output",
+        "incomplete",
+        "cap_rule_flipped_complete",
+        "invalid_output",
+        "answers_reaching_cap"
+      ],
+      "rows": 18
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/report.md",
+      "relative_path": "results/report-v2-selected-001/report.md",
+      "bytes": 53605,
+      "sha256": "593f381e11dffb267550d41aa518e99d1278ce840a5a7465d50d8f5da79ecbfa"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/results.json",
+      "relative_path": "results/report-v2-selected-001/results.json",
+      "bytes": 271877,
+      "sha256": "9539d1044b070f8408fe874831f944e6f3b60070f263ab9056fc17e22bc8951a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/joint-sft-bo8/report.md",
+      "relative_path": "results/s1-012/joint-sft-bo8/report.md",
+      "bytes": 3761,
+      "sha256": "a885594e929d2b3bfd687e6771d908d7508fc6303dff694cb8b4bf86dc24c992"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/joint-sft-bo8/summary.json",
+      "relative_path": "results/s1-012/joint-sft-bo8/summary.json",
+      "bytes": 69759,
+      "sha256": "6e5806b5eabd12c89f3dc91b9faaeaf8b3a4a835ac6612fa115a82a499a7dc47"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/joint-sft-greedy/report.md",
+      "relative_path": "results/s1-012/joint-sft-greedy/report.md",
+      "bytes": 3761,
+      "sha256": "7305b021c7ff364a7ea63ba81c75555211869c917e988d1a0615c54d9579a443"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/joint-sft-greedy/summary.json",
+      "relative_path": "results/s1-012/joint-sft-greedy/summary.json",
+      "bytes": 69720,
+      "sha256": "6f645bd85c855a41422c20290a08e9f9a02db546e526b8eedeb987906bb251a5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/placement-rpo-dpo1-bo8/report.md",
+      "relative_path": "results/s1-012/placement-rpo-dpo1-bo8/report.md",
+      "bytes": 3761,
+      "sha256": "5957c3262201302fc14bb30a2f5ca41501bb8ec14a633a1d4a8056d15aaf379c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/placement-rpo-dpo1-bo8/summary.json",
+      "relative_path": "results/s1-012/placement-rpo-dpo1-bo8/summary.json",
+      "bytes": 68859,
+      "sha256": "01dfe850ebf870ee35655322b74ca8d7dcc209ec5a2e2fccccf6e6e4faf3d80d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/placement-rpo-dpo1-greedy/report.md",
+      "relative_path": "results/s1-012/placement-rpo-dpo1-greedy/report.md",
+      "bytes": 3761,
+      "sha256": "8571d89cc1c922d65aaa2c573b8b0bf5075ec96a518d9aba9331566de8c1d02d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/s1-012/placement-rpo-dpo1-greedy/summary.json",
+      "relative_path": "results/s1-012/placement-rpo-dpo1-greedy/summary.json",
+      "bytes": 69353,
+      "sha256": "82d7126dc91bf7d3f5af5308b0713205cd5f648c87ef7f0b8f0467594eef770c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/MANIFEST.json",
+      "relative_path": "results/scale-curve-016/MANIFEST.json",
+      "bytes": 1446,
+      "sha256": "e675d4fac5fba25197755f1cb7ea20d052d11ef61677a144f7eb265c15ad7bd8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/curves.csv",
+      "relative_path": "results/scale-curve-016/curves.csv",
+      "bytes": 1923119,
+      "sha256": "f7e206a67580490b8c4c7934ee5192637efa3eb52475410fee0780b9155e0e1a",
+      "columns": [
+        "scope",
+        "subset",
+        "system",
+        "rooms",
+        "components",
+        "flags",
+        "measure",
+        "variant",
+        "s",
+        "rate",
+        "ci_low",
+        "ci_high"
+      ],
+      "rows": 18216
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/reasons.csv",
+      "relative_path": "results/scale-curve-016/reasons.csv",
+      "bytes": 104968,
+      "sha256": "07b35cab2ae106d662dfb138780357f2f68813bc132faa4e90e10f1ae7115cab",
+      "columns": [
+        "scope",
+        "system",
+        "source",
+        "kind",
+        "rooms",
+        "checker_rate",
+        "downstream_rate",
+        "checker_reasons",
+        "downstream_reasons"
+      ],
+      "rows": 396
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/report.md",
+      "relative_path": "results/scale-curve-016/report.md",
+      "bytes": 147709,
+      "sha256": "bf5ef0db61aa9cdbb632162d9ebbb1a48bd67456d3488d801e2a54e31514a002"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/rules.csv",
+      "relative_path": "results/scale-curve-016/rules.csv",
+      "bytes": 1068775,
+      "sha256": "3bf8b32221d1cc489b885b2a3fe1dc8680a09e81accb8eb53a32e0e75bdc8a0e",
+      "columns": [
+        "scope",
+        "subset",
+        "system",
+        "rooms",
+        "components",
+        "flags",
+        "stage",
+        "rule",
+        "share"
+      ],
+      "rows": 11575
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/summary.csv",
+      "relative_path": "results/scale-curve-016/summary.csv",
+      "bytes": 735929,
+      "sha256": "1c5c30c558671934069653fe9f10596cc3506f6c724c37f74f3e8a85d530139e",
+      "columns": [
+        "scope",
+        "subset",
+        "system",
+        "rooms",
+        "components",
+        "flags",
+        "measure",
+        "variant",
+        "rate_s1",
+        "slope",
+        "slope_ci_low",
+        "slope_ci_high",
+        "s_match",
+        "s_match_ci_low",
+        "s_match_ci_high",
+        "s_match_valid_draws",
+        "unmatched",
+        "gt_target",
+        "pass_prior",
+        "pass_prior_ci_low",
+        "pass_prior_ci_high",
+        "own_minus_prior",
+        "own_minus_prior_ci_low",
+        "own_minus_prior_ci_high",
+        "pass_gt",
+        "pass_gt_ci_low",
+        "pass_gt_ci_high",
+        "own_minus_gt",
+        "own_minus_gt_ci_low",
+        "own_minus_gt_ci_high",
+        "bias_fp",
+        "bias_fp_ci_low",
+        "bias_fp_ci_high"
+      ],
+      "rows": 2024
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/validity.csv",
+      "relative_path": "results/scale-curve-016/validity.csv",
+      "bytes": 364385,
+      "sha256": "028ede375a277ce26f0fb58de72f224d10a264b14ffc51885f5bbab81dde5b31",
+      "columns": [
+        "scope",
+        "subset",
+        "system",
+        "rooms",
+        "components",
+        "flags",
+        "metric",
+        "rate",
+        "ci_low",
+        "ci_high"
+      ],
+      "rows": 3542
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/MANIFEST.json",
+      "relative_path": "results/sizes-020/MANIFEST.json",
+      "bytes": 366,
+      "sha256": "6545c1416c607724366059061561146c4db2979b31f74451a59ac96723f4e2aa"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/contrasts.csv",
+      "relative_path": "results/sizes-020/contrasts.csv",
+      "bytes": 32044,
+      "sha256": "f91f90dbb0793f4d150ae9fc02bc1ffbe4c43e242b601eba0de8ae461edd38c6",
+      "columns": [
+        "table",
+        "name",
+        "scope",
+        "rooms",
+        "components",
+        "flags",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "n",
+        "warnings"
+      ],
+      "rows": 256
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/levels.csv",
+      "relative_path": "results/sizes-020/levels.csv",
+      "bytes": 32213,
+      "sha256": "aeaca5a6177632a22f001449b6dc848c7f0cf2a1a8f7575766c344271f631286",
+      "columns": [
+        "table",
+        "name",
+        "scope",
+        "rooms",
+        "components",
+        "flags",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "n",
+        "warnings"
+      ],
+      "rows": 320
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/report.md",
+      "relative_path": "results/sizes-020/report.md",
+      "bytes": 21509,
+      "sha256": "4d1ea82d5a214fb3170c36e399f78fd23e732108798211c691bae19a369378fb"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/sizes-020/sizes.json",
+      "relative_path": "results/sizes-020/sizes.json",
+      "bytes": 175868,
+      "sha256": "aaf5da0376f7a8116b624f929f3d6f929181d11ff877e4d9312372a74d5f2867"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/MANIFEST.json",
+      "relative_path": "results/stage-table-010-001/MANIFEST.json",
+      "bytes": 854,
+      "sha256": "4b96ea6ba64ed8b78d179542d2714a0ad09e071cf68fddb7dfe3fe3ec45c1f93"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_decisions.csv",
+      "relative_path": "results/stage-table-010-001/stage_decisions.csv",
+      "bytes": 910,
+      "sha256": "b0a7fe6a75569798d00cb25359061875f0a1ced1b1f7054f86e71f1a13df8faf",
+      "columns": [
+        "stage",
+        "rule_outcome",
+        "condition_i_size_log_mae",
+        "condition_ii_debiased_success",
+        "note",
+        "missing"
+      ],
+      "rows": 4
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_dev.csv",
+      "relative_path": "results/stage-table-010-001/stage_dev.csv",
+      "bytes": 2856,
+      "sha256": "cf509ae452f5cfae3809bf31b4141ecfbca17e9413d3ad0c38488a9508617302",
+      "columns": [
+        "arm",
+        "candidate",
+        "requests",
+        "complete_rate",
+        "geometry_success",
+        "size_log_mae",
+        "sft_size_log_mae",
+        "common_with_sft",
+        "footprint_bias",
+        "a_prime",
+        "eligible",
+        "selected",
+        "missing"
+      ],
+      "rows": 14
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_differences.csv",
+      "relative_path": "results/stage-table-010-001/stage_differences.csv",
+      "bytes": 5260,
+      "sha256": "8981e60a10433264bf5373ce115650c6de8be68746ac62b6c8534af36e4c08e4",
+      "columns": [
+        "stage",
+        "endpoint",
+        "delta",
+        "delta_ci_low",
+        "delta_ci_high",
+        "delta_n",
+        "delta_p",
+        "n",
+        "p",
+        "p_holm",
+        "role",
+        "missing"
+      ],
+      "rows": 24
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_lineage.csv",
+      "relative_path": "results/stage-table-010-001/stage_lineage.csv",
+      "bytes": 2739,
+      "sha256": "3bc958eb6dae1505d6cc8fc40c40d7ccfb9b9d765b5dd1a7869fec21719bb9f9",
+      "columns": [
+        "stage",
+        "arm",
+        "evaluated_policy",
+        "recipe",
+        "pairs",
+        "pairs_kept_both_arms",
+        "admitted_pairs",
+        "steps",
+        "merge_changed_fraction",
+        "merge_note",
+        "model_sha256",
+        "lineage_receipt_sha256",
+        "missing"
+      ],
+      "rows": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_pairs.csv",
+      "relative_path": "results/stage-table-010-001/stage_pairs.csv",
+      "bytes": 161,
+      "sha256": "1640d57fc6a4d86b8bf39d259aa3f8cca4e49a6ff4b1fc16037ce37938903d7d",
+      "columns": [
+        "stage",
+        "pairs_dir",
+        "manifest_sha256",
+        "positives",
+        "kept_both_arms",
+        "missing"
+      ],
+      "rows": 1
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_reference.csv",
+      "relative_path": "results/stage-table-010-001/stage_reference.csv",
+      "bytes": 1430,
+      "sha256": "47e310983545d7aef9de277d4249742239f7715e09f43c1375a8546122a20583",
+      "columns": [
+        "stage",
+        "arm",
+        "requests",
+        "geometry_success",
+        "oor_axis",
+        "oor_rotated",
+        "oor_axis_strata",
+        "oor_rotated_strata",
+        "complete_rate",
+        "debiased_success",
+        "size_iou",
+        "size_log_mae",
+        "automatic_acceptance",
+        "bias_fp",
+        "bias_vol",
+        "cap_rule_flipped_complete",
+        "missing"
+      ],
+      "rows": 2
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_stages.csv",
+      "relative_path": "results/stage-table-010-001/stage_stages.csv",
+      "bytes": 7987,
+      "sha256": "441a3cf001537e9e0f28e21a6910d2356a3002f38722a6950454fc98c20366f5",
+      "columns": [
+        "stage",
+        "arm",
+        "requests",
+        "complete_rate",
+        "geometry_success",
+        "debiased_success",
+        "size_iou",
+        "size_log_mae",
+        "size_log_mae_ci_low",
+        "size_log_mae_ci_high",
+        "size_log_mae_n",
+        "size_log_mae_p",
+        "oor_axis",
+        "oor_rotated",
+        "oor_axis_strata",
+        "oor_rotated_strata",
+        "automatic_acceptance",
+        "bias_fp",
+        "bias_fp_ci_low",
+        "bias_fp_ci_high",
+        "bias_fp_n",
+        "bias_fp_p",
+        "bias_vol",
+        "bias_vol_ci_low",
+        "bias_vol_ci_high",
+        "bias_vol_n",
+        "bias_vol_p",
+        "cap_rule_flipped_complete",
+        "missing"
+      ],
+      "rows": 8
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_table.json",
+      "relative_path": "results/stage-table-010-001/stage_table.json",
+      "bytes": 52186,
+      "sha256": "70b100f14ecabdc16051ac7ea14ab5abd4cdc44512987a24f4e1b90dceb671e2"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_table.md",
+      "relative_path": "results/stage-table-010-001/stage_table.md",
+      "bytes": 18715,
+      "sha256": "f23b35248b9ece4eacf11bf6709425a4cc21dd7efc286e0f9eec268c5d5315a1"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/MANIFEST.json",
+      "relative_path": "results/system-022-cohort/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "ad2346ef99221a4b9cc44d830a672d0334c3c3d42cf185c6a30f6784e26742cf"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/NOT_IN_GIT.md",
+      "relative_path": "results/system-022-cohort/NOT_IN_GIT.md",
+      "bytes": 211,
+      "sha256": "aeaea5f05b091cd070bd8b05ada88c819547cf5e688f68e85633ea0190ea89b9"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/levels.csv",
+      "relative_path": "results/system-022-cohort/levels.csv",
+      "bytes": 256109,
+      "sha256": "2767eb4fa719877bcb6b64e61e006abfaedf447c55d9dd2e48beb0ce38614826",
+      "columns": [
+        "label",
+        "scope",
+        "subset",
+        "system",
+        "stage",
+        "requests",
+        "complete_rooms",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 1265
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/report.md",
+      "relative_path": "results/system-022-cohort/report.md",
+      "bytes": 61395,
+      "sha256": "cf284c6010f54bd37a0b164d5097b9117c0a4cfe4f497d529a9d7eeeafc184d5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/MANIFEST.json",
+      "relative_path": "results/system-022-test-sharded/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "9696eb87dedd829fc7dba7737fce429d17c5a80c1ae67220dfb9fa2907e67d34"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/NOT_IN_GIT.md",
+      "relative_path": "results/system-022-test-sharded/NOT_IN_GIT.md",
+      "bytes": 272,
+      "sha256": "cd5863960782cf322eadf6870193f8ab8092e1f9927d868181322291079d5075"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/levels.csv",
+      "relative_path": "results/system-022-test-sharded/levels.csv",
+      "bytes": 14545,
+      "sha256": "84f37dc7b2b3035018429a6789d18face8997dca21ef260517963a2b5df96a40",
+      "columns": [
+        "label",
+        "scope",
+        "subset",
+        "system",
+        "stage",
+        "requests",
+        "complete_rooms",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 69
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/report.md",
+      "relative_path": "results/system-022-test-sharded/report.md",
+      "bytes": 8305,
+      "sha256": "caec7a2e269dfdef3b301f58e53fab178ea23e577c57ab27054a3955ee99ce63"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/MANIFEST.json",
+      "relative_path": "results/test-apply-012/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "a6c4dddbcd9009d878970de88c8762a55e898d71ad3208ce92d946c43e086954"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/contrasts.csv",
+      "relative_path": "results/test-apply-012/contrasts.csv",
+      "bytes": 323316,
+      "sha256": "602b4beaabfdc6b6e1bbbe338187a7dad7a1ba7ce2b983b961126e36e36dbbad",
+      "columns": [
+        "label",
+        "scope",
+        "comparison",
+        "subset",
+        "rooms",
+        "components",
+        "bias_fp_first",
+        "bias_fp_second",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p_unadjusted",
+        "n",
+        "warnings"
+      ],
+      "rows": 1484
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/levels.csv",
+      "relative_path": "results/test-apply-012/levels.csv",
+      "bytes": 210622,
+      "sha256": "efbbc93e1f8c2f29687ad5ce9479e9494aca239f5c39813cdb54008fe1fde15a",
+      "columns": [
+        "label",
+        "scope",
+        "subset",
+        "system",
+        "stage",
+        "requests",
+        "complete_rooms",
+        "complete_rate",
+        "checker_rate",
+        "downstream_rate",
+        "accepted_rate",
+        "bias_fp",
+        "moved_median_m",
+        "moved_p95_m",
+        "moved_fraction",
+        "over_0_5m_fraction",
+        "timed_out",
+        "rolled_back"
+      ],
+      "rows": 1050
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/report.md",
+      "relative_path": "results/test-apply-012/report.md",
+      "bytes": 78060,
+      "sha256": "d2e2651d281de603034dc05081736029df88d0089e509a91918f7a102c078562"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/results.json",
+      "relative_path": "results/test-apply-012/results.json",
+      "bytes": 2279011,
+      "sha256": "ea37c7772dfbaafe55b5e07e6509cbf96b750c494e8356b384116e0023fe4f56"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/NOT_IN_GIT.md",
+      "relative_path": "results/visual-024/NOT_IN_GIT.md",
+      "bytes": 580,
+      "sha256": "1029db0c42d82d0e239aed414dcedea9fb05b6d695dcef5eef8b00e315773e2d"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/fid-summary-A-S.json",
+      "relative_path": "results/visual-024/fid-summary-A-S.json",
+      "bytes": 56144,
+      "sha256": "7bde8b4ac22dba0c903e0090f05c38c0ebab9f1be689dfb7964ec85515b56626"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/fid-summary-A.json",
+      "relative_path": "results/visual-024/fid-summary-A.json",
+      "bytes": 51509,
+      "sha256": "e28422997807b30576578d288aa234662bf3f11041fdd35fa616f722e0b9611a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/judge-A-S-aggregate.csv",
+      "relative_path": "results/visual-024/judge-A-S-aggregate.csv",
+      "bytes": 1985,
+      "sha256": "63dc01ba7f9d671972e7f5e1cf1f4244e0cea58b2e51d2a5e852d37c2851d3e5",
+      "columns": [
+        "arm",
+        "stratum",
+        "selected",
+        "success",
+        "failed",
+        "functionality_count",
+        "functionality_missing",
+        "functionality_mean",
+        "layout_count",
+        "layout_missing",
+        "layout_mean",
+        "aesthetics_count",
+        "aesthetics_missing",
+        "aesthetics_mean",
+        "overall_count",
+        "overall_missing",
+        "overall_mean"
+      ],
+      "rows": 14
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/judge-A-S-summary.json",
+      "relative_path": "results/visual-024/judge-A-S-summary.json",
+      "bytes": 144867,
+      "sha256": "d1862ebe0649b59636331164fc882221a7f7cab4607f2ee2ec7f2daefa6a5e97"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-report-A.md",
+      "relative_path": "results/visual-024/mesh-report-A.md",
+      "bytes": 6195,
+      "sha256": "b8daee374c458b558b91538f68597317323d217b2827c770ac85344e2e6b0624"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-report-S.md",
+      "relative_path": "results/visual-024/mesh-report-S.md",
+      "bytes": 6180,
+      "sha256": "0a9c57e12483467d2e847e1578c5af1ecfec54a70b4c0d5ae439cbe32e5eb933"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-reproduction-019-A.json",
+      "relative_path": "results/visual-024/mesh-reproduction-019-A.json",
+      "bytes": 245,
+      "sha256": "71715ac50d3a01e6d260c5e48171bef3b65dce40bbe68ac7e397dafd1cbc08c8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-reproduction-019-S.json",
+      "relative_path": "results/visual-024/mesh-reproduction-019-S.json",
+      "bytes": 245,
+      "sha256": "71715ac50d3a01e6d260c5e48171bef3b65dce40bbe68ac7e397dafd1cbc08c8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-A.json",
+      "relative_path": "results/visual-024/mesh-summary-A.json",
+      "bytes": 14415,
+      "sha256": "3ef499b63ed97e43f50ead05f67d12c25bdd1131f6a37416891600b7a78067b1"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-S.json",
+      "relative_path": "results/visual-024/mesh-summary-S.json",
+      "bytes": 14385,
+      "sha256": "d841d32e4dcea5f344a40ffa301370f4c00abff26e369f9da990c0d899be7054"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/preparation-A.json",
+      "relative_path": "results/visual-024/preparation-A.json",
+      "bytes": 56223,
+      "sha256": "9d26433dd386bfa4b11769da15a0b6b58f63aabaf9dd56a3e743941ff679ff17"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/preparation-S.json",
+      "relative_path": "results/visual-024/preparation-S.json",
+      "bytes": 56818,
+      "sha256": "74be94fe0449eb46f6fda0dac6a36de94d761ccf02fd4dc00f33675fea30b27c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/render-A.json",
+      "relative_path": "results/visual-024/render-A.json",
+      "bytes": 610,
+      "sha256": "03febcf1be0d76bd87d14e8f381876f1e15ff567714334b4839c96416012f701"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/render-S.json",
+      "relative_path": "results/visual-024/render-S.json",
+      "bytes": 610,
+      "sha256": "78568f64756abc0575eca9f126fe4f85129b53f1bdb11a47c6e244d474d6b78f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/LOCAL_VERIFICATION.json",
+      "relative_path": "evidence/a027-resume-20261015/completed/LOCAL_VERIFICATION.json",
+      "bytes": 1112,
+      "sha256": "f43d2d0bcf618ac226eb739602278140955fcf6995a0949e69fcc711d74f326a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/MANIFEST.json",
+      "relative_path": "evidence/a027-resume-20261015/completed/eval/MANIFEST.json",
+      "bytes": 368,
+      "sha256": "5b8a5f2494356c223eca0c61fb2943a670a977b32f89f2f08b5fac0231b8e024"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/contrasts.csv",
+      "relative_path": "evidence/a027-resume-20261015/completed/eval/contrasts.csv",
+      "bytes": 79624,
+      "sha256": "3952acaf540c563937070d7dc44eb77416d288ca85815d8c3cc99d74f0f1fe7e",
+      "columns": [
+        "label",
+        "scope",
+        "subset",
+        "comparison",
+        "rooms",
+        "components",
+        "field",
+        "estimate",
+        "ci_low",
+        "ci_high",
+        "p"
+      ],
+      "rows": 480
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/levels.csv",
+      "relative_path": "evidence/a027-resume-20261015/completed/eval/levels.csv",
+      "bytes": 16415,
+      "sha256": "29fe05444368b3bea08334cd9bfbf62ec3d1ef6315d18aea363546ed5bbce8a3",
+      "columns": [
+        "label",
+        "scope",
+        "subset",
+        "system",
+        "stage",
+        "requests",
+        "complete_rooms",
+        "complete_rate",
+        "checker_rate",
+        "strict_rate",
+        "noreq_rate",
+        "oor",
+        "size_log_mae",
+        "size_iou",
+        "bias_fp"
+      ],
+      "rows": 72
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/report.md",
+      "relative_path": "evidence/a027-resume-20261015/completed/eval/report.md",
+      "bytes": 10155,
+      "sha256": "164aacff2984c3b71f7f643a1734c87cd5b2efd0d86aa260b47dbc61d7c84c30"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/results.json",
+      "relative_path": "evidence/a027-resume-20261015/completed/eval/results.json",
+      "bytes": 183939,
+      "sha256": "b6438e44fb7b5d74539af3a5d7c9d90c2bbae07fccb1c3937eef3220f0c5337b"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/verification.json",
+      "relative_path": "evidence/a027-resume-20261015/completed/verification.json",
+      "bytes": 540,
+      "sha256": "1ac7b08cbcd59a0ef5c29340e09bb2f426201c0830eda9205db155df06082eb3"
+    }
+  ]
+}

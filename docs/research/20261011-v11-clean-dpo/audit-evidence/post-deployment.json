@@ -1,0 +1,96 @@
+{
+  "at": "2026-10-11T19:16:51.278030+00:00",
+  "original_source": {
+    "source_sha256": "3e3eef72c51546cc0a22134e4409853570b988c4e5932823182d42007f6197c4",
+    "files": 224,
+    "mismatches": []
+  },
+  "helper_source": {
+    "source_sha256": "a560b279eef244d7e0dc95110d32c542f0f50c5cdbf65fe8359b7deca3568473",
+    "files": 236,
+    "mismatches": []
+  },
+  "squeue": "7255091|PENDING|0:00|(Dependency)\n7255088|PENDING|0:00|(Dependency)\n7255087|PENDING|0:00|(Dependency)\n7255086|PENDING|0:00|(Dependency)\n7255085|PENDING|0:00|(Dependency)\n7252875|PENDING|0:00|(Dependency)\n7255089|RUNNING|0:40|nid010032\n7255090|RUNNING|0:40|nid010034\n7252874|RUNNING|2:03:38|nid010065\n",
+  "sacct": "JobID|JobName|State|ExitCode|Start|End|Elapsed|AllocTRES\n7252874|ff-clean-train-1|RUNNING|0:0|2026-10-11T17:13:13|Unknown|02:03:38|billing=72,cpu=72,gres/gpu=4,mem=460000M,node=1\n7252874.batch|batch|RUNNING|0:0|2026-10-11T17:13:13|Unknown|02:03:38|cpu=72,gres/gpu=4,mem=460000M,node=1\n7252875|ff-clean-train-2|PENDING|0:0|Unknown|Unknown|00:00:00|\n7252878|ff-full-dpo1-1|CANCELLED by 1483807663|0:0|None|2026-10-11T19:16:08|00:00:00|\n7252879|ff-full-dpo1-2|CANCELLED by 1483807663|0:0|None|2026-10-11T19:16:08|00:00:00|\n7252880|ff-full-final-1|CANCELLED by 1483807663|0:0|None|2026-10-11T19:16:08|00:00:00|\n7252881|ff-full-final-2|CANCELLED by 1483807663|0:0|None|2026-10-11T19:16:08|00:00:00|\n7252889|ff-research-report|CANCELLED by 1483807663|0:0|None|2026-10-11T19:16:08|00:00:00|\n7255085|ff-verified-dpo1-1|PENDING|0:0|Unknown|Unknown|00:00:00|\n7255086|ff-verified-dpo1-2|PENDING|0:0|Unknown|Unknown|00:00:00|\n7255087|ff-verified-final-1|PENDING|0:0|Unknown|Unknown|00:00:00|\n7255088|ff-verified-final-2|PENDING|0:0|Unknown|Unknown|00:00:00|\n7255089|ff-cpu-sft-rescore|RUNNING|0:0|2026-10-11T19:16:11|Unknown|00:00:40|billing=72,cpu=72,mem=32G,node=1\n7255089.batch|batch|RUNNING|0:0|2026-10-11T19:16:11|Unknown|00:00:40|cpu=72,mem=32G,node=1\n7255090|ff-cpu-dpo1-lineage|RUNNING|0:0|2026-10-11T19:16:11|Unknown|00:00:40|billing=72,cpu=72,mem=32G,node=1\n7255090.batch|batch|RUNNING|0:0|2026-10-11T19:16:11|Unknown|00:00:40|cpu=72,mem=32G,node=1\n7255091|ff-audited-report|PENDING|0:0|Unknown|Unknown|00:00:00|\n",
+  "verification": {
+    "sft": {
+      "interpretation": "Independent CPU scoring reproduction; not model quality or generation authenticity.",
+      "runtime": {
+        "executable": "/home/u6uv/shanliantian.u6uv/miniforge3/envs/vllm/bin/python3.11",
+        "packages": {
+          "numpy": "2.3.5",
+          "shapely": "2.2.0",
+          "torch": "2.13.0",
+          "transformers": "5.17.0",
+          "vllm": "0.31.0"
+        },
+        "python": "3.11.17",
+        "sys_version": "3.11.17 (main, Oct  7 2026, 00:02:54) [GCC 15.3.0]"
+      },
+      "schema_version": 1,
+      "scoring_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515",
+      "started_at": "2026-10-11T19:16:14.281107+00:00",
+      "status": "running",
+      "tag": "sft",
+      "verifier": {
+        "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-audit-20261011-a560b279eef2/fastfill/v1_1/verify_outputs.py",
+        "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+        "size_bytes": 14393
+      }
+    },
+    "dpo1": null,
+    "final": null
+  },
+  "logs": {
+    "ff-cpu-sft-rescore": {
+      "present": true,
+      "bytes": 0,
+      "mtime": "2026-10-11T19:16:11+00:00",
+      "tail": [],
+      "last_json": null
+    },
+    "ff-cpu-dpo1-lineage": {
+      "present": true,
+      "bytes": 0,
+      "mtime": "2026-10-11T19:16:11+00:00",
+      "tail": [],
+      "last_json": null
+    },
+    "ff-audited-report": {
+      "present": false
+    },
+    "training": {
+      "present": true,
+      "bytes": 21135,
+      "mtime": "2026-10-11T19:16:13+00:00",
+      "tail": [
+        "{\"epoch\": 1, \"step\": 170, \"total_steps\": 1496, \"dpo_loss\": 0.0177, \"reward_acc\": 1.0, \"reward_margin\": 4.0233}",
+        "{\"epoch\": 1, \"step\": 180, \"total_steps\": 1496, \"dpo_loss\": 0.0024, \"reward_acc\": 1.0, \"reward_margin\": 6.0365}",
+        "{\"epoch\": 1, \"step\": 190, \"total_steps\": 1496, \"dpo_loss\": 0.0003, \"reward_acc\": 1.0, \"reward_margin\": 7.9684}",
+        "{\"epoch\": 1, \"step\": 200, \"total_steps\": 1496, \"dpo_loss\": 0.0011, \"reward_acc\": 1.0, \"reward_margin\": 6.8101}",
+        "{\"epoch\": 1, \"step\": 210, \"total_steps\": 1496, \"dpo_loss\": 0.0001, \"reward_acc\": 1.0, \"reward_margin\": 9.3463}",
+        "{\"epoch\": 1, \"step\": 220, \"total_steps\": 1496, \"dpo_loss\": 0.0963, \"reward_acc\": 1.0, \"reward_margin\": 2.2916}",
+        "{\"epoch\": 1, \"step\": 230, \"total_steps\": 1496, \"dpo_loss\": 0.0003, \"reward_acc\": 1.0, \"reward_margin\": 8.1906}",
+        "{\"epoch\": 1, \"step\": 240, \"total_steps\": 1496, \"dpo_loss\": 0.001, \"reward_acc\": 1.0, \"reward_margin\": 6.9557}",
+        "{\"epoch\": 1, \"step\": 250, \"total_steps\": 1496, \"dpo_loss\": 0.1164, \"reward_acc\": 1.0, \"reward_margin\": 2.0919}",
+        "{\"epoch\": 1, \"step\": 260, \"total_steps\": 1496, \"dpo_loss\": 0.0009, \"reward_acc\": 1.0, \"reward_margin\": 7.052}",
+        "{\"epoch\": 1, \"step\": 270, \"total_steps\": 1496, \"dpo_loss\": 0.0, \"reward_acc\": 1.0, \"reward_margin\": 10.2345}",
+        "{\"epoch\": 1, \"step\": 280, \"total_steps\": 1496, \"dpo_loss\": 0.0, \"reward_acc\": 1.0, \"reward_margin\": 11.3421}"
+      ],
+      "last_json": {
+        "epoch": 1,
+        "step": 280,
+        "total_steps": 1496,
+        "dpo_loss": 0.0,
+        "reward_acc": 1.0,
+        "reward_margin": 11.3421
+      }
+    }
+  },
+  "spooled_scripts": {
+    "ff-verified-dpo1-1": true,
+    "ff-cpu-sft-rescore": true,
+    "ff-audited-report": true
+  },
+  "report_exists": false
+}

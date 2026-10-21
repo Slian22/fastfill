@@ -1,0 +1,2216 @@
+{
+  "schema_version": "fastfill.roomgenbench-assembly.v1",
+  "scene_key": "fastfill_6212361fabde7fd5",
+  "scene": "fastfill_6212361fabde7fd5",
+  "room_type": "bedroom",
+  "walls": [
+    {
+      "name": "shell_wall_0",
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_1",
+      "normal": [
+        1.0,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_2",
+      "normal": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_3",
+      "normal": [
+        -1.0,
+        -0.0,
+        0.0
+      ]
+    }
+  ],
+  "method": "embodiedgen_v2",
+  "assembly_complete": true,
+  "generated_mesh_success": false,
+  "requested_objects": 51,
+  "counts": {
+    "ok": 49,
+    "fit_mismatch": 2
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "asset_key": "bed_c080bd93",
+      "type": "bed",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_000",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.1534492373466492,
+        0.981269278563559,
+        1.604613721370697
+      ],
+      "native_size_sage_local_m": [
+        1.1534492373466492,
+        1.604613721370697,
+        0.981269278563559
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.04,
+        1.234,
+        0.999
+      ],
+      "fitted_size_sage_local_m": [
+        1.2000000000000002,
+        1.9799999999999998,
+        0.98
+      ],
+      "source_glb_sha256": "f6f7160ea05d1a80f59bfb734b8313de2bdf2b6d591e5f3f976713bc8b984814",
+      "source_sidecar_sha256": "8ca32dface8de9a8b7751a1ff43ccf6d62af9dc7911ab4eb22fc37b58000cfad"
+    },
+    {
+      "id": "obj_0001",
+      "asset_key": "nightstand_c11a1e47",
+      "type": "nightstand",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_001",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.525521457195282,
+        0.6595840454101562,
+        0.4706684947013855
+      ],
+      "native_size_sage_local_m": [
+        0.525521457195282,
+        0.4706684947013855,
+        0.6595840454101562
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.574,
+        0.758
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.27,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "c7651adfb1df03ef7539934f13018fd57b666cc0c54b1d2f19ae1ba4ff939fad",
+      "source_sidecar_sha256": "85c984483e4273b02ba01e2aff2c830e44324a3ae0a4b423dc5b595be6c71d01"
+    },
+    {
+      "id": "obj_0002",
+      "asset_key": "nightstand_c11a1e47",
+      "type": "nightstand",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_002",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.525521457195282,
+        0.6595840454101562,
+        0.4706684947013855
+      ],
+      "native_size_sage_local_m": [
+        0.525521457195282,
+        0.4706684947013855,
+        0.6595840454101562
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.723,
+        0.574,
+        0.758
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.27,
+        0.49999999999999994
+      ],
+      "source_glb_sha256": "c7651adfb1df03ef7539934f13018fd57b666cc0c54b1d2f19ae1ba4ff939fad",
+      "source_sidecar_sha256": "85c984483e4273b02ba01e2aff2c830e44324a3ae0a4b423dc5b595be6c71d01"
+    },
+    {
+      "id": "obj_0003",
+      "asset_key": "dresser_daa86aa4",
+      "type": "dresser",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_003",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.119055151939392,
+        0.7318751184920984,
+        0.43922753632068634
+      ],
+      "native_size_sage_local_m": [
+        1.119055151939392,
+        0.43922753632068634,
+        0.7318751184920984
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.599,
+        0.683,
+        1.025
+      ],
+      "fitted_size_sage_local_m": [
+        0.6700000000000002,
+        0.30000000000000004,
+        0.75
+      ],
+      "source_glb_sha256": "b8834ba6507f577fd3ceb559a081750aafd070e36705b70dd985d99cb4757d71",
+      "source_sidecar_sha256": "16fd7068b626a8dce5e1b6acd193736ff3d91239bf0d6fdfb57ad5ae803b6820"
+    },
+    {
+      "id": "obj_0004",
+      "asset_key": "wardrobe_e3c4eb1e",
+      "type": "wardrobe",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_004",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6005818545818329,
+        1.1358227729797363,
+        0.3386288732290268
+      ],
+      "native_size_sage_local_m": [
+        0.6005818545818329,
+        0.3386288732290268,
+        1.1358227729797363
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        2.498,
+        1.477,
+        1.497
+      ],
+      "fitted_size_sage_local_m": [
+        1.5,
+        0.49999999999999994,
+        1.7000000000000002
+      ],
+      "source_glb_sha256": "26dbaafeb9ee896014f99b13a7fabde65b9c18bdb5c71cbd7838943cde4fb71c",
+      "source_sidecar_sha256": "6c60967ce4e789f9b07a39a93e5986461afcc309a393316674edebef14bdabb2"
+    },
+    {
+      "id": "obj_0005",
+      "asset_key": "chair_adc7540b",
+      "type": "chair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_005",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.688534140586853,
+        0.9513873191608582,
+        0.7306057810783386
+      ],
+      "native_size_sage_local_m": [
+        0.688534140586853,
+        0.7306057810783386,
+        0.9513873191608582
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.944,
+        0.944,
+        0.946
+      ],
+      "fitted_size_sage_local_m": [
+        0.65,
+        0.69,
+        0.9
+      ],
+      "source_glb_sha256": "a3d74619083314c9dbb44c98d023badc7df98da20f32d757a7c7262d385e40ce",
+      "source_sidecar_sha256": "76168ffdaa7edb62398dcbae362ceab02f19c7b3c0985fa504754beb0e3dda13"
+    },
+    {
+      "id": "obj_0006",
+      "asset_key": "bench_b48a7b47",
+      "type": "bench",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_006",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8104388415813446,
+        0.3957589138590265,
+        0.30780698359012604
+      ],
+      "native_size_sage_local_m": [
+        0.8104388415813446,
+        0.30780698359012604,
+        0.3957589138590265
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.357,
+        1.787,
+        1.137
+      ],
+      "fitted_size_sage_local_m": [
+        1.1,
+        0.55,
+        0.45
+      ],
+      "source_glb_sha256": "6fb50a596034ea2fb24cecafbf010230f4cc8c57c301572be2a7da9da62ced46",
+      "source_sidecar_sha256": "2ecab649232e5fdc8d937a609ff2223927bc8277149d2ccab0ed3d30869d72cc"
+    },
+    {
+      "id": "obj_0007",
+      "asset_key": "plant_f79e4cf7",
+      "type": "plant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_007",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3736787885427475,
+        0.3756506574281957,
+        0.32383202016353607
+      ],
+      "native_size_sage_local_m": [
+        0.3736787885427475,
+        0.32383202016353607,
+        0.3756506574281957
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.669,
+        0.834,
+        1.438
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.27,
+        0.54
+      ],
+      "source_glb_sha256": "5c7254278b8b9d1ec2419d4d310a65b162b9c2f95d3ca526a9fb80ac72050bd2",
+      "source_sidecar_sha256": "bb658873d4275f96fcad51c7659e07f97c3d17cf8150e8de676dbe8835ce9ab5"
+    },
+    {
+      "id": "obj_0008",
+      "asset_key": "plant_f79e4cf7",
+      "type": "plant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_008",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3736787885427475,
+        0.3756506574281957,
+        0.32383202016353607
+      ],
+      "native_size_sage_local_m": [
+        0.3736787885427475,
+        0.32383202016353607,
+        0.3756506574281957
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.669,
+        0.834,
+        1.438
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.27,
+        0.54
+      ],
+      "source_glb_sha256": "5c7254278b8b9d1ec2419d4d310a65b162b9c2f95d3ca526a9fb80ac72050bd2",
+      "source_sidecar_sha256": "bb658873d4275f96fcad51c7659e07f97c3d17cf8150e8de676dbe8835ce9ab5"
+    },
+    {
+      "id": "obj_0009",
+      "asset_key": "lamp_7ef0116d",
+      "type": "lamp",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_009",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.41222214698791504,
+        1.7551043690837105,
+        0.4135076701641083
+      ],
+      "native_size_sage_local_m": [
+        0.41222214698791504,
+        0.4135076701641083,
+        1.7551043690837105
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.485,
+        0.701,
+        0.678
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.29,
+        1.19
+      ],
+      "source_glb_sha256": "40aa906d2c6b2debea377f4b8f498b9c92643b35e1be29aac62fe5527861e07b",
+      "source_sidecar_sha256": "812a10f41c799d5d5adddfc5b9fd3aae1e85284ee64f10b8189b4cd0eadc9bf0"
+    },
+    {
+      "id": "obj_0010",
+      "asset_key": "sculpture_c33efaa8",
+      "type": "sculpture",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_010",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21295564621686935,
+        0.4640498459339142,
+        0.18185564875602722
+      ],
+      "native_size_sage_local_m": [
+        0.21295564621686935,
+        0.18185564875602722,
+        0.4640498459339142
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.784,
+        1.54,
+        1.293
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.28,
+        0.6
+      ],
+      "source_glb_sha256": "1b5589028e9a38bd1254523297ed67b21138bc5002883dbdeb5cfc68e5a93408",
+      "source_sidecar_sha256": "aea2247345149a65541658214e5f0d5ebfbdbc659527633e594d328911cecf74"
+    },
+    {
+      "id": "obj_0011",
+      "asset_key": "floorplant_5759acd5",
+      "type": "floorplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_011",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3321474492549896,
+        0.6471325561324193,
+        0.3638256788253784
+      ],
+      "native_size_sage_local_m": [
+        0.3321474492549896,
+        0.3638256788253784,
+        0.6471325561324193
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.144,
+        1.017,
+        0.927
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.37,
+        0.6
+      ],
+      "source_glb_sha256": "f6d307760818c6163900f4de10c30971a009587004aa219a6137ecb6c8611b55",
+      "source_sidecar_sha256": "b0e2e387da443bfeb66a5f0f4d08fcb1005f0a3f302b02d3fae569b0f86c29b3"
+    },
+    {
+      "id": "obj_0012",
+      "asset_key": "floorplant_5759acd5",
+      "type": "floorplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_012",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3321474492549896,
+        0.6471325561324193,
+        0.3638256788253784
+      ],
+      "native_size_sage_local_m": [
+        0.3321474492549896,
+        0.3638256788253784,
+        0.6471325561324193
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.144,
+        1.017,
+        0.927
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.37,
+        0.6
+      ],
+      "source_glb_sha256": "f6d307760818c6163900f4de10c30971a009587004aa219a6137ecb6c8611b55",
+      "source_sidecar_sha256": "b0e2e387da443bfeb66a5f0f4d08fcb1005f0a3f302b02d3fae569b0f86c29b3"
+    },
+    {
+      "id": "obj_0013",
+      "asset_key": "floorplant_7c472977",
+      "type": "floorplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_013",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38015103340148926,
+        0.42660395335406065,
+        0.3781720846891403
+      ],
+      "native_size_sage_local_m": [
+        0.38015103340148926,
+        0.3781720846891403,
+        0.42660395335406065
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.921,
+        0.926,
+        1.524
+      ],
+      "fitted_size_sage_local_m": [
+        0.35,
+        0.35,
+        0.6499999999999999
+      ],
+      "source_glb_sha256": "35c89807d050e290a72a33eef9ee8299ab710de558c971ba062a2099a9652fdb",
+      "source_sidecar_sha256": "e00b32f9a4f5b4c4b4d00f7fcb78bd357343c5c37a1c537baac8b35d7e651513"
+    },
+    {
+      "id": "obj_0014",
+      "asset_key": "floorplant_7c472977",
+      "type": "floorplant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_014",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.38015103340148926,
+        0.42660395335406065,
+        0.3781720846891403
+      ],
+      "native_size_sage_local_m": [
+        0.38015103340148926,
+        0.3781720846891403,
+        0.42660395335406065
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.921,
+        0.926,
+        1.524
+      ],
+      "fitted_size_sage_local_m": [
+        0.35,
+        0.35,
+        0.6499999999999999
+      ],
+      "source_glb_sha256": "35c89807d050e290a72a33eef9ee8299ab710de558c971ba062a2099a9652fdb",
+      "source_sidecar_sha256": "e00b32f9a4f5b4c4b4d00f7fcb78bd357343c5c37a1c537baac8b35d7e651513"
+    },
+    {
+      "id": "obj_0015",
+      "asset_key": "floorlamp_ca5fddbd",
+      "type": "floorlamp",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_015",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.42927056550979614,
+        1.5917062759399414,
+        0.428687646985054
+      ],
+      "native_size_sage_local_m": [
+        0.42927056550979614,
+        0.428687646985054,
+        1.5917062759399414
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.815,
+        1.05,
+        0.942
+      ],
+      "fitted_size_sage_local_m": [
+        0.35,
+        0.45,
+        1.5
+      ],
+      "source_glb_sha256": "dc5ec4b4230fdbce47c09de714d35ebbccfcba559ac0f2c8b62686b1cbb02004",
+      "source_sidecar_sha256": "bcbd2ce0f69917e2dfcd0421a590aa8a454d40cdfbaa8839e702d87d789f9f32"
+    },
+    {
+      "id": "obj_0016",
+      "asset_key": "tablelamp_e242f3bb",
+      "type": "tablelamp",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_016",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.27977949380874634,
+        0.6521686768101063,
+        0.27977949380874634
+      ],
+      "native_size_sage_local_m": [
+        0.27977949380874634,
+        0.27977949380874634,
+        0.6521686768101063
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.286,
+        0.286,
+        0.583
+      ],
+      "fitted_size_sage_local_m": [
+        0.08000000000000002,
+        0.08000000000000002,
+        0.38
+      ],
+      "source_glb_sha256": "c42aae28d6b4366b99ba9d2822e227d208b41c3238465adaf282505d8289fe9a",
+      "source_sidecar_sha256": "7c13f72dd8c46f3ce631a627a7f21b31410ce3efff305d469da0eddbdccc1a44"
+    },
+    {
+      "id": "obj_0017",
+      "asset_key": "book_1_31c7b925",
+      "type": "book_1",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_017",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2121323198080063,
+        0.04865829822642809,
+        0.1705435812473297
+      ],
+      "native_size_sage_local_m": [
+        0.2121323198080063,
+        0.1705435812473297,
+        0.04865829822642809
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.179,
+        1.114,
+        1.439
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "e748a105a686fa5b1af89aa477d77c4c6f2af304e6ec1050eb3f68187b9a3dcb",
+      "source_sidecar_sha256": "2b219626b1ea40b915c25476b93b294062cebd8a77e8d6996a04d703580452fb"
+    },
+    {
+      "id": "obj_0018",
+      "asset_key": "book_2_31c7b925",
+      "type": "book_2",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_018",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2367803007364273,
+        0.02745949114432733,
+        0.16644787788391113
+      ],
+      "native_size_sage_local_m": [
+        0.2367803007364273,
+        0.16644787788391113,
+        0.02745949114432733
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.056,
+        1.141,
+        2.549
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "0f018e6b30c39f191e29a7585c12633129fa677984d743df89c5d4fc5a36e665",
+      "source_sidecar_sha256": "c8180d20b3c68eeb2753e7da98c23df0c0048a2991ede19a10a71e63c562d978"
+    },
+    {
+      "id": "obj_0019",
+      "asset_key": "book_3_31c7b925",
+      "type": "book_3",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_019",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.17858049273490906,
+        0.22209538142487872,
+        0.05224497988820076
+      ],
+      "native_size_sage_local_m": [
+        0.17858049273490906,
+        0.05224497988820076,
+        0.22209538142487872
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.126,
+        1.064,
+        1.34
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "7acd28d76f29f74f0c504edef43e8b62bc6eac7e45bc7f65648a6ae32a7d733a",
+      "source_sidecar_sha256": "c9cec953b5aeb9ab3bb045314f0826e2ecdc6a8fd8a54039eb826c9f733405e9"
+    },
+    {
+      "id": "obj_0020",
+      "asset_key": "book_5_31c7b925",
+      "type": "book_5",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_020",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19534870237112045,
+        0.22533145737543236,
+        0.044946637004613876
+      ],
+      "native_size_sage_local_m": [
+        0.19534870237112045,
+        0.044946637004613876,
+        0.22533145737543236
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.109,
+        0.973,
+        1.557
+      ],
+      "fitted_size_sage_local_m": [
+        0.24999999999999997,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "f2180f6421c8c69a66596706798659fb4a339512bc823357f78fbe3c353a2744",
+      "source_sidecar_sha256": "9fccc794211288f6a6d34dbf4bde16f13fbd55aa9eb566d5a080b01fb8eea3ae"
+    },
+    {
+      "id": "obj_0021",
+      "asset_key": "smartphone_725d0fb3",
+      "type": "smartphone",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_021",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.06463878974318504,
+        0.00570114671927513,
+        0.13343533873558044
+      ],
+      "native_size_sage_local_m": [
+        0.06463878974318504,
+        0.13343533873558044,
+        0.00570114671927513
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.547,
+        0.749,
+        3.508
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.02
+      ],
+      "source_glb_sha256": "1f9d73d37dd5b3a3b7381d5b693894ffa43d9f67aa4fb64e6a71779896d3e3e8",
+      "source_sidecar_sha256": "fc7f5c03b79d52f2a064a2e8466478e68a5bfe3affda0c924b285c8b5bdc573d"
+    },
+    {
+      "id": "obj_0022",
+      "asset_key": "print_1_0f244aba",
+      "type": "print_1",
+      "place": "on_object",
+      "support_parent": "obj_0035",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_022",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.41673995554447174,
+        0.5767091152465582,
+        0.024710824713110924
+      ],
+      "native_size_sage_local_m": [
+        0.41673995554447174,
+        0.024710824713110924,
+        0.5767091152465582
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.44,
+        2.023,
+        1.292
+      ],
+      "fitted_size_sage_local_m": [
+        0.5999999999999999,
+        0.05,
+        0.7450000000000002
+      ],
+      "source_glb_sha256": "5f797a0da45124ad6a7f2ab3c3bf460c4e55d349fd322f1a8c967ab4fefbd57c",
+      "source_sidecar_sha256": "f38ffb4d20d502223bb9a0789198c323746b0e77035b0b5bd7c039b9deeee453"
+    },
+    {
+      "id": "obj_0023",
+      "asset_key": "mirror_c176f962",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_023",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.24785220623016357,
+        0.016618833753454965,
+        0.24797329306602478
+      ],
+      "native_size_sage_local_m": [
+        0.24785220623016357,
+        0.24797329306602478,
+        0.016618833753454965
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.807,
+        0.403,
+        13.238
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.1,
+        0.22
+      ],
+      "source_glb_sha256": "cb6a5c5b8607e73a35934942309265116da80afae3754fc0f2defbd08390b400",
+      "source_sidecar_sha256": "6c1ee23e1508c92b17e6babc92318460e9c4daf7ccdc233fbbe5b7230f3e886d"
+    },
+    {
+      "id": "obj_0024",
+      "asset_key": "charger_b1e8a779",
+      "type": "charger",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_024",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.08759040012955666,
+        0.05713644341494728,
+        0.17781269550323486
+      ],
+      "native_size_sage_local_m": [
+        0.08759040012955666,
+        0.17781269550323486,
+        0.05713644341494728
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.941,
+        1.069,
+        0.875
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.19,
+        0.05
+      ],
+      "source_glb_sha256": "881d918e952f3a11a040904ecf206954fd898c724b2eed650eb53d27dc407af0",
+      "source_sidecar_sha256": "e6602c79567b35d2bb9b7ace1bc85cf4052d974c9222d3c13249f400c1079a02"
+    },
+    {
+      "id": "obj_0025",
+      "asset_key": "wirelesspad_a0836ffb",
+      "type": "wirelesspad",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_025",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1465282142162323,
+        0.011000683516613208,
+        0.1465282142162323
+      ],
+      "native_size_sage_local_m": [
+        0.1465282142162323,
+        0.1465282142162323,
+        0.011000683516613208
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.478,
+        0.478,
+        0.909
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.07,
+        0.01
+      ],
+      "source_glb_sha256": "26576efbd8f03339baf216dfdf115c30579ddcb429525d4df2ec0415565bc4f3",
+      "source_sidecar_sha256": "c6e47ccbe1bc39b611d05c42a0c236d94816c66ffd3a389f7a80488f7f2dddfe"
+    },
+    {
+      "id": "obj_0026",
+      "asset_key": "booknightstand2_ee252036",
+      "type": "booknightstand2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_026",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19682270288467407,
+        0.050943124505465676,
+        0.18528977036476135
+      ],
+      "native_size_sage_local_m": [
+        0.19682270288467407,
+        0.18528977036476135,
+        0.050943124505465676
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.016,
+        0.917,
+        0.981
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.16999999999999998,
+        0.05000000000000001
+      ],
+      "source_glb_sha256": "82179f1dcad6d5801dea4a228a6de740db05c9b28b883fea61234498ab4c8511",
+      "source_sidecar_sha256": "675defee31aa6bc07c6af6be05164dd1866e33c68d46a0d28ff204cb79069963"
+    },
+    {
+      "id": "obj_0027",
+      "asset_key": "charger2_b1e8a779",
+      "type": "charger2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_027",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.23970626294612885,
+        0.14620714285229042,
+        0.17962424457073212
+      ],
+      "native_size_sage_local_m": [
+        0.23970626294612885,
+        0.17962424457073212,
+        0.14620714285229042
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.709,
+        1.058,
+        0.342
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.19,
+        0.05000000000000001
+      ],
+      "source_glb_sha256": "04c9afc279f1109995314da998745a5d8621c913f2310fa8616c526aa56b2837",
+      "source_sidecar_sha256": "02e0c5f60a9aac6cdddafc0d2cc0a82d37027d88ea21b85e5554ee9b8a607ebd"
+    },
+    {
+      "id": "obj_0028",
+      "asset_key": "smartphone2_49145dab",
+      "type": "smartphone2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_028",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12750834226608276,
+        0.006070528595387259,
+        0.06346426531672478
+      ],
+      "native_size_sage_local_m": [
+        0.12750834226608276,
+        0.06346426531672478,
+        0.006070528595387259
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.784,
+        1.576,
+        3.295
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.02
+      ],
+      "source_glb_sha256": "4059e6dc3091e31661e59a73e8c068431a914e53bc0dbc55b03d7b448c171b25",
+      "source_sidecar_sha256": "b569979bdacc54727a433ca304cfc507d7ecbb3984b4400252a77d7a81b36813"
+    },
+    {
+      "id": "obj_0029",
+      "asset_key": "wirelesspad2_a0836ffb",
+      "type": "wirelesspad2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_029",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12419887632131577,
+        0.012614333167221048,
+        0.12418371438980103
+      ],
+      "native_size_sage_local_m": [
+        0.12419887632131577,
+        0.12418371438980103,
+        0.012614333167221048
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.564,
+        0.564,
+        0.793
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.07,
+        0.01
+      ],
+      "source_glb_sha256": "bad3913608395f9d22b9f07aa6c146236c4f30ca22e2db9e198be1d02cde942a",
+      "source_sidecar_sha256": "528df0c882cbda3efc6896204a90919fb931a4fa52d14ce60c030ee1065e6f1f"
+    },
+    {
+      "id": "obj_0030",
+      "asset_key": "shelfbook_3_1182cfba",
+      "type": "shelfbook_3",
+      "place": "on_object",
+      "support_parent": "obj_0035",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_030",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18979723751544952,
+        0.23759640753269173,
+        0.05357103794813156
+      ],
+      "native_size_sage_local_m": [
+        0.18979723751544952,
+        0.05357103794813156,
+        0.23759640753269173
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.054,
+        1.68,
+        1.178
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.09,
+        0.28
+      ],
+      "source_glb_sha256": "3feaa82a6d0b7051be10d3cc66325776e533d9481d64ee84ceb26712a3d95085",
+      "source_sidecar_sha256": "c1f5dce39c94e24d1b0624d5e39a329c5e7accc02f0d29ab1c2eefad84df4d7e"
+    },
+    {
+      "id": "obj_0031",
+      "asset_key": "shelfbook_4_1182cfba",
+      "type": "shelfbook_4",
+      "place": "on_object",
+      "support_parent": "obj_0035",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_031",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18631967902183533,
+        0.24143381399699138,
+        0.05879823863506317
+      ],
+      "native_size_sage_local_m": [
+        0.18631967902183533,
+        0.05879823863506317,
+        0.24143381399699138
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.02,
+        1.531,
+        1.16
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.09,
+        0.2800000000000001
+      ],
+      "source_glb_sha256": "86ef4082e8cdff0a2c43951b5b1ee565ac156c75cb4276b59688f035b750df3f",
+      "source_sidecar_sha256": "69b5c80c36f4b816e37efa961ed05562d7a3af6ca0ecabacd9b49947dc75f60f"
+    },
+    {
+      "id": "obj_0032",
+      "asset_key": "shelfbook_5_1182cfba",
+      "type": "shelfbook_5",
+      "place": "on_object",
+      "support_parent": "obj_0035",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_032",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.209734208881855,
+        0.2546544908109354,
+        0.07228435203433037
+      ],
+      "native_size_sage_local_m": [
+        0.209734208881855,
+        0.07228435203433037,
+        0.2546544908109354
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.906,
+        1.245,
+        1.1
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.09,
+        0.28
+      ],
+      "source_glb_sha256": "3d5a9c165dfa83fb86e36093cf1b56f409cfc825c4ea5cec935abda941ed4080",
+      "source_sidecar_sha256": "4c06e7b5dc48b454c78a711955bd4b26f1170c334160f9798b75002132ea14bb"
+    },
+    {
+      "id": "obj_0033",
+      "asset_key": "smartphone_d4ec0e14",
+      "type": "smartphone",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_033",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.16877886652946472,
+        0.012238489678566111,
+        0.10659230127930641
+      ],
+      "native_size_sage_local_m": [
+        0.16877886652946472,
+        0.10659230127930641,
+        0.012238489678566111
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.592,
+        0.938,
+        1.634
+      ],
+      "fitted_size_sage_local_m": [
+        0.09999999999999999,
+        0.1,
+        0.02
+      ],
+      "source_glb_sha256": "e9ff9e72d11c92089124750e5b705c170b1741bf0d75060c865f4d3dcd73a552",
+      "source_sidecar_sha256": "b63dd487be87455bb98dfc11166a370b3439cebc67eec5b10815cc36c2a6c59b"
+    },
+    {
+      "id": "obj_0034",
+      "asset_key": "charger_b73b1d2a",
+      "type": "charger",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_034",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10884914547204971,
+        0.014842310023595928,
+        0.08360260352492332
+      ],
+      "native_size_sage_local_m": [
+        0.10884914547204971,
+        0.08360260352492332,
+        0.014842310023595928
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.562,
+        2.033,
+        3.369
+      ],
+      "fitted_size_sage_local_m": [
+        0.16999999999999998,
+        0.17000000000000004,
+        0.05
+      ],
+      "source_glb_sha256": "5ab82fb65cca71bd770b24dbb383f2f611ad83b9360ccc16773794d7d4222e2f",
+      "source_sidecar_sha256": "eb5c6db8a8ea066f46ce723b8f86d47540887cbc5221f152c9e1be9c88306a6d"
+    },
+    {
+      "id": "obj_0035",
+      "asset_key": "shelf_f32faf38",
+      "type": "shelf",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_035",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.9344721138477325,
+        0.9319624768540962,
+        0.27574726939201355
+      ],
+      "native_size_sage_local_m": [
+        0.9344721138477325,
+        0.27574726939201355,
+        0.9319624768540962
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.177,
+        1.269,
+        0.805
+      ],
+      "fitted_size_sage_local_m": [
+        1.1,
+        0.35,
+        0.75
+      ],
+      "source_glb_sha256": "0f502265a456636ab95188d3f185a743fa847bb48ae07cca084bae203cc93c86",
+      "source_sidecar_sha256": "bc752c09526f427bba8b9b640a0658152e7b0be808893cbd9fba781fab15272f"
+    },
+    {
+      "id": "obj_0036",
+      "asset_key": "art_d06be516",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_036",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.9512653648853302,
+        1.0353111028671267,
+        0.053207919001579285
+      ],
+      "native_size_sage_local_m": [
+        0.9512653648853302,
+        0.053207919001579285,
+        1.0353111028671267
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        0.631,
+        0.58,
+        0.564
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.6,
+        0.03
+      ],
+      "source_glb_sha256": "2b86c221bc438e0bf3d56b83849b91da10f1daee3e7ea1ec0a1aabbbe8acffae",
+      "source_sidecar_sha256": "e41c294e78f805bfa427493a3ccf0fc807fa9d857425b25c46b97a4af4c0b407"
+    },
+    {
+      "id": "obj_0037",
+      "asset_key": "art_d06be516",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_037",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.9512653648853302,
+        1.0353111028671267,
+        0.053207919001579285
+      ],
+      "native_size_sage_local_m": [
+        0.9512653648853302,
+        0.053207919001579285,
+        1.0353111028671267
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        0.631,
+        0.58,
+        0.564
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.6,
+        0.03
+      ],
+      "source_glb_sha256": "2b86c221bc438e0bf3d56b83849b91da10f1daee3e7ea1ec0a1aabbbe8acffae",
+      "source_sidecar_sha256": "e41c294e78f805bfa427493a3ccf0fc807fa9d857425b25c46b97a4af4c0b407"
+    },
+    {
+      "id": "obj_0038",
+      "asset_key": "mirror_e8a05912",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_038",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.05195680633187294,
+        0.029978190061683563,
+        0.002162818913348019
+      ],
+      "native_size_sage_local_m": [
+        0.05195680633187294,
+        0.002162818913348019,
+        0.029978190061683563
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        5.774,
+        10.007,
+        23.118
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.30000000000000004,
+        0.04999999999999999
+      ],
+      "source_glb_sha256": "0135f2ac617ccf60bd0c6af6313a2aa7bc130bda353bd4abffbb68dd92e6b3b5",
+      "source_sidecar_sha256": "0d94e4feb2353f583218e11b0c5866dbdf38ceb8e062119872d809e3d862b558"
+    },
+    {
+      "id": "obj_0039",
+      "asset_key": "clock_d81c4696",
+      "type": "clock",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_039",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.26140934228897095,
+        0.2614731788635256,
+        0.03166373260319233
+      ],
+      "native_size_sage_local_m": [
+        0.26140934228897095,
+        0.03166373260319233,
+        0.2614731788635256
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.874,
+        1.874,
+        1.579
+      ],
+      "fitted_size_sage_local_m": [
+        0.49,
+        0.49,
+        0.05
+      ],
+      "source_glb_sha256": "998ffce06e47db85ea89bdae0d24dade9e1fd0b54f5952725237ccc1e58170c1",
+      "source_sidecar_sha256": "a26961828611d569a56007293b84a66e8b6024621464db5ecffa19d9b574e135"
+    },
+    {
+      "id": "obj_0040",
+      "asset_key": "art_ebdee9c4",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "fitted_mesh_with_size_mismatch",
+      "node": "obj_040",
+      "status": "fit_mismatch",
+      "native_size_gltf_m": [
+        0.005006907740607858,
+        0.00500018434141225,
+        6.723347541992553e-05
+      ],
+      "native_size_sage_local_m": [
+        0.005006907740607858,
+        6.723347541992553e-05,
+        0.00500018434141225
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        117.837,
+        117.996,
+        300.0
+      ],
+      "source_status": "ok",
+      "fitted_size_sage_local_m": [
+        0.59,
+        0.59,
+        0.020170042625977658
+      ],
+      "source_glb_sha256": "5ef9b7e58dd7c882da5ef5fe50c1e28e1d3b52f92bd77701da1a42c18d48dd61",
+      "source_sidecar_sha256": "bdca01f4f3b6d48cd4bf8087dcf85e7885924ea7f9c9d0548f3b26b0d19fb090"
+    },
+    {
+      "id": "obj_0041",
+      "asset_key": "art_ebdee9c4",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "fitted_mesh_with_size_mismatch",
+      "node": "obj_041",
+      "status": "fit_mismatch",
+      "native_size_gltf_m": [
+        0.005006907740607858,
+        0.00500018434141225,
+        6.723347541992553e-05
+      ],
+      "native_size_sage_local_m": [
+        0.005006907740607858,
+        6.723347541992553e-05,
+        0.00500018434141225
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        117.837,
+        117.996,
+        300.0
+      ],
+      "source_status": "ok",
+      "fitted_size_sage_local_m": [
+        0.59,
+        0.59,
+        0.020170042625977658
+      ],
+      "source_glb_sha256": "5ef9b7e58dd7c882da5ef5fe50c1e28e1d3b52f92bd77701da1a42c18d48dd61",
+      "source_sidecar_sha256": "bdca01f4f3b6d48cd4bf8087dcf85e7885924ea7f9c9d0548f3b26b0d19fb090"
+    },
+    {
+      "id": "obj_0042",
+      "asset_key": "wallart_a95802ee",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_042",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.40042611956596375,
+        0.39998618127447116,
+        0.0055725062265992165
+      ],
+      "native_size_sage_local_m": [
+        0.40042611956596375,
+        0.0055725062265992165,
+        0.39998618127447116
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.498,
+        35.89,
+        0.75
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.2,
+        0.3
+      ],
+      "source_glb_sha256": "85b18b839de9701cb1902e9b3385021b28ccaf12ebedab0dccb6142fee375094",
+      "source_sidecar_sha256": "84952232709894d36233b94dd1365ad9a9d93a26416fc431df45b0fe33d609ef"
+    },
+    {
+      "id": "obj_0043",
+      "asset_key": "wallart_a95802ee",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_043",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.40042611956596375,
+        0.39998618127447116,
+        0.0055725062265992165
+      ],
+      "native_size_sage_local_m": [
+        0.40042611956596375,
+        0.0055725062265992165,
+        0.39998618127447116
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.498,
+        35.89,
+        0.75
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.2,
+        0.3
+      ],
+      "source_glb_sha256": "85b18b839de9701cb1902e9b3385021b28ccaf12ebedab0dccb6142fee375094",
+      "source_sidecar_sha256": "84952232709894d36233b94dd1365ad9a9d93a26416fc431df45b0fe33d609ef"
+    },
+    {
+      "id": "obj_0044",
+      "asset_key": "wallclock_58f24241",
+      "type": "wallclock",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_044",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5497006773948669,
+        0.5498349308982142,
+        0.047118641436100006
+      ],
+      "native_size_sage_local_m": [
+        0.5497006773948669,
+        0.047118641436100006,
+        0.5498349308982142
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.709,
+        4.245,
+        0.691
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.20000000000000004,
+        0.38
+      ],
+      "source_glb_sha256": "c04cb6bf0d31d2d287467ebdf7b26fb39e32a43c9812969e1074e9db192c508a",
+      "source_sidecar_sha256": "e88ccf897cce1d7fc815e4eca9ffe1771db6e6f134f412123c00b00986a415c5"
+    },
+    {
+      "id": "obj_0045",
+      "asset_key": "art_21d25d08",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_045",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5001104772090912,
+        0.499988346844475,
+        0.019719312898814678
+      ],
+      "native_size_sage_local_m": [
+        0.5001104772090912,
+        0.019719312898814678,
+        0.499988346844475
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.0,
+        1.0,
+        1.521
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.03
+      ],
+      "source_glb_sha256": "1786be1b392f003ee18f9444a5701e2e78af2d295b629cf31dc05a4a2a65bef2",
+      "source_sidecar_sha256": "01777687e009b4d9b336ffd6aea7a8c30fb6f0d69de0f523db6a0727cb6d6776"
+    },
+    {
+      "id": "obj_0046",
+      "asset_key": "art_21d25d08",
+      "type": "art",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_046",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5001104772090912,
+        0.499988346844475,
+        0.019719312898814678
+      ],
+      "native_size_sage_local_m": [
+        0.5001104772090912,
+        0.019719312898814678,
+        0.499988346844475
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.0,
+        1.0,
+        1.521
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.5,
+        0.03
+      ],
+      "source_glb_sha256": "1786be1b392f003ee18f9444a5701e2e78af2d295b629cf31dc05a4a2a65bef2",
+      "source_sidecar_sha256": "01777687e009b4d9b336ffd6aea7a8c30fb6f0d69de0f523db6a0727cb6d6776"
+    },
+    {
+      "id": "obj_0047",
+      "asset_key": "clock_91139896",
+      "type": "clock",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_047",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.29987873136997223,
+        0.2999153435230255,
+        0.021747454069554806
+      ],
+      "native_size_sage_local_m": [
+        0.29987873136997223,
+        0.021747454069554806,
+        0.2999153435230255
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.334,
+        18.393,
+        1.0
+      ],
+      "fitted_size_sage_local_m": [
+        0.4,
+        0.4,
+        0.3
+      ],
+      "source_glb_sha256": "3ddf871c2925c9ef8a2678b7aba6c98bbcf1f9ce91e9c8dd52f3d673c2aead4c",
+      "source_sidecar_sha256": "158eb8667538a36f37647b1fbb2fe383c7c77cac0259e850b60fc5a797a8cfdb"
+    },
+    {
+      "id": "obj_0048",
+      "asset_key": "book_10_14d29158",
+      "type": "book_10",
+      "place": "on_object",
+      "support_parent": "obj_0035",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_048",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.184226356446743,
+        0.21652660276231472,
+        0.045014167204499245
+      ],
+      "native_size_sage_local_m": [
+        0.184226356446743,
+        0.045014167204499245,
+        0.21652660276231472
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.108,
+        0.923,
+        1.333
+      ],
+      "fitted_size_sage_local_m": [
+        0.24000000000000002,
+        0.17,
+        0.06
+      ],
+      "source_glb_sha256": "76df5022261f97178e1f5a857b66a98d4001d8f00ab5a5d61186a62086feabdd",
+      "source_sidecar_sha256": "2044ac266db8abed0f3d80da5a674e65b9962ef6c04119ae92fc67b45ffc4f8d"
+    },
+    {
+      "id": "obj_0049",
+      "asset_key": "smartphone_d365de1e",
+      "type": "smartphone",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_049",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.09397982805967331,
+        0.008107362030841614,
+        0.19533377885818481
+      ],
+      "native_size_sage_local_m": [
+        0.09397982805967331,
+        0.19533377885818481,
+        0.008107362030841614
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.745,
+        0.512,
+        1.233
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "6577a0ca8b015c7bef478c8fc99c02fb0c88d16f61a7706b12f0b53fbb4f32d0",
+      "source_sidecar_sha256": "aa49e8f26f93b54d3293a9544bcc2d12094eb64e4bb1fb44acff9ae706726ea8"
+    },
+    {
+      "id": "obj_0050",
+      "asset_key": "smartphone_d365de1e",
+      "type": "smartphone",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_050",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.09397982805967331,
+        0.008107362030841614,
+        0.19533377885818481
+      ],
+      "native_size_sage_local_m": [
+        0.09397982805967331,
+        0.19533377885818481,
+        0.008107362030841614
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.745,
+        0.512,
+        1.233
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "6577a0ca8b015c7bef478c8fc99c02fb0c88d16f61a7706b12f0b53fbb4f32d0",
+      "source_sidecar_sha256": "aa49e8f26f93b54d3293a9544bcc2d12094eb64e4bb1fb44acff9ae706726ea8"
+    }
+  ],
+  "room": {
+    "width": 4.2,
+    "length": 4.5,
+    "height": 2.7,
+    "height_source": "condition",
+    "source_height_m": 2.7,
+    "floor_known": true,
+    "boundary_known": true,
+    "shell_geometry_kind": "reference_build_shell_polygon_walls",
+    "wall_normal_source": "floor_polygon_winding",
+    "display_floor_z_m": 0.0,
+    "source_floor_z_m": 0.0
+  },
+  "fixed_bbox_proxies": 0,
+  "condition": {
+    "schema_version": "fastfill.v2",
+    "room": {
+      "frame": "right_handed_z_up",
+      "room_type": "bedroom",
+      "floor_polygon_xy_m": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          4.2,
+          0.0
+        ],
+        [
+          4.2,
+          4.5
+        ],
+        [
+          0.0,
+          4.5
+        ]
+      ],
+      "floor_z_m": 0.0,
+      "height_m": 2.7,
+      "boundary_known": true,
+      "floor_known": true,
+      "fixed_objects": [
+        {
+          "id": "door_1",
+          "category": "door",
+          "size_local_m": [
+            0.1,
+            0.9,
+            2.05
+          ],
+          "bottom_center_m": [
+            2.9,
+            4.5,
+            0.0
+          ],
+          "yaw_rad": -1.5707963267948966
+        }
+      ]
+    },
+    "objects": [
+      {
+        "id": "obj_0000",
+        "category": "bed",
+        "description": "A teak platform bed with an organic rectangular silhouette, tapered legs, and a low\u2011slung mid\u2011century modern profile",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0001",
+        "category": "nightstand",
+        "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0002",
+        "category": "nightstand",
+        "description": "A tapered teak nightstand with a slim rectangular top, tapered legs and a subtle mid\u2011century curve",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0003",
+        "category": "dresser",
+        "description": "A low teak dresser with a wide rectangular base, straight\u2011edged drawers and a smooth organic finish",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0004",
+        "category": "wardrobe",
+        "description": "A tall teak wardrobe with a narrow rectangular footprint, tapered legs and a sleek vertical silhouette",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0005",
+        "category": "chair",
+        "description": "A mid\u2011century lounge chair with an elongated curved back, tapered wooden legs and a low\u2011slung seat",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0006",
+        "category": "bench",
+        "description": "A teak foot bench with a short rectangular seat, rounded front edge and compact low profile",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0007",
+        "category": "plant",
+        "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0008",
+        "category": "plant",
+        "description": "A potted fiddle\u2011leaf fig with a broad glossy leaf silhouette, housed in a simple round ceramic pot",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0009",
+        "category": "lamp",
+        "description": "A tapered floor lamp with a slender cylindrical stem, a narrow conical shade and a warm wooden finish",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0010",
+        "category": "sculpture",
+        "description": "An organic wooden sculpture with a curving abstract form, smooth polished surface and natural teak hue",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0011",
+        "category": "floorplant",
+        "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0012",
+        "category": "floorplant",
+        "description": "A small potted plant with a rounded pot and compact foliage, in a soft green shade, perfect for floor display",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0013",
+        "category": "floorplant",
+        "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0014",
+        "category": "floorplant",
+        "description": "A small potted plant in a white pot, with a short green foliage crown and a sturdy stem, adding a fresh touch to the floor corners",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0015",
+        "category": "floorlamp",
+        "description": "A tall slender floor lamp with a white conical shade, a slender metal pole and a soft diffused light at the top",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0016",
+        "category": "tablelamp",
+        "description": "A mustard table lamp with a squat cylindrical base, a conical shade and a warm metal finish",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0017",
+        "category": "book_1",
+        "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0018",
+        "category": "book_2",
+        "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0019",
+        "category": "book_3",
+        "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0020",
+        "category": "book_5",
+        "description": "An assorted hardcover book with a rectangular spine, crisp edges and a textured cover",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0021",
+        "category": "smartphone",
+        "description": "A smartphone on a minimalist stand with a thin rectangular base and a low profile",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0022",
+        "category": "print_1",
+        "description": "A small framed print with a rectangular canvas, thin wooden frame and a subtle matte finish",
+        "support_parent": "obj_0035"
+      },
+      {
+        "id": "obj_0023",
+        "category": "mirror",
+        "description": "A small round mirror with a thin silver rim and a flat reflective surface",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0024",
+        "category": "charger",
+        "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0025",
+        "category": "wirelesspad",
+        "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0026",
+        "category": "booknightstand2",
+        "description": "A rectangular hardcover book with a vintage 1950s style cover and slightly rounded edges",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0027",
+        "category": "charger2",
+        "description": "A compact rectangular phone charger with a matte black finish and a small LED indicator",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0028",
+        "category": "smartphone2",
+        "description": "A sleek rectangular smartphone on a slim stand, with a glossy black back and a low\u2011profile base",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0029",
+        "category": "wirelesspad2",
+        "description": "A thin square wireless charging pad with a smooth white surface and a subtle beveled edge",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0030",
+        "category": "shelfbook_3",
+        "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+        "support_parent": "obj_0035"
+      },
+      {
+        "id": "obj_0031",
+        "category": "shelfbook_4",
+        "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+        "support_parent": "obj_0035"
+      },
+      {
+        "id": "obj_0032",
+        "category": "shelfbook_5",
+        "description": "A rectangular hardcover book with a crisp spine and smooth pages, in a deep navy cloth cover, slightly textured",
+        "support_parent": "obj_0035"
+      },
+      {
+        "id": "obj_0033",
+        "category": "smartphone",
+        "description": "A slim rectangular smartphone on a minimalist stand, with a glossy black back and a thin metal base",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0034",
+        "category": "charger",
+        "description": "A small square wireless charger pad with a smooth matte finish, subtle LED indicator and a minimalist design",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0035",
+        "category": "shelf",
+        "description": "A single piece of thin and upright wall\u2011mounted teak shelf with a long rectangular panel and subtle angled brackets",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0036",
+        "category": "art",
+        "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0037",
+        "category": "art",
+        "description": "A single piece of thin and upright bold mustard wall art with a rectangular canvas and a subtle textured finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0038",
+        "category": "mirror",
+        "description": "A single piece of thin and upright oval teak frame mirror with a smooth polished surface and a subtle curved wooden border",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0039",
+        "category": "clock",
+        "description": "A single piece of thin and upright olive\u2011green wall clock with a round face, minimalist hands and a matte finish",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0040",
+        "category": "art",
+        "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0041",
+        "category": "art",
+        "description": "A single piece of thin and upright wall art with bold mustard colour, geometric pattern and a smooth finish",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0042",
+        "category": "wallart",
+        "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0043",
+        "category": "wallart",
+        "description": "A single piece of thin and upright framed art with a mustard colour background, rectangular shape, smooth matte finish and a subtle brushed texture",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0044",
+        "category": "wallclock",
+        "description": "A single piece of thin and upright wall clock with an olive colour face, circular shape, minimalist hands and a brushed metal frame",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0045",
+        "category": "art",
+        "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0046",
+        "category": "art",
+        "description": "A single piece of thin and upright framed art with a mustard-colored canvas, rectangular shape, and a simple wooden frame.",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0047",
+        "category": "clock",
+        "description": "A single piece of thin and upright wall clock with an olive-colored face, circular shape, and minimalist hands.",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0048",
+        "category": "book_10",
+        "description": "A hardcover book with a rectangular shape, featuring a slightly textured cover in a vintage 1950s style, with a slim spine and crisp pages.",
+        "support_parent": "obj_0035"
+      },
+      {
+        "id": "obj_0049",
+        "category": "smartphone",
+        "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0050",
+        "category": "smartphone",
+        "description": "A rectangular smartphone with rounded corners, sleek metal back, and a smooth front glass.",
+        "support_parent": "obj_0003"
+      }
+    ],
+    "constraints": []
+  },
+  "fit_policy": "roomgenbench_anisotropic_yaw_snap_tip",
+  "original_asset_geometry_acceptance": "not_checked",
+  "support_verification": "not_checked",
+  "validator": "not_attempted",
+  "physics": "not_attempted",
+  "host_commit": "not_attempted",
+  "reference_assembler": {
+    "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/RoomGenBench/bench/assemble.py",
+    "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f"
+  }
+}

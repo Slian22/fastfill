@@ -1,0 +1,20 @@
+{
+  "status": "SERVER_DEPLOYED_AND_REAL_SMOKE_VERIFIED",
+  "hashes_verified": {
+    "SHA256SUMS": 66,
+    "server/SHA256SUMS": 6,
+    "server/results/SHA256SUMS": 46
+  },
+  "live_api_calls_total": 3,
+  "gpu_success_jobs": [
+    "7450324",
+    "7450423"
+  ],
+  "failed_job_preserved": "7450325",
+  "server": "u6uv.aip2.isambard",
+  "deployment": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1",
+  "result_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1",
+  "local_report": "/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-size-api-20261015/server/REPORT.md",
+  "quality_scope": "2 dev rooms, functional smoke only; no aggregate quality claim",
+  "repository_changes": "uncommitted; deployed code pinned by sha256; frozen delivery untouched"
+}

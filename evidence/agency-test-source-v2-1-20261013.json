@@ -1,0 +1,1257 @@
+{
+  "schema_version": "agency-test-source-audit.v1",
+  "audit_date": "2026-10-13",
+  "batch": "v2-1",
+  "status": "complete",
+  "source_ledger": {
+    "path": "evidence/agency-full-test-source-coverage-20261013.json",
+    "sha256_at_start": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc",
+    "batch_status_at_start": "unassigned",
+    "selection": "delegation_ready_batches[batch == 'v2-1'].paths",
+    "updated": false
+  },
+  "started_at_utc": "2026-10-13T07:53:32.636431+00:00",
+  "completed_at_utc": "2026-10-13T07:58:17.580142+00:00",
+  "scope": {
+    "kind": "static_full_test_source_audit",
+    "file_count": 26,
+    "line_count": 4356,
+    "source_discovery": "The supplied ledger is the exclusive source inventory. User reported a prior graph attempt and an unindexed OptiScene root; no graph or remote calls were made.",
+    "includes": "Every line of the selected files, including fixtures, helpers, imports, assertions, comments and blank lines.",
+    "excludes": "Production source, other batches, assigned comparison test sources, recursively imported out-of-batch helpers, external reference fixtures and execution results."
+  },
+  "methodology": "Static full-source review only. Every line, including fixtures/helpers, comments and blank lines, was displayed with line numbers in bounded chunks after SHA-256 verification. No project modules were imported, no tests were collected or executed, no remote calls were made, and no other batch or assigned comparison test source was read. Imported out-of-batch helpers were treated as opaque. Findings were cross-checked only against the 26 permitted sources.",
+  "classification_policy": "Concrete findings are source-visible weaknesses in test assertions with a specific counterexample; they are not confirmed production defects. Coverage limitations describe untested scope, dependency/skip gates, or missing execution evidence.",
+  "statistics": {
+    "basis": "Deterministic census of the delegated source paths, not sampled test outcomes.",
+    "confidence_intervals": null,
+    "statistical_significance": null,
+    "reason": "No tests or experiments were run. Source-read completeness and hash equality are exact observations; pass rates, execution coverage, defect probabilities, performance effects and release confidence cannot be estimated."
+  },
+  "summary": {
+    "files_requested": 26,
+    "files_fresh_full": 26,
+    "lines_fresh_full": 4356,
+    "displayed_chunks": 30,
+    "read_gaps": 0,
+    "read_overlaps": 0,
+    "initial_hash_matches": 26,
+    "final_hash_matches": 26,
+    "hash_mismatches": 0,
+    "concrete_test_findings": 4,
+    "coverage_limitations": 6,
+    "production_defects_assessed": false,
+    "test_execution": "not_run_by_instruction",
+    "remote_calls": 0,
+    "shared_ledger_modified": false
+  },
+  "final_hash_validation": {
+    "method": "Re-read raw bytes of every selected source after full review; recompute SHA-256 and UTF-8 splitlines() counts against the exact initial ledger/inventory hashes and line counts.",
+    "validated_at_utc": "2026-10-13T07:58:17.580142+00:00",
+    "status": "all_match",
+    "files_checked": 26,
+    "lines_checked": 4356
+  },
+  "files": [
+    {
+      "path": "fastfill/v2/tests/test_accumulation_tail.py",
+      "sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "lines": 206,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 206,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          206
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_accumulation_tail.py",
+        "sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+        "lines": 206,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts complete/tail accumulation means, empty-label window accounting, clipping before/after AMP scaling, overflow step counts and two-rank Gloo tail behavior using recorded scalar gradients.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_autorun.py",
+      "sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "lines": 407,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 407,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          210
+        ],
+        [
+          211,
+          407
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_autorun.py",
+        "sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+        "lines": 407,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts paired-baseline scoring, summary denominators, configuration scaling, resume-chain adoption, mocked acceptance/orchestration and cache invalidation for data, code and decode changes.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L5"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_constraint_schema.py",
+      "sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "lines": 26,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 26,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          26
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_constraint_schema.py",
+        "sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+        "lines": 26,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts malformed between-target references are rejected and valid between/against_wall schema validation preserves the condition; geometry satisfaction is not exercised here.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_data.py",
+      "sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "lines": 232,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 232,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          232
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_data.py",
+        "sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+        "lines": 232,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts source OBB extent/unit conversion, invalid geometry rejection, condition isolation, audit inventory and read-only builder guards; arbitrary-angle yaw and related-scan split oracles are incomplete.",
+      "finding_ids": [
+        "V21-F1",
+        "V21-F2"
+      ],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_direct_layout.py",
+      "sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "lines": 469,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 469,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          235
+        ],
+        [
+          236,
+          469
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_direct_layout.py",
+        "sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+        "lines": 469,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts request expansion, ID completeness/order, world-space corners, canonical-to-benchmark axes, independent GLB binary/transform decoding, immutable exports, SVG safety and object budgets.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+      "sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "lines": 155,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 155,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          155
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+        "sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+        "lines": 155,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts explicit benchmark holdout guards, non-convex outward shell walls, bf16 yaw precision, row-level leave-one-out baselines, height epsilon and Scan2CAD symmetry metadata.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_evidence.py",
+      "sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "lines": 126,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 126,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          126
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_legacy_evidence.py",
+        "sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+        "lines": 126,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts evidence width correction without pose mutation, front-unknown provenance, immutable indexes, missing/partial/malformed evidence behavior, no-match scope and idempotence.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_workers.py",
+      "sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "lines": 52,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 52,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          52
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_legacy_workers.py",
+        "sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+        "lines": 52,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts serial/parallel migration byte equality for four dataset outputs, unchanged input snapshots, invalid worker rejection and absence of partial output on total rejection.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_baseline.py",
+      "sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "lines": 174,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 174,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          174
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_llm_baseline.py",
+        "sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+        "lines": 174,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts target-derived answer conversion, failure retention, repair feedback, retry/first-answer accounting, parameter provenance, credential redaction and mocked transport handling; repaired geometry itself is not asserted.",
+      "finding_ids": [
+        "V21-F3"
+      ],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L4"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+      "sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "lines": 125,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 125,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          125
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+        "sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+        "lines": 125,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts float64 yaw-bin round trips, batch-owned exchange groups, position-only matching with incomplete sizes, invalid loss settings, analytic L1/smooth-L1 values and term sums/counts.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_model.py",
+      "sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "lines": 147,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 147,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          147
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_model.py",
+        "sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+        "lines": 147,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts model validation, finite positive sizes under CPU fp16, valid-slot gradients, padding invariance, condition influence, fixed dimensions and small local Qwen training modes; checkpoint comparisons inspect size only.",
+      "finding_ids": [
+        "V21-F4"
+      ],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_model_review_fixes.py",
+      "sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "lines": 145,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 145,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          145
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_model_review_fixes.py",
+        "sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+        "lines": 145,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts target type rejection, hard-floor masks, learnable preflight, finite graph-connected zeros, Gloo uneven/global-zero counts and gated MPS value/gradient parity.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_predict.py",
+      "sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "lines": 67,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 67,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          67
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_predict.py",
+        "sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+        "lines": 67,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts condition-only prediction output schema/protected paths and actual subprocess exit distinctions for no catalog, empty catalog and successful in-memory resolution; no audit subprocess was run.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_qualified_data.py",
+      "sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "lines": 127,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 127,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          127
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_qualified_data.py",
+        "sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+        "lines": 127,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts rich condition/target preservation, source-specific mask demotion, unclamped size masking, heldout-source rejection, immutable pinned builds and whole-group exchangeability demotion.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+      "sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "lines": 103,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 103,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          103
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+        "sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+        "lines": 103,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts hard support collision exemptions, soft-support penalties, graph-connected zeros, extreme-scale collision values and a numerical gradient oracle, with gated MPS cases.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+      "sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "lines": 153,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 153,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          153
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+        "sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+        "lines": 153,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts final-update validation/export and score anchors, minimal-form eligibility, rotated rectangle tolerance, pinned axis-swap/yaw semantics, unknown-floor handoff and backbone-path provenance.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L6"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+      "sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "lines": 202,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 202,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          202
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+        "sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+        "lines": 202,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts embedded real-room shell/opening mapping, actual reference assembler integration, transformed world corners, lifted floors, opening classification and inferred/declared support thresholds.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round14_eval_math.py",
+      "sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "lines": 300,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 300,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          155
+        ],
+        [
+          156,
+          300
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_round14_eval_math.py",
+        "sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+        "lines": 300,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts box-preserving wall yaw, rotated support containment, square-grid validation, paired baseline/clean-room denominators, offline head replay equality and externally gated reference matching/baselines.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2",
+        "V21-L3",
+        "V21-L6"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_matching.py",
+      "sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "lines": 126,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 126,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          126
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_round4_matching.py",
+        "sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+        "lines": 126,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts a grid matching counterexample and exhaustive three-object assignment minima across seeds/configurations, fixed-z exclusion, identical-prediction invariance and frozen regression-head cost equivalence.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_round5_train.py",
+      "sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "lines": 191,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 191,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          191
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_round5_train.py",
+        "sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+        "lines": 191,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts unpadded distributed diagnostic counts, old-state selection reset, resumed dropout/validation trajectory equality, reduction-term guards and gated Metal grid/reduction consistency.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2",
+        "V21-L6"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_cli.py",
+      "sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "lines": 72,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 72,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          72
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_runtime_cli.py",
+        "sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+        "lines": 72,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts complete offline JSON transactions, in-memory commit counts, output guards before input reads, failed-scene no-commit behavior and malformed asset rejection.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_evaluation.py",
+      "sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "lines": 132,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 132,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          132
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_runtime_evaluation.py",
+        "sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+        "lines": 132,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts malformed prediction denominators, model-vs-system failure distinction, bounded repair output geometry, operational latency decomposition, incomplete-label matching and required-mesh unknown status.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_size_range.py",
+      "sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "lines": 73,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 73,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          73
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_size_range.py",
+        "sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+        "lines": 73,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts out-of-head-range label detection, reference-scaled/exact-boundary eligibility, fixed or masked exceptions, enabled-box requirements and nonmutating preflight rejection records.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_spread_decode.py",
+      "sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "lines": 61,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 61,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          61
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_spread_decode.py",
+        "sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+        "lines": 61,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts feasible rectangular-grid spreading, raised support/floor behavior, outside-footprint cell rejection, wall facing, yaw preservation without logits and small boundary corrections.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L3"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_sft.py",
+      "sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "lines": 86,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 86,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          86
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_text_sft.py",
+        "sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+        "lines": 86,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts text/structured condition token parity and loss masking, differentiable CE, complete-label preflight and protected outputs; generation is a dry-run string smoke check.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L4"
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+      "sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "lines": 399,
+      "read_status": "fresh_full",
+      "ledger_read_status_at_start": "unreviewed",
+      "read_scope": {
+        "kind": "full_source",
+        "first_line": 1,
+        "last_line": 399,
+        "all_lines_displayed_and_reviewed": true
+      },
+      "fresh_read_spans": [
+        [
+          1,
+          200
+        ],
+        [
+          201,
+          399
+        ]
+      ],
+      "final_hash_validation": {
+        "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+        "sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+        "lines": 399,
+        "matches_recorded_sha256": true,
+        "matches_ledger_sha256": true,
+        "validated_at_utc": "2026-10-13T07:58:17.580142+00:00"
+      },
+      "review_summary": "Asserts config validation, learning-rate/group behavior, killed/resumed trajectories and full saved states, nonfinite-window handling, weighted logs, validation filtering/baselines, exports, exchangeability preflight, augmentation and Gloo resume.",
+      "finding_ids": [],
+      "coverage_limitation_ids": [
+        "V21-L1",
+        "V21-L2"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "V21-F1",
+      "classification": "concrete_test_weakness",
+      "priority": "medium",
+      "title": "Canonical OBB round-trip oracle bypasses the returned yaw",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_data.py",
+          "lines": [
+            47,
+            57
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_data.py",
+          "lines": [
+            32,
+            37
+          ]
+        }
+      ],
+      "observation": "The arbitrary-angle test builds source corners with the input axes and transforms them back with those same axes. It checks returned size and bottom center, but never uses or asserts box['yaw_rad']. Only the separate axis-permutation example asserts the returned yaw at -pi/2.",
+      "escape_scenario": "Returning an incorrect yaw for an oblique input such as 0.7 radians, while retaining the correct size and bottom center, would not affect this round-trip test's assertions. This is a static counterexample, not an executed mutation.",
+      "claim_affected": "Correct recovery of source orientation and preservation of the canonical world-space box.",
+      "recommended_follow_up": "Reconstruct world corners from returned bottom_center_m, target_size_local_m and yaw_rad; compare them with independently constructed source corners, and assert the semantic-front direction at oblique and wrap-boundary angles.",
+      "scope_limit": "Independent exporter corner tests exercise supplied yaws, not canonical_obb's recovered yaw. No claim is made about tests outside v2-1 or a production yaw defect."
+    },
+    {
+      "id": "V21-F2",
+      "classification": "concrete_test_weakness",
+      "priority": "medium",
+      "title": "Related-scan split regression never constructs related scans",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_data.py",
+          "lines": [
+            170,
+            172
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_data.py",
+          "lines": [
+            146,
+            161
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_data.py",
+          "lines": [
+            182,
+            195
+          ]
+        }
+      ],
+      "observation": "The named related-scans test compares grouped_split('MultiScan','house',42) with the same call and checks membership in the three split names. The nearby builder fixtures write only one eligible sample, so they cannot establish cross-row household grouping.",
+      "escape_scenario": "A deterministic splitter returning one constant valid split passes the named test. A builder grouping different scans from one house by scan identity is also not challenged by these one-sample build assertions. These are static counterexamples.",
+      "claim_affected": "Evidence that correlated scans cannot leak across training, validation and test partitions.",
+      "recommended_follow_up": "Build multiple distinct scans for each of multiple house IDs, inspect every output split, assert each house occupies only one split, and repeat with permuted source ordering. Check expected split decisions or a deliberate multi-split fixture separately from determinism.",
+      "scope_limit": "Existing holdout-guard tests cover explicit benchmark markers; they do not make this named grouping test discriminating. Other split suites were not inspected; no actual leakage is established."
+    },
+    {
+      "id": "V21-F3",
+      "classification": "concrete_test_weakness",
+      "priority": "medium",
+      "title": "LLM repair test does not verify that repaired geometry is persisted",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_llm_baseline.py",
+          "lines": [
+            48,
+            66
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_baseline.py",
+          "lines": [
+            20,
+            35
+          ]
+        }
+      ],
+      "observation": "The harness fixture returns a stacked layout and then the target-derived good answer. Assertions check two calls, overlap feedback, repair_rounds==1 and problems_final<=mean_problems_first, but never inspect prediction['layout'] against the good answer. Equality of the problem counts is allowed.",
+      "escape_scenario": "The harness could retain the original stacked geometry after requesting a repair, while recording one repair and an unchanged problem count, without violating this test's assertions. The separate exact-position/size round-trip runs the default prompt path, not this repair path.",
+      "claim_affected": "Evidence that harness repairs improve saved layouts and that later geometry metrics score the repaired result.",
+      "recommended_follow_up": "Assert the serialized layout matches the second answer by object ID for position, size and yaw; recompute its geometry checks and compare the remaining problems with the known-good result.",
+      "scope_limit": "This establishes a missing oracle in the test, not an observed harness persistence bug."
+    },
+    {
+      "id": "V21-F4",
+      "classification": "concrete_test_weakness",
+      "priority": "medium",
+      "title": "Model checkpoint round trips compare only size predictions",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_model.py",
+          "lines": [
+            92,
+            98
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_model.py",
+          "lines": [
+            124,
+            147
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+          "lines": [
+            284,
+            294
+          ]
+        }
+      ],
+      "observation": "Both the tiny checkpoint round trip and the local random Qwen LoRA/full/frozen round trips compare only the 'size' output. The intermediate-export check compares two loaded checkpoints and validates layout schema, rather than comparing every geometry head with the original in-memory model.",
+      "escape_scenario": "A save/load regression affecting only yaw or position heads can leave the size comparison unchanged. Comparing two exports that share the same serialization omission does not independently verify the original head values.",
+      "claim_affected": "Faithful checkpoint preservation of the complete geometry predictor, particularly position and orientation metrics.",
+      "recommended_follow_up": "Capture all original geometry outputs with deliberately nondefault head values and compare position, size, yaw logits/residuals, slot masks and grid-head outputs after reload for applicable backbones/head modes.",
+      "scope_limit": "Resume tests do compare complete saved state dictionaries and trajectories, which is useful distinct coverage. This finding is limited to the named original-model-to-loaded-model round-trip oracles; no serialization failure was executed or confirmed."
+    }
+  ],
+  "coverage_limitations": [
+    {
+      "id": "V21-L1",
+      "classification": "coverage_limitation",
+      "title": "Static source closure does not establish execution coverage or runtime success",
+      "evidence": [],
+      "observation": "The 26-file/4,356-line census closes only the delegated fresh-source-read gap. No tests, imports, collection, mutation tests, measured coverage or benchmark runs were performed. Production code and imported helpers outside the batch remain unreviewed in this task.",
+      "claim_boundary": "No pass/fail count, 80% execution-coverage claim, defect probability, confidence interval or release-readiness conclusion follows from this report.",
+      "follow_up": "Use separately authorized execution evidence and other auditors' reports to assess those claims; do not treat a fresh_full label as a passing test."
+    },
+    {
+      "id": "V21-L2",
+      "classification": "coverage_limitation",
+      "title": "Backend and benchmark evidence is conditional on dependencies and fixtures",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_model.py",
+          "lines": [
+            124,
+            147
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_model_review_fixes.py",
+          "lines": [
+            101,
+            145
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+          "lines": [
+            79,
+            94
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_accumulation_tail.py",
+          "lines": [
+            198,
+            206
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+          "lines": [
+            47,
+            54
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round14_eval_math.py",
+          "lines": [
+            242,
+            300
+          ]
+        }
+      ],
+      "observation": "Qwen/PEFT tests use importorskip and a local random small model; MPS/Gloo tests have capability gates. RoomGenBench checks depend on imported external reference paths; two reference-metric tests skip when BATHROOM is absent. The restaurant test gates on BATHROOM, then reads restaurant.json without its own availability check.",
+      "claim_boundary": "These source assertions do not prove that device branches or external benchmark checks ran, or that results generalize to a formal large-model/GPU configuration. External reference content and pinning were not inspected.",
+      "follow_up": "Record actual skip reasons, backend versions and exact benchmark fixture revisions during a later authorized run; check each required fixture explicitly."
+    },
+    {
+      "id": "V21-L3",
+      "classification": "coverage_limitation",
+      "title": "Spread decoding examples do not cover exhausted placement choices or concave room containment",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_spread_decode.py",
+          "lines": [
+            7,
+            61
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round14_eval_math.py",
+          "lines": [
+            22,
+            107
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+          "lines": [
+            66,
+            93
+          ]
+        }
+      ],
+      "observation": "The explicitly constructed spread fixtures exercise feasible rectangular bounds, near-wall placement, modulo-pi facing and a rotated support top. These cases have no explicit concave-decoder containment oracle or inventory for which every candidate collides/is outside. L-shaped/non-convex cases inspect exported shell geometry, a different path. Imported real_rows helpers in online replay tests were not opened, so their broader fixture domain is not asserted here.",
+      "claim_boundary": "Collision-aware spreading in these fixtures is not a guarantee of collision-free, contained layouts for infeasible or non-convex scenes.",
+      "follow_up": "Add adversarial infeasible and concave-room decode fixtures with explicit inventory-preservation, collision/containment diagnostics and failure/fallback expectations."
+    },
+    {
+      "id": "V21-L4",
+      "classification": "coverage_limitation",
+      "title": "Language-baseline tests establish plumbing, not comparative research quality or exhaustive prompt isolation",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_text_sft.py",
+          "lines": [
+            10,
+            47
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_baseline.py",
+          "lines": [
+            10,
+            35
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_baseline.py",
+          "lines": [
+            101,
+            143
+          ]
+        }
+      ],
+      "observation": "Text SFT tests cover a shared condition prefix, label masking, differentiability and a dry-run generation that need only be a string. LLM success fixtures supply answers derived from targets to test conversion. The prompt guard checks only six-decimal strings of target x coordinates, not every geometry field or alternate numeric spelling. Retry accounting is explicitly checked.",
+      "claim_boundary": "No text-vs-structured quality comparison, real LLM success rate or exhaustive target-leakage claim is established by these fixtures.",
+      "follow_up": "Keep smoke/conversion evidence distinct from research evaluation; add structural prompt allowlists and target-perturbation invariance checks, then evaluate real saved predictions under a documented shared cohort and budget when authorized."
+    },
+    {
+      "id": "V21-L5",
+      "classification": "coverage_limitation",
+      "title": "Autorun acceptance and cache fixtures support narrower claims than full request success and artifact identity",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_autorun.py",
+          "lines": [
+            100,
+            172
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_autorun.py",
+          "lines": [
+            209,
+            240
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_autorun.py",
+          "lines": [
+            243,
+            303
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_autorun.py",
+          "lines": [
+            386,
+            407
+          ]
+        }
+      ],
+      "observation": "The acceptance fixture explicitly accepts 5 inference failures out of 10 when all 5 are over capacity, while reporting them. Candidate checkpoints are empty directories and reports are mocked with checkpoint paths; the handoff reuse test keeps the checkpoint path fixed and changes only implementation identity. In-place checkpoint-byte changes are not exercised.",
+      "claim_boundary": "Accepted status is not evidence of all-request layout success. These cache tests do not establish content-based checkpoint identity. Existing data/implementation/decode invalidation assertions remain useful.",
+      "follow_up": "Report all-request and in-capacity denominators separately. Add independent cache cases for a changed checkpoint path and changed weights at an unchanged path, with explicit expected invalidation."
+    },
+    {
+      "id": "V21-L6",
+      "classification": "coverage_limitation",
+      "title": "Several metric consistency checks share the implementation under review",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+          "lines": [
+            26,
+            45
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round5_train.py",
+          "lines": [
+            75,
+            89
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round14_eval_math.py",
+          "lines": [
+            269,
+            279
+          ]
+        }
+      ],
+      "observation": "The final ground-truth anchor is recomputed with evaluate.collapse_metrics/collapse_score; distributed diagnostics are compared to the same single-process routines; the uniform-yaw quadrature calls _box_equivalent_errors. These test aggregation or consistency, not an independent definition of every underlying metric.",
+      "claim_boundary": "Agreement on these paths cannot alone rule out a common mathematical error. This batch also contains useful independent expectations: analytic loss values, exhaustive assignment permutations, explicit pooled/room-mean counts and binary GLB corner decoding.",
+      "follow_up": "Retain consistency checks and supplement research-facing metric definitions with small hand-computed geometry/denominator examples that do not call the production metric to obtain expected values."
+    }
+  ],
+  "write_scope": {
+    "only_paths": [
+      "evidence/agency-test-source-v2-1-20261013.json",
+      "evidence/agency-test-source-v2-1-20261013.md"
+    ],
+    "production_changes": false,
+    "test_source_changes": false,
+    "shared_ledger_changes": false,
+    "other_contributors_changes_reverted": false
+  }
+}

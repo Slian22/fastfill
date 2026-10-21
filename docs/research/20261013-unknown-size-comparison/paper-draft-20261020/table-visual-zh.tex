@@ -1,0 +1,13 @@
+\begin{table}[ht]
+\centering\small
+\caption{历史视觉子集（1,005 房间）。S 使用旧检查器触发规则。KID 不缩放，$\pm$ 为记录的标准误；网格指标方括号为95\%区间。}
+\label{tab:visual-zh}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+方法 & FID \down & KID \down & 网格 CF@500 (\%) \up \\
+\midrule
+27B-P 原始输出 (A) & 22.883 & $0.000678 \pm 0.000140$ & 57.51 [53.36, 61.32] \\
+旧触发系统 (S) & 22.786 & $0.000700 \pm 0.000142$ & 77.51 [74.30, 80.62] \\
+\bottomrule
+\end{tabular}
+\end{table}

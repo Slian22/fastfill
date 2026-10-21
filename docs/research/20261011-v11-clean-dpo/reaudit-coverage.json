@@ -1,0 +1,1578 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-11T19:14:51.889614+00:00",
+  "scope": {
+    "primary": "All current Python and shell/Slurm source files recursively under fastfill/v1_1, including tests.",
+    "dependencies": "The separately listed linked production dependency files only; not the entire OptiScene repository.",
+    "full_read_definition": "At least one fresh audit manifest explicitly records a full source read with SHA-256 equal to the current file. Initial inventory and executed test lines do not count as source reads.",
+    "partial_rule": "Older hashes and partial/unspecified reads remain visible as other_read_evidence and cannot establish current full coverage.",
+    "line_coverage_definition": "Test-executed Python source lines, measured by the cited stdlib tracing artifacts; separate from source-read coverage. The evaluator region measurement is explicitly partial.",
+    "limitations": [
+      "Full source review does not prove absence of defects or scientific validity.",
+      "No whole-repository or whole-pipeline 80% execution-coverage claim is made.",
+      "This manifest describes the final local audited source; the active experiment still uses its separately identified frozen source and newly deployed gates."
+    ]
+  },
+  "summary": {
+    "initial_inventory_production_files": 16,
+    "initial_inventory_test_files": 5,
+    "current_production_files": 20,
+    "current_production_files_fully_read": 20,
+    "current_production_lines": 5598,
+    "current_test_files": 12,
+    "current_test_files_fully_read": 12,
+    "current_test_lines": 2882,
+    "linked_dependency_files": 13,
+    "linked_dependency_files_fully_read": 13,
+    "uncovered_or_partial_primary_files": [],
+    "new_primary_files_since_initial_inventory": [
+      "fastfill/v1_1/audit_report.py",
+      "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+      "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+      "fastfill/v1_1/tests/test_audit_report.py",
+      "fastfill/v1_1/tests/test_automation_lineage.py",
+      "fastfill/v1_1/tests/test_build_dpo_integrity.py",
+      "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+      "fastfill/v1_1/tests/test_roomgenbench_recovery.py",
+      "fastfill/v1_1/tests/test_verified_sbatch.py",
+      "fastfill/v1_1/tests/test_verify_outputs.py",
+      "fastfill/v1_1/verify_outputs.py"
+    ]
+  },
+  "primary_files": [
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "role": "production",
+      "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "bytes": 93,
+      "lines": 1,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+          "lines": 1,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "role": "production",
+      "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "bytes": 11211,
+      "lines": 245,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+          "lines": 245,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "role": "production",
+      "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "bytes": 7535,
+      "lines": 159,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+          "lines": 159,
+          "scope": "full"
+        },
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+          "lines": 159,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              159
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "role": "production",
+      "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "bytes": 16934,
+      "lines": 323,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+          "lines": 323,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "add7f14de13dbf35254bda4b7b36b25df910ce2daf8c4a16d87a052de0966dd5",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "role": "production",
+      "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "bytes": 20160,
+      "lines": 446,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+          "lines": 446,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+          "lines": 446,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "22830bb7643b9c38fe414b8b91732723f8697b09482fe3f5465db341c25baeb6",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "role": "production",
+      "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "bytes": 9437,
+      "lines": 215,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+          "lines": 215,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+          "lines": 215,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "03d45d5a3ca076fa89568ac3adc1f54a92eea6e147d7d2d995ec78166ba9d253",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "role": "production",
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "bytes": 32181,
+      "lines": 687,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+          "lines": 687,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "9a1cfc0cb39d922f562cc1975fefc703bcd9287d42a356ac625139a464c68d81",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "role": "production",
+      "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "bytes": 12916,
+      "lines": 279,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+          "lines": 279,
+          "scope": "full"
+        },
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+          "lines": 279,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+          "lines": 279,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+      "role": "production",
+      "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "bytes": 2154,
+      "lines": 60,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+          "lines": 60,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+          "lines": 60,
+          "scope": "full"
+        },
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+          "lines": 60,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              60
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+      "role": "production",
+      "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "bytes": 3008,
+      "lines": 63,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+          "lines": 63,
+          "scope": "full"
+        },
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+          "lines": 63,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+      "role": "production",
+      "sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "bytes": 1578,
+      "lines": 42,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+          "lines": 42,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_pipeline.sbatch",
+      "role": "production",
+      "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "bytes": 10964,
+      "lines": 273,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+          "lines": 273,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+          "lines": 273,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+      "role": "production",
+      "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "bytes": 1906,
+      "lines": 51,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+          "lines": 51,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+          "lines": 51,
+          "scope": "full"
+        },
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+          "lines": 51,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              51
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "role": "production",
+      "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "bytes": 27498,
+      "lines": 644,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+          "lines": 644,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+          "lines": 644,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              644
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "role": "production",
+      "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "bytes": 16116,
+      "lines": 262,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+          "lines": 262,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "95f8e6519498c3511fc01f4b27f556e09207a31aaa3ff27d5c654fab2bb5d62c",
+          "lines": 262,
+          "scope": "full"
+        }
+      ],
+      "initial_inventory_sha256": "95f8e6519498c3511fc01f4b27f556e09207a31aaa3ff27d5c654fab2bb5d62c",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "role": "production",
+      "sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "bytes": 23082,
+      "lines": 529,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+          "lines": 529,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              529
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "8a1ad5bdec7df745b5e2efbcf7e4fbf470bad5b4e1c2a006ba1169dd177a6b37",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "role": "production",
+      "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "bytes": 14645,
+      "lines": 320,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+          "lines": 320,
+          "scope": "full"
+        },
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+          "lines": 320,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+          "lines": 320,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              320
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_audit_report.py",
+      "role": "test",
+      "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "bytes": 8851,
+      "lines": 181,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+          "lines": 181,
+          "scope": "full"
+        },
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+          "lines": 181,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              181
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automate.py",
+      "role": "test",
+      "sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "bytes": 12096,
+      "lines": 259,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+          "lines": 259,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automation_lineage.py",
+      "role": "test",
+      "sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "bytes": 12150,
+      "lines": 250,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+          "lines": 250,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_build_dpo_integrity.py",
+      "role": "test",
+      "sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "bytes": 17111,
+      "lines": 366,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+          "lines": 366,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              366
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+      "role": "test",
+      "sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+      "bytes": 11019,
+      "lines": 259,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+          "lines": 259,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_protocol.py",
+      "role": "test",
+      "sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "bytes": 9363,
+      "lines": 241,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+          "lines": 241,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_resume.py",
+      "role": "test",
+      "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "bytes": 11849,
+      "lines": 255,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+          "lines": 255,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "095887f0273ab5efbbda0b5a936ce47288a2aa532b24d2986f58e8a8ac18255b",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_research_report.py",
+      "role": "test",
+      "sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "bytes": 9271,
+      "lines": 188,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+          "lines": 188,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "00f9a6af6164d220aa99b83dbb84314b85162bf9b4e0a106cb5d9d89ba723a53",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_roomgenbench_recovery.py",
+      "role": "test",
+      "sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "bytes": 10781,
+      "lines": 209,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+          "lines": 209,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              209
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_training_guard.py",
+      "role": "test",
+      "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "bytes": 13197,
+      "lines": 286,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+          "lines": 286,
+          "scope": "full"
+        },
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+          "lines": 286,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "changed_since_initial_inventory": false
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verified_sbatch.py",
+      "role": "test",
+      "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "bytes": 7705,
+      "lines": 169,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+          "lines": 169,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+          "lines": 169,
+          "scope": "full"
+        },
+        {
+          "manifest": "live-review-coverage.json",
+          "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+          "lines": 169,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              169
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verify_outputs.py",
+      "role": "test",
+      "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "bytes": 10505,
+      "lines": 219,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+          "lines": 219,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "role": "production",
+      "sha256": "34884c22c83c8a8a67ef9f9bb5edec558f6f3939a6f13bfbfef7d4c217b58a41",
+      "bytes": 18891,
+      "lines": 409,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "34884c22c83c8a8a67ef9f9bb5edec558f6f3939a6f13bfbfef7d4c217b58a41",
+          "lines": 409,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": "7637b957bef022d1e1cec9c3b5dd20ff3cf68ea9751281c3a307cec8ca0803e9",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "role": "production",
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "bytes": 16003,
+      "lines": 327,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+          "lines": 327,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+          "lines": 327,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "a4cc6120dac07269a55b04c7a14516a0ca2ba63814d3004f5b68554951e6db86",
+          "lines": 325,
+          "scope": "full"
+        }
+      ],
+      "initial_inventory_sha256": "9f0df33e562fd45fb5296cbab9a913355d24a7fba20bdffbaec56894c2a92bf2",
+      "changed_since_initial_inventory": true
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "role": "production",
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "bytes": 14393,
+      "lines": 263,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+          "lines": 263,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+          "lines": 263,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    }
+  ],
+  "linked_dependencies": [
+    {
+      "path": "RoomGenBench/bench/assemble.py",
+      "role": "linked_production_dependency",
+      "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f",
+      "bytes": 16714,
+      "lines": 345,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f",
+          "lines": 345,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              345
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "role": "linked_production_dependency",
+      "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "bytes": 17733,
+      "lines": 239,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+          "lines": 239,
+          "scope": "full"
+        },
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+          "lines": 239,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+          "lines": 239,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              239
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/build.py",
+      "role": "linked_production_dependency",
+      "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "bytes": 35292,
+      "lines": 623,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+          "lines": 623,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "role": "linked_production_dependency",
+      "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "bytes": 13856,
+      "lines": 230,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+          "lines": 230,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+          "lines": 230,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/interface.py",
+      "role": "linked_production_dependency",
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "bytes": 48155,
+      "lines": 641,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+          "lines": 641,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+          "lines": 641,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              641
+            ]
+          ]
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+          "lines": 641,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "role": "linked_production_dependency",
+      "sha256": "97b6b39878e6606d0391c8b2c8c00e123ef6391417ccadd59d58d4554cb02946",
+      "bytes": 3624,
+      "lines": 88,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "97b6b39878e6606d0391c8b2c8c00e123ef6391417ccadd59d58d4554cb02946",
+          "lines": 88,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/scene.py",
+      "role": "linked_production_dependency",
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "bytes": 21001,
+      "lines": 379,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+          "lines": 379,
+          "scope": "full"
+        },
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+          "lines": 379,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+          "lines": 379,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              379
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/split.py",
+      "role": "linked_production_dependency",
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "bytes": 5289,
+      "lines": 106,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+          "lines": 106,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/train.py",
+      "role": "linked_production_dependency",
+      "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "bytes": 17848,
+      "lines": 283,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+          "lines": 283,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v2/direct_layout.py",
+      "role": "linked_production_dependency",
+      "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "bytes": 22267,
+      "lines": 373,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+          "lines": 373,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              373
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v2/geometry.py",
+      "role": "linked_production_dependency",
+      "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "bytes": 3855,
+      "lines": 78,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+          "lines": 78,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              78
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/v2/roomgenbench.py",
+      "role": "linked_production_dependency",
+      "sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+      "bytes": 27325,
+      "lines": 444,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+          "lines": 444,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              444
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/validate.py",
+      "role": "linked_production_dependency",
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "bytes": 11838,
+      "lines": 191,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "data-coverage.json",
+          "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+          "lines": 191,
+          "scope": "full"
+        },
+        {
+          "manifest": "evaluation-coverage.json",
+          "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+          "lines": 191,
+          "scope": "full"
+        },
+        {
+          "manifest": "geometry-coverage.json",
+          "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+          "lines": 191,
+          "scope": "full",
+          "read_spans": [
+            [
+              1,
+              191
+            ]
+          ]
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    }
+  ],
+  "additional_reviewed_files": [
+    {
+      "path": "/tmp/fastfill-v11-automation-20261011/remote-deploy.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "aa034a327ad7fdc5e2a57d0206334e34ac1cc74582c98334c7c2a626e93454e0",
+      "bytes": 2327,
+      "lines": 24,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "aa034a327ad7fdc5e2a57d0206334e34ac1cc74582c98334c7c2a626e93454e0",
+          "lines": 24,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "/tmp/fastfill-v11-automation-20261011/remote-launch-report.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "dfc19d6fc55f9180ce943e28a24da2eea7caa0f76cf015ca176044f80f428c68",
+      "bytes": 1637,
+      "lines": 8,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "dfc19d6fc55f9180ce943e28a24da2eea7caa0f76cf015ca176044f80f428c68",
+          "lines": 8,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "/tmp/fastfill-v11-automation-20261011/remote-launch.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "ca999db4ecd9f7ce9cf94a7e367a79f5d20841eeeb0d46edf14a4b5e05954854",
+      "bytes": 2246,
+      "lines": 22,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "ca999db4ecd9f7ce9cf94a7e367a79f5d20841eeeb0d46edf14a4b5e05954854",
+          "lines": 22,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "/tmp/fastfill-v11-automation-20261011/remote-no-requeue.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "6a4b02d5f18a2cdf4fbcef1749d073ddf806e5e22f47857f3fd96e09f343b043",
+      "bytes": 804,
+      "lines": 6,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "6a4b02d5f18a2cdf4fbcef1749d073ddf806e5e22f47857f3fd96e09f343b043",
+          "lines": 6,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "/tmp/fastfill-v11-automation-20261011/remote-status.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "73db8c8a44e5e7c08a6a84bee37a60f7c729c916d3cfce3fbfc92ae948b8255a",
+      "bytes": 1160,
+      "lines": 12,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "73db8c8a44e5e7c08a6a84bee37a60f7c729c916d3cfce3fbfc92ae948b8255a",
+          "lines": 12,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "docs/research/20261011-v11-clean-dpo/launch.json",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "62a821e6dfab5d61475409159b6c9465be2778fa270a32ce91d5d78b0bad603a",
+      "bytes": 7903,
+      "lines": 186,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "62a821e6dfab5d61475409159b6c9465be2778fa270a32ce91d5d78b0bad603a",
+          "lines": 186,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "docs/research/20261011-v11-clean-dpo/protocol.md",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "7fe55f77f3629b130f6bf4c2356407575070be622e43c968c8f8665f5e2c7b64",
+      "bytes": 14603,
+      "lines": 83,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "automation-coverage.json",
+          "sha256": "7fe55f77f3629b130f6bf4c2356407575070be622e43c968c8f8665f5e2c7b64",
+          "lines": 83,
+          "scope": "full"
+        },
+        {
+          "manifest": "root-coverage.json",
+          "sha256": "7fe55f77f3629b130f6bf4c2356407575070be622e43c968c8f8665f5e2c7b64",
+          "lines": 83,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/tests/test_training_repairs.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "bytes": 12721,
+      "lines": 283,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+          "lines": 283,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    },
+    {
+      "path": "fastfill/tests/test_v1_1_audit_pairs.py",
+      "role": "additional_reviewed_test_or_operations_artifact",
+      "sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "bytes": 9769,
+      "lines": 210,
+      "full_read_current_version": true,
+      "read_status": "full",
+      "current_full_read_evidence": [
+        {
+          "manifest": "train-coverage.json",
+          "sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+          "lines": 210,
+          "scope": "full"
+        }
+      ],
+      "other_read_evidence": [],
+      "initial_inventory_sha256": null,
+      "changed_since_initial_inventory": null
+    }
+  ],
+  "test_execution_coverage": [
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "scope": "full file executable lines",
+      "covered": 248,
+      "executable": 260,
+      "percent": 95.38,
+      "artifact": "automation-line-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "scope": "full file executable lines",
+      "covered": 207,
+      "executable": 210,
+      "percent": 98.57,
+      "artifact": "automation-line-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "scope": "full file executable lines",
+      "covered": 265,
+      "executable": 275,
+      "percent": 96.36,
+      "artifact": "automation-line-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "scope": "full file executable lines",
+      "covered": 326,
+      "executable": 360,
+      "percent": 90.56,
+      "artifact": "builder-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "scope": "full file executable lines",
+      "covered": 157,
+      "executable": 168,
+      "percent": 93.45,
+      "artifact": "builder-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "scope": "full file",
+      "covered": 207,
+      "executable": 219,
+      "percent": 94.52,
+      "artifact": "evaluation-test-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "scope": "chunk/resume/publish region 431..604",
+      "covered": 120,
+      "executable": 147,
+      "percent": 81.63,
+      "artifact": "evaluation-test-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "scope": "full file",
+      "covered": 205,
+      "executable": 217,
+      "percent": 94.47,
+      "artifact": "evaluation-test-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "scope": "full file executable lines",
+      "covered": 362,
+      "executable": 417,
+      "percent": 86.81,
+      "artifact": "geometry-line-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "scope": "full file executable lines",
+      "covered": 308,
+      "executable": 320,
+      "percent": 96.25,
+      "artifact": "train-test-coverage.json"
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "scope": "full file executable lines",
+      "covered": 121,
+      "executable": 122,
+      "percent": 99.18,
+      "artifact": "audit-report-line-coverage.json"
+    }
+  ],
+  "evidence_artifacts": {
+    "automation-coverage.json": {
+      "sha256": "3deb0742a5d4b1971068fb6439d9f07219264e9437e2e5aa443577cfd0b6bf55",
+      "kind": "source_read_manifest"
+    },
+    "data-coverage.json": {
+      "sha256": "ca62eb0c89ab73acf07a71ad0261be868e68836e171f239d02a165b7d735d0fe",
+      "kind": "source_read_manifest"
+    },
+    "evaluation-coverage.json": {
+      "sha256": "5ac5c5f0a7e2633e068fa5828505df586e878d0f6fb7eeea1aaddba532ac0785",
+      "kind": "source_read_manifest"
+    },
+    "geometry-coverage.json": {
+      "sha256": "19743cde799e352e3ecb6bf7a08db06f5f8c4443036e0d752ad4a55b37211879",
+      "kind": "source_read_manifest"
+    },
+    "root-coverage.json": {
+      "sha256": "8dab5847a71444ce9dba54e021a0d063309cb43cf4e1136f6daddf6de228b128",
+      "kind": "source_read_manifest"
+    },
+    "train-coverage.json": {
+      "sha256": "78b7a822579b67e53ba405f0cd5ed0a9437e450b4b821ea057d75568f399f97c",
+      "kind": "source_read_manifest"
+    },
+    "live-review-coverage.json": {
+      "sha256": "316830fd6fbaa467f4cfe1ddeea78172accb6cb41babf58c67c6d1f4d7f30e22",
+      "kind": "source_read_manifest"
+    },
+    "inventory.json": {
+      "sha256": "18f9123bfe9015d1aeff56761e26036c46fec11cb16bce458db19a5d102818c0",
+      "kind": "initial_file_inventory_not_read_evidence"
+    },
+    "automation-line-coverage.json": {
+      "sha256": "a496c6fdcf10e176420a27f1fb5b3ab26c31278b024746c6d2ddf96eba9f3b93",
+      "kind": "test_execution_line_coverage_not_source_read"
+    },
+    "builder-coverage.json": {
+      "sha256": "75db8c343fb510fa09ea1af1069c123da396806eb6b0a0a270599e8437ab4731",
+      "kind": "test_execution_line_coverage_not_source_read"
+    },
+    "evaluation-test-coverage.json": {
+      "sha256": "3c2a9d8c3d6af551c1abe306d6595708d808cfd59d1a8398c9885a85833868b3",
+      "kind": "test_execution_line_coverage_not_source_read"
+    },
+    "geometry-line-coverage.json": {
+      "sha256": "2b2d7f34a6f2baa84a1f0dc0f6d62a2684014b2beb22657ba7d3f2bc1d64f383",
+      "kind": "test_execution_line_coverage_not_source_read"
+    },
+    "train-test-coverage.json": {
+      "sha256": "69a665c819bfec24c7b0a02e0862a6328ee289552ccffd5bfef41695f871ed30",
+      "kind": "test_execution_line_coverage_not_source_read"
+    },
+    "audit-report-line-coverage.json": {
+      "sha256": "626217e1be9ab19ad7d4a79044345c37aaa0f355f43d267fddf1c065d72b22c1",
+      "kind": "test_execution_line_coverage_not_source_read"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "started_unix": 1791877021.208166,
+  "job_id": "7367629",
+  "argv": [
+    "scancel",
+    "--ctld",
+    "--state=PENDING",
+    "7367629"
+  ],
+  "remote_receipts": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/deployments/full-audit-run003-a8726c726f72",
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "protected_jobs": [
+    7365659,
+    7365681,
+    7365682,
+    7367626,
+    7367628
+  ]
+}

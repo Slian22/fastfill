@@ -1,0 +1,43 @@
+{
+  "identity": {
+    "41825": "41825     1 41825 /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python /tmp/ff-controller-zddaos0p/launcher.py /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config.json",
+    "41826": "41826 41825 41826 /usr/bin/ssh -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=2 -o ForwardAgent=no -o ForwardX11=no -o ControlPersist=no -M -N -n -S /tmp/ff-u6uv-koee4y6n/control.sock u6uv.aip2.isambard",
+    "42372": "42372 41825 42372 /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python -B -u -m fastfill.comparison.overnight --config /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config.json",
+    "42373": "42373 41825 42373 /usr/bin/caffeinate -ims -w 42372"
+  },
+  "new_master_ready": {
+    "control_path": "/tmp/ff-audit-ssh-oo470s58/control.sock",
+    "deadline_unix": 1792302800,
+    "driver_started": false,
+    "launcher_pid": 40191,
+    "master_pid": 40239,
+    "multiplex_evidence": [
+      "debug2: mux_client_hello_exchange: master version 4",
+      "debug1: mux_client_request_session: master session id: 2",
+      "debug2: Received exit status from master 0"
+    ],
+    "observed_unix": 1791876879.519789
+  },
+  "old_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "d1dc934be020778f936b7e429e75a1841ffaacfdd57f380af0a0c4bce550cb8b",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 5524.860585917006,
+    "failures": [],
+    "pid": 42372,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791876845.016099
+  },
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "signal": "SIGTERM",
+  "signal_target": 41825,
+  "started_unix": 1791876974.1157901
+}

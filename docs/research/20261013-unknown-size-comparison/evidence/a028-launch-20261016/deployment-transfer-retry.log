@@ -1,0 +1,5 @@
+{"status": "DEPLOYMENT_VERIFIED", "commit": "7373495ca9e35391a5981653997be5485f64e9b6", "snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-7373495ca9", "verified_files": 456, "manifest_sha256": "89cb0a9ac49b5edc4f54c81eb2e1a74c570648430fa6e05773b3cc685077a3f6", "cpu_preflight": "CPU_IMPORT_AND_ARM_PREFLIGHT_OK", "source_read_only": true, "checked_utc": "2026-10-16T03:02:50.952989+00:00"}
+
+** WARNING: connection is not using a post-quantum key exchange algorithm.
+** This session may be vulnerable to "store now, decrypt later" attacks.
+** The server may need to be upgraded. See https://openssh.com/pq.html

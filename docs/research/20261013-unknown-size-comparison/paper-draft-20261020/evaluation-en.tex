@@ -1,0 +1,48 @@
+\section*{Experiments and Evaluation}
+
+\paragraph{Task and protocol.}
+Given room geometry, fixed objects and a furniture-category list, FastFill estimates furniture dimensions from a training-only prior and uses a 27B placement model to predict positions, orientations and support relations. Dimensions remain fixed during deterministic repair (S1) and optional local-LLM refinement (O2). We report the model, repair and refinement stages separately on the same \NumRooms{} test requests. These are descriptive results on a previously exposed test split, not a new blind benchmark. The original matched 8B joint-size/placement study and its registered endpoints remain a separate experiment.
+
+\paragraph{Metric selection.}
+Prior work combines distributional image quality with task-specific checks: ATISS and DiffuScene report rendering-based distributional metrics; LayoutGPT also reports room-boundary violations; OptiScene combines FID, object overlap and visual/human judgments~\cite{atiss2021,diffuscene2024,layoutgpt2023,optiscene2025}. Accordingly, we emphasize \emph{geometric success with a size-error check}, and report downstream admission and visual quality separately. Table~\ref{tab:metrics-en} fixes the terminology and denominators; no metric is retrospectively promoted to a preregistered endpoint.
+
+\begin{table}[ht]
+\centering\small
+\caption{Metrics and reporting rules. $N$ denotes all requested rooms.}
+\label{tab:metrics-en}
+\begin{tabularx}{\linewidth}{@{}p{35mm}X@{}}
+\toprule
+Metric & Definition and denominator \\
+\midrule
+Geometry success (GSR) \up & Complete output passing the frozen checker: boundary, support, ceiling, main/severe collision and fixed-object blocking checks. Rate over $N$; failures count as zero. \\
+Size log-MAE \down & Mean absolute log dimension error against reference dimensions, averaged over three axes, objects, then complete rooms. This checks size estimation, not placement. \\
+Complete rate \up & All requested objects returned with schema-valid geometric fields; denominator $N$. \\
+Object overlap (OOR) \down & Pairwise overlap area divided by total object footprint area; mean over complete rooms, with completeness reported alongside. \\
+Strict admission \up & Complete output satisfying the local downstream endpoint, attachment and admission predicates; denominator $N$. This is an application-specific automatic metric. \\
+Visual / mesh quality & FID \down, KID \down{} on a shared rendered subset; voxel mesh collision-free rate \up{} on successfully analyzed rooms. Always report coverage. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For a complete room $r$ with $n_r$ objects, the two continuous geometry metrics are
+\begin{equation}
+ E_r=\frac{1}{3n_r}\sum_{i=1}^{n_r}\sum_{d\in\{x,y,z\}}
+ \left|\log\frac{\hat{s}_{rid}}{s_{rid}}\right|,
+ \qquad
+ \oor_r=\frac{\sum_{i<j}|A_{ri}\cap A_{rj}|}{\sum_i|A_{ri}|}.
+\end{equation}
+Here $A_{ri}$ is the axis-aligned footprint formed from the predicted center and width/depth \emph{without applying yaw}. All movable pairs enter OOR, without support or height exemptions. OOR is neither an out-of-room rate nor a collision probability, and can exceed one. GSR instead uses oriented geometry with fixed tolerances and semantic collision exemptions. Strict admission uses its own fixed adaptation, including boundary snapping even for the row labeled ``raw''; it is neither a RoomGenBench standard nor the human usability rate (UR) in OptiScene. Human UR has not been measured.
+
+\paragraph{Full-test results.}
+Table~\ref{tab:stages-en} compares two refinement triggers. The old rule refines checker failures; the new rule refines failures of either the checker or strict admission. Both reuse the same 27B predictions and S1 outputs.
+
+\input{table-main-en}
+
+The new trigger increases strict admission by \StrictGain{} percentage points (95\% CI [\StrictLo{}, \StrictHi{}]) over the old trigger; GSR increases by \CheckerGain{} points (95\% CI [\CheckerLo{}, \CheckerHi{}]). Intervals use paired resampling of \NumClusters{} house components, 2,000 draws and seed 42, without multiplicity correction; they do not measure training-seed variability. The new system refines \Escalated{}/\NumRooms{} rooms (\EscalatedPct{}\%), using \OtwoRounds{} local O2 generations and zero external API calls. Recorded O2 processing totals approximately 46.0 GPU-hours, including model loading and a recovered shard, but excluding the reused placer inference. Size log-MAE is \SizeError{} for both final systems: the trigger change improves placement without changing requested dimensions.
+
+\paragraph{Separate visual evaluation.}
+Table~\ref{tab:visual-en} concerns the \emph{old checker-trigger system}, not the new trigger. Reference and generated scenes share assets, cameras and rendering settings. FID/KID use 2,048-dimensional Inception features and one fixed perspective per room. Of 1,009 selected rooms, 1,005 are successfully rendered/analyzed; four lack a required asset. Mesh collision-free means no eligible non-parent movable-object pair exceeds $500\,\mathrm{cm}^3$ voxel overlap (2\,cm voxel pitch), rather than exact zero intersection.
+
+\input{table-visual-en}
+
+The small FID difference and slightly higher KID do not establish a distributional-quality improvement. Visual scores are conditional on this subset and cannot be assigned to the new full-test system. Published paper numbers are not direct baselines because datasets, conditioning and rendering differ. These tables support stage-wise system evaluation, not a claim of superiority to prior methods; independent blind testing and human usability assessment remain outstanding.

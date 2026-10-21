@@ -1,0 +1,379 @@
+{
+  "schema_version": "fastfill.v2",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "bathroom",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        3,
+        0.0
+      ],
+      [
+        3,
+        3.7
+      ],
+      [
+        0.0,
+        3.7
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.95,
+          2.05
+        ],
+        "bottom_center_m": [
+          0.98,
+          3.7,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "category": "toilet",
+      "description": "A futuristic toilet unit with a sleek angular bowl, matte black ceramic, electric\u2011blue trim, and a floating lid that slides silently",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0001",
+      "category": "bin",
+      "description": "A metal waste bin with a squat cylindrical body, brushed steel finish, and a subtle electric\u2011yellow accent ring",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0002",
+      "category": "sink",
+      "description": "A dark metallic sink with a deep rectangular basin, brushed steel surface, neon\u2011purple backlighting, and a low\u2011profile faucet",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0003",
+      "category": "cabinet",
+      "description": "A circuit\u2011etched storage cabinet with a tall rectangular silhouette, dark alloy frame, glowing circuit patterns, and sliding doors",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0004",
+      "category": "lamp",
+      "description": "A futuristic cyberpunk floor lamp with a tall slender pole, angular chrome arms and a glowing amber orb that emits a soft ambient light",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0005",
+      "category": "trashcan",
+      "description": "A cyberpunk style trash can, squat cylindrical container, matte black exterior with a thin vertical neon red stripe and a sensor\u2011activated lid",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0006",
+      "category": "trashcan",
+      "description": "A cylindrical floor trash can with a rugged brushed metal finish, neon\u2011red accent ring and a wide stable base",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0007",
+      "category": "shower",
+      "description": "A neon-lit shower enclosure with a rectangular frame, glowing magenta panels, chrome accents, and a built\u2011in LED rim that pulses rhythmically",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0008",
+      "category": "holder",
+      "description": "A toothbrush holder with an angular rectangular prism shape, matte black base, neon\u2011green edge lighting, and a recessed groove for brushes",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0009",
+      "category": "cosmeticbag",
+      "description": "A cyberpunk cosmetic bag with a compact rectangular shape, matte black exterior and a subtle circuit-board texture illuminated by soft amber LEDs",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0010",
+      "category": "shampoobottle",
+      "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0011",
+      "category": "shampoobottle",
+      "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0012",
+      "category": "toothbrushholder",
+      "description": "A sleek cyberpunk toothbrush holder with a rectangular base, angular edges, neon\u2011blue glowing strips and a matte black metallic finish, featuring a recessed slot for bristles and a small holographic display on the front",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0013",
+      "category": "handsoapdispenser",
+      "description": "A wall\u2011mounted cyberpunk hand\u2011soap dispenser, slim rectangular with a brushed steel front, amber LED glow and a touch\u2011sensitive panel",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0014",
+      "category": "toothbrush",
+      "description": "A cyberpunk toothbrush with a sleek angular handle, neon\u2011blue accents and a matte black polymer body, featuring a slightly curved head and a glowing tip.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0015",
+      "category": "shampoo2",
+      "description": "A cyberpunk shampoo bottle made of transparent acrylic with a chrome\u2011silver spray nozzle, neon\u2011green label and a tapered cylindrical shape.",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0016",
+      "category": "razorcabinet",
+      "description": "A cyberpunk style razor, slim and angular with a brushed steel blade housing and a glowing amber strip along its side",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0017",
+      "category": "mirror",
+      "description": "A single piece of thin and upright cyberpunk mirror with a reflective chrome surface, faint neon\u2011green grid overlay, and beveled edges",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0018",
+      "category": "shampoobottle",
+      "description": "A cyberpunk style shampoo bottle with a sleek cylindrical shape, neon teal glossy finish, polymer body and an integrated LED ring that pulses softly",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0019",
+      "category": "hairbrush",
+      "description": "A cyberpunk style hairbrush, compact cylindrical body, brushed steel bristles, electric blue glow along the handle and a detachable magnetic tip",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0020",
+      "category": "shampoo",
+      "description": "A cylindrical shampoo bottle with a glossy neon teal finish, angular cap and sleek streamlined shape",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0021",
+      "category": "handsoap",
+      "description": "A cylindrical hand\u2011soap dispenser with a brushed steel body, glowing LED ring and a smooth rounded top",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0022",
+      "category": "mirror",
+      "description": "A single piece of thin and upright framed neon mirror with a rectangular shape, glowing cyan border, and a polished chrome backing",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0023",
+      "category": "sign",
+      "description": "A single piece of thin and upright electric\u2011blue 'BATH' sign with illuminated lettering, flat acrylic panel, and a brushed metal border",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0024",
+      "category": "strip",
+      "description": "A single piece of thin and upright LED neon strip lighting with a continuous linear form, vibrant magenta glow, and a sleek polymer housing",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0025",
+      "category": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0026",
+      "category": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0027",
+      "category": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0028",
+      "category": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0029",
+      "category": "panel",
+      "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0030",
+      "category": "panel",
+      "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0031",
+      "category": "towelrack",
+      "description": "A neon\u2011edge towel rack with a tall vertical frame, chrome arms, and a glowing pink outline that traces the rack\u2019s silhouette",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0032",
+      "category": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0033",
+      "category": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0034",
+      "category": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0035",
+      "category": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0036",
+      "category": "circuitpanel",
+      "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0037",
+      "category": "circuitpanel",
+      "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0038",
+      "category": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0039",
+      "category": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0040",
+      "category": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0041",
+      "category": "neonsign",
+      "description": "A single piece of thin and upright neon sign with a sleek black backing, bright electric blue lettering spelling 'BATH' and a subtle flicker effect",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0042",
+      "category": "mirror",
+      "description": "A single piece of thin and upright mirror with reflective black glass, framed by a thin neon pink LED border.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0043",
+      "category": "mirror",
+      "description": "A single piece of thin and upright mirror with a rectangular frame, reflective surface edged in a thin strip of glowing cyan LED, and a brushed steel backing",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0044",
+      "category": "mirror2",
+      "description": "A single piece of thin and upright wall\u2011mounted mirror with a sleek black border, neon\u2011purple backlighting and a slightly convex surface.",
+      "support_parent": "obj_0003"
+    },
+    {
+      "id": "obj_0045",
+      "category": "panel",
+      "description": "A cyberpunk circuit panel with exposed wiring, matte black casing, silver rivets and a thin glowing green indicator strip.",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0046",
+      "category": "wiringbundle1",
+      "description": "A cyberpunk wiring bundle, thick cable with a twisted metallic sheath, neon\u2011orange insulation and small connector plugs.",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0047",
+      "category": "lightfixture",
+      "description": "A cyberpunk style light fixture, compact wall\u2011mounted unit with a curved chrome housing and an integrated strip of programmable RGB LEDs",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0048",
+      "category": "circuitpanel",
+      "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0049",
+      "category": "circuitpanel",
+      "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0050",
+      "category": "wiringbundle_1",
+      "description": "A cylindrical wiring bundle with a twisted neon\u2011orange cable sheath, rugged texture and a slightly tapered end",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0051",
+      "category": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0052",
+      "category": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0053",
+      "category": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0054",
+      "category": "handsoapdispenser",
+      "description": "A single piece of thin and upright hand soap dispenser with a compact cylindrical body, matte black finish and bright cyan neon accents around the pump, giving it a cyberpunk aesthetic.",
+      "support_parent": "obj_0002"
+    }
+  ],
+  "constraints": []
+}

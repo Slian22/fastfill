@@ -1,0 +1,15 @@
+\begin{table}[ht]
+\centering\small
+\caption{Stage comparison on the same 8,647 requests. Rates are percentages; OOR and size error are means over complete outputs.}
+\label{tab:stages-en}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Stage & Complete \up & GSR \up & Strict \up & OOR \down & Size error \down \\
+\midrule
+27B-P raw & 99.95 & 44.34 & 21.61 & 0.2560 & 0.2824 \\
+27B-P + S1 & 99.95 & 74.22 & 29.13 & 0.1526 & 0.2824 \\
++ O2: checker trigger & 100.00 & 89.01 & 34.35 & 0.1081 & 0.2824 \\
++ O2: checker/strict trigger & 100.00 & 89.55 & 49.42 & 0.0996 & 0.2824 \\
+\bottomrule
+\end{tabular}
+\end{table}

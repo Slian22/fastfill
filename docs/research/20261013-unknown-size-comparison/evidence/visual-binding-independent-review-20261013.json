@@ -1,0 +1,201 @@
+{
+  "checks": [
+    {
+      "evidence": "Required resources.json is inventory/hash-bound before output/renderer; exact consumed bytes are hashed again by evaluation._read.",
+      "id": "manifest_binding",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Renderer plan determines consumed IDs; frozen case binds UID/source/prompt IDs; resource key is digest([resolved_mesh_path, asset_id]); complete mesh/material/texture/override records must match. Foreign-key and mapping-tamper probes reject.",
+      "id": "uid_asset_binding",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Fresh _planner/cache per phase; one inspection per unique resource per pass; missing/changed OBJ/MTL/texture and shared/fixed-resource tests pass.",
+      "id": "pre_post_checks",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Postcheck failure overrides rendered receipt: authoritative images empty and failure applies jointly to reference/GT, joint, placement.",
+      "id": "all_arms_failure",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Independent post-drift probe: failed UID has no FID candidate/images, no API PNG directory or prompt, two API failures, and no runnable API request.",
+      "id": "fid_api_exclusion",
+      "result": "PASS"
+    },
+    {
+      "evidence": "All frozen UIDs retained in cases/ledger/FID; selected failures keep two opaque mapping/failure entries; no replacement and mixed/all-failed cases pass.",
+      "id": "full_denominators",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Existing visual-reference-v1 exact manifest hash unchanged and all 6018 eligible consumed mappings bind. Synthetic freeze schema and overrides/relative paths remain accepted.",
+      "id": "frozen_reference_compatibility",
+      "result": "PASS"
+    }
+  ],
+  "concurrent_legacy_test_file": {
+    "edited_by_reviewer": false,
+    "full_suite_owned_by_other_worker": true,
+    "initial_sha256": "145f99890e9bc0fd488f99ca95d09784d1b85314fe46fc07b0a3dd4dbd9747e6",
+    "last_observed_sha256": "365dd23012ebf5d73b536d9bb8135d9c7fa0548bac94036d7bcfd810592b8ffc",
+    "path": "fastfill/comparison/tests/test_visual_pipeline.py"
+  },
+  "environment": {
+    "executable": "/Users/slian/miniforge3/bin/python",
+    "packages": {
+      "Pillow": "10.4.0",
+      "accelerate": "1.15.0",
+      "numpy": "1.26.4",
+      "peft": "0.21.0",
+      "pytest": "9.1.1",
+      "torch": "2.13.0",
+      "transformers": "5.14.1"
+    },
+    "python": "3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:44:42) [Clang 18.1.8 ]"
+  },
+  "findings": [],
+  "frozen_reference_compatibility": {
+    "consumed_mappings_checked": 6018,
+    "eligible_cases": 1005,
+    "frozen_cases": 1009,
+    "procedural_objects_exempted": 883,
+    "real_asset_bytes_reaudited": false,
+    "reference_dir": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/data/visual-reference-v1",
+    "reference_manifest_sha256": "dda638b9bf6ea292fa9dbcec5b731cb5a7fc885ef4331a3438a741e6b306573a",
+    "resource_entries": 1945,
+    "resource_key_schema_verified": true,
+    "resources_sha256": "9a6e8b278c30d2b0f6bdcc3963dbdf39a28da87accd4202e6116f5d8e392edea",
+    "snapshot_file_hashes_verified": true,
+    "uid_source_mapping_verified": true
+  },
+  "independent_probe": {
+    "parameterized_tests": 10,
+    "path": "/tmp/optiscene-vis-independent-20261013-cths629b/test_adversarial_binding.py",
+    "sha256": "eb17a57515adf637e8ccac0d2d9350ee7003d4c441f117cc31e034196fe65284",
+    "source": "\"\"\"Independent temporary review probes; production/source assets are never modified.\"\"\"\nimport collections\nimport copy\nimport json\nfrom pathlib import Path\nimport pytest\nfrom fastfill.comparison import visual_pipeline as pipeline, visual_cases, render_assets as render\nfrom fastfill.comparison.tests import test_visual_resource_binding as fixtures\nfrom fastfill.comparison.tests import test_visual_pipeline as legacy\n\n\n@pytest.mark.parametrize(\"phase\", [\"before\", \"after\"])\ndef test_identical_texture_bytes_at_different_resolved_path_are_rejected(tmp_path, monkeypatch, phase):\n    inputs = fixtures.cohort(tmp_path)\n    texture = inputs[3][\"0-original-a\"][\"texture\"]\n    alternate = texture.parent / \"same-bytes.png\"\n    alternate.write_bytes(texture.read_bytes())\n    def swap():\n        texture.unlink()\n        texture.symlink_to(alternate)\n    if phase == \"before\":\n        swap()\n    out, result, _ = fixtures.prepare(tmp_path, monkeypatch, inputs, during=swap if phase == \"after\" else None)\n    fixtures.assert_inventory(out, result, inputs[0], {\"room-0\"})\n    assert fixtures.read(out / \"ledger.json\")[\"cases\"][0][\"failure\"][\"phase\"] == phase + \"_render\"\n\n\ndef test_right_resource_record_under_wrong_key_cannot_bind_room(tmp_path, monkeypatch):\n    inputs = fixtures.cohort(tmp_path)\n    ref = inputs[0]\n    resources = fixtures.read(ref / \"resources.json\")\n    key = next(k for k, r in resources.items() if r[\"asset_id\"] == \"0-original-a\")\n    altered = {k: v for k, v in resources.items() if k != key}\n    altered[\"0\" * 64] = resources[key]\n    legacy.write(ref / \"resources.json\", altered)\n    fixtures.reseal(ref)\n    out, result, _ = fixtures.prepare(tmp_path, monkeypatch, inputs)\n    fixtures.assert_inventory(out, result, ref, {\"room-0\"})\n\n\n@pytest.mark.parametrize(\"field\", [\"uid\", \"asset_id\", \"mesh_path\", \"source\"])\ndef test_unsealed_case_mapping_identity_edit_aborts_before_render(tmp_path, monkeypatch, field):\n    inputs = fixtures.cohort(tmp_path)\n    ref = inputs[0]\n    cases = visual_cases._read_rows(ref / \"reference-cases.jsonl\")\n    changed = copy.deepcopy(cases)\n    changed[0][\"asset_mapping\"][0][field] = \"foreign-value\"\n    legacy.rows(ref / \"reference-cases.jsonl\", changed)\n    monkeypatch.setattr(pipeline.subprocess, \"run\", lambda *a, **k: pytest.fail(\"render launched\"))\n    with pytest.raises(ValueError, match=\"hash mismatch\"):\n        pipeline.prepare(ref, inputs[1], tmp_path / \"visual\", \"/mock\")\n    assert not (tmp_path / \"visual\").exists()\n\n\ndef test_shared_asset_inspection_is_cached_once_per_pass_and_fresh_after_render(tmp_path, monkeypatch):\n    inputs = fixtures.cohort(tmp_path, shared=True)\n    original = render.inspect_asset\n    calls = []\n    def inspect(path, asset_id):\n        calls.append((path, asset_id))\n        return original(path, asset_id)\n    monkeypatch.setattr(render, \"inspect_asset\", inspect)\n    out, result, _ = fixtures.prepare(tmp_path, monkeypatch, inputs)\n    fixtures.assert_inventory(out, result, inputs[0], set())\n    assert len(calls) == 4\n    assert set(collections.Counter(calls).values()) == {2}\n\n\ndef test_postcheck_drift_never_publishes_failed_room_to_fid_or_api(tmp_path, monkeypatch):\n    inputs = fixtures.cohort(tmp_path)\n    texture = inputs[3][\"0-original-a\"][\"texture\"]\n    out, result, _ = fixtures.prepare(tmp_path, monkeypatch, inputs, during=lambda: texture.write_bytes(b\"DRIFT\"))\n    fixtures.assert_inventory(out, result, inputs[0], {\"room-0\"})\n    _, cases, _ = pipeline.fid._load_manifest(out / \"fid-manifest.json\")\n    checked, failures = pipeline.fid._inspect_cases(cases, out)\n    assert len(checked) == 3 and not checked[\"room-0\"][\"candidate\"]\n    assert checked[\"room-0\"][\"images\"] == {}\n    assert len([r for r in failures if r[\"uid\"] == \"room-0\"]) == 4\n    for arm in pipeline.ARMS[1:]:\n        identity = render.json_sha256([\"room-0\", arm])\n        assert not (out / \"api-bundle/images\" / identity).exists()\n    assert not (out / \"api-bundle/prompts\" / (render.json_sha256(\"room-0\") + \".txt\")).exists()\n    assert len(fixtures.read(out / \"api-mapping.json\")) == 6\n    assert len(fixtures.read(out / \"api-failures.json\")) == 2\n    # Raw chunk images are diagnostic only; authoritative manifests above exclude them.\n    assert len(list((out / \"chunks\").rglob(\"*.png\"))) == 18\n    assert len(list((out / \"api-bundle/images\").rglob(\"*.png\"))) == 8\n\n\ndef test_boundary_check_limit_transient_drift_restored_before_postcheck(tmp_path, monkeypatch):\n    inputs = fixtures.cohort(tmp_path)\n    texture = inputs[3][\"0-original-a\"][\"texture\"]\n    frozen = texture.read_bytes()\n    fake = legacy.fake_blender([])\n    def transient(command, **kwargs):\n        texture.write_bytes(b\"temporary-render-time-drift\")\n        try:\n            return fake(command, **kwargs)\n        finally:\n            texture.write_bytes(frozen)\n    monkeypatch.setattr(pipeline.subprocess, \"run\", transient)\n    out = tmp_path / \"visual\"\n    result = pipeline.prepare(inputs[0], inputs[1], out, \"/mock\", workers=1, eval_data=inputs[2])\n    # Explicit limit characterization, not a guarantee of immutable Blender reads.\n    fixtures.assert_inventory(out, result, inputs[0], set())\n",
+    "test_functions": [
+      "test_identical_texture_bytes_at_different_resolved_path_are_rejected",
+      "test_right_resource_record_under_wrong_key_cannot_bind_room",
+      "test_unsealed_case_mapping_identity_edit_aborts_before_render",
+      "test_shared_asset_inspection_is_cached_once_per_pass_and_fresh_after_render",
+      "test_postcheck_drift_never_publishes_failed_room_to_fid_or_api",
+      "test_boundary_check_limit_transient_drift_restored_before_postcheck"
+    ]
+  },
+  "limitations": [
+    {
+      "blocking_for_VIS01_boundary_scope": false,
+      "description": "No immutable staging/read attestation. Temporary asset drift during mocked rendering restored before postcheck is accepted. This demonstrates a boundary-check limit, not actual Blender pixel correctness. Cached passes also do not continuously monitor each read.",
+      "id": "LIM-01",
+      "kind": "documented_boundary_check_limit",
+      "observed": true
+    },
+    {
+      "blocking_for_VIS01_boundary_scope": false,
+      "description": "Raw chunk PNGs and receipts remain after resource failure; final authoritative image entries, FID candidates and runnable API bundle exclude them. Consumers must follow final manifests and must not glob raw chunk images or promote nested receipt paths.",
+      "id": "LIM-02",
+      "kind": "diagnostic_artifacts",
+      "observed": true
+    },
+    {
+      "blocking_for_VIS01_boundary_scope": false,
+      "description": "No real Blender rendering, FID feature extraction, paid judge execution, full-real-asset-byte reaudit, or resource-I/O benchmark was performed. Parent owns the full suite and deployment decision.",
+      "id": "LIM-03",
+      "kind": "validation_scope"
+    },
+    {
+      "blocking_for_VIS01_boundary_scope": false,
+      "description": "Requested fastfill/comparison/resource_binding.py is absent. Actual implementation is visual_pipeline._resource_failures and imports no such helper; author report says no helper was necessary. Verdict covers only enumerated existing hashes.",
+      "id": "LIM-04",
+      "kind": "source_scope"
+    },
+    {
+      "blocking_for_VIS01_boundary_scope": false,
+      "description": "The supplied frozen reference manifest is trusted provenance, not signed authentication against a hostile actor who can consistently replace manifest/cases/resource book. Hashes detect drift relative to that supplied freeze.",
+      "id": "LIM-05",
+      "kind": "trust_boundary"
+    }
+  ],
+  "restrictions_respected": [
+    "no SSH",
+    "no deploy",
+    "no API requests",
+    "no real asset mutation",
+    "no environment installation/change",
+    "no legacy test edits"
+  ],
+  "review_report_sha256": "ec319268cc9fa2544aabc6f1083af59225a8f9facd1efb56d2fdf1631d750aff",
+  "review_scope": "VIS-01 persistent resource drift at pre/post rendering boundaries; independent read-only review",
+  "reviewed_sources": {
+    "fastfill/comparison/eval_data.py": {
+      "bytes": 15289,
+      "exists": true,
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b"
+    },
+    "fastfill/comparison/fid.py": {
+      "bytes": 18255,
+      "exists": true,
+      "sha256": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d"
+    },
+    "fastfill/comparison/render_assets.py": {
+      "bytes": 37520,
+      "exists": true,
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583"
+    },
+    "fastfill/comparison/resource_binding.py": {
+      "bytes": null,
+      "exists": false,
+      "sha256": null
+    },
+    "fastfill/comparison/tests/test_visual_resource_binding.py": {
+      "bytes": 17071,
+      "exists": true,
+      "sha256": "af411bc451f5471acdab3c8e0fbd934e82b6decc5a21d6e4004b4db60f466370"
+    },
+    "fastfill/comparison/visual_cases.py": {
+      "bytes": 17915,
+      "exists": true,
+      "sha256": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21"
+    },
+    "fastfill/comparison/visual_pipeline.py": {
+      "bytes": 24972,
+      "exists": true,
+      "sha256": "099ed3467bd3312665fd446d21304f9df176a04998d1c40b697b0e1fd974b29d"
+    }
+  },
+  "reviewed_sources_stable": true,
+  "schema_version": 1,
+  "severity_counts": {
+    "critical": 0,
+    "high": 0,
+    "low": 0,
+    "medium": 0
+  },
+  "utc": "2026-10-13T08:19:09.832690+00:00",
+  "validation": [
+    {
+      "command": "python -B -m pytest -q -p no:cacheprovider fastfill/comparison/tests/test_visual_resource_binding.py fastfill/comparison/tests/test_visual_cases.py fastfill/comparison/tests/test_render_assets.py fastfill/comparison/tests/test_fid.py --tb=short",
+      "failed": 0,
+      "passed": 191,
+      "seconds": 11.57
+    },
+    {
+      "command": "python -B -m pytest -q -p no:cacheprovider /tmp/optiscene-vis-independent-20261013-cths629b/test_adversarial_binding.py --tb=short",
+      "failed": 0,
+      "passed": 10,
+      "seconds": 2.66
+    }
+  ],
+  "verdict": "NO_HIGH_FINDINGS",
+  "writes": {
+    "reports": [
+      "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-independent-review-20261013.md",
+      "docs/research/20261013-unknown-size-comparison/evidence/visual-binding-independent-review-20261013.json"
+    ],
+    "repository_production_or_tests": [],
+    "temporary_fixtures_only": true
+  }
+}

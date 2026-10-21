@@ -1,0 +1,8 @@
+{
+  "files": {
+    "preflight.py": "3b3ac12c3769ea0a8575b497caabd58dcced95b369065001c2e9546389f9e551",
+    "verify.py": "3eda8600012dfd9a2caee6ff65da7d5f16389f1643ffeb6b8c2cb6472cb85eab",
+    "run.sbatch": "bfa7ca116adfc2665fa20abb919683d0eca4cd34861c6c8c3bb450ab009eae3d",
+    "submit.py": "df3cc5b8147172bca1792a1a358832ea275f5604dd2bf715320c027632b96077"
+  }
+}

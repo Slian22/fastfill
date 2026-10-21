@@ -1,0 +1,1231 @@
+                                                                           ALFRED
+                                               A Benchmark for Interpreting Grounded Instructions for Everyday Tasks
+                                                 Mohit Shridhar1                  Jesse Thomason1    Daniel Gordon1                                                       Yonatan Bisk1,2,3
+                                                 Winson Han3                    Roozbeh Mottaghi1,3
+                                                                                                      Luke Zettlemoyer1                                                      Dieter Fox1,4
+                                                                                          AskForALFRED.com
+arXiv:1912.01734v2 [cs.CV] 31 Mar 2020
+
+
+
+
+                                                                     Abstract                                       Goal: "Rinse off a mug and place it in the coffee maker"
+                                                                                                                                                        2
+                                                                                                                                                            "pick up the dirty mug      3
+                                             We present ALFRED (Action Learning From Realistic                                                              from the coffee maker"
+                                                                                                                                                                                            "turn and walk to the sink"
+                                                                                                                     1
+                                         Environments and Directives), a benchmark for learning                           "walk to the coffee
+                                                                                                                          maker on the right"
+                                         a mapping from natural language instructions and ego-
+                                         centric vision to sequences of actions for household tasks.
+                                         ALFRED includes long, compositional tasks with non-
+                                                                                                                   t =0      visual navigation
+                                                                                                                                                      t =10 object interaction         t = 21 visual navigation
+                                         reversible state changes to shrink the gap between research
+                                         benchmarks and real-world applications. ALFRED con-                         4
+                                                                                                                                                       5
+                                                                                                                                                           "pick up the mug and go
+                                                                                                                                                                                            6
+                                                                                                                                                                                                "put the clean mug
+                                                                                                                         "wash the mug in the sink"                                             in the coffee maker"
+                                         sists of expert demonstrations in interactive visual environ-                                                     back to the coffee maker"
+
+                                         ments for 25k natural language directives. These direc-
+                                         tives contain both high-level goals like “Rinse off a mug
+                                         and place it in the coffee maker.” and low-level language
+                                         instructions like “Walk to the coffee maker on the right.”
+                                                                                                                   t = 27 object interaction          t = 36 visual navigation         t = 50 object interaction
+                                         ALFRED tasks are more complex in terms of sequence
+                                                                                                                             state changes                         memory
+                                         length, action space, and language than existing vision-
+                                         and-language task datasets. We show that a baseline model                 Figure 1: ALFRED consists of 25k language directives
+                                         based on recent embodied vision-and-language tasks per-                   corresponding to expert demonstrations of household tasks.
+                                         forms poorly on ALFRED, suggesting that there is signif-                  We highlight several frames corresponding to portions of
+                                         icant room for developing innovative grounded visual lan-                 the accompanying language instruction. ALFRED in-
+                                         guage understanding models with this benchmark.                           volves interactions with objects, keeping track of state
+                                         1. Introduction                                                           changes, and references to previous instructions.
+
+                                             A robot operating in human spaces must learn to con-                  necting human language to actions, behaviors, and objects
+                                         nect natural language to the world. This symbol ground-                   in interactive visual environments. Planner-based expert
+                                         ing [21] problem has largely focused on connecting lan-                   demonstrations are accompanied by both high- and low-
+                                         guage to static images. However, robots need to understand                level human language instructions in 120 indoor scenes in
+                                         task-oriented language, for example “Rinse off a mug and                  AI2-THOR 2.0 [26]. These demonstrations involve partial
+                                         place it in the coffee maker,” as illustrated in Figure 1.                observability, long action horizons, underspecified natural
+                                             Platforms for translating language to action have become              language, and irreversible actions.
+                                         increasingly popular, spawning new test-beds [3, 12, 14,                     ALFRED includes 25,743 English language directives
+                                         42]. These benchmarks include language-driven navigation                  describing 8,055 expert demonstrations averaging 50 steps
+                                         and embodied question answering, which have seen dra-                     each, resulting in 428,322 image-action pairs. Motivated
+                                         matic improvements in modeling thanks to environments                     by work in robotics on segmentation-based grasping [37],
+                                         like Matterport 3D [3, 11], AI2-THOR [26], and AI Habi-                   agents in ALFRED interact with objects visually, specify-
+                                         tat [45]. However, these datasets ignore complexities aris-               ing a pixelwise interaction mask of the target object. This
+                                         ing from describing task-oriented behaviors with objects.                 inference is more realistic than simple object class pre-
+                                             We introduce ALFRED, a new benchmark for con-                         diction, where localization is treated as a solved problem.
+                                         1 Paul G. Allen School of Computer Sci. & Eng., Univ. of Washington
+                                                                                                                   Existing beam-search [17, 48, 53] and backtracking solu-
+                                         2 Language Technologies Institute @ Carnegie Mellon University            tions [24, 29] are infeasible due to the larger action and state
+                                         3 Allen Institute for AI 4 NVIDIA                                         spaces, long horizon, and inability to undo certain actions.
+
+
+                                                                                                               1
+                                — Language —               — Virtual Environment —                       — Inference —
+                             # Human                      Visual  Movable     State
+                                        Granularity                                          Vis. Obs.     Navigation    Interaction
+                            Annotations                   Quality  Objects   Changes
+ TACoS [43]                    17k+        High&Low       Photos         7          7            –             –             –
+ R2R [3]; Touchdown [14]    21k+; 9.3k+       Low         Photos         7          7           Ego         Graph            7
+ EQA [15]                        7            High         Low           7          7           Ego         Discrete         7
+ Matterport EQA [55]             7            High        Photos         7          7           Ego         Discrete         7
+ IQA [20]                        7            High         High          7          3           Ego         Discrete      Discrete
+ VirtualHome [42]              2.7k+       High&Low        High          3          3       3rd Person         7          Discrete
+ VSP [58]                        7            High         High          3          3           Ego            7          Discrete
+                                                                                                                          Discrete
+ ALFRED                         25k+       High&Low        High          3          3          Ego          Discrete
+                                                                                                                          + Mask
+
+Table 1: Dataset comparison. ALFRED is the first interactive visual dataset to include high-level goal and low-level
+natural language instructions for object and environment interactions. TACoS [43] provides detailed high- and low-level text
+descriptions of cooking videos, but does not facilitate task execution. For navigation, ALFRED enables discretized, grid-
+based movement, while other datasets use topological graph navigation or avoid navigation altogether. ALFRED requires an
+agent to generate spatially located interaction masks for action commands. By contrast, other datasets only require choosing
+from a discrete set of available interactions and object classes or offer no interactive capability.
+
+
+   To establish baseline performance levels, we evaluate              eral existing benchmarks based on simple block worlds
+a sequence-to-sequence model akin to existing vision-and-             and fully observable scenes [9, 34]. ALFRED provides
+language navigation tasks [28]. This model is not effective           more difficult tasks in richer, visually complex scenes, and
+on the complex tasks in ALFRED, achieving less than 5%                uses partially observable environments. The CHAI bench-
+success rates. For analysis, we also evaluate individual sub-         mark [33] evaluates agents performing household instruc-
+goals. While performance is better for isolated sub-goals,            tions, but uses a generic “interact” action. ALFRED has
+the model lacks the reasoning capacity for long-horizon and           seven manipulation actions, such as pick up, turn on, and
+compositional task planning.                                          open, state changes like clean versus dirty, and variation in
+   In summary, ALFRED facilitates learning models that                language and visual complexity.
+translate from language to sequences of actions and interac-             Previous work in the original AI2-THOR environment
+tions in a visually and physically realistic simulation envi-         investigated the task of visual semantic planning [19, 58].
+ronment. This benchmark captures many challenges present              Artificial language came from templates, and environment
+in real-world settings for translating human language to              interaction was handled with discrete class predictions, for
+robot actions for accomplishing household tasks. Models               example selecting apple as the target object from predefined
+that can overcome these challenges will begin to close the            options. ALFRED features human language instructions,
+gap towards real-world, language-driven robotics.                     and object selections are carried out with class-agnostic,
+                                                                      pixelwise interaction masks. In VirtualHome [42], pro-
+2. Related Work                                                       grams are generated from video demonstration and natural
+                                                                      language instructions, but inference does not involve ego-
+   Table 1 summarizes the benefits of ALFRED relative to              centric visual and action feedback or partial observability.
+other visual action datasets with language annotations.                  There is an extensive literature on language-based in-
+Vision & Language Navigation. In vision-and-language                  struction following in the natural language processing com-
+navigation tasks, either natural or templated language de-            munity. There, research has focused on mapping instruc-
+scribes a route to a goal location through egocentric vi-             tions to actions [5, 13, 32, 36, 49], but these works do not
+sual observations [3, 12, 13, 14, 31]. Since the proposal of          involve visual, interactive environments.
+R2R [3], researchers have dramatically improved the nav-              Embodied Question Answering. Existing datasets for
+igation performance of models [17, 24, 29, 53, 54] with               visual question answering in embodied environments use
+techniques like progress monitoring [28], as well as in-              templated language or static scenes [15, 20, 55, 57]. In AL-
+troduced task variants with additional, on-route instruc-             FRED, rather than answering a question, the agent must
+tions [38, 39, 51]. Much of this research is limited to static        complete a task specified using natural language, which re-
+environments. By contrast, ALFRED tasks include navi-                 quires both navigation and interaction with objects.
+gation, object interactions, and state changes.                       Instruction Alignment. Language annotations of videos
+Vision & Language Task Completion. There are sev-                     enable discovering visual correspondences between words
+
+
+                                                                  2
+                 Pick            Stack           Pick Two                     Clean                             Heat                          Cool                           Examine
+                 & Place         & Place         & Place                      & Place                           & Place                       & Place                        in Light
+ item(s)         Book            Fork (in) Cup   Spray Bottle                 Dish Sponge                       Potato Slice                   Egg                           Credit Card
+ receptacle      Desk            Counter Top     Toilet Tank                  Cart                              Counter Top                    Side Table                    Desk Lamp
+ scene #         Bedroom 14      Kitchen 10      Bathroom 2                   Bathroom 1                        Kitchen 8                      Kitchen 21                    Bedroom 24
+
+ expert
+ demonstration
+
+
+
+                                                                  Annotation # 1                                 Annotation # 2                               Annotation # 3
+                                                   Goals          Put a clean sponge on a metal rack.            Place a clean sponge on the drying rack      Put a rinsed out sponge on the drying rack
+
+                                                                  Go to the left and face the faucet side of     Turn around and walk over to the bathtub     Walk forwards a bit and turn left to face
+                                                                  the bath tub. Pick up left most green          on the left. Grab the sponge out of the      the bathtub. Grab a sponge out of the
+                                                   Instructions   sponge from the bath tub. Turn around          bathtub. Turn around and walk to the sink    bathtub. Turn around and walk forwards
+                                                                  and go to the sink. Put the sponge in the      ahead. Rinse the sponge out in the sink.     to the sink. Rinse the sponge out in the
+                                                                  sink. Turn on then turn off the water. Take    Move to the left a bit and face the drying   sink and pick it up again. Turn left to walk
+                                                                  the sponge from the sink. Go to the metal      rack in the corner of the room. Place the    a bit, then face the drying rack. Put the
+   t =8                 t = 24         t = 42                     bar rack to the left. Put the sponge on the    sponge on the drying rack.                   sponge on the drying rack.
+                                                                  top rack to the left of the lotion bottle.
+
+
+
+
+Figure 2: ALFRED annotations. We introduce 7 different task types parameterized by 84 object classes in 120 scenes.
+An example of each task type is given above. For the Clean & Place demonstration, we also show the three crowdsourced
+language directives. Please see the supplemental material for example demonstrations and language for each task.
+
+
+
+and concepts [1, 46, 43, 56, 59]. ALFRED requires per-                                        Figure 2 gives examples of the high-level agent tasks in
+forming tasks in an interactive setting as opposed to learn-                              ALFRED, like putting a cleaned object at a destination.
+ing from recorded videos.                                                                 These tasks are parameterized by the object of focus, the
+Robotics Instruction Following. Instruction following is a                                destination receptacle (e.g., table top), the scene in which
+long-standing topic of interest in robotics [7, 10, 30, 35, 40,                           to carry out the task, and in the case of Stack & Place, a
+41, 47, 52]. Lines of research consider different tasks such                              base object (e.g., plate). ALFRED contains expert demon-
+as cooking [10], table clearing [40], and mobile manipula-                                strations of these seven tasks executed using combinations
+tion [30]. In general, they are limited to a few scenes [35],                             of 58 unique object classes and 26 receptacle object classes
+consider a small number of objects [30], or use the same                                  across 120 different indoor scenes. For object classes like
+environment for training and testing [7]. In contrast, AL-                                potato slice, the agent must first pick up a knife and find
+FRED includes 120 scenes, many object classes with di-                                    a potato to create slices. All object classes contain mul-
+verse appearances, and a test set of unseen environments.                                 tiple visual variations with different shapes, textures, and
+                                                                                          colors. For example, there are 30 unique variants of the ap-
+3. The ALFRED Dataset                                                                     ple class. Indoor scenes include different room types: 30
+                                                                                          each of kitchens, bathrooms, bedrooms, and living rooms.
+   The ALFRED dataset comprises 25,743 language direc-                                        For 2,685 combinations of task parameters, we gener-
+tives corresponding to 8,055 expert demonstration episodes.                               ate three expert demonstrations per parameter set, for a
+Each directive includes a high-level goal and a set of step-                              total of 8,055 unique demonstrations with an average of
+by-step instructions. Each expert demonstration can be de-                                50 action steps. The distributions of actions steps in AL-
+terministically replayed in the AI2-THOR 2.0 simulator.                                   FRED demonstrations versus related datasets is given in
+                                                                                          Figure 3. As an example, for task parameters {task: Heat
+3.1. Expert Demonstrations                                                                & Place, object: potato, destination: counter top, scene:
+    Expert demonstrations are composed of an agent’s ego-                                 KITCHEN -8}, we generate three different expert demonstra-
+centric visual observations of the environment and what ac-                               tions by starting the agent and objects in randomly chosen
+tion is taken at each timestep as well as ground-truth in-                                locations. Object start positions have some commonsense,
+teraction masks. These demonstrations are generated by a                                  class-specific constraints, for example a fork can start inside
+planner [23] using metadata not available to the agent at in-                             a drawer, but an apple cannot.
+ference time. Navigation actions move the agent or change                                     Contrasting navigation-only datasets where expert
+its camera orientation, while manipulation actions include                                demonstrations can come from an A∗ planner, our state
+picking and placing objects, opening and closing cabinets                                 space includes object positions and state changes. Thus, to
+and drawers, and turning appliances on and off. Interactions                              generate expert demonstrations we encode the agent and ob-
+can involve multiple objects, such as using a knife to slice                              ject states, as well as high-level environment dynamics, into
+an apple, cleaning a mug in the sink, and heating a potato in                             Planning Domain Definition Language (PDDL) rules [18].
+the microwave. Manipulation actions are accompanied by a                                  We then define task-specific PDDL goal conditions, for ex-
+ground truth segmentation of the target object.                                           ample that a heated potato is resting on a table top. Note
+
+
+                                                                                   3
+                  Train      Validation           Test                      Steps in Expert Demonstration 600       Instruction Length
+                           Seen Unseen        Seen Unseen
+                                                                      200                                500
+ # Annotations   21,023     820       821    1,533     1,529                                             400
+ # Scenes           108      88         4      107         8          150
+                                                                                                         300
+                                                                      100
+Table 2: ALFRED Data Splits. All expert demonstrations                                                   200
+                                                                      50                                 100
+and associated language directives in the validation and test
+folds are distinct from those in the train fold. The validation        0                                   0
+and test sets are split into seen and unseen folds. Scenes in               ALFRED TD       VH     R2R          ALFRED TD     VH R2R
+                                                                             +8k +9k        ~3k    +7k           +25k +9k     ~3k +21k
+the seen folds of validation and test data are subsets of those
+in the train fold. Scenes in the unseen validation and test           Figure 3: Comparison to Existing Datasets. Expert
+folds are distinct from the train folds and from each other.          demonstration steps and instruction tokens of ALFRED
+                                                                      compared to other datasets with human language for action
+                                                                      sequences: Touchdown (TD) [14], VirtualHome (VH) [42],
+that the planner encodes the environment as fully observ-             and Room-to-Room (R2R) [3]. The total number of demon-
+able and has perfect knowledge about world dynamics. For              strations or annotations is given with the dataset label.
+training and testing agent models, however, the environment
+is partially observable: it is only viewed through the agent’s
+egocentric vision as actions are carried out.                         annotations without the video. The worker selects whether
+    We split these expert demonstrations into training, vali-         the three directives describe the same actions, and if not,
+dation, and test folds (Table 2). Following work in vision-           which is most different. If a directive is chosen as most dif-
+and-language navigation [3], we further split the validation          ferent by a majority of validation workers, it is removed and
+and test into two conditions: seen and unseen environments.           the demonstration is subsequently re-annotated by another
+This split facilitates examining how well models generalize           worker. Qualitatively, these rejected annotations contain in-
+to entirely new spaces with novel object class variations.            correct object referents (e.g., “egg” instead of “potato”) or
+                                                                      directions (e.g., “go left towards...” instead of “right”).
+3.2. Language Directives
+    For every expert demonstration, we collect open vocab-            4. Baseline Models
+ulary, free-form language directives from at least three dif-            An agent trained for ALFRED tasks needs to jointly rea-
+ferent annotators using Amazon Mechanical Turk (AMT),                 son over vision and language input and produce a sequence
+resulting in 25k total language directives. Language direc-           of low-level actions to interact with the environment.
+tives include a high-level goal together with low-level in-
+structions, as shown in Figures 1 and 2. The distribution             4.1. Sequence-to-Sequence Models
+of language annotation token lengths in ALFRED versus
+related datasets is given in Figure 3.                                   We model the interactive agent with a CNN-LSTM
+    AMT workers are told to write instructions to tell a              sequence-to-sequence (S EQ 2S EQ) architecture. A CNN en-
+“smart robot” how to accomplish what is shown in a video.             odes the visual input, a bidirectional-LSTM generates a rep-
+We create a video of each expert demonstration and seg-               resentation of the language input, and a decoder LSTM in-
+ment it such that each segment corresponds to an instruc-             fers a sequence of low-level actions while attending over
+tion. We consult the PDDL plan for the expert demon-                  the encoded language. See Figure 4 for an overview and the
+stration to identify task sub-goals, for example the many             supplementary material for implementation details.
+low-level steps to navigate to a knife, or the several steps
+to heat a potato slice in the microwave once standing in              Supervision. We train all models using imitation learn-
+front of it. We visually highlight action sequences related           ing on expert trajectories. This ensures the language direc-
+to sub-goals via colored timeline bars below the video. In            tives match the visual inputs. At each timestep, the model
+each HIT (Human Intelligence Task), a worker watches the              is trained to produce the expert action and associated inter-
+video, then writes low-level, step-by-step instructions for           action mask for manipulation actions.
+each highlighted sub-goal segment. The worker also writes                 We note that a DAgger-style [44] student-forcing
+a high-level goal that summarizes what the robot should ac-           paradigm in ALFRED is non-trivial, even disregarding lan-
+complish during the expert demonstration.                             guage alignment. Obtaining expert demonstration actions
+    These directives are validated through a second HIT by            on the fly in navigation-only datasets like R2R [3] only re-
+at least two annotators, with a possible third tie-breaker. For       quires rerunning A∗ . In ALFRED, on the fly demonstra-
+validation, we show a worker all three language directive             tions requires re-planning. In same cases re-planning is not
+
+
+                                                                  4
+           Act                         Reason                                                                          Act                           Reason
+  LSTM                                                                                                        LSTM
+                                       ... counter then turn right. Put the cup in the sink then fill ...                                               ... Put the
+
+                 RotateRight                                                                                                   PutObject
+
+
+
+
+                                                               ResNet Conv
+                       not used with
+                        nav actions                             ...                                                                   predicted
+                                                                                                                                        mask
+              DeConv                                            (Frozen)            Linear                                  DeConv
+
+
+Figure 4: Model overview. At each step, our model reweights the instruction based on the history (x̂t ), and combines the
+current observation features (vt ) and the previously executed action (at−1 ). These are passed as input to an LSTM cell to
+produce the current hidden state. Finally, the new hidden state (ht ) is combined with the previous features to predict both the
+next action (at ) and a pixelwise interaction mask over the observed image to indicate an object.
+
+
+possible: if during a task of {Clean & Place, apple, refrig-                           where Wx are learnable parameters of a fully-connected
+erator, KITCHEN -3} a student-forcing model slices the only                            layer, zt is a vector of scalar values that represent the at-
+apple in the scene, the action cannot be recovered from and                            tention mass for each word in x, and x̂t is the weighted sum
+the task cannot be completed.                                                          of x over the attention distribution αt induced from zt .
+
+Visual encoding. Each visual observation ot is encoded
+with a frozen ResNet-18 [22] CNN, where we take the out-                               Action decoding. At each timestep t, upon receiving a
+put of the final convolution layer to preserve spatial infor-                          new observation image ot , the LSTM decoder takes in the
+mation necessary for grounding specific objects in the vi-                             visual feature vt , language feature x̂t , and the previous ac-
+sual frame. We embed this output using two more 1×1 con-                               tion at−1 , and outputs a new hidden state ht :
+volution layers and a fully-connected layer. During train-
+ing, a set of T observations from the expert demonstration                                                    ut = [vt ; x̂t ; at−1 ],
+is encoded as V = hv1 , v2 , . . . , vT i, where vt is the visual                                                                                                (2)
+                                                                                                              ht = LSTM (ut , ht−1 )
+feature vector at time-step t.
+
+Language encoding. Given a natural language goal                                       where [; ] denotes concatenation. The hidden state ht is used
+G = hg1 , g2 , . . . gLg i of Lg words, and step-by-                                   to obtain the attention weighted language feature x̂t+1 .
+step instructions S = hs1 , s2 . . . sLs i of Ls words,
+we append them into a single input sequence X =                                        Action and mask prediction. The agent interacts with
+hg1 , g2 , . . . gLg , <SEP>, s1 , s2 . . . sLs i with the <SEP> to-                   the environment by choosing an action and producing a pix-
+ken indicating the separation between the high-level goal                              elwise binary mask indicating a specific object in the frame.
+and low-level instructions. This sequence is fed into a bi-                            Although AI2-THOR supports continuous control for agent
+directional LSTM encoder to produce an encoding x =                                    navigation and object manipulation, we discretize the action
+{x1 , x2 , . . . , xLg +Ls } for each word in X.                                       space. The agent chooses from among 13 actions. There
+                                                                                       are 5 navigation actions: MoveAhead, RotateRight,
+Attention over language. The agent’s action at each                                    RotateLeft, LookUp, and LookDown together with
+timestep is based on an attention mechanism weighting to-                              7 interaction actions: Pickup, Put, Open, Close,
+kens in the instruction. We perform soft-attention on the                              ToggleOn, ToggleOff, and Slice. Interaction actions
+language features x to compute the attention distribution αt                           require a pixelwise mask to denote the object of interest.1
+conditioned on the hidden state of the decoder ht−1 from                               Finally, the agent predicts a Stop action to end the episode.
+the last timestep:                                                                     We concatenate the hidden state ht with the input features
+                       zt = (Wx ht−1 )> x,                                             ut and train two separate networks to predict the next action
+
+                       αt = Softmax(zt ),                               (1)            1 The final object chosen by the interaction API is based on the Intersection-
+
+                                                                                        over-Union (IoU) score between the predicted mask and the ground-truth
+                       x̂t = αt> x                                                      object mask from the simulator.
+
+
+                                                                                5
+at and interaction mask mt :                                         5. Experiments
+                at = argmax (Wa [ht ; ut ]) ,                            We evaluate the baseline models in the AI2-THOR sim-
+                                                          (3)        ulator. When evaluating on test folds, we run models with
+               mt = σ (deconv [ht ; ut ])
+                                                                     the lowest validation loss. Episodes that exceed 1000 steps
+where Wa are learnable parameters of a fully connected               or cause more than 10 failed actions are terminated. Failed
+layer, deconv is a three-layer deconvolution network, and σ          actions arise from bumping into walls or predicting action
+is a sigmoid activation function. Action selection is trained        interaction masks for incompatible objects, such as attempt-
+using softmax cross entropy with the expert action. The              ing to Pickup a counter top. These limitations encourage
+interaction masks are learned end-to-end in a supervised             efficiency and reliability. We assess the overall and partial
+manner based on ground-truth object segmentations using              success of models’ task executions across episodes.
+binary cross-entropy loss. The mask loss is rebalanced to
+account for sparsity in these dense masks in which target
+                                                                     5.1. Evaluation Metrics
+objects can take up a small portion of the visual frame.                 ALFRED allows us to evaluate both full task and task
+                                                                     goal-condition completion. In navigation-only tasks, one
+4.2. Progress Monitors                                               can only measure how far the agent is from the goal. In AL-
+    ALFRED tasks require reasoning over long sequences               FRED, we can also evaluate whether task goal-conditions
+of images and instruction words. We propose two auxiliary            have been completed, for example that a potato has been
+losses (Eq. 4 & 5) that use additional temporal informa-             sliced. For all of our experiments, we report both Task Suc-
+tion to reduce this burden and form a sequence-to-sequence           cess and Goal-Condition Success. Each Goal-Condition re-
+model with progress monitoring (S EQ 2S EQ +PM).                     lies on multiple instructions, for example navigating to an
+    Ma et al. [28] showed that agents benefit from maintain-         object and then slicing it.
+ing an internal estimate of their progress towards the goal
+for navigation tasks. Akin to learning a value function in re-       Task Success. Each expert demonstration is parameter-
+inforcement learning, progress monitoring helps to learn the         ized by a task to be performed, as illustrated in Figure 2.
+utility of each state in the process of achieving the overall        Task Success is defined as 1 if the object positions and state
+task. Intuitively, this allows our agent to better distinguish       changes correspond correctly to the task goal-conditions at
+between visually similar states such as just before putting an       the end of the action sequence, and 0 otherwise. Consider
+object in the microwave versus just after taking the object          the task: “Put a hot potato slice on the counter”. The agent
+out. We introduce a simple module that predicts progress,            succeeds if, at the end of the episode, any potato slice ob-
+pt ∈ [0, 1], conditioned on the decoder hidden state ht and          ject has changed to the heated state and is resting on any
+the concatenated input ut :                                          counter top surface.
+                   pt = σ (Wp [ht ; ut ]).                (4)
+                                                                     Goal-Condition Success. The goal-condition success of
+The supervision for pt is based on normalized time-step val-         a model is the ratio of goal-conditions completed at the end
+ues t/T , where t is the current time-step, and T is the total       of an episode to those necessary to have finished a task. For
+length of the expert demonstration (trained via L2 loss).            example, in the previous Heat & Place example, there are
+   We also train the agent to predict the number of sub-             four goal-conditions. First, a potato must be sliced. Sec-
+goals completed so far, ct . These sub-goals represent seg-          ond, a potato slice should become heated. Third, a potato
+ments in the demonstration corresponding to sequences of             slice should come to rest on a counter top. Fourth, the same
+actions like navigation, pickup, and heating as identified in        potato slice that is heated should be on the counter top. If
+the PDDL plan, discussed in Section 3.2. Each segment                the agent slices a potato, then moves a slice to the counter
+has a corresponding language instruction, but the alignment          top without heating it, then the goal-condition success score
+must be learned. This sub-goal prediction encourages the             is 2/4 = 50%. On average, tasks in ALFRED have 2.55
+agent to coarsely track its progress through the language di-        goal conditions. The final score is calculated as the average
+rective. This prediction is also conditioned on the decoder          goal-condition success of each episode. Task success is 1
+hidden state ht and the concatenated input ut :                      only if goal-condition success is 1.
+                   ct = σ (Wc [ht ; ut ]).                (5)
+                                                                     Path Weighted Metrics. We include a Path Weighted
+We train ct in a supervised fashion by using the normalized          version of both metrics that considers the length of the ex-
+number of sub-goals accomplished in the expert trajectory            pert demonstration [2]. Expert demonstrations found via a
+at each timestep, ct /C, as the ground-truth label for a task        PDDL solver on global information are not guaranteed to be
+with C sub-goals. We again train with an L2 loss.                    optimal. However, they avoid exploration, use shortest path
+
+
+                                                                 6
+                                          Validation                                                       Test
+                                    Seen                   Unseen                         Seen                        Unseen
+Model                       Task      Goal-Cond      Task     Goal-Cond           Task      Goal-Cond           Task      Goal-Cond
+N O L ANGUAGE             0.0 (0.0)      5.9 (3.4) 0.0 (0.0)    6.5 (4.7)       0.2 (0.0)      5.0 (3.2)       0.2 (0.0)      6.6 (4.0)
+N O V ISION               0.0 (0.0)      5.7 (4.7) 0.0 (0.0)    6.8 (6.0)       0.0 (0.0)      3.9 (3.2)       0.2 (0.1)      6.6 (4.6)
+G OAL - ONLY              0.1 (0.0)      6.5 (4.3) 0.0 (0.0)    6.8 (5.0)       0.1 (0.1)      5.0 (3.7)       0.2 (0.0)      6.9 (4.4)
+I NSTRUCTIONS - ONLY      2.3 (1.1)      9.4 (6.1) 0.0 (0.0)    7.0 (4.9)       2.7 (1.4)      8.2 (5.5)       0.5 (0.2)      7.2 (4.6)
+S EQ 2S EQ                2.4 (1.1)      9.4 (5.7) 0.1 (0.0)    6.8 (4.7)       2.1 (1.0)      7.4 (4.7)       0.5 (0.2)      7.1 (4.5)
+ + PM P ROGRESS - ONLY    2.1 (1.1)      8.7 (5.6) 0.0 (0.0)    6.9 (5.0)       3.0 (1.7)      8.0 (5.5)       0.3 (0.1)      7.3 (4.5)
+ + PM S UB G OAL - ONLY   2.1 (1.2)      9.6 (5.5) 0.0 (0.0)    6.6 (4.6)       3.8 (1.7)      8.9 (5.6)       0.5 (0.2)      7.1 (4.5)
+ + PM Both                3.7 (2.1)    10.0 (7.0) 0.0 (0.0)     6.9 (5.1)       4.0 (2.0)      9.4 (6.3)       0.4 (0.1)      7.0 (4.3)
+H UMAN                        -             -          -           -                -             -          91.0 (85.8)    94.5 (87.6)
+
+Table 3: Task and Goal-Condition Success. For each metric, the corresponding path weighted metrics are given in paren-
+theses. The highest values per fold and metric are shown in blue. All values are percentages.
+
+navigation, and are generally efficient. The path weighted           language datasets focused on navigation, where sequence-
+score ps for metric s is given as                                    to-sequence with progress monitoring performs well [28].
+                                  L∗
+                  ps = s ×                                (6)        6.1. Random Agent
+                             max(L∗ , L̂)
+                                                                         A random agent is commonly employed as a baseline
+where L̂ is the number of actions the model took in the              in vision-and-language tasks. In ALFRED, an agent that
+episode, and L∗ is the number of actions in the expert               chooses a uniform random action and generates a uniform
+demonstration. Intuitively, a model receives half-credit for         random interaction mask at each timestep achieves 0% on
+taking twice as long as the expert to accomplish a task.             all folds, even without an API failure limit.
+5.2. Sub-Goal Evaluation                                             6.2. Unimodal Ablations
+    Completing the entire sequence of actions required to               Previous work established that learned agents without vi-
+finish a task is challenging. In addition to assessing full          sual inputs, language inputs, or both performed better than
+task success, we study the ability of a model to accomplish          random agents and were competitive with initial baselines
+the next sub-goal conditioned on the preceding expert se-            for several navigation and question answering tasks [50].
+quence. The agent is tested by first forcing it to follow the        These performance gaps were due to structural biases in
+expert demonstration to maintain a history of states leading         the datasets or issues with model capacity. We evaluate
+up to the sub-goal, then requiring it to complete the sub-goal       these ablation baselines (N O L ANGUAGE and N O V ISION)
+conditioned on the entire language directive and current vi-         to study vision and language bias in ALFRED.
+sual observation. For the task “Put a hot potato slice on the           The unimodal ablation performances in Table 3 indicate
+counter” for example, we can evaluate the sub-goal of nav-           that both vision and language modalities are necessary to
+igating to the potato after using the expert demonstration           accomplish the tasks in ALFRED. The N O L ANGUAGE
+to navigate to and pick up a knife. The tasks in ALFRED              model finishes some goal-conditions by interacting with fa-
+contain on average 7.5 such sub-goals (results in Table 4).          miliar objects seen during training. The N O V ISION model
+                                                                     similarly finishes some goal-conditions by following low-
+6. Analysis                                                          level language instructions for navigation and memorizing
+   Results from our experiments are presented in Table 3.            interaction masks for common objects like microwaves that
+We find that the initial model, without spatial or seman-            are centered in the visual frame.
+tic maps, object segmentations, or explicit object-state
+                                                                     6.3. Model Ablations
+tracking, performs poorly on ALFRED’s long-horizon
+tasks with high-dimensional state-spaces. The S EQ 2S EQ                We additionally ablate the amount of language super-
+model achieves ∼8% goal-condition success rate, show-                vision available to the model, as language directives are
+ing that the agent does learn to partially complete some             given as both a high-level goal and step-by-step instruc-
+tasks. This headroom (as compared with humans) mo-                   tions. Providing only high-level, underspecified goal lan-
+tivates further research into models that can perform the            guage (G OAL - ONLY) is insufficient to complete the tasks,
+complex vision-and-language planning introduced by AL-               but is enough to complete some goal-conditions. Using just
+FRED. The performance starkly contrasts other vision-and-            low-level, step-by-step instructions (I NSTRUCTIONS - ONLY
+
+
+                                                                 7
+performs similarly to using both high- and low-levels. Thus,                                    Sub-Goal Ablations - Validation
+
+
+
+
+                                                                                                      p
+
+
+
+
+                                                                                                                                                   le
+this simple model does not seem to exploit the goal instruc-
+
+
+
+
+                                                                                                                              Clean
+                                                                                                Picku
+
+
+
+
+                                                                                                                                              Togg
+                                                                                         Goto
+
+
+
+
+                                                                                                                                      Slice
+                                                                                                                Cool
+                                                                                                                       Heat
+                                                                                                          Put
+tion to plan out sub-goals for step-by-step execution.                        Model                                                                     Avg.
+   The two progress monitoring signals are marginally                         No Lang    28       22 71 89 87                  64 19 90                  59
+
+
+
+
+                                                                     Seen
+helpful, increasing the success rate from ∼1% to ∼2%.                         S2S        49       32 80 87 85                  82 23 97                  67
+Progress monitoring leads to more efficient task comple-                      S2S + PM   51       32 81 88 85                  81 25 100                 68
+tion, as indicated by the consistently higher path weighted
+
+
+
+
+                                                                     Unseen
+                                                                              No Lang    17        9 31 75 86                  13 8              4       30
+scores. They may help avoid action repetition and with the                    S2S        21       20 51 94 88                  21 14            54       45
+prediction of the Stop action.                                                S2S + PM   22       21 46 92 89                  57 12            32       46
+   The agent takes more steps than the expert in all cases,
+as indicated by the lower path weighted scores. Sometimes,
+this is caused by failing to keep track of state-changes, for       Table 4: Evaluations by path weighted sub-goal success.
+example heating up an egg in the microwave multiple times.          All values are percentages. The highest values per fold and
+Further, the models also do not generalize well to unseen           task are shown in blue. We note that the N O V ISION model
+scenes, due to the overall visual complexity in ALFRED              achieves less than 2% on all sub-goals. See supplemental
+arising from new scenes and novel object class instances.           material for more.
+
+6.4. Human evaluation
+   We obtained a human evaluation of 100 randomly sam-
+                                                                    7. Conclusions
+pled directives from the unseen test fold. The experiment              We introduced ALFRED , a benchmark for learning to
+involved 5 participants who completed 20 tasks each us-             map natural language instructions and egocentric vision to
+ing a keyboard-and-mouse interface. Before the experi-              sequences of actions. ALFRED moves us closer to a com-
+ment, the participants were allowed to familiarize them-            munity goal of language-driven robots capable of naviga-
+selves with AI2-THOR. The action-space and task restric-            tion and interaction. The environment dynamics and inter-
+tions were identical to that of the baseline models. Overall,       action mask predictions required in ALFRED narrow the
+the participants obtained a high success rate of 91%, while         gap between what is required of agents in simulation and
+taking slightly longer than the expert with 86% path-length         robots operating in the real world [37].
+weighted success rate. This indicates that the directives in
+                                                                       We use ALFRED to evaluate a sequence-to-sequence
+ALFRED are well-aligned with the demonstrations.
+                                                                    model with progress monitoring, shown to be effective in
+                                                                    other vision-and-language navigation tasks [28]. While this
+6.5. Sub-Goal Performance
+                                                                    model is relatively competent at accomplishing some sub-
+    We also examine performance of the S EQ 2S EQ model             goals (e.g. operating microwaves is similar across Heat &
+on individual sub-goals in ALFRED. For this experiment,             Place tasks), the overall task success rates are poor. The
+we use the expert trajectory to move the agent through the          long horizon of ALFRED tasks poses a significant chal-
+episode up to the sub-task. Then, the agent begins inference        lenge with sub-problems including visual semantic naviga-
+based on the language directive and current visual frame.           tion, object detection, referring expression grounding, and
+    Table 4 presents path-length weighted success scores            action grounding. These challenges may be approachable
+for 8 sub-goals. Goto and Pickup sub-tasks with the                 by models that exploit hierarchy [8, 27], modularity [4, 16],
+S EQ 2S EQ +PM model achieve ∼51% and ∼32%, respec-                 and structured reasoning and planning [6]. We are encour-
+tively, even in seen environments. Visual semantic naviga-          aged by the possibilities and challenges that the ALFRED
+tion is considerably harder in unseen environments. Simi-           benchmark introduces to the community.
+larly, interaction masks for Pickup actions in unseen envi-
+ronments are worse due to unfamiliar scenes and object in-          Acknowledgements
+stances. Simple sub-goals like Cool, and Heat are achieved
+at a high success rate of ∼90% because these tasks are                 Thanks to our UW colleagues for helpful feedback, to Eli
+mostly object-agnostic. For example, the agent becomes              VanderBilt and Eric Kolve for their help with AI2-THOR
+familiar with using microwaves to heat things regardless of         and leaderboard setup, and Victor Zhong for early mod-
+the object in-hand, because microwaves have little visual           eling design. And finally, thanks to Ranjay Krishna for
+diversity across kitchens. Overall, the sub-goal evaluations        sharing the Mechanical Turk annotation interface. This re-
+indicate that models that exploit modularity and hierarchy,         search was supported in part by the ARO (ARO-W911NF-
+or make use of pretrained object segmentation models, may           16-1-0121), the NSF (IIS1252835, IIS-1562364, NSF-NRI-
+make headway on full task sequences.                                1637479), and the Allen Institute for Artificial Intelligence.
+
+
+                                                                8
+References                                                                [17] Daniel Fried, Ronghang Hu, Volkan Cirik, Anna Rohrbach,
+                                                                               Jacob Andreas, Louis-Philippe Morency, Taylor Berg-
+ [1] Jean-Baptiste Alayrac, Piotr Bojanowski, Nishant Agrawal,                 Kirkpatrick, Kate Saenko, Dan Klein, and Trevor Darrell.
+     Ivan Laptev, Josef Sivic, and Simon Lacoste-Julien. Unsu-                 Speaker-follower models for vision-and-language naviga-
+     pervised learning from narrated instruction videos. In CVPR,              tion. In NeurIPS, 2018. 1, 2
+     2016. 3                                                              [18] Malik Ghallab, Adele Howe, Craig Knoblock, Drew Mc-
+ [2] Peter Anderson, Angel Chang, Devendra Singh Chaplot,                      Dermott, Ashwin Ram, Manuela Veloso, Daniel Weld, and
+     Alexey Dosovitskiy, Saurabh Gupta, Vladlen Koltun, Jana                   David Wilkins. Pddl the planning domain definition lan-
+     Kosecka, Jitendra Malik, Roozbeh Mottaghi, Manolis Savva,                 guage. 1998. 3
+     et al. On evaluation of embodied navigation agents. arXiv            [19] Daniel Gordon, Dieter Fox, and Ali Farhadi. What should
+     preprint arXiv:1807.06757, 2018. 6                                        i do now? marrying reinforcement learning and symbolic
+ [3] Peter Anderson, Qi Wu, Damien Teney, Jake Bruce, Mark                     planning. arXiv preprint arXiv:1901.01492, 2018. 2
+     Johnson, Niko Sünderhauf, Ian Reid, Stephen Gould, and              [20] Daniel Gordon, Aniruddha Kembhavi, Mohammad Raste-
+     Anton van den Hengel. Vision-and-Language Navigation:                     gari, Joseph Redmon, Dieter Fox, and Ali Farhadi. Iqa:
+     Interpreting visually-grounded navigation instructions in real            Visual question answering in interactive environments. In
+     environments. In CVPR, 2018. 1, 2, 4, 13                                  CVPR, 2017. 2
+ [4] Jacob Andreas, Marcus Rohrbach, Trevor Darrell, and Dan              [21] Stevan Harnad. The symbol grounding problem. Physica D,
+     Klein. Neural module networks. In CVPR, June 2016. 8                      42:335–346, 1990. 1
+ [5] Yoav Artzi and Luke Zettlemoyer. Weakly supervised learn-            [22] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+     ing of semantic parsers for mapping instructions to actions.              Deep residual learning for image recognition. In CVPR,
+     TACL, 2013. 2                                                             2016. 5, 12
+ [6] Masataro Asai and Alex Fukunaga. Classical planning                  [23] Jörg Hoffmann and Bernhard Nebel. The ff planning system:
+     in deep latent space: Bridging the subsymbolic-symbolic                   Fast plan generation through heuristic search. JAIR, 2001. 3
+     boundary. In AAAI, 2018. 8                                           [24] Liyiming Ke, Xiujun Li, Yonatan Bisk, Ari Holtzman, Zhe
+ [7] Michael Beetz, Ulrich Klank, Ingo Kresse, Alexis Maldon-                  Gan, Jingjing Liu, Jianfeng Gao, Yejin Choi, and Siddhartha
+     ado, Lorenz Mösenlechner, Dejan Pangercic, Thomas Rühr,                 Srinivasa. Tactical rewind: Self-correction via backtracking
+     and Moritz Tenorth. Robotic roommates making pancakes.                    in vision-and-language navigation. In CVPR, 2019. 1, 2
+     In IEEE-RAS, 2011. 3                                                 [25] Diederik P Kingma and Jimmy Ba. Adam: A method for
+ [8] Yonatan Bisk, Daniel Marcu, and William Wong. Towards                     stochastic optimization. arXiv preprint arXiv:1412.6980,
+     a dataset for human computer communication via grounded                   2014. 13
+     language acquisition. In AAAI Workshop on Symbiotic Cog-             [26] Eric Kolve, Roozbeh Mottaghi, Winson Han, Eli Vander-
+     nitive Systems, 2016. 8                                                   Bilt, Luca Weihs, Alvaro Herrasti, Daniel Gordon, Yuke
+ [9] Yonatan Bisk, Deniz Yuret, and Daniel Marcu. Natural lan-                 Zhu, Abhinav Gupta, and Ali Farhadi. AI2-THOR: An
+     guage communication with robots. In NAACL, 2016. 2                        Interactive 3D Environment for Visual AI. arXiv preprint
+[10] Mario Bollini, Stefanie Tellex, Tyler Thompson, Nicholas                  arXiv:1712.05474, 2017. 1, 18
+     Roy, and Daniela Rus. Interpreting and executing recipes             [27] Tejas D Kulkarni, Karthik Narasimhan, Ardavan Saeedi, and
+     with a cooking robot. In ISER, 2012. 3                                    Josh Tenenbaum. Hierarchical deep reinforcement learning:
+[11] Angel Chang, Angela Dai, Thomas Funkhouser, Maciej Hal-                   Integrating temporal abstraction and intrinsic motivation. In
+     ber, Matthias Niessner, Manolis Savva, Shuran Song, Andy                  NeurIPS, pages 3675–3683, 2016. 8
+     Zeng, and Yinda Zhang. Matterport3d: Learning from RGB-              [28] Chih-Yao Ma, Jiasen Lu, Zuxuan Wu, Ghassan AlRegib,
+     D data in indoor environments. 3DV, 2017. 1                               Zsolt Kira, Richard Socher, and Caiming Xiong. Self-
+[12] Devendra Singh Chaplot, Kanthashree Mysore Sathyendra,                    monitoring navigation agent via auxiliary progress estima-
+     Rama Kumar Pasumarthi, Dheeraj Rajagopal, and Rus-                        tion. In ICLR, 2019. 2, 6, 7, 8
+     lan Salakhutdinov. Gated-attention architectures for task-           [29] Chih-Yao Ma, Zuxuan Wu, Ghassan AlRegib, Caiming
+     oriented language grounding. In AAAI, 2017. 1, 2                          Xiong, and Zsolt Kira. The regretful agent: Heuristic-aided
+[13] David L Chen and Raymond J Mooney. Learning to interpret                  navigation through progress estimation. In CVPR, 2019. 1,
+     natural language navigation instructions from observations.               2
+     In AAAI, 2011. 2                                                     [30] James MacGlashan, Monica Babes-Vroman, Marie des-
+[14] Howard Chen, Alane Suhr, Dipendra Misra, Noah Snavely,                    Jardins, Michael L. Littman, Smaranda Muresan, Shawn
+     and Yoav Artzi. Touchdown: Natural language navigation                    Squire, Stefanie Tellex, Dilip Arumugam, and Lei Yang.
+     and spatial reasoning in visual street environments. In CVPR,             Grounding english commands to reward functions. In RSS,
+     2019. 1, 2, 4                                                             2015. 3
+[15] Abhishek Das, Samyak Datta, Georgia Gkioxari, Stefan Lee,            [31] Matt MacMahon, Brian Stankiewicz, and Benjamin Kuipers.
+     Devi Parikh, and Dhruv Batra. Embodied Question Answer-                   Walk the talk: Connecting language, knowledge, and action
+     ing. In CVPR, 2018. 2                                                     in route instructions. In AAAI, 2006. 2
+[16] Abhishek Das, Georgia Gkioxari, Stefan Lee, Devi Parikh,             [32] Jonathan Malmaud, Earl Wagner, Nancy Chang, and Kevin
+     and Dhruv Batra. Neural Modular Control for Embodied                      Murphy. Cooking with semantics. In ACL Workshop on Se-
+     Question Answering. In CoRL, 2018. 8                                      mantic Parsing, 2014. 2
+
+
+                                                                      9
+[33] Dipendra Misra, Andrew Bennett, Valts Blukis, Eyvind                   [49] Moritz Tenorth, Daniel Nyga, and Michael Beetz. Under-
+     Niklasson, Max Shatkhin, and Yoav Artzi. Mapping instruc-                   standing and executing instructions for everyday manipula-
+     tions to actions in 3D environments with visual goal predic-                tion tasks from the world wide web. In ICRA, 2010. 2
+     tion. In EMNLP, 2018. 2                                                [50] Jesse Thomason, Daniel Gordon, and Yonatan Bisk. Shifting
+[34] Dipendra Misra, John Langford, and Yoav Artzi. Mapping                      the baseline: Single modality performance on visual naviga-
+     instructions and visual observations to actions with rein-                  tion & qa. In NAACL, 2019. 7
+     forcement learning. In EMNLP, 2017. 2                                  [51] Jesse Thomason, Michael Murray, Maya Cakmak, and Luke
+[35] Dipendra Misra, Jaeyong Sung, Kevin Lee, and Ashutosh                       Zettlemoyer. Vision-and-dialog navigation. In CoRL, 2019.
+     Saxena. Tell me daved: Context-sensitive grounding of nat-                  2
+     ural language to manipulation instructions. In RSS, 2014. 3            [52] Jesse Thomason, Shiqi Zhang, Raymond Mooney, and Pe-
+[36] Dipendra Misra, Kejia Tao, Percy Liang, and Ashutosh Sax-                   ter Stone. Learning to interpret natural language commands
+     ena. Environment-driven lexicon induction for high-level in-                through human-robot dialog. In IJCAI, 2015. 3
+     structions. In ACL, 2015. 2                                            [53] Xin Wang, Qiuyuan Huang, Asli Celikyilmaz, Jianfeng Gao,
+[37] Arsalan Mousavian, Clemens Eppner, and Dieter Fox. 6-dof                    Dinghan Shen, Yuan-Fang Wang, William Yang Wang, and
+     graspnet: Variational grasp generation for object manipula-                 Lei Zhang. Reinforced cross-modal matching and self-
+     tion. In ICCV, 2019. 1, 8                                                   supervised imitation learning for vision-language navigation.
+                                                                                 In CVPR, 2019. 1, 2
+[38] Khanh Nguyen and Hal Daumé III. Help, Anna! Visual Nav-
+     igation with Natural Multimodal Assistance via Retrospec-              [54] Xin Wang, Wenhan Xiong, Hongmin Wang, and
+     tive Curiosity-Encouraging Imitation Learning. In EMNLP,                    William Yang Wang. Look before you leap: Bridging
+     2019. 2                                                                     model-free and model-based reinforcement learning for
+                                                                                 planned-ahead vision-and-language navigation. In ECCV,
+[39] Khanh Nguyen, Debadeepta Dey, Chris Brockett, and Bill
+                                                                                 2018. 2
+     Dolan. Vision-based navigation with language-based assis-
+                                                                            [55] Erik Wijmans, Samyak Datta, Oleksandr Maksymets, Ab-
+     tance via imitation learning with indirect intervention. In
+                                                                                 hishek Das, Georgia Gkioxari, Stefan Lee, Irfan Essa, Devi
+     CVPR, 2019. 2
+                                                                                 Parikh, and Dhruv Batra. Embodied question answering in
+[40] Daniel Nyga, Subhro Roy, Rohan Paul, Daehyung Park, Mi-
+                                                                                 photorealistic environments with point cloud perception. In
+     hai Pomarlan, Michael Beetz, and Nicholas Roy. Grounding
+                                                                                 CVPR, 2019. 2
+     robot plans from natural language instructions with incom-
+                                                                            [56] Haonan Yu and Jeffrey Mark Siskind. Grounded language
+     plete world knowledge. In CoRL, 2018. 3
+                                                                                 learning from video described with sentences. In ACL, 2013.
+[41] Rohan Paul, Jacob Arkin, Derya Aksaray, Nicholas Roy, and                   3
+     Thomas M. Howard. Efficient grounding of abstract spa-
+                                                                            [57] Licheng Yu, Xinlei Chen, Georgia Gkioxari, Mohit Bansal,
+     tial concepts for natural language interaction with robot plat-
+                                                                                 Tamara L. Berg, and Dhruv Batra. Multi-target embodied
+     forms. IJRR, 2018. 3
+                                                                                 question answering. In CVPR, 2019. 2
+[42] Xavier Puig, Kevin Ra, Marko Boben, Jiaman Li, Tingwu                  [58] Yuke Zhu, Daniel Gordon, Eric Kolve, Dieter Fox, Li Fei-
+     Wang, Sanja Fidler, and Antonio Torralba. Virtualhome:                      Fei, Abhinav Gupta, Roozbeh Mottaghi, and Ali Farhadi. Vi-
+     Simulating household activities via programs. In CVPR,                      sual semantic planning using deep successor representations.
+     2018. 1, 2, 4                                                               In ICCV, 2017. 2
+[43] Michaela Regneri, Marcus Rohrbach, Dominikus Wetzel,                   [59] Dimitri Zhukov, Jean-Baptiste Alayrac, Ramazan Gokberk
+     Stefan Thater, Bernt Schiele, and Manfred Pinkal. Ground-                   Cinbis, David Fouhey, Ivan Laptev, and Josef Sivic. Cross-
+     ing action descriptions in videos. TACL, 2013. 2, 3                         task weakly supervised learning from instructional videos.
+[44] Stéphane Ross, Geoffrey Gordon, and Drew Bagnell. A re-                    In CVPR, 2019. 3
+     duction of imitation learning and structured prediction to no-
+     regret online learning. In AISTATS, 2011. 4
+[45] Manolis Savva, Abhishek Kadian, Oleksandr Maksymets,
+     Yili Zhao, Erik Wijmans, Bhavana Jain, Julian Straub, Jia
+     Liu, Vladlen Koltun, Jitendra Malik, Devi Parikh, and Dhruv
+     Batra. Habitat: A platform for embodied ai research. In
+     ICCV, 2019. 1
+[46] Ozan Sener, Amir R. Zamir, Silvio Savarese, and Ashutosh
+     Saxena. Unsupervised semantic parsing of video collections.
+     In ICCV, 2015. 3
+[47] Mohit Shridhar and David Hsu. Interactive visual grounding
+     of referring expressions for human-robot interaction. In RSS,
+     2018. 3
+[48] Hao Tan, Licheng Yu, and Mohit Bansal. Learning to nav-
+     igate unseen environments: Back translation with environ-
+     mental dropout. In NAACL, 2019. 1
+
+
+                                                                       10
+                                                                                                35
+Appendix A. Dataset Details
+                                                                                                30
+   We give additional information about the generation of
+expert demonstrations in AI2-THOR, language directives,                                         25
+
+
+
+
+                                                                                New Unique Tokens
+the annotation interface used to collect directives, and sam-
+                                                                                                20
+ples of annotations with their associated demonstrations.
+                                                                                                15
+A.1. Expert Demonstrations
+                                                                                                10
+    When sampling task parameters, we employ an active
+strategy to maximize data heterogeneity. Figure F1 shows                                            5
+the distribution of high-level task across train, validation
+                                                                                                    0   1   2       3          4        5     6
+seen, and validation unseen folds. Figure F2 shows the dis-
+                                                                                                                Number of Annotations
+tribution of subgoals across task types. And Figures F6 and
+F7 give the distributions of pickup objects and receptacles                         Figure F3: The number of unique tokens introduced per an-
+across the dataset. Each task parameter sample is defined                           notation of language directives.
+by (t, s, o, r, m), where
+       • t = the task type;
+                                                                                    (e.g., if cup is already represented in the data often as both
+       • s = the scene in AI2-THOR;
+                                                                                    o and m, it becomes disfavored by the sampling algorithm
+       • o = the object class to be picked up;
+                                                                                    for all slots). We do this greedily across all slots until the
+       • r = the final destination for o or ∅ for Examine;
+                                                                                    tuple is complete. Given any partial piece of information
+       • m = the secondary object class for Stack & Place
+                                                                                    about the task, the distributions of the remaining task pa-
+         tasks (∅ for other task types).
+                                                                                    rameters remain heterogeneous under this sampling, weak-
+   To construct the next tuple, we first find the largest                           ening baseline priors such as ignoring the language input
+source of imbalance in the current set of tuples. For ex-                           and always executing a common task in the environment.
+ample if o = apple is more common than o = plunger,                                    Once a task parameter sample is complete, the chosen
+o = plunger will be ranked higher than o = apple. We                                scene is instantiated, objects and agent start position are ran-
+additionally account for the prior distribution of each entity                      domized, and the relevant room data is encoded into PDDL
+                                                                                    rules for an expert demonstration. If the PDDL planner
+                                                                                    cannot generate an expert demonstration given the room
+                  2842          112     113          Pick & Place                   configuration, or if the agent fails an action during execu-
+                  2944          126     109          Stack & Place
+                  2943                  136                                         tion, for example by running into walls or opening doors
+                                107                  Place Two
+                  2251           94                  Examine                        onto itself due to physical constraints, the episode is aban-
+                  3554                  173
+                                124
+                                115      81          Heat & Place                   doned. We gather three distinct expert demonstrations per
+                  3244                  109          Cool & Place                   task parameter sample. These demonstrations are further
+                  3245          142     100          Clean & Place                  vetted by rolling them forward using our wrapper to the
+                  Train Val seen unseen                                             AI2-THOR API to ensure that a “perfect” model can repro-
+                            Task Type                                               duce the demonstration. The full sampling generation and
+                                                                                    verification code will be published along with the dataset.
+Figure F1: Task distribution across train, validation seen
+and unseen dataset splits.                                                          A.2. Example Language Directives
+                                                                                       We chose to gather three directives per demonstration
+             Pick & Place                                   HeatObject              empirically. For a subset of over 700 demonstrations, we
+            Stack & Place                                   CleanObject             gathered up to 6 language directives from different anno-
+                                                            SliceObject
+               Place Two                                    PutObject               tators. We find that after three annotations, fewer than 10
+Task Type
+
+
+
+
+                 Examine                                    ToggleObject            unique tokens on average are introduced by additional an-
+                                                            PickupObject            notators (Figure F3).
+             Heat & Place                                   GotoLocation
+             Cool & Place                                                           A.3. Annotation Interface
+            Clean & Place
+                                                                                       Figure F4 shows the Mechanical Turk interface used to
+                            0    10000 20000 30000                                  gather language annotations. Workers were presented with
+                                                                                    a video of the expert demonstration with timeline segments
+            Figure F2: Subgoal distribution across 7 task types.                    indicating sub-goals. The workers annotated each segment
+
+
+                                                                           11
+                                                                    Val Seen
+                                                                               Action: Close                Action: Pickup
+
+
+
+
+                                                                    Val Unseen
+                                                                           Action: ToggleOn                Action: Pickup
+
+
+
+
+                                                                    Figure F5: Predicted interaction masks. Masks generated
+                                                                    by the S EQ 2S EQ +PM model are displayed in green.
+
+
+    Figure F4: Mechanical Turk Annotation Interface.                pipeline saves initialization information for objects and the
+                                                                    agent, so all demonstration can be perfectly replayed in the
+                                                                    simulator. Researchers can use this replay feature to aug-
+while scrubbing through the video, and wrote a short sum-
+                                                                    ment the dataset by saving high-res images, depth maps, or
+mary description for the entire sequence. We payed workers
+                                                                    object-segmentation masks.
+$0.7 per annotation. During vetting, annotators were paid
+$0.35 per HIT (Human Interaction Task) to compare 5 sets
+of three directives each. These wages were set based on             Network Architecture We use a pretrained ResNet-18
+local minimum-wage rates and average completion time.               [22] to extract 512 × 7 × 7 features from the conv5 layer.
+                                                                    These features are fed into a two-layer CNN with 1 × 1 con-
+A.4. Vocabulary Distributions                                       volutions to reduce the channel dimension from 512 to 64.
+   Figure F8 shows vocabulary statistics of the language            The 64 × 7 × 7 output is flattened, and a fully-connected
+in ALFRED.                                                          layer produces a 2500-dimensional visual feature vt .
+                                                                        The language encoder is a bi-directional LSTM with a
+A.5. Dataset Examples                                               hidden-dimension of 100. We do not use pretrained lan-
+   Figure F9 shows 7 expert trajectories (one per task type)        guage models to initialize the LSTM, and the encodings are
+and their accompanied annotations.                                  learned from scratch in an end-to-end manner. We also use
+                                                                    a self-attention mechanism to attend over the encodings to
+Appendix B. Implementation Details                                  initialize the hidden-state of the decoder LSTM.
+                                                                        The action decoder is an LSTM with a hidden-dimension
+   We describe implementation and training details of our           of 512. The actor is a fully-connected layer that outputs log-
+baseline Sequence-to-Sequence models.                               its for 13 actions. The mask decoder is a three-layer decon-
+                                                                    volution network, which takes in the concatenated vector
+Preprocessing We tokenize the language directives and               ut and transforms it into 64 × 7 × 7 features with a fully-
+convert all tokens to lower-case. During dataset generation,        connected layer. These features are subsequently up-scaled
+we save images from AI2-THOR 300×300 pixels, and later              into a 1 × 300 × 300 binary mask through three layers of de-
+resize them to 224 × 224 during training. The generation            convolutions and up-sampling with bi-linear interpolation.
+
+
+                                                               12
+Training The models were implemented with PyTorch
+and trained with the Adam optimizer [25] at a learning rate
+of 1e-4. We use dropout of 0.3 on the visual features and
+the decoder hidden state, tuned on the validation data. Both
+the action and mask losses are weighted equally, while the
+auxiliary losses are scaled with a factor of 0.1. For evalu-
+ation, we choose models with the lowest loss on the vali-
+dation seen set. It should be noted that, due to the nature
+of the tasks, low validation loss might not directly lead to
+better evaluation performance since the agent does not have
+to exactly imitate the expert to complete the task.
+
+Notes on Random Agent Unlike discretized navigation
+where taking random actions might allow the agent to stum-
+ble upon the goal, ALFRED tasks are much harder to
+achieve by chance. The action space branching factor of
+Room-to-Room navigation [3], for example, is 46 ≈ 4000
+(6 average steps and 4 navigation actions). By contrast, the
+ALFRED average branching factor is 1250 ≈ 1053 (50 av-
+erage steps for 12 actions). Beyond action type prediction,
+the ALFRED state space resulting from dynamic environ-                                           Task Ablations - Validation
+ments and the need to produce pixel-wise masks for inter-                             N O L ANGUAGE      S EQ 2S EQ       S EQ 2S EQ +PM
+active actions explodes further.                                     Task Type       Seen    Unseen    Seen Unseen Seen            Unseen
+                                                                     Pick & Place     0.0      0.0        6.3    1.0       7.0      0.0
+B.1. Predicted Masks                                                 Stack & Place    0.0      0.0        0.0    0.0       0.9      0.0
+   Figure F5 shows a few examples of masks generated by              Pick Two         0.0      0.0        1.6    0.0       0.8      0.0
+the S EQ 2S EQ +PM model in seen and unseen validation               Clean & Place    0.0      0.0        0.0    0.0       1.8      0.0
+                                                                     Heat & Place     0.0      0.0        1.9    0.0       1.9      0.0
+scenes. The Microwave mask accurately captures the con-
+                                                                     Cool & Place     0.0      0.0        2.4    0.0       4.0      0.0
+tours of the object since the model is familiar with recepta-        Examine          0.0      0.0        4.3    0.0       9.6      0.0
+cles in seen environments. In contrast, the Sink mask in the
+unseen scene poorly fits the unfamiliar object topology.
+                                                                     Table A1: Success percentages across 7 task types. The
+                                                                     highest values are shown in blue.
+Appendix C. Additional Results
+C.1. Performance by Task Type
+   In Table A1, we present success rates across the 7 task
+types. Even the best performing model, S EQ 2S EQ +PM,
+mostly succeeds in solving some short-horizon tasks like
+Pick & Place and Examine. Long horizon tasks like Stack
+& Place and Pick Two & Place have near zero success rates
+across all models.
+
+
+
+
+                                                                13
+   WineBottle
+ WateringCan                                            Watch
+       Watch                                            Vase
+        Vase
+ TomatoSliced                                           TomatoSliced
+                                                        Tomato
+       Tomato                                           ToiletPaper
+   ToiletPaper                                          TissueBox
+                                                        Statue
+    TissueBox
+ TennisRacket
+        Statue                                          Spoon
+  SprayBottle                                           Spatula
+        Spoon                                           SoapBottle
+       Spatula                                          SoapBar
+   SoapBottle
+      SoapBar                                           SaltShaker               Ladle                                               Knife
+   SaltShaker                                           RemoteControl             Knife                                              Kettle
+RemoteControl                                           PotatoSliced          KeyChain
+                                                        Potato                   Kettle                                              HandTowel
+  PotatoSliced                                          Plunger              HandTowel
+                                                        Plate                                                                        Fork
+      Potato                                            Pillow
+          Pot                                           PepperShaker         Glassbottle                                             Egg
+     Plunger
+        Plate                                                                       Fork                                             Cup
+       Pillow                                           Pencil                      Egg
+                                                                             DishSponge
+PepperShaker                                                                        Cup
+       Pencil                                           Pan                                                                          CreditCard
+         Pen                                            Newspaper             CreditCard
+         Pan                                                                                                                         Cloth
+  Newspaper                                             Mug                        Cloth
+         Mug                                                                                                                         CellPhone
+                                                                              CellPhone
+ LettuceSliced                                          LettuceSliced            Candle
+       Lettuce                                          Lettuce                      CD                                              CD
+        Laptop
+         Ladle                                          Laptop
+          Knife                                         Knife                ButterKnife                                             BreadSliced
+     KeyChain                                           KeyChain                                                                     Bread
+         Kettle                                         Glassbottle          BreadSliced
+   HandTowel
+   Glassbottle
+           Fork                                         Fork                      Bread
+           Egg                                                                                                                       Box
+                                                        Egg                         Box
+  DishSponge
+           Cup                                          Cup
+                                                        CreditCard                 Bowl
+                                                        Cloth                      Book                                              Book
+   CreditCard                                                                 BasketBall
+                                                        CellPhone            BaseballBat
+         Cloth                                          CD                                                                           BaseballBat
+                                                                             AppleSliced
+                                                                                  Apple
+    CellPhone                                           ButterKnife          AlarmClock                                              AppleSliced
+                                                                                                                                     AlarmClock
+       Candle                                           BreadSliced                        Train          Val seen      Val unseen
+           CD                                           Bread                                      Receptacle Classes
+  ButterKnife                                           Box                  Figure F7: Receptacle distributions in the train, validation
+  BreadSliced                                           Bowl
+                                                        Book                 seen and unseen folds.
+        Bread                                           BasketBall
+          Box
+         Bowl                                           BaseballBat
+         Book
+   BasketBall
+  BaseballBat                                           AppleSliced
+  AppleSliced
+        Apple                                           Apple
+   AlarmClock                                           AlarmClock
+                  Train        Val seen    Val unseen
+                          Object Classes
+Figure F6: Pickup distributions in the train, validation seen
+and unseen folds.
+
+
+                                                                        14
+                                                                                                                                                 104
+                                                                                                                                                       105
+                                                                                                                                                                                   102
+                                                                                                                                                                                         103
+                                                                                                                                                                                               104
+                                                                                                                                                                                                                             103
+                                                                                                                                                                                                                                   104
+                                                                                                                                                                                                                                                                102
+                                                                                                                                                                                                                                                                      103
+                                                                                                                                                                                                                                                                            104
+                                                                                                                                                                                                                                                                                  105
+                                                                                                                                         the                             right                                    table                                turn
+                                                                                                                                           to                              left                                     sink                              walk
+                                                                                                                                       turn                        forward                                   counter                                    put
+                                                                                                                                        and                           inside                                       right                               pick
+                                                                                                                                          on                           white                                          left                               go
+                                                                                                                                           of                          black                              microwave                                  place
+                                                                                                                                      right                        straight                                     fridge                                face
+                                                                                                                                         left                         green                                       knife                             move
+                                                                                                                                           in                          small                                       slice                              take
+                                                                                                                                             a                           blue                                     front                                 left
+                                                                                                                                          up                       wooden                                          door                              open
+                                                                                                                                      walk                             clean                                        side                             close
+                                                                                                                                     table                            brown                                      toilet                                    is
+                                                                                                                                         put                             near                                 tomato                                  grab
+                                                                                                                                       pick                         remote                                         desk                             stand
+                                                                                                                                       sink                                red                                   apple                               head
+                                                                                                                                counter                                  past                                    stove                                look
+                                                                                                                                 around                             heated                                     coffee                           remove
+                                                                                                                                    place                            yellow                                    potato                                 slice
+                                                                                                                                          go                          round                                   cabinet                                hang
+                                                                                                                                      then                          closest                                      room                                   cut
+                                                                                                                                       face                           ahead                                       lamp                            chilled
+
+
+
+
+     and non-nouns), and all words.
+                                                                                                                                      from                          second                                        shelf                               heat
+                                                                                                                             microwave                                  open                                        turn                                can
+                                                                                                                                   fridge                               close                                   bread                                carry
+                                                                                                                                            it                            cold                                        top                            wash
+                                                                                                                                    move                                large                                 lettuce                                bring
+                                                                                                                                     knife                          slightly                                        pan                                    's
+                                                                                                                                      take                                  far                                   plate                                chill
+                                                                                                                                      slice                         cooked                               refrigerator                              facing
+                                                                                                                                       with                              gray                                        cup                              shut
+                                                                                                                                     back                              away                                   kitchen                                cross
+                                                                                                                                     front                            sliced                                        bed                                 are
+                                                                                                                                forward                                     tall                                   bowl                                 get
+                                                                                                                                      door                           middle                                       chair                                 set
+                                                                                                                                     open                                dirty                                     mug                               rinse
+                                                                                                                                       side                               cool                                    soap                         examine
+                                                                                                                                    toilet                           purple                                          box                              cook
+                                                                                                                                 tomato                                lower                                        wall                              step
+                                                                                                                                      desk                                pink                                  couch                              sitting
+                                                                                                                                    stove                         opposite                                          end                             make
+                                                                                                                                    apple                                grey                                   bottle                                wait
+                                                                                                                                  coffee                           washed                                     drawer                                reach
+                                                                                                                                  potato                           counter                                    dresser                                 stop
+                                                                                                                                towards                             directly                                     trash                                 find
+                                                                                                                                 cabinet                               warm                                        step                         walking
+                                                                                                                                         top                               wet                                      egg                               drop
+                                                                                                                                      your                    underneath                                       corner                               begin
+                                                                                                                                    room                             square                                     spoon                           proceed
+
+
+
+
+15
+                                                                                                                                     lamp                             upper                                           bin                          return
+
+
+
+
+                                                                                                                                                             All
+                                                                                                                                    close                         leftmost                                            tub                           throw
+
+
+
+
+                                                                                                                                                                                                     Other
+                                                                                                                                                                                                                                                                                   Verbs
+
+
+
+
+                                                                                                                                                                                                                                         Nouns
+
+
+                                                                                                                                       that                              mug                                          pot                        holding
+                                                                                                                                        you                               safe                                     card                                sink
+                                                                                                                                     shelf                     completely                                       credit                           turning
+                                                                                                                                   inside                               clear                                      keys                              clean
+                                                                                                                                    white                             closer                                     glass                                 cool
+                                                                                                                                   bread                           nearest                                        head                          cleaned
+                                                                                                                                            is                         twice                                  sponge                                  hold
+                                                                                                                                         out                             little                                phone                             putting
+                                                                                                                                 lettuce                             golden                                     paper                           counter
+                                                                                                                                        pan                                hot                                  water                                    fill
+                                                                                                                                      over                          orange                                     maker                          approach
+                                                                                                                                           at                            long                                   island                                  use
+                                                                                                                                    black                         beneath                                       pencil                       containing
+                                                                                                                                     plate                              short                                      floor                            frying
+                                                                                                                                     head                                  key                                      fork                            warm
+                                                                                                                            refrigerator                      microwaved                                         towel                             rinsed
+                                                                                                                                      mug                        forwards                                           pen                      microwave
+                                                                                                                                        cup                              dark                                     book                         standing
+                                                                                                                                 kitchen                                oven                                            tv                        cooled
+                                                                                                                                          off                  backwards                                         place                                   're
+                                                                                                                                        bed                            sharp                                          bar                             veer
+                                                                                                                                      bowl                             silver                                    steps                                   let
+                                                                                                                                     chair                          spatula                                      spray                             locate
+                                                                                                                                        two                               plus                                    back                                   be
+                                                                                                                                    stand                         warmed                                       candle                           hanging
+                                                                                                                                     soap                                   big                                     sofa                                has
+                                                                                                                                       wall                               half                                       can                        handled
+                                                                                                                                        box                        furthest                                      stand                                  see
+                                                                                                                                  across                                       3                                 piece                            closing
+                                                                                                                                       step                        halfway                                            roll                  microwaved
+                                                                                                                                        end                                    2                                  edge                           inspect
+                                                                                                                                  couch                            farthest                                   toaster                            located
+                                                                                                                                   bottle                                    90                                       rag                            using
+                                                                                                                                 drawer                                  gold                                      light                       continue
+                                                                                                                                 dresser                                     fry                              spatula                               sliced
+                                                                                                                                    trash                            center                                          salt                             start
+                                                                                                                                      next                                  bin                                        cd                     removing
+                                                                                                                                    down                              seven                                      clock                                  pull
+                                                                                                                                        into                    previously                                newspaper                                    was
+                                                                                                                                        can                           sweet                                     watch                                  wall
+                                                                                                                                        egg                           larger                                         loaf                           spray
+                                                                                                                                  corner                                  180                                  laptop                                oven
+                                                                                                                                      grab                                 low                                    cloth                        carrying
+                                                                                                                                         bin                        cleaner                                  seconds                               taking
+                                                                                                                                  spoon                             smaller                                      night                          retrieve
+                                                                                                                                         tub                     adjacent                                            cell                            done
+                                                                                                                                         pot                  rectangular                                    garbage                                    got
+                                                                                                                                    again                              quick                                   center                               stove
+                                                                                                                                      card                                tiny                                remote                                 drain
+
+
+
+
+     Figure F8: Vocabulary Distributions. Frequency distributions of 100 most common verbs, nouns, other words (non-verbs
+                                                                                                Pick & Place
+
+
+
+
+                 Annotation # 1                                                    Annotation # 2                                                     Annotation # 3
+ Goals          Put a watch on a table.                                            Put the watch on the coffee table.                                 Move the watch to the coffee table.
+
+
+                Go to the right and turn around to face the end of the             Turn right and go to the TV stand. Pick up the watch from the      Turn right, go straight, turn right, step forward, then turn right to face
+                cabinet with the television on it. Pick the watch up from the      stand. Turn around and face the coffee table. Put the watch        the table with the TV on it. Pick up the watch on the table, to the
+Instructions    cabinet. Go to the right and then turn to face the coffee          on the coffee table.                                               right of the remote. Turn right, move forward, turn left, move
+                table in front of the couch. Put the watch on the table.                                                                              forward, then turn right to face the coffee table. Put the watch on the
+                                                                                                                                                      front left corner of the coffee table.
+
+
+
+
+                                                                                              Stack & Place
+
+
+
+
+               Annotation # 1                                                     Annotation # 2                                                     Annotation # 3
+Goals          Put a bowl with a spoon in it on the table.                        Move a spoon and bowl to a table.                                  To put a spoon in a bowl plus moving them to the kitchen
+                                                                                                                                                     table.
+
+               Turn left, and walk across the room to the microwave. Pick         Move a spoon and bowl to a table. Go to the counter right of       Turn left and walk across the room to face a spoon on the right end
+               up the spoon. Turn left, and walk to the coffee machine .Put       the microwave. Pick up the spoon from the counter. Go to the       of the counter. Pick up the spoon on the end of the counter. Turn left
+Instructions   the spoon in the bowl. Pick up the bowl. Turn left, walk to        coffeemaker. Place the spoon in a bowl next to the                 and walk across the room to face the coffee maker on the counter.
+               the table, and turn left. Put the bowl on the table.               coffeemaker. Pick up the bowl. Go to the black table. Place        Put the spoon in the bowl to the right of the coffee maker on the
+                                                                                  the bowl down on the table .                                       counter. Pick up the bowl with a spoon in it on the counter. Turn left
+                                                                                                                                                     and walk across the room and turn left to face the kitchen table.
+                                                                                                                                                     Place the bowl with the spoon in it on the kitchen table.
+
+
+
+
+                                                                                           Pick Two & Place
+
+
+
+
+               Annotation # 1                                                     Annotation # 2                                                     Annotation # 3
+Goals          Putting pencils inside of a cabinet.                               Put two pencils in a drawer.                                       Place the two pencils in the stand.
+
+
+               Walk to the bedside table in front of you. Grab the pencil         Walk straight ahead to the end table. Pick up the blue pencil      Walk to the stand next to the bed. Grab the pencil from the stand.
+               that's on the table. Move slightly to the left and open the top    on the right. Walk around to the front of the end table. Put the   Open the shelf inside of the stand. Place the pencil in the top shelf
+Instructions   cabinet of the bedside table. Place the pencil inside the          pencil in the top drawer of the end table. Look up at the top of   of the stand. Close the shelf, walk back to the stand. Grab the other
+               cabinet. Face the front of the bedside table. Grab the pencil      the end table. Pick up the pencil on the table. Look down at       pencil from the stand. Walk back to the stand next to the bed. Place
+               off of the bedside table. Open the top cabinet on the table.       the drawer. Put the pencil in the drawer on top of the other       the pencil in the top shelf of the stand.
+               Place the pencil inside the cabinet and then close it.             pencil.
+
+
+
+
+                                                                                               Clean & Place
+
+
+
+
+                Annotation # 1                                                    Annotation # 2                                                     Annotation # 3
+Goals          Put a clean rag on the top shelf of a barred rack.                  Wash the pink towel on the shelf, put it back on the              Clean a red cloth.
+                                                                                   shelf.
+
+               Turn around, go to the barred rack. Pick up the rag from the       Wash the pink towel on the shelf, put it back on the shelf. Turn   walk on over to the towel drying rack. pick up a dirty red cloth from
+               bottle shelf of the barred rack. Go to the sink on the left. Put   around and go the shelf. Pick up the pink towel on the shelf.      the towel rack. walk over to the left side of the bathroom sink. turn
+Instructions   the rag in the sink, turn on then turn off the water. Go to the    Turn around and put the towel in the sink. Fill the sink with      on the water to rinse the dirty red cloth and pick it back up again.
+               barred rack to the right of the sink. Put the rag on the top       water and wash the towel, take the towel out. Go back to the       walk back over to the towel drying rack. place the clean cloth on the
+               shelf of the barred rack.                                          shelf. Put the towel back on the shelf.                            drying rack.
+
+
+
+
+                              Figure F9: Dataset Examples. Annotations for seven expert demonstrations.
+                                                               16
+                                                                                                            Heat & Place
+
+
+
+
+                  Annotation # 1                                                          Annotation # 2                                                          Annotation # 3
+Goals             Put a cooked potato slice on the counter.                               Place a slice of cooked potato onto the counter.                        Put a piece of cooked potato on the counter.
+
+
+                  Turn right, turn right, walk past the sink, turn left to face           Turn right, move to the table. Pick up the knife from the table.        Turn right and cross the room, then turn left and go to face the gray
+                  round table with tablecloth. Pick up the yellow-handled knife           Slice the potato on the table. Turn left, move to the counter left      table. Pick up the knife from in between the lettuce and the apple.
+                  from the table. Cut a slice in the potato on the table. Turn            of the bread. Put the knife on the counter near the soap                Use the knife to slice the potato that's on the gray table. Bring the
+                  left, turn left, turn right at counter, cross room, turn left at        container. Turn left, move to the table. Pick up a slice of             knife with you and go face the kitchen counter with the loaf of bread.
+                  refrigerator to face counter. Put knife down on the table.              potato from the table. Turn left, move to the counter in front of       Put the knife down in front of the soap dispenser on the counter. Go
+                  Turn left, walk past sink, turn left to face round table. Pick          the stove. Put the potato slice into the microwave, cook it, pick       back over to the gray table. Pick up a slice of the cut potato from the
+                  the potato slice up from the table. Turn left, make right               it back up. Turn right, move to the counter left of the bread.          table. Bring the potato with you and go over to the stove, then look
+                  around corner of counter, turn left to face stove and                   Put the cooked potato slice on the counter.                             up at the microwave. Cook the potato slice in the microwave, then
+                  microwave. Put potato in microwave, cook it, take it out of                                                                                     take it out again. Bring the potato slice over to the counter top with
+                  microwave. Turn right, cross room, turn left at counter with                                                                                    the loaf of bread and the knife you used to cut it. Put the potato slice
+                  blue plate on it. Put potato on the counter in front of the                                                                                     down in front of the blue plate.
+                  blue plate.
+
+
+
+
+                                                                                                           Cool & Place
+
+
+
+
+                       Annotation # 1                                                         Annotation # 2                                                          Annotation # 3
+   Goals              Put a slice of cold lettuce on a counter.                               Put a chilled slice of lettuce on the counter.                          Slice some lettuce and cool it in the refrigerator so you can
+                                                                                                                                                                      put it on the counter top.
+
+                      Turn left, go forward past the counter, turn left, go forward to        Turn left, head toward the fridge, turn left and go to the stove.       turn left and go around the counter top, then go straight to the stove
+                      the counter to the left of the oven. Take the knife to the left         Pick up the knife beside the spoon on the counter. Turn                 top. pick up the knife with the yellow handle from behind the salt
+   Instructions       of the large spoon from the counter. Turn around, go                    around and turn to the right to face the counter with the egg.          shaker on the counter top. turn left and face the counter top to your
+                      forward a step, turn right to the counter. Cut the lettuce on           Cut the lettuce on the counter. Move right and back left to the         left. slice the lettuce on the counter top. face the counter top with
+                      the counter into slices. Turn right, go forward a step, turn            counter. Put the knife behind the egg on the counter. Move              the knife in hand. place the knife down next to the lettuce slices on
+                      left to the counter. Put the knife behind the egg on the                the left and turn back right towards the counter. Pick up a slice       the counter top. face the lettuce on the counter top. pick up a slice
+                      counter. Turn left, go forward a step, turn right to the                of lettuce. Turn around and head to the fridge. Put the lettuce         of lettuce on the counter top. turn left, then face the opposite wall
+                      counter. Take a slice of lettuce from the counter. Turn left,           on the second shelf of the fridge, close the fridge, open the           behind you to face the refrigerator. open the refrigerator, and place
+                      go forward, turn right to the fridge. Go to the fridge. Chill the       fridge and pick it back up. Turn left, go halfway across the            the slice of lettuce in front of the apple one shelf above the bread,
+                      lettuce in the fridge in front of the apple. Take the lettuce           room and turn right toward the coffee maker. Put the slice of           then shut the door and open it up again after several seconds to
+                      from the fridge. Turn left, go forward, turn right to face the          lettuce on the counter in front of the coffee maker.                    pick the lettuce slice up. turn left, then face forward to the part of the
+                      coffee maker. Put the lettuce in front of the coffee maker on                                                                                   counter top on which the coffee maker sits. place the slice of lettuce
+                      the counter.                                                                                                                                    in front of the coffee maker.
+
+
+
+
+                                                                                                        Examine in Light
+
+
+
+
+                       Annotation # 1                                                         Annotation # 2                                                          Annotation # 3
+   Goals              Read a book by lamp light.                                              Examine a book with a lamp.                                             Pick up a book and turn on a lamp.
+
+
+                      Head forward to the bed in front of you. Pick up the blue               walk forward a few steps, turn right, take two steps, turn left,        Walk forward to face the bed. Pick the book up from the bed. Turn to
+                      book that is sitting on the bed; the book that says                     walk to bed. pick up the book that is on the bed. turn around,          the right and face the night stand with the lamp. Turn the lamp on.
+   Instructions       Probabilistic Robotics. Turn to your right and walk to the              take a step, turn left to face small table. turn the lamp on.
+                      night stand. Turn on the lamp that is sitting on the night
+                      stand.
+
+
+
+
+                                     Figure F9: Dataset Examples. Annotations for seven expert demonstrations.
+
+
+
+
+                                                                                                                      17
+Figure F10: Visual diversity of AI2-THOR [26] scenes. Top to bottom rows: kitchens, living rooms, bedrooms,
+and bathrooms. Object locations are randomized based on placeable surface areas and class constraints. See https:
+//ai2thor.allenai.org/ithor/demo/ for an interactive demo.
+
+
+
+
+                                                       18
+

@@ -1,0 +1,39 @@
+{
+  "status": "IMPLEMENTED_AND_OFFLINE_VERIFIED",
+  "live_api_calls": 0,
+  "gpu_runs": 0,
+  "quality_evaluation": "not measured for new sizing mode",
+  "repository_system_tests": {
+    "passed": 81,
+    "skipped": 1,
+    "seconds": 22.15,
+    "skip": "optional external eval-data-v1 byte-identity test requires FASTFILL_EVAL_DATA"
+  },
+  "reused_size_and_api_components_tests": {
+    "passed": 49,
+    "seconds": 8.4
+  },
+  "standalone_update_tests": {
+    "passed": 63,
+    "skipped": 1,
+    "seconds": 3.47
+  },
+  "coverage": {
+    "modules": [
+      "fastfill.system.sizing",
+      "fastfill.system.pipeline",
+      "fastfill.system.cli"
+    ],
+    "percent": 95.14237855946399
+  },
+  "independent_review": "No remaining scoped blockers after regression-tested fixes for stale O2 callbacks, malformed null/list prior tables, and post-rounding dimension bounds.",
+  "package_cli_dry_run": "passed; no model or credentials required; runtime imports resolve under package/code",
+  "frozen_code_unchanged": true,
+  "update_directory": "/Volumes/harddisk/fastfillout/unknownsize-20261013/delivery-size-api-20261015",
+  "feature_sources_sha256": {
+    "fastfill/system/cli.py": "87bd5ea72b644ca61846776fcbbac94fe492c36e49aed680d7891b644736b29f",
+    "fastfill/system/pipeline.py": "962c3e710a2624f7fd8b4ae220059859812a51057270c2c0bbbb0475ab14676e",
+    "fastfill/system/sizing.py": "b07aac5c3202917fc32a520c4951bc41b3abbdb72925905d8970861c2588182d",
+    "fastfill/comparison/sizers_020.py": "a6a4ac09780fad6da6ad2f6cc43be79aa3899d79abe845f27ae8fcdaf5139f0d"
+  }
+}

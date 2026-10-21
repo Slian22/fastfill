@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETED_RESULTS_DOWNLOADED_AND_BOUND",
+  "server_check_utc": "2026-10-16T01:32:19Z",
+  "rooms": 8647,
+  "escalated": 6155,
+  "checker_rate": 0.8954550711229328,
+  "strict_rate": 0.4941598242164913,
+  "api_calls": 0,
+  "local_files_sha256": {
+    "verification.json": "1ac7b08cbcd59a0ef5c29340e09bb2f426201c0830eda9205db155df06082eb3",
+    "eval/results.json": "b6438e44fb7b5d74539af3a5d7c9d90c2bbae07fccb1c3937eef3220f0c5337b",
+    "eval/MANIFEST.json": "5b8a5f2494356c223eca0c61fb2943a670a977b32f89f2f08b5fac0231b8e024",
+    "eval/report.md": "164aacff2984c3b71f7f643a1734c87cd5b2efd0d86aa260b47dbc61d7c84c30",
+    "eval/levels.csv": "29fe05444368b3bea08334cd9bfbf62ec3d1ef6315d18aea363546ed5bbce8a3",
+    "eval/contrasts.csv": "3952acaf540c563937070d7dc44eb77416d288ca85815d8c3cc99d74f0f1fe7e"
+  },
+  "checks": [
+    "Remote/local file hashes agree",
+    "Recovery receipt binds eval MANIFEST",
+    "Recovery metrics match full results JSON"
+  ],
+  "note": "This is verification of recorded outputs, not a new independent statistical rerun. Existing 20261015 delivery archive is unchanged."
+}

@@ -1,0 +1,21 @@
+{
+  "observed_utc": "2026-10-13T07:59:40.042629+00:00",
+  "volumes": {
+    "/Users/slian/Desktop/3D/Worldedge/OptiScene": {
+      "total_bytes": 994662584320,
+      "free_bytes": 96827015168,
+      "total_TB_decimal": 0.995,
+      "free_TB_decimal": 0.097,
+      "free_GiB": 90.18
+    },
+    "/Volumes/harddisk": {
+      "total_bytes": 4000577273856,
+      "free_bytes": 2822400995328,
+      "total_TB_decimal": 4.001,
+      "free_TB_decimal": 2.822,
+      "free_GiB": 2628.57
+    }
+  },
+  "new_data_output_root": "/Volumes/harddisk/fastfillout/unknownsize-source-correction-20261013",
+  "policy": "Original sources/frozen runs remain unchanged; new large artifacts written to external harddisk."
+}

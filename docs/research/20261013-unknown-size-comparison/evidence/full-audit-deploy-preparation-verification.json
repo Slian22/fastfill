@@ -1,0 +1,42 @@
+{
+  "API_calls": 0,
+  "Slurm_jobs_submitted_or_cancelled": false,
+  "diagnostic_run_disclosure": "Parent owns scientific report; known source annotation exposure does not alter protected running jobs",
+  "gate": "Independent review pending; parent must relay no-HIGH before actual switch",
+  "new_controller_started": false,
+  "new_master_started": false,
+  "observed_unix": 1791876799.5793128,
+  "old_controller_terminated": false,
+  "ops_manifest_sha256": "e2b5aa37d9c46318b64fc5d75a56b64efdc2203c9c81eca4514e3b58ab957304",
+  "production_snapshot": {
+    "api_client_pin_preserved": true,
+    "changed_files": [
+      "fastfill/comparison/final_tables.py",
+      "fastfill/comparison/geometry.py",
+      "fastfill/comparison/train_pair_helpers.py"
+    ],
+    "file_count": 33,
+    "local_and_remote_verified": true,
+    "manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2"
+  },
+  "python_syntax": "all staged Python AST parses passed",
+  "shell_syntax": "bash -n geometry.sbatch passed",
+  "source_validation": {
+    "parent_full_tests": 681,
+    "receipt": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-final-validation.json",
+    "sha256": "b7cdc906d98182a73e20ff66b3bb434ceb05d5e64019a10f06c4a242bff16824"
+  },
+  "staged_files": {
+    "controller.py": "083083f2035dad664599468c10911c4eb79de0ebd7af13622e6341b789bf6b56",
+    "geometry.sbatch": "acd418f69c670ddded8d2fa079dac7a4cfc7a619bf67ce24faee82d239e5d2ee",
+    "test_staging.py": "8142031c4fccf636274d44c54c1d3d330505cbc85392ee37ced41d65e94a4a29",
+    "verify_freeze.py": "b94e4a0f8033cd0504a637c10a839325bc58dfe546ff673958015ff5a574bc2e"
+  },
+  "staging_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 /usr/local/bin/python3 -B -m pytest -q -p no:cacheprovider /Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/test_staging.py",
+    "external_processes_in_tests": "mocked only; real inference reader uses synthetic local files",
+    "passed": 12,
+    "seconds": 0.21
+  },
+  "status": "prepared_uploaded_not_switched"
+}

@@ -1,0 +1,21 @@
+{
+  "job_id": "7368003",
+  "utc": "2026-10-13T07:37:11.045845+00:00",
+  "resources": {
+    "cpu": 4,
+    "mem_gb": 32,
+    "time_minutes": 45,
+    "gpu": 0
+  },
+  "files": {
+    "full-audit-data-lineage.py": "d48071aa3b008ad77a56a23d6e30f3ea23ccad10ac7af6dd361f1a438f7c3374",
+    "full-audit-data-lineage.sbatch": "080f624e3d8877580934c147703cf547edffd85fadc1f2e2656e861312a3148e",
+    "full-audit-data-p-target-check.py": "a255debda75967520f8e51751552d0c065b64457a311d1dad9f4077b6580ab0c"
+  },
+  "local_synthetic_tests": "9 passed",
+  "post_stage_validation": {
+    "utc": "2026-10-13T07:37:50.672045+00:00",
+    "synthetic_tests_passed": 10,
+    "final_local_sha256": "d48071aa3b008ad77a56a23d6e30f3ea23ccad10ac7af6dd361f1a438f7c3374"
+  }
+}

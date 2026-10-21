@@ -1,0 +1,444 @@
+{
+  "source": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry-7367978-result.json",
+  "source_sha256": "5cca605cc3331ab7405baffdc56a7e4dd1193991706ce1c3d84679311e4fe7a5",
+  "extraction": "Known-case exposure and declared metadata only; no independent mesh remeasurement. Room sums may be per-source; counts are not guarantees of annotation correctness.",
+  "known_case_counts": {
+    "scan2cad_large_tilt_local_extents": {
+      "raw_all": {
+        "objects": 8,
+        "rooms": 6,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "raw_released": {
+        "objects": 8,
+        "rooms": 6,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "prepared_all": {
+        "objects": 8,
+        "rooms": 6,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "prepared_train": {
+        "objects": 8,
+        "rooms": 6,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "prior_eligible_train": {
+        "objects": 7,
+        "rooms": 5,
+        "by_kind": {
+          "objects": 7
+        }
+      },
+      "eligible_decoder_rejected_train": {
+        "objects": 6,
+        "rooms": 4,
+        "by_kind": {
+          "objects": 6
+        }
+      },
+      "historical_ineligible_train": {
+        "objects": 1,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 1
+        }
+      },
+      "decoder_qualified_train": {
+        "objects": 1,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 1
+        }
+      },
+      "length_admitted_train": {
+        "objects": 1,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 1
+        }
+      },
+      "actual_bound_train": {
+        "objects": 1,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 1
+        }
+      },
+      "actual_admitted_train": {
+        "objects": 1,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 1
+        }
+      }
+    },
+    "il3d_slanted_window_projected_width": {
+      "raw_all": {
+        "objects": 45,
+        "rooms": 29,
+        "by_kind": {
+          "objects": 45
+        }
+      },
+      "raw_released": {
+        "objects": 39,
+        "rooms": 24,
+        "by_kind": {
+          "objects": 39
+        }
+      },
+      "prepared_all": {
+        "objects": 39,
+        "rooms": 24,
+        "by_kind": {
+          "fixed": 39
+        }
+      },
+      "prepared_train": {
+        "objects": 37,
+        "rooms": 23,
+        "by_kind": {
+          "fixed": 37
+        }
+      },
+      "historical_ineligible_train": {
+        "objects": 12,
+        "rooms": 8,
+        "by_kind": {
+          "fixed": 12
+        }
+      },
+      "prior_eligible_train": {
+        "objects": 25,
+        "rooms": 15,
+        "by_kind": {
+          "fixed": 25
+        }
+      },
+      "decoder_qualified_train": {
+        "objects": 20,
+        "rooms": 10,
+        "by_kind": {
+          "fixed": 20
+        }
+      },
+      "length_admitted_train": {
+        "objects": 20,
+        "rooms": 10,
+        "by_kind": {
+          "fixed": 20
+        }
+      },
+      "actual_bound_train": {
+        "objects": 20,
+        "rooms": 10,
+        "by_kind": {
+          "fixed": 20
+        }
+      },
+      "actual_admitted_train": {
+        "objects": 20,
+        "rooms": 10,
+        "by_kind": {
+          "fixed": 20
+        }
+      },
+      "eligible_decoder_rejected_train": {
+        "objects": 5,
+        "rooms": 5,
+        "by_kind": {
+          "fixed": 5
+        }
+      },
+      "prepared_test": {
+        "objects": 2,
+        "rooms": 1,
+        "by_kind": {
+          "fixed": 2
+        }
+      },
+      "actual_bound_test": {
+        "objects": 2,
+        "rooms": 1,
+        "by_kind": {
+          "fixed": 2
+        }
+      },
+      "raw_unreleased": {
+        "objects": 6,
+        "rooms": 5,
+        "by_kind": {
+          "objects": 6
+        }
+      }
+    },
+    "spatialgen_tilt_local_extents_bottom": {
+      "raw_all": {
+        "objects": 8,
+        "rooms": 8,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "raw_released": {
+        "objects": 8,
+        "rooms": 8,
+        "by_kind": {
+          "objects": 8
+        }
+      },
+      "prepared_all": {
+        "objects": 2,
+        "rooms": 2,
+        "by_kind": {
+          "objects": 2
+        }
+      },
+      "prepared_test": {
+        "objects": 2,
+        "rooms": 2,
+        "by_kind": {
+          "objects": 2
+        }
+      },
+      "actual_bound_test": {
+        "objects": 2,
+        "rooms": 2,
+        "by_kind": {
+          "objects": 2
+        }
+      }
+    },
+    "scenesmith_wall_bottom_origin": {
+      "raw_all": {
+        "objects": 46,
+        "rooms": 31,
+        "by_kind": {
+          "objects": 46
+        }
+      },
+      "raw_released": {
+        "objects": 46,
+        "rooms": 31,
+        "by_kind": {
+          "objects": 46
+        }
+      }
+    },
+    "interiorgs_thin_box_shortcut": {
+      "raw_all": {
+        "objects": 3,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 3
+        }
+      },
+      "raw_released": {
+        "objects": 3,
+        "rooms": 1,
+        "by_kind": {
+          "objects": 3
+        }
+      }
+    },
+    "internscenes_k0_axis_fallback": {
+      "raw_all": {
+        "objects": 20609,
+        "rooms": 6467,
+        "by_kind": {
+          "objects": 20609
+        }
+      },
+      "raw_released": {
+        "objects": 20431,
+        "rooms": 6389,
+        "by_kind": {
+          "objects": 20431
+        }
+      },
+      "prepared_all": {
+        "objects": 10326,
+        "rooms": 4447,
+        "by_kind": {
+          "objects": 10072,
+          "fixed": 254
+        }
+      },
+      "prepared_train": {
+        "objects": 9267,
+        "rooms": 3998,
+        "by_kind": {
+          "objects": 9030,
+          "fixed": 237
+        }
+      },
+      "prior_eligible_train": {
+        "objects": 5941,
+        "rooms": 2953,
+        "by_kind": {
+          "objects": 5874,
+          "fixed": 67
+        }
+      },
+      "eligible_decoder_rejected_train": {
+        "objects": 4798,
+        "rooms": 2147,
+        "by_kind": {
+          "objects": 4761,
+          "fixed": 37
+        }
+      },
+      "historical_ineligible_train": {
+        "objects": 3326,
+        "rooms": 1045,
+        "by_kind": {
+          "objects": 3156,
+          "fixed": 170
+        }
+      },
+      "decoder_qualified_train": {
+        "objects": 1143,
+        "rooms": 806,
+        "by_kind": {
+          "objects": 1113,
+          "fixed": 30
+        }
+      },
+      "length_admitted_train": {
+        "objects": 1143,
+        "rooms": 806,
+        "by_kind": {
+          "objects": 1113,
+          "fixed": 30
+        }
+      },
+      "actual_bound_train": {
+        "objects": 1143,
+        "rooms": 806,
+        "by_kind": {
+          "objects": 1113,
+          "fixed": 30
+        }
+      },
+      "actual_admitted_train": {
+        "objects": 1143,
+        "rooms": 806,
+        "by_kind": {
+          "objects": 1113,
+          "fixed": 30
+        }
+      },
+      "prepared_dev": {
+        "objects": 577,
+        "rooms": 240,
+        "by_kind": {
+          "objects": 569,
+          "fixed": 8
+        }
+      },
+      "length_admitted_dev": {
+        "objects": 577,
+        "rooms": 240,
+        "by_kind": {
+          "objects": 569,
+          "fixed": 8
+        }
+      },
+      "actual_bound_dev": {
+        "objects": 577,
+        "rooms": 240,
+        "by_kind": {
+          "objects": 569,
+          "fixed": 8
+        }
+      },
+      "actual_admitted_dev": {
+        "objects": 577,
+        "rooms": 240,
+        "by_kind": {
+          "objects": 569,
+          "fixed": 8
+        }
+      },
+      "prepared_test": {
+        "objects": 482,
+        "rooms": 209,
+        "by_kind": {
+          "objects": 473,
+          "fixed": 9
+        }
+      },
+      "actual_bound_test": {
+        "objects": 482,
+        "rooms": 209,
+        "by_kind": {
+          "objects": 473,
+          "fixed": 9
+        }
+      },
+      "raw_unreleased": {
+        "objects": 178,
+        "rooms": 78,
+        "by_kind": {
+          "objects": 178
+        }
+      }
+    }
+  },
+  "profile_summaries": {
+    "raw_all": {
+      "sources": 18,
+      "rooms": 188670,
+      "height:missing_invalid_nonpositive": 41445,
+      "boundary_type:hull": 9655,
+      "boundary_type:polygon": 178262,
+      "boundary_type:None": 96,
+      "objects:tilted:True": 164119,
+      "prepared_flag_rooms:tilted": 0,
+      "objects:front_known:False": 13488,
+      "objects:front_known:<missing>": 4313118
+    },
+    "actual_admitted_train": {
+      "sources": 16,
+      "rooms": 98754,
+      "height:missing_invalid_nonpositive": 30567,
+      "boundary_type:hull": 3257,
+      "boundary_type:polygon": 95497,
+      "boundary_type:None": 0,
+      "objects:tilted:True": 19795,
+      "prepared_flag_rooms:tilted": 5251,
+      "objects:front_known:False": 0,
+      "objects:front_known:<missing>": 1085477
+    },
+    "actual_bound_test": {
+      "sources": 18,
+      "rooms": 8647,
+      "height:missing_invalid_nonpositive": 1954,
+      "boundary_type:hull": 428,
+      "boundary_type:polygon": 8219,
+      "boundary_type:None": 0,
+      "objects:tilted:True": 4263,
+      "prepared_flag_rooms:tilted": 920,
+      "objects:front_known:False": 0,
+      "objects:front_known:<missing>": 108253
+    }
+  },
+  "limitations": [
+    "Every frozen IR and prepared/bound record scanned; no binary assets read.",
+    "Known-case joins establish current exposure, not an independent source-mesh remeasurement.",
+    "Metadata front_known and boundary_type are declarations, not calibrated ground truth.",
+    "Missing case object does not exclude indirect influence on boundary, parent, or eligibility.",
+    "Per-room n_* metadata sums may repeat scene-level values; not unique asset-defect counts.",
+    "v2 mask/correction counts belong to another artifact and are not imported here."
+  ]
+}

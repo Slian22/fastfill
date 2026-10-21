@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/Users/slian/.codex/packages/app-server-daemon/releases/0.162.1-aarch64-apple-darwin/codex-path:/Users/slian/.antigravity-ide/antigravity-ide/bin:/Users/slian/.bun/bin:/Users/slian/.local/bin:/Users/slian/.npm-global/bin:/Users/slian/.antigravity/antigravity/bin:/Users/slian/.local/bin:/Users/slian/.cargo/bin:/opt/homebrew/opt/apache-spark/libexec/bin:/usr/local/spark/bin:/usr/local/bin:/Users/slian/.local/bin:/Users/slian/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/share/dotnet:~/.dotnet/tools:/Users/slian/.codex/tmp/arg0/codex-arg0CYEDKD:/Users/slian/.codex/packages/app-server-daemon/releases/0.162.1-aarch64-apple-darwin/codex-path:/Users/slian/.codex/tmp/arg0/codex-arg0YGVKQ9:/Users/slian/.codex/packages/standalone/releases/0.162.1-aarch64-apple-darwin/codex-path:/Users/slian/Library/pnpm:/Users/slian/.antigravity-ide/antigravity-ide/bin:/Users/slian/.bun/bin:/Users/slian/.local/bin:/Users/slian/.npm-global/bin:/Users/slian/.antigravity/antigravity/bin:/Users/slian/miniforge3/bin:/Users/slian/miniforge3/condabin:/Users/slian/.cargo/bin:/opt/homebrew/opt/apache-spark/libexec/bin:/usr/local/spark/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Library/Frameworks/Python.framework/Versions/3.12/bin:/Users/slian/Applications/iTerm.app/Contents/Resources/utilities:/Users/slian/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/texlive/2023/bin/x86_64-darwin:/Users/slian/.dotnet:/Users/slian/.dotnet/tool:/Users/slian/Library/Application Support/JetBrains/Toolbox/scripts:/usr/local/texlive/2023/bin/x86_64-darwin:/Users/slian/.dotnet:/Users/slian/.dotnet/tool</string>
+		<key>PYTHONDONTWRITEBYTECODE</key>
+		<string>1</string>
+		<key>SSH_AUTH_SOCK</key>
+		<string>/var/run/com.apple.launchd.7VUsG4DBBZ/Listeners</string>
+	</dict>
+	<key>ExitTimeOut</key>
+	<integer>40</integer>
+	<key>KeepAlive</key>
+	<false/>
+	<key>Label</key>
+	<string>org.fastfill.unknownsize.20261013.run002</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/launch-v2.sh</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/launchd.stderr</string>
+	<key>StandardOutPath</key>
+	<string>/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/launchd.stdout</string>
+	<key>WorkingDirectory</key>
+	<string>/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-9c4d97dbd736</string>
+</dict>
+</plist>

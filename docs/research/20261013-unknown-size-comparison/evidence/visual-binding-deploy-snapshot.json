@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-13T08:24:44.500068+00:00",
+  "root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-resource-bound-86e4e3bfc30f",
+  "manifest_sha256": "86e4e3bfc30fd2d1ad69550dd993b29c29f8697fc9f63abb1ead4b7bd3eb4831",
+  "files": 33,
+  "previous_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72",
+  "changed_files": [
+    "fastfill/comparison/visual_pipeline.py"
+  ],
+  "remote_code_unchanged": true,
+  "remote_job_ids_unchanged": true,
+  "source_adapter_fixes_included": false,
+  "independent_review": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/visual-binding-independent-review-20261013.md",
+  "independent_review_sha256": "ec319268cc9fa2544aabc6f1083af59225a8f9facd1efb56d2fdf1631d750aff",
+  "validation_sha256": "254f6f6f0c63da6d7743e1867fe11a448924f39bc138121329b98ca2f6d3e0a1"
+}

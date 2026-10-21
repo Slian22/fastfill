@@ -1,0 +1,26 @@
+{
+  "api_client_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72/server_api_judge.py",
+  "base_config_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/base-config.json",
+  "base_config_sha256": "fd5070980a171ab0cea022cc8d11a41c7ee2f8536939d3187c5b01ffb1bf3ab7",
+  "deadline_unix": 1792302800,
+  "inference_job_ids": [
+    7367626,
+    7367628
+  ],
+  "local_code_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72",
+  "old_endstate": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-002/endstate.json",
+  "old_process_ids": [
+    41825,
+    42372,
+    41826,
+    42373
+  ],
+  "original_deadline_unix": 1792302800,
+  "output_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003",
+  "parent_snapshot_ready": false,
+  "remote_api_code": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72",
+  "remote_run_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013",
+  "review_gate": "DO NOT START until parent relays reviewer no-HIGH",
+  "snapshot_manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2",
+  "ssh_control_path": "/tmp/PARENT_NEW_PRIVATE_CONTROL_DIR/control.sock"
+}

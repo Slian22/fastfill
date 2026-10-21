@@ -1,0 +1,10 @@
+{
+  "id": "D3",
+  "description": "All requested test scenes",
+  "value": 8647,
+  "source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/eval-data-v1/MANIFEST.json",
+  "json_pointer": "/counts/test",
+  "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "D1",
+    "description": "Common qualified train count",
+    "value": 98923,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/D1.json",
+    "json_pointer": "/counts/train",
+    "sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/main-data-v1/MANIFEST.json",
+    "projection_only": true
+  },
+  {
+    "id": "D2",
+    "description": "Matched admitted train count",
+    "value": 98754,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/D2.json",
+    "json_pointer": "/train/accepted_count",
+    "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/sft-joint-001/lengths.json",
+    "projection_only": true
+  },
+  {
+    "id": "D3",
+    "description": "All requested test scenes",
+    "value": 8647,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/D3.json",
+    "json_pointer": "/counts/test",
+    "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/eval-data-v1/MANIFEST.json",
+    "projection_only": true
+  },
+  {
+    "id": "T1",
+    "description": "Regression tests passed",
+    "value": 674,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/T1.json",
+    "json_pointer": "/green/comparison_tests_passed",
+    "sha256": "174cb923ed183c77909e8f44ed2647e2d1b29aa3121cf92a527f390a755c74af",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-input-fix-validation.json",
+    "projection_only": true
+  },
+  {
+    "id": "T2",
+    "description": "Statement coverage percent",
+    "value": 90.80136573609158,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/T2.json",
+    "json_pointer": "/coverage/percent_covered",
+    "sha256": "174cb923ed183c77909e8f44ed2647e2d1b29aa3121cf92a527f390a755c74af",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-input-fix-validation.json",
+    "projection_only": true
+  },
+  {
+    "id": "V1",
+    "description": "Legacy v2 raw log-size error",
+    "value": 0.2964263480951696,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/V1.json",
+    "json_pointer": "/model/reference/log_size_error/mean",
+    "sha256": "03169160933a56b4bf1cddcd5682bf766997018726d9b3d2bb2d4009ebc89a37",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5-argmax/report.json",
+    "projection_only": true
+  },
+  {
+    "id": "V2",
+    "description": "Legacy v2 raw position error",
+    "value": 2.6426894846586415,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/V2.json",
+    "json_pointer": "/model/reference/bottom_center_error_m/mean",
+    "sha256": "03169160933a56b4bf1cddcd5682bf766997018726d9b3d2bb2d4009ebc89a37",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5-argmax/report.json",
+    "projection_only": true
+  },
+  {
+    "id": "V3",
+    "description": "Legacy v2 raw relation hold",
+    "value": 0.2534531863800156,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/V3.json",
+    "json_pointer": "/methods/ff-argmax/rel_hold/0",
+    "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+    "projection_only": true
+  },
+  {
+    "id": "V4",
+    "description": "Legacy v2 spread relation hold",
+    "value": 0.43296030978957806,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/V4.json",
+    "json_pointer": "/methods/ff-spread/rel_hold/0",
+    "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+    "projection_only": true
+  },
+  {
+    "id": "V5",
+    "description": "Legacy LLM harness relation hold",
+    "value": 0.7643650387552827,
+    "source": "docs/research/20261013-unknown-size-comparison/evidence/aris-claim-projections/V5.json",
+    "json_pointer": "/methods/llm-harness/rel_hold/0",
+    "sha256": "bbaac523fdd11b8b26ad9a301020d7a187e9b01c6c23a85475a619ff3f79a6d2",
+    "pointer_verified": true,
+    "meaning": "Artifact-value verified; not a causal or superiority claim.",
+    "primary_source": "outputs/fastfill_v2/eval-sets-20261009/arrange-comparison-300/summary.json",
+    "projection_only": true
+  }
+]

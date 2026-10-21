@@ -1,0 +1,25 @@
+{
+  "authorization": "parent AUTHORIZE ACTUAL HANDOFF NOW",
+  "launch_phase": "new gated master only; no driver before release",
+  "old_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "d1dc934be020778f936b7e429e75a1841ffaacfdd57f380af0a0c4bce550cb8b",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 5524.860585917006,
+    "failures": [],
+    "pid": 42372,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791876845.016099
+  },
+  "review_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/evidence/agency-full-audit-patch-review-20261013.md",
+  "review_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "started_unix": 1791876872.092138
+}

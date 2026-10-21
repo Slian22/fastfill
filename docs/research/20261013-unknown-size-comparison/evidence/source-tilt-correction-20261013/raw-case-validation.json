@@ -1,0 +1,144 @@
+{
+  "scope": "Three exposed raw cases, complete raw rooms through before/after adapters; not corpus regeneration. Raw files hashed sequentially without copies. Original Scan2CAD zipped annotation and both SpatialGen native room layouts checked.",
+  "files": [
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/imChuling__3D_Room_Collections/SceneCAD_Scan2CAD_exported/scenecad_scan2cad_combined.json",
+      "bytes": 196265906,
+      "sha256": "fb67b1e0485a9c5ae971bb61162bb6cdb189f760b7bbab3cba2c3405a5e3c081"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/BillLin66__3D_Room_Collections/SpatialGen_exported/spatialgen.jsonl",
+      "bytes": 895419,
+      "sha256": "64257ce050cac75526fc3048b8fb756194e6be7d054fdec6c52713b3ae046edf"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/imChuling__3D_Room_Collections/SceneCAD_Scan2CAD_exported/source/scan2cad/scan2cad_annotations.zip",
+      "bytes": 8166498,
+      "sha256": "98628f2036e211868d7a497d7e0e51c526bef1c237c605c97a308609e42a676c"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/imChuling__3D_Room_Collections/SceneCAD_Scan2CAD_exported/aggregate_scenecad_scan2cad.py",
+      "bytes": 15202,
+      "sha256": "3da32b63911fb4196035059717dc4756a05906faf887d0fb4a7f2c6725518065"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/BillLin66__3D_Room_Collections/SpatialGen_exported/kits/convert_spatialgen.py",
+      "bytes": 19670,
+      "sha256": "230256bf4ae5809180778ac57dcbf502fb95397a9263bcace884213733ea2230"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/BillLin66__3D_Room_Collections/SpatialGen_exported/data/scene_00024/room_layout.json",
+      "bytes": 37293,
+      "sha256": "d8e538c5d93f752e16c83695b831daae6afee44c42fca4778891a58eec630bf3"
+    },
+    {
+      "path": "/Volumes/harddisk/3D_Room_Collections/BillLin66__3D_Room_Collections/SpatialGen_exported/data/scene_00030/room_layout.json",
+      "bytes": 7907,
+      "sha256": "bc4333ac3ec8eabd114dfcc76e865c51bd8523e38eddff195402f0741cc0fae3"
+    }
+  ],
+  "cases": [
+    {
+      "source": "Scan2CAD",
+      "uid": "Scan2CAD::scene0494_00",
+      "object_id": "scene0494_00::scan2cad_5",
+      "raw_record_1based": 1048,
+      "raw_room_object_count": 6,
+      "before_size": [
+        0.446364754191654,
+        0.40841571282942496,
+        0.8936079665390511
+      ],
+      "after_size": [
+        0.5953113589678006,
+        0.4207810301399828,
+        0.9629460567793924
+      ],
+      "native_corner_extent": [
+        0.5953113589678014,
+        0.4207810301399828,
+        0.9629460567793926
+      ],
+      "extent_max_abs_error_m": 7.771561172376096e-16,
+      "before_floor_z": 0.0411425590624383,
+      "after_floor_z": 0.002206080149435019,
+      "native_bottom_absolute": -0.07486440862895566,
+      "after_bottom_before_snap": -0.07707048877839068,
+      "before_ir_bottom": 0.0,
+      "after_ir_bottom": 0.0,
+      "floor_snapped": true,
+      "yaw_radians": 2.9307429162641903,
+      "tilted_before_and_after": true,
+      "input_immutable": true,
+      "raw_native_fields_match_export": true
+    },
+    {
+      "source": "SpatialGen",
+      "uid": "spatialgen_scene_00024::room_0",
+      "object_id": "spatialgen_scene_00024::obj_0",
+      "raw_record_1based": 25,
+      "raw_room_object_count": 99,
+      "before_size": [
+        0.04,
+        0.8,
+        1.180454
+      ],
+      "after_size": [
+        0.14273109400832265,
+        0.8000000233620538,
+        1.179448088212195
+      ],
+      "native_corner_extent": [
+        0.1427310940083224,
+        0.8000000233620539,
+        1.179448088212195
+      ],
+      "extent_max_abs_error_m": 2.498001805406602e-16,
+      "before_floor_z": null,
+      "after_floor_z": null,
+      "native_bottom_absolute": 0.0003198558939025986,
+      "after_bottom_before_snap": 0.0003198558939025986,
+      "before_ir_bottom": -0.00018299999999993322,
+      "after_ir_bottom": 0.0003198558939025986,
+      "floor_snapped": false,
+      "yaw_radians": 5.235987767566011e-08,
+      "tilted_before_and_after": true,
+      "input_immutable": true,
+      "raw_native_fields_match_export": true
+    },
+    {
+      "source": "SpatialGen",
+      "uid": "spatialgen_scene_00030::room_0",
+      "object_id": "spatialgen_scene_00030::obj_0",
+      "raw_record_1based": 30,
+      "raw_room_object_count": 20,
+      "before_size": [
+        0.03,
+        1.506951,
+        0.75
+      ],
+      "after_size": [
+        0.15978060626186183,
+        1.5069506958682715,
+        0.7438152752016098
+      ],
+      "native_corner_extent": [
+        0.15978060626186252,
+        1.5069506958682715,
+        0.7438152752016101
+      ],
+      "extent_max_abs_error_m": 6.938893903907228e-16,
+      "before_floor_z": null,
+      "after_floor_z": null,
+      "native_bottom_absolute": 0.0030923623991950255,
+      "after_bottom_before_snap": 0.0030923623991950255,
+      "before_ir_bottom": 0.0,
+      "after_ir_bottom": 0.003092362399195081,
+      "floor_snapped": false,
+      "yaw_radians": 3.141592601229916,
+      "tilted_before_and_after": true,
+      "input_immutable": true,
+      "raw_native_fields_match_export": true
+    }
+  ]
+}

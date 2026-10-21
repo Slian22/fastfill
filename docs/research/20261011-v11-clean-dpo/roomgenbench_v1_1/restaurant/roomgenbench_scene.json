@@ -1,0 +1,3282 @@
+{
+  "scene_key": "fastfill_9a990d515190cd2e",
+  "room_type": "restaurant",
+  "geometry_only": true,
+  "objects": [
+    {
+      "id": "obj_0000",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0001",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0002",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 4.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0003",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 5.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0004",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.85,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0005",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.85,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0006",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.85,
+        "y": 4.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0007",
+      "type": "table",
+      "description": "A low bamboo dining table with a rectangular shape, natural bamboo finish, smooth grain texture, low\u2011profile legs and a subtle curved edge that adds a gentle Zen aesthetic.",
+      "asset_key": "table_90a2dab3",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.85,
+        "y": 5.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.9,
+        "height": 0.7
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0008",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.45,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0009",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.69,
+        "y": 7.53,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0010",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0011",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.25,
+        "y": 7.41,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0012",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.65,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0013",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.8099999999999998,
+        "y": 7.53,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0014",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0015",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 2.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0016",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0017",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 4.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0018",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 5.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0019",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 5.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0020",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.05,
+        "y": 6.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0021",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.65,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0022",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.65,
+        "y": 7.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0023",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.23,
+        "y": 0.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0024",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.25,
+        "y": 7.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0025",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.85,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0026",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.85,
+        "y": 2.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0027",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.85,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0028",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.85,
+        "y": 4.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0029",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.85,
+        "y": 5.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0030",
+      "type": "chair",
+      "description": "A low floor cushion chair with a square footprint, soft bamboo cushion covering a natural wood frame, minimalist design, slightly rounded top and a gentle tapered leg that blends with the Zen theme.",
+      "asset_key": "chair_572320dc",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.45,
+        "y": 5.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.58,
+        "length": 0.6,
+        "height": 0.88
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0031",
+      "type": "waterfeature",
+      "description": "A bowl\u2011shaped ceramic water feature with bamboo accents, wide circular basin, smooth rim and a shallow depth",
+      "asset_key": "waterfeature_95a8f41d",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.78,
+        "y": 4.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.3,
+        "height": 0.28
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0032",
+      "type": "smalllamp",
+      "description": "A small lamp with a bamboo base, compact cylindrical form, warm\u2011glowing light and a smooth matte finish",
+      "asset_key": "smalllamp_29ad0cb1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.1,
+        "y": 1.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.35,
+        "length": 0.48,
+        "height": 0.4
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0033",
+      "type": "smalllamp",
+      "description": "A small lamp with a bamboo base, compact cylindrical form, warm\u2011glowing light and a smooth matte finish",
+      "asset_key": "smalllamp_29ad0cb1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.9,
+        "y": 5.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.4,
+        "height": 0.6
+      },
+      "place_id": "obj_0007",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0034",
+      "type": "bambooplant",
+      "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+      "asset_key": "bambooplant_446884e7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.32,
+        "y": 2.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.74
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0035",
+      "type": "bambooplant",
+      "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+      "asset_key": "bambooplant_446884e7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.32,
+        "y": 5.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.74
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0036",
+      "type": "bambooplant",
+      "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+      "asset_key": "bambooplant_446884e7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.68,
+        "y": 0.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.74
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0037",
+      "type": "bambooplant",
+      "description": "A natural bamboo plant in a simple ceramic pot, tall slender stalks, smooth green leaves and a rounded pot base",
+      "asset_key": "bambooplant_446884e7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.68,
+        "y": 2.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.5,
+        "height": 0.74
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0038",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.01,
+        "y": 3.04,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.45,
+        "length": 0.45,
+        "height": 0.4
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0039",
+      "type": "bench",
+      "description": "A natural bamboo bench with an elongated rectangular seat, slender vertical slats, and a smooth polished finish, giving a sleek minimalist look.",
+      "asset_key": "bench_8a1b5965",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.05,
+        "y": 0.27,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 1.19,
+        "length": 0.4,
+        "height": 0.5
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0040",
+      "type": "bench",
+      "description": "A natural bamboo bench with an elongated rectangular seat, slender vertical slats, and a smooth polished finish, giving a sleek minimalist look.",
+      "asset_key": "bench_8a1b5965",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.25,
+        "y": 7.73,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 1.19,
+        "length": 0.4,
+        "height": 0.5
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0041",
+      "type": "shoji",
+      "description": "A bamboo shoji screen composed of thin vertical bamboo slats woven into a lattice pattern, framed by a lightweight wooden frame, providing a semi\u2011transparent partition.",
+      "asset_key": "shoji_5918dcf8",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 4.05,
+        "y": 7.83,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.2,
+        "height": 1.1
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0042",
+      "type": "shoji",
+      "description": "A bamboo shoji screen composed of thin vertical bamboo slats woven into a lattice pattern, framed by a lightweight wooden frame, providing a semi\u2011transparent partition.",
+      "asset_key": "shoji_5918dcf8",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.25,
+        "y": 0.13,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.2,
+        "height": 1.1
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0043",
+      "type": "bamboo",
+      "description": "A natural bamboo plant with slender green stalks emerging from a smooth ceramic pot, featuring a rounded pot base and a slightly tapered foliage.",
+      "asset_key": "bamboo_8beb2728",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.32,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.54,
+        "length": 0.55,
+        "height": 0.75
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0044",
+      "type": "bamboo",
+      "description": "A natural bamboo plant with slender green stalks emerging from a smooth ceramic pot, featuring a rounded pot base and a slightly tapered foliage.",
+      "asset_key": "bamboo_8beb2728",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.66,
+        "y": 1.65,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.54,
+        "length": 0.55,
+        "height": 0.75
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0045",
+      "type": "planter",
+      "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+      "asset_key": "planter_0ac78a56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.35000000000000003,
+        "y": 0.51,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.4,
+        "height": 0.76
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0046",
+      "type": "planter",
+      "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+      "asset_key": "planter_0ac78a56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.27,
+        "y": 4.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.4,
+        "height": 0.76
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0047",
+      "type": "planter",
+      "description": "A low\u2011profile circular planter made of smooth ceramic, featuring a wide rim and a shallow concave interior for soil.",
+      "asset_key": "planter_0ac78a56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.73,
+        "y": 3.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.4,
+        "height": 0.76
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0048",
+      "type": "woodenshelf",
+      "description": "A low\u2011profile wooden shelf with a natural bamboo finish, rectangular with clean straight edges and subtle grain texture, supported by four short legs",
+      "asset_key": "woodenshelf_569ff9c6",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 6.99,
+        "z": 1.06
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.19,
+        "height": 0.8
+      },
+      "place_id": "obj_0049",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0049",
+      "type": "bookshelf",
+      "description": "A low wooden bookshelf finished in natural bamboo, rectangular with four evenly spaced shelves, clean straight lines and a light matte grain",
+      "asset_key": "bookshelf_11eff3fa",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.25,
+        "y": 6.85,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.32,
+        "length": 0.37,
+        "height": 1.06
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0050",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.7,
+        "y": 1.1,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0051",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.2,
+        "y": 1.1,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0052",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6299999999999999,
+        "y": 3.17,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0053",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.2,
+        "y": 3.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0054",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.7,
+        "y": 4.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0055",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.04,
+        "y": 5.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0056",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.1,
+        "y": 4.29,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0057",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 4.02,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0058",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.2,
+        "y": 5.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0059",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 4.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0060",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.58,
+        "y": 1.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0061",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.7,
+        "y": 1.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0062",
+      "type": "candle",
+      "description": "A white Asian Zen style candle with a bamboo base, cylindrical shape, smooth surface and subtle tapering toward the top",
+      "asset_key": "candle_1ea231f9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0063",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.59,
+        "y": 1.4,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0064",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 2.6,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0065",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 4.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0066",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.39,
+        "y": 1.61,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0067",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.46,
+        "y": 5.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0068",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.7,
+        "y": 2.7,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0069",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.7,
+        "y": 4.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.25
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0070",
+      "type": "vase",
+      "description": "A small ceramic vase with a bamboo design, slender cylindrical shape, smooth glaze and a gently flared rim",
+      "asset_key": "vase_6ae3cbae",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.31,
+        "y": 1.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.09,
+        "length": 0.09,
+        "height": 0.2
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0071",
+      "type": "candle",
+      "description": "A white candle with a bamboo base, featuring a slender cylindrical wax body and a subtle embossed bamboo texture on the base.",
+      "asset_key": "candle_a22a59c1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.4,
+        "y": 2.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0072",
+      "type": "candle",
+      "description": "A white candle with a bamboo base, featuring a slender cylindrical wax body and a subtle embossed bamboo texture on the base.",
+      "asset_key": "candle_a22a59c1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.6,
+        "y": 3.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.18,
+        "length": 0.18,
+        "height": 0.39
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0073",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6,
+        "y": 1.23,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.13,
+        "length": 0.13,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0074",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.6,
+        "y": 5.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.13,
+        "length": 0.13,
+        "height": 0.28
+      },
+      "place_id": "obj_0007",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0075",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.8,
+        "y": 1.7,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.13,
+        "length": 0.13,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0076",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.2,
+        "y": 2.79,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.13,
+        "length": 0.13,
+        "height": 0.28
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0077",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.78,
+        "y": 1.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.12,
+        "length": 0.12,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0078",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.1,
+        "y": 4.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.12,
+        "length": 0.12,
+        "height": 0.28
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0079",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.2,
+        "y": 5.6,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.12,
+        "length": 0.12,
+        "height": 0.28
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0080",
+      "type": "smallvase",
+      "description": "A ceramic vase with a smooth curved silhouette, featuring a subtle bamboo motif etched around its slender body and a matte ivory finish",
+      "asset_key": "smallvase_721911ad",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 1.1,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.12,
+        "length": 0.12,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0081",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6,
+        "y": 1.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0082",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.7,
+        "y": 1.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0083",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.71,
+        "y": 2.11,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0084",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.4,
+        "y": 5.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0007",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0085",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.9,
+        "y": 1.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0086",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 1.3,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0087",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.18,
+        "y": 1.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0088",
+      "type": "candle",
+      "description": "A white candle with a slender cylindrical shape, set on a simple bamboo\u2011styled base, giving a calm and minimalist appearance",
+      "asset_key": "candle_093a4f56",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 1.6,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.17,
+        "length": 0.17,
+        "height": 0.39
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0089",
+      "type": "bamboovase",
+      "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+      "asset_key": "bamboovase_9003c1de",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 6.79,
+        "z": 1.86
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.24,
+        "length": 0.24,
+        "height": 0.63
+      },
+      "place_id": "obj_0048",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0090",
+      "type": "bamboovase",
+      "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+      "asset_key": "bamboovase_9003c1de",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2,
+        "y": 7.1,
+        "z": 1.86
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 89.00000000000001
+      },
+      "dimensions": {
+        "width": 0.24,
+        "length": 0.24,
+        "height": 0.63
+      },
+      "place_id": "obj_0048",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0091",
+      "type": "bamboovase",
+      "description": "A small ceramic vase adorned with a subtle bamboo pattern, squat cylindrical shape with a smooth glossy surface.",
+      "asset_key": "bamboovase_9003c1de",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.2216232480387999,
+        "y": 6.769163760676581,
+        "z": 1.86
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.24,
+        "length": 0.24,
+        "height": 0.63
+      },
+      "place_id": "obj_0048",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0092",
+      "type": "candlee05ebbed",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candlee05ebbed_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 2.1,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.15,
+        "length": 0.15,
+        "height": 0.34
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0093",
+      "type": "smallvasee05ebbed",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvasee05ebbed_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.9400000000000001,
+        "y": 1.6199999999999999,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.11,
+        "length": 0.11,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0094",
+      "type": "candl00972562",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl00972562_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6,
+        "y": 2.6,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0095",
+      "type": "candl00972562",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl00972562_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6,
+        "y": 3.4,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 99.0
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0096",
+      "type": "smallvase00972562",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvase00972562_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 3.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.11,
+        "length": 0.11,
+        "height": 0.28
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0097",
+      "type": "candl62acd997",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl62acd997_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.7,
+        "y": 4.08,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0098",
+      "type": "smallvase62acd997",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvase62acd997_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 4.1,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.11,
+        "length": 0.11,
+        "height": 0.28
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0099",
+      "type": "candl1b1936d3",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl1b1936d3_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.78,
+        "y": 5.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0100",
+      "type": "candl5dbf1081",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl5dbf1081_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 1.9,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0101",
+      "type": "candl5dbf1081",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl5dbf1081_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.9,
+        "y": 1.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0102",
+      "type": "smallvase5dbf1081",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvase5dbf1081_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.4,
+        "y": 1.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.11,
+        "length": 0.11,
+        "height": 0.28
+      },
+      "place_id": "obj_0004",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0103",
+      "type": "candl676d809f",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candl676d809f_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.9,
+        "y": 3.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0005",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0104",
+      "type": "candlfeb570fd",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candlfeb570fd_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.98,
+        "y": 4.05,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0105",
+      "type": "candlfeb570fd",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candlfeb570fd_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.1,
+        "y": 4.7,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0106",
+      "type": "smallvasefeb570fd",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvasefeb570fd_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.62,
+        "y": 4.119999999999999,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.11,
+        "length": 0.11,
+        "height": 0.28
+      },
+      "place_id": "obj_0006",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0107",
+      "type": "candle29a978e",
+      "description": "A white candle with a bamboo base, featuring a short cylindrical wax body and a minimalist bamboo stand.",
+      "asset_key": "candle29a978e_6a50d51a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 3.1,
+        "y": 5.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.2,
+        "height": 0.35
+      },
+      "place_id": "obj_0007",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0108",
+      "type": "smallvase29a978e",
+      "description": "A petite vase holding a single bamboo stem, slender elongated shape with a smooth matte finish.",
+      "asset_key": "smallvase29a978e_5fa415d9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.4,
+        "y": 5.5,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.14,
+        "length": 0.14,
+        "height": 0.25
+      },
+      "place_id": "obj_0007",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0109",
+      "type": "wallart",
+      "description": "A single piece of thin and upright Zen calligraphy artwork, rectangular flat panel with subtle brush strokes and a matte finish",
+      "asset_key": "wallart_831b500a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.17,
+        "y": 2.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.8
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0110",
+      "type": "wallart",
+      "description": "A single piece of thin and upright Zen calligraphy artwork, rectangular flat panel with subtle brush strokes and a matte finish",
+      "asset_key": "wallart_831b500a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.83,
+        "y": 5.05,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.8
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0111",
+      "type": "wallart",
+      "description": "A single piece of thin and upright painting featuring Zen calligraphy in black ink on a light rice\u2011paper background, the frame is a narrow wooden strip",
+      "asset_key": "wallart_9efb0599",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.05,
+        "y": 7.83,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.59,
+        "length": 0.2,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0112",
+      "type": "wallart",
+      "description": "A single piece of thin and upright painting featuring Zen calligraphy in black ink on a light rice\u2011paper background, the frame is a narrow wooden strip",
+      "asset_key": "wallart_9efb0599",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.83,
+        "y": 6.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.59,
+        "length": 0.2,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0113",
+      "type": "wallart",
+      "description": "A single piece of thin and upright Zen\u2011inspired abstract painting, featuring soft brush strokes in muted earth tones on a lightweight canvas, framed with a narrow bamboo border",
+      "asset_key": "wallart_d8ca508a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.85,
+        "y": 0.16,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.19,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0114",
+      "type": "wallart",
+      "description": "A single piece of thin and upright Zen\u2011inspired abstract painting, featuring soft brush strokes in muted earth tones on a lightweight canvas, framed with a narrow bamboo border",
+      "asset_key": "wallart_d8ca508a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 5.84,
+        "y": 3.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.19,
+        "height": 0.9
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0115",
+      "type": "teaset",
+      "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+      "asset_key": "teaset_8efbaf00",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.24,
+        "y": 3.21,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.09,
+        "height": 0.1
+      },
+      "place_id": "obj_0001",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0116",
+      "type": "teaset",
+      "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+      "asset_key": "teaset_8efbaf00",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 4.8,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.09,
+        "height": 0.1
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0117",
+      "type": "teaset",
+      "description": "A natural bamboo and ceramic tea set composed of a low rectangular teapot, two slender cups and a shallow tray, all featuring smooth rounded edges and a warm honey\u2011colored bamboo finish",
+      "asset_key": "teaset_8efbaf00",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.4,
+        "y": 5.4,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.2,
+        "length": 0.09,
+        "height": 0.1
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0118",
+      "type": "smallvase",
+      "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+      "asset_key": "smallvase_0448167b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.6,
+        "y": 1.7,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0119",
+      "type": "smallvase",
+      "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+      "asset_key": "smallvase_0448167b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.9,
+        "y": 2.2,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0120",
+      "type": "smallvase",
+      "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+      "asset_key": "smallvase_0448167b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.07,
+        "y": 1.66,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0121",
+      "type": "smallvase",
+      "description": "A petite bamboo vase holding a single slender bamboo stem, with a smooth cylindrical body and a subtle natural grain texture",
+      "asset_key": "smallvase_0448167b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.23,
+        "y": 1.67,
+        "z": 0.7
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.28
+      },
+      "place_id": "obj_0000",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    }
+  ],
+  "fixed_objects": [
+    {
+      "id": "door_1",
+      "category": "door",
+      "size_local_m": [
+        0.1,
+        0.95,
+        2.05
+      ],
+      "bottom_center_m": [
+        2.88,
+        8.0,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966
+    }
+  ],
+  "constraints": [],
+  "room": {
+    "dimensions": {
+      "width": 6.0,
+      "length": 8.0,
+      "height": 2.7
+    },
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "ceiling_height": 2.7,
+    "walls": [
+      {
+        "id": "wall_00",
+        "start_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 6,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_01",
+        "start_point": {
+          "x": 6,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 6,
+          "y": 8,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_02",
+        "start_point": {
+          "x": 6,
+          "y": 8,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 8,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_03",
+        "start_point": {
+          "x": 0.0,
+          "y": 8,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      }
+    ],
+    "doors": [
+      {
+        "id": "door_1",
+        "wall_id": "wall_02",
+        "position_on_wall": 0.52,
+        "width": 0.95,
+        "height": 2.05
+      }
+    ],
+    "windows": []
+  }
+}

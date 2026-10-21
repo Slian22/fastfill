@@ -1,0 +1,22 @@
+{"stage": "train", "rows": 5000, "issue_count": 0, "elapsed": 88.00663788599195}
+{"stage": "train", "rows": 10000, "issue_count": 0, "elapsed": 101.18814373802161}
+{"stage": "train", "rows": 15000, "issue_count": 0, "elapsed": 112.71689632697962}
+{"stage": "train", "rows": 20000, "issue_count": 0, "elapsed": 126.27919416100485}
+{"stage": "train", "rows": 25000, "issue_count": 0, "elapsed": 143.3587755599874}
+{"stage": "train", "rows": 30000, "issue_count": 0, "elapsed": 165.46089770802064}
+{"stage": "train", "rows": 35000, "issue_count": 0, "elapsed": 191.45534219796536}
+{"stage": "train", "rows": 40000, "issue_count": 0, "elapsed": 218.60600561398314}
+{"stage": "train", "rows": 45000, "issue_count": 0, "elapsed": 242.08259856601944}
+{"stage": "train", "rows": 50000, "issue_count": 0, "elapsed": 260.65215047297534}
+{"stage": "train", "rows": 55000, "issue_count": 0, "elapsed": 275.56647417502245}
+{"stage": "train", "rows": 60000, "issue_count": 0, "elapsed": 288.9640798320179}
+{"stage": "train", "rows": 65000, "issue_count": 0, "elapsed": 322.2305181939737}
+{"stage": "train", "rows": 70000, "issue_count": 0, "elapsed": 345.4131697079865}
+{"stage": "train", "rows": 75000, "issue_count": 0, "elapsed": 359.0686155409785}
+{"stage": "train", "rows": 80000, "issue_count": 0, "elapsed": 372.7227006619796}
+{"stage": "train", "rows": 85000, "issue_count": 0, "elapsed": 386.47937159397407}
+{"stage": "train", "rows": 90000, "issue_count": 0, "elapsed": 400.08577696600696}
+{"stage": "train", "rows": 95000, "issue_count": 0, "elapsed": 414.13700985896867}
+{"stage": "dev", "rows": 5000, "issue_count": 0, "elapsed": 447.5606828099699}
+{"stage": "test", "rows": 5000, "issue_count": 0, "elapsed": 473.17967951798346}
+{"status": "COMPLETE", "issues": {}, "populations": {"train": {"rows_per_arm": 98923, "by_source": {"HSSD200": 956, "IL3D_3dfront": 9237, "IL3D_synthetic": 6090, "InteriorGS": 2458, "InternScenes_3rscan": 297, "InternScenes_arkit": 2098, "InternScenes_gen": 11870, "InternScenes_mp3d": 562, "InternScenes_scannet": 268, "MansionWorld": 18343, "MultiScan": 15, "OptiScene_holodeck": 8946, "SAGE-10k": 5736, "Scan2CAD": 5, "SpatialLM": 24060, "Structured3D": 7982}, "admitted_per_arm": 98754, "excluded_by_length": 169, "counts": {"objects:joint": 1109168, "prompt_tokens:joint": 59130923, "objects:placement": 1109168, "prompt_tokens:placement": 78736311, "admitted_total_tokens:joint": 111845719, "admitted_supervised_tokens:joint": 53157852, "admitted_total_tokens:placement": 112329829, "admitted_supervised_tokens:placement": 34454444}}, "dev": {"rows_per_arm": 8167, "by_source": {"HSSD200": 86, "IL3D_3dfront": 939, "IL3D_synthetic": 349, "InteriorGS": 268, "InternScenes_3rscan": 61, "InternScenes_arkit": 280, "InternScenes_gen": 828, "InternScenes_mp3d": 89, "InternScenes_scannet": 80, "MansionWorld": 1153, "MultiScan": 2, "OptiScene_holodeck": 497, "SAGE-10k": 503, "SpatialLM": 2239, "Structured3D": 793}, "admitted_per_arm": 8151, "excluded_by_length": 16, "counts": {"objects:joint": 102563, "prompt_tokens:joint": 5237287, "objects:placement": 102563, "prompt_tokens:placement": 7047753, "admitted_total_tokens:joint": 10104861, "admitted_supervised_tokens:joint": 4911391, "admitted_total_tokens:placement": 10150912, "admitted_supervised_tokens:placement": 3190137}}, "test": {"rows_per_arm": 8647, "by_source": {"HSSD200": 138, "InternScenes_3rscan": 70, "InternScenes_arkit": 229, "InternScenes_gen": 660, "InternScenes_mp3d": 18, "InternScenes_scannet": 104, "MansionWorld": 1313, "MultiScan": 6, "SAGE-10k": 489, "Scan2CAD": 1, "SceneSmith": 364, "IL3D_synthetic": 316, "IL3D_3dfront": 872, "InteriorGS": 311, "OptiScene_holodeck": 503, "SpatialGen": 45, "SpatialLM": 2461, "Structured3D": 747}, "admitted_per_arm": null, "excluded_by_length": null, "counts": {"objects:joint": 108253, "prompt_tokens:joint": 5486503, "input_ge_40960:joint": 0, "objects:placement": 108253, "prompt_tokens:placement": 7390912, "input_ge_40960:placement": 0}}}}

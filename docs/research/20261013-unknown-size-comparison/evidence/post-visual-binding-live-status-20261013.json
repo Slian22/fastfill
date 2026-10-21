@@ -1,0 +1,67 @@
+{
+  "observed_utc": "2026-10-13T08:27:51.195223+00:00",
+  "sacct": "7365659|unknownsize-main-data|COMPLETED|03:36:08|2026-10-13T00:54:39|2026-10-13T04:30:47|0:0|billing=72,cpu=72,mem=192G,node=1\n7365681|unknownsize-sft|RUNNING|03:57:01|2026-10-13T04:30:50|Unknown|0:0|billing=72,cpu=72,gres/gpu=1,mem=96G,node=1\n7365682|unknownsize-sft|RUNNING|03:57:01|2026-10-13T04:30:50|Unknown|0:0|billing=72,cpu=72,gres/gpu=1,mem=96G,node=1\n7367626|unknownsize-infer|PENDING|00:00:00|Unknown|Unknown|0:0|\n7367628|unknownsize-infer|PENDING|00:00:00|Unknown|Unknown|0:0|\n7368009|unknownsize-geometry-audit|PENDING|00:00:00|Unknown|Unknown|0:0|\n",
+  "queue": "7368009|unknownsize-geometry-audit|PENDING|0:00|2:00:00|(Dependency)\n7367628|unknownsize-infer|PENDING|0:00|22:00:00|(Dependency)\n7367626|unknownsize-infer|PENDING|0:00|22:00:00|(Dependency)\n7365681|unknownsize-sft|RUNNING|3:57:01|1-00:00:00|nid010012\n7365682|unknownsize-sft|RUNNING|3:57:01|1-00:00:00|nid010014\n",
+  "training": {
+    "7365681": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365681.out",
+      "mtime_utc": "2026-10-13T08:27:50+00:00",
+      "read_tail_sha256": "e1e6a5d9ded365622b09cef92d12e27e08e9603943429778503acd9c6087065c",
+      "step": 5853,
+      "total_steps": 24689,
+      "training_elapsed": "3:49:36",
+      "displayed_eta": "11:29:27",
+      "last_metric_line": "{'loss': '0.3921', 'grad_norm': '0.3225', 'learning_rate': '4.459e-05', 'epoch': '0.2371'}",
+      "error_markers_in_tail": {
+        "Traceback (most recent call last)": 0,
+        "CUDA out of memory": 0
+      }
+    },
+    "7365682": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365682.out",
+      "mtime_utc": "2026-10-13T08:27:50+00:00",
+      "read_tail_sha256": "3699b2ab2d779601309e290ea825cbb20ae2cc99299d39d21b526ae0d583f823",
+      "step": 5450,
+      "total_steps": 24689,
+      "training_elapsed": "3:49:43",
+      "displayed_eta": "13:15:58",
+      "last_metric_line": "{'loss': '0.3025', 'grad_norm': '0.1961', 'learning_rate': '4.538e-05', 'epoch': '0.2208'}",
+      "error_markers_in_tail": {
+        "Traceback (most recent call last)": 0,
+        "CUDA out of memory": 0
+      }
+    }
+  },
+  "controller_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 4.856840791995637,
+    "failures": [],
+    "pid": 90678,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791879991.0914502
+  },
+  "processes": {
+    "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+    "deadline_unix": 1792302800,
+    "driver_pid": 90678,
+    "effective_driver_budget_seconds": 422803,
+    "launcher_pid": 84994,
+    "master_pid": 85042,
+    "wake_pid": 90679
+  },
+  "config_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config-run004.json",
+  "config_sha256": "84c0545686d086e67360c7b0560f5ee5f904da30daacb9136d01008a8a9c17ee",
+  "code_snapshot": "pipeline-resource-bound-86e4e3bfc30f",
+  "output_root": "/Volumes/harddisk/fastfillout/unknownsize-20261013/automation-run-004",
+  "interpretation": "Existing training/inference/scoring preserved; local resource-bound visual pipeline active; formal metrics not yet measured."
+}

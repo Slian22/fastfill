@@ -1,0 +1,1294 @@
+                                                H OLODECK: Language Guided Generation of 3D Embodied AI Environments
+
+                                                        Yue Yang*1 , Fan-Yun Sun*2 , Luca Weihs*4 , Eli Vanderbilt4 , Alvaro Herrasti4 ,
+                                                           Winson Han4 , Jiajun Wu2 , Nick Haber2 , Ranjay Krishna3,4 , Lingjie Liu1 ,
+                                                      Chris Callison-Burch1 , Mark Yatskar1 , Aniruddha Kembhavi3,4 , Christopher Clark4
+                                                                       1
+                                                                         University of Pennsylvania, 2 Stanford University,
+                                                             3
+                                                               University of Washington, 4 Allen Institute for Artificial Intelligence
+arXiv:2312.09067v2 [cs.CV] 22 Apr 2024
+
+
+
+
+                                                                             yueyang1996.github.io/holodeck/
+                                                  an arcade room with a pool table             a spa with large hot tubs          a sculpture museum with diverse statues
+
+
+
+
+                                                 Modern-style living room           Victorian-style living room            a 1b1b apartment of a researcher who has a cat
+
+
+
+
+                                                           three professors’ office connected to a long hallway, the professor in office 1 is a fan of Star Wars
+
+
+
+
+                                         Figure 1. Example outputs of H OLODECK—a large language model powered system, which can generate diverse types of environments
+                                         (arcade, spa, museum), customize for styles (Victorian-style), and understand fine-grained requirements (“has a cat”, “fan of Star Wars”).
+
+                                                                    Abstract                                      styles, and can capture the semantics of complex queries
+                                                                                                                  such as “apartment for a researcher with a cat” and “office
+                                             3D simulated environments play a critical role in Embod-             of a professor who is a fan of Star Wars”. H OLODECK lever-
+                                         ied AI, but their creation requires expertise and extensive              ages a large language model (i.e., GPT-4) for common sense
+                                         manual effort, restricting their diversity and scope. To miti-           knowledge about what the scene might look like and uses
+                                         gate this limitation, we present H OLODECK, a system that                a large collection of 3D assets from Objaverse to populate
+                                         generates 3D environments to match a user-supplied prompt                the scene with diverse objects. To address the challenge of
+                                         fully automatedly. H OLODECK can generate diverse scenes,                positioning objects correctly, we prompt GPT-4 to generate
+                                         e.g., arcades, spas, and museums, adjust the designs for                 spatial relational constraints between objects and then opti-
+                                            * Equal technical contribution. Work done while at PRIOR@AI2.         mize the layout to satisfy those constraints. Our large-scale
+
+
+                                                                                                              1
+human evaluation shows that annotators prefer H OLODECK               the desk for “a fan of Star Wars”. Beyond object selection
+over manually designed procedural baselines in residential            and layout design, H OLODECK showcases its versatility in
+scenes and that H OLODECK can produce high-quality out-               style customization, such as creating a scene in a “Victorian-
+puts for diverse scene types. We also demonstrate an exciting         style” by applying appropriate textures and designs to the
+application of H OLODECK in Embodied AI, training agents              scene and its objects. Moreover, H OLODECK demonstrates
+to navigate in novel scenes like music rooms and daycares             its proficiency in spatial reasoning, like devising floor plans
+without human-constructed data, which is a significant step           for “three professors’ offices connected by a long hallway”
+forward in developing general-purpose embodied agents.                and having regular arrangements of objects in the scenes.
+                                                                      Overall, H OLODECK offers a broad coverage approach to
+1. Introduction                                                       3D environment generation, where textual prompts unlock
+                                                                      new levels of control and flexibility in scene creation.
+The predominant approach in training embodied agents in-                  The effectiveness of H OLODECK is assessed through its
+volves learning in simulators [8, 23, 26, 40, 45, 56]. Gen-           scene generation quality and applicability to Embodied AI.
+erating realistic, diverse, and interactive 3D environments           Through large-scale user studies involving 680 participants,
+plays a crucial role in the success of this process.                  we demonstrate that H OLODECK significantly surpasses ex-
+   Existing Embodied AI environments are typically crafted            isting procedural baseline P ROC THOR [7] in generating
+through manual design [6, 13, 26, 27], 3D scanning [8, 43,            residential scenes and achieves high-quality outputs for var-
+45], or procedurally generated with hard-coded rules [7].             ious scene types. For the Embodied AI experiments, we
+However, these methods require considerable human effort              focus on H OLODECK’s application in aiding zero-shot ob-
+that involves designing a complex layout, using assets sup-           ject navigation in previously unseen scene types. We show
+ported by an interactive simulator, and placing them into             that agents trained on scenes generated by H OLODECK can
+scenes while ensuring semantic consistency between the                navigate better in novel environments (e.g., Daycare and
+different scene elements. Therefore, prior work on produc-            Gym) designed by experts.
+ing 3D environments mainly focuses on limited environ-                    To summarize, our contributions are three-fold: (1) We
+ment types. To move beyond these limitations, recent works            propose H OLODECK, a language-guided system capable
+adapt 2D foundational models to generate 3D scenes from               of generating diverse, customized, and interactive 3D en-
+text [11, 18, 58]. However, these models often produce                vironments based on textual descriptions; (2) The human
+scenes with significant artifacts, such as mesh distortions,          evaluation validates H OLODECK’s capability of generating
+and lack the interactivity necessary for Embodied AI. More-           residential and diverse scenes with accurate asset selection
+over, there are models tailored for specific tasks like floor         and realistic layout design; (3) Our experiments demonstrate
+plan generation [19, 47] or object arrangement [38, 54]. Al-          that H OLODECK can aid Embodied AI agents in adapting to
+though effective in their respective domains, they lack overall       new scene types and objects during object navigation tasks.
+scene consistency and rely heavily on task-specific datasets.
+   In light of these challenges, we present H OLODECK, a              2. Related Work
+language-guided system built upon AI2-THOR [26], to auto-
+                                                                      Embodied AI Environments. Previous work mainly re-
+matically generate diverse, customized, and interactive 3D
+                                                                      lies on 3D artists to design the environments [6, 13, 25–
+embodied environments from textual descriptions. Shown
+                                                                      27, 40, 56], which is hard to scale up or construct scenes
+in Figure 2, given a description (e.g., a 1b1b apartment of
+                                                                      from 3D scans [43, 45, 48] to reduce human labor, but scenes
+a researcher who has a cat), H OLODECK uses a Large Lan-
+                                                                      are less interactive. The procedural generation framework
+guage Model (GPT-4 [37]) to design the floor plan, assign
+                                                                      P ROC THOR [7] showcases its potential to generate large-
+suitable materials, install the doorways and windows and
+                                                                      scale interactive environments for training embodied agents.
+arrange 3D assets coherently in the scene using constraint-
+                                                                      Phone2Proc [8] uses a phone scan to create training scenes
+based optimization. H OLODECK chooses from over 50K
+                                                                      that are semantically similar to the desired real-world scene.
+diverse and high-quality 3D assets from Objaverse [9] to
+                                                                      A concurrent work, RoboGen [52], proposes to train robots
+satisfy a myriad of environment descriptions.
+                                                                      by generating diversified tasks and scenes. These works
+   Motivated by the emergent abilities of Large Language
+                                                                      parallel our concept, H OLODECK, which aims to train gener-
+Models (LLMs) [53], H OLODECK exploits the common-
+                                                                      alizable embodied agents and presents an avenue for further
+sense priors and spatial knowledge inherently present in
+                                                                      exploration in text-driven 3D interactive scene generation.
+LLMs. This is exemplified in Figure 1, where H OLODECK
+creates diverse scene types such as arcade, spa and museum,           Large Language Model for Scene Design. Many works on
+interprets specific and abstract prompts by placing relevant          scene design either learn spatial knowledge priors from ex-
+objects appropriately into the scene, e.g., an “R2-D2”1 on            isting 3D scene databases [4, 31, 49–51, 54, 59] or leverage
+                                                                      user input and refine the 3D scene iteratively [3, 5]. However,
+  1 A fictional robot character in the Star Wars.                     having to learn from datasets of limited categories such as
+
+
+                                                                  2
+       Prompt            LLM Response        User input: a 1b1b apartment of a researcher who has a cat
+
+     Floor Module & Wall Modules               Doorway & Window Modules                        Object Selection Module                   Layout Design Module
+
+         Please design the floor plan              Please design the doorway                    Please help select the objects          Please tell me how to arrange
+         with the following format:                with the following format:                   with the following format               these objects using constraints.
+         room type | floor material |              room 1 | room 2 | connection                 category | description | size |         object-name | constraint-1 |
+         wall material | vertices                  type | size | style                          quantity | children objects             constraint-2 | ……
+
+   1. living room | oak hardwood |              1. living room | bathroom |                1. coffee table | large round                     1. sofa | edge
+        cream-colored stucco |               doorway | single | wooden door               wood | (100, 100, 45) | 1 | mug          2. coffee table | middle | near
+     [(0, 0), (0, 6), (7, 6), (7, 0)]                with black handle                    2. cat tower | multi-level | (60,               sofa | face to, sofa
+    2. kitchen | blue marble tile…            2. living room | kitchen | open                   60, 180) | 1 | cat toy             3. tv stand | edge | face to sofa
+      Room Vertices       Select Materials         Please design the window with          Retrieve Assets: multi-level cat tower     Spatial Relational Constraints
+                            oak hardwood           the following format:                                                                painting-1
+                                                   room | direction | type | size |                                                                            painting-2
+                                                   quantity | height (in cm)                                                                          mug
+                                                                                                                                    tv stand    coffee table       sofa
+                                              1. living room | west | hung |
+                                                     (130, 130) | 4 | 80                                                               above                   above
+                                               2. kitchen | south | slider |                                                                   on top of     near
+                                                   (150, 92) | 2 | 100 …                                                                        face to, far
+
+
+
+
+     Figure 2. Given a text input, H OLODECK generates the 3D environment through multiple rounds of conversation with an LLM.
+
+3D-FRONT [12] restricts their applicability. Recently, Large                               3. H OLODECK
+Language Models (LLMs) were shown to be useful in gen-
+erating 3D scene layouts [10, 29]. However, their methods                                  H OLODECK is a promptable system based on AI2-THOR [7,
+of having LLMs directly output numerical values can yield                                  26], enriched with massive assets from Objaverse [9], which
+layouts that defy physical plausibility (e.g., overlapping as-                             can produce diverse, customized, and interactive Embodied
+sets). In contrast, H OLODECK uses LLMs to sample spatial                                  AI environments with the guidance of large language models.
+relational constraints and a solver to optimize the layout, en-                               As shown in Figure 2, H OLODECK employs a systematic
+suring physically plausible scene arrangements. Our human                                  approach to scene construction, utilizing a series of special-
+study shows a preference for H OLODECK-generated layouts                                   ized modules: (1) the Floor & Wall Module develop floor
+over those generated end-to-end by LLMs. (see Sec 4.3).                                    plans, constructs wall structures and selects appropriate ma-
+Text-driven 3D Generation. Early endeavors in 3D genera-                                   terials for the floors and walls; (2) the Doorway & Window
+tion focus on learning the distribution of 3D shapes and/or                                Module integrates doorways and windows into the environ-
+textures from category-specific datasets [16, 35, 55, 57, 60].                             ment; (3) the Object Selection Module retrieves appropriate
+Subsequently, the advent of large vision-language models                                   3D assets from Objaverse, and (4) the Constraint-based
+like CLIP [42] enables zero-shot generation of 3D textures                                 Layout Design Module arranges the assets within the scene
+and objects [14, 20, 28, 32, 33, 39]. These works excel at                                 by utilizing spatial relational constraints to ensure that the
+generating 3D objects but struggle to generate complex 3D                                  layout of objects is realistic.
+scenes. More recently, emerging works generate 3D scenes                                       In the following sections, we introduce our prompting
+by combining pre-trained text-to-image models with depth                                   approach that converts high-level user natural language spec-
+prediction algorithms to produce either textured meshes or                                 ifications into a series of language model queries for con-
+NeRFs [11, 18, 58]. However, these approaches yield 3D rep-                                structing layouts. We then provide a detailed overview of
+resentations that lack modular composability and interactive                               each module shown in Figure 2 and how they contribute to
+affordances, limiting their use in embodied AI. In contrast,                               the final scene. Finally, we illustrate how H OLODECK lever-
+H OLODECK utilizes a comprehensive 3D asset database to                                    ages Objaverse assets to ensure diversity in scene creation
+generate semantically precise, spatially efficient, and interac-                           and efficiency for Embodied AI applications. Comprehen-
+tive 3D environments suitable for training embodied agents.                                sive details of H OLODECK can be found in the supplement.
+
+
+                                                                                      3
+                a high school building with six classrooms connected                           a house with a living room in the center and four bedrooms connected to each side of
+                          to the two sides of a long hallway                                      the living room, shaped like a cross, each bedroom is connected to a bathroom
+                                                                             classrooms
+                                                                             hallway
+
+
+
+
+                                                                                                                                                                          living room
+                                                                                                                                                                          bathrooms
+                                                                                                                                                                          bedrooms
+
+  Figure 3. Floorplan Customizability. H OLODECK can interpret complicated input and craft reasonable floor plans correspondingly.
+             a prison cell                  a bedroom of a girl who loves the pink color         a wine cellar with red wall bricks              a 80s bar with checkered flooring
+
+
+
+
+   Figure 4. Material Customizability. H OLODECK can select appropriate floor and wall materials to make the scenes more realistic.
+            an apartment for a disabled person who needs to use wheelchair                                   a sunroom with floor-to-ceiling windows covering all walls
+
+
+
+
+Figure 5. Door & window Customizability. H OLODECK can adjust the size, quantity, position, etc., of doors & windows based on the input.
+
+Overall Prompt Design. Each module in Figure 2 takes in-                                       these rooms. Figure 3 illustrates several examples of diverse
+formation from a language model and converts it to elements                                    layouts this module proposes where H OLODECK generates
+included in the final layout. An LLM prompt is designed                                        prompt-appropriate, intricate, multi-room floor plans.
+for each module with three elements: (1) Task Description:
+                                                                                                  This module also chooses materials for the floors and
+outlines the context and goals of the task; (2) Output For-
+                                                                                               walls, which is crucial for enhancing the realism of environ-
+mat: specifies the expected structure and type of outputs
+                                                                                               ments. H OLODECK can match LLM proposals to one of 236
+and (3) One-shot Example: a concrete example to assist the
+                                                                                               materials, each available in 148 colors, enabling semantic
+LLM’s comprehension of the task. The text within the blue
+                                                                                               customization of scenes. As shown in Figure 4, H OLODECK
+dialog boxes of Figure 2 represents examples of simplified
+                                                                                               can generate scenes with suitable materials based on the type
+prompts2 . LLM’s high-level responses to these prompts are
+                                                                                               of scene, such as opting for concrete walls and floors in a
+post-processed and then used as input arguments for the
+                                                                                               prison cell scenario. Inputs with specific texture require-
+modules to yield low-level specifications of the scene.
+                                                                                               ments are often reflected in the final design, for example,
+The Floor & Wall Module, illustrated in the first panel                                        “pink color”, “red wall bricks,” and “checkered floor”.
+of Figure 2, is responsible for creating floor plans, con-                                     The Doorway & Window Module, illustrated in the second
+structing wall structures, and selecting materials for floors                                  panel of Figure 2, is responsible for proposing room connec-
+and walls. Each room is represented as a rectangle, de-                                        tions and windows. Each of these two properties is queried
+fined by four tuples that specify the coordinates of its cor-                                  separately from the LLM. The LLM can propose doorways
+ners. GPT-4 directly yields the coordinates for placing the                                    and windows that match 40 door styles and 21 window types,
+rooms and suggests realistic dimensions and connectivity for                                   each of which can be modified by several properties, includ-
+   2 The complete prompts (available in the supplementary materials) in-
+                                                                                               ing size, height, quantity, etc. For instance, Figure 5 shows
+clude additional guidance for LLMs to avoid common errors we observe.
+                                                                                               H OLODECK’s tailored designs on doors and windows, such
+For example, by adding a sentence, “the minimal area per room is 9 m2 ”,                       as wider doors for “wheelchair accessibility” and multiple
+H OLODECK can avoid generating overly small rooms.                                             floor-to-ceiling windows in a “sunroom” setting.
+
+
+                                                                                           4
+       an aerospace exhibition hall                  a hunter cabinet with wall-mounted animals               a study room of a boy who likes Pokémon              a compact home gym with a ceiling fan
+
+
+
+
+                            Floor Objects                                                Wall Objects                            Small Objects                                                       Ceiling Objects
+
+Figure 6. Objects Customizability. H OLODECK can select and place appropriate floor/wall/small/ceiling objects conditioned on the input.
+
+                                                        wall clock                                      projector screen
+                                                                                                                                                                                                 towel rail
+                                                                     above
+                                                                                                                                                                                                         toilet paper
+                                                                                                                                                                                 cabinet
+
+
+
+
+                                                                                                                    ab
+                                                 nightstand-2                                                               chair-5                                                                         holder
+
+
+
+
+                                                                                                                       o
+                                                                                                                                align
+
+
+
+
+                                                                                                                                                                                               e
+                                                                                                                      ve
+
+
+
+
+                                                                                                                                                                                                 v
+                                                                                                                                                                                             abo
+                                                                                                                            ar
+                              nightstand-1
+                                                    of
+
+
+
+
+                                                                                                                                          chair-4
+
+
+
+
+                                                                                                                                                                                   sideear
+                                                                                                                           ne
+                                                            r
+
+
+
+
+                                                                                                                                                                                                                ve
+                                                         nea dresser                                    chair-0 table
+                                                     e
+
+
+
+
+                                         nea                                                                                         to
+                                                                                                                              face
+                                                 sid
+
+
+
+
+                                                                                                                                                                                      n
+                                      side r
+
+
+
+
+                                                                                                                                                                                                            abo
+                                                                                                                near o n nea
+
+
+
+
+                                                                                                                                                                                        of
+                                           of
+                                           bed                                                                       ce
+                                                                                                                        t e ar,    r, face chair-3                                               side of         ne
+                                                 in
+                                                   ne nt of
+
+
+
+
+                                                                                                            ali
+                                                                                                                  fa            fac       to                                                       near             ar
+                                                    f
+                                                     ar
+
+
+
+
+                                                                                                               gn
+                                                      ro
+
+
+
+
+                                                                                                                                    et                                               bathtub               toilet
+                                                                                                                                      o         gn
+                                                                                                            chair-1                          ali
+                                                         ottoman                                                                     chair-2                                                                         basket
+ Bedroom                                                                     Conference room                                                         Bathroom
+
+Figure 7. Examples of Spatial Relational Constraints generated by LLM and their solutions found by our constraint satisfaction algorithm.
+                    a classic dining room with a long wooden table                                                                       a garage with a red sedan and a black bicycle
+
+
+
+
+       Figure 8. Output Diversity. H OLODECK can generate multiple variants for the same input with different assets and layouts.
+
+The Object Selection Module, illustrated in the third panel                                                    on the constraints. Given the probabilistic nature of LLMs,
+of Figure 2, allows the LLM to propose objects that should be                                                  H OLODECK can yield multiple valid layouts given the same
+included in the layout. Leveraging the extensive Objaverse                                                     prompt as shown in Figure 8.
+asset collection, H OLODECK can fetch and place diverse                                                        Spatial Relational Constraints. We predefined ten types of
+objects in the scene. Queries are constructed with LLM-                                                        constraints, organized into five categories: (1) Global: edge,
+proposed descriptions and dimensions, like “multi-level cat                                                    middle; (2) Distance: near, far; (3) Position: in front of, side
+tower, 60 × 60 × 180 (cm)” to retrieve the optimal asset                                                       of, above, on top of ; (4) Alignment: center aligned and (5)
+from Objaverse. The retrieval function3 considers visual and                                                   Rotation: face to. LLM selects a subset of constraints for
+textual similarity and dimensions to ensure the assets match                                                   each object, forming a scene graph for the room (examples
+the design. Figure 6 shows the capability of H OLODECK to                                                      shown in Figure 7). Those constraints are treated softly, al-
+customize diverse objects on the floor, walls, on top of other                                                 lowing for certain violations when finding a layout to satisfy
+items, and even on the ceiling.                                                                                all constraints is not feasible. Besides those soft constraints,
+The Constraint-based Layout Design Module, illustrated                                                         we enforce hard constraints to prevent object collisions and
+in the fourth panel of Figure 2, generates the positioning and                                                 ensure that all objects are within the room’s boundaries.
+orientation of objects. Previous work [10] shows LLM can                                                       Constraint Satisfaction. We first reformulate the spatial rela-
+directly provide the absolute value of the object’s bounding                                                   tional constraints defined above into mathematical conditions
+box. However, when attempting to place a diverse lot of                                                        (e.g., two objects are center-aligned if they share the same
+assets within environments, this method frequently leads to                                                    x or y coordinate). To find layouts that satisfy constraints
+out-of-boundary errors and object collisions. To address this,                                                 sampled by LLMs, we adopt an optimization algorithm to
+instead of letting LLM directly operate on numerical values,                                                   place objects autoregressively. The algorithm first uses LLM
+we propose a novel constraint-based approach that employs                                                      to identify an anchor object and then explores placements
+LLM to generate spatial relations between the objects, e.g.,                                                   for the anchor object. Subsequently, it employs Depth-First-
+“coffee table, in front of, sofa”, and optimize the layout based                                               Search (DFS)4 to find valid placements for the remaining
+   3We use CLIP [42] to measure the visual similarity, Sentence-BERT                                              4 Given the linear nature of constraints, a Mixed Integer Linear Program-
+
+[44] for the textual similarity, and 3D bounding box sizes for the dimension.                                  ming (MILP) solver can also be employed. While we assume the DFS
+
+
+                                                                                                        5
+    Asset Selection        Layout Coherence        Overall Preference                                         iTHOR*       Holodeck       ProcTHOR
+                                      Equal                 Equal                             40
+             Equal                    15.0%                 12.3%
+             23.2%                    (338)                 (277)
+             (523)                                             ProcTHOR                       35
+
+
+
+
+                                                                                 CLIP Score
+  Holodeck   ProcTHOR      Holodeck     ProcTHOR                 23.3%
+   59.8%                    56.9%         28.0%    Holodeck       (524)
+   (1347)      17.0%        (1283)         (631)    64.4%                                     30
+                (382)                               (1450)
+
+                                                                                              25
+Figure 9. Comparative human evaluation of H OLODECK and P ROC -                               20
+THOR across three criteria. The pie charts show the distribution of                                Bathroom      Bedroom        Kitchen     Living Room
+annotator preferences, showing both the percentage and the actual               Figure 10. CLIP Score comparison over four residential scene
+number of annotations favoring each system.                                     types. * denotes iTHOR scenes are designed by human experts.
+objects. A placement is only valid if all the hard constraints
+are satisfied. For example, in Figure 7, bed is selected as the                 ble of generating complete, interactable scenes. Our compar-
+anchor object in the bedroom, and the nightstands are placed                    ison focuses on residential scenes, as P ROC THOR is limited
+subsequently. The algorithm is executed for a fixed time                        to four types: bathroom, bedroom, kitchen, and living room.
+(30 seconds) to get multiple candidate layouts and return the                   Setup. We prepared 120 scenes for human evaluation, com-
+one that satisfies the most total constraints. We verify the                    prising 30 scenes per scene type, for both H OLODECK and
+effectiveness of our constraint-based layout in Sec 4.3.                        the P ROC THOR baseline. The P ROC THOR baseline has
+Leveraging Objaverse Assets, H OLODECK is able to sup-                          access to the same set of Objaverse assets as H OLODECK.
+port the creation of diverse and customized scenes. We                          For H OLODECK, we take the scene type, e.g., “bedroom”,
+curate a subset of assets suitable for indoor design from                       as the prompt to generate the scenes. We pair scenes of
+Objaverse 1.0. These assets are further annotated by GPT-4-                     the same scene type from the two systems, resulting in 120
+Vison [36] automatically with additional details, including                     paired scenes for human evaluation. For each paired scene,
+textual descriptions, scale, canonical views, etc.5 Together                    we display two shuffled top-down view images of the scenes
+with the assets from P ROC THOR, our library encompasses                        from the two systems. We ask the annotator to choose which
+51,464 annotated assets. To import Objaverse assets into                        scene is better or equally good based on three questions:
+AI2-THOR for embodied AI applications, we optimize the                          (1) Asset Selection: which selection of 3D assets is more
+assets by reducing mesh counts to minimize the loading                          accurate/faithful to the scene type? (2) Layout Coherence:
+time in AI2-THOR, generating visibility points and colliders.                   which arrangement of 3D assets adheres better to realism and
+More details on importing Objaverse assets into AI2-THOR                        common sense (considering the position and orientation)?
+are available in the supplementary materials.                                   and (3) Overall Preference: which of the two scenes would
+    In the following sections, we will evaluate the quality and                 you prefer given the scene type?
+utility of the scenes generated by H OLODECK.
+                                                                                Humans prefer H OLODECK over P ROC THOR. Figure 9
+4. Human Evaluation                                                             presents a clear preference for H OLODECK in the compara-
+                                                                                tive human evaluation against P ROC THOR, with a major-
+We conduct comprehensive human evaluations to assess the                        ity of annotators favoring H OLODECK for Asset Selection
+quality of H OLODECK scenes, with a total of 680 graduate                       (59.8%), Layout Coherence (56.9%), and showing a signifi-
+students participating in three user studies: (1) a compar-                     cant preference in Overall Preference (64.4%).
+ative analysis on residential scenes with P ROC THOR as                            In addition to human judgments, we employ CLIP Score6
+the baseline; (2) an examination of H OLODECK’s ability in                      [17] to quantify the visual coherence between the top-down
+generating diverse scenes, and (3) an ablation study to vali-                   view of the scene and its corresponding scene type embedded
+date the effectiveness of our layout design method. Through                     in a prompt template “a top-down view of [scene type]”. Be-
+these user studies, we demonstrate that H OLODECK can cre-                      sides, we add human-designed scenes from iTHOR [26]
+ate residential scenes of better quality than previous work                     as the upper bound for reference. Figure 10 shows the
+while being able to extend to a wider diversity of scene types.                 CLIP scores of H OLODECK exceed P ROC THOR with great
+                                                                                margins and closely approach the performance of iTHOR,
+4.1. Comparative Analysis on Residential Scenes
+                                                                                demonstrating H OLODECK’s ability to generate visually co-
+This study collects human preference scores to compare                          herent scenes faithful to the designated scene types. The
+H OLODECK with P ROC THOR [7], the sole prior work capa-                        CLIP Score experiment agrees with our human evaluation.
+solver in our experiments, we analyze the MILP solver in the supplements.
+   5 GPT-4-Vision can take in multiple images, we prompt it with multi-            6 Here, we use OpenCLIP [22] with ViT-L/14 trained on LAION-2B
+
+view screenshots of 3D assets to get the annotations.                           [46]. We use cosine similarity times 100 as the CLIP Score.
+
+
+                                                                            6
+ laundromat                            laboratory                             bookstore                            florist shop
+
+
+
+
+  nursery                              warehouse                               bakery                                 buffet
+
+Figure 11. Human evaluation on 52 scene types from MIT Scenes [41] with qualitative examples. The three horizontal lines represent the
+average score of iTHOR, H OLODECK, and P ROC THOR on four types of residential scenes (bedroom, living room, bathroom and kitchen.)
+
+4.2. H OLODECK on Diverse Scenes                                                    Method     Bathroom   Bedroom     Kitchen     Living Room   Average
+                                                                                  A BSOLUTE     0.369      0.343        0.407        0.336       0.364
+To evaluate H OLODECK’s capability beyond residential                              R ANDOM      0.422      0.339        0.367        0.348       0.369
+                                                                                     EDGE       0.596      0.657        0.655        0.672       0.645
+scenes, we have humans rate its performance on 52 scene
+                                                                                 C ONSTRAINT    0.696      0.745        0.654        0.728       0.706
+types7 from MIT Scenes Dataset [41], covering five cate-
+gories: Stores (deli, bakery), Home (bedroom, dining room),                    Table 1. Mean Reciprocal Rank (↑) of different layouts ranked
+Public Spaces (museum, locker room), Leisure (gym, casino)                     by human. C ONSTRAINT: using spatial relational constraints;
+and Working Space (office, meeting room).                                      A BSOLUTE: LLM-defined absolute positions; R ANDOM: randomly
+                                                                               place the objects and E DGE: put objects at the edge of the room.
+Setup. We prompt H OLODECK to produce five outputs for
+each type using only the scene name as the input, accumu-                     restaurant or unique assets unavailable in Objaverse, e.g.,
+lating 260 examples across the 52 scene types. Annotators                     “a dental x-ray machine” for the scene dental office. Future
+are presented with a top-down view image and a 360-degree                     work can improve the system by incorporating more assets
+video for each scene and asked to rate them from 1 to 5                       and introducing more sophisticated layout algorithms.
+(with higher scores indicating better quality), considering
+asset selection, layout coherence, and overall match with                      4.3. Ablation Study on Layout Design
+the scene type. To provide context for these scores, we in-                    This user study aims to validate the effectiveness of
+clude residential scenes from P ROC THOR and iTHOR in                          H OLODECK’s constraint-based layout design method.
+this study, with 20 scenes from each system.                                   Baselines. We consider four layout design methods: (1)
+H OLODECK can generate satisfactory outputs for most                           C ONSTRAINT: the layout design method of H OLODECK; (2)
+scene types. Figure 11 demonstrates the human preference                       A BSOLUTE: directly obtaining the absolute coordinates and
+scores for diverse scenes with qualitative examples. Com-                      orientation of each object from LLM akin to LayoutGPT
+pared to P ROC THOR’s performance in residential scenes,                       [10]; (3) R ANDOM: randomly place all objects in the room
+H OLODECK achieves higher human preference scores over                         without collision; (4) E DGE: placed objects along the walls.
+half of (28 out of 52) the diverse scenes. Given that P ROC -                  Setup. We modify the residential scenes of H OLODECK
+THOR relies on human-defined rules and residential scenes                      used in 4.1 by altering the layouts using the previously men-
+are relatively easy to build with common objects and sim-                      tioned methods while keeping the objects in the scene identi-
+ple layout, H OLODECK’s breadth of competence highlights                       cal. We present humans with four shuffled top-down images
+its robustness and flexibility in generating various indoor                    from each layout strategy and ask them to rank the four lay-
+environments. However, we notice that H OLODECK strug-                         outs considering out-of-boundary, object collision, reachable
+gles with scenes requiring more complex layouts such as                        space, and layout realism.
+    7 Limited by the P ROC THOR framework, we filter those scenes types        Constraint-based layout is more reliable. Table 1 reports
+that require special structures such as swimming pool, subway, etc.            the Mean Reciprocal Rank of different layout design meth-
+
+
+                                                                          7
+                                  Office              Daycare            Music Room               Gym                Arcade              Average
+   Method                     Success      SPL    Success     SPL       Success     SPL     Success     SPL     Success      SPL     Success     SPL
+   Random                       3.90     0.039     4.05      0.041        5.20     0.052     2.84       0.029      2.54     0.025      3.71     0.037
+   P ROC THOR [7]               8.77     0.031     2.87      0.011        6.17     0.027     0.68       0.002      2.06     0.005      4.11     0.015
+   +O BJAVERSE (ours)          18.42     0.068     8.99      0.061       25.69     0.157     18.79      0.101     13.21     0.076     17.02     0.093
+   +H OLODECK (ours)           25.05     0.127     15.61     0.127       31.08     0.202     18.40      0.110     11.84     0.069     20.40     0.127
+Table 2. Zero-shot ObjectNav on N OVELTY THOR. P ROC THOR is the model pretrained on P ROC THOR-10K [7]. +O BJAVERSE and
++H OLODECK stand for models finetuned on the corresponding scenes. We report Success (%) and Success weighted by Path Length (SPL).
+ Pretraining on PROCTHOR                Fine-tuning on HOLODECK                   N OVELTY THOR. We have two professional digital artists
+                                                                                  manually create 10 novel testing environments with two
+                                                                                  examples for each of the five categories: Office, Daycare,
+                                                                                  Music Room, Gym, and Arcade. Each scene contains novel
+            Zero-shot Object Navigation on NOVELTYTHOR
+                                                                                  object types not included in the existing ObjectNav tasks,
+                                                                                  e.g., “piano” in Music Room, “treadmill” in Gym, etc. Across
+                                                                                  N OVELTY THOR, there are 92 unique object types.
+                                                                                  Baselines. For all methods except the one of random ac-
+                                                                                  tion, we use the same pre-trained ObjectNav model from
+                                                                                  P ROC THOR-10K [26], which has been trained for ≈400M
+                                                                                  steps to navigate to 16 object categories. To adapt the
+        Novel object: piano             Novel Environment: music room             agent to novel scenes without human-construct training data,
+Figure 12. Zero-shot object navigation in novel scenes. Given a                   we consider two methods: (1) +H OLODECK: we prompt8
+novel scene type, e.g., Music Room, H OLODECK can synthesize                      H OLODECK to generate 100 scenes for each scene type auto-
+new scenes for fine-tuning to improve the performance of pretrained               matically; (2) +O BJAVERSE: a strong baseline by enhancing
+agents in expert-designed environments.                                           P ROC THOR with H OLODECK’s scene-type-specific object
+                                                                                  selection, specifically, those scenes are populated with simi-
+ods. H OLODECK’s constraint-based approach outperforms                            lar Objaverse assets chosen by H OLODECK.
+the other methods significantly on bathroom, bedroom and                          Model. Our ObjectNav models use the CLIP-based architec-
+living room. C ONSTRAINT and E DGE perform similarly on                           tures of [24], which contains a CNN visual encoder and a
+kitchen, where it is common to align most objects against                         GRU to capture temporal information. We train each model
+walls. The A BSOLUTE method performs no better than R AN -                        with 100 scenes for 50M steps, which takes approximately
+DOM due to its tendency to create scenes with collision and                       one day on 8 Quadro RTX 8000 GPUs. We select the check-
+boundary errors (see examples in the supplement), typically                       point of each model based on the best validation performance
+rated poorly by humans. These results endorse spatial rela-                       on its own validation scenes.
+tional constraints as a viable strategy for generating scenes
+                                                                                  Results. Table 2 shows zero-shot performance on N OV-
+that adhere to commonsense logic.
+                                                                                  ELTY THOR. H OLODECK achieves the best performance
+                                                                                  on average and surpasses baselines with considerable mar-
+5. Object Navigation in Novel Environments                                        gins on Office, Daycare, and Music Room. On Gym and
+As illustrated in Figure 12, one application of H OLODECK is                      Arcade, +H OLODECK and +O BJAVERSE perform similarly.
+synthesizing training environments to better match a novel                        Given that the main difference between +H OLODECK and
+testing distribution. To study this application, we consider                      +O BJAVERSE scenes is in the object placements, the ob-
+ObjectNav [1], a common task in which a robot must nav-                           served difference suggests that H OLODECK is more adept
+igate toward a specific object category. As existing bench-                       at creating layouts that resemble those designed by humans.
+marks [6, 7, 43] for ObjectNav consider only household                            For example, We can observe in Figure 12 that the music
+environments and support a very limited collection of object                      room in N OVELTY THOR contains a piano, violin cases,
+types (16 object types in total combining the above bench-                        and cellos that are in close proximity to each other. The
+marks), we introduce N OVELTY THOR, an artist-designed                            music room generated by H OLODECK also shows a similar
+benchmark to evaluate embodied agents in diverse environ-                         arrangement of these objects, highlighting the “common-
+ments. Subsequently, we use the ObjectNav model pre-                              sense” understanding of our method. P ROC THOR struggles
+trained on P ROC THOR-10K [26] and finetune it on 100                             in N OVELTY THOR, often indistinguishably from random,
+scenes generated by H OLODECK. These scenes are created                           because of poor object coverage during training.
+by prompting H OLODECK with the novel scene type as input.                           8 Here, we prompt with the scene name and its paraphrases to get more
+
+The model is then evaluated on N OVELTY THOR.                                     diverse outputs, e.g., we use “game room”, “amusement center” for Arcade.
+
+
+                                                                             8
+6. Conclusion and Limitation                                                   William Yang Wang. Layoutgpt: Compositional visual plan-
+                                                                               ning and generation with large language models. arXiv
+We propose H OLODECK, a system guided by large language                        preprint arXiv:2305.15393, 2023. 3, 5, 7
+models to generate diverse and interactive Embodied AI                    [11] Rafail Fridman, Amit Abecasis, Yoni Kasten, and Tali Dekel.
+environments with text descriptions. We assess the quality of                  Scenescape: Text-driven consistent scene generation. arXiv
+H OLODECK with large-scale human evaluation and validate                       preprint arXiv:2302.01133, 2023. 2, 3
+its utility in Embodied AI through object navigation in novel             [12] Huan Fu, Bowen Cai, Lin Gao, Ling-Xiao Zhang, Jiaming
+scenes. We plan to add more 3D assets to H OLODECK and                         Wang, Cao Li, Qixun Zeng, Chengyue Sun, Rongfei Jia,
+explore its broader applications in Embodied AI in the future.                 Binqiang Zhao, et al. 3d-front: 3d furnished rooms with
+                                                                               layouts and semantics. In Proceedings of the IEEE/CVF
+References                                                                     International Conference on Computer Vision, pages 10933–
+                                                                               10942, 2021. 3
+ [1] Dhruv Batra, Aaron Gokaslan, Aniruddha Kembhavi, Olek-               [13] Chuang Gan, Jeremy Schwartz, Seth Alter, Damian Mrowca,
+     sandr Maksymets, Roozbeh Mottaghi, Manolis Savva,                         Martin Schrimpf, James Traer, Julian De Freitas, Jonas Kubil-
+     Alexander Toshev, and Erik Wijmans. ObjectNav Revisited:                  ius, Abhishek Bhandwaldar, Nick Haber, et al. Threedworld:
+     On Evaluation of Embodied Agents Navigating to Objects.                   A platform for interactive multi-modal physical simulation.
+     In arXiv:2006.13171, 2020. 8                                              arXiv preprint arXiv:2007.04954, 2020. 2
+ [2] Michel Bénichou, Jean-Michel Gauthier, Paul Girodet, Ger-           [14] Jiatao Gu, Alex Trevithick, Kai-En Lin, Joshua M Susskind,
+     ard Hentges, Gerard Ribière, and Olivier Vincent. Experi-                Christian Theobalt, Lingjie Liu, and Ravi Ramamoorthi.
+     ments in mixed-integer linear programming. Mathematical                   Nerfdiff: Single-image view synthesis with nerf-guided distil-
+     Programming, 1:76–94, 1971. 13                                            lation from 3d-aware diffusion. In International Conference
+ [3] Angel Chang, Manolis Savva, and Christopher D Manning.                    on Machine Learning, pages 11808–11826. PMLR, 2023. 3
+     Interactive learning of spatial knowledge for text to 3d scene       [15] Gurobi Optimization, LLC. Gurobi Optimizer Reference
+     generation. In Proceedings of the Workshop on Interactive                 Manual, 2023. 13
+     Language Learning, Visualization, and Interfaces, pages 14–          [16] Philipp Henzler, Niloy J Mitra, and Tobias Ritschel. Escaping
+     21, 2014. 2                                                               plato’s cave: 3d shape from adversarial rendering. In Proceed-
+ [4] Angel X Chang, Mihail Eric, Manolis Savva, and Christo-                   ings of the IEEE/CVF International Conference on Computer
+     pher D Manning. Sceneseer: 3d scene design with natural                   Vision, pages 9984–9993, 2019. 3
+     language. arXiv preprint arXiv:1703.00050, 2017. 2                   [17] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras,
+ [5] Yu Cheng, Yan Shi, Zhiyong Sun, Dezhi Feng, and Lixin                     and Yejin Choi. Clipscore: A reference-free evaluation metric
+     Dong. An interactive scene generation using natural language.             for image captioning. arXiv preprint arXiv:2104.08718, 2021.
+     In 2019 International Conference on Robotics and Automa-                  6
+     tion (ICRA), pages 6957–6963. IEEE, 2019. 2                          [18] Lukas Höllein, Ang Cao, Andrew Owens, Justin Johnson,
+ [6] Matt Deitke, Winson Han, Alvaro Herrasti, Aniruddha                       and Matthias Nießner. Text2room: Extracting textured
+     Kembhavi, Eric Kolve, Roozbeh Mottaghi, Jordi Salvador,                   3d meshes from 2d text-to-image models. arXiv preprint
+     Dustin Schwenk, Eli VanderBilt, Matthew Wallingford, et al.               arXiv:2303.11989, 2023. 2, 3
+     Robothor: An open simulation-to-real embodied ai platform.           [19] Ruizhen Hu, Zeyu Huang, Yuhan Tang, Oliver Van Kaick,
+     In Proceedings of the IEEE/CVF conference on computer                     Hao Zhang, and Hui Huang. Graph2plan: Learning floor-
+     vision and pattern recognition, pages 3164–3174, 2020. 2, 8               plan generation from layout graphs. ACM Transactions on
+ [7] Matt Deitke, Eli VanderBilt, Alvaro Herrasti, Luca Weihs,                 Graphics (TOG), 39(4):118–1, 2020. 2
+     Jordi Salvador, Kiana Ehsani, Winson Han, Eric Kolve, Ali            [20] Ian Huang, Vrishab Krishna, Omoruyi Atekha, and Leonidas
+     Farhadi, Aniruddha Kembhavi, and Roozbeh Mottaghi. Proc-                  Guibas. Aladdin: Zero-shot hallucination of stylized 3d
+     THOR: Large-Scale Embodied AI Using Procedural Genera-                    assets from abstract scene descriptions. arXiv preprint
+     tion. In NeurIPS, 2022. Outstanding Paper Award. 2, 3, 6, 8,              arXiv:2306.06212, 2023. 3
+     12                                                                   [21] J. D. Hunter. Matplotlib: A 2d graphics environment. Com-
+ [8] Matt Deitke, Rose Hendrix, Ali Farhadi, Kiana Ehsani, and                 puting in Science & Engineering, 9(3):90–95, 2007. 12
+     Aniruddha Kembhavi. Phone2proc: Bringing robust robots               [22] Gabriel Ilharco, Mitchell Wortsman, Ross Wightman, Cade
+     into our chaotic world. In Proceedings of the IEEE/CVF                    Gordon, Nicholas Carlini, Rohan Taori, Achal Dave, Vaishaal
+     Conference on Computer Vision and Pattern Recognition,                    Shankar, Hongseok Namkoong, John Miller, Hannaneh Ha-
+     pages 9665–9675, 2023. 2                                                  jishirzi, Ali Farhadi, and Ludwig Schmidt. Openclip, 2021.
+ [9] Matt Deitke, Dustin Schwenk, Jordi Salvador, Luca Weihs,                  If you use this software, please cite it as below. 6, 12
+     Oscar Michel, Eli VanderBilt, Ludwig Schmidt, Kiana Ehsani,          [23] Abhishek Kadian, Joanne Truong, Aaron Gokaslan, Alexan-
+     Aniruddha Kembhavi, and Ali Farhadi. Objaverse: A universe                der Clegg, Erik Wijmans, Stefan Lee, Manolis Savva, S. Cher-
+     of annotated 3d objects. In Proceedings of the IEEE/CVF                   nova, and Dhruv Batra. Sim2real predictivity: Does evalu-
+     Conference on Computer Vision and Pattern Recognition,                    ation in simulation predict real-world performance? IEEE
+     pages 13142–13153, 2023. 2, 3                                             Robotics and Automation Letters, 5:6670–6677, 2019. 2
+[10] Weixi Feng, Wanrong Zhu, Tsu-jui Fu, Varun Jampani, Ar-              [24] Apoorv Khandelwal, Luca Weihs, Roozbeh Mottaghi, and
+     jun Akula, Xuehai He, Sugato Basu, Xin Eric Wang, and                     Aniruddha Kembhavi. Simple but effective: Clip embeddings
+
+
+                                                                      9
+     for embodied ai. In Proceedings of the IEEE/CVF Conference          [38] Despoina Paschalidou, Amlan Kar, Maria Shugrina, Karsten
+     on Computer Vision and Pattern Recognition (CVPR), 2022.                 Kreis, Andreas Geiger, and Sanja Fidler. Atiss: Autoregres-
+     8                                                                        sive transformers for indoor scene synthesis. Advances in
+[25] Mukul Khanna*, Yongsen Mao*, Hanxiao Jiang, Sanjay                       Neural Information Processing Systems, 34:12013–12026,
+     Haresh, Brennan Shacklett, Dhruv Batra, Alexander Clegg,                 2021. 2
+     Eric Undersander, Angel X. Chang, and Manolis Savva. Habi-          [39] Ben Poole, Ajay Jain, Jonathan T Barron, and Ben Mildenhall.
+     tat Synthetic Scenes Dataset (HSSD-200): An Analysis of 3D               Dreamfusion: Text-to-3d using 2d diffusion. arXiv preprint
+     Scene Scale and Realism Tradeoffs for ObjectGoal Naviga-                 arXiv:2209.14988, 2022. 3
+     tion. arXiv preprint, 2023. 2                                       [40] Xavier Puig, Kevin Ra, Marko Boben, Jiaman Li, Tingwu
+[26] Eric Kolve, Roozbeh Mottaghi, Winson Han, Eli VanderBilt,                Wang, Sanja Fidler, and Antonio Torralba. Virtualhome:
+     Luca Weihs, Alvaro Herrasti, Daniel Gordon, Yuke Zhu, Ab-                Simulating household activities via programs. In Proceedings
+     hinav Gupta, and Ali Farhadi. AI2-THOR: An Interactive 3D                of the IEEE Conference on Computer Vision and Pattern
+     Environment for Visual AI. arXiv, 2017. 2, 3, 6, 8                       Recognition, pages 8494–8502, 2018. 2
+[27] Chengshu Li, Ruohan Zhang, Josiah Wong, Cem Gokmen,                 [41] Ariadna Quattoni and Antonio Torralba. Recognizing indoor
+     Sanjana Srivastava, Roberto Martı́n-Martı́n, Chen Wang,                  scenes. In 2009 IEEE conference on computer vision and
+     Gabrael Levine, Michael Lingelbach, Jiankai Sun, et al.                  pattern recognition, pages 413–420. IEEE, 2009. 7, 14, 18
+     Behavior-1k: A benchmark for embodied ai with 1,000 ev-             [42] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya
+     eryday activities and realistic simulation. In Conference on             Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry,
+     Robot Learning, pages 80–93. PMLR, 2023. 2                               Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning
+[28] Chen-Hsuan Lin, Jun Gao, Luming Tang, Towaki Takikawa,                   transferable visual models from natural language supervi-
+     Xiaohui Zeng, Xun Huang, Karsten Kreis, Sanja Fidler, Ming-              sion. In International conference on machine learning, pages
+     Yu Liu, and Tsung-Yi Lin. Magic3d: High-resolution text-                 8748–8763. PMLR, 2021. 3, 5, 12
+     to-3d content creation. In Proceedings of the IEEE/CVF              [43] Santhosh Kumar Ramakrishnan, Aaron Gokaslan, Erik Wi-
+     Conference on Computer Vision and Pattern Recognition,                   jmans, Oleksandr Maksymets, Alexander Clegg, John M
+     pages 300–309, 2023. 3                                                   Turner, Eric Undersander, Wojciech Galuba, Andrew West-
+[29] Yiqi Lin, Hao Wu, Ruichen Wang, Haonan Lu, Xiaodong                      bury, Angel X Chang, Manolis Savva, Yili Zhao, and Dhruv
+     Lin, Hui Xiong, and Lin Wang. Towards language-guided                    Batra. Habitat-matterport 3d dataset (HM3d): 1000 large-
+     interactive 3d generation: Llms as layout interpreter with               scale 3d environments for embodied AI. In Thirty-fifth Con-
+     generative feedback. arXiv preprint arXiv:2305.15808, 2023.              ference on Neural Information Processing Systems Datasets
+     3                                                                        and Benchmarks Track, 2021. 2, 8
+[30] LumaAI. Lumaai. Capture 3D, 2023. 14                                [44] Nils Reimers and Iryna Gurevych. Sentence-bert: Sentence
+                                                                              embeddings using siamese bert-networks. In Proceedings of
+[31] Rui Ma, Akshay Gadi Patil, Matthew Fisher, Manyi Li, Sören
+                                                                              the 2019 Conference on Empirical Methods in Natural Lan-
+     Pirk, Binh-Son Hua, Sai-Kit Yeung, Xin Tong, Leonidas
+                                                                              guage Processing. Association for Computational Linguistics,
+     Guibas, and Hao Zhang. Language-driven synthesis of 3d
+                                                                              2019. 5, 12
+     scenes from scene databases. ACM Transactions on Graphics
+     (TOG), 37(6):1–16, 2018. 2                                          [45] Manolis Savva, Abhishek Kadian, Oleksandr Maksymets,
+                                                                              Yili Zhao, Erik Wijmans, Bhavana Jain, Julian Straub, Jia Liu,
+[32] Gal Metzer, Elad Richardson, Or Patashnik, Raja Giryes, and
+                                                                              Vladlen Koltun, Jitendra Malik, et al. Habitat: A platform
+     Daniel Cohen-Or. Latent-nerf for shape-guided generation
+                                                                              for embodied ai research. In Proceedings of the IEEE/CVF
+     of 3d shapes and textures. In Proceedings of the IEEE/CVF
+                                                                              international conference on computer vision, pages 9339–
+     Conference on Computer Vision and Pattern Recognition,
+                                                                              9347, 2019. 2
+     pages 12663–12673, 2023. 3
+                                                                         [46] Christoph Schuhmann, Romain Beaumont, Richard Vencu,
+[33] Ben Mildenhall, Pratul P Srinivasan, Matthew Tancik,
+                                                                              Cade W Gordon, Ross Wightman, Mehdi Cherti, Theo
+     Jonathan T Barron, Ravi Ramamoorthi, and Ren Ng. Nerf:
+                                                                              Coombes, Aarush Katta, Clayton Mullis, Mitchell Worts-
+     Representing scenes as neural radiance fields for view syn-
+                                                                              man, Patrick Schramowski, Srivatsa R Kundurthy, Katherine
+     thesis. Communications of the ACM, 65(1):99–106, 2021.
+                                                                              Crowson, Ludwig Schmidt, Robert Kaczmarczyk, and Jenia
+     3
+                                                                              Jitsev. LAION-5b: An open large-scale dataset for training
+[34] George A Miller. Wordnet: a lexical database for english.                next generation image-text models. In Thirty-sixth Confer-
+     Communications of the ACM, 38(11):39–41, 1995. 14                        ence on Neural Information Processing Systems Datasets and
+[35] Thu Nguyen-Phuoc, Chuan Li, Lucas Theis, Christian                       Benchmarks Track, 2022. 6, 12
+     Richardt, and Yong-Liang Yang. Hologan: Unsupervised                [47] Mohammad Amin Shabani, Sepidehsadat Hosseini, and Yasu-
+     learning of 3d representations from natural images. In Pro-              taka Furukawa. Housediffusion: Vector floorplan generation
+     ceedings of the IEEE/CVF International Conference on Com-                via a diffusion model with discrete and continuous denoising.
+     puter Vision, pages 7588–7597, 2019. 3                                   In Proceedings of the IEEE/CVF Conference on Computer
+[36] OpenAI. GPT-4V(ision) System Card, 2023. 6                               Vision and Pattern Recognition, pages 5466–5475, 2023. 2
+[37] R OpenAI. Gpt-4 technical report. arXiv, pages 2303–08774,          [48] Andrew Szot, Alexander Clegg, Eric Undersander, Erik
+     2023. 2                                                                  Wijmans, Yili Zhao, John Turner, Noah Maestre, Mustafa
+
+
+                                                                    10
+     Mukadam, Devendra Singh Chaplot, Oleksandr Maksymets,
+     et al. Habitat 2.0: Training home assistants to rearrange their
+     habitat. Advances in Neural Information Processing Systems,
+     34:251–266, 2021. 2
+[49] Fuwen Tan, Song Feng, and Vicente Ordonez. Text2scene:
+     Generating compositional scenes from textual descriptions.
+     In Proceedings of the IEEE/CVF Conference on Computer
+     Vision and Pattern Recognition, pages 6710–6719, 2019. 2
+[50] Jiapeng Tang, Yinyu Nie, Lev Markhasin, Angela Dai, Jus-
+     tus Thies, and Matthias Nießner. Diffuscene: Scene graph
+     denoising diffusion probabilistic model for generative indoor
+     scene synthesis. arXiv preprint arXiv:2303.14207, 2023.
+[51] Xinpeng Wang, Chandan Yeshwanth, and Matthias Nießner.
+     Sceneformer: Indoor scene generation with transformers. In
+     2021 International Conference on 3D Vision (3DV), pages
+     106–115. IEEE, 2021. 2
+[52] Yufei Wang, Zhou Xian, Feng Chen, Tsun-Hsuan Wang, Yian
+     Wang, Katerina Fragkiadaki, Zackory Erickson, David Held,
+     and Chuang Gan. Robogen: Towards unleashing infinite data
+     for automated robot learning via generative simulation. arXiv
+     preprint arXiv:2311.01455, 2023. 2
+[53] Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret
+     Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma,
+     Denny Zhou, Donald Metzler, et al. Emergent abilities of
+     large language models. arXiv preprint arXiv:2206.07682,
+     2022. 2
+[54] Qiuhong Anna Wei, Sijie Ding, Jeong Joon Park, Rahul
+     Sajnani, Adrien Poulenard, Srinath Sridhar, and Leonidas
+     Guibas. Lego-net: Learning regular rearrangements of ob-
+     jects in rooms. In Proceedings of the IEEE/CVF Conference
+     on Computer Vision and Pattern Recognition, pages 19037–
+     19047, 2023. 2
+[55] Jiajun Wu, Chengkai Zhang, Tianfan Xue, Bill Freeman, and
+     Josh Tenenbaum. Learning a probabilistic latent space of ob-
+     ject shapes via 3d generative-adversarial modeling. Advances
+     in neural information processing systems, 29, 2016. 3
+[56] Fei Xia, Amir R Zamir, Zhiyang He, Alexander Sax, Jitendra
+     Malik, and Silvio Savarese. Gibson env: Real-world per-
+     ception for embodied agents. In Proceedings of the IEEE
+     conference on computer vision and pattern recognition, pages
+     9068–9079, 2018. 2
+[57] Guandao Yang, Xun Huang, Zekun Hao, Ming-Yu Liu, Serge
+     Belongie, and Bharath Hariharan. Pointflow: 3d point cloud
+     generation with continuous normalizing flows. In Proceedings
+     of the IEEE/CVF international conference on computer vision,
+     pages 4541–4550, 2019. 3
+[58] Jingbo Zhang, Xiaoyu Li, Ziyu Wan, Can Wang, and Jing
+     Liao. Text2nerf: Text-driven 3d scene generation with neural
+     radiance fields. arXiv preprint arXiv:2305.11588, 2023. 2, 3
+[59] Yiqun Zhao, Zibo Zhao, Jing Li, Sixun Dong, and Shenghua
+     Gao. Roomdesigner: Encoding anchor-latents for style-
+     consistent and shape-compatible indoor scene generation.
+     arXiv preprint arXiv:2310.10027, 2023. 2
+[60] Linqi Zhou, Yilun Du, and Jiajun Wu. 3d shape generation
+     and completion through point-voxel diffusion. In Proceed-
+     ings of the IEEE/CVF International Conference on Computer
+     Vision, pages 5826–5835, 2021. 3
+
+
+                                                                       11
+A. Details of H OLODECK                                                                                  doorway                   doorframe
+
+A.1. Efficiency and Cost
+
+
+
+
+                                                                                     single
+To create an interactive house of k rooms, H OLODECK uses
+3+3×k API calls. More specifically, utilizing OpenAI’s gpt-
+4-1106-preview model incurs an approximate cost of $ 0.2
+
+
+
+
+                                                                                     double
+per room. With our current implementation, H OLODECK can
+generate a single room in about 3 minutes. This includes the
+time for API calls and layout optimization using a MacBook
+                                                                                              Figure 13. Examples of different doors in H OLODECK.
+equipped with an M1 chip.
+                                                                                                 fixed               slider               hung
+A.2. Floor & Wall Modules
+In the LLM outputs in the Floor Module, the following
+details are provided for each room:
+• room type: the room’s name, e.g., kitchen, bedroom.
+• floor material: a description of the floor’s appearance.
+• wall material: a description of the wall’s appearance.
+• vertices: four tuples {(xi , yi ), i ∈ [1, 2, 3, 4]}, represent-
+                                                                                          Figure 14. Examples of different windows in H OLODECK.
+   ing the coordinates of the room’s corners.
+Material Selection. We have an image representation for
+                                                                                    • room type: the room where the window will be installed.
+each of 236 materials, consistent with the material setup
+                                                                                    • direction: the wall’s direction (south, north, east, or west
+in P ROC THOR [7]9 . Using CLIP10 [42], we calculate the
+                                                                                      ) where the window will be placed.
+similarity between the material descriptions provided by
+                                                                                    • type: one of the three window types: fixed, slider or hung.
+the Large Language Model (LLM) and these images. The
+                                                                                    • size: the width and height of the window.
+material with the highest similarity score is selected. Addi-
+                                                                                    • quantity: the number of windows installed on each wall.
+tionally, we utilize the 148 colors from Matplotlib [21] to
+                                                                                    • height: the distance from the floor to the window’s base.
+refine the material selection by choosing the color closest to
+the description with CLIP.                                                          A.4. Object Selection Module
+Wall height. We have the LLM suggest a suitable wall height
+                                                                                    In Objaverse, each 3D asset o ∈ O is associated with the
+based on the user’s input. For example, it may recommend a
+                                                                                    following metadata - a textual description of the asset t, the
+high ceiling for commercial spaces like museums.
+                                                                                    3D bounding box size of the asset (w, d, h), and a set of 2D
+A.3. Doorway & Window Modules                                                       images I captured from three different angles (0°, 45°, and
+                                                                                    −45°). For each object proposed by LLM o′ , we have the
+In H OLODECK, we take advantage of the diverse collection                           LLM output a detailed description of the object (t′ ) and its
+of doors and windows introduced in P ROC THOR [7], fea-                             3D bounding box size (w′ , d′ , h′ ) for retrieval purposes. To
+turing a diverse collection of 40 doors (refer to examples in                       evaluate the similarity between
+Figure 13) and 21 windows (see Figure 14). The LLM pro-                                                              a candidate 3D asset in the
+                                                                                    repository o= t, (w, d, h), I and the object proposed by
+vides essential information to aid in the selection of doors:
+                                                                                    the LLM o′ t′ , w′ , d′ , h′ , we use three metrics:
+                                                                                                                
+• room 1 & room 2: the two rooms connected by the door,
+  for example, bedroom and kitchen.                                                 • Visual Similarity (V) measures the CLIP similarity be-
+• connection type: one of the three connection types: door-                           tween the 2D renderings of the candidate asset and the tex-
+  frame (frame without a door), doorway (frame with a                                 tual description of the LLM-proposed object: V(o, o′ ) =
+  door), and open (no wall separating the rooms).                                     maxi∈I CLIP(i, t′ ).
+• size: the size of the door: single (one meter in width) or                        • Textual Similarity (T ) measures the similarity between
+  double (two meters in width).                                                       the textual description of the candidate 3D asset and the
+• door style: a description of the door’s appearance.                                 textural description of the LLM-proposed object. This
+We have an image for each door, and we utilize CLIP to                                metric is crucial in improving the accuracy of the retrieval
+select the door that most closely matches the description.                            process since it ensures that we retrieve the asset within
+We have the LLM provide the following data about windows:                             the correct category. We use the sentence transformer
+   9 Procthor splits the set of materials into wall and floor materials. For
+                                                                                      (SBERT) [44] with all-mpnet-base-v2 checkpoint to cal-
+H OLODECK, we merge them in one pool for retrieval.
+                                                                                      culate the scores: T = SBERT(t, t′ ).
+  10We employ OpenCLIP [22] with ViT-L/14, trained on the LAION-2B                  • Size Discrepancy (S) measures the discrepancy in the
+dataset [46], for all CLIP-related components in this paper.                          size of the 3D bounding box size of the candidate as-
+
+
+                                                                               12
+               Initial State                                                 Place the anchor object sofa, at the edge of the room                                                      Place the coffee table, in front of, face to, and near the sofa
+    Create grids in the room to                                        Get all valid placements by                                       Randomly choose one placement                   Get all valid placements by       Choose the optimal placement
+     reduce the search space.                                         satisfying the edge constraint.                                        for the anchor object.                      satisfying hard constraints.     which satisfies most constraints.
+                                                                                                                                                                    sofa                               sofa                                sofa
+
+
+
+                                                                                                                                                                                                                                       coffee table
+
+
+
+
+ door                                                                door                                                                 door                                          door                              door
+
+                                              Figure 15. Example of using the DFS-based Constraint Satisfaction algorithm to place the objects.
+
+  set and the LLM-proposed object. There are similar                                                                                                                    placed. Figure 15 demonstrates that our DFS solver initiates
+  objects with different sizes in the asset repository, and                                                                                                             grids to establish a finite search space. It first explores differ-
+  the size of objects is an important factor in designing                                                                                                               ent placements for the anchor object selected by the LLM.
+  scenes, e.g., we need a larger sofa for a large living                                                                                                                Subsequent steps involve optimizing the placement for the
+  room. The size matching score iscomputed as: S(o, o′ ) =                                                                                                             remaining objects, adhering to the hard constraints, and sat-
+    |w − w′ | + |h − h′ | + |d − d′ | /3. Two objects of simi-                                                                                                          isfying as many soft constraints as possible.11 The algorithm
+  lar size will have a smaller value of S.                                                                                                                              can yield multiple solutions, with the final selection meeting
+   The overall matching score M o, o′ is a weighted sum
+                                          
+                                                                                                                                                                        the most constraints.
+of the above metrics:                                                                                                                                                   Mixed Integer Linear Programming (MILP) Solver is par-
+   \mathcal {M} \left (o, o'\right ) = \alpha \cdot \mathcal {V}\left (o, o'\right ) + \beta \cdot \mathcal {T} (o, o') - \gamma \cdot \mathcal {S} (o, o')  (1)        ticularly effective for structured layout design. It optimizes
+                                                                                                                                                                        a linear objective function subject to linear constraints with
+with weights α = 100, β = 1, and γ = 10. The asset with                                                                                                                 some non-discrete variables. This approach is well-suited
+the highest matching score is selected.                                                                                                                                 for our layout optimization problem in H OLODECK.
+A.5. Layout Design Module                                                                                                                                                   In our MILP formulation, each object’s position is deter-
+                                                                                                                                                                        mined by four variables: (x, y, rotate90 , rotate180 ). The vari-
+In this module, we position the set of objects O chosen in                                                                                                              ables rotate90 and rotate180 are boolean, indicating rotations
+Sec A.4, applying spatial relational constraints provided by                                                                                                            of 90 and 180 degrees, respectively. For example, if rotate90
+the LLM. We define various constraints for floor objects:                                                                                                               and rotate180 are both true, it signifies a 270-degree rotation
+• Global constraint: edge; middle.                                                                                                                                      of the object. We translate all previously mentioned con-
+• Distance constraint: near (object); far (object).                                                                                                                     straints into linear ones for the MILP problem. For instance,
+• Position constraint: in front of (object); side of (object).                                                                                                          to align Object A with Object B at the center, a constraint in
+• Alignment constraint: center align with (object).                                                                                                                     the form of A_x = B_x or A_y = B_y is implemented, where
+• Direction constraint: face to (object).                                                                                                                               A_x, A_y and B_x, B_y represent the centers of Objects A and B,
+    The LLM can combine these constraints to form a con-                                                                                                                respectively. Note that the constraint is non-linear due to the
+straint list Co for each object o ∈ O. For instance, as shown                                                                                                           OR operator. To model this linearly in MILP, we can intro-
+in Figure 15, the constraints for a “coffee table” are [middle,                                                                                                         duce binary auxiliary variables and additional constraints to
+in front of (sofa), face to (sofa), near (sofa)].                                                                                                                       capture the logic of the OR condition. For solving the MILP,
+    For floor object placement, we employ two solvers:                                                                                                                  we utilize GUROBI [15], a state-of-the-art solver known for
+Depth-First-Search (DFS) Solver and Mixed Integer Lin-                                                                                                                  its efficiency and robustness.
+ear Programming (MILP) [2] Solver.                                                                                                                                          In MILP solver, all constraints specified in the previous
+Depth-First-Search Solver. In the DFS solver, each object                                                                                                               section are applied as hard constraints except that the Dis-
+is defined by five variables (x, y, w, d, rotation). (x, y) is the                                                                                                      tance constraints (near and far) are uniquely modeled as part
+2D coordinates of the object’s center, w and d are the width                                                                                                            of the objective. For a visual comparison of these solvers’
+and depth of the 2D bounding box of the object, and rota-                                                                                                               outcomes in H OLODECK, refer to Figure 24.
+tion can be one of 0°, 90°, 180°, and 270°. The constraints
+                                                                                                                                                                        Wall & Small Objects. The placement of wall objects is
+listed above are treated softly, allowing certain violations
+                                                                                                                                                                        determined by two specific attributes:
+when finding a layout. Beyond these soft constraints, we
+implement hard constraints essential for object placement:                                                                                                                 11 The evaluation of an object’s placement is based on the number of
+these constraints prevent object collisions and ensure that                                                                                                             constraints satisfied. Placements that satisfy a greater number of constraints
+objects remain within the designated room boundaries. Vio-                                                                                                              receive higher weights. However, any placement that violates hard con-
+lation of these hard constraints results in the object not being                                                                                                        straints is rejected.
+
+
+                                                                                                                                                                   13
+                      Asset ID: f1440a39fdab4f5282ad4a37fdcaa8c5
+
+
+
+
+                                                                                                  a dog dressed like a Superman
+
+
+
+
+                                                                                                                                                     Load into Holodeck
+                                                                                                                                  Text-to-3D Model
+                 0°                     90°                    180°                  270°
+
+    Category            video game console        Front View                180°
+
+     Synset             game_console.n.01                                  plastic
+                                                   Materials               metal
+     Width                    10.2 cm                                       glass
+                                                                                                 Figure 17. H OLODECK can import any 3D objects, including text-
+                                                                                                 to-3D models generated (e.g., the object in this figure is generated
+     Length                   23.9 cm              ONFLOOR                  False
+                                                                                                 by LumaAI [30]) to enhance object diversity.
+     Height                   1.4 cm              ONOBJECT                  True
+
+     Volume                341.16 cm^3             ONWALL                   False
+                                                                                                            placement on the ceiling.
+      Mass                     0.4 kg             ONCEILING                 False                A.7. Importing Objaverse Assets into AI2-THOR
+                        This is a Nintendo Switch, a popular hybrid video game console           The transformation of Objaverse assets into interactive ob-
+                        that can be used both as a stationary and portable device. It has
+   Description
+                        joy-con controllers attached on either side of the screen, one in        jects in AI2-THOR involves a complex, multi-step pipeline.
+                        blue and the other in red.
+                                                                                                    Initially, the process starts with downloading and con-
+Figure 16. Example of an asset’s attributes annotated by GPT-4-V.                                verting various 3D models into a mesh format optimized
+                                                                                                 for runtime loading. We then generate visibility points on
+• Above (Floor Object): This denotes the floor object di-                                        the mesh surface, enabling AI2-THOR to determine object
+   rectly underneath the wall object.                                                            visibility. This is followed by 3D decomposition, where the
+• Height: Specifies the exact distance from the floor to the                                     mesh is split into simpler convex meshes to facilitate rapid
+   base of the wall object, measured in centimeters.                                             and realistic collision detection. The final step involves com-
+    To place small surface objects on top of larger ob-                                          pressing textures (i.e., albedo, normal, and emission) and the
+jects, we first have LLM propose the placements and uti-                                         model format to streamline performance.
+lizeRandomSpawn12 function in AI2-THOR. This method                                                 Handling many assets in numerous scenes is challenging,
+allows for randomized and efficient positioning of small                                         mainly due to the large mesh counts of Objaverse assets
+objects on larger surfaces.                                                                      and the traditional compile-time asset packaging approach
+                                                                                                 of game engines like Unity. To address this, we implement
+A.6. GPT-4-V for 3D Asset Annotation                                                             caching layers for objects, reducing the loading time for
+We annotate the 3D assets used in H OLODECK with Ope-                                            repeated use in different scenes. Additionally, we develop
+nAI’s GPT-4-V API to enhance the accuracy of object re-                                          a system to unload objects from memory, allowing efficient
+trieval and placement. As illustrated in Figure 16, GPT-4-V                                      management of thousands of 3D objects at runtime.
+takes a set of four images as inputs, each showing an ob-                                           Besides the objects from Objaverse, our automated
+ject from orthogonal rotations (0°, 90°, 180°, and 270°) and                                     pipeline can process any 3D objects, including those gener-
+outputs the following attributes for the 3D object:                                              ated by text-to-3D models, as shown in Figure 17.
+• Category: a specific classification of the object, such as                                     A.8. Rendering Options
+  “chair”, “table”, “building”, etc.
+• Synset: the nearest WordNet [34] synset will be used as                                        As shown in Figure 18, H OLODECK scenes are rendered
+   the object type in object navigation tasks.                                                   by Unity as default to train the embodied agents more effi-
+• Width, Length, Height: physical dimensions in centime-                                         ciently. Users can also render H OLODECK scenes in Blender
+   ters, defining the object’s bounding box sizes.                                               to achieve better realism.
+• Volume: approximate volume in cubic centimeters (cm3 ).
+• Mass: estimated object mass in kilograms (kg).
+                                                                                                 A.9. Prompt
+• Front View: an integer denoting the view representing the                                      The complete prompt templates of H OLODECK’s modules
+   front of the object, often the most symmetrical view.                                         are provided in Figure 20 and 21. The prompt for annotating
+• Description: a detailed textual description of the object.                                     3D assets using GPT-4-V is shown in Figure 22.
+• Materials: a list of materials constituting the object.
+• Placement Attributes: Boolean values (ON C EILING, ON -                                        B. Qualitative Examples
+   WALL, ON F LOOR, ON O BJECT) indicating typical place-
+   ment locations. For example, “True” for a ceiling fan’s                                       In Figure 23, we showcase an additional 20 scenes generated
+                                                                                                 by H OLODECK. These 20 scene types are chosen from the
+  12 AI2-THOR RandomSpawn Documentation                                                          MIT dataset [41], distinct from examples in the main paper.
+
+
+                                                                                            14
+                                                                                                           For example, in Figure 19 (left), when the prompt contains
+                                                                                                           culturally specific terms such as “Japanese”, the generated
+                                                                                                           scene may disproportionately feature prototypical objects
+                                                                                                           like Manga posters. One mitigation strategy is to adjust the
+                                                                                                           prompts, e.g., users can control the generation by simply
+                                                                                                           adding a suffix like “no cultural bias” or making the prompt
+                                                                                                           more detailed. This strategy is unlikely to fully remove bias,
+                                                                                                           but these qualitative results suggest it can significantly help.
+
+
+    Unity Rendered for Efficiency                      Blender Rendered for Realism
+
+Figure 18. H OLODECK renders scenes with Unity by default for
+efficiency to facilitate Embodied AI applications. Blender can also
+be used to render H OLODECK scenes to improve realism.
+
+                                  bedroom of a Japanese teenager,   bedroom of a Japanese teenager,
+ bedroom of a Japanese teenager
+                                        no cultural bias                 who likes classic arts
+
+
+
+
+Figure 19. We can address the cultural bias of GPT-4 by prompting.
+
+Figure 24 presents a comparative analysis of layouts created
+by five methods. Figure 25 offers a visual comparison of res-
+idential scenes from iTHOR, P ROC THOR, and H OLODECK,
+highlighting the differences and capabilities of each system.
+
+C. N OVELTY THOR
+N OVELTY THOR comprises human-designed scenes crafted
+to challenge embodied agents in unique and diverse environ-
+ments with a wide array of assets from Objaverse.
+   To integrate Objaverse assets into Unity, we developed
+tools that run a conversion pipeline on various operating sys-
+tems, including macOS and Windows. This flexibility also
+enables the inclusion of assets other than those found in Ob-
+javerse. We designed a user-friendly interface for our artists
+and designers, facilitating asynchronous asset integration
+while optimizing storage efficiency.
+   The critical step of this process is the generation of Unity
+templates (prefabs) for the assets and their associated re-
+sources, leading to the creation of the scenes discussed in
+this paper. Figures 26 and 27 showcase top-down views of
+the 10 N OVELTY THOR scenes, spanning five categories.
+
+D. Cultural Bias
+Cultural biases in H OLODECK generation can stem from
+biases in the LLM and the 3D asset retrieval component.
+
+
+                                                                                                      15
+Floor plan Prompt: You are an experienced room designer. Please assist me in crafting a floor plan. Each room is a
+rectangle. You need to define the four coordinates and specify an appropriate design scheme, including each room’s
+color, material, and texture. Assume the wall thickness is zero. Please ensure that all rooms are connected, not
+overlapped, and do not contain each other. The output should be in the following format: room name | floor material |
+wall material | vertices (coordinates). Note: the units for the coordinates are meters.
+For example:
+living room | maple hardwood, matte | light grey drywall, smooth | [(0, 0), (0, 8), (5, 8), (5, 0)]
+kitchen | white hex tile, glossy | light grey drywall, smooth | [(5, 0), (5, 5), (8, 5), (8, 0)]
+
+Here are some guidelines for you:
+1. A room’s size range (length or width) is 3m to 8m. The maximum area of a room is 48 m2 . Please provide a floor
+plan within this range and ensure the room is not too small or too large.
+2. It is okay to have one room in the floor plan if you think it is reasonable.
+3. The room name should be unique.
+
+Now, I need a design for {input}.
+Additional requirements: {additional requirements}.
+
+Your response should be direct and without additional text at the beginning or end.
+
+
+Wall Height Prompt: I am now designing {input}. Please help me decide the wall height in meters. Answer with a number,
+for example, 3.0. Do not add additional text at the beginning or in the end.
+
+
+Doorway Prompt: I need assistance in designing the connections between rooms. The connections could be of three types:
+doorframe (no door installed), doorway (with a door), or open (no wall separating rooms). The sizes available for
+doorframes and doorways are single (1m wide) and double (2m wide).
+
+Ensure that the door style complements the design of the room. The output format should be: room 1 | room 2 |
+connection type | size | door style. For example:
+exterior | living room | doorway | double | dark brown metal door
+living room | kitchen | open | N/A | N/A
+living room | bedroom | doorway | single | wooden door with white frames
+
+The design under consideration is {input}, which includes these rooms: {rooms}.
+The length, width, and height of each room in meters are: {room sizes}
+Certain pairs of rooms share a wall: {room pairs}. There must be a door to the exterior.
+Adhere to these additional requirements {additional requirements}.
+
+Provide your response succinctly, without additional text at the beginning or end.
+
+
+Window Prompt: Guide me in designing the windows for each room. The window types are: fixed, hung, and slider.
+The available sizes (width x height in cm) are:
+fixed: (92, 120), (150, 92), (150, 120), (150, 180), (240, 120), (240, 180)
+hung: (87, 160), (96, 91), (120, 160), (130, 67), (130, 87), (130, 130)
+slider: (91, 92), (120, 61), (120, 91), (120, 120), (150, 92), (150, 120)
+
+Your task is to determine the appropriate type, size, and quantity of windows for each room, bearing in mind the room’s
+design, dimensions, and function.
+Please format your suggestions as follows: room | wall direction | window type | size | quantity | window base height
+(cm from floor). For example: living room | west | fixed | (130, 130) | 1 | 50
+
+I am now designing {input}. The wall height is {wall height} cm.
+The walls available for window installation (direction, width in cm) in each room are: {walls}
+Please note: It is not mandatory to install windows on every available wall. Within the same room, all windows must
+be the same type and size. Also, adhere to these additional requirements: {additional requirements}.
+
+Provide a concise response, omitting any additional text at the beginning or end.
+
+
+            Figure 20. Prompt templates for Floor Module, Wall Module, Doorway Module, and Window Module.
+
+
+
+
+                                                          16
+Object Selection Prompt: You are an experienced room designer, please assist me in selecting large *floor*/*wall*
+objects and small objects on top of them to furnish the room. You need to select appropriate objects to satisfy
+the customer’s requirements. You must provide a description and desired size for each object since I will use it to
+retrieve objects. If multiple identical items are to be placed in the room, please indicate the quantity and variance
+type (same or varied). Present your recommendations in JSON format:
+{ object name:{
+"description": a short sentence describing the object,
+"location": "floor" or "wall",
+"size": the desired size of the object, in the format of a list of three numbers, [length, width, height] in
+centimeters,
+"quantity": the number of objects (int),
+"variance type": "same" or "varied",
+"objects on top": a list of small children objects (can be empty) which are placed *on top of* this object. For each
+child object, you only need to provide the object name, quantity and variance type. For example, {"object name":
+"book", "quantity": 2, "variance type": "varied"} } }
+
+*ONE-SHOT EXAMPLE*
+
+Currently, the design in progress is *INPUT*, and we are working on the *ROOM TYPE* with the size of ROOM SIZE. Please
+also consider the following additional requirements: REQUIREMENTS.
+Here are some guidelines for you:
+1. Provide reasonable type/style/quantity of objects for each room based on the room size to make the room not too
+crowded or empty.
+2. Do not provide rug/mat, windows, doors, curtains, and ceiling objects which have been installed for each room.
+3. I want at least 10 types of large objects and more types of small objects on top of the large objects to make the
+room look more vivid.
+
+Please first use natural language to explain your high-level design strategy for *ROOM TYPE*, and then follow the
+desired JSON format *strictly* (do not add any additional text at the beginning or end).
+
+
+Layout Design Prompt: You are an experienced room designer. Please help me arrange objects in the room by assigning
+constraints to each object. Here are the constraints and their definitions:
+1. global constraint:
+1) edge: at the edge of the room, close to the wall, most of the objects are placed here.
+2) middle: not close to the edge of the room.
+2. distance constraint:
+1) near, object: near to the other object, but with some distanbce, 50cm < distance < 150cm.
+2) far, object: far away from the other object, distance >= 150cm.
+3. position constraint:
+1) in front of, object: in front of another object.
+2) side of, object: on the side (left or right) of another object.
+4. alignment constraint: 1) center aligned, object: align the center of the object with the center of another object.
+5. Rotation constraint: 1) face to, object: face to the center of another object.
+
+For each object, you must have one global constraint and you can select various numbers of constraints and any
+combinations of them and the output format must be: object | global constraint | constraint 1 | constraint 2 | ...
+For example: sofa-0 | edge
+coffee table-0 | middle | near, sofa-0 | in front of, sofa-0 | center aligned, sofa-0 | face to, sofa-0
+tv stand-0 | edge | far, coffee table-0 | in front of, coffee table-0 | center aligned, coffee table-0 | face to,
+coffee table-0
+
+Here are some guidelines for you:
+1. I will use your guideline to arrange the objects *iteratively*, so please start with an anchor object which doesn’t
+depend on the other objects (with only one global constraint).
+2. Place the larger objects first.
+3. The latter objects could only depend on the former objects.
+4. The objects of the *same type* are usually *aligned*.
+5. I prefer objects to be placed at the edge (the most important constraint) of the room if possible which makes the
+room look more spacious.
+6. Chairs must be placed near to the table/desk and face to the table/desk.
+Now I want you to design {room type} and the room size is {room size}.
+Here are the objects that I want to place in the {room type}: {objects}
+Please first use natural language to explain your high-level design strategy, and then follow the desired format
+*strictly* (do not add any additional text at the beginning or end) to provide the constraints for each object.
+
+
+                     Figure 21. Prompt templates for Object Selection Module and Layout Design Module.
+
+                                                            17
+   3D Asset annotation Prompt: Please annotate this 3D asset with the following values (output valid JSON):
+   "annotations": {
+   "category": a category such as "chair", "table", "building", "person", "airplane", "car", "seashell", "fish", etc.
+   Try to be more specific than "furniture",
+   "synset": the synset of the object that is most closely related. This could be "cat.n.01", "glass.n.03", "bank.n.02",
+   "width": approximate width in cm. For a human being, this could be "45",
+   "length": approximate length in cm. For a human being, this could be "25",
+   "height": approximate height in cm. For a human being, this could be "182",
+   "volume": approximate volume in cm3 . For a human being, this could be "62000",
+   "mass": approximate mass in kilogram. For a human being, this could be "72",
+   "frontView": which of the views represents the front of the object (value should be an integer with the first image
+   being 0). Note that the front view of an object, including furniture, tends to be the view that exhibits the highest
+   degree of symmetry,
+   "description": a description of the object (don’t use the term "3D asset" here),
+   "materials": a Python list of the materials that the object appears to be made of (roughly in order of most used
+   material to least used),
+   "onCeiling": whether this object can appear on the ceiling or not, return true or false with no explanations. This
+   would be true for a ceiling fan but false for a chair,
+   "onWall": whether this object can appear on the wall or not, return true or false with no explanations. This would be
+   true for a painting but false for a table,
+   "onFloor": whether this object can appear on the floor or not, return true or false with no explanations. This would
+   be true for a piano but false for a curtain,
+   "onObject": whether this object can appear on another object or not, return true or false with no explanations. This
+   would be true for a laptop but not for a sofa }
+
+    Please output the JSON now.
+
+
+                                  Figure 22. Prompt template for annotating 3D assets with GPT-4-V.
+
+
+
+
+ art studio                       locker room                         retro kitchen                      casino
+
+
+
+
+ corridor                          hair salon                           pantry                        dental office
+
+
+
+
+hospital room                     computer room                    jewelry shop                        shoe shop
+
+
+
+
+children room                      toy shop                           restaurant                      clothing store
+
+
+
+
+waiting room                         closet                           grocery store                   greenhouse
+
+                          Figure 23. Additional examples of different scene types from MIT Scenes [41].
+
+
+
+                                                                 18
+             BATHROOM             BEDROOM                         KITCHEN                LIVING ROOM
+CONSTRAINT
+  (DFS)
+CONSTRAINT
+  (MILP)
+  ABSOLUTE
+  RANDOM
+  EDGE
+
+
+
+
+                    Figure 24. Qualitative comparison of the different layout methods.
+
+
+
+
+                                                   19
+             BATHROOM                       BEDROOM                        KITCHEN                    LIVINGROOM
+ITHOR
+PROCTHOR
+HOLODECK
+
+
+
+
+           Figure 25. Qualitative examples on four types of residential scenes from iTHOR, P ROC THOR, and H OLODECK.
+
+
+
+
+                            Gym 01                                                        Gym 02
+
+
+
+
+                        Figure 26. Top-down view of N OVELTY THOR. Each scene type has two instances.
+
+
+
+
+                                                              20
+  Office 01                                                Office 02
+
+
+
+
+ Daycare 01                             Daycare 02
+
+
+
+
+Music Room 01                                          Music Room 02
+
+
+
+
+  Arcade 01                                               Arcade 02
+
+
+
+
+        Figure 27. Top-down view of N OVELTY THOR (continued).
+
+                                 21
+

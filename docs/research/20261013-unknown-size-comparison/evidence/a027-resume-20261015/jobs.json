@@ -1,0 +1,71 @@
+{
+  "status": "SUBMITTED_ROOT_HELD",
+  "utc": "2026-10-15T19:39:08.976125+00:00",
+  "jobs": {
+    "shard": "7454202",
+    "finalize": "7454203",
+    "summarize": "7454204"
+  },
+  "commands": [
+    [
+      "sbatch",
+      "--parsable",
+      "--account=brics.u6uv",
+      "--partition=workq",
+      "--qos=normal",
+      "--nodes=1",
+      "--ntasks=1",
+      "--no-requeue",
+      "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-022-recovery-%j.out",
+      "--job-name=unknownsize-022-test-strict-recovery-shard",
+      "--hold",
+      "--exclude=nid011109",
+      "--gpus-per-node=2",
+      "--cpus-per-task=72",
+      "--mem=200G",
+      "--time=12:00:00",
+      "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/ops/a027-resume-20261015-v1/run.sbatch",
+      "shard"
+    ],
+    [
+      "sbatch",
+      "--parsable",
+      "--account=brics.u6uv",
+      "--partition=workq",
+      "--qos=normal",
+      "--nodes=1",
+      "--ntasks=1",
+      "--no-requeue",
+      "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-022-recovery-%j.out",
+      "--job-name=unknownsize-022-test-strict-recovery-finalize",
+      "--cpus-per-task=72",
+      "--mem=200G",
+      "--time=04:00:00",
+      "--kill-on-invalid-dep=yes",
+      "--dependency=afterok:7454202",
+      "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/ops/a027-resume-20261015-v1/run.sbatch",
+      "finalize"
+    ],
+    [
+      "sbatch",
+      "--parsable",
+      "--account=brics.u6uv",
+      "--partition=workq",
+      "--qos=normal",
+      "--nodes=1",
+      "--ntasks=1",
+      "--no-requeue",
+      "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-022-recovery-%j.out",
+      "--job-name=unknownsize-022-test-strict-recovery-summarize",
+      "--cpus-per-task=32",
+      "--mem=96G",
+      "--time=06:00:00",
+      "--kill-on-invalid-dep=yes",
+      "--dependency=afterok:7454203",
+      "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/ops/a027-resume-20261015-v1/run.sbatch",
+      "summarize"
+    ]
+  ],
+  "original_failed_job": "7449644",
+  "original_snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-498348274"
+}

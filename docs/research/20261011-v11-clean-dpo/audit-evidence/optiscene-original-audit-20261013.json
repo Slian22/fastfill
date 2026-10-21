@@ -1,0 +1,146 @@
+{
+  "audit_version": "1.0",
+  "script_sha256": "3aa69e5f728c65b336cd256c59ca52667bb67508cf6da7dec6334792ecb289be",
+  "python": "3.13.1 (v3.13.1:06714517797, Dec  3 2024, 14:00:22) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "versions": {
+    "datasets": "4.1.1",
+    "numpy": "2.4.6",
+    "pyarrow": "21.0.0"
+  },
+  "commit": "409f1317e1a8afe852f4cdc99dfefaed30aeb425",
+  "training": {
+    "sft_prompts": {
+      "sha256": "12b3ccc10e8e7877bb742bc46842f9c6350685c93b79c9e1a1e0873b4a1c43bf",
+      "lfs_match": true,
+      "root_dataset_identical": true,
+      "rows": 12253,
+      "unique_uid": 11957,
+      "train": 9802,
+      "eval": 2451,
+      "room_counts": {
+        "bedroom": 3584,
+        "living room": 3506,
+        "kitchen": 2513,
+        "bathroom": 2650
+      },
+      "overlap": {
+        "uid": {
+          "shared_unique": 95,
+          "seen_eval_rows": 97
+        },
+        "input_chosen": {
+          "shared_unique": 102,
+          "seen_eval_rows": 111
+        }
+      }
+    },
+    "dpo_prompts": {
+      "sha256": "0d331989075272ea8f9f9d2994bbfb0ecbf742a7e65cd2ff3265ec87a09da8f3",
+      "lfs_match": true,
+      "root_dataset_identical": true,
+      "rows": 7951,
+      "unique_uid": 1989,
+      "train": 6360,
+      "eval": 1591,
+      "room_counts": {
+        "kitchen": 700,
+        "bedroom": 1894,
+        "bathroom": 1627,
+        "living room": 3678,
+        "Hallway": 12,
+        "Corridor": 4,
+        "KidsRoom": 16,
+        "Library": 16,
+        "OtherRoom": 4
+      },
+      "overlap": {
+        "uid": {
+          "shared_unique": 1173,
+          "seen_eval_rows": 1591
+        },
+        "input_chosen": {
+          "shared_unique": 1169,
+          "seen_eval_rows": 1591
+        }
+      }
+    },
+    "dpo2_prompts": {
+      "sha256": "ed6c1bae89b51165e7dff9185027a37b332bdee728c457729b3511955b15c5b7",
+      "lfs_match": true,
+      "root_dataset_identical": true,
+      "rows": 8410,
+      "unique_uid": 2134,
+      "train": 6728,
+      "eval": 1682,
+      "room_counts": {
+        "bedroom": 1907,
+        "living room": 4198,
+        "kitchen": 698,
+        "bathroom": 1607
+      },
+      "overlap": {
+        "uid": {
+          "shared_unique": 1246,
+          "seen_eval_rows": 1668
+        },
+        "input_chosen": {
+          "shared_unique": 1242,
+          "seen_eval_rows": 1668
+        }
+      }
+    }
+  },
+  "hf_prompts": {
+    "prompts_all_scenes.json": {
+      "rows": 17480,
+      "uid_unique": 17480,
+      "literal_uid_overlap_original": {
+        "sft_prompts": 0,
+        "dpo_prompts": 0,
+        "dpo2_prompts": 0
+      }
+    },
+    "prompts.json": {
+      "rows": 17528,
+      "uid_unique": 17528,
+      "literal_uid_overlap_original": {
+        "sft_prompts": 0,
+        "dpo_prompts": 0,
+        "dpo2_prompts": 0
+      }
+    }
+  },
+  "scenes": {
+    "count": 17528,
+    "sources": {
+      "HOLODECK": 9977,
+      "3DFRONT": 7503,
+      "<missing>": 48
+    },
+    "rooms": {
+      "bedroom": 3654,
+      "kitchen": 2846,
+      "living room": 8515,
+      "bathroom": 2513
+    },
+    "asset_ids": 9526,
+    "missing_asset_folders": 94,
+    "affected_scenes": 182,
+    "missing_asset_instances": 216,
+    "below_paper_minimum": {
+      "HOLODECK:bedroom": 951,
+      "HOLODECK:kitchen": 12,
+      "HOLODECK:living room": 27
+    }
+  },
+  "bedroom_0_mesh_xyz_extents": [
+    2.1741,
+    0.9132,
+    2.2149
+  ],
+  "bedroom_0_declared_bbox": [
+    221.52,
+    217.8,
+    91.28
+  ]
+}

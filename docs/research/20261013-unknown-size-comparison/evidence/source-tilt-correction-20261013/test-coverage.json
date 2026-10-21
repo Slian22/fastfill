@@ -1,0 +1,35 @@
+{
+  "method": "Python stdlib trace.Trace plus trace._find_executable_linenos; excludes synthetic line 0. Executable-line coverage, not branch coverage; coverage.py is not installed.",
+  "command": "python -m pytest fastfill/tests/test_source_tilt_correction.py -q --tb=short -p no:cacheprovider",
+  "pytest_exit_code": 0,
+  "files": [
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "executed_lines": 73,
+      "executable_lines": 79,
+      "percent": 92.41,
+      "uncovered_lines": [
+        78,
+        121,
+        122,
+        123,
+        124,
+        125
+      ]
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "executed_lines": 23,
+      "executable_lines": 23,
+      "percent": 100.0,
+      "uncovered_lines": []
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "executed_lines": 26,
+      "executable_lines": 26,
+      "percent": 100.0,
+      "uncovered_lines": []
+    }
+  ]
+}

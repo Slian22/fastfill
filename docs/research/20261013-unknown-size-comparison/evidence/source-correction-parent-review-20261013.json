@@ -1,0 +1,78 @@
+{
+  "utc": "2026-10-13T08:16:34.817857+00:00",
+  "status": "parent_review_passed_for_source_geometry_corrections",
+  "review_scope": "Full new helper; all changed source hunks; all 427 original tilt test lines and 201 opening test lines, followed by 8 new malformed-input cases. Source conventions/native examples supplied by independent task owners and checked against analytic corner/profile semantics.",
+  "production_sha256": {
+    "fastfill/adapters/scan2cad.py": "aef249703105ecf5003be6b3e31bc4ffcdd2492bf96bf6f7b529a29b5987688e",
+    "fastfill/adapters/spatialgen.py": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+    "fastfill/adapters/il3d_3dfront.py": "51c600230e1cfb79f929c11e4d98e9d9d7b94fd91f32b8555f3a2024d2e7814a",
+    "fastfill/adapters/upright_bounds.py": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f"
+  },
+  "test_sha256": {
+    "fastfill/tests/test_source_tilt_correction.py": "9a2f82645edb739d86acbb67590b0a58d937a5e35ac50cbbef47e8e941f90a71",
+    "fastfill/tests/test_source_opening_correction.py": "b7c4196da6d8896c212acafb8746b07d77d7217bf6390c4f58b87b429de1752e"
+  },
+  "additional_findings_fixed": [
+    "Boolean geometry accepted as numeric",
+    "10**400 metadata raised OverflowError instead of incomplete/skipped geometry"
+  ],
+  "tdd": {
+    "tilt_new_cases_red_failed": 4,
+    "opening_new_cases_red_failed": 4,
+    "combined_focused_green": 166
+  },
+  "full_regression": {
+    "python": "/Users/slian/miniforge3/bin/python",
+    "transformers": "5.14.1",
+    "passed": 271,
+    "subtests_passed": 90,
+    "seconds": 8.11
+  },
+  "alternate_environment_failure": {
+    "python": "/usr/local/bin/python3",
+    "transformers": "4.49.0",
+    "passed": 270,
+    "failed": 1,
+    "failure": "Existing test_tiny_real_cpu_merge requires unavailable Qwen3Config; no environment modified."
+  },
+  "coverage": {
+    "whole_selected_source_files": {
+      "covered_lines": 299,
+      "num_statements": 406,
+      "percent_covered": 73.64532019704434,
+      "percent_covered_display": "74",
+      "missing_lines": 107,
+      "excluded_lines": 0
+    },
+    "new_or_replaced_regions": {
+      "fastfill/adapters/scan2cad.py": {
+        "new_or_replaced_executable_lines": 20,
+        "covered": 20,
+        "missing": []
+      },
+      "fastfill/adapters/spatialgen.py": {
+        "new_or_replaced_executable_lines": 13,
+        "covered": 13,
+        "missing": []
+      },
+      "fastfill/adapters/il3d_3dfront.py": {
+        "new_or_replaced_executable_lines": 52,
+        "covered": 52,
+        "missing": []
+      },
+      "fastfill/adapters/upright_bounds.py": {
+        "new_or_replaced_executable_lines": 26,
+        "covered": 26,
+        "missing": []
+      }
+    },
+    "scope": "Coverage recorded under python3 full run with unrelated merge import failure; full functional suite separately passed in existing compatible environment. Not whole repository coverage."
+  },
+  "raw_rebuild_status": "baseline complete; corrected full 3-source regeneration running in external immutable-code namespace",
+  "limits": [
+    "No claim of all raw mesh semantics verified.",
+    "Floor snap intentionally translates envelopes; semantic front/tilt policy retained.",
+    "Window vertical-overlap merge guard may change retention outside known cases; full delta audit required.",
+    "No retraining or existing frozen data replacement."
+  ]
+}

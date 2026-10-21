@@ -1,0 +1,62 @@
+{
+  "scope": "two-room functional smoke; not a quality evaluation",
+  "total_http_cap": 12,
+  "no_automatic_resubmit": true,
+  "jobs": {
+    "missing-category": {
+      "job_id": "7450324",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=size-api-missing-category",
+        "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/missing-category-%j.log",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1/server/run.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/missing-category.jsonl",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/missing-category",
+        "6",
+        "1",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json"
+      ]
+    },
+    "no-prior": {
+      "job_id": "7450423",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=size-api-no-prior-r1",
+        "--exclude=nid010062",
+        "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior-retry1-%j.log",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1/server/run.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior.jsonl",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior-retry1",
+        "5",
+        "1"
+      ],
+      "output_dir": "no-prior-retry1"
+    }
+  },
+  "history": [
+    {
+      "case": "no-prior",
+      "job_id": "7450325",
+      "command": [
+        "sbatch",
+        "--parsable",
+        "--job-name=size-api-no-prior",
+        "--output=/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior-%j.log",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1/server/run.sbatch",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/deploy-size-api-20261015-v1",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior.jsonl",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/size-api-runtime-20261015-v1/no-prior",
+        "6",
+        "1"
+      ],
+      "output_dir": "no-prior",
+      "api_calls": 1,
+      "failure": "GPU free memory81.95GiB below87.4GiB requirement; no placer output"
+    }
+  ],
+  "manual_retry": "one infrastructure retry, new node and GPU memory preflight, remaining cap5; original request preserved"
+}

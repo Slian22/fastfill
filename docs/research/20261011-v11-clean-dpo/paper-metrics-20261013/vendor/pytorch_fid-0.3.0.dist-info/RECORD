@@ -1,0 +1,17 @@
+../../bin/pytorch-fid,sha256=GeL88apAlBCi2CWDCo3LkTh59dYwfg4s9PwLtfY6tuw,238
+pytorch_fid-0.3.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+pytorch_fid-0.3.0.dist-info/LICENSE,sha256=xx0jnfkXJvxRnG63LTGOxlggYnIysveWIZ6H3PNdCrQ,11357
+pytorch_fid-0.3.0.dist-info/METADATA,sha256=IrzVBsJYv8s-ZSZC5U4gW_2fe2PGqCFQRjD2gpzxXnU,5281
+pytorch_fid-0.3.0.dist-info/RECORD,,
+pytorch_fid-0.3.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+pytorch_fid-0.3.0.dist-info/WHEEL,sha256=2wepM1nk4DS4eFpYrW1TTqPcoGNfHhhO_i5m4cOimbo,92
+pytorch_fid-0.3.0.dist-info/entry_points.txt,sha256=ZcnJ7vsDH_65E88YpQH_3Nl_s845kJEDt2BN0-5BZCQ,59
+pytorch_fid-0.3.0.dist-info/top_level.txt,sha256=_ySKiiFW0USK2cfEECCTcB76ltr51gBJx0Ee3OcQc28,12
+pytorch_fid/__init__.py,sha256=3wVEs2QD_7OcTlD97cZdCeizd2hUbJJ0GeIO8wQIjrk,22
+pytorch_fid/__main__.py,sha256=I4ulKSbXU504MSFtb37fL--sF3nR9d9XiAP3ZhZ9ovk,59
+pytorch_fid/__pycache__/__init__.cpython-312.pyc,,
+pytorch_fid/__pycache__/__main__.cpython-312.pyc,,
+pytorch_fid/__pycache__/fid_score.cpython-312.pyc,,
+pytorch_fid/__pycache__/inception.cpython-312.pyc,,
+pytorch_fid/fid_score.py,sha256=TvuaT8ESmJ8_GEnoTVLCHzVFiuR6rXVrNAplHHTNbmg,11925
+pytorch_fid/inception.py,sha256=XFr25fcd_a0X2Fw7h7Z1HAzFFcqOOJrpAhFXPlIKvxc,12759

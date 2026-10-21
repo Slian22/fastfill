@@ -1,0 +1,7 @@
+{
+  "checked_utc": "2026-10-16T03:13:08.220320+00:00",
+  "log_tail": "",
+  "sstat_exit_code": 0,
+  "sstat": "7461663.batch|00:03:48|3110720K",
+  "queue": "7461670|unknownsize-028-compare|PENDING|0:00|(Dependency)\n7461669|unknownsize-028-infer-test|PENDING|0:00|(Dependency)\n7461668|unknownsize-028-infer-dev-select|PENDING|0:00|(Dependency)\n7461667|unknownsize-028-train|PENDING|0:00|(Dependency)\n7461666|unknownsize-028-train|PENDING|0:00|(Dependency)\n7461665|unknownsize-028-smoke-vllm|PENDING|0:00|(Dependency)\n7461664|unknownsize-028-smoke|PENDING|0:00|(Dependency)\n7461663|unknownsize-028-rows|RUNNING|3:58|nid010237"
+}

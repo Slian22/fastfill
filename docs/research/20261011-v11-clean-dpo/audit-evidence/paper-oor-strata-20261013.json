@@ -1,0 +1,1219 @@
+{
+  "checked_at": "2026-10-12T23:44:53.477969+00:00",
+  "source": "stored independently verified raw evaluation rows; no regeneration; dataset and predictions SHA256 rechecked",
+  "interpretation": "formula aligned with PDF Appendix D.2; NOT matched paper benchmark; current input sizes predicted; conditional on complete outputs; raw and repaired separate",
+  "cells": {
+    "sft/dev_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.007473558905696542,
+        "repaired_oor": 0.007473558905696542,
+        "gt_oor_on_complete": 0.08079896756484495,
+        "mean_objects": 5.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 939,
+        "complete": 939,
+        "raw_oor": 0.03271797051879743,
+        "repaired_oor": 0.0327580588353035,
+        "gt_oor_on_complete": 0.049186476975848145,
+        "mean_objects": 6.784877529286475
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 2,
+        "complete": 2,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.5
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 439,
+        "complete": 439,
+        "raw_oor": 0.015816937445209203,
+        "repaired_oor": 0.0163190369028761,
+        "gt_oor_on_complete": 0.03266801231882757,
+        "mean_objects": 4.758542141230068
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 11,
+        "complete": 11,
+        "raw_oor": 1.459219747590567e-17,
+        "repaired_oor": 1.459219747590567e-17,
+        "gt_oor_on_complete": 0.008643700953416872,
+        "mean_objects": 3.3636363636363638
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 30,
+        "complete": 30,
+        "raw_oor": 0.09513324863230213,
+        "repaired_oor": 0.09492293668577398,
+        "gt_oor_on_complete": 0.09516270911846296,
+        "mean_objects": 8.1
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 0.011707879535283875,
+        "repaired_oor": 0.0066779251195283095,
+        "gt_oor_on_complete": 0.010213881681091795,
+        "mean_objects": 4.333333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "garage",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.04751619870410377,
+        "repaired_oor": 0.03066954643628506,
+        "gt_oor_on_complete": 0.11331361627692864,
+        "mean_objects": 16.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 58,
+        "complete": 58,
+        "raw_oor": 0.020755375868467933,
+        "repaired_oor": 0.020088094705878724,
+        "gt_oor_on_complete": 0.04092526811393821,
+        "mean_objects": 4.827586206896552
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 71,
+        "complete": 71,
+        "raw_oor": 0.04492801262432322,
+        "repaired_oor": 0.044515522772557575,
+        "gt_oor_on_complete": 0.061777040378564387,
+        "mean_objects": 4.197183098591549
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 189,
+        "complete": 189,
+        "raw_oor": 0.05762416536951153,
+        "repaired_oor": 0.05791878700725383,
+        "gt_oor_on_complete": 0.07989259214547499,
+        "mean_objects": 12.82010582010582
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 88,
+        "complete": 88,
+        "raw_oor": 0.05295656332926663,
+        "repaired_oor": 0.051179059400645,
+        "gt_oor_on_complete": 0.06669529507093767,
+        "mean_objects": 9.375
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 33,
+        "complete": 33,
+        "raw_oor": 0.01954441674030213,
+        "repaired_oor": 0.021192077673024615,
+        "gt_oor_on_complete": 0.019325053558324888,
+        "mean_objects": 2.6363636363636362
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "recreation room",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.15194869264923527,
+        "repaired_oor": 0.15194869264923527,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 8.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 497,
+        "complete": 497,
+        "raw_oor": 0.025729646692935596,
+        "repaired_oor": 0.025725134116181048,
+        "gt_oor_on_complete": 0.018980365576953196,
+        "mean_objects": 7.078470824949698
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 105,
+        "complete": 105,
+        "raw_oor": 0.014096860618168193,
+        "repaired_oor": 0.015789114295253308,
+        "gt_oor_on_complete": 0.012407743872718494,
+        "mean_objects": 4.276190476190476
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.005022945740309122,
+        "repaired_oor": 0.0033771053683495215,
+        "gt_oor_on_complete": 0.004875936859968294,
+        "mean_objects": 5.913043478260869
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 138,
+        "complete": 138,
+        "raw_oor": 0.02189501705513827,
+        "repaired_oor": 0.021648685328330843,
+        "gt_oor_on_complete": 0.014251064129674583,
+        "mean_objects": 6.695652173913044
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 139,
+        "complete": 139,
+        "raw_oor": 0.05545548868875323,
+        "repaired_oor": 0.055767258719931885,
+        "gt_oor_on_complete": 0.040309705009488134,
+        "mean_objects": 10.53956834532374
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8167,
+        "complete": 8142,
+        "raw_oor": 0.09051980450706704,
+        "repaired_oor": 0.08157734734425212,
+        "gt_oor_on_complete": 0.07300333219934355,
+        "mean_objects": 12.558222113383128
+      }
+    ],
+    "dpo1/dev_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.00418994413407821,
+        "repaired_oor": 0.00418994413407821,
+        "gt_oor_on_complete": 0.08079896756484495,
+        "mean_objects": 5.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 939,
+        "complete": 939,
+        "raw_oor": 0.02877661177950031,
+        "repaired_oor": 0.030482599222237592,
+        "gt_oor_on_complete": 0.049186476975848145,
+        "mean_objects": 6.784877529286475
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 2,
+        "complete": 2,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.5
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 439,
+        "complete": 439,
+        "raw_oor": 0.012839500434064092,
+        "repaired_oor": 0.01592527179754259,
+        "gt_oor_on_complete": 0.03266801231882757,
+        "mean_objects": 4.758542141230068
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 11,
+        "complete": 11,
+        "raw_oor": 0.004508818267018828,
+        "repaired_oor": 0.004110079236602197,
+        "gt_oor_on_complete": 0.008643700953416872,
+        "mean_objects": 3.3636363636363638
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 30,
+        "complete": 30,
+        "raw_oor": 0.10255908110941304,
+        "repaired_oor": 0.1076709853245247,
+        "gt_oor_on_complete": 0.09516270911846296,
+        "mean_objects": 8.1
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 0.009101310464551583,
+        "repaired_oor": 0.013727582322636479,
+        "gt_oor_on_complete": 0.010213881681091795,
+        "mean_objects": 4.333333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "garage",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.03618721102129399,
+        "repaired_oor": 0.0030745761645645715,
+        "gt_oor_on_complete": 0.11331361627692864,
+        "mean_objects": 16.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 58,
+        "complete": 58,
+        "raw_oor": 0.010488965050631962,
+        "repaired_oor": 0.016096737265166215,
+        "gt_oor_on_complete": 0.04092526811393821,
+        "mean_objects": 4.827586206896552
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 71,
+        "complete": 71,
+        "raw_oor": 0.037864490339866684,
+        "repaired_oor": 0.03642850626081965,
+        "gt_oor_on_complete": 0.061777040378564387,
+        "mean_objects": 4.197183098591549
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 189,
+        "complete": 189,
+        "raw_oor": 0.053541687945971576,
+        "repaired_oor": 0.05250565438211028,
+        "gt_oor_on_complete": 0.07989259214547499,
+        "mean_objects": 12.82010582010582
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 88,
+        "complete": 88,
+        "raw_oor": 0.04529909064368562,
+        "repaired_oor": 0.0455180565381164,
+        "gt_oor_on_complete": 0.06669529507093767,
+        "mean_objects": 9.375
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 33,
+        "complete": 33,
+        "raw_oor": 0.015035931553628392,
+        "repaired_oor": 0.01633954359022472,
+        "gt_oor_on_complete": 0.019325053558324888,
+        "mean_objects": 2.6363636363636362
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "recreation room",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.22484602766859604,
+        "repaired_oor": 0.22484602766859604,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 8.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 497,
+        "complete": 497,
+        "raw_oor": 0.023102948751688213,
+        "repaired_oor": 0.024906640082497062,
+        "gt_oor_on_complete": 0.018980365576953196,
+        "mean_objects": 7.078470824949698
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 105,
+        "complete": 105,
+        "raw_oor": 0.010756337994714715,
+        "repaired_oor": 0.014170613359733736,
+        "gt_oor_on_complete": 0.012407743872718494,
+        "mean_objects": 4.276190476190476
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.003821005284343408,
+        "repaired_oor": 0.0037301778823707753,
+        "gt_oor_on_complete": 0.004875936859968294,
+        "mean_objects": 5.913043478260869
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 138,
+        "complete": 138,
+        "raw_oor": 0.023592900808825173,
+        "repaired_oor": 0.026696764747932582,
+        "gt_oor_on_complete": 0.014251064129674583,
+        "mean_objects": 6.695652173913044
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 139,
+        "complete": 139,
+        "raw_oor": 0.0478957850419182,
+        "repaired_oor": 0.04875943688159468,
+        "gt_oor_on_complete": 0.040309705009488134,
+        "mean_objects": 10.53956834532374
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8167,
+        "complete": 8140,
+        "raw_oor": 0.0768320167050732,
+        "repaired_oor": 0.06963051716485404,
+        "gt_oor_on_complete": 0.07293648851516074,
+        "mean_objects": 12.558222113383128
+      }
+    ],
+    "final/dev_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.04288315201804871,
+        "repaired_oor": 0.04209901917672029,
+        "gt_oor_on_complete": 0.08079896756484495,
+        "mean_objects": 5.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 939,
+        "complete": 937,
+        "raw_oor": 0.024360926955080905,
+        "repaired_oor": 0.02587884714681386,
+        "gt_oor_on_complete": 0.049289670876711204,
+        "mean_objects": 6.784877529286475
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 2,
+        "complete": 2,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.5
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 439,
+        "complete": 437,
+        "raw_oor": 0.010453453563167353,
+        "repaired_oor": 0.01212512940612646,
+        "gt_oor_on_complete": 0.0328136776638954,
+        "mean_objects": 4.758542141230068
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 11,
+        "complete": 11,
+        "raw_oor": 0.0030984693561380704,
+        "repaired_oor": 0.00021479904509486252,
+        "gt_oor_on_complete": 0.008643700953416872,
+        "mean_objects": 3.3636363636363638
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 30,
+        "complete": 30,
+        "raw_oor": 0.08625059140070945,
+        "repaired_oor": 0.08740726701700781,
+        "gt_oor_on_complete": 0.09516270911846296,
+        "mean_objects": 8.1
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 0.00690432906307618,
+        "repaired_oor": 0.005387021874954942,
+        "gt_oor_on_complete": 0.010213881681091795,
+        "mean_objects": 4.333333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "garage",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.11331361627692864,
+        "mean_objects": 16.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 58,
+        "complete": 58,
+        "raw_oor": 0.013748995650103107,
+        "repaired_oor": 0.01646849217642515,
+        "gt_oor_on_complete": 0.04092526811393821,
+        "mean_objects": 4.827586206896552
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 71,
+        "complete": 71,
+        "raw_oor": 0.033700726392560346,
+        "repaired_oor": 0.0332536551076093,
+        "gt_oor_on_complete": 0.061777040378564387,
+        "mean_objects": 4.197183098591549
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 189,
+        "complete": 189,
+        "raw_oor": 0.04459849259771269,
+        "repaired_oor": 0.046972407084246354,
+        "gt_oor_on_complete": 0.07989259214547499,
+        "mean_objects": 12.82010582010582
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 88,
+        "complete": 88,
+        "raw_oor": 0.0377645154662576,
+        "repaired_oor": 0.038354459729635165,
+        "gt_oor_on_complete": 0.06669529507093767,
+        "mean_objects": 9.375
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 33,
+        "complete": 33,
+        "raw_oor": 0.009313001695793334,
+        "repaired_oor": 0.01248828077519571,
+        "gt_oor_on_complete": 0.019325053558324888,
+        "mean_objects": 2.6363636363636362
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "recreation room",
+        "requests": 1,
+        "complete": 1,
+        "raw_oor": 0.15284203569068072,
+        "repaired_oor": 0.12706543291473887,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 8.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 497,
+        "complete": 496,
+        "raw_oor": 0.020762835137000106,
+        "repaired_oor": 0.02243698703876082,
+        "gt_oor_on_complete": 0.01901381080000665,
+        "mean_objects": 7.078470824949698
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 105,
+        "complete": 105,
+        "raw_oor": 0.012118341400240987,
+        "repaired_oor": 0.016566605833787065,
+        "gt_oor_on_complete": 0.012407743872718494,
+        "mean_objects": 4.276190476190476
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.0033809493700303504,
+        "repaired_oor": 0.003038439737266921,
+        "gt_oor_on_complete": 0.004875936859968294,
+        "mean_objects": 5.913043478260869
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 138,
+        "complete": 138,
+        "raw_oor": 0.014241507102413302,
+        "repaired_oor": 0.01584179707273074,
+        "gt_oor_on_complete": 0.014251064129674583,
+        "mean_objects": 6.695652173913044
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 139,
+        "complete": 138,
+        "raw_oor": 0.048346400168407425,
+        "repaired_oor": 0.04966422748445787,
+        "gt_oor_on_complete": 0.04058447435780007,
+        "mean_objects": 10.53956834532374
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8167,
+        "complete": 8132,
+        "raw_oor": 0.05871368614337541,
+        "repaired_oor": 0.05837359097353057,
+        "gt_oor_on_complete": 0.07304464730598538,
+        "mean_objects": 12.558222113383128
+      }
+    ],
+    "sft/test_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.0015220700152206684,
+        "repaired_oor": 0.007610350076103478,
+        "gt_oor_on_complete": 0.042166049248202185,
+        "mean_objects": 3.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 872,
+        "complete": 870,
+        "raw_oor": 0.03061915396829084,
+        "repaired_oor": 0.02924751875569095,
+        "gt_oor_on_complete": 0.05368083154606701,
+        "mean_objects": 6.548165137614679
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 419,
+        "complete": 419,
+        "raw_oor": 0.013213173403657817,
+        "repaired_oor": 0.013303381601860845,
+        "gt_oor_on_complete": 0.030227865658109875,
+        "mean_objects": 4.400954653937948
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 1.2698629366627606e-17,
+        "repaired_oor": 1.2698629366627606e-17,
+        "gt_oor_on_complete": 0.01108555263195741,
+        "mean_objects": 3.2222222222222223
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 35,
+        "complete": 34,
+        "raw_oor": 0.080000545648692,
+        "repaired_oor": 0.0817099884312704,
+        "gt_oor_on_complete": 0.10807013524904079,
+        "mean_objects": 7.114285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 12,
+        "complete": 12,
+        "raw_oor": 0.02034579475786284,
+        "repaired_oor": 0.01739455891095739,
+        "gt_oor_on_complete": 0.03194426572630655,
+        "mean_objects": 4.583333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 48,
+        "complete": 48,
+        "raw_oor": 0.015002329179870112,
+        "repaired_oor": 0.01362591382964357,
+        "gt_oor_on_complete": 0.060667235459345166,
+        "mean_objects": 4.458333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 57,
+        "complete": 57,
+        "raw_oor": 0.04416931394245496,
+        "repaired_oor": 0.03827686779152431,
+        "gt_oor_on_complete": 0.06559511420810543,
+        "mean_objects": 4.192982456140351
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 166,
+        "complete": 165,
+        "raw_oor": 0.05636029992679506,
+        "repaired_oor": 0.052676458858032106,
+        "gt_oor_on_complete": 0.099132846242603,
+        "mean_objects": 12.548192771084338
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 87,
+        "complete": 87,
+        "raw_oor": 0.05689886775213029,
+        "repaired_oor": 0.05167293995531056,
+        "gt_oor_on_complete": 0.06715903989449491,
+        "mean_objects": 9.850574712643677
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 28,
+        "complete": 28,
+        "raw_oor": 0.020643127953312624,
+        "repaired_oor": 0.029675782026615867,
+        "gt_oor_on_complete": 0.030714030846630002,
+        "mean_objects": 4.214285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.022222222222222227,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 2.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 503,
+        "complete": 503,
+        "raw_oor": 0.028291059369510065,
+        "repaired_oor": 0.030024812204339692,
+        "gt_oor_on_complete": 0.014519511672511252,
+        "mean_objects": 6.68389662027833
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 128,
+        "complete": 128,
+        "raw_oor": 0.017388159536262424,
+        "repaired_oor": 0.02251455723744759,
+        "gt_oor_on_complete": 0.008086839548717426,
+        "mean_objects": 4.1015625
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.004041512550520276,
+        "repaired_oor": 0.003704316409993885,
+        "gt_oor_on_complete": 0.003453355666621949,
+        "mean_objects": 5.843478260869565
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 129,
+        "complete": 129,
+        "raw_oor": 0.028654876604409373,
+        "repaired_oor": 0.02925191684587671,
+        "gt_oor_on_complete": 0.0108598443276963,
+        "mean_objects": 6.10077519379845
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 131,
+        "complete": 131,
+        "raw_oor": 0.05987378180872774,
+        "repaired_oor": 0.06122995077955864,
+        "gt_oor_on_complete": 0.03412322968780903,
+        "mean_objects": 10.51908396946565
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8647,
+        "complete": 8623,
+        "raw_oor": 0.09231095566447706,
+        "repaired_oor": 0.08338844453941184,
+        "gt_oor_on_complete": 0.07855517472534933,
+        "mean_objects": 12.519139585983577
+      }
+    ],
+    "dpo1/test_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.005841121495327108,
+        "repaired_oor": 0.007042723631508685,
+        "gt_oor_on_complete": 0.042166049248202185,
+        "mean_objects": 3.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 872,
+        "complete": 872,
+        "raw_oor": 0.029939588926923697,
+        "repaired_oor": 0.0296652381508366,
+        "gt_oor_on_complete": 0.053866570621049485,
+        "mean_objects": 6.548165137614679
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 419,
+        "complete": 419,
+        "raw_oor": 0.011649644158070285,
+        "repaired_oor": 0.013222050303196675,
+        "gt_oor_on_complete": 0.030227865658109875,
+        "mean_objects": 4.400954653937948
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 0.016203703703703706,
+        "repaired_oor": 0.0003252032520325199,
+        "gt_oor_on_complete": 0.01108555263195741,
+        "mean_objects": 3.2222222222222223
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 35,
+        "complete": 35,
+        "raw_oor": 0.07969823847841467,
+        "repaired_oor": 0.07984438162331342,
+        "gt_oor_on_complete": 0.11072065442298328,
+        "mean_objects": 7.114285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 12,
+        "complete": 12,
+        "raw_oor": 0.01584053552800391,
+        "repaired_oor": 0.017286293926461076,
+        "gt_oor_on_complete": 0.03194426572630655,
+        "mean_objects": 4.583333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 48,
+        "complete": 48,
+        "raw_oor": 0.010652423068640662,
+        "repaired_oor": 0.009598350077022031,
+        "gt_oor_on_complete": 0.060667235459345166,
+        "mean_objects": 4.458333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 57,
+        "complete": 57,
+        "raw_oor": 0.043837934128617674,
+        "repaired_oor": 0.04045650569580821,
+        "gt_oor_on_complete": 0.06559511420810543,
+        "mean_objects": 4.192982456140351
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 166,
+        "complete": 166,
+        "raw_oor": 0.058943197792988046,
+        "repaired_oor": 0.056155563596273675,
+        "gt_oor_on_complete": 0.09894823771186335,
+        "mean_objects": 12.548192771084338
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 87,
+        "complete": 87,
+        "raw_oor": 0.05099720302308101,
+        "repaired_oor": 0.05061037987113314,
+        "gt_oor_on_complete": 0.06715903989449491,
+        "mean_objects": 9.850574712643677
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 28,
+        "complete": 28,
+        "raw_oor": 0.030214000013599685,
+        "repaired_oor": 0.028689062451219247,
+        "gt_oor_on_complete": 0.030714030846630002,
+        "mean_objects": 4.214285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 2.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 503,
+        "complete": 503,
+        "raw_oor": 0.02289232171284308,
+        "repaired_oor": 0.02482440356561412,
+        "gt_oor_on_complete": 0.014519511672511252,
+        "mean_objects": 6.68389662027833
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 128,
+        "complete": 128,
+        "raw_oor": 0.013786287819658799,
+        "repaired_oor": 0.01840120381696912,
+        "gt_oor_on_complete": 0.008086839548717426,
+        "mean_objects": 4.1015625
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.004850055799372488,
+        "repaired_oor": 0.0048386889064787235,
+        "gt_oor_on_complete": 0.003453355666621949,
+        "mean_objects": 5.843478260869565
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 129,
+        "complete": 129,
+        "raw_oor": 0.01800498494513835,
+        "repaired_oor": 0.019368652138282143,
+        "gt_oor_on_complete": 0.0108598443276963,
+        "mean_objects": 6.10077519379845
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 131,
+        "complete": 131,
+        "raw_oor": 0.05244117179994702,
+        "repaired_oor": 0.054017675991209206,
+        "gt_oor_on_complete": 0.03412322968780903,
+        "mean_objects": 10.51908396946565
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8647,
+        "complete": 8629,
+        "raw_oor": 0.07440924089914687,
+        "repaired_oor": 0.06955183775081665,
+        "gt_oor_on_complete": 0.078546088069445,
+        "mean_objects": 12.519139585983577
+      }
+    ],
+    "final/test_rooms": [
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "aisle",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.0014880952380952061,
+        "repaired_oor": 0.0014880952380952061,
+        "gt_oor_on_complete": 0.042166049248202185,
+        "mean_objects": 3.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "all",
+        "requests": 872,
+        "complete": 872,
+        "raw_oor": 0.024438657510698247,
+        "repaired_oor": 0.024071546265526957,
+        "gt_oor_on_complete": 0.053866570621049485,
+        "mean_objects": 6.548165137614679
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "balcony",
+        "requests": 4,
+        "complete": 4,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 1.0
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "bedroom",
+        "requests": 419,
+        "complete": 419,
+        "raw_oor": 0.01070657114291203,
+        "repaired_oor": 0.011440604049941405,
+        "gt_oor_on_complete": 0.030227865658109875,
+        "mean_objects": 4.400954653937948
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "cloakroom",
+        "requests": 9,
+        "complete": 9,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.01108555263195741,
+        "mean_objects": 3.2222222222222223
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "dining room",
+        "requests": 35,
+        "complete": 35,
+        "raw_oor": 0.06230339868453729,
+        "repaired_oor": 0.06276086884296606,
+        "gt_oor_on_complete": 0.11072065442298328,
+        "mean_objects": 7.114285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "elderly room",
+        "requests": 12,
+        "complete": 12,
+        "raw_oor": 0.01545443460936244,
+        "repaired_oor": 0.016331678708814183,
+        "gt_oor_on_complete": 0.03194426572630655,
+        "mean_objects": 4.583333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "kids room",
+        "requests": 48,
+        "complete": 48,
+        "raw_oor": 0.00807801647172809,
+        "repaired_oor": 0.008976079929259726,
+        "gt_oor_on_complete": 0.060667235459345166,
+        "mean_objects": 4.458333333333333
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "library",
+        "requests": 57,
+        "complete": 57,
+        "raw_oor": 0.031132252589824855,
+        "repaired_oor": 0.029807700513074326,
+        "gt_oor_on_complete": 0.06559511420810543,
+        "mean_objects": 4.192982456140351
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living dining room",
+        "requests": 166,
+        "complete": 166,
+        "raw_oor": 0.04502195596138567,
+        "repaired_oor": 0.042343717017997544,
+        "gt_oor_on_complete": 0.09894823771186335,
+        "mean_objects": 12.548192771084338
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "living room",
+        "requests": 87,
+        "complete": 87,
+        "raw_oor": 0.049519649449003396,
+        "repaired_oor": 0.047933138183089634,
+        "gt_oor_on_complete": 0.06715903989449491,
+        "mean_objects": 9.850574712643677
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "other room",
+        "requests": 28,
+        "complete": 28,
+        "raw_oor": 0.018153361082461218,
+        "repaired_oor": 0.016752910674500073,
+        "gt_oor_on_complete": 0.030714030846630002,
+        "mean_objects": 4.214285714285714
+      },
+      {
+        "source": "IL3D_3dfront",
+        "room_type": "storage room",
+        "requests": 3,
+        "complete": 3,
+        "raw_oor": 0.0,
+        "repaired_oor": 0.0,
+        "gt_oor_on_complete": 0.0,
+        "mean_objects": 2.0
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "all",
+        "requests": 503,
+        "complete": 503,
+        "raw_oor": 0.020789601111557088,
+        "repaired_oor": 0.022062904070107442,
+        "gt_oor_on_complete": 0.014519511672511252,
+        "mean_objects": 6.68389662027833
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bathroom",
+        "requests": 128,
+        "complete": 128,
+        "raw_oor": 0.015059001216121288,
+        "repaired_oor": 0.018055364516335756,
+        "gt_oor_on_complete": 0.008086839548717426,
+        "mean_objects": 4.1015625
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "bedroom",
+        "requests": 115,
+        "complete": 115,
+        "raw_oor": 0.0025803856866879506,
+        "repaired_oor": 0.002515821110871406,
+        "gt_oor_on_complete": 0.003453355666621949,
+        "mean_objects": 5.843478260869565
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "kitchen",
+        "requests": 129,
+        "complete": 129,
+        "raw_oor": 0.008891200041693357,
+        "repaired_oor": 0.009775522713203337,
+        "gt_oor_on_complete": 0.0108598443276963,
+        "mean_objects": 6.10077519379845
+      },
+      {
+        "source": "OptiScene_holodeck",
+        "room_type": "living room",
+        "requests": 131,
+        "complete": 131,
+        "raw_oor": 0.05409090110001628,
+        "repaired_oor": 0.055238108636791024,
+        "gt_oor_on_complete": 0.03412322968780903,
+        "mean_objects": 10.51908396946565
+      },
+      {
+        "source": "all",
+        "room_type": "all",
+        "requests": 8647,
+        "complete": 8615,
+        "raw_oor": 0.06192454511375393,
+        "repaired_oor": 0.06077252085670563,
+        "gt_oor_on_complete": 0.0785432498120146,
+        "mean_objects": 12.519139585983577
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+\section*{实验与评测}
+
+\paragraph{任务与评测设置。}
+输入为房间几何、固定物体和家具类别清单。FastFill 先使用仅从训练集拟合的先验估计尺寸，再由 27B 放置模型预测位置、朝向和支撑关系。确定性修复 S1 和可选的本地大模型 O2 优化均保持请求尺寸不变。我们在相同的 \NumRooms{} 个测试请求上分别报告模型、修复及优化阶段。结果来自已曝光的历史测试集，属于描述性评估；原始 8B 联合尺寸预测与分阶段放置对照及其预注册终点仍是独立实验。
+
+\paragraph{指标选择。}
+相关论文通常同时报告分布质量和任务指标：ATISS、DiffuScene 使用渲染分布指标，LayoutGPT 还报告房间越界率，OptiScene 结合 FID、物体重叠和视觉／人工评价~\cite{atiss2021,diffuscene2024,layoutgpt2023,optiscene2025}。本节重点展示\textbf{几何成功率与尺寸误差}，将下游准入和视觉质量分别报告。表~\ref{tab:metrics-zh} 固定指标名称、分母与失败处理；这种写作安排不改变原先的预注册终点。
+
+\begin{table}[ht]
+\centering\small
+\caption{指标定义及统计口径。$N$ 为全部请求房间数。}
+\label{tab:metrics-zh}
+\begin{tabularx}{\linewidth}{@{}p{35mm}X@{}}
+\toprule
+指标 & 定义及分母 \\
+\midrule
+几何成功率 GSR \up & 输出完整，且通过冻结检查器的边界、支撑、层高、主要／严重碰撞及固定物阻挡检查；全部 $N$ 个请求为分母，失败计零。 \\
+尺寸 log-MAE \down & 相对标注尺寸的绝对对数误差，依次对三轴、物体及完整房间取均值；仅衡量尺寸估计。 \\
+完整输出率 \up & 返回全部请求物体且几何字段满足格式要求；分母为 $N$。 \\
+物体重叠比 OOR \down & 所有物体对的交叠面积之和除以总物体占地面积；对完整房间取均值，必须同时报告完整率。 \\
+严格准入率 \up & 完整输出同时满足本地下游 endpoint、attachment 和 admission 判定；全部请求为分母，属于应用侧自动指标。 \\
+视觉／网格质量 & 在共同渲染子集上报告 FID \down、KID \down；在成功分析的房间上报告网格无超阈值碰撞率 \up，并列出覆盖率。 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+对含 $n_r$ 个物体的完整房间 $r$，尺寸误差和重叠比为
+\begin{equation}
+ E_r=\frac{1}{3n_r}\sum_{i=1}^{n_r}\sum_{d\in\{x,y,z\}}
+ \left|\log\frac{\hat{s}_{rid}}{s_{rid}}\right|,
+ \qquad
+ \oor_r=\frac{\sum_{i<j}|A_{ri}\cap A_{rj}|}{\sum_i|A_{ri}|}.
+\end{equation}
+其中 $A_{ri}$ 是由预测中心和宽深构造、\textbf{忽略 yaw} 的轴对齐矩形。OOR 纳入全部可移动物体对，不豁免高度分离或支撑关系；它不是越界率，也不是碰撞概率，数值可能大于 1。GSR 则采用旋转几何、固定容差和语义碰撞豁免。严格准入使用独立的固定适配步骤，包括在 ``raw'' 行也执行的边界吸附；它既不是 RoomGenBench 的标准指标，也不等于 OptiScene 的人工可用率 UR。本项目尚未测量人工 UR。
+
+\paragraph{全量测试结果。}
+表~\ref{tab:stages-zh} 对比两种优化触发规则：旧规则仅对检查器失败的房间调用 O2；新规则对检查器或严格准入任一失败的房间调用 O2。两者复用相同的 27B 原始预测和 S1 输出。
+
+\input{table-main-zh}
+
+新规则相对旧规则使严格准入率提高 \StrictGain{} 个百分点，95\% 区间为 [\StrictLo{}, \StrictHi{}]；GSR 提高 \CheckerGain{} 个百分点，区间为 [\CheckerLo{}, \CheckerHi{}]。区间按 \NumClusters{} 个房屋连通组配对 bootstrap，重采样 2,000 次、seed=42，未经多重比较校正，也不包含训练随机种子的变异。新系统对 \Escalated{}/\NumRooms{} 间房间（\EscalatedPct{}\%）执行优化，共 \OtwoRounds{} 次本地 O2 生成，外部 API 调用为零。O2 实测计算量约为 46.0 GPU 小时，包含模型加载和恢复分片，不包含复用的放置模型推理。两种最终系统的尺寸 log-MAE 均为 \SizeError{}；触发规则改变没有修改请求尺寸。
+
+\paragraph{独立视觉子集。}
+表~\ref{tab:visual-zh} 对应\textbf{旧检查器触发系统}，不能归入新规则的全量成绩。参考场景与生成场景使用相同资产、相机和渲染设置；FID/KID 使用 2,048 维 Inception 特征，每房间一个固定视角。选定的 1,009 间房间中，1,005 间完成渲染和分析，4 间因所需资产缺失而未纳入。网格无超阈值碰撞指任一非直接父子关系的可移动物体对，其体素交叠体积不超过 $500\,\mathrm{cm}^3$，体素边长为 2\,cm；它不表示精确零相交。
+
+\input{table-visual-zh}
+
+FID 的微小差异与略高的 KID 不足以证明分布质量改善。这些视觉结果仅适用于该子集。论文已发表数字因测试数据、输入条件和渲染设置不同，不能直接作为本表对照。当前证据支持系统各阶段的效果分析；对既有方法的优越性、独立盲测表现及人工可用性仍需额外验证。

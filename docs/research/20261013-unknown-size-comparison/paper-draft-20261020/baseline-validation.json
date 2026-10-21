@@ -1,0 +1,16 @@
+{
+  "source": "/Users/slian/Desktop/3D/Worldedge/OptiScene/paper/FastFill-evaluation-bilingual.tex",
+  "pdf": "/Users/slian/Desktop/3D/Worldedge/OptiScene/paper/FastFill-evaluation-bilingual.pdf",
+  "isolated_build_directory": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-baselines-latex-0ou7t9n6",
+  "compiler": "latexmk -xelatex",
+  "compile_exit_code": 0,
+  "pages": 6,
+  "warnings": [],
+  "external_document_dependencies": [],
+  "tables": 8,
+  "references": 4,
+  "source_sha256": "7d47c59c41692234cde2c4dc637eb9dc2568953fe2ed0602713e9e5116577962",
+  "pdf_sha256": "3a63d1b04c112651213c7d038e52536d3f4a8a4c3766cd00143138edb47fc572",
+  "independent_content_review": "repo_results: baseline numbers and identities checked against saved CSV; overlap and first-answer wording corrected",
+  "visual_review": "All 6 pages inspected; pages 3 and 5 re-rendered after final wording adjustment."
+}

@@ -1,0 +1,32 @@
+{
+  "old_scoring_root": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-oldscore-crossreview-eabka8ij/old",
+  "old_has_verify_outputs": false,
+  "command": [
+    "/Users/slian/miniforge3/bin/python",
+    "/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/verify_outputs.py",
+    "--output",
+    "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-oldscore-crossreview-eabka8ij/evaluation",
+    "--tag",
+    "sft",
+    "--scoring-root",
+    "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-oldscore-crossreview-eabka8ij/old",
+    "--workers",
+    "2"
+  ],
+  "returncode": 0,
+  "receipt_status": "complete",
+  "runtime": {
+    "executable": "/Users/slian/miniforge3/bin/python3.12",
+    "packages": {
+      "numpy": "1.26.4",
+      "shapely": "2.1.1",
+      "torch": "2.13.0",
+      "transformers": "5.14.1",
+      "vllm": null
+    },
+    "python": "3.12.9",
+    "sys_version": "3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:44:42) [Clang 18.1.8 ]"
+  },
+  "stdout": "[verify_outputs] independently re-scored sft/dev_rooms: 1 rows\n[verify_outputs] independently re-scored sft/dev_constrained_rooms: 1 rows\n[verify_outputs] independently re-scored sft/test_rooms: 1 rows\n[verify_outputs] independently re-scored sft/test_constrained_rooms: 1 rows\n{\"status\": \"complete\", \"verified_cells\": 4, \"cached_cells\": 0, \"tags\": [\"sft\"]}\n",
+  "stderr": ""
+}

@@ -1,0 +1,35 @@
+% Compile with XeLaTeX (or latexmk -xelatex main.tex).
+\documentclass[10pt,a4paper,fontset=fandol]{ctexart}
+\usepackage[margin=20mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,tabularx,array}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{microtype}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=*}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.13}
+\newcommand{\up}{\ensuremath{\uparrow}}
+\newcommand{\down}{\ensuremath{\downarrow}}
+\newcommand{\oor}{\operatorname{OOR}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\metricname}[1]{\textbf{#1}}
+\input{numbers}
+\title{FastFill: Experiments and Evaluation\\[3pt]\large 实验与评测（中英双语简稿）}
+\author{}
+\date{20 October 2026}
+\begin{document}
+\pagestyle{plain}
+\maketitle
+\vspace{-1.6em}
+\renewcommand{\tablename}{Table}
+\input{evaluation-en}
+\clearpage
+\renewcommand{\tablename}{表}
+\input{evaluation-zh}
+\renewcommand{\refname}{References / 参考文献}
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+\end{document}

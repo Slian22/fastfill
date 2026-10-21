@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "tests": 10,
+  "remote_commands_executed": false,
+  "initial_race": "Old job could start between pending inspection and cancellation; fixed by holding all old jobs, verifying Pending/RunTime0/Priority0 before any cancellation.",
+  "gpu_hours_cap": 84,
+  "cpu_job_wall_hours_cap": 12.5,
+  "cpu_core_hours_cap": 386,
+  "files": [
+    {
+      "path": "/tmp/fastfill-v11-reaudit-20261011/deploy_helpers.py",
+      "sha256": "93f927ca7d4533490c49edfd4e647abd67e12ab74a23053432e8bed06c1d83ec",
+      "lines": 27
+    },
+    {
+      "path": "/tmp/fastfill-v11-reaudit-20261011/replace_pending_jobs.py",
+      "sha256": "51420d645ea12b12a3155ed4fb8b99d38fb83828ff2db24355fba92466bdb2f2",
+      "lines": 110
+    },
+    {
+      "path": "/tmp/fastfill-v11-reaudit-20261011/test_deployment_transaction.py",
+      "sha256": "5ebc5d5aba5dc56300189b63b0a948586a2346a73c39349f9e8a50714c43625b",
+      "lines": 143
+    }
+  ]
+}

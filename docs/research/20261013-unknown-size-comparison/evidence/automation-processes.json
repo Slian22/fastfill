@@ -1,0 +1,9 @@
+{
+  "launcher_pid": 41825,
+  "launcher_ppid": 1,
+  "driver_pid": 42372,
+  "master_pid": 41826,
+  "caffeinate_pid": 42373,
+  "watchdog": "independent launcher SIGALRM",
+  "watchdog_seconds": 432000
+}

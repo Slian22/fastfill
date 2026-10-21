@@ -1,0 +1,8 @@
+{
+  "synthetic_only": true,
+  "same_case_hash": true,
+  "reference_mtl_sha256": "1a8f77270d4ae472d661bdf7dff221db28f933c59fc69a3384a706833250f570",
+  "later_accepted_mtl_sha256": "00fa252067f7637271bc6aa443768dbb4dfc20bafd10269b40d13e051cba89c4",
+  "new_resource_accepted_without_frozen_hash": true,
+  "limits": "CPU planning replay only. No production asset edited, no rendering or API call."
+}

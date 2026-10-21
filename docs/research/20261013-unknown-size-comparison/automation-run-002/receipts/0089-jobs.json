@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=30",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=2",
+    "-o",
+    "ControlMaster=no",
+    "-o",
+    "ControlPath=/tmp/ff-u6uv-koee4y6n/control.sock",
+    "u6uv.aip2.isambard",
+    "sacct -n -P -j 7365659,7365681,7365682,7367626,7367628,7367629 --format=JobIDRaw,State,ExitCode"
+  ],
+  "error_type": "KeyboardInterrupt",
+  "stage": "jobs",
+  "started_unix": 1791876969.414946,
+  "status": "failed",
+  "timeout_seconds": 120
+}

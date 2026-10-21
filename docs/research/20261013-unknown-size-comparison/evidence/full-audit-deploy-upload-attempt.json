@@ -1,0 +1,6 @@
+{
+  "started_unix": 1791876702.2000058,
+  "remote_code_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72",
+  "archive_sha256": "2ddc0edf68d6dd6fdc71727450afe5ea94a1ffc31641923deb41638e1fc4a10e",
+  "authorization": "parent PATCH_FROZEN/testREADY authorizes prepare+upload only; switch held"
+}

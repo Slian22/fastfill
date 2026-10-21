@@ -1,0 +1,12 @@
+{
+  "pytorch_fid": "0.3.0",
+  "torch": "2.13.0",
+  "torchvision": "0.28.0",
+  "scipy": "1.15.2",
+  "dims": 2048,
+  "weights_path": "/Users/slian/.cache/torch/hub/checkpoints/pt_inception-2015-12-05-6726825d.pth",
+  "weights_sha256": "6726825d0af5f729cebd5821db510b11b1cfad8faad88a03f1befd49fb9129b2",
+  "weights_bytes": 95628359,
+  "device": "cpu",
+  "metric_status": "prepared; no FID computed yet"
+}

@@ -1,0 +1,12 @@
+{
+  "purpose": "compute_node_connectivity_only",
+  "api_scoring_calls": 0,
+  "credentials_read": false,
+  "credential_file_present": true,
+  "credential_file_readable": true,
+  "credential_file_mode": "0o600",
+  "started_unix": 1791870303.4467494,
+  "http_status": 401,
+  "network_reachable": true,
+  "finished_unix": 1791870304.3872778
+}

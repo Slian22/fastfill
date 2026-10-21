@@ -1,0 +1,30 @@
+{
+  "purpose": "Validated candidate source identities; unified.py was read only and is recorded as the shared dependency for paired regeneration.",
+  "files": [
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "bytes": 7306,
+      "sha256": "aef249703105ecf5003be6b3e31bc4ffcdd2492bf96bf6f7b529a29b5987688e"
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "bytes": 2104,
+      "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826"
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "bytes": 1829,
+      "sha256": "37bc56b0b48bce50f800d0a78ddb84eb2fb1ab40f65658b5ac6be45e1dfaf0d9"
+    },
+    {
+      "path": "fastfill/tests/test_source_tilt_correction.py",
+      "bytes": 20261,
+      "sha256": "fe78f14fa5a23d7f7ec2f15fe090752b1dfce6e4eb835b37ff87afa70b181b2a"
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "bytes": 5643,
+      "sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7"
+    }
+  ]
+}

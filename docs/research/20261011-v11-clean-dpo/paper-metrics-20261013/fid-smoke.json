@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "shape": [
+    2,
+    2048
+  ],
+  "all_finite": true,
+  "purpose": "feature extraction smoke; not FID or dataset score"
+}

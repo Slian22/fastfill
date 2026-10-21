@@ -1,0 +1,101 @@
+{
+  "tag": "dpo1",
+  "model": {
+    "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/dpo1_merged",
+    "files": {
+      "chat_template.jinja": {
+        "sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "size_bytes": 4168
+      },
+      "config.json": {
+        "sha256": "6dbedfb51cf68ebea47e96217172f551818fc21d3b3ec6202d819a61adaae2a2",
+        "size_bytes": 1620
+      },
+      "generation_config.json": {
+        "sha256": "5292414bc5c987a1498cf50e6370ecf4939f451e023c74bb3facbdce8445a153",
+        "size_bytes": 214
+      },
+      "model.safetensors": {
+        "sha256": "d887e041e4ea93ed39430f3c459e2fcc7bd2b5fb2f5a892fc73dfa0257be8492",
+        "size_bytes": 16381517208
+      },
+      "run_manifest.json": {
+        "sha256": "935ad998084d008fb2ff92609ae5bb4ec56f3015252b133d09bb3cca09443d4f",
+        "size_bytes": 522
+      },
+      "tokenizer.json": {
+        "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+        "size_bytes": 11422650
+      },
+      "tokenizer_config.json": {
+        "sha256": "1689852cc9c45010de040c8302a8acdc0d2c4c6c740dd7e9dd0a8c704e16eada",
+        "size_bytes": 377
+      }
+    }
+  },
+  "source_package": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515/fastfill",
+  "guard": {
+    "sha256": "3bee4c0b70b260a0b963903acbe5629e54d1ba986efec4e9dca7f06dae9ee301",
+    "size_bytes": 2887
+  },
+  "merge": {
+    "sha256": "0f1bb2ac7a2fc830deb11d5ddb19e74634545c5ce95b553e6fcef89c50d9e2e8",
+    "size_bytes": 3486
+  },
+  "completion": {
+    "evidence": "legacy_final_matches_complete_checkpoint",
+    "checkpoint": {
+      "sha256": "b4745bfac31d8cf7c49ea1b370096608c051a11a094e1ec1c2a565410c456709",
+      "size_bytes": 698783875
+    },
+    "admitted_pairs": 7244,
+    "position": {
+      "epoch": 1,
+      "it": 1810,
+      "step": 906
+    }
+  },
+  "parent": {
+    "tag": "sft",
+    "model": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1/sft_merged",
+      "files": {
+        "chat_template.jinja": {
+          "sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+          "size_bytes": 4168
+        },
+        "config.json": {
+          "sha256": "6dbedfb51cf68ebea47e96217172f551818fc21d3b3ec6202d819a61adaae2a2",
+          "size_bytes": 1620
+        },
+        "generation_config.json": {
+          "sha256": "5292414bc5c987a1498cf50e6370ecf4939f451e023c74bb3facbdce8445a153",
+          "size_bytes": 214
+        },
+        "model.safetensors": {
+          "sha256": "2dd790ddc97d14acded01d8d397facc96e47acd1b192bd59366786226fc5e4f9",
+          "size_bytes": 16381517208
+        },
+        "run_manifest.json": {
+          "sha256": "c7551b9cdbdc3462013cf315966e72a93dc6f24f03709e7edd1d96da019fad13",
+          "size_bytes": 3320
+        },
+        "run_manifest.resume1.json": {
+          "sha256": "de3fcc5bbfd088f15c236e5718271f649963a061626b3157ddb791145a40c0d7",
+          "size_bytes": 3319
+        },
+        "tokenizer.json": {
+          "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+          "size_bytes": 11422650
+        },
+        "tokenizer_config.json": {
+          "sha256": "1689852cc9c45010de040c8302a8acdc0d2c4c6c740dd7e9dd0a8c704e16eada",
+          "size_bytes": 377
+        }
+      }
+    },
+    "completion": {
+      "evidence": "legacy_sft_model_identity_only"
+    }
+  }
+}

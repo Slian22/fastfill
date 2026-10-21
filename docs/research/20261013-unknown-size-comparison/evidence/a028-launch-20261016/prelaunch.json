@@ -1,0 +1,16 @@
+{
+  "checked_at_utc": "2026-10-16T02:46:03.668453+00:00",
+  "original_worktree_sha256": {
+    "fastfill/comparison/a021_train.py": "8f5a1fe5fbb854b5364917e6c23c94569ce727a2aa19b5d707a68e0884fe83ad",
+    "fastfill/comparison/isambard_021_train.sbatch": "5ee965ccbc7f21a015107d16ee25e83d54581640e9e59c55504fa08a73540aeb",
+    "fastfill/comparison/isambard_021_eval.sbatch": "db52a25bf739990af0ffd2a8c84b8700f74410b781f4233f4c1e3c9bcb44169c",
+    "fastfill/comparison/a028.py": "13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47",
+    "fastfill/comparison/submit_028.sh": "505872737ef1d7a01616ccc6ab1b9bdf5f8e6aa406d20485d0ea9d592590086c",
+    "fastfill/comparison/tests/test_a028.py": "1b44861956a20df282913c7fddd6d6d29bebfc8f5180534ca13c0c22e84bbb08"
+  },
+  "isolated_worktree": "/tmp/optiscene-a028-20261016",
+  "original_head": "e0f68ea9bc34dfdcf10eea862678767897b9cde6",
+  "prior_authorization": "research-log.md266,2026-10-15T16:35UTC,amendment028lockedfdc6ed4bb",
+  "budget_gpu_hours": 80,
+  "api_calls_allowed": 0
+}

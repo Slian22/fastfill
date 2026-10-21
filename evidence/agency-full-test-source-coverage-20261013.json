@@ -1,0 +1,1487 @@
+{
+  "schema_version": 1,
+  "status": "in_progress",
+  "scope": "Tests from primary/delegated_metric entries in agency-full-code-coverage-20261013.json only",
+  "inventory_manifest": "evidence/agency-full-code-coverage-20261013.json",
+  "inventory_manifest_sha256": "d85311fcb0501d696c7f020f964659bb9169c1499e1884d90b02e47cee8753c3",
+  "definitions": {
+    "fresh_full": "Every line displayed and reviewed at recorded sha256; final hash revalidation required",
+    "reused_hash_validated": "Explicit full-read assertion at matching SHA256; not a fresh source read",
+    "unreviewed": "Hash/inventory only; not a read"
+  },
+  "delegation_ready_batches": [
+    {
+      "batch": "v2-1",
+      "status": "unassigned",
+      "paths": [
+        "fastfill/v2/tests/test_accumulation_tail.py",
+        "fastfill/v2/tests/test_autorun.py",
+        "fastfill/v2/tests/test_constraint_schema.py",
+        "fastfill/v2/tests/test_data.py",
+        "fastfill/v2/tests/test_direct_layout.py",
+        "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+        "fastfill/v2/tests/test_legacy_evidence.py",
+        "fastfill/v2/tests/test_legacy_workers.py",
+        "fastfill/v2/tests/test_llm_baseline.py",
+        "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+        "fastfill/v2/tests/test_model.py",
+        "fastfill/v2/tests/test_model_review_fixes.py",
+        "fastfill/v2/tests/test_predict.py",
+        "fastfill/v2/tests/test_qualified_data.py",
+        "fastfill/v2/tests/test_regularizer_support_review.py",
+        "fastfill/v2/tests/test_review_repairs_r2.py",
+        "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+        "fastfill/v2/tests/test_round14_eval_math.py",
+        "fastfill/v2/tests/test_round4_matching.py",
+        "fastfill/v2/tests/test_round5_train.py",
+        "fastfill/v2/tests/test_runtime_cli.py",
+        "fastfill/v2/tests/test_runtime_evaluation.py",
+        "fastfill/v2/tests/test_size_range.py",
+        "fastfill/v2/tests/test_spread_decode.py",
+        "fastfill/v2/tests/test_text_sft.py",
+        "fastfill/v2/tests/test_train_loop_fix20261006.py"
+      ]
+    },
+    {
+      "batch": "v2-2",
+      "status": "unassigned",
+      "paths": [
+        "fastfill/v2/tests/test_active_objective_distributed.py",
+        "fastfill/v2/tests/test_asset_attribute_contract.py",
+        "fastfill/v2/tests/test_augment_repair_fix20261006.py",
+        "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+        "fastfill/v2/tests/test_data_builder_fix20261006.py",
+        "fastfill/v2/tests/test_evaluate_fix20261006.py",
+        "fastfill/v2/tests/test_execution.py",
+        "fastfill/v2/tests/test_integrator_fix20261006.py",
+        "fastfill/v2/tests/test_legacy_bridge.py",
+        "fastfill/v2/tests/test_legacy_build.py",
+        "fastfill/v2/tests/test_llm_structured.py",
+        "fastfill/v2/tests/test_minimal_data.py",
+        "fastfill/v2/tests/test_multisource_data.py",
+        "fastfill/v2/tests/test_reference_extent.py",
+        "fastfill/v2/tests/test_review_data.py",
+        "fastfill/v2/tests/test_round10_wall_decode.py",
+        "fastfill/v2/tests/test_round3_data.py",
+        "fastfill/v2/tests/test_round3_eval_handoff.py",
+        "fastfill/v2/tests/test_round4_spread.py",
+        "fastfill/v2/tests/test_round6_roomgenbench.py",
+        "fastfill/v2/tests/test_runtime_preflight.py",
+        "fastfill/v2/tests/test_runtime_support_contract.py",
+        "fastfill/v2/tests/test_text_record_review.py",
+        "fastfill/v2/tests/test_train_eval_r2.py",
+        "fastfill/v2/tests/test_validation_floor_front_review.py"
+      ]
+    },
+    {
+      "batch": "v2-3",
+      "status": "unassigned",
+      "paths": [
+        "fastfill/v2/tests/test_active_objective_training.py",
+        "fastfill/v2/tests/test_audit_c2_uniform_yaw.py",
+        "fastfill/v2/tests/test_batch.py",
+        "fastfill/v2/tests/test_batch_handoff_r2.py",
+        "fastfill/v2/tests/test_bounded_io.py",
+        "fastfill/v2/tests/test_complete_cohort.py",
+        "fastfill/v2/tests/test_data_policy_r2.py",
+        "fastfill/v2/tests/test_evaluation_failure_latency.py",
+        "fastfill/v2/tests/test_fixed_capability_review.py",
+        "fastfill/v2/tests/test_followups_r2.py",
+        "fastfill/v2/tests/test_geometry_core.py",
+        "fastfill/v2/tests/test_isambard_inputs.py",
+        "fastfill/v2/tests/test_legacy_bridge_geometry.py",
+        "fastfill/v2/tests/test_legacy_verify.py",
+        "fastfill/v2/tests/test_loss_config_review.py",
+        "fastfill/v2/tests/test_matching.py",
+        "fastfill/v2/tests/test_model_loss_r2.py",
+        "fastfill/v2/tests/test_multisource_verify.py",
+        "fastfill/v2/tests/test_roomgenbench.py",
+        "fastfill/v2/tests/test_round10_wall_selection.py",
+        "fastfill/v2/tests/test_round3_resume.py",
+        "fastfill/v2/tests/test_round5_spread.py",
+        "fastfill/v2/tests/test_round6_leftovers.py",
+        "fastfill/v2/tests/test_round7_reference.py",
+        "fastfill/v2/tests/test_runtime.py",
+        "fastfill/v2/tests/test_schema_review.py",
+        "fastfill/v2/tests/test_slot_pooling_review.py",
+        "fastfill/v2/tests/test_supervision.py",
+        "fastfill/v2/tests/test_training_record_review.py",
+        "fastfill/v2/tests/test_validation.py",
+        "fastfill/v2/tests/test_verify_bundle.py",
+        "fastfill/v2/tests/test_vlm_judge.py"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "fastfill/comparison/tests/test_context_plan.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "10690e6c74a3fab18d56e84ee23aa07204a887b75bcf52dce40ca877f27ab5c0",
+      "sha256": "10690e6c74a3fab18d56e84ee23aa07204a887b75bcf52dce40ca877f27ab5c0",
+      "lines": 194,
+      "fresh_read_spans": [
+        [
+          1,
+          194
+        ]
+      ],
+      "read_status": "fresh_full",
+      "reader": "Test Results Analyzer"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "92058117a35f85d646890e942bc076ab353a206b86cb6ac853f56a9d35a0ef41",
+      "sha256": "92058117a35f85d646890e942bc076ab353a206b86cb6ac853f56a9d35a0ef41",
+      "lines": 422,
+      "fresh_read_spans": [
+        [
+          1,
+          422
+        ]
+      ],
+      "read_status": "fresh_full",
+      "reader": "Test Results Analyzer"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_corpus.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "506f95e3d12aa83d6c6de567dbd2f1d151ab07efa7440c40bccdfd331f0771d1",
+      "sha256": "506f95e3d12aa83d6c6de567dbd2f1d151ab07efa7440c40bccdfd331f0771d1",
+      "lines": 460,
+      "fresh_read_spans": [
+        [
+          1,
+          460
+        ]
+      ],
+      "read_status": "fresh_full",
+      "reader": "Test Results Analyzer"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "cb03689a0700c7f1fd67556dd40b7ab824cbab2e6446790e8f1db1fe7ff3da66",
+      "sha256": "cb03689a0700c7f1fd67556dd40b7ab824cbab2e6446790e8f1db1fe7ff3da66",
+      "lines": 151,
+      "fresh_read_spans": [
+        [
+          1,
+          151
+        ]
+      ],
+      "read_status": "fresh_full",
+      "reader": "Test Results Analyzer"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_eval_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "71798cc35e2168ce77ff766141bd946a9e8875173d99ef90d084af4c79c94205",
+      "sha256": "71798cc35e2168ce77ff766141bd946a9e8875173d99ef90d084af4c79c94205",
+      "lines": 281,
+      "fresh_read_spans": [
+        [
+          1,
+          281
+        ]
+      ],
+      "read_status": "fresh_full",
+      "reader": "Test Results Analyzer"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_evaluate_pair.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "inventory_sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "lines": 100,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+          "manifest_sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+          "assertion": "read_scope=full at exact original sha256",
+          "sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_fid.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "inventory_sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "lines": 304,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+          "manifest_sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+          "assertion": "read_scope=full at exact original sha256",
+          "sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_final_tables.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "inventory_sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "sha256": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "lines": 122,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_geometry.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "inventory_sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "sha256": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "lines": 271,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_infer.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "sha256": "d5e4943dde08055dddbc8873f71d4c1e47c583617a66f4105944dff3ddc2ac53",
+      "lines": 415,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_judge_batch.py",
+      "scope": "delegated_metric",
+      "role": "test",
+      "inventory_sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "lines": 542,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+          "manifest_sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+          "assertion": "read_scope=full at exact original sha256",
+          "sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_main_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "sha256": "9210de6f73c1b956bc073414e1cfbf9c8a12c39c7291822e2f74b4ad18e8fb05",
+      "lines": 413,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_overnight.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "sha256": "db8d64de3d2d06c184f744f5ac2d3b73a47981cf8e93fa7f644737827ef0257b",
+      "lines": 601,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_pose_targets.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "sha256": "1f2ae66289e7b6c42480fe89f7b25ada9e2027f130f168b4270a85380a52ea4d",
+      "lines": 394,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_render_assets.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "sha256": "87e4493b7e6bf30f4826eff434bbdce78c2fa8cf036c81822d0e052e58c2f5c9",
+      "lines": 556,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_size_prior.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "sha256": "60072f98f8c59bac4507f143b85363df807e27748e154f1203db681030c3f093",
+      "lines": 315,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_train_pair.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "sha256": "29bf539d83577e7e943b91844e513d088026142d73d82dac912231100131e1e5",
+      "lines": 917,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_cases.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "lines": 269,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.json",
+          "manifest_sha256": "e49a829270ba1f45a9408f797499e45f753843a4189cf98403f43aea87727149",
+          "assertion": "read_scope=full at exact original sha256",
+          "sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "sha256": "f7ef18ffa0974ef81d3090f01e575ad8e202c9f85c8d54be43c6cb7a84a1a577",
+      "lines": 431,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_adapter_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "sha256": "2306c3044e1b0960fdd0af9cbc6317463d190817c6964769a1cb58cc07d64791",
+      "lines": 491,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_build_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "sha256": "39e0447b31310a52b77fd843e571078c3e9a01937a775c71c46cff5aa533b7b0",
+      "lines": 211,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_embedded_contracts.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "sha256": "0f2c6ed37414799f3c64adeaf25bccfdf14563ef6ac6d54596097e7399ca4f0d",
+      "lines": 18,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_qa_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "sha256": "e833fe783bd12fca3ad7c4b54959760f70f1cd4a6f6d0cfd4675026be49d040a",
+      "lines": 454,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_runtime_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "sha256": "1a4547235a4a0f8969f06e7f96cc1a338169d5810ba5d5d4c694f95bab506aa0",
+      "lines": 388,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/tests/test_training_repairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+      "lines": 283,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "643484f19de960c6854e7658b41fa998e30769a2d1ded5228676f3b377db1cd9",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/tests/test_v1_1_audit_pairs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+      "lines": 210,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "085b1099445c73addbfac887ddefa43c255183b8948c38b1502c821bcef632e8",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_audit_report.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+      "lines": 181,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "726b8a59c0bfdf189d64de125b944938ddfc5a5d0c71621b82a548f423d6666d",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automate.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+      "lines": 259,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "b1e0cf5c846df973db4e36ec5e03ee875f27f9d2ec283c86f77f7d15810b9664",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_automation_lineage.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+      "lines": 250,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "cc1d0b8fd67dd73841318119cc884fab52b15954aa3f2dfdd880cb0cfda6aeb4",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_build_dpo_integrity.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+      "lines": 366,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "bc237ae8d1a9b6da87fbb618939081f1166fe114e116d0913b9cebe62923ce60",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+      "sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+      "lines": 259,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "6dfa719ed529f6f1ccded04c70610eb73e869f9163ee3d5cc6f706be42018c70",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_protocol.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+      "lines": 241,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "a8e419030ace10388e3c2416977818fbfe07e85c2f7bc4016ac1ad222e6e74e7",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_evaluation_resume.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+      "lines": 255,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "b7bbfe171ee395ceb07d2f83e22581c287f7cb522818211045b56c61699068bf",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_research_report.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+      "lines": 188,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "ae00a29a273029325015db4c625731df94ee8ac2f7d3f9ac4485e787f65626c4",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_roomgenbench_recovery.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+      "lines": 209,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "f6fdfaa09eb3a793e11f12755b361a36c602de8aad17f8bc50c55580f6547a93",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_training_guard.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+      "lines": 286,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "35cf2c0efefd0fac9b71c359d91ddecfe57b29a14fda9dbc743c761654d84b96",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verified_sbatch.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+      "lines": 169,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "1f00d826ecd01974e40724c42f602823efb470cd65430be8a2a7e58c7f0b9d1d",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/tests/test_verify_outputs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+      "lines": 219,
+      "read_status": "reused_hash_validated",
+      "fresh_read_spans": [],
+      "prior_full_read_evidence": [
+        {
+          "manifest": "docs/research/20261011-v11-clean-dpo/reaudit-coverage.json",
+          "sha256": "4d96e8560e76a8b0aecf968048ae41b439c87933b01ea2a1f799760ea47ea502",
+          "assertion": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/tests/test_accumulation_tail.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "sha256": "c7bbdd9b3181a2b257387ab983aba44e8f1a571e2aa6c59554f520710e0ba07a",
+      "lines": 206,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "lines": 103,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_active_objective_training.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "a91887bc39b6fc41892836337011d550ef7e1f152565198c673fa1c646a4e2e4",
+      "sha256": "a91887bc39b6fc41892836337011d550ef7e1f152565198c673fa1c646a4e2e4",
+      "lines": 199,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_asset_attribute_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "lines": 97,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_audit_c2_uniform_yaw.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "caf9b340c43cc43c234db31dae26ebcb260885ecd7b4534088c7f797496d10ec",
+      "sha256": "caf9b340c43cc43c234db31dae26ebcb260885ecd7b4534088c7f797496d10ec",
+      "lines": 37,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_augment_repair_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "lines": 125,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_autorun.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "sha256": "36229eda2e01dda704e767221678d160c87e83694d2415a51d73a73dc33a98f7",
+      "lines": 407,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "4bfd87258e77adeaee8b955a7c6be63633287949552a0a2f8cf835e6c419f9c8",
+      "sha256": "4bfd87258e77adeaee8b955a7c6be63633287949552a0a2f8cf835e6c419f9c8",
+      "lines": 102,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "lines": 324,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch_handoff_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "c1815879aee64d8ac612efc1568c250ec3728da7dea85fe741e454fb537db4f3",
+      "sha256": "c1815879aee64d8ac612efc1568c250ec3728da7dea85fe741e454fb537db4f3",
+      "lines": 247,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_bounded_io.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "8e5e3cf560af60214a7b6f631037d9ed9915dabc17231babfb2957b0ce5bb1a7",
+      "sha256": "8e5e3cf560af60214a7b6f631037d9ed9915dabc17231babfb2957b0ce5bb1a7",
+      "lines": 20,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_complete_cohort.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "759e8b4371f86e16b808c7dfe9d9f68172a8e2245455fb4ab01e8ae49ce84b70",
+      "sha256": "759e8b4371f86e16b808c7dfe9d9f68172a8e2245455fb4ab01e8ae49ce84b70",
+      "lines": 190,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_constraint_schema.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "sha256": "f343f639e321dd0b0ecc2f03ba8231400d6f5b3dbb48cb41c366fbcf05e61230",
+      "lines": 26,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "sha256": "f7a0a4b1d8c05616eeb21820036f3a05c2300e97ac805a1cf9eafcd785087ad4",
+      "lines": 232,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_data_builder_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "lines": 261,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_data_policy_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1741715ed2a49f1135ecf0511719d64dda5d72cdd8b9531da1f2d160054995e8",
+      "sha256": "1741715ed2a49f1135ecf0511719d64dda5d72cdd8b9531da1f2d160054995e8",
+      "lines": 222,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_direct_layout.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "sha256": "c5c6a77a017bcb415b2ca97645d8a55050e162d9c1d395b64c93f5e97479bf19",
+      "lines": 469,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "lines": 171,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_evaluation_failure_latency.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "05087e2ea6a6eb662c0c281c60904033f9c17ddda79e8c8c983b33250ceca64c",
+      "sha256": "05087e2ea6a6eb662c0c281c60904033f9c17ddda79e8c8c983b33250ceca64c",
+      "lines": 74,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_execution.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "lines": 117,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_fixed_capability_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ec5d1d6b9205c07413580dd306045e7873c15ec4f6bf555a9a19130b98efa455",
+      "sha256": "ec5d1d6b9205c07413580dd306045e7873c15ec4f6bf555a9a19130b98efa455",
+      "lines": 72,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_followups_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ea2349f67aebd4820a320e8505e0bc124ae98558fde4475a80a78ac71c600173",
+      "sha256": "ea2349f67aebd4820a320e8505e0bc124ae98558fde4475a80a78ac71c600173",
+      "lines": 25,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_geometry_core.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "02a0045211b9981308802b9a2c33e84b39cb81cc2c1b4b6a7fa74d3dd39f8028",
+      "sha256": "02a0045211b9981308802b9a2c33e84b39cb81cc2c1b4b6a7fa74d3dd39f8028",
+      "lines": 57,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_integrator_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "lines": 146,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_isambard_inputs.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "df7dbc686157973d6e91ecc8f4f741332d471dba70ace968f90c87030ecd8f5f",
+      "sha256": "df7dbc686157973d6e91ecc8f4f741332d471dba70ace968f90c87030ecd8f5f",
+      "lines": 100,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "sha256": "31b42f26fd3e9518f020d217fb67fd10dcd8ae7aab9ff02c60159b026b4ea8e0",
+      "lines": 155,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_bridge.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "lines": 97,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_bridge_geometry.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "449a5f14ee92ff20f963307c27a12737c99af1dcb7705cff94ad4ad7cde090b3",
+      "sha256": "449a5f14ee92ff20f963307c27a12737c99af1dcb7705cff94ad4ad7cde090b3",
+      "lines": 202,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_build.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "lines": 238,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_evidence.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "sha256": "1e41608654f3d4e925fe38498375a70d2522ab290ab8528d8260f55ebdb29842",
+      "lines": 126,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_verify.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "4aae1dde53cbd6347011a7e38ab4c37613be114e4e7631815858d60b0ca8ccb4",
+      "sha256": "4aae1dde53cbd6347011a7e38ab4c37613be114e4e7631815858d60b0ca8ccb4",
+      "lines": 266,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_workers.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "sha256": "03e7fd8d5e382ad937ad6bde6934d711566a29d87bd8bd571c5aadc24c18d38f",
+      "lines": 52,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_baseline.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "sha256": "9ad03c6d24c5591f104bb224c50fe7d619db43bb775ba5f0439f00e504134bee",
+      "lines": 174,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_structured.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "lines": 246,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_loss_config_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "099603ffd92e2a031b9b7ccd3f33433c84ddee801d38f391749feaf0cbb7911f",
+      "sha256": "099603ffd92e2a031b9b7ccd3f33433c84ddee801d38f391749feaf0cbb7911f",
+      "lines": 51,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "sha256": "30e404a4a00f0b5aed6578002a337a66f6294f7c004325245af151d2dc4dda0e",
+      "lines": 125,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_matching.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "49a0076971a04aadb2f1bc54424a1598943cf01911cff5ccbe0c22088371b241",
+      "sha256": "49a0076971a04aadb2f1bc54424a1598943cf01911cff5ccbe0c22088371b241",
+      "lines": 124,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_minimal_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "lines": 241,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_model.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "sha256": "13324e88996821541e77babe6f5e62e49b099ec014ce23f3a8ea06906090e758",
+      "lines": 147,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_model_loss_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "9bb2ea4addd2f618d55007f706d9bee1fa983efb766cf2226e7c35a03bcdfd33",
+      "sha256": "9bb2ea4addd2f618d55007f706d9bee1fa983efb766cf2226e7c35a03bcdfd33",
+      "lines": 270,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_model_review_fixes.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "sha256": "d7ec8804c3366def003e5843584357025009c4959013f7dbaf7c258a96c14303",
+      "lines": 145,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_multisource_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "lines": 219,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_multisource_verify.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "bc2211ad12facc2ef948d8399100338f5c70e226b7cf2af2b5af14a63ae04ff0",
+      "sha256": "bc2211ad12facc2ef948d8399100338f5c70e226b7cf2af2b5af14a63ae04ff0",
+      "lines": 350,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_predict.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "sha256": "7fcf8d9d0975b03b73592b314533b3749e6ada12fb37bc5cf01d7ff580f345f5",
+      "lines": 67,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_qualified_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "sha256": "cc5e8b5e172621ba477c0c479598f3bb415ee37f666eceee3106eb431ee0ae83",
+      "lines": 127,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_reference_extent.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "lines": 157,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "sha256": "139e67e3ded4479f01e85384c02bd25bfa2e8ebb699b242439d32f5e7fd372e5",
+      "lines": 103,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "lines": 260,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "sha256": "871a4822b58ab7983bd8966dce1c714ef8fcca260c825a58a672a7759b9ee323",
+      "lines": 153,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_roomgenbench.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "425cdb3e844c139a8e1cef1d2afd5a05f481801b090f2e88112a40b66d44b185",
+      "sha256": "425cdb3e844c139a8e1cef1d2afd5a05f481801b090f2e88112a40b66d44b185",
+      "lines": 273,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "sha256": "9d9a44ec42555f1764edd70b31c20468ad8b82c3adc82537f3b9736262f939b7",
+      "lines": 202,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round10_wall_decode.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "lines": 140,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round10_wall_selection.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "73145f4864e7e4e1b9d2929a3d13647a4126901f29f481213d037781b654a4f4",
+      "sha256": "73145f4864e7e4e1b9d2929a3d13647a4126901f29f481213d037781b654a4f4",
+      "lines": 297,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round14_eval_math.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "sha256": "351430afee8ad66f78792b850c8b4bcf562f9bd29bd84dfc4ac5ed4719e3a6b3",
+      "lines": 300,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "lines": 163,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_eval_handoff.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "lines": 140,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_resume.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "17b0da3ddd2bd869296b2d0b04ce6cc23fb022e6c3a150a277c203eee1476acb",
+      "sha256": "17b0da3ddd2bd869296b2d0b04ce6cc23fb022e6c3a150a277c203eee1476acb",
+      "lines": 122,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_matching.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "sha256": "f47c04fb0a0cb5404c313846e15544474cca6c51b04b7013baae25ca6c24f0a0",
+      "lines": 126,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_spread.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "lines": 135,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round5_spread.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "8de4bad64859834f2a580a839dd95737619a72d596d6a00ae1b5354df78cb726",
+      "sha256": "8de4bad64859834f2a580a839dd95737619a72d596d6a00ae1b5354df78cb726",
+      "lines": 57,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round5_train.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "sha256": "399cade685234c75c1da8e6eb55e62ca596d78dd31a5d836021ffdccdc6eb425",
+      "lines": 191,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round6_leftovers.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "01eaa0419aeddf39bbff659c8911a80499647402e769b15cdf5d7d161a646a0b",
+      "sha256": "01eaa0419aeddf39bbff659c8911a80499647402e769b15cdf5d7d161a646a0b",
+      "lines": 74,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "lines": 285,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_round7_reference.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "60ba06a16c7034173bfb35268171d0d8f88a148d04f6fdcb35e5d2c87969e65f",
+      "sha256": "60ba06a16c7034173bfb35268171d0d8f88a148d04f6fdcb35e5d2c87969e65f",
+      "lines": 74,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "02347d2482a06fc2a7216dd62af5abcfc07f7214843dc207f321c946150fc657",
+      "sha256": "02347d2482a06fc2a7216dd62af5abcfc07f7214843dc207f321c946150fc657",
+      "lines": 216,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_cli.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "sha256": "a0603b9dbf10274e1c963e2165f67fd86531eca2c249ee5238364dea2303c5c6",
+      "lines": 72,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_evaluation.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "sha256": "737cccce0f82882caee70f8608364d670d2228ba33dbd07786c395090ea3a2cd",
+      "lines": 132,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_preflight.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "lines": 15,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_support_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "lines": 171,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_schema_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "3e39974e02667fdbd44edf507c88f8a66d9c2fbf8fb355a7217115dc88f28e2d",
+      "sha256": "3e39974e02667fdbd44edf507c88f8a66d9c2fbf8fb355a7217115dc88f28e2d",
+      "lines": 83,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_size_range.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "sha256": "0164559ee9bbd9e029182bf211df876682d6d5a3f3792e717891afac9e740ae5",
+      "lines": 73,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_slot_pooling_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "d42d8882aee7e3e38647bf5b8945f229ad05d5774d33b10500fdf9e6ee9269d9",
+      "sha256": "d42d8882aee7e3e38647bf5b8945f229ad05d5774d33b10500fdf9e6ee9269d9",
+      "lines": 40,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_spread_decode.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "sha256": "ea5f089cde017e8b0e37f4714e5f69be1ca6bf169b91758cc5803c1ed6ac988b",
+      "lines": 61,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_supervision.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "fb9ea54d5235780c1887d633b97c9f2a55df7e9c276efca6f3eb3f23c91f8081",
+      "sha256": "fb9ea54d5235780c1887d633b97c9f2a55df7e9c276efca6f3eb3f23c91f8081",
+      "lines": 168,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_record_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "lines": 88,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_sft.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "sha256": "ad0c6f575b34b659b033d28cd7b7054f0d8b310001af2819bf800ca068e9a5db",
+      "lines": 86,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_eval_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "lines": 315,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "sha256": "f2db1fb105f49a3da8ab6926d3f1b2a29c0949cc9fd244ab39acb223303491eb",
+      "lines": 399,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_training_record_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "8a851b7e8e8b89c9e8879a1c509cc83a092e7e28b2b26790d027ad9a2d37f2c3",
+      "sha256": "8a851b7e8e8b89c9e8879a1c509cc83a092e7e28b2b26790d027ad9a2d37f2c3",
+      "lines": 185,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_validation.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b3475409ef63b20722603bd5db6ef69aee9b3e456a9cff2e1ee54d5159011659",
+      "sha256": "b3475409ef63b20722603bd5db6ef69aee9b3e456a9cff2e1ee54d5159011659",
+      "lines": 91,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_validation_floor_front_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "lines": 104,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_verify_bundle.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "4fe758935f7b5a38bb35247aa209fd0763b286bdef2c1fdc229467a1c30eb698",
+      "sha256": "4fe758935f7b5a38bb35247aa209fd0763b286bdef2c1fdc229467a1c30eb698",
+      "lines": 64,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    },
+    {
+      "path": "fastfill/v2/tests/test_vlm_judge.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "7cab3052819aac9e6819535e7d8920be17a922f41c5b46b665eea768cd9e0d1c",
+      "sha256": "7cab3052819aac9e6819535e7d8920be17a922f41c5b46b665eea768cd9e0d1c",
+      "lines": 137,
+      "read_status": "unreviewed",
+      "fresh_read_spans": []
+    }
+  ]
+}

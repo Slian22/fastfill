@@ -1,0 +1,18 @@
+{
+  "pid": 46557,
+  "ppid": 1,
+  "elapsed_seconds": 22.642184257507324,
+  "exit_code": 0,
+  "output": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual-detached-deployment",
+  "synthetic_non_test": true,
+  "api_calls": 0,
+  "verified_counts": {
+    "api_cases": 2,
+    "failed": 0,
+    "frozen": 1,
+    "gpt_selected": 1,
+    "rendered": 1
+  },
+  "purpose": "verify real asset access and rendering from detached inherited-authority CLI process; no privacy permission changes or metrics",
+  "verified_unix": 1791871527.607171
+}

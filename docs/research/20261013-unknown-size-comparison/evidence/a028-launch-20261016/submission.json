@@ -1,0 +1,47 @@
+{
+  "status": "SUBMITTED",
+  "returncode": 0,
+  "commit": "7373495ca9e35391a5981653997be5485f64e9b6",
+  "snapshot": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-7373495ca9",
+  "ops": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/ops/a028-launch-20261016-v1",
+  "jobs": [
+    {
+      "stage": "rows",
+      "job_id": 7461663
+    },
+    {
+      "stage": "smoke",
+      "job_id": 7461664
+    },
+    {
+      "stage": "smoke-vllm",
+      "job_id": 7461665
+    },
+    {
+      "stage": "train",
+      "job_id": 7461666
+    },
+    {
+      "stage": "train",
+      "job_id": 7461667
+    },
+    {
+      "stage": "infer-dev-select",
+      "job_id": 7461668
+    },
+    {
+      "stage": "infer-test",
+      "job_id": 7461669
+    },
+    {
+      "stage": "compare",
+      "job_id": 7461670
+    }
+  ],
+  "started_utc": "2026-10-16T03:09:03.355922+00:00",
+  "finished_utc": "2026-10-16T03:09:10.291433+00:00",
+  "cap_gpu_hours": 80,
+  "initial_gpu_hours_ceiling": 73,
+  "paid_api_calls_allowed": 0,
+  "method": "Foreground SSH; all roots held until every successor submitted, then released by original wrapper"
+}

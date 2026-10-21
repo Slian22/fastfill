@@ -1,0 +1,198 @@
+{
+  "bathroom": {
+    "n_objects": 55,
+    "n_fixed_doors_windows": 1,
+    "geometry_source": "model",
+    "parse_error": null,
+    "used_fallback": false,
+    "model_generation_succeeded": true,
+    "raw_main_collisions": 4,
+    "repaired_main_collisions": 0,
+    "repaired_severe_collisions": 0,
+    "repaired_support_fail": 5,
+    "repaired_oob": 0,
+    "repaired_fixed_blocking": 0,
+    "repaired_valid": false,
+    "fallback_geometry_valid": null,
+    "reference_check": {
+      "fastfill": {
+        "ok": false,
+        "pass": 201,
+        "violation": 45,
+        "unknown": 23
+      },
+      "ground_truth": {
+        "ok": false,
+        "pass": 201,
+        "violation": 13,
+        "unknown": 23
+      }
+    },
+    "assembled_3d_glb": {
+      "glb_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/roomgenbench_clean_final/bathroom/roomgenbench_scene.glb",
+      "glb_size_bytes": 15124104,
+      "n_glb_nodes": 63,
+      "counts": {
+        "ok": 55
+      },
+      "generated_mesh_success": true
+    }
+  },
+  "bedroom": {
+    "n_objects": 51,
+    "n_fixed_doors_windows": 1,
+    "geometry_source": "model",
+    "parse_error": null,
+    "used_fallback": false,
+    "model_generation_succeeded": true,
+    "raw_main_collisions": 5,
+    "repaired_main_collisions": 1,
+    "repaired_severe_collisions": 1,
+    "repaired_support_fail": 3,
+    "repaired_oob": 0,
+    "repaired_fixed_blocking": 0,
+    "repaired_valid": false,
+    "fallback_geometry_valid": null,
+    "reference_check": {
+      "fastfill": {
+        "ok": false,
+        "pass": 179,
+        "violation": 26,
+        "unknown": 29
+      },
+      "ground_truth": {
+        "ok": false,
+        "pass": 179,
+        "violation": 15,
+        "unknown": 29
+      }
+    },
+    "assembled_3d_glb": {
+      "glb_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/roomgenbench_clean_final/bedroom/roomgenbench_scene.glb",
+      "glb_size_bytes": 14512444,
+      "n_glb_nodes": 59,
+      "counts": {
+        "ok": 49,
+        "fit_mismatch": 2
+      },
+      "generated_mesh_success": false
+    }
+  },
+  "gym": {
+    "n_objects": 32,
+    "n_fixed_doors_windows": 1,
+    "geometry_source": "model",
+    "parse_error": null,
+    "used_fallback": false,
+    "model_generation_succeeded": true,
+    "raw_main_collisions": 4,
+    "repaired_main_collisions": 0,
+    "repaired_severe_collisions": 0,
+    "repaired_support_fail": 0,
+    "repaired_oob": 0,
+    "repaired_fixed_blocking": 0,
+    "repaired_valid": true,
+    "fallback_geometry_valid": null,
+    "reference_check": {
+      "fastfill": {
+        "ok": false,
+        "pass": 122,
+        "violation": 3,
+        "unknown": 10
+      },
+      "ground_truth": {
+        "ok": false,
+        "pass": 122,
+        "violation": 4,
+        "unknown": 10
+      }
+    },
+    "assembled_3d_glb": {
+      "glb_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/roomgenbench_clean_final/gym/roomgenbench_scene.glb",
+      "glb_size_bytes": 12308452,
+      "n_glb_nodes": 40,
+      "counts": {
+        "ok": 32
+      },
+      "generated_mesh_success": true
+    }
+  },
+  "livingroom": {
+    "n_objects": 53,
+    "n_fixed_doors_windows": 1,
+    "geometry_source": "model",
+    "parse_error": null,
+    "used_fallback": false,
+    "model_generation_succeeded": true,
+    "raw_main_collisions": 6,
+    "repaired_main_collisions": 3,
+    "repaired_severe_collisions": 1,
+    "repaired_support_fail": 0,
+    "repaired_oob": 0,
+    "repaired_fixed_blocking": 0,
+    "repaired_valid": true,
+    "fallback_geometry_valid": null,
+    "reference_check": {
+      "fastfill": {
+        "ok": false,
+        "pass": 176,
+        "violation": 8,
+        "unknown": 40
+      },
+      "ground_truth": {
+        "ok": false,
+        "pass": 176,
+        "violation": 19,
+        "unknown": 40
+      }
+    },
+    "assembled_3d_glb": {
+      "glb_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/roomgenbench_clean_final/livingroom/roomgenbench_scene.glb",
+      "glb_size_bytes": 14487688,
+      "n_glb_nodes": 61,
+      "counts": {
+        "ok": 53
+      },
+      "generated_mesh_success": true
+    }
+  },
+  "restaurant": {
+    "n_objects": 122,
+    "n_fixed_doors_windows": 1,
+    "geometry_source": "model",
+    "parse_error": null,
+    "used_fallback": false,
+    "model_generation_succeeded": true,
+    "raw_main_collisions": 8,
+    "repaired_main_collisions": 0,
+    "repaired_severe_collisions": 0,
+    "repaired_support_fail": 0,
+    "repaired_oob": 0,
+    "repaired_fixed_blocking": 0,
+    "repaired_valid": true,
+    "fallback_geometry_valid": null,
+    "reference_check": {
+      "fastfill": {
+        "ok": false,
+        "pass": 419,
+        "violation": 13,
+        "unknown": 73
+      },
+      "ground_truth": {
+        "ok": false,
+        "pass": 419,
+        "violation": 26,
+        "unknown": 73
+      }
+    },
+    "assembled_3d_glb": {
+      "glb_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/roomgenbench_clean_final/restaurant/roomgenbench_scene.glb",
+      "glb_size_bytes": 14531108,
+      "n_glb_nodes": 130,
+      "counts": {
+        "ok": 122
+      },
+      "generated_mesh_success": true
+    }
+  }
+}

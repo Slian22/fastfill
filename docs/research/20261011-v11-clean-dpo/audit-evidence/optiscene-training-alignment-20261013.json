@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-13",
+  "scope": "Actual FastFill V1.1 training/data implementation and warm-start identity; excludes scoring and paper-content review.",
+  "method": "Compiled from completed read-only local/SSH inspections, aggregate JSON scans, fresh warm-start shard SHA256 hashing, and public Hugging Face API reads. No rescans performed to create this artifact.",
+  "status": "WARN",
+  "interpretation": "Coherent task-specific SFT-to-DPO variant. Official paper checkpoint provenance and faithful reproduction are not established.",
+  "paths": {
+    "host": "u6uv.aip2.isambard",
+    "project": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+    "original_run": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1",
+    "clean_run": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+    "frozen_source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515"
+  },
+  "warm_start": {
+    "manifest_model_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/OptiScene-Qwen-8B-Final",
+    "hf_repo_id": "liantian/OptiScene-Qwen-8B-Final",
+    "hf_revision": "e554a8c835cb4b212b0af75a5f9adc969ef11194",
+    "hf_revision_metadata_url": "https://huggingface.co/api/models/liantian/OptiScene-Qwen-8B-Final/revision/e554a8c835cb4b212b0af75a5f9adc969ef11194?blobs=true",
+    "hf_author": "liantian",
+    "hf_private": false,
+    "hf_created_at": "2026-09-28T21:41:42.000Z",
+    "hf_last_modified": "2026-09-28T21:53:40.000Z",
+    "hf_card_data": null,
+    "hf_readme_listed": false,
+    "upstream_training_manifest_found": false,
+    "local_download_metadata_revision_matches": true,
+    "all_four_weight_shards_freshly_hashed_and_match_hf_revision": true,
+    "shards": [
+      {
+        "file": "model-00001-of-00004.safetensors",
+        "size_bytes": 4902257696,
+        "sha256": "39e82ec16594f6e748c531365ecd51bae860a2c3b0b27bc15e1d83fdc0f496de"
+      },
+      {
+        "file": "model-00002-of-00004.safetensors",
+        "size_bytes": 4915960368,
+        "sha256": "f7b7b6d4a00a3d1ac56978f6a9fbf294000a3bdd8fb58d7349c6078864439dd6"
+      },
+      {
+        "file": "model-00003-of-00004.safetensors",
+        "size_bytes": 4983068496,
+        "sha256": "d969c8a1cf74e79f8dbc1c2549d606c171e1c5313303b2ea307718a9b8fc2e26"
+      },
+      {
+        "file": "model-00004-of-00004.safetensors",
+        "size_bytes": 1580230264,
+        "sha256": "ab1395e7eebe8938f80f1d8c928594b65f6ced218f70ec86653ef0a25408c6bc"
+      }
+    ],
+    "architecture": "Qwen3ForCausalLM",
+    "model_type": "qwen3",
+    "model_max_position_embeddings": 40960,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "eos_token": "<|im_end|>",
+    "eos_token_id": 151645,
+    "pad_token": "<|endoftext|>",
+    "upstream_training_history": "UNVERIFIED",
+    "paper_authors_checkpoint_identity": "UNVERIFIED",
+    "caveat": "The pipeline describes this as FastFill v1.0 Final, but that comment and the repository name do not independently establish earlier training or official-paper lineage. Shard hashes identify the current server bytes; the SFT manifest itself records a path, not an upstream revision."
+  },
+  "contract": {
+    "inputs": [
+      "room boundary and boundary_type",
+      "optional room_type and height",
+      "fixed boxes with size, position, yaw",
+      "requested movable object ids and optional descriptions",
+      "optional constraints"
+    ],
+    "movable_input_sizes_present": false,
+    "assistant_top_level_keys": [
+      "placements"
+    ],
+    "placement_fields": [
+      "id",
+      "optional on",
+      "size",
+      "pos",
+      "yaw"
+    ],
+    "supervised_reasoning_or_semantic_plan": false,
+    "enable_thinking": false,
+    "sft_supervision": "Assistant JSON plus <|im_end|>; prompt and padding labels -100.",
+    "actual_train_scan": {
+      "rows": 144150,
+      "assistant_only_placements_key": 144150,
+      "assistant_reasoning_tags": 0,
+      "assistant_reasoning_content_field": 0,
+      "user_object_size_keys": 0,
+      "fixed_objects": 428346,
+      "fixed_objects_with_size": 428346
+    },
+    "ordering_limitation": "IDs/order inherit target footprint area, category, dimensions, and target pose tie-breaks. Explicit size removal does not remove target-derived ordering."
+  },
+  "data": {
+    "revision": "FastFill v1.1 converted from release v3.2",
+    "train_sha256": "6ab4c001e566718ce3e89a51de08912edbc9ba2aa740fe4284741e04bd6650a0",
+    "release_rows": {
+      "train": 144150,
+      "dev": 8167,
+      "test": 8647
+    },
+    "release_groups": {
+      "train": 56145,
+      "dev": 3163,
+      "test": 3324
+    },
+    "reported_cross_split_overlap": {
+      "uids": 0,
+      "groups": 0,
+      "aliases": 0,
+      "furniture_keys": 0,
+      "layout_keys": 0
+    },
+    "held_out_current_split_sources": [
+      "SceneSmith",
+      "SpatialGen"
+    ],
+    "warm_start_held_out_exclusion_verified": false,
+    "sft_exclude_flags": [
+      "oob_objects",
+      "overlapping_furniture",
+      "fixed_collision",
+      "severe_collision",
+      "main_collision"
+    ],
+    "train_after_geometry_flags": 103319,
+    "train_length_dropped": 277,
+    "train_admitted": 103042,
+    "sft_dev_length_dropped": 22,
+    "sft_dev_admitted": 8145,
+    "sft_dev_geometry_filter_applied": false,
+    "source_weights": {},
+    "train_sources_after_geometry_before_length": {
+      "SpatialLM": 25171,
+      "MansionWorld": 18931,
+      "InternScenes_gen": 12092,
+      "IL3D_3dfront": 9276,
+      "OptiScene_holodeck": 8946,
+      "Structured3D": 8188,
+      "SAGE-10k": 7645,
+      "IL3D_synthetic": 6091,
+      "InteriorGS": 2595,
+      "InternScenes_arkit": 2194,
+      "HSSD200": 1015,
+      "InternScenes_mp3d": 570,
+      "InternScenes_3rscan": 311,
+      "InternScenes_scannet": 274,
+      "MultiScan": 15,
+      "Scan2CAD": 5
+    },
+    "source_counts_after_length_filter": null,
+    "constraint_counts": {
+      "raw_constrained": 42744,
+      "raw_unconstrained": 101406,
+      "geometry_kept_constrained": 30684,
+      "geometry_kept_unconstrained": 72635
+    },
+    "build_settings": {
+      "constraint_frac": 0.3,
+      "no_rot90": false,
+      "rotation": "one deterministic per-room sampled quarter-turn",
+      "field_dropout": 0.2,
+      "desc_dropout": 0.5,
+      "dev_fraction": 0.05,
+      "test_fraction": 0.05
+    }
+  },
+  "training": {
+    "shared": {
+      "lora_r": 32,
+      "lora_alpha": 64,
+      "lora_dropout": 0.05,
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ],
+      "max_len": 8192,
+      "dtype": "bfloat16",
+      "attention": "sdpa",
+      "scheduler": "cosine",
+      "weight_decay": 0.0,
+      "seed": 42,
+      "length_policy": "Drop whole examples/pairs; no silent truncation."
+    },
+    "sft": {
+      "manifest": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/sft_merged/run_manifest.json",
+      "resume_manifest": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/sft_merged/run_manifest.resume1.json",
+      "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/OptiScene-Qwen-8B-Final",
+      "lr": 5e-05,
+      "epochs": 1.0,
+      "per_device_batch_size": 1,
+      "grad_accum": 16,
+      "world_size": 2,
+      "effective_batch": 32,
+      "admitted_examples": 103042,
+      "completed_steps": 3221,
+      "final_epoch": 1.0,
+      "warmup_fraction": 0.03,
+      "save_steps": 500,
+      "full_ft": false,
+      "deepspeed": null,
+      "eval_max_len": 8192,
+      "resume_recorded": true,
+      "final_trainer_state": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1/sft_lora/checkpoint-3221/trainer_state.json"
+    },
+    "dpo1": {
+      "manifest": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/dpo1_lora/run_manifest.json",
+      "model_and_reference": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1/sft_merged",
+      "lr": 5e-06,
+      "beta": 0.1,
+      "epochs": 2,
+      "per_device_batch_size": 1,
+      "grad_accum": 4,
+      "world_size": 4,
+      "nominal_effective_batch": 16,
+      "audited_pairs": 7244,
+      "admitted_pairs": 7244,
+      "tokenizer_skipped": 0,
+      "completed_steps": 906,
+      "warmup_fraction": 0.05,
+      "save_steps": 150
+    },
+    "dpo2": {
+      "manifest": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/dpo2_lora/run_manifest.json",
+      "model_and_reference": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/dpo1_merged",
+      "lr": 2e-06,
+      "beta": 0.1,
+      "epochs": 2,
+      "per_device_batch_size": 1,
+      "grad_accum": 4,
+      "world_size": 4,
+      "nominal_effective_batch": 16,
+      "audited_pairs": 12000,
+      "admitted_pairs": 11968,
+      "tokenizer_skipped": 32,
+      "completed_steps": 1496,
+      "warmup_fraction": 0.05,
+      "save_steps": 150
+    },
+    "dpo_objective": "-logsigmoid(beta * ((policy_chosen - reference_chosen) - (policy_rejected - reference_rejected)))",
+    "dpo_reference_implementation": "Freeze merged stage base; disable new LoRA adapter under no_grad. Reference resets to clean DPO1 merge for stage 2.",
+    "dpo_log_probability": "Causally shifted assistant-only sequence sum, FP32 token cross-entropy, prompt/padding -100.",
+    "dpo_optimizer": "torch.optim.AdamW; grad norm clipped to 1.0; final accumulation window uses actual microbatch count.",
+    "tokenizer_skip_caveat": "Frozen loader prints all skips as overlength, but also rejects empty completions and prompt-prefix mismatches. The stage-2 log records 32 skips; this artifact does not independently classify each skipped row.",
+    "completion_basis": "Saved manifests, admitted-count logs, terminal step evidence and existing lineage records; not a new checkpoint release/clean-load certification."
+  },
+  "pairs": {
+    "sanitizer_protocol": "fastfill_v1.1_pair_sanitizer_v1",
+    "sanitizer_audit": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011/pairs/audit.json",
+    "policy": {
+      "reference": "Exact train uid/source/prompt; geometry and prompt constraints pass.",
+      "chosen": "Parse, geometry, all prompt constraints, reference-relative size bounds.",
+      "rejected": "At least one independently verified semantic defect.",
+      "size_lower": "min(gt, max(0.05, 0.45 * gt))",
+      "size_upper": "max(gt, min(6.0, 2.2 * gt))"
+    },
+    "stage1": {
+      "original_sha256": "376ee1096b2cad5a1f67d2a29dc5b49b18c9a71e6317c5b1a20e771ee8b969b1",
+      "cleaned_sha256": "072604820711e5749d11924ef1b3f38be1e662297a4efe80e446f47380447c1f",
+      "input_pairs": 8000,
+      "cleaned_pairs": 7244,
+      "dropped_unique": 756,
+      "overlapping_drop_reason_counts": {
+        "chosen_constraint_failure": 144,
+        "chosen_size_distortion": 475,
+        "rejected_no_verified_defect": 215
+      },
+      "chosen_exact_reference": 4402,
+      "chosen_json_equal_reference": 4402,
+      "chosen_not_reference": 2842,
+      "identical_chosen_rejected_strings": 0,
+      "generation_recipe": {
+        "policy": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1/sft_merged",
+        "n_samples": 4,
+        "temperature": 0.85,
+        "top_p": 0.95,
+        "max_model_len": 16384,
+        "max_completion_tokens": 4096,
+        "seed": 42,
+        "selection": "First clean generated candidate versus first defective generated candidate; GT fallback if no clean candidate."
+      },
+      "negative_provenance": "SFT-generated candidate rejected by geometry, size, or constraint checks; no reward-model judge.",
+      "count_caveat": "Equality to GT does not individually prove whether an equal string came from fallback or generation."
+    },
+    "stage2": {
+      "cleaned_and_original_sha256": "bf4c535bb299eb7ac2e20e5be05bc13946c466cab817fb04e74d7d4389ad3165",
+      "input_pairs": 12000,
+      "cleaned_pairs": 12000,
+      "chosen_exact_reference": 12000,
+      "chosen_json_equal_reference": 12000,
+      "identical_chosen_rejected_strings": 0,
+      "negative_kind_counts_before_tokenizer": {
+        "collision_shift": 3823,
+        "wall_oob": 2858,
+        "size_corrupt": 2339,
+        "door_block": 1925,
+        "support_z_corrupt": 1055
+      },
+      "executed_corruption_parameters": {
+        "collision_shift": "Move one floor object to another floor object XY center, with independent uniform [-0.08,0.08] m offsets.",
+        "wall_oob": "Set floor-object x=max(boundary x)+0.35 or y=min(boundary y)-0.35 m.",
+        "size_corrupt": "Scale all three dimensions of one floor object by 2.1.",
+        "door_block": "Move a floor object XY center onto a fixed non-window obstacle center.",
+        "support_z_corrupt": "Add -0.22 or +0.35 m to supported child z, clamped at zero."
+      },
+      "negative_kind_counts_after_tokenizer": null
+    },
+    "generation_provenance_limit": "Frozen generation implementation plus persisted pair artifacts examined; original per-candidate generation lineage was not independently reconstructed."
+  },
+  "source_hashes": {
+    "frozen_source_package_sha256": "3e3eef72c51546cc0a22134e4409853570b988c4e5932823182d42007f6197c4",
+    "frozen": {
+      "fastfill/train.py": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "fastfill/v1_1/scene_v1_1.py": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "fastfill/v1_1/build_dpo.py": "22830bb7643b9c38fe414b8b91732723f8697b09482fe3f5465db341c25baeb6",
+      "fastfill/v1_1/build_v1_1.py": "03d45d5a3ca076fa89568ac3adc1f54a92eea6e147d7d2d995ec78166ba9d253",
+      "fastfill/v1_1/train_dpo.py": "7637b957bef022d1e1cec9c3b5dd20ff3cf68ea9751281c3a307cec8ca0803e9",
+      "fastfill/v1_1/training_guard.py": "9f0df33e562fd45fb5296cbab9a913355d24a7fba20bdffbaec56894c2a92bf2",
+      "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "fastfill/v1_1/audit_pairs.py": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "fastfill/merge_lora.py": "97b6b39878e6606d0391c8b2c8c00e123ef6391417ccadd59d58d4554cb02946"
+    },
+    "local_different_at_audit": {
+      "fastfill/v1_1/build_dpo.py": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "fastfill/v1_1/build_v1_1.py": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "fastfill/v1_1/train_dpo.py": "34884c22c83c8a8a67ef9f9bb5edec558f6f3939a6f13bfbfef7d4c217b58a41",
+      "fastfill/v1_1/training_guard.py": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98"
+    },
+    "local_matches_frozen": [
+      "fastfill/train.py",
+      "fastfill/scene.py",
+      "fastfill/v1_1/scene_v1_1.py",
+      "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch"
+    ],
+    "later_fixes_not_executed": [
+      "Builder identity/cache/publication and acceptance repairs",
+      "Checkpoint replacement rollback/recovery",
+      "Resume-position validation",
+      "Final completion receipts",
+      "error_if_nonfinite gradient clipping"
+    ],
+    "caveat": "Frozen package hashes identify clean-run source. They do not by themselves prove a separately archived source identity for the earlier SFT or original pair generation."
+  },
+  "recorded_model_identity_not_freshly_rehashed": {
+    "sft_merged_model_sha256": "2dd790ddc97d14acded01d8d397facc96e47acd1b192bd59366786226fc5e4f9",
+    "dpo1_merged_model_sha256": "d887e041e4ea93ed39430f3c459e2fcc7bd2b5fb2f5a892fc73dfa0257be8492",
+    "sft_and_dpo1_tokenizer_json_sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+    "source": "Clean-stage training_guard.json model file manifests and preserved dpo1-lineage.json."
+  },
+  "citations": {
+    "warm_start_binding": [
+      "R/sft_merged/run_manifest.json:3",
+      "P/models/OptiScene-Qwen-8B-Final/.cache/huggingface/download/model-00001-of-00004.safetensors.metadata:1",
+      "fastfill/v1_1/isambard_v1_1_pipeline.sbatch:57"
+    ],
+    "sft_counts_and_gpu": [
+      "O/slurm-fastfill-v1.1-7236968.out:33",
+      "O/slurm-fastfill-v1.1-7236968.out:54",
+      "O/slurm-fastfill-v1.1-7236968.out:60"
+    ],
+    "sft_settings_and_completion": [
+      "R/sft_merged/run_manifest.json:6",
+      "R/sft_merged/run_manifest.resume1.json:29",
+      "O/sft_lora/checkpoint-3221/trainer_state.json:7",
+      "O/sft_lora/checkpoint-3221/trainer_state.json:2324"
+    ],
+    "contract": [
+      "fastfill/v1_1/scene_v1_1.py:31",
+      "fastfill/v1_1/scene_v1_1.py:169",
+      "fastfill/scene.py:242",
+      "fastfill/train.py:45"
+    ],
+    "split_and_mixture": [
+      ".release/v3.2/data/v3.2/MANIFEST.json:41",
+      ".release/v3.2/data/v3.2/QA.json:114",
+      "fastfill/split.py:41",
+      "fastfill/train.py:83"
+    ],
+    "dpo_settings_and_counts": [
+      "R/dpo1_lora/run_manifest.json:6",
+      "R/dpo2_lora/run_manifest.json:6",
+      "R/logs/ff-clean-train-1-7252874.out:42",
+      "R/logs/ff-clean-train-1-7252874.out:175"
+    ],
+    "frozen_dpo_implementation": [
+      "F/fastfill/v1_1/train_dpo.py:33",
+      "F/fastfill/v1_1/train_dpo.py:91",
+      "F/fastfill/v1_1/train_dpo.py:229",
+      "F/fastfill/v1_1/train_dpo.py:267"
+    ],
+    "frozen_pair_implementation": [
+      "F/fastfill/v1_1/build_dpo.py:116",
+      "F/fastfill/v1_1/build_dpo.py:182",
+      "F/fastfill/v1_1/build_dpo.py:279",
+      "F/fastfill/v1_1/build_dpo.py:332",
+      "R/pairs/audit.json"
+    ],
+    "historical_vs_local": [
+      "docs/research/20261011-v11-clean-dpo/source-manifest.json:59",
+      "docs/research/20261011-v11-clean-dpo/audit-evidence/train-report.md:7"
+    ],
+    "aliases": {
+      "P": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill",
+      "O": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1",
+      "R": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/fastfill_v1_1_clean_20261011",
+      "F": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/v11-clean-20261011-3e3eef72c515"
+    },
+    "local_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene"
+  },
+  "limitations": [
+    "No new training, scoring, job submissions, or checkpoint load probes.",
+    "No causal quality conclusion from execution, loss, or preference counts.",
+    "Original warm-start training history and paper-authorship lineage unverified.",
+    "Source mixture and stage-2 corruption counts are before tokenizer exclusions.",
+    "DPO RNG state was not persisted; a hypothetical resume is not bitwise replay.",
+    "No raw private examples, credentials, or environment dumps included."
+  ]
+}

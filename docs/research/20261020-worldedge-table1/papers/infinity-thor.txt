@@ -1,0 +1,991 @@
+                                              Beyond Needle(s) in the Embodied Haystack: Environment, Architecture,
+                                                     and Training Considerations for Long Context Reasoning
+
+
+                                                                                  Bosung Kim 1 Prithviraj Ammanabrolu 1
+
+
+                                                                  Abstract                                      over multiple events that occur far apart in time. Using
+                                              We introduce ∞-T HOR, a new framework for                         vision-language models (VLM) as policies for such tasks
+                                              long-horizon embodied tasks that advances long-                   requires surpassing the key challenge of long-context rea-
+arXiv:2505.16928v3 [cs.AI] 19 Feb 2026
+
+
+
+
+                                              context understanding in embodied AI. ∞-T HOR                     soning. We seek to answer questions pertaining to what
+                                              provides: (1) a generation framework for syn-                     design choices matter in terms of environments, model ar-
+                                              thesizing scalable, reproducible, and unlimited                   chitectures, and training methods when using VLMs for
+                                              long-horizon trajectories; (2) a novel QA task,                   long-horizon embodied tasks. To this end, we develop a
+                                              Needle(s) in the Embodied Haystack, where                         new framework for long-horizon tasks designed to push the
+                                              scattered clues across extended trajectories test                 boundaries of long-context understanding in embodied AI.
+                                              agents’ long-context reasoning ability; and (3)                   We introduce ∞-T HOR, a new framework for generation,
+                                              a long-horizon dataset and benchmark suite fea-                   training, and evaluation of long-horizon embodied tasks.
+                                              turing complex tasks that span hundreds of                        Our benchmark uniquely features tasks with a synthetic
+                                              environment steps, each paired with ground-                       final goal, which involves multiple objects that appear at
+                                              truth action sequences. To enable this capabil-                   distant time steps, requiring multi-step reasoning across
+                                              ity, we explore architectural adaptations, includ-                over hundreds of steps. As illustrated in Figure 1, an agent
+                                              ing interleaved Goal-State-Action and Memory-                     might observe a tomato at t = 16 and a counter top much
+                                              Augmented Goal-State modeling, alongside train-                   later at t = 560; the final task given at t = 670 requires the
+                                              ing strategies—context extension techniques and                   agent to retrieve the tomato and place it on the counter. This
+                                              Context Parallelism—to equip VLM-based agents                     setup highlights the challenge of long-horizon dependency,
+                                              for extreme long-context reasoning and interac-                   where key objects and locations must be remembered and
+                                              tion. Experiments highlight the challenges of                     acted upon after hundreds of steps.
+                                              our benchmark and provide insights into train-
+                                              ing strategies and model behaviors under long-                    This long-horizon setup introduces a new challenging task,
+                                              horizon conditions. Furthermore, we demon-                        Needle(s) in the Embodied Haystack (NiEH). Unlike the
+                                              strate sim-to-real transfer: our QA dataset alone                 standard Needle in a Haystack task (Liu et al., 2024), which
+                                              improves photorealistic benchmark performance                     focuses on recalling a single clue in text, NiEH poses two
+                                              by up to +11.2%, and we successfully integrate                    main challenges: (1) multiple scattered clues (Needles) and
+                                              the framework with low-level manipulation con-                    (2) multi-modal inputs that combine visual and linguistic
+                                              trols. Our work provides a foundation for the                     observations from the environment (Embodiment). This
+                                              next generation of embodied AI systems capa-                      task is designed to evaluate the agent’s ability to recall and
+                                              ble of robust, long-term reasoning and plan-                      reason about previously encountered environmental details,
+                                              ning. The datasets and code can be found at                       such as identifying objects and recalling performed actions.
+                                              pearls-lab.github.io/infini-thor.                                 Going beyond static evaluations such as NiEH, ∞-T HOR
+                                                                                                                also provides an interactive evaluation, allowing agents to
+                                                                                                                execute policies and complete long-horizon tasks within a
+                                         1. Introduction                                                        dynamic environment. To support this, we release a trajec-
+                                         Real-world embodied reasoning is a sequential decision-                tory dataset for training, with episodes over 400 steps in the
+                                         making problem requiring long-horizon planning, where                  training set and more than 600 steps in the dev and test sets.
+                                         task success depends on both memorizing and reasoning                  These trajectories can be used for imitation learning, and
+                                                                                                                our experiments show that access to longer context during
+                                            1
+                                              University of California, San Diego. Correspondence to: Bo-       training leads to significant performance gains, highlighting
+                                         sung Kim <bosungkim@ucsd.edu>.                                         the importance of our dataset for long-context embodied
+                                         Preprint. February 20, 2026.                                           reasoning.
+
+                                                                                                            1
+                                          Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+Figure 1. Overview of ∞-T HOR. Environment: We introduce a framework for generating long-horizon trajectories, the Needle(s) in the
+Embodied Haystack benchmark to test reasoning over scattered clues, and interactive online evaluation. Architecture: We investigate
+VLM adaptations as policy models, including Interleaved Goal-State-Action and Memory-augmented models. Training: We incorporate
+Context Parallelism and Context Extension for efficient long-context learning. In experiments, we demonstrate Sim2Real transfer to
+photorealistic benchmark tasks and integration with low-level manipulation controls.
+
+With the environment established, we investigate various               ating long-horizon embodied tasks, featuring synthetic goals
+architectural considerations for embodied agents to operate            that require multi-step reasoning across hundreds of steps.
+under extreme sequence lengths. We explore two comple-                 (2) We propose a novel embodied QA task, Needle(s) in the
+mentary approaches: Interleaved Goal-State-Action model,               Embodied Haystack, requiring agents to recall and reason
+which directly encodes the full perception–action history              over multiple scattered clues across extended trajectories.
+as a single multimodal sequence, and Memory-Augmented                  (3) We release a large-scale trajectory dataset and an interac-
+Goal-State model, which replaces the historical trajectory             tive evaluation environment to support both offline imitation
+with text summaries or retrieved visual memories to provide            learning and online policy execution. (4) We analyze archi-
+long-term contextual grounding. Moreover, since standard               tectural adaptations (Interleaved vs. Memory-Augmented)
+VLMs are constrained by fixed context windows and cannot               and training strategies (Context Extension, Context Paral-
+natively handle inputs exceeding 1M tokens, we evaluate                lelism) for handling long-context inputs. (5) We present em-
+long-context extension techniques, including linear interpo-           pirical results demonstrating the benefits of our framework,
+lation, dynamic scaling, YaRN, and LongRoPE (Chen et al.,              including successful Sim2Real transfer and integration with
+2023; Ding et al., 2024; Peng et al., 2024). Lastly, to support        low-level manipulation controls.
+practical training and inference at these extended horizons,
+we incorporate Context Parallelism via Ring Attention (Liu             2. Related Work
+et al., 2023b), enabling efficient fine-tuning on ultra-long se-
+quences and further improving the model’s ability to reason            Long-horizon Planning in Virtual Environments.
+over extended temporal contexts.                                       AI2THOR (Kolve et al., 2017) provides interactive indoor
+                                                                       environments widely used for embodied reasoning research,
+Finally, we provide comprehensive experiments and analy-
+                                                                       while ProcTHOR (Deitke et al., 2022) extends these capa-
+ses, demonstrating both the challenges posed by our bench-
+                                                                       bilities by procedurally generating scalable environments,
+mark and the behavior of baseline models under long-
+                                                                       potentially facilitating longer trajectories. MineDojo (Fan
+horizon settings. Furthermore, we validate the real-world
+                                                                       et al., 2022) offers an open-ended platform within Minecraft,
+applicability of our framework through Sim2Real transfer,
+                                                                       explicitly geared toward tasks requiring extensive long-term
+showing that our QA dataset improves performance on pho-
+                                                                       planning. Additionally, platforms such as VirtualHome
+torealistic benchmarks. We also demonstrate the frame-
+                                                                       (Puig et al., 2018) and Habitat 3.0 (Puig et al., 2023) have
+work’s versatility by integrating it with ManipulaTHOR
+                                                                       demonstrated suitability for tasks involving long-term in-
+(Ehsani et al., 2021) to enable low-level robot arm manipu-
+                                                                       teractions and complex activity sequences. However, all of
+lation.
+                                                                       these platforms only provide environments and do not in-
+To summarize, our contributions are: (1) We introduce ∞-               clude standardized datasets or benchmark suites to support
+T HOR, a new framework for generating, training, and evalu-            training and evaluation for long-horizon embodied tasks.
+
+
+                                                                   2
+                                           Beyond Needle(s) in the Embodied Haystack
+
+Table 1. Comparison of benchmarks. We use Short (< 50 steps), Medium (50-300 steps), and Long (> 300 steps) to describe task horizon,
+reflecting the approximate number of environment steps required to complete a task in each benchmark. (Inter. w/ env: Interaction with
+the environment, Mod: Modality, GT: GT actions; single/multi in the QA set column denotes single- and multi-evidence question type. *
+indicates the number of annotations newly collected in that work.)
+
+           Benchmark / Platform                          Task         Inter.           Dataset                 QA set
+                                                        Horizon       w/ env   Mod     Avg steps    GT     single multi
+           ProcTHOR (Deitke et al., 2022)                 ✗             ✓       ✗          ✗         ✗       ✗        ✗
+           MineDojo (Fan et al., 2022)                  Long            ✓       ✗          ✗         ✗       ✗        ✗
+           Habitat 3.0 (Puig et al., 2023)              Long            ✓       ✗          ✗         ✗       ✗        ✗
+           VirtualHome (Puig et al., 2018)              Short           ✓      multi     11.6        ✓       ✗        ✗
+           EQA (Das et al., 2018)                         ✗             ✗       ✗          ✗         ✗       ✓        ✗
+           ALFRED (Shridhar et al., 2020)              Medium           ✓      multi      50         ✓       ✗        ✗
+           ALFWorld (Shridhar et al., 2021)            Medium           ✓      text       50         ✓       ✗        ✗
+           BEHAVIOR-100 (Srivastava et al., 2021)      Med/Long         ✓       ✗          ✗         ✗       ✗        ✗
+           EAI (Li et al., 2024b)                      Med/Long         ✓       ✓        14.6*       ✓       ✗        ✗
+           BALROG (Paglieri et al., 2025)               Long            ✗       ✗          ✗         ✗       ✗        ✗
+           MM-EGO (Ye et al., 2025)                       ✗             ✗       ✗          ✗         ✗       ✓        ✗
+           ∞-T HOR                                         ∞            ✓      multi      627        ✓       ✓        ✓
+
+Embodied QA and Multimodal Needle in the Haystack                     8K (Cobbe et al., 2021) to assess mathematical reasoning
+Tasks. Embodied QA tasks, such as EmbodiedQA (Das                     over extremely long textual inputs. More recently, LMAct
+et al., 2018) and MM-EGO (Ye et al., 2025), require agents            (Ruoss et al., 2025) proposed a benchmark for evaluating
+to answer questions grounded in visual observations with              frontier models’ long-context multimodal decision-making
+spatial and temporal reasoning, but without active environ-           on interactive game-based tasks, with up to 1M context
+ment interaction during evaluation. Our NiEH task is also             lengths.
+related to multimodal Needle in a Haystack (NiH) problems.
+While early NiH focused on textual recall in long contexts            3. ∞-T HOR: An Environment for Generating,
+(Liu et al., 2024), recent multimodal extensions add visual
+inputs (Wang et al., 2024; 2025), though they remain limited
+                                                                         Training, and Evaluating Long-horizon
+to shorter contexts (up to 72K tokens) and lack embodied                 Embodied Tasks
+reasoning or temporal dependencies.                                   ∞-T HOR features with a generation framework for syn-
+Datasets and Benchmarks for Long-horizon Embodied                     thesizing long trajectories to train and evaluate AI agents
+Tasks. Recent efforts have pushed toward long-horizon em-             in long-horizon embodied tasks. We build ∞-T HOR upon
+bodied tasks, where agents must complete multi-step goals             AI2-THOR (Kolve et al., 2017) simulator, an interactive
+with extended temporal dependencies. While ALFRED                     3D environment for embodied AI research that supports di-
+(Shridhar et al., 2020) and ALFWorld (Shridhar et al., 2021)          verse scenes, objects, and agent actions. ∞-T HOR enables
+introduced multi-step instruction-following tasks with ac-            the creation of unlimited trajectories with arbitrary length,
+tion annotations and textual grounding, their task horizons           and provides an evaluation setup where agents can inter-
+are relatively short, typically under 50 steps. BEHAVIOR-             act dynamically with the environment during both training
+100 (Srivastava et al., 2021) evaluates agent generalization          and testing. This supports both offline learning by produc-
+on household activities, some of which require prolonged              ing large-scale datasets, and online learning through direct
+engagement, but mainly focus on single task. BALROG                   agent-environment interaction.
+(Paglieri et al., 2025) is a benchmark for testing the agentic        Each trajectory generated by ∞-T HOR consists of multiple
+capabilities of long-context LLMs, but its scope is limited           task goals, such as “Put a clean sponge on a metal rack”
+to games. Recently, EAI (Li et al., 2024b) proposed a gen-            and “Pick up the apple and place it on the microwave”,
+eralized interface to evaluate LLMs for embodied decision             requiring grounded understanding and action to achieve the
+making, while our framework focuses on multimodal online              goal. At the end of each trajectory, the agent is assigned
+evaluation with real-time rewards and a new long-horizon              a synthetic long-horizon task that requires reasoning over
+reasoning task (NiEH).                                                entities encountered at distant time steps. For the example
+Long-context Benchmarks. Outside embodied AI, general                 in Figure 1, the long-horizon task (Sub-goal #23) at step
+benchmarks have addressed challenges in long-context rea-             t = 670, “Put the tomato on the counter top”, depends on
+soning. Benchmarks, such as LongBench (Bai et al., 2024)              observations made far earlier: the tomato at t = 16 and the
+and RULER (Hsieh et al., 2024), focus on retrieval or sum-            counter top at t = 560.
+marization tasks. GSM-∞ (Zhou et al., 2025) extends GSM-              Our generation framework can generate unlimited tasks, the
+
+                                                                  3
+                                          Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+                               (a) Needle in the Embodied Haystack: Single-evidence question types.
+
+
+
+
+                               (b) Needles in the Embodied Haystack: Multi-evidence question types.
+                                    Figure 2. Example of N(s)iEH task and Ground-truth steps.
+
+trajectories can be exceptionally long, exceeding 1M con-             of multimodal observations.
+text tokens or beyond when the trajectory is processed with
+                                                                      Figure 2 presents examples of the two NiEH task types.
+LLMs. Successfully completing this task requires the agent
+                                                                      In the single-evidence setting, a question is answerable
+to (1) memorize and integrate key environmental informa-
+                                                                      based on a single observation step; in the multi-evidence
+tion over hundreds of steps, and (2) plan actions based on
+                                                                      setting, multiple temporally distant steps must be combined
+dependencies that are separated in time, demonstrating the
+                                                                      to answer the question. The NiEH testset includes diverse
+need for long-context reasoning and robust spatio-temporal
+                                                                      question types, such as binary (“yes” or “no”), “what”-,
+memory.
+                                                                      “where”-, and “how many”-style questions. These questions
+                                                                      span a broad range of difficulty, from simple memory recall
+3.1. Static Evaluation: Needle(s) in the Embodied                     (similar to the Needle in a Haystack paradigm (Liu et al.,
+     Haystack                                                         2024)) to complex queries that requiring multi-step reason-
+We first introduce a novel task in the form of a static evalua-       ing across temporally and spatially distributed evidence.
+tion: Needle(s) in the Embodied Haystack (NiEH). NiEH                 Testset Construction. We first replay the generated tra-
+is designed to evaluate an agent’s ability to recall and rea-         jectories to collect egocentric views and record object in-
+son about environmental states encountered throughout a               teractions directly from the simulator’s metadata. Using
+trajectory. Unlike traditional embodied QA tasks that focus           rule-based templates, we generate QA pairs (e.g., “Q. What
+primarily on visual understanding of a single image, NiEH             object did you slice? A. {object}”) and sample them
+emphasizes reasoning about environmental changes over                 based on frequency to ensure diversity. To ensure valid
+time, requiring agents to interpret and integrate sequences           answerability, we cross-validate questions against ground-
+
+
+                                                                  4
+                                         Beyond Needle(s) in the Embodied Haystack
+
+truth images using an ensemble of four multimodal LLMs:              Table 2. Dataset statistics. Token lengths are calculated using
+                                                                     the LLaVA-OneVision tokenizer. See Appendix A.3 for detailed
+LLaVA-OneVision, Qwen2.5-VL, Deepseek-VL, and Pix-                   statistics.
+tral (Li et al., 2024a; Bai et al., 2025; Lu et al., 2024;
+Agrawal et al., 2024). We filter out questions that none               NiEH testset                        Single-clue    Multi-clue
+of these models can successfully answer. Full details on               # of question-answer pair                   829           474
+generation rules and validation are provided in Appendix
+A.1.                                                                   Trajectory                Train            Dev           Test
+                                                                       # trajectory              2,456            125           225
+Challenges in NiEH. NiEH introduces two key challenges                 # avg/max subgoals        14/30          16/24         18/33
+for current models. First, questions require reasoning over            # avg/max steps         405/654        613/890       627/952
+multiple temporally distant events. As shown in Figure                 # avg token length        602K           880K          912K
+2(b), the agent moves a dish sponge from the garbage                   # max token length        954K           1.2M          1.3M
+bin at t = 24, then to the counter top, and later places
+it into a drawer at t = 751. A question such as “Where               4. Architectures and Training Considerations
+was the dish sponge before you put it on the counter top?”              for Long-Horizon Embodied Reasoning
+requires the model to recall and chain together multiple
+actions and locations across hundreds of steps. Second,              Long-horizon embodied tasks pose significant challenges
+some questions demand aggregating sparse and temporally              due to the need to interpret multimodal inputs (vision, lan-
+scattered evidence from long trajectories. In the second             guage) and produce coherent sequences of actions over hun-
+example in Figure 2(b), answering “How many times did                dreds of interactive steps. However, existing approaches
+you move the credit card?” requires the model to track               either use separate encoders for vision, language, and action
+and count all relevant actions occurring from the beginning          modules (Shridhar et al., 2020; Hafner et al., 2025), or focus
+to the end of the episode. These tasks necessitate robust            on short-horizon in constrained environments (Brohan et al.,
+long-horizon reasoning across both time and modalities in            2023), where decisions depend only on the most recent
+complex embodied environments.                                       observation and a single instruction. While recent VLMs
+                                                                     (Liu et al., 2023a; Lu et al., 2024; Bai et al., 2025) show
+3.2. Constructing Long-horizon Trajectories for                      strong multimodal reasoning abilities, these models are
+     Interactive Evaluations                                         not directly suited to long-horizon embodied tasks, which
+                                                                     are interaction-dominant, involving hundreds of egocentric
+With ∞-T HOR’s generation framework, we synthesize long-             frames and continuous vision-language-action sequences.
+horizon trajectories to construct training, validation, and          Moreover, many state-of-the-art proprietary models are only
+test sets for offline learning and evaluation. Our approach          accessible via paid, rate-limited APIs, which makes large-
+builds upon a planner-based method (Kolve et al., 2017),             scale, real-time experimentation in embodied settings more
+in which we sequentially concatenate multiple single-task            difficult and costly in practice (Li et al., 2024b). In this work,
+demonstrations into a extended trajectory, while maintaining         we explore two distinct policy architectures for leveraging
+consistency in object states and agent interactions through-         a VLM as a unified embodied agent: (1) Interleaved Goal-
+out. To generate each trajectory, we first sample a task type        State-Action Model and (2) Memory-Augmented Goal-State
+from one of seven predefined templates (e.g., “pick two ob-          Model.
+jects and place”, “pick and place with movable receptacle”),
+and objects. Based on the sampled task and objects, we use           Interleaved Goal-State-Action Model treats the entire per-
+a classical task planner that operates on domains specified in       ception–action stream as a single unified sequence. At each
+the Planning Domain Definition Language (PDDL) (McDer-               timestep, the input consists of the task goal followed by
+mott et al., 1998) to generate ground-truth action sequences.        all past visual observations and actions in an interleaved
+Only successful rollouts (re-simulated without failure) are          order (g0 , s0 , a0 , . . . , st , at ). This design enables the VLM
+retained, ensuring the reproducibility and reliability. We           backbone to jointly reason over multimodal information and
+then concatenate these successful demonstrations to con-             autoregressively predict the next action conditioned on the
+struct long-horizon sequences that span hundreds of steps.           full trajectory history. By leveraging interleaved modeling,
+For the final goal, the involved objects are sampled exclu-          our architecture supports coherent decision-making over
+sively from those seen during the early 20% and the final            temporally distant information while maintaining grounded
+20% of the trajectory. This enforces a long-term temporal            behavior in dynamic settings.
+dependency between two objects that must be jointly refer-           Memory-Augmented Goal-State Model incorporates com-
+enced to complete the final task. Details on task types and a        pact history representations into the input context. Instead
+pseudo-algorithm for the generation process are provided in          of supplying the full trajectory, the model conditions on
+Appendix A.2.                                                        either (1) textual summaries of past states and environment
+                                                                     information (Figure 3-(b)-left), or (2) a retrieved set of rel-
+
+                                                                 5
+                                                                       Beyond Needle(s) in the Embodied Haystack
+Section 1
+
+
+    : Goal token   : State (image) token    : State (text) token   : Action token
+
+                                 Pick up the book                  Rotate Left                                                        Rotate Left                                                      Rotate Left
+
+
+                                 VLM                                                                              VLM                                                                         VLM
+
+Goal: Put the                                                                       Goal: Put the     state representation                          Goal: Put the
+book on the                                                                         book on the                                                     book on the
+shelf                                                                               shelf                                                           shelf
+                                                                                                                                                                     Retrieve
+                                                                                        State: Apple 1 is in the Fridge 1; There is
+                                                                                        GarbageCan 1 in the room; There is Fridge 1                                                     0.8
+                                                                                        in the room; Apple 2 is on the Drawer 3;                    Goal embedding                      0.2
+                                                                                        Spoon 1 is on the CounterTop 1;
+
+
+
+
+
+                                                                                                                                                                            ...
+
+
+
+
+                                                                                                                                                                                        ...
+                                                                                        Agent is holding a book 1                                                                                   Previous
+
+                                                                                                                                                                                        0.5
+                                                                                                                                                                      State embedding                States
+
+
+            (a) Interleaved Goal-State-Action Model                                           (b) Memory-augmented Goal-State Model (text/image state representation)
+
+Figure 3. Overview of Policy Architectures. (a) Interleaved Goal-State-Action Model: Encodes the full history as a single continuous
+sequence of goal, state, and action tokens. (b) Memory-augmented Goal-State Model: Retrieves relevant past information to provide
+long-term context without processing the entire trajectory.
+
+evant historical images selected via embedding similarity                                                             5. Experiments
+(Figure 3-(b)-right). These memory tokens provide distilled
+representations of long-term context, allowing the model                                                              5.1. Static Evaluation: Needle(s) in the Embodied
+to focus on the current observation while still retaining ac-                                                              Haystack
+cess to key historical information. By combining memory                                                               We first evaluate model performance on the Needle in the
+tokens with the current state, the model can maintain se-                                                             Embodied Haystack (NiEH) and Needles in the Embodied
+mantic grounding over long horizons without exceeding                                                                 Haystack (NsiEH) tasks, which test an agent’s ability to re-
+context-length constraints.                                                                                           trieve and reason over sparse evidence scattered throughout
+Context Extension and Context Parallelism. Given the                                                                  long embodied trajectories.
+limitations in context length of most VLMs, using off-the-                                                            Building a Embodied Haystack. Unlike the traditional
+shelf models is insufficient for processing long inputs such                                                          Needle in the Haystack setup, which inserts a target sen-
+as those exceeding 1M tokens, particularly in our interleaved                                                         tence into a long text corpus like a book, we use the entire
+Goal-State-Action setting. We explore various long-context                                                            embodied trajectory as the input context. To simulate dif-
+extension techniques that allows the model to generalize                                                              ferent reasoning depths, we crop the input sequence either
+to longer input sequences without retraining from scratch.                                                            from the beginning or the end based on the GT image’s
+Specifically, we consider: Linear Interpolation (Chen                                                                 position. In the NsiEH task, where multiple evidences are
+et al., 2023): Rescales input positions to fit within the pre-                                                        scattered throughout the trajectory, we fill the context with
+trained RoPE range by linearly interpolating positional in-                                                           intermediate steps in between the GT steps keeping their
+dices; Dynamic Scaling (Chen et al., 2023): Adapts RoPE                                                               temporal order.
+frequencies at runtime based on the input sequence length,
+using a linear rescaling to maintain consistent positional                                                            Results. Figure 4 (top row) shows the performance of
+encoding behavior across varying lengths; YaRN (Peng                                                                  LLaVA-OneVision (OV) 7B across different context ex-
+et al., 2024): Dynamically interpolates attention frequen-                                                            tension methods. While Dynamic scaling struggles with
+cies during inference, balancing between pretrained and                                                               contexts beyond 64K tokens, YaRN x4 improves the base-
+extrapolated positional regimes; LongRoPE (Ding et al.,                                                               line, handling sequences up to 384K tokens. The second
+2024): Augments RoPE with specially designed extrap-                                                                  row compares different VLMs: DeepSeek-VL, Qwen2.5-
+olation functions, enabling robust generalization to long                                                             VL, and Gemini 2.0 Flash. Each model processes im-
+sequences without degrading attention quality. We apply                                                               ages into tokens differently–DeepSeek (576 tokens/image),
+these techniques during fine-tuning, at inference time, or                                                            Qwen2.5-VL (121 tokens/image), and Gemini 2.0 Flash
+both.                                                                                                                 (258 tokens/image)–which consequently impacts maximum
+                                                                                                                      context lengths when transforming N(s)iEH sequences
+We also incorporate Context Parallelism built upon Ring                                                               into tokenized inputs (DeepSeek-VL: 512K, Qwen2.5-VL:
+Attention (Liu et al., 2023b), which cyclically exchanges                                                             128K, Gemini 2.0 Flash: 256K). DeepSeek-VL fails im-
+key-value shards across devices to compute full attention                                                             mediately beyond its 4K pre-training limit. Qwen2.5-VL
+with significantly reduced memory overhead. We apply                                                                  outperforms DeepSeek but shows clear degradation beyond
+these techniques during fine-tuning, inference, or both as                                                            its 32K pre-training limit. Gemini 2.0 Flash performs ro-
+essential tools for handling long-context inputs and evaluate                                                         bustly up to 32K tokens but performance drops below 40%
+how effectively they improve practical performance when                                                               at 256K, indicating that complex long-range multimodal rea-
+interleaved trajectories become substantially long.                                                                   soning remains a challenge even for state-of-the-art models.
+                                                                                                                      See Appendix C.1 for more results.
+
+                                                                                                                6
+                                           Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+Figure 4. Results of Needle(s) in the Embodied Haystack. The x-axis denotes the input context length (tokens), and the y-axis denotes
+the needle depth (percentage position of the evidence within the trajectory). The white dashed line denotes the maximum pre-training
+context length of each model. Qwen2.5-VL was initially pre-trained with an 8K token context window and incrementally scaled up to
+32K tokens in subsequent stages (Bai et al., 2025). The gray area indicates contexts not applicable (N/A) due to the model’s smaller
+image token size which limits sequences to under 128K tokens. Context Parallelism is applied to all experiments with the context sizes
+over 384K. Full results are provided in Appendix C.1.
+
+Table 3. Architectural Comparison. QA performance on N(s)iEH across different architectures in a setting where the full trajectory
+context is available. LLaVA-OV model fails when provided with the full trajectory as input (>1M tokens). GPT-4o is used as an LLM
+judge for evaluation. For Memory-Augmented approaches, we use a CLIP encoder (Radford et al., 2021) to compute embedding similarity
+between goal descriptions and historical state observations, selecting the Top-10 and Top-20 most relevant images.
+
+                                                     NiEH (Single-evidence)                         NsiEH (Multi-evidence)
+                                          LLaVA-OV     Qwen2.5-VL     Gemini 2.0 Flash   LLaVA-OV     Qwen2.5-VL     Gemini 2.0 Flash
+  (a) Full trajectory (Image-only)           0.0          44.67               35.44         0.0           19.34              37.08
+  (b) Interleaved Goal-State-Action          0.0          51.64               83.04         0.0           43.24              62.72
+  (c) Memory-Augmented (Text)               51.33         54.38               56.21        53.83          51.33              40.99
+  (d) Memory-Augmented (Image, Top-10)      35.80         33.99               25.18        22.15          18.63              21.18
+  (e) Memory-Augmented (Image, Top-20)      37.36         42.68               28.16        23.80          21.46              30.25
+
+
+Architectural Comparison. Table 3 presents N(s)iEH task               multi-evidence reasoning across extended interactions.
+performance across different architectures in a setting where
+full trajectory context is available. LLaVA-OV fails to pro-          5.2. Online Evaluation: Long-horizon Tasks
+cess these full trajectories (>1M tokens), exposing an in-
+herent limitation in its ability to handle long contexts. In          We conduct an online evaluation using the AI2THOR simu-
+contrast, Gemini 2.0 Flash effectively leverages this tem-            lator. We evaluate models on the final long-horizon task
+poral context. For Memory-Augmented approaches, tex-                  of each test trajectory (e.g., Sub-goal #23 in Figure 1),
+tual memory demonstrates significantly higher performance             which requires the agent to utilize history from the preced-
+than image-based memory, as textual state representations             ing hundreds of steps. We fine-tune both LLaVA-OV and
+provide denser information within a shorter context size.             Qwen2.5-VL on our training set. Detailed training specifics
+Notably, we observe that Gemini 2.0 Flash tends to halluci-           are available in Appendix B.
+nate object locations in image-only settings when language            Results. Table 4 presents the success rates from our in-
+grounding is not provided (Table 3-(a), (d), and (e)).                teractive online evaluation. LLaVA-OV failed to complete
+Single vs Multi-evidence Reasoning. Comparing NiEH to                 any long-horizon tasks in this setting (>1M tokens); there-
+the more challenging NsiEH task, we observe a significant             fore, we report results only for the Qwen2.5-VL model in
+performance drop in the multi-evidence setting. This is               Table 4. We observe that interleaved models consistently
+especially pronounced for questions involving sparse or               outperform Memory-Augmented approaches, suggesting
+distant evidence (e.g., “Where was the Mug before you                 that processing the continuous history is more effective than
+put it on the CounterTop?”) or questions requiring the                retrieval-based methods for grounded reasoning. Training
+aggregation of multiple evidences (e.g., “How many times              with longer contexts leads to significant gains: the 128K
+did you move the Apple?”), as shown in Figure 2(b). These             context model achieves a 9.2% success rate, confirming that
+results demonstrate that our NiEH and NsiEH tasks pose                access to extended history is crucial for long-horizon per-
+a substantial challenge to current long-context models and            formance. Incorporating long-context extension techniques
+success requires both fine-grained temporal memory and                further boosts performance. YaRN (x4) achieves the highest
+
+
+                                                                  7
+                                                 Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+Figure 5. Sim2Real Transfer on VSI-Bench. We compare Qwen2.5-VL 7B (Base) against the same model fine-tuned on 226K synthetic
+NiEH QA pairs. Our model achieves a +11.2% in Object Appearance Order and a +2.1% improvement overall, demonstrating effective
+transfer to photorealistic environments.
+
+Table 4. Online Evaluation. Success Rates (%) for the long-                 Table 5. Low-level Manipulation Task. Success rates (%) of
+horizon tasks. 32K and 128K denote the context size used during             OpenVLA-7B and SpatialVLA-4B on manipulation tasks in Ma-
+fine-tuning.                                                                nipulaTHOR.
+
+               Method                   Go to   Pick up   Put   Total                 Task      OpenVLA-7B       SpatialVLA-4B
+ Memory-Augmented (Text)                 10.8     1.5     0.0    6.1
+ Memory-Augmented (Image, Top-20)         6.2     0.0     0.0    3.1
+                                                                                   Pick up           16.52            18.70
+                                                                                   Put                2.08             1.19
+ Interleaved Goal-State-Action (32K)     11.3     1.5     0.0    6.4
+ Interleaved Goal-State-Action (128K)    18.5     2.3     0.0    9.2
+ + Dynamic Scaling                       20.0     2.3     0.0    9.9
+ + YaRN (x4)                             23.1     2.6     0.0   11.5
+                                                                            results primarily to two factors: (1) ManipulaTHOR’s ego-
+                                                                            centric view, which provides nearly identical images for
+total success rate of 11.5%, providing a +2.3% gain over                    fine-grained arm movements (∆x, ∆y, ∆z) smaller than
+the base interleaved model. However, the Put task remains                   0.01, making it difficult for VLA models to perceive subtle
+unsolved across all methods, as Put task comes after Go                     adjustments; and (2) discrepancies between the robot arm
+to and Pick up, and the agent rarely reaches this final                     model in ManipulaTHOR and those assumed by the VLA
+stage due to failures in the earlier steps. Evaluation results              models, causing many predicted actions to fail in the phys-
+for full-episode execution are available in Appendix C.2.                   ical simulation. We provide more results and analysis in
+Overall, these results demonstrate that online evaluation for               Appendix C.3.
+long-horizon tasks remains a significant open challenge.
+                                                                            6. Conclusion
+5.3. Demonstrations: Sim2Real Transfer and Low-level
+                                                                            We presented ∞-T HOR, a new framework for long-horizon
+     Control
+                                                                            embodied tasks designed to advance long-context under-
+Finally, we demonstrate the versatility of ∞-T HOR through                  standing in embodied AI. Our framework enables scalable
+Sim2Real transfer and integration with low-level control                    synthesis of long, complex trajectories paired with ground-
+policies.                                                                   truth action sequences, and supports both offline training
+                                                                            and online interaction with the environment. As part of this
+Sim2Real Transfer. We show the transferability of our
+                                                                            framework, we introduced a novel embodied QA bench-
+framework. We used the NiEH pipeline to generate 226K
+                                                                            mark, Needle(s) in the Embodied Haystack, that challenges
+synthetic QA pairs from the training set and fine-tuned the
+                                                                            agents to reason over sparse, temporally distant visual evi-
+Qwen2.5-VL model. We evaluated the model on VSI-Bench
+                                                                            dence embedded within extended trajectories. To equip mod-
+(Yang et al., 2024), a photorealistic benchmark for visual-
+                                                                            els for this setting, we explored policy architectures includ-
+spatial reasoning. As shown in Figure 5, our model achieves
+                                                                            ing interleaved Goal-State-Action and Memory-Augmented
++11.2% improvement on the Object Appearance Order task,
+                                                                            Goal-State modelings, along with context extension tech-
+confirming that temporal reasoning skills learned in simu-
+                                                                            niques and efficient fine-tuning via Context Parallelism. Our
+lation transfer to real-world images. Overall, we observe
+                                                                            experiments demonstrate that while inference-time exten-
+a +2.1% performance gain with negligible degradation in
+                                                                            sion provides gains, access to longer contexts during training
+other spatial tasks.
+                                                                            is critical for robust performance. Furthermore, we validated
+Low-level Manipulation. We integrated ∞-T HOR with                          the versatility of ∞-T HOR through successful Sim2Real
+ManipulaTHOR (Ehsani et al., 2021) to enable fine-grained,                  transfer to photorealistic benchmarks and integration with
+low-level robot arm manipulation control. Table 5 reports                   low-level manipulation controls. Despite these advances,
+the success rates on these tasks using OpenVLA-7B (Kim                      our results highlight that long-horizon reasoning remains
+et al., 2024) and SpatialVLA-4B (Qu et al., 2025). Ego-                     an open challenge, with current state-of-the-art VLMs still
+centric views are provided as image input, and the models                   struggling to reason over extreme context lengths. We hope
+generate the next action (∆x, ∆y, ∆z) to control the robot                  our framework encourages further research into the next gen-
+arm. Overall performance remains low, with both mod-                        eration of embodied agents capable of robust long-horizon
+els struggling on manipulation tasks. We attribute these                    reasoning and planning.
+
+                                                                        8
+                                         Beyond Needle(s) in the Embodied Haystack
+
+Impact Statement                                                       Sontakke, S., Stone, A., Tan, C., Tran, H., Vanhoucke,
+                                                                       V., Vega, S., Vuong, Q., Xia, F., Xiao, T., Xu, P., Xu,
+This paper introduces a framework for training and evaluat-            S., Yu, T., and Zitkovich, B. Rt-1: Robotics transformer
+ing long-horizon embodied agents, with novel benchmarks,               for real-world control at scale, 2023. URL https://
+architectural explorations, and training methodologies. We             arxiv.org/abs/2212.06817.
+view our framework as a platform to teach embodied agents
+how to reason over long temporal horizons and execute                Chen, S., Wong, S., Chen, L., and Tian, Y. Extending con-
+complex, multi-step instructions in dynamic environments.              text window of large language models via positional in-
+The most relevant downstream task for this work is long-               terpolation, 2023. URL https://arxiv.org/abs/
+horizon embodied planning and robotic manipulation. As                 2306.15595.
+our dataset is synthesized within the AI2-THOR simulator,
+there is a risk of domain gap and limited diversity in scene         Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H.,
+configurations, which may result in performance biases                 Kaiser, L., Plappert, M., Tworek, J., Hilton, J., Nakano,
+when applied to unstructured real-world environments.                  R., Hesse, C., and Schulman, J. Training verifiers to solve
+                                                                       math word problems, 2021. URL https://arxiv.
+                                                                       org/abs/2110.14168.
+References
+Agrawal, P., Antoniak, S., Hanna, E. B., Bout, B., Chaplot,          Das, A., Datta, S., Gkioxari, G., Lee, S., Parikh, D., and
+  D., Chudnovsky, J., Costa, D., Monicault, B. D., Garg, S.,           Batra, D. Embodied Question Answering. In Proceedings
+  Gervet, T., Ghosh, S., Héliou, A., Jacob, P., Jiang, A. Q.,         of the IEEE Conference on Computer Vision and Pattern
+  Khandelwal, K., Lacroix, T., Lample, G., Casas, D. L.,               Recognition (CVPR), 2018.
+  Lavril, T., Scao, T. L., Lo, A., Marshall, W., Martin, L.,
+  Mensch, A., Muddireddy, P., Nemychnikova, V., Pellat,              Deitke, M., VanderBilt, E., Herrasti, A., Weihs, L., Salvador,
+  M., Platen, P. V., Raghuraman, N., Rozière, B., Sablay-             J., Ehsani, K., Han, W., Kolve, E., Farhadi, A., Kembhavi,
+  rolles, A., Saulnier, L., Sauvestre, R., Shang, W., Solet-           A., and Mottaghi, R. Procthor: Large-scale embodied
+  skyi, R., Stewart, L., Stock, P., Studnia, J., Subramanian,          ai using procedural generation, 2022. URL https://
+  S., Vaze, S., Wang, T., and Yang, S. Pixtral 12b, 2024.              arxiv.org/abs/2206.06994.
+  URL https://arxiv.org/abs/2410.07073.
+                                                                     Ding, Y., Zhang, L. L., Zhang, C., Xu, Y., Shang, N., Xu,
+Bai, S., Chen, K., Liu, X., Wang, J., Ge, W., Song, S., Dang,          J., Yang, F., and Yang, M. Longrope: Extending llm
+  K., Wang, P., Wang, S., Tang, J., Zhong, H., Zhu, Y.,                context window beyond 2 million tokens, 2024. URL
+  Yang, M., Li, Z., Wan, J., Wang, P., Ding, W., Fu, Z., Xu,           https://arxiv.org/abs/2402.13753.
+  Y., Ye, J., Zhang, X., Xie, T., Cheng, Z., Zhang, H., Yang,
+  Z., Xu, H., and Lin, J. Qwen2.5-vl technical report, 2025.         Ehsani, K., Han, W., Herrasti, A., VanderBilt, E., Weihs,
+  URL https://arxiv.org/abs/2502.13923.                                L., Kolve, E., Kembhavi, A., and Mottaghi, R. Ma-
+                                                                       nipulathor: A framework for visual object manipula-
+Bai, Y., Lv, X., Zhang, J., Lyu, H., Tang, J., Huang, Z., Du,          tion. 2021 IEEE/CVF Conference on Computer Vi-
+  Z., Liu, X., Zeng, A., Hou, L., Dong, Y., Tang, J., and Li,          sion and Pattern Recognition (CVPR), pp. 4495–4504,
+  J. LongBench: A bilingual, multitask benchmark for long              2021. URL https://api.semanticscholar.
+  context understanding. In Ku, L.-W., Martins, A., and                org/CorpusID:233346916.
+  Srikumar, V. (eds.), Proceedings of the 62nd Annual Meet-
+  ing of the Association for Computational Linguistics (Vol-         Fan, L., Wang, G., Jiang, Y., Mandlekar, A., Yang, Y., Zhu,
+  ume 1: Long Papers), pp. 3119–3137, Bangkok, Thailand,               H., Tang, A., Huang, D.-A., Zhu, Y., and Anandkumar,
+  August 2024. Association for Computational Linguis-                  A. Minedojo: Building open-ended embodied agents
+  tics. doi: 10.18653/v1/2024.acl-long.172. URL https:                 with internet-scale knowledge, 2022. URL https://
+  //aclanthology.org/2024.acl-long.172/.                               arxiv.org/abs/2206.08853.
+
+Brohan, A., Brown, N., Carbajal, J., Chebotar, Y., Dabis,            Hafner, D., Yan, W., and Lillicrap, T. Training agents
+  J., Finn, C., Gopalakrishnan, K., Hausman, K., Herzog,               inside of scalable world models, 2025. URL https:
+  A., Hsu, J., Ibarz, J., Ichter, B., Irpan, A., Jackson, T.,         //arxiv.org/abs/2509.24527.
+  Jesmonth, S., Joshi, N. J., Julian, R., Kalashnikov, D.,
+  Kuang, Y., Leal, I., Lee, K.-H., Levine, S., Lu, Y., Malla,        Hsieh, C.-P., Sun, S., Kriman, S., Acharya, S., Rekesh, D.,
+  U., Manjunath, D., Mordatch, I., Nachum, O., Parada, C.,             Jia, F., Zhang, Y., and Ginsburg, B. Ruler: What’s the real
+  Peralta, J., Perez, E., Pertsch, K., Quiambao, J., Rao, K.,          context size of your long-context language models?, 2024.
+  Ryoo, M., Salazar, G., Sanketi, P., Sayed, K., Singh, J.,            URL https://arxiv.org/abs/2404.06654.
+
+                                                                 9
+                                        Beyond Needle(s) in the Embodied Haystack
+
+Huang, Y., Cheng, Y., Bapna, A., Firat, O., Chen, M. X.,             Paglieri, D., Cupiał, B., Coward, S., Piterbarg, U., Wolczyk,
+  Chen, D., Lee, H., Ngiam, J., Le, Q. V., Wu, Y., and                 M., Khan, A., Pignatelli, E., Łukasz Kuciński, Pinto,
+  Chen, Z. Gpipe: Efficient training of giant neural net-              L., Fergus, R., Foerster, J. N., Parker-Holder, J., and
+ works using pipeline parallelism, 2019. URL https:                    Rocktäschel, T. Balrog: Benchmarking agentic llm and
+ //arxiv.org/abs/1811.06965.                                           vlm reasoning on games, 2025. URL https://arxiv.
+                                                                       org/abs/2411.13543.
+Kim, M., Pertsch, K., Karamcheti, S., Xiao, T., Balakr-
+  ishna, A., Nair, S., Rafailov, R., Foster, E., Lam, G.,            Peng, B., Quesnelle, J., Fan, H., and Shippole, E. YaRN: Ef-
+  Sanketi, P., Vuong, Q., Kollar, T., Burchfiel, B., Tedrake,          ficient context window extension of large language mod-
+  R., Sadigh, D., Levine, S., Liang, P., and Finn, C. Open-            els. In The Twelfth International Conference on Learning
+  vla: An open-source vision-language-action model. arXiv              Representations, 2024. URL https://openreview.
+  preprint arXiv:2406.09246, 2024.                                     net/forum?id=wHBfxhZu1u.
+
+Kolve, E., Mottaghi, R., Han, W., VanderBilt, E., Weihs, L.,         Puig, X., Ra, K., Boben, M., Li, J., Wang, T., Fidler, S.,
+  Herrasti, A., Deitke, M., Ehsani, K., Gordon, D., Zhu, Y.,           and Torralba, A. Virtualhome: Simulating household
+  et al. Ai2-thor: An interactive 3d environment for visual            activities via programs, 2018. URL https://arxiv.
+  ai. arXiv preprint arXiv:1712.05474, 2017.                           org/abs/1806.07011.
+
+Li, B., Zhang, Y., Guo, D., Zhang, R., Li, F., Zhang,                Puig, X., Undersander, E., Szot, A., Cote, M. D., Yang,
+  H., Zhang, K., Li, Y., Liu, Z., and Li, C. Llava-                    T.-Y., Partsey, R., Desai, R., Clegg, A. W., Hlavac,
+  onevision: Easy visual task transfer. arXiv preprint                 M., Min, S. Y., Vondruš, V., Gervet, T., Berges, V.-
+  arXiv:2408.03326, 2024a.                                             P., Turner, J. M., Maksymets, O., Kira, Z., Kalakrish-
+                                                                       nan, M., Malik, J., Chaplot, D. S., Jain, U., Batra, D.,
+Li, M., Zhao, S., Wang, Q., Wang, K., Zhou, Y., Srivastava,            Rai, A., and Mottaghi, R. Habitat 3.0: A co-habitat
+  S., Gokmen, C., Lee, T., Li, L. E., Zhang, R., et al. Em-            for humans, avatars and robots, 2023. URL https:
+  bodied agent interface: Benchmarking llms for embodied               //arxiv.org/abs/2310.13724.
+  decision making. In NeurIPS 2024, 2024b.
+                                                                     Qu, D., Song, H., Chen, Q., Yao, Y., Ye, X., Ding, Y., Wang,
+Liu, H., Li, C., Wu, Q., and Lee, Y. J. Visual instruction             Z., Gu, J., Zhao, B., Wang, D., and Li, X. Spatialvla:
+  tuning. In Oh, A., Naumann, T., Globerson, A., Saenko,               Exploring spatial representations for visual-language-
+  K., Hardt, M., and Levine, S. (eds.), Advances in Neural             action model, 2025. URL https://arxiv.org/
+  Information Processing Systems, volume 36, pp. 34892–                abs/2501.15830.
+  34916. Curran Associates, Inc., 2023a.
+                                                                     Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G.,
+Liu, H., Zaharia, M., and Abbeel, P. Ring attention with               Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark,
+  blockwise transformers for near-infinite context. arXiv              J., Krueger, G., and Sutskever, I. Learning transferable
+  preprint arXiv:2310.01889, 2023b.                                    visual models from natural language supervision. In
+                                                                       International Conference on Machine Learning, 2021.
+Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua,
+  M., Petroni, F., and Liang, P. Lost in the middle: How             Ruoss, A., Pardo, F., Chan, H., Li, B., Mnih, V., and Ge-
+  language models use long contexts. Transactions of                   newein, T. Lmact: A benchmark for in-context imita-
+  the Association for Computational Linguistics, 12:157–               tion learning with long multimodal demonstrations, 2025.
+  173, 2024. doi: 10.1162/tacl a 00638. URL https:                     URL https://arxiv.org/abs/2412.01441.
+  //aclanthology.org/2024.tacl-1.9/.
+                                                                     Shoeybi, M., Patwary, M., Puri, R., LeGresley, P., Casper,
+Lu, H., Liu, W., Zhang, B., Wang, B., Dong, K., Liu, B.,               J., and Catanzaro, B. Megatron-lm: Training multi-
+  Sun, J., Ren, T., Li, Z., Yang, H., Sun, Y., Deng, C.,               billion parameter language models using model par-
+  Xu, H., Xie, Z., and Ruan, C. Deepseek-vl: Towards                   allelism, 2020. URL https://arxiv.org/abs/
+  real-world vision-language understanding, 2024. URL                  1909.08053.
+  https://arxiv.org/abs/2403.05525.
+                                                                     Shridhar, M., Thomason, J., Gordon, D., Bisk, Y., Han,
+McDermott, D., Ghallab, M., Howe, A. E., Knoblock, C. A.,              X., Mottaghi, R., Zettlemoyer, L., and Fox, D. Alfred:
+ Ram, A., Veloso, M. M., Weld, D. S., and Wilkins,                     A benchmark for interpreting grounded instructions for
+ D. E. Pddl-the planning domain definition language.                   everyday tasks. In Proceedings of the IEEE/CVF Con-
+ 1998. URL https://api.semanticscholar.                                ference on Computer Vision and Pattern Recognition
+ org/CorpusID:59656859.                                                (CVPR), pp. 10740–10749, 2020.
+
+                                                                10
+                                        Beyond Needle(s) in the Embodied Haystack
+
+Shridhar, M., Yuan, X., Côté, M.-A., Bisk, Y., Trischler,
+  A., and Hausknecht, M. ALFWorld: Aligning Text and
+  Embodied Environments for Interactive Learning. In
+  Proceedings of the International Conference on Learning
+  Representations (ICLR), 2021. URL https://arxiv.
+  org/abs/2010.03768.
+Srivastava, S., Li, C., Lingelbach, M., Martı́n-Martı́n, R.,
+  Xia, F., Vainio, K., Lian, Z., Gokmen, C., Buch, S., Liu,
+  C. K., Savarese, S., Gweon, H., Wu, J., and Fei-Fei, L.
+  Behavior: Benchmark for everyday household activities
+  in virtual, interactive, and ecological environments, 2021.
+  URL https://arxiv.org/abs/2108.03332.
+
+Wang, H., Shi, H., Tan, S., Qin, W., Wang, W., Zhang, T.,
+ Nambi, A., Ganu, T., and Wang, H. Multimodal nee-
+ dle in a haystack: Benchmarking long-context capability
+ of multimodal large language models. In Chiruzzo, L.,
+ Ritter, A., and Wang, L. (eds.), Proceedings of the 2025
+ Conference of the Nations of the Americas Chapter of the
+ Association for Computational Linguistics: Human Lan-
+ guage Technologies (Volume 1: Long Papers), pp. 3221–
+ 3241, Albuquerque, New Mexico, April 2025. Associa-
+ tion for Computational Linguistics. ISBN 979-8-89176-
+ 189-6. URL https://aclanthology.org/2025.
+ naacl-long.166/.
+
+Wang, W., Zhang, S., Ren, Y., Duan, Y., Li, T., Liu, S.,
+ Hu, M., Chen, Z., Zhang, K., Lu, L., Zhu, X., Luo, P.,
+ Qiao, Y., Dai, J., Shao, W., and Wang, W. Needle in a
+ multimodal haystack, 2024. URL https://arxiv.
+ org/abs/2406.07230.
+
+Yang, J., Yang, S., Gupta, A. W., Han, R., Li, F.-
+  F., and Xie, S. Thinking in space: How multi-
+  modal large language models see, remember, and recall
+  spaces. 2025 IEEE/CVF Conference on Computer Vi-
+  sion and Pattern Recognition (CVPR), pp. 10632–10643,
+  2024. URL https://api.semanticscholar.
+  org/CorpusID:274822996.
+Ye, H., Zhang, H., Daxberger, E., Chen, L., Lin, Z., Li, Y.,
+  Zhang, B., You, H., Xu, D., Gan, Z., Lu, J., and Yang, Y.
+  MMEgo: Towards building egocentric multimodal LLMs
+  for video QA. In The Thirteenth International Conference
+  on Learning Representations, 2025. URL https://
+  openreview.net/forum?id=67sSPPAZiG.
+Zhou, Y., Liu, H., Chen, Z., Tian, Y., and Chen, B. Gsm-
+  infinite: How do your llms behave over infinitely increas-
+  ing context length and reasoning complexity?, 2025. URL
+  https://arxiv.org/abs/2502.05252.
+
+
+
+
+                                                                11
+                                        Beyond Needle(s) in the Embodied Haystack
+
+A. Dataset Construction
+A.1. Building the Needle(s) in the Embodied Haystack Benchmark
+We construct the Needle(s) in the Embodied Haystack benchmark in three stages: 1) Trajectory Replay and Metadata
+Collection; 2) Rule-Based QA Generation; and 3) Cross-validation with Multimodal LLMs. The following sections provide
+detailed descriptions of each step.
+
+A.1.1. T RAJECTORY R EPLAY AND M ETADATA C OLLECTION
+We first replay 225 test trajectories generated by ∞-T HOR, logging both visual observations (agent’s egocentric views) and
+structured metadata at each timestep. For every step, we store the list of visible objects, agent-inventory items, openable
+containers, and their contents from the simulator. This produces a fine-grained interaction log that captures grounded scene
+dynamics over time.
+An example of the collected metadata at a single timestep is shown below:
+
+    Example of metadata entry
+
+    {
+         "img_idx": 2,
+         "img_filename": "000000002.png",
+         "step": 1,
+         "object_log": {
+             "visible": ["Shelf", "Vase", "Book"],
+             "pickupable": ["Vase", "Book"],
+             "isOpen": [],
+             "inven_obj": [],
+             "receptacles": ["Shelf"],
+             "recep_objs": {
+                 "Shelf": ["Vase", "Book"]
+             }
+         }
+    }
+
+
+Each metadata entry corresponds to a low-level action step and provides the semantic state of the scene, enabling the
+construction of temporally grounded QA instances in later stages.
+
+A.1.2. RULE -BASED QA G ENERATION
+To construct the QA set, we apply rule-based generation templates to each trajectory using its sequence of low-level actions
+and associated metadata. The QA generation process involves parsing the agent’s interactions with objects, containers, and
+the environment, and applying a set of handcrafted rules to synthesize grounded questions.
+Our QA generation logic covers a diverse range of question types, including object presence, object state, location tracking,
+slicing actions, container content reasoning, and action counting. For instance, if an object is seen for the first time at a
+particular step, a presence question such as “Is there any apple in this room?” is generated. Similarly, after a PutObject
+action, location-based questions like “Where was the apple before you put it to the microwave?” are produced. When
+slicing actions happen, we create questions about the object being sliced and other nearby items (e.g., “What objects were in
+the Fridge when you sliced the apple?”). Then, we sample questions based on the frequency to ensure diversity across
+object types, and annotate the GT answer steps using the replay logs. Table 6 summarizes the types of questions generated,
+and corresponding trigger conditions and example templates.
+
+A.1.3. C ROSS - VALIDATION WITH M ULTIMODAL LLM S
+To ensure the answerability and clarity of the generated QA pairs, we perform cross-validation using four powerful
+multimodal LLMs: LLaVA-OneVision 7B (Li et al., 2024a), Qwen2.5-VL 7B (Bai et al., 2025), Deepseek-VL 7B (Lu et al.,
+2024), and Pixtral 12B (Agrawal et al., 2024). Each model is prompted with the GT images corresponding to the annotated
+QA steps and asked to answer the associated questions. Given their strong performance on standard visual QA tasks, we use
+
+                                                            12
+                                            Beyond Needle(s) in the Embodied Haystack
+
+             Table 6. QA types, trigger conditions, and corresponding question templates used in rule-based generation.
+
+                     QA Type                 Trigger Condition                         Example Template(s)
+            object presence (Yes/No)      object appears visibly in       Is there any {obj} in this room?
+                                          the trajectory                  Have you seen a/an {obj}?
+            open state questions          container marked as open        Was {container} open?
+                                          in metadata
+            object location tracing       sequences of Pickup             Where was {obj} before you put it
+                                          and PutObject actions           to {container}?
+                                                                          Where did you move the {obj} from
+                                                                          the {container}?
+                                                                          Where is {obj} now?
+            slicing-based questions       SliceObject action              What did you slice?
+                                          detected in trajectory          What objects were in/on the
+                                                                          {container} when you slice the
+                                                                          {obj}?
+            container content             container visibility with       What objects were in/on the
+                                          non-empty contents              {container}?
+                                                                          What object did you put in/on the
+                                                                          {container}?
+            put action questions          unique PutObject ac-            What object did you put in/on the
+                                          tion for a container            {container}?
+            final object state            final location of an object     Is {obj} in/on the {container}?
+                                          at episode end                  What objects are in/on the
+                                                                          {container}?
+                                                                          How many objects were in/on the
+                                                                          {container}?
+            movement counting             object picked up more           How many times did you move {obj}?
+                                          than once
+
+
+these models to assess whether a question can be correctly answered or not. We keep only the QA pairs that are correctly
+answered by at least one of the four models, and discard those that fail across all models. This helps improve dataset quality
+and filtering out ambiguous or visually ungroundable questions. Table 7 shows the accuracy of each model on the finalized
+QA set when evaluated with GT images. Notably, even with access to GT images, all models struggle with questions
+requiring reasoning over three or more evidence steps. To maintain the benchmark’s difficulty and support evaluation of
+more capable models in future, we manually inspect the multi-clue questions and include those that are answerable.
+
+                                 Table 7. QA accuracy (%) of multimodal LLMs on ground-truth images.
+
+                                           Model            Size        # of clues (GT steps)   Total
+                                                                           1         2     ≥3
+                                      LLaVA-OneVision        7B     86.61      68.55   23.74    71.15
+                                      Qwen2.5-VL             7B     85.94      89.83   64.40    82.20
+                                      Deepseek-VL            7B     81.56      39.14   22.57    62.88
+                                      Pixtral               12B     91.34      39.60   58.56    76.25
+
+
+A.2. Constructing Long-Horizon Trajectories
+Figure 6 shows an example of the trajectory and a long-horizon embodied task generated from ∞-T HOR. To synthesize long-
+horizon trajectories, we construct each trajectory by sequentially chaining successful sub-tasks sampled from a predefined
+set of task templates. This process is illustrated in Algorithm 1. We begin by sampling a task template from a fixed task
+pool, which includes goal types such as pick and place simple, pick two obj and place, and pick and
+place with movable recep. Each sampled template requires relevant objects in the scene (e.g., pickupable items,
+target receptacles), which are then used to define the goal for that task.
+We use a classical task planner, which operates over PDDL-defined domains (Shridhar et al., 2020), to generate a low-level
+action sequence for the sampled goal, and simulate this plan in an interactive environment. If the rollout fails (e.g., due
+to collisions, object occlusions, or unreachable conditions), we discard the sequence and re-sample from the task pool.
+Otherwise, the successful rollout is retained and appended to the ongoing trajectory.
+
+                                                                    13
+                                            Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+Figure 6. Example of the trajectory and a long-horizon embodied task generated from ∞-T HOR. The final goal (“Put the tomato on the
+counter top” at t=670) requires recalling both the tomato (seen at t=17) and the counter (seen at t=560) to solved the long-horizon task.
+Context size refers to the input token length when converting the trajectory into the VLM input space.
+
+Algorithm 1 Construct Long-horizon Trajectory
+ 1: Input: Task Pool T , max sub goals N
+ 2: Output: Long-horizon trajectory τ
+ 3: Initialize empty trajectory τ ← []
+ 4: while len(τ ) < N do
+ 5:    Sample task template g ∼ T and objects
+ 6:    Plan action sequence πg by planner
+ 7:    if Simulate(πg ) is successful then
+ 8:       Append πg to trajectory: τ ← τ ∥ πg
+ 9:    else
+10:       Discard and re-sample
+11:    end if
+12: end while
+13: {Final sub-task with long-term object dependency}
+14: Sample gfinal ∼ T and objects in early 20% and late 20%
+15: Plan and simulate πfinal using restricted objects
+16: if Simulate(πfinal ) is successful then
+17:    Append πfinal to trajectory: τ ← τ ∥ πfinal
+18: else
+19:    Repeat sampling until success
+20: end if
+21: return τ
+
+
+
+This sampling-execution loop is repeated until a long trajectory with a desired number of sub-goals is formed. The resulting
+synthetic long-horizon trajectory consists of multiple sub-goals concatenated into a continuous sequence. To induce
+long-term temporal dependencies, the final sub-task is constrained to involve only objects that appear in the early 20% and
+late 20% of the overall trajectory, requiring the agent to integrate temporally distant evidence to answer associated questions.
+
+A.3. Dataset Statistics
+Table 8 summarizes the statistics for the NiEH test set and the generated long-horizon trajectories. The training set consists of
+2,456 trajectories with an average of 14 sub-goals and 405 steps per episode. Token lengths are calculated using the LLaVA-
+OneVision tokenizer. With an average input length of 602K tokens, the entire training dataset amounts to approximately
+1.48B tokens (2,456 × 602K), providing a substantial corpus for learning long-horizon temporal dependencies.
+
+B. Training Details
+We fine-tune the LLaVA-OneVision 7B and Qwen2.5-VL 7B model on our training set while freezing the vision encoder.
+Training utilized 8 H100 GPUs with tensor (Shoeybi et al., 2020) and pipeline parallelism (Huang et al., 2019) for 32K
+context, and Context Parallelism for larger contexts (64K, 130K). The model is trained using a next-action prediction
+objective, where only the action tokens are optimized, conditioned on the goal and state tokens. Table 9 summarizes the
+
+                                                                  14
+                                          Beyond Needle(s) in the Embodied Haystack
+
+                                                       Table 8. Dataset statistics
+
+                           NiEH testset                                               Single-clue   Multi-clue
+                           # of question-answer pair                                         829           474
+                           Trajectory                                     Train              Dev           Test
+                          # trajectory                                     2,456             125            225
+                          # avg subgoals                                      14              16             18
+                        . # max subgoals                                      30              24             33
+                          # avg steps                                        405             613            627
+                          # max steps                                        654             890            952
+                          # avg token length                               602K            880K           912K
+                          # max token length                               954K            1.2M           1.3M
+                          # avg interaction with objects per episode          31              36             37
+                          # max interaction with objects per episode          82              62             74
+                          # scene                                             82              30             39
+
+
+training specifications for different context lengths. For 32K training, we apply tensor parallelism with a degree of 4 and
+pipeline parallelism with a degree of 2, utilizing 8 H100 GPUs in total. Since pipeline parallelism requires the batch size to
+match the pipeline degree, we set the batch size to 2. For longer context lengths, we use context parallelism: 8-way for 64K
+(on 8 GPUs) and 16-way for 130K (on 16 GPUs). All models are fine-tuned for approximately 3 epochs with a learning rate
+of 1e-5, using the AdamW optimizer and a linear learning rate schedule with a 0.03 warmup ratio.
+
+                                    Table 9. Training specifications for different context lengths.
+
+                             Context Length             Parallelism            # GPUs       Training Time
+                                   32K           Tensor (4) + Pipeline (2)           8          160 hrs
+                                   64K                 Context (8)                   8          120 hrs
+                                  130K                Context (16)                   16         134 hrs
+
+
+
+C. Additional Results
+C.1. Static Evaluation: Needle(s) in the Emboided Haystack
+Figure 7 presents the performance of LLaVA-OneVision (OV) 7B (Li et al., 2024a) model across various context extension
+methods. Linear Interpolation, Dynamic Scaling, and LongRoPE scaling all struggled with very long contexts beyond
+128K tokens (the results of Linear Interpolation are excluded from Figure since it fails at all examples). YaRN consistently
+outperformed other methods, effectively handling contexts above 384K tokens, likely due to its architectural alignment with
+LLaVA-OV’s Qwen2 LM backbone, which employs RoPE and YaRN scaling during pretraining. YaRN performed best at
+moderate scaling factors (e.g., x4), however, further scaling to x8 and x16 did not yield additional gains. In particular, x16
+slightly improved performance in the 256K–384K token range but led to degradation notably at shorter context sizes (<64K),
+suggesting that excessive scaling may introduce instability and negatively impact performance. Overall, all methods fail
+beyond 512K tokens, highlighting a need for improved long-context methods. The third row includes additional results
+from DeepSeek-VL 7B (Lu et al., 2024), Qwen2.5-VL 7B (Bai et al., 2025), and Gemini 2.0 Flash1 . Although Gemini is
+renowned for strong long-context multimodal reasoning (up to 3,000 image input), our results (<40% with full trajectories
+at 256K) indicate substantial room for improvement.
+
+C.2. Online Evaluation: High-level Planning
+Plan-level Evaluation. We evaluate agent performance using a plan-level framework, where each plan corresponds to a
+short sequence of actions aimed at achieving a specific intermediate sub-goal (e.g., navigating to an object, placing an item).
+A trajectory is composed of multiple such plans, executed sequentially. For the interactive evaluation, the agent is presented
+with the current plan’s goal along with the history of previous GT states and actions. Using this context, the agent predicts
+the next action and interacts step-by-step with the environment. The interaction continues until the current plan is either
+successfully completed or terminated due to failure (e.g., collisions or deadlocks). After each plan, the context is reset to
+   1
+       We used the gemini-2.0-flash-001 version for all experiments.
+
+                                                                  15
+                                           Beyond Needle(s) in the Embodied Haystack
+
+
+
+
+Figure 7. Full results of Needle(s) in the Embodied Haystack. The x-axis denotes the input context length (tokens), and the y-axis
+denotes the needle depth. The white dashed line denotes the maximum pre-training context length of each model.
+
+
+
+
+Figure 8. Agent’s reward across different experimental configurations for high-level planning tasks. We compare (a) context extension
+methods at fixed scaling (x4), (b) varying YaRN scaling factors, and (c) fine-tuning with different context lengths using Context
+Parallelism. (d) summarizes the most effective strategies, highlighting that exposure to longer contexts during training significantly
+improves performance. Non-planner models cannot generate valid actions after around 250 steps (≈376K in context size).
+
+
+
+include the GT actions and states from the completed portion of the trajectory, and the agent proceeds to the next plan. This
+ensures that each plan is evaluated independently, conditioned only on the correct prior history. The agent’s performance is
+measured via cumulative reward across all plans in the trajectory. Pseudocode for this evaluation procedure is provided in
+Algorithm 2.
+Results and Discussion. Figure 8 presents the accumulated rewards over time across four experimental configurations. The
+Planner trajectory represents the performance upper bound. Our analysis focuses on addressing the following key questions:
+Q. Which context extension methods perform best? Figure 8(a) compares different context extension methods at a fixed
+scaling factor of x4. Similar to the NiEH results, YaRN consistently achieves the highest performance showing very close
+performance to Planner.
+Q. Does further scaling enhance performance? Figure 8(b) explores YaRN scaling at different scaling factors (x4, x8,
+and x16). Interestingly, increasing the scaling factor beyond x4 does not significantly improve performance, indicating a
+diminishing return for larger scaling factors.
+Q. Is fine-tuning on a dataset with long trajectories effective? Figure 8(c) demonstrates the effectiveness of fine-tuning with
+Context Parallelism, enabling scaling of context lengths up to 64K and 130K tokens. At a 130K context size, the model can
+learn sequences comprising approximately 86 steps, substantially longer compared to only 22 steps with a 32K context
+size. This shows that exposure to longer context during training significantly enhances model performance, suggesting that
+incorporating more long-horizon data by ∞-T HOR could further improve model capabilities. We note that context extension
+methods were not applied in this experiment.
+
+                                                                 16
+                                            Beyond Needle(s) in the Embodied Haystack
+
+Algorithm 2 Plan-Level Evaluation
+ 1: Input: Trajectory T = {P1 , P2 , . . . , PN }, Agent policy π, Environment E
+ 2: Initialize: Reward R ← 0
+ 3: Initialize state and history with initial observation
+ 4: for each plan Pi in T do
+ 5:    Initialize context with GT actions up to Pi−1
+ 6:    while not done and not failure do
+ 7:       at ← π(context)
+ 8:       st+1 , rt , done, failure ← E.step(at )
+ 9:       Append (at , st+1 ) to context
+10:       R ← R + rt
+11:    end while
+12:    if failure then
+13:       Break evaluation
+14:    end if
+15: end for
+16:
+17: return Total accumulated reward R
+
+
+Q. Does combining context extension methods during both training and inference provide additional benefits? Results
+of experiments with scaling at both training and evaluation (Figures 8(d)) indicate that additional scaling at evaluation
+after fine-tuning with scaled RoPE provides no further performance improvement and may degrade performance at shorter
+context lengths (≤300K tokens).
+Based on these observations, we can conclude that fine-tuning strategies are most effective when long-trajectory datasets are
+available. In the absence of extensive training data, employing YaRN scaling at x4 yields performance comparable to the
+Planner upper-bound, particularly within context lengths under 200K tokens.
+
+C.3. Online Evaluation: Low-level Manipulation
+We evaluate the ability of existing VLA models, OpenVLA-7B (Kim et al., 2024) and SpatialVLA-4B (Qu et al., 2025),
+to control robot arms on low-level manipulation tasks. The evaluation protocol follows the Algorithm 2, with the only
+difference being that low-level VLA models are used to directly execute Pick up and Put actions through arm control.
+For the text input, we provide task-specific instructions (Pick up or Put object), since the existing models are only
+trained on single-task formulations. For the image input, we use an ego-centric camera view. Since these VLA models
+were originally trained on datasets with different viewing angles, there remains considerable room for improvement by
+incorporating additional camera perspectives during training and evaluation.
+For the evaluation criterion, ManipulaTHOR implements a “magnet sphere”
+hand mechanism: if a pickupable object is within a specified radius of the agent’s
+hand when the PickupObject action is called, the object is successfully
+picked up. Since neither OpenVLA nor SpatialVLA was trained in the AI2-
+THOR environment, we relax this success threshold by setting the radius to 0.4
+to account for discrepancies between training and evaluation environments. This
+loosened criterion ensures that small deviations in arm trajectories do not result
+in an immediate failure, thereby providing a fairer comparison of the models.
+Result. Figure 9 presents accumulated rewards on low-level manipulation
+tasks. Both models underperform relative to the Planner baseline, largely due to
+differences in robot arm configuration and the out-of-distribution nature of the
+visual inputs. The results show that SpatialVLA achieves slightly higher and            Figure 9. Agent’s reward with low-level ma-
+more stable rewards than OpenVLA across long sequences.                                 nipulation tasks. Low-level VLA models
+                                                                                        are used to control the robot arm for Pick-up
+                                                                                        and Put actions.
+
+
+
+
+                                                                  17
+

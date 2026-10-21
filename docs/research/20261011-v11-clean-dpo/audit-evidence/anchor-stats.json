@@ -1,0 +1,46 @@
+{
+  "dev_rooms": {
+    "objects": {
+      "floor": 72350,
+      "object": 30213
+    },
+    "rooms": {
+      "floor": 8167,
+      "object": 3294
+    },
+    "examples": []
+  },
+  "dev_constrained_rooms": {
+    "objects": {
+      "floor": 72175,
+      "object": 30209
+    },
+    "rooms": {
+      "floor": 8035,
+      "object": 3292
+    },
+    "examples": []
+  },
+  "test_rooms": {
+    "objects": {
+      "floor": 74246,
+      "object": 34007
+    },
+    "rooms": {
+      "object": 3482,
+      "floor": 8647
+    },
+    "examples": []
+  },
+  "test_constrained_rooms": {
+    "objects": {
+      "floor": 74079,
+      "object": 34007
+    },
+    "rooms": {
+      "object": 3482,
+      "floor": 8533
+    },
+    "examples": []
+  }
+}

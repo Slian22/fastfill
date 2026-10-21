@@ -1,0 +1,9 @@
+{
+  "submitted_at_utc": "2026-10-13T05:17:11.709821+00:00",
+  "snapshot": "eval-6f75587fcaae",
+  "jobs": {
+    "infer_joint": 7367601,
+    "infer_placement": 7367602,
+    "geometry": 7367603
+  }
+}

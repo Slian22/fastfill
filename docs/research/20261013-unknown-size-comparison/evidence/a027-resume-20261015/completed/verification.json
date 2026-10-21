@@ -1,0 +1,19 @@
+{
+  "status": "RECOVERY_VERIFIED",
+  "rooms": 8647,
+  "escalated": 6155,
+  "level": {
+    "requests": 8647,
+    "complete_rooms": 8647,
+    "complete_rate": 1.0,
+    "checker_rate": 0.8954550711229328,
+    "strict_rate": 0.4941598242164913,
+    "noreq_rate": 0.718399444894183,
+    "oor": 0.09963335578164476,
+    "size_log_mae": 0.28244658078965523,
+    "size_iou": 0.5582263425816721,
+    "bias_fp": 0.016064899577243708
+  },
+  "api_calls": 0,
+  "eval_manifest_sha256": "5b8a5f2494356c223eca0c61fb2943a670a977b32f89f2f08b5fac0231b8e024"
+}

@@ -1,0 +1,41 @@
+{
+  "commit": "26b95cfa0d8747078e9e43b42e20952709e561b8",
+  "files": [
+    {
+      "upstream_path": "skills/run-experiment/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/run-experiment/SKILL.md",
+      "sha256": "4d481ce95d8bcadb93b095c3dd9bda51d68b6edea6b710316d6c0c74bb5bcfa8",
+      "lines": 313
+    },
+    {
+      "upstream_path": "skills/experiment-queue/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/experiment-queue/SKILL.md",
+      "sha256": "6da32285f905d77664334bba7f7bbc2c069814ff5c3bc266ecc00f6c77d77208",
+      "lines": 431
+    },
+    {
+      "upstream_path": "skills/shared-references/compute-env-contract.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/compute-env-contract.md",
+      "sha256": "293606bcf6281712e0f5e1a05be9b67e001f2e5b567e2a956e2099de9c648974",
+      "lines": 163
+    },
+    {
+      "upstream_path": "skills/shared-references/resumable-runs.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/resumable-runs.md",
+      "sha256": "bf522bfed126b0db96dfb22ab84f0011ba6f79bedc4f6a28a3a40f67500abb61",
+      "lines": 109
+    },
+    {
+      "upstream_path": "tools/run_state.py",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/tools/run_state.py",
+      "sha256": "5fc466462e2d4c26c6de078dcb04100bafa3a9c56df9a0dc4e38f316a33df5b5",
+      "lines": 399
+    },
+    {
+      "upstream_path": "tools/provenance.py",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/tools/provenance.py",
+      "sha256": "355bcd4ef02903d4686460fa6142badc57bb34ea62b369e5239f673a4f615a1e",
+      "lines": 294
+    }
+  ]
+}

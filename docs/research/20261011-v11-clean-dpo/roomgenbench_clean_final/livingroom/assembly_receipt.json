@@ -1,0 +1,2295 @@
+{
+  "schema_version": "fastfill.roomgenbench-assembly.v1",
+  "scene_key": "fastfill_1479bf8e6b66552d",
+  "scene": "fastfill_1479bf8e6b66552d",
+  "room_type": "livingroom",
+  "walls": [
+    {
+      "name": "shell_wall_0",
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_1",
+      "normal": [
+        1.0,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_2",
+      "normal": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_3",
+      "normal": [
+        -1.0,
+        -0.0,
+        0.0
+      ]
+    }
+  ],
+  "method": "embodiedgen_v2",
+  "assembly_complete": true,
+  "generated_mesh_success": true,
+  "requested_objects": 53,
+  "counts": {
+    "ok": 53
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "asset_key": "sofa_89520518",
+      "type": "sofa",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_000",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.357222080230713,
+        0.7048922792037047,
+        0.7446558773517609
+      ],
+      "native_size_sage_local_m": [
+        1.357222080230713,
+        0.7446558773517609,
+        0.7048922792037047
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.238,
+        1.249,
+        1.177
+      ],
+      "fitted_size_sage_local_m": [
+        1.68,
+        0.9300000000000002,
+        0.83
+      ],
+      "source_glb_sha256": "4c893ae6b392c6f779ac10456a35ebe5578d162bfdc265258472245559e6458f",
+      "source_sidecar_sha256": "3e74da2f1ad225f5606494a7c2dc5c4f3b69bc85e228dcfd8a8a8f75ff544783"
+    },
+    {
+      "id": "obj_0001",
+      "asset_key": "mediaconsole_bbd4de9a",
+      "type": "mediaconsole",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_001",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8904025256633759,
+        0.6647244378718256,
+        0.3594816327095032
+      ],
+      "native_size_sage_local_m": [
+        0.8904025256633759,
+        0.3594816327095032,
+        0.6647244378718256
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.235,
+        0.835,
+        1.128
+      ],
+      "fitted_size_sage_local_m": [
+        1.1,
+        0.3,
+        0.75
+      ],
+      "source_glb_sha256": "e113ba8a9fe17803462ae65bcc233debf930caa1ab877e53231f66fce7c9ab30",
+      "source_sidecar_sha256": "dbe676fb92fae73e158d65db5f0fb4228a516e491115ce2a16b1fc29d60c003c"
+    },
+    {
+      "id": "obj_0002",
+      "asset_key": "coffeetable_9f2c0345",
+      "type": "coffeetable",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_002",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.4771592617034912,
+        0.5161289406569267,
+        0.710697203874588
+      ],
+      "native_size_sage_local_m": [
+        1.4771592617034912,
+        0.710697203874588,
+        0.5161289406569267
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.467,
+        0.83,
+        0.775
+      ],
+      "fitted_size_sage_local_m": [
+        0.69,
+        0.59,
+        0.4000000000000001
+      ],
+      "source_glb_sha256": "c066f69517f0b2e9da6b8ab6666ea03dede88c4fffe82b14f9528ca7d0076cbf",
+      "source_sidecar_sha256": "769a024561cdcddca28b4ccc0a09dfeab1000495c1e3b4baf178baf686803861"
+    },
+    {
+      "id": "obj_0003",
+      "asset_key": "armchair_2eaaa0e3",
+      "type": "armchair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_003",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6271419525146484,
+        0.8643711805343628,
+        0.6077267825603485
+      ],
+      "native_size_sage_local_m": [
+        0.6271419525146484,
+        0.6077267825603485,
+        0.8643711805343628
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.435,
+        1.481,
+        1.134
+      ],
+      "fitted_size_sage_local_m": [
+        0.9000000000000001,
+        0.9,
+        0.98
+      ],
+      "source_glb_sha256": "dd19f6c428b850c71f2a057effa1fbf477f02574081397444e386166c1decb68",
+      "source_sidecar_sha256": "8bd6dac21bdce738eefd8b9766689894a4115695413fca258d05768ef756c5db"
+    },
+    {
+      "id": "obj_0004",
+      "asset_key": "armchair_2eaaa0e3",
+      "type": "armchair",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_004",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6271419525146484,
+        0.8643711805343628,
+        0.6077267825603485
+      ],
+      "native_size_sage_local_m": [
+        0.6271419525146484,
+        0.6077267825603485,
+        0.8643711805343628
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.435,
+        1.481,
+        1.134
+      ],
+      "fitted_size_sage_local_m": [
+        0.9000000000000001,
+        0.9,
+        0.98
+      ],
+      "source_glb_sha256": "dd19f6c428b850c71f2a057effa1fbf477f02574081397444e386166c1decb68",
+      "source_sidecar_sha256": "8bd6dac21bdce738eefd8b9766689894a4115695413fca258d05768ef756c5db"
+    },
+    {
+      "id": "obj_0005",
+      "asset_key": "sideboard_2013e423",
+      "type": "sideboard",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_005",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.178333044052124,
+        0.7131060175061066,
+        0.3105948716402054
+      ],
+      "native_size_sage_local_m": [
+        1.178333044052124,
+        0.3105948716402054,
+        0.7131060175061066
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.832,
+        0.966,
+        1.122
+      ],
+      "fitted_size_sage_local_m": [
+        0.98,
+        0.3,
+        0.8
+      ],
+      "source_glb_sha256": "751b3421ed8b12992b484b0f9b5c9f1dcd3a37cec0a2dd309b8d0ef8c1e4a0b2",
+      "source_sidecar_sha256": "d66b49c9d653cea9a6675998906cb9d6d35e37ad43d20e966ffba0565bf5e126"
+    },
+    {
+      "id": "obj_0006",
+      "asset_key": "bookshelf_f2f519ac",
+      "type": "bookshelf",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_006",
+      "status": "ok",
+      "native_size_gltf_m": [
+        1.5010775327682495,
+        1.4992450801437371,
+        0.25287477672100067
+      ],
+      "native_size_sage_local_m": [
+        1.5010775327682495,
+        0.25287477672100067,
+        1.4992450801437371
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.733,
+        1.384,
+        1.007
+      ],
+      "fitted_size_sage_local_m": [
+        1.1,
+        0.35,
+        1.51
+      ],
+      "source_glb_sha256": "8a4ccc368a3be65b0d1d21565a5afd92bdb24e694fe5867ad364477749c8ed73",
+      "source_sidecar_sha256": "1884671227ada488e37f620bab8082d98637b22db8b0a2f6185227a85f792ddb"
+    },
+    {
+      "id": "obj_0007",
+      "asset_key": "lamp_6598e9ef",
+      "type": "lamp",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_007",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3905310183763504,
+        1.3400910923592164,
+        0.3890587091445923
+      ],
+      "native_size_sage_local_m": [
+        0.3905310183763504,
+        0.3890587091445923,
+        1.3400910923592164
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.999,
+        1.002,
+        1.104
+      ],
+      "fitted_size_sage_local_m": [
+        0.39,
+        0.39,
+        1.48
+      ],
+      "source_glb_sha256": "8a4f011917ef74bde6628e7c35ebfe2df0a8241776722007ade4c2a5e5bcb9db",
+      "source_sidecar_sha256": "fa6b176017936df3053c3504d2ad552fc9eb7a1aa6b0c02c8115c82ce9d048cd"
+    },
+    {
+      "id": "obj_0008",
+      "asset_key": "endtable_4b24803a",
+      "type": "endtable",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_008",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.35002826154232025,
+        0.5832083821296693,
+        0.3479636162519455
+      ],
+      "native_size_sage_local_m": [
+        0.35002826154232025,
+        0.3479636162519455,
+        0.5832083821296693
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.571,
+        1.581,
+        1.029
+      ],
+      "fitted_size_sage_local_m": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "source_glb_sha256": "03a2426a0f14c6a679fe427c5ef886e5e50f3f0d2a4b4e131f4b34a009fb6bea",
+      "source_sidecar_sha256": "e93a9eee7106311dd1f10d541b38227d72c1a6179c47c5fef8b87bf8ad64ad37"
+    },
+    {
+      "id": "obj_0009",
+      "asset_key": "endtable_4b24803a",
+      "type": "endtable",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_009",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.35002826154232025,
+        0.5832083821296693,
+        0.3479636162519455
+      ],
+      "native_size_sage_local_m": [
+        0.35002826154232025,
+        0.3479636162519455,
+        0.5832083821296693
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.571,
+        1.581,
+        1.029
+      ],
+      "fitted_size_sage_local_m": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "source_glb_sha256": "03a2426a0f14c6a679fe427c5ef886e5e50f3f0d2a4b4e131f4b34a009fb6bea",
+      "source_sidecar_sha256": "e93a9eee7106311dd1f10d541b38227d72c1a6179c47c5fef8b87bf8ad64ad37"
+    },
+    {
+      "id": "obj_0010",
+      "asset_key": "ottoman_c176a0c9",
+      "type": "ottoman",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_010",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6957404911518097,
+        0.4701402732716815,
+        0.4737074077129364
+      ],
+      "native_size_sage_local_m": [
+        0.6957404911518097,
+        0.4737074077129364,
+        0.4701402732716815
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.934,
+        1.372,
+        0.957
+      ],
+      "fitted_size_sage_local_m": [
+        0.65,
+        0.65,
+        0.45
+      ],
+      "source_glb_sha256": "f6710cc1d04656bdba4437343cfe35b6f91a13d2114dd747cafcbfc671831d8b",
+      "source_sidecar_sha256": "9b577048b61104bae378ca21fb874f4a547456ffc6b83b265d67671c05fa3c00"
+    },
+    {
+      "id": "obj_0011",
+      "asset_key": "pouf_0724d713",
+      "type": "pouf",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_011",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.773126095533371,
+        0.379991939291358,
+        0.7729373574256897
+      ],
+      "native_size_sage_local_m": [
+        0.773126095533371,
+        0.7729373574256897,
+        0.379991939291358
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.66,
+        0.66,
+        1.158
+      ],
+      "fitted_size_sage_local_m": [
+        0.51,
+        0.51,
+        0.43999999999999995
+      ],
+      "source_glb_sha256": "3bed0281e81cab3aa833e620dc2b97ff224f0770b3dc1d80c78fa6775c586570",
+      "source_sidecar_sha256": "b11e7eebf8af7c0a8c4832b542b9ab80494ce06628385e03081156b403984886"
+    },
+    {
+      "id": "obj_0012",
+      "asset_key": "plant_a032a5ef",
+      "type": "plant",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_012",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.32980193197727203,
+        0.6029806629085215,
+        0.30595284700393677
+      ],
+      "native_size_sage_local_m": [
+        0.32980193197727203,
+        0.30595284700393677,
+        0.6029806629085215
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.152,
+        1.275,
+        1.128
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.39,
+        0.68
+      ],
+      "source_glb_sha256": "7558a381056a834bafff58db7d9946cacd5c076e86e8cb693ea6e5d335f56a6d",
+      "source_sidecar_sha256": "8ba8842b8181f029d403fddae853215a3afaac77febf445b64cd093350e579a0"
+    },
+    {
+      "id": "obj_0013",
+      "asset_key": "plant3_90639c4c",
+      "type": "plant3",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_013",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6212000250816345,
+        1.016421671025455,
+        0.6808818578720093
+      ],
+      "native_size_sage_local_m": [
+        0.6212000250816345,
+        0.6808818578720093,
+        1.016421671025455
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.563,
+        0.543,
+        0.669
+      ],
+      "fitted_size_sage_local_m": [
+        0.3499999999999999,
+        0.37,
+        0.68
+      ],
+      "source_glb_sha256": "9dd432c7a15a1673f9de9895d8439105a1dd4b16a5d5c31954883ad5ea779115",
+      "source_sidecar_sha256": "876f3380bb405a22ae3f5a67e2cc55a01b570b5e7c7544b5c5c9f5f4c4950584"
+    },
+    {
+      "id": "obj_0014",
+      "asset_key": "remote_ca6d6e87",
+      "type": "remote",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_014",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10659797862172127,
+        0.019376126298084273,
+        0.04592558741569519
+      ],
+      "native_size_sage_local_m": [
+        0.10659797862172127,
+        0.04592558741569519,
+        0.019376126298084273
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.938,
+        2.177,
+        2.58
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.049999999999999996
+      ],
+      "source_glb_sha256": "3f5e82a8cb66741c07d0bd1a85700868112cf0e184f637e4e0267aa3d33ad27d",
+      "source_sidecar_sha256": "9dd1c78f1812c7cab5f4fef9fb8bf96776adaee6bde098986ebdc9f2508b7f97"
+    },
+    {
+      "id": "obj_0015",
+      "asset_key": "book_1eb11b5b",
+      "type": "book",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_015",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.169164776802063,
+        0.02777509404859302,
+        0.1259998083114624
+      ],
+      "native_size_sage_local_m": [
+        0.169164776802063,
+        0.1259998083114624,
+        0.02777509404859302
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        2.246,
+        1.587,
+        2.52
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "033400003acac531603b7567e91212e612a203d0e8ec909a14dc7136c143068d",
+      "source_sidecar_sha256": "8dcdd30dcc85404dbfcdf6993e437333b97b1a3b2cf3cf3b3b94d98c963b32b3"
+    },
+    {
+      "id": "obj_0016",
+      "asset_key": "book_1eb11b5b",
+      "type": "book",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_016",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.169164776802063,
+        0.02777509404859302,
+        0.1259998083114624
+      ],
+      "native_size_sage_local_m": [
+        0.169164776802063,
+        0.1259998083114624,
+        0.02777509404859302
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        2.246,
+        1.587,
+        2.52
+      ],
+      "fitted_size_sage_local_m": [
+        0.38,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "033400003acac531603b7567e91212e612a203d0e8ec909a14dc7136c143068d",
+      "source_sidecar_sha256": "8dcdd30dcc85404dbfcdf6993e437333b97b1a3b2cf3cf3b3b94d98c963b32b3"
+    },
+    {
+      "id": "obj_0017",
+      "asset_key": "coffeebook_7_30e912c9",
+      "type": "coffeebook_7",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_017",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2109096720814705,
+        0.057163877581842826,
+        0.15949372202157974
+      ],
+      "native_size_sage_local_m": [
+        0.2109096720814705,
+        0.15949372202157974,
+        0.057163877581842826
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.185,
+        1.191,
+        1.05
+      ],
+      "fitted_size_sage_local_m": [
+        0.25,
+        0.19,
+        0.06
+      ],
+      "source_glb_sha256": "0cb9ce4c5ab430e977cebfae5a26a67f483386ab2e42e9f53a6d6ca535cc8e9d",
+      "source_sidecar_sha256": "51c702aff899c1e48816c3c6f6da798869169007cb938e44687b69c2fc235f6f"
+    },
+    {
+      "id": "obj_0018",
+      "asset_key": "magazine_1_e95696c0",
+      "type": "magazine_1",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_018",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.374673992395401,
+        0.004985438321455149,
+        0.22875844687223434
+      ],
+      "native_size_sage_local_m": [
+        0.374673992395401,
+        0.22875844687223434,
+        0.004985438321455149
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.454,
+        0.481,
+        56.164
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.11000000000000001,
+        0.28
+      ],
+      "source_glb_sha256": "eacf96be5b47b1f1a6785801d453d66e1c11e609fee28faafa8df9e0870a2cc8",
+      "source_sidecar_sha256": "ba33c8ea335889600311eb8c0d44496f2c3812560437233e9e284f12bf92390b"
+    },
+    {
+      "id": "obj_0019",
+      "asset_key": "magazine_2_e95696c0",
+      "type": "magazine_2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_019",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19309692829847336,
+        0.010533507556829136,
+        0.2847784161567688
+      ],
+      "native_size_sage_local_m": [
+        0.19309692829847336,
+        0.2847784161567688,
+        0.010533507556829136
+      ],
+      "yaw_snap_deg": 90.0,
+      "tip": null,
+      "scale": [
+        0.597,
+        0.57,
+        26.582
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.11,
+        0.27999999999999997
+      ],
+      "source_glb_sha256": "44150b763c44077202c6a2b48c0f2282aa7f9fc4940fe4b1e2149d677290fcb7",
+      "source_sidecar_sha256": "72571e0f873bd0631e11d41d58d72a2ac3de4d8d01c7f57fd44423bd4e785f3a"
+    },
+    {
+      "id": "obj_0020",
+      "asset_key": "magazine_3_e95696c0",
+      "type": "magazine_3",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_020",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.32443472743034363,
+        0.03326824824762298,
+        0.19768864661455154
+      ],
+      "native_size_sage_local_m": [
+        0.32443472743034363,
+        0.19768864661455154,
+        0.03326824824762298
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        0.86,
+        3.306,
+        0.863
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.11000000000000001,
+        0.28
+      ],
+      "source_glb_sha256": "7819d8dba61d9cc8777c8e78f73c75eb32211a259fcd34390f8abb1c255dcb3a",
+      "source_sidecar_sha256": "7499c065cc97f25abbd718eba15ef92fc1f33109f9e1785b1d3ffb245ab328a2"
+    },
+    {
+      "id": "obj_0021",
+      "asset_key": "cup_0bc98868",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_021",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1474960446357727,
+        0.09120654505386483,
+        0.11371784657239914
+      ],
+      "native_size_sage_local_m": [
+        0.1474960446357727,
+        0.11371784657239914,
+        0.09120654505386483
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.288,
+        1.671,
+        2.083
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.19,
+        0.19
+      ],
+      "source_glb_sha256": "dfc6d30d556f3c0b5304e56f3ae78a6dba32966907c7346c9672ac326b571466",
+      "source_sidecar_sha256": "d1fa601a64d37d018ba6db268d100a326ddf27b1c2af95a5a3ebca867d5fa9c1"
+    },
+    {
+      "id": "obj_0022",
+      "asset_key": "cup_0bc98868",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_022",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1474960446357727,
+        0.09120654505386483,
+        0.11371784657239914
+      ],
+      "native_size_sage_local_m": [
+        0.1474960446357727,
+        0.11371784657239914,
+        0.09120654505386483
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.288,
+        1.671,
+        2.083
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.19,
+        0.19
+      ],
+      "source_glb_sha256": "dfc6d30d556f3c0b5304e56f3ae78a6dba32966907c7346c9672ac326b571466",
+      "source_sidecar_sha256": "d1fa601a64d37d018ba6db268d100a326ddf27b1c2af95a5a3ebca867d5fa9c1"
+    },
+    {
+      "id": "obj_0023",
+      "asset_key": "openbook_5c894fcd",
+      "type": "openbook",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_023",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.21942176669836044,
+        0.27560827136039723,
+        0.0529902670532465
+      ],
+      "native_size_sage_local_m": [
+        0.21942176669836044,
+        0.0529902670532465,
+        0.27560827136039723
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.911,
+        1.321,
+        0.943
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.07,
+        0.26
+      ],
+      "source_glb_sha256": "16620392a2d7e7188a176fb6a9b7b69a8f06eaf6bd09237ca806e9db668c5558",
+      "source_sidecar_sha256": "56bd20970c2306879ee59bd3533b93db846e92556ddca4288c563438563fc67b"
+    },
+    {
+      "id": "obj_0024",
+      "asset_key": "book_1_b13d31c9",
+      "type": "book_1",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_024",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2048807591199875,
+        0.05555484378373876,
+        0.19852805882692337
+      ],
+      "native_size_sage_local_m": [
+        0.2048807591199875,
+        0.19852805882692337,
+        0.05555484378373876
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.464,
+        1.007,
+        1.26
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "e4446a6c46ce6943bade473aa853ee0e1b62d226046efaaad3cd29a114fc8d93",
+      "source_sidecar_sha256": "a06b7644678e8843fe9b6c7c69db0ee0d099f5dd88708af52f76908892187f5a"
+    },
+    {
+      "id": "obj_0025",
+      "asset_key": "book_2_b13d31c9",
+      "type": "book_2",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_025",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.204128198325634,
+        0.05507667418623896,
+        0.1996428295969963
+      ],
+      "native_size_sage_local_m": [
+        0.204128198325634,
+        0.1996428295969963,
+        0.05507667418623896
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.47,
+        1.002,
+        1.271
+      ],
+      "fitted_size_sage_local_m": [
+        0.30000000000000004,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "0f03d11529373f958fc85667d511cf961197188e6f6ef8e17de212536c0222f8",
+      "source_sidecar_sha256": "4dc51b67d50e052dc1923d5a91a747ad0869ba4160bf0bc2a738e30e342fb78e"
+    },
+    {
+      "id": "obj_0026",
+      "asset_key": "book_3_b13d31c9",
+      "type": "book_3",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_026",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22144339978694916,
+        0.045901168061217135,
+        0.1656956523656845
+      ],
+      "native_size_sage_local_m": [
+        0.22144339978694916,
+        0.1656956523656845,
+        0.045901168061217135
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.355,
+        1.207,
+        1.525
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "f230416d698885143d3b1e908e6603fc9ea6ecd78aa621290d95a03d99ce1163",
+      "source_sidecar_sha256": "6a0131f5ac8ceefcc2e4883fedae77e1841bb03cc5c17a3e1b885574d4688781"
+    },
+    {
+      "id": "obj_0027",
+      "asset_key": "book_4_b13d31c9",
+      "type": "book_4",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_027",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22553429752588272,
+        0.06465174641914473,
+        0.139407679438591
+      ],
+      "native_size_sage_local_m": [
+        0.22553429752588272,
+        0.139407679438591,
+        0.06465174641914473
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.33,
+        1.435,
+        1.083
+      ],
+      "fitted_size_sage_local_m": [
+        0.30000000000000004,
+        0.2,
+        0.07000000000000002
+      ],
+      "source_glb_sha256": "4e12e6b20629cd21d6c5f4547fb20c97d5b6f85a7bc76782be2c5af8ad4bd0b8",
+      "source_sidecar_sha256": "3bcb0c6f34bcb60cd1de46e4a18f1e689bd8822e0fad2f03271902f8857ee7b8"
+    },
+    {
+      "id": "obj_0028",
+      "asset_key": "book_8_b13d31c9",
+      "type": "book_8",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_028",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18700376898050308,
+        0.05224917830105369,
+        0.2457016110420227
+      ],
+      "native_size_sage_local_m": [
+        0.18700376898050308,
+        0.2457016110420227,
+        0.05224917830105369
+      ],
+      "yaw_snap_deg": 90.0,
+      "tip": null,
+      "scale": [
+        1.221,
+        1.069,
+        1.34
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.2,
+        0.07
+      ],
+      "source_glb_sha256": "0abd305c68cb998c339923abf34eb718b61b195a410ac8e4724ace9a78b0c197",
+      "source_sidecar_sha256": "caa5b78cf30873ea8bcae2cbbeddb86d2dcdce94d1ddb6b44b9892553ecd2adf"
+    },
+    {
+      "id": "obj_0029",
+      "asset_key": "plant_73a581a1",
+      "type": "plant",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_029",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.23274701833724976,
+        0.21393423294648528,
+        0.23600251972675323
+      ],
+      "native_size_sage_local_m": [
+        0.23274701833724976,
+        0.23600251972675323,
+        0.21393423294648528
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.301,
+        0.424,
+        0.654
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.1,
+        0.14
+      ],
+      "source_glb_sha256": "1b1753b0bf27dccd084f047419ca78957c44baa9859d2245a7ab8dbf99286582",
+      "source_sidecar_sha256": "f8ab0f3835400b703dd3ce8abdca1a2ec28686b7ed9f8bcd33fd6abd0c7f13fa"
+    },
+    {
+      "id": "obj_0030",
+      "asset_key": "cup_8d9019f3",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_030",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12703418731689453,
+        0.10902340863810878,
+        0.12718944996595383
+      ],
+      "native_size_sage_local_m": [
+        0.12703418731689453,
+        0.12718944996595383,
+        0.10902340863810878
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.338,
+        1.337,
+        1.468
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.17,
+        0.16
+      ],
+      "source_glb_sha256": "bf89277c2f06b71a72eb5b895077b2b610331bbdd03a474a400833de95d2e486",
+      "source_sidecar_sha256": "d89ccfdaca47de6c9a1f8fe2e8185bdbc6b000be97b8f442b49776e7839a1044"
+    },
+    {
+      "id": "obj_0031",
+      "asset_key": "cup_8d9019f3",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_031",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12703418731689453,
+        0.10902340863810878,
+        0.12718944996595383
+      ],
+      "native_size_sage_local_m": [
+        0.12703418731689453,
+        0.12718944996595383,
+        0.10902340863810878
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.338,
+        1.337,
+        1.468
+      ],
+      "fitted_size_sage_local_m": [
+        0.17,
+        0.17,
+        0.16
+      ],
+      "source_glb_sha256": "bf89277c2f06b71a72eb5b895077b2b610331bbdd03a474a400833de95d2e486",
+      "source_sidecar_sha256": "d89ccfdaca47de6c9a1f8fe2e8185bdbc6b000be97b8f442b49776e7839a1044"
+    },
+    {
+      "id": "obj_0032",
+      "asset_key": "magazine_b1014fbe",
+      "type": "magazine",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_032",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3171297162771225,
+        0.0054972892912701354,
+        0.22509850561618805
+      ],
+      "native_size_sage_local_m": [
+        0.3171297162771225,
+        0.22509850561618805,
+        0.0054972892912701354
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.568,
+        0.444,
+        47.296
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.1,
+        0.26
+      ],
+      "source_glb_sha256": "7e95114580f754068a811d4ad4e6b8b69d29f43d6621ca6624d83b362e17c420",
+      "source_sidecar_sha256": "4e628af0093ee0a3f884a3d175076f79e5747285e949cf395104ff9bef39c9b5"
+    },
+    {
+      "id": "obj_0033",
+      "asset_key": "remote_2b854bf0",
+      "type": "remote",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_033",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19586853682994843,
+        0.08156456383221666,
+        0.13888391852378845
+      ],
+      "native_size_sage_local_m": [
+        0.19586853682994843,
+        0.13888391852378845,
+        0.08156456383221666
+      ],
+      "yaw_snap_deg": 90.0,
+      "tip": null,
+      "scale": [
+        0.504,
+        0.511,
+        0.123
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "019f5eb3034f1e3567b46c22d5263739a03b684cb21560d6e63b469659978445",
+      "source_sidecar_sha256": "9dbd0c84186f2b8b28926f20b42279061a0bf77b9fdd6ece3461564651d603bf"
+    },
+    {
+      "id": "obj_0034",
+      "asset_key": "book3_4e60a6c2",
+      "type": "book3",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_034",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1904185488820076,
+        0.23685398697853088,
+        0.07885495200753212
+      ],
+      "native_size_sage_local_m": [
+        0.1904185488820076,
+        0.07885495200753212,
+        0.23685398697853088
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.14,
+        0.998,
+        0.888
+      ],
+      "fitted_size_sage_local_m": [
+        0.27,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "9dff563c114934433228667f686b998a4b49ca367b522cb033a58b963a268bb1",
+      "source_sidecar_sha256": "b54ff967b50e161332b8b7df34d2d807da26375111a7a2d311f4d3cd4fe979d7"
+    },
+    {
+      "id": "obj_0035",
+      "asset_key": "book3_4e60a6c2",
+      "type": "book3",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_035",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1904185488820076,
+        0.23685398697853088,
+        0.07885495200753212
+      ],
+      "native_size_sage_local_m": [
+        0.1904185488820076,
+        0.07885495200753212,
+        0.23685398697853088
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.14,
+        0.998,
+        0.888
+      ],
+      "fitted_size_sage_local_m": [
+        0.27,
+        0.19,
+        0.07
+      ],
+      "source_glb_sha256": "9dff563c114934433228667f686b998a4b49ca367b522cb033a58b963a268bb1",
+      "source_sidecar_sha256": "b54ff967b50e161332b8b7df34d2d807da26375111a7a2d311f4d3cd4fe979d7"
+    },
+    {
+      "id": "obj_0036",
+      "asset_key": "vase3_1aa50579",
+      "type": "vase3",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_036",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.15692074596881866,
+        0.1968613713652303,
+        0.15701688081026077
+      ],
+      "native_size_sage_local_m": [
+        0.15692074596881866,
+        0.15701688081026077,
+        0.1968613713652303
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.637,
+        0.637,
+        1.016
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "63ab24c1c2e5547e58e7b450374a1d5951eba09f62d7bb37c1b1ab339d52c6ce",
+      "source_sidecar_sha256": "03a8f5ae41aea8597b2b95976ae53f2e34585a0a3a393a9cdec45ef600b15fd1"
+    },
+    {
+      "id": "obj_0037",
+      "asset_key": "vase3_1aa50579",
+      "type": "vase3",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_037",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.15692074596881866,
+        0.1968613713652303,
+        0.15701688081026077
+      ],
+      "native_size_sage_local_m": [
+        0.15692074596881866,
+        0.15701688081026077,
+        0.1968613713652303
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.637,
+        0.637,
+        1.016
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.19999999999999998
+      ],
+      "source_glb_sha256": "63ab24c1c2e5547e58e7b450374a1d5951eba09f62d7bb37c1b1ab339d52c6ce",
+      "source_sidecar_sha256": "03a8f5ae41aea8597b2b95976ae53f2e34585a0a3a393a9cdec45ef600b15fd1"
+    },
+    {
+      "id": "obj_0038",
+      "asset_key": "wallart_9875b205",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_038",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2987617552280426,
+        0.3486422598361969,
+        0.07465053722262383
+      ],
+      "native_size_sage_local_m": [
+        0.2987617552280426,
+        0.07465053722262383,
+        0.3486422598361969
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.506,
+        1.291,
+        0.67
+      ],
+      "fitted_size_sage_local_m": [
+        0.45,
+        0.45000000000000007,
+        0.05
+      ],
+      "source_glb_sha256": "6d92aab45708572c17b9fd8ea63add6c81ec36aafef2cd7bdfc957560de40ffb",
+      "source_sidecar_sha256": "2ec81d5234c03ce92e87b73aca987be19e638f4fbf02711cf9059e6859fe3a78"
+    },
+    {
+      "id": "obj_0039",
+      "asset_key": "wallart_3c06e227",
+      "type": "wallart",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_039",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4747726619243622,
+        0.4749465968779987,
+        0.08447489142417908
+      ],
+      "native_size_sage_local_m": [
+        0.4747726619243622,
+        0.08447489142417908,
+        0.4749465968779987
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        0.843,
+        0.842,
+        0.474
+      ],
+      "fitted_size_sage_local_m": [
+        0.4,
+        0.4,
+        0.04000000000000001
+      ],
+      "source_glb_sha256": "98c59310f86316519577e329c09cb693afd2e3c1f0d058b278b2871b4583c86b",
+      "source_sidecar_sha256": "995c723ba2a41d33aa71880ed6824e4f7e10196e5497509841d83d110a04e738"
+    },
+    {
+      "id": "obj_0040",
+      "asset_key": "novel_569a3979",
+      "type": "novel",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_040",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19914886355400085,
+        0.040161616838304326,
+        0.16333889961242676
+      ],
+      "native_size_sage_local_m": [
+        0.19914886355400085,
+        0.16333889961242676,
+        0.040161616838304326
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        1.224,
+        2.241,
+        1.255
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.08999999999999998,
+        0.24999999999999997
+      ],
+      "source_glb_sha256": "358d93dc95c21fdff0565d3dabd7d67e9613c459f53c965c7b96fdc1d033c8a1",
+      "source_sidecar_sha256": "1ed64d52f554f22db82dfc95d5da591e0a900c9d1b74776a87ba6d7f7d9e4a28"
+    },
+    {
+      "id": "obj_0041",
+      "asset_key": "novel_569a3979",
+      "type": "novel",
+      "place": "on_object",
+      "support_parent": "obj_0006",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_041",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.19914886355400085,
+        0.040161616838304326,
+        0.16333889961242676
+      ],
+      "native_size_sage_local_m": [
+        0.19914886355400085,
+        0.16333889961242676,
+        0.040161616838304326
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        1.163,
+        2.241,
+        1.255
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.08999999999999998,
+        0.24999999999999997
+      ],
+      "source_glb_sha256": "358d93dc95c21fdff0565d3dabd7d67e9613c459f53c965c7b96fdc1d033c8a1",
+      "source_sidecar_sha256": "1ed64d52f554f22db82dfc95d5da591e0a900c9d1b74776a87ba6d7f7d9e4a28"
+    },
+    {
+      "id": "obj_0042",
+      "asset_key": "magazine_1_e498ad7c",
+      "type": "magazine_1",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_042",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.33764833211898804,
+        0.003956937175189523,
+        0.23805510252714157
+      ],
+      "native_size_sage_local_m": [
+        0.33764833211898804,
+        0.23805510252714157,
+        0.003956937175189523
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.533,
+        0.378,
+        70.762
+      ],
+      "fitted_size_sage_local_m": [
+        0.18,
+        0.09,
+        0.28
+      ],
+      "source_glb_sha256": "487559aad01498f81afe9e2a09d1f5ba554b99e3a2eb64237ef22aa37c44f12e",
+      "source_sidecar_sha256": "ba7d98b562a7e3ca22e558e24eb995b9d3a775a3effec2cf4ac222800fe0ebb6"
+    },
+    {
+      "id": "obj_0043",
+      "asset_key": "magazine_3_e498ad7c",
+      "type": "magazine_3",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_043",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1548498123884201,
+        0.012249236308889522,
+        0.1036364734172821
+      ],
+      "native_size_sage_local_m": [
+        0.1548498123884201,
+        0.1036364734172821,
+        0.012249236308889522
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.162,
+        7.347,
+        2.702
+      ],
+      "fitted_size_sage_local_m": [
+        0.18000000000000002,
+        0.09,
+        0.28
+      ],
+      "source_glb_sha256": "cef6d7b53d53047e99e14570a144e21570af3008934128cdf0fecda577ae4dd3",
+      "source_sidecar_sha256": "1721ed527d2595794579be9bdbea4f5fc63dee88a351063426c198e1a59852f4"
+    },
+    {
+      "id": "obj_0044",
+      "asset_key": "cup_e624ad87",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_044",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12075943872332573,
+        0.08600981903509819,
+        0.08829477056860924
+      ],
+      "native_size_sage_local_m": [
+        0.12075943872332573,
+        0.08829477056860924,
+        0.08600981903509819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.159,
+        1.586,
+        1.163
+      ],
+      "fitted_size_sage_local_m": [
+        0.14,
+        0.14,
+        0.1
+      ],
+      "source_glb_sha256": "5d706817ffdc3b5dbe0bd6006533ee5f5392c2a594244ecc5cccee9a42bcb9d2",
+      "source_sidecar_sha256": "255f2b63f61ee5cde887a8815716958bbaf02b039e0a7475667d790bdd3a7073"
+    },
+    {
+      "id": "obj_0045",
+      "asset_key": "cup_e624ad87",
+      "type": "cup",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_045",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.12075943872332573,
+        0.08600981903509819,
+        0.08829477056860924
+      ],
+      "native_size_sage_local_m": [
+        0.12075943872332573,
+        0.08829477056860924,
+        0.08600981903509819
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.159,
+        1.586,
+        1.163
+      ],
+      "fitted_size_sage_local_m": [
+        0.14,
+        0.14,
+        0.1
+      ],
+      "source_glb_sha256": "5d706817ffdc3b5dbe0bd6006533ee5f5392c2a594244ecc5cccee9a42bcb9d2",
+      "source_sidecar_sha256": "255f2b63f61ee5cde887a8815716958bbaf02b039e0a7475667d790bdd3a7073"
+    },
+    {
+      "id": "obj_0046",
+      "asset_key": "hardcover_84262d4d",
+      "type": "hardcover",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_046",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.23342760652303696,
+        0.04057752058895403,
+        0.1648889183998108
+      ],
+      "native_size_sage_local_m": [
+        0.23342760652303696,
+        0.1648889183998108,
+        0.04057752058895403
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        1.213,
+        2.464,
+        1.2
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.1,
+        0.28
+      ],
+      "source_glb_sha256": "3a0708212b15a391e1feb7e2b047a08709873837272142be95bd36702e422cea",
+      "source_sidecar_sha256": "819c320967e4624e8f99065d2d26eb7525d3dfb04c51f8bfc9f4cf3188c86e2f"
+    },
+    {
+      "id": "obj_0047",
+      "asset_key": "volume_8601d877",
+      "type": "volume",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_047",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13702740520238876,
+        0.0523290175189004,
+        0.1704946681857109
+      ],
+      "native_size_sage_local_m": [
+        0.13702740520238876,
+        0.1704946681857109,
+        0.0523290175189004
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.387,
+        1.147,
+        1.466
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.060000000000000005,
+        0.25
+      ],
+      "source_glb_sha256": "4989e6b30d3dcd17d07613f8a5747258444efc30fad7fc33c740278266bbeaed",
+      "source_sidecar_sha256": "9425232183f9608be8667054efd251aa09f68e5815657612417c40661daaec8e"
+    },
+    {
+      "id": "obj_0048",
+      "asset_key": "volume_8601d877",
+      "type": "volume",
+      "place": "on_object",
+      "support_parent": "obj_0001",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_048",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13702740520238876,
+        0.0523290175189004,
+        0.1704946681857109
+      ],
+      "native_size_sage_local_m": [
+        0.13702740520238876,
+        0.1704946681857109,
+        0.0523290175189004
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.387,
+        1.147,
+        1.466
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.060000000000000005,
+        0.25
+      ],
+      "source_glb_sha256": "4989e6b30d3dcd17d07613f8a5747258444efc30fad7fc33c740278266bbeaed",
+      "source_sidecar_sha256": "9425232183f9608be8667054efd251aa09f68e5815657612417c40661daaec8e"
+    },
+    {
+      "id": "obj_0049",
+      "asset_key": "tome_44be784b",
+      "type": "tome",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_049",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1857738196849823,
+        0.24245234124941817,
+        0.06470673903822899
+      ],
+      "native_size_sage_local_m": [
+        0.1857738196849823,
+        0.06470673903822899,
+        0.24245234124941817
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.077,
+        0.773,
+        1.155
+      ],
+      "fitted_size_sage_local_m": [
+        0.2,
+        0.05,
+        0.28
+      ],
+      "source_glb_sha256": "75b6aa160dda3121eea05fed1f83f721c2b352416e1b916934045d3b8a1d40f4",
+      "source_sidecar_sha256": "127b87c669e7e9306d53cffa2d4ad715a71b6346eff54f76e1c7ed2100e8853b"
+    },
+    {
+      "id": "obj_0050",
+      "asset_key": "tome_44be784b",
+      "type": "tome",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_050",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1857738196849823,
+        0.24245234124941817,
+        0.06470673903822899
+      ],
+      "native_size_sage_local_m": [
+        0.1857738196849823,
+        0.06470673903822899,
+        0.24245234124941817
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.023,
+        0.773,
+        1.031
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.05,
+        0.25
+      ],
+      "source_glb_sha256": "75b6aa160dda3121eea05fed1f83f721c2b352416e1b916934045d3b8a1d40f4",
+      "source_sidecar_sha256": "127b87c669e7e9306d53cffa2d4ad715a71b6346eff54f76e1c7ed2100e8853b"
+    },
+    {
+      "id": "obj_0051",
+      "asset_key": "tome_44be784b",
+      "type": "tome",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_051",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1857738196849823,
+        0.24245234124941817,
+        0.06470673903822899
+      ],
+      "native_size_sage_local_m": [
+        0.1857738196849823,
+        0.06470673903822899,
+        0.24245234124941817
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.023,
+        0.773,
+        1.031
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.05,
+        0.25
+      ],
+      "source_glb_sha256": "75b6aa160dda3121eea05fed1f83f721c2b352416e1b916934045d3b8a1d40f4",
+      "source_sidecar_sha256": "127b87c669e7e9306d53cffa2d4ad715a71b6346eff54f76e1c7ed2100e8853b"
+    },
+    {
+      "id": "obj_0052",
+      "asset_key": "tome_44be784b",
+      "type": "tome",
+      "place": "on_object",
+      "support_parent": "obj_0005",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_052",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1857738196849823,
+        0.24245234124941817,
+        0.06470673903822899
+      ],
+      "native_size_sage_local_m": [
+        0.1857738196849823,
+        0.06470673903822899,
+        0.24245234124941817
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.023,
+        0.773,
+        1.031
+      ],
+      "fitted_size_sage_local_m": [
+        0.19,
+        0.05,
+        0.25
+      ],
+      "source_glb_sha256": "75b6aa160dda3121eea05fed1f83f721c2b352416e1b916934045d3b8a1d40f4",
+      "source_sidecar_sha256": "127b87c669e7e9306d53cffa2d4ad715a71b6346eff54f76e1c7ed2100e8853b"
+    }
+  ],
+  "room": {
+    "width": 4.5,
+    "length": 5.0,
+    "height": 2.7,
+    "height_source": "condition",
+    "source_height_m": 2.7,
+    "floor_known": true,
+    "boundary_known": true,
+    "shell_geometry_kind": "reference_build_shell_polygon_walls",
+    "wall_normal_source": "floor_polygon_winding",
+    "display_floor_z_m": 0.0,
+    "source_floor_z_m": 0.0
+  },
+  "fixed_bbox_proxies": 0,
+  "condition": {
+    "schema_version": "fastfill.v2",
+    "room": {
+      "frame": "right_handed_z_up",
+      "room_type": "livingroom",
+      "floor_polygon_xy_m": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          4.5,
+          0.0
+        ],
+        [
+          4.5,
+          5
+        ],
+        [
+          0.0,
+          5
+        ]
+      ],
+      "floor_z_m": 0.0,
+      "height_m": 2.7,
+      "boundary_known": true,
+      "floor_known": true,
+      "fixed_objects": [
+        {
+          "id": "door_1",
+          "category": "door",
+          "size_local_m": [
+            0.1,
+            0.9,
+            2.05
+          ],
+          "bottom_center_m": [
+            2.82,
+            5.0,
+            0.0
+          ],
+          "yaw_rad": -1.5707963267948966
+        }
+      ]
+    },
+    "objects": [
+      {
+        "id": "obj_0000",
+        "category": "sofa",
+        "description": "A low-profile teak sofa with organic curves, tapered legs, and a sleek rectangular silhouette, finished in natural teak with a warm honey tone and a subtle grain texture",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0001",
+        "category": "mediaconsole",
+        "description": "A low teak media console with a long rectangular footprint, flat top surface, and subtle recessed storage compartments, finished in natural teak with a smooth matte texture",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0002",
+        "category": "coffeetable",
+        "description": "A rectangular teak coffee table with clean straight edges, a thin top slab, and tapered legs, showcasing a natural teak finish with a light amber hue",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0003",
+        "category": "armchair",
+        "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0004",
+        "category": "armchair",
+        "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0005",
+        "category": "sideboard",
+        "description": "A low teak sideboard with a sleek rectangular shape, flat top, and narrow legs, featuring a single drawer front and a natural teak finish with a soft grain pattern",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0006",
+        "category": "bookshelf",
+        "description": "A tall teak bookshelf with a narrow rectangular profile, multiple open shelves, and slender vertical legs, finished in natural teak with a warm, slightly textured surface",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0007",
+        "category": "lamp",
+        "description": "A tripod floor lamp with three slender tapered legs that spread outward, supporting a tall cylindrical shade, finished in brushed metal with a matte black finish",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0008",
+        "category": "endtable",
+        "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0009",
+        "category": "endtable",
+        "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0010",
+        "category": "ottoman",
+        "description": "A mustard upholstered ottoman with a low-slung rectangular shape, soft padded top, and short stubby legs, covered in a velvety fabric with a muted mustard hue",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0011",
+        "category": "pouf",
+        "description": "An olive fabric pouf with a rounded, squat silhouette, plush cushioning, and a smooth woven texture in an olive green shade",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0012",
+        "category": "plant",
+        "description": "A large leafy plant in a simple ceramic pot, featuring a tall, slender trunk and abundant broad green foliage that creates a lush, organic presence",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0013",
+        "category": "plant3",
+        "description": "A modest floor plant in a tall narrow pot, featuring a single stalk of long, arching foliage with a deep green hue",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0014",
+        "category": "remote",
+        "description": "A small rectangular plastic remote control with ergonomic curves, matte black finish and a grid of tactile buttons",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0015",
+        "category": "book",
+        "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0016",
+        "category": "book",
+        "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0017",
+        "category": "coffeebook_7",
+        "description": "A thick square coffee table book with a 1950s retro cover, vibrant colors and a glossy finish, rectangular shape with slightly rounded corners",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0018",
+        "category": "magazine_1",
+        "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0019",
+        "category": "magazine_2",
+        "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0020",
+        "category": "magazine_3",
+        "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0021",
+        "category": "cup",
+        "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0022",
+        "category": "cup",
+        "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0023",
+        "category": "openbook",
+        "description": "An open hardcover book with visible pages, classic binding and a neutral cover, rectangular shape with slightly rounded corners",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0024",
+        "category": "book_1",
+        "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0025",
+        "category": "book_2",
+        "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0026",
+        "category": "book_3",
+        "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0027",
+        "category": "book_4",
+        "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0028",
+        "category": "book_8",
+        "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0029",
+        "category": "plant",
+        "description": "A small potted succulent with a round terracotta pot, smooth green leaves and a compact growth habit",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0030",
+        "category": "cup",
+        "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0031",
+        "category": "cup",
+        "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0032",
+        "category": "magazine",
+        "description": "A glossy magazine with a rectangular shape, vibrant cover artwork and thin, glossy pages",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0033",
+        "category": "remote",
+        "description": "A plastic remote control with an ergonomic rectangular shape, matte black finish and tactile raised buttons",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0034",
+        "category": "book3",
+        "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0035",
+        "category": "book3",
+        "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0036",
+        "category": "vase3",
+        "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0037",
+        "category": "vase3",
+        "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0038",
+        "category": "wallart",
+        "description": "A single piece of thin and upright geometric mustard wall art with bold angular shapes, a flat rectangular panel, and a matte mustard finish that adds a graphic accent",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0039",
+        "category": "wallart",
+        "description": "A single piece of thin and upright geometric wall art composed of interlocking triangles, bold primary colors on a matte background",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0040",
+        "category": "novel",
+        "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0041",
+        "category": "novel",
+        "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+        "support_parent": "obj_0006"
+      },
+      {
+        "id": "obj_0042",
+        "category": "magazine_1",
+        "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0043",
+        "category": "magazine_3",
+        "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0044",
+        "category": "cup",
+        "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0045",
+        "category": "cup",
+        "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0046",
+        "category": "hardcover",
+        "description": "A thick hardcover book with a stiff rectangular spine, a slightly textured cloth cover and rounded page edges",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0047",
+        "category": "volume",
+        "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0048",
+        "category": "volume",
+        "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+        "support_parent": "obj_0001"
+      },
+      {
+        "id": "obj_0049",
+        "category": "tome",
+        "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0050",
+        "category": "tome",
+        "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0051",
+        "category": "tome",
+        "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+        "support_parent": "obj_0005"
+      },
+      {
+        "id": "obj_0052",
+        "category": "tome",
+        "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+        "support_parent": "obj_0005"
+      }
+    ],
+    "constraints": []
+  },
+  "fit_policy": "roomgenbench_anisotropic_yaw_snap_tip",
+  "original_asset_geometry_acceptance": "not_checked",
+  "support_verification": "not_checked",
+  "validator": "not_attempted",
+  "physics": "not_attempted",
+  "host_commit": "not_attempted",
+  "reference_assembler": {
+    "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/RoomGenBench/bench/assemble.py",
+    "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f"
+  }
+}

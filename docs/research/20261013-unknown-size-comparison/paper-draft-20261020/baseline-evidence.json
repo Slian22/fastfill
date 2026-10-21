@@ -1,0 +1,222 @@
+{
+  "source_file": "/Users/slian/Desktop/3D/Worldedge/OptiScene/paper/FastFill-evaluation-bilingual.tex",
+  "date": "2026-10-20",
+  "panels": {
+    "fixed1454": [
+      {
+        "label": "placer, no escalation",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "system",
+        "stage": "s1",
+        "requests": "1454",
+        "complete_rooms": "1454",
+        "complete_rate": "1.0",
+        "checker_rate": "0.8541953232462174",
+        "strict_rate": "0.453232462173315",
+        "noreq_rate": "0.8204951856946355",
+        "oor": "0.08327820238981895",
+        "size_log_mae": "0.2387881911256436",
+        "size_iou": "0.5918765805362578",
+        "bias_fp": "-0.02240155135337094"
+      },
+      {
+        "label": "single-shot agent (size_fixed)",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "O2-P-raw",
+        "stage": "s1",
+        "requests": "1454",
+        "complete_rooms": "1158",
+        "complete_rate": "0.796423658872077",
+        "checker_rate": "0.7916093535075653",
+        "strict_rate": "0.6533700137551581",
+        "noreq_rate": "0.7221458046767538",
+        "oor": "0.01083259709489098",
+        "size_log_mae": "0.22021941956998217",
+        "size_iou": "0.6082236477728968",
+        "bias_fp": "-0.04847380771437791"
+      },
+      {
+        "label": "single-shot agent (size_fixed)",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "O4-P-raw",
+        "stage": "s1",
+        "requests": "1454",
+        "complete_rooms": "1445",
+        "complete_rate": "0.9938101788170564",
+        "checker_rate": "0.8507565337001376",
+        "strict_rate": "0.5660247592847317",
+        "noreq_rate": "0.7386519944979367",
+        "oor": "0.04881487008079316",
+        "size_log_mae": "0.2389141869346457",
+        "size_iou": "0.5917131959462804",
+        "bias_fp": "-0.0229285061726573"
+      },
+      {
+        "label": "single-shot agent (size_fixed)",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "O6-P-raw",
+        "stage": "s1",
+        "requests": "1454",
+        "complete_rooms": "1417",
+        "complete_rate": "0.9745529573590096",
+        "checker_rate": "0.8707015130674003",
+        "strict_rate": "0.6169188445667125",
+        "noreq_rate": "0.7606602475928473",
+        "oor": "0.03164680029807522",
+        "size_log_mae": "0.23704286238359765",
+        "size_iou": "0.5936534920204193",
+        "bias_fp": "-0.02553518282358272"
+      },
+      {
+        "label": "single-shot agent (size_fixed)",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "O7-P-raw",
+        "stage": "s1",
+        "requests": "1454",
+        "complete_rooms": "1404",
+        "complete_rate": "0.9656121045392022",
+        "checker_rate": "0.7895460797799174",
+        "strict_rate": "0.5674002751031637",
+        "noreq_rate": "0.6822558459422283",
+        "oor": "0.04688357343397912",
+        "size_log_mae": "0.2393755471872943",
+        "size_iou": "0.5916981571831833",
+        "bias_fp": "-0.02441841712785613"
+      }
+    ],
+    "gpt_pilot300": [
+      {
+        "panel": "A",
+        "scope": "A",
+        "big": "L size-fixed harness (gpt-6.1-sol)",
+        "subset": "all",
+        "entry": "LOCAL",
+        "requests": "300",
+        "complete_rooms": "300",
+        "escalated_share": "0.0",
+        "big_used_share": "0.0",
+        "complete_rate": "1.0",
+        "checker_rate": "0.8466666666666667",
+        "strict_rate": "0.44666666666666666",
+        "noreq_rate": "0.7966666666666666",
+        "oor": "0.08046519786309168",
+        "size_log_mae": "0.23199074043089454",
+        "size_iou": "0.5952096592587528",
+        "bias_fp": "-0.05384433312858005"
+      },
+      {
+        "label": "single-shot agent (size_fixed)",
+        "scope": "cohort",
+        "subset": "all",
+        "system": "L-P-pilot-raw",
+        "stage": "s1",
+        "requests": "300",
+        "complete_rooms": "300",
+        "complete_rate": "1.0",
+        "checker_rate": "0.9766666666666667",
+        "strict_rate": "0.7233333333333334",
+        "noreq_rate": "0.85",
+        "oor": "0.03549982728224481",
+        "size_log_mae": "0.23199074043089454",
+        "size_iou": "0.5952096592587528",
+        "bias_fp": "-0.05384433312858005"
+      }
+    ]
+  },
+  "policy_C": {
+    "LOCAL": {
+      "panel": "C",
+      "scope": "C",
+      "big": "L size-fixed harness (gpt-6.1-sol)",
+      "subset": "all",
+      "entry": "LOCAL",
+      "requests": "300",
+      "complete_rooms": "299",
+      "escalated_share": "0.0",
+      "big_used_share": "0.0",
+      "complete_rate": "0.9966666666666667",
+      "checker_rate": "0.79",
+      "strict_rate": "0.35",
+      "noreq_rate": "0.7066666666666667",
+      "oor": "0.12984980546110728",
+      "size_log_mae": "0.3184155701241574",
+      "size_iou": "0.541781876183239",
+      "bias_fp": "0.014579208920719877"
+    },
+    "ESC-STRICT": {
+      "panel": "C",
+      "scope": "C",
+      "big": "L size-fixed harness (gpt-6.1-sol)",
+      "subset": "all",
+      "entry": "ESC-STRICT",
+      "requests": "300",
+      "complete_rooms": "300",
+      "escalated_share": "0.65",
+      "big_used_share": "0.43",
+      "complete_rate": "1.0",
+      "checker_rate": "0.99",
+      "strict_rate": "0.6433333333333333",
+      "noreq_rate": "0.82",
+      "oor": "0.07878219138974579",
+      "size_log_mae": "0.3186721842562843",
+      "size_iou": "0.5412068199418512",
+      "bias_fp": "0.013683139811165465"
+    },
+    "BIG": {
+      "panel": "C",
+      "scope": "C",
+      "big": "L size-fixed harness (gpt-6.1-sol)",
+      "subset": "all",
+      "entry": "BIG",
+      "requests": "300",
+      "complete_rooms": "300",
+      "escalated_share": "1.0",
+      "big_used_share": "1.0",
+      "complete_rate": "1.0",
+      "checker_rate": "0.9733333333333334",
+      "strict_rate": "0.62",
+      "noreq_rate": "0.7766666666666666",
+      "oor": "0.07898842503953167",
+      "size_log_mae": "0.3186721842562843",
+      "size_iou": "0.5412068199418512",
+      "bias_fp": "0.013683139811165465"
+    }
+  },
+  "policy_strict_contrast": {
+    "panel": "C",
+    "scope": "C",
+    "big": "L size-fixed harness (gpt-6.1-sol)",
+    "subset": "all",
+    "comparison": "ESC-STRICT - BIG",
+    "rooms": "300",
+    "components": "246",
+    "field": "strict",
+    "estimate": "0.023333333333333334",
+    "ci_low": "0.00931604907409188",
+    "ci_high": "0.0413828898699439",
+    "p": "0.0"
+  },
+  "sources": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/levels.csv",
+      "sha256": "2767eb4fa719877bcb6b64e61e006abfaedf447c55d9dd2e48beb0ce38614826"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/levels.csv",
+      "sha256": "0aad01ec73adb82bec830bb5e0885a3935edc26f7627a1e888d668fe8be654a1"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/contrasts.csv",
+      "sha256": "fb0a89d25ace06048efad27305c07908cec0bec1d9c86d07ab972b71edd6278c"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/amendment-007-latest-open-models-20261013.md",
+      "sha256": "216ef18757ce0e50609d291332d2944ed2594ad864cfdfab1234b49f7ee001ca"
+    }
+  ]
+}

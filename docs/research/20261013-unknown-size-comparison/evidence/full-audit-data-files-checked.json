@@ -1,0 +1,3376 @@
+{
+  "utc": "2026-10-13T07:44:42.685347+00:00",
+  "scope": "Exact files read or hashed by this audit; hash-only/static coverage distinguished in source-code-inventory. Binary meshes/weights not opened.",
+  "files": {
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-inputs.py": {
+      "sha256": "7ba325fbcd564518fefdc0cc9672b0973463686b01488029a1b18178f46468bf",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 15824,
+          "source_read": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/contract.py": {
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 13793,
+          "source_read": true
+        },
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 13793,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 13793,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/size_prior.py": {
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 11001,
+          "source_read": true
+        },
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11001,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11001,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/scene.py": {
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 21001,
+          "source_read": true
+        },
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21001,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21001,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/comparison/train_pair_helpers.py": {
+      "sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 19717,
+          "source_read": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/sft-c8f792a65470/fastfill/comparison/train_pair.py": {
+      "sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 23264,
+          "source_read": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/MANIFEST.json": {
+      "sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 1272009,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "scope": 1,
+            "seed": 1,
+            "target_policy": 1,
+            "quality_claim_allowed": 1,
+            "corpus_manifest_sha256": 1,
+            "corpus_identity_manifest_sha256": 1,
+            "input_consumed_sha256": 1,
+            "implementation_sha256": 1,
+            "source_release_manifest_sha256": 1,
+            "source_release_files": 1,
+            "ir_sha256": 1,
+            "counts": 1,
+            "dataset_counts": 1,
+            "by_source": 1,
+            "excluded_sources": 1,
+            "prior_exposure": 1,
+            "input_policy": 1,
+            "prior_policy": 1,
+            "estimated_size_precision": 1,
+            "split_policy": 1,
+            "component_policy": 1,
+            "dev_policy": 1,
+            "devlimit": 1,
+            "test_policy": 1,
+            "repair_limits": 1,
+            "files": 1
+          },
+          "by_source": {},
+          "bytes": 1272009,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "bytes": 1272009,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/MANIFEST.json": {
+      "sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 429063,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "scope": 1,
+            "seed": 1,
+            "expected_uids": 1,
+            "corpus_manifest_sha256": 1,
+            "corpus_identity_manifest_sha256": 1,
+            "training_manifest_sha256": 1,
+            "training_corpus_identity_manifest_sha256": 1,
+            "input_consumed_sha256": 1,
+            "implementation_sha256": 1,
+            "counts": 1,
+            "by_source": 1,
+            "source_heldout": 1,
+            "prior_fit_count": 1,
+            "audit": 1,
+            "new_blind_test_claim": 1,
+            "geometry_policy": 1,
+            "size_policy": 1,
+            "input_policy": 1,
+            "files": 1
+          },
+          "by_source": {},
+          "bytes": 429063,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "bytes": 429063,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/size-priors.json": {
+      "sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 241067473,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "fold_by_uid": 1,
+            "priors": 1,
+            "full_prior": 1,
+            "provenance": 1
+          },
+          "by_source": {},
+          "bytes": 241067473,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1,
+          "fields": {
+            "fold_by_uid": 1,
+            "priors": 1,
+            "full_prior": 1,
+            "provenance": 1
+          },
+          "bytes": 241067473,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001/lengths.json": {
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 32527892,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "bytes": 32527892,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-placement-001/lengths.json": {
+      "sha256": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 32527892,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001/run_receipt.json": {
+      "sha256": "9bd27d9495f1a24ec6675796bf4f02c3778df4a1dc1465d7cf1f8933bd1df216",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 7544,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-placement-001/run_receipt.json": {
+      "sha256": "0c048b78bfd8009a25c14a8817010f6187a6321133de0aac00e10f9b30d6ff6e",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 7552,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/tokenizer.json": {
+      "sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 11422654,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/tokenizer_config.json": {
+      "sha256": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 9732,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B/config.json": {
+      "sha256": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "bytes": 728,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/bound_rooms.jsonl": {
+      "sha256": "bb3d2448761cf49be0d52f00b1a42dde4290d959d7b04420513342a1fd8efea2",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 107090,
+          "fields": {
+            "_comparison_protocol": 107090,
+            "boundary": 107090,
+            "boundary_type": 107090,
+            "fixed": 107090,
+            "group": 107090,
+            "height": 107090,
+            "meta": 107090,
+            "objects": 107090,
+            "room_type": 107090,
+            "source": 107090,
+            "split": 107090,
+            "subset": 107090,
+            "uid": 107090
+          },
+          "by_source": {
+            "HSSD200": 1042,
+            "IL3D_3dfront": 10176,
+            "IL3D_synthetic": 6439,
+            "InteriorGS": 2726,
+            "InternScenes_3rscan": 358,
+            "InternScenes_arkit": 2378,
+            "InternScenes_gen": 12698,
+            "InternScenes_mp3d": 651,
+            "InternScenes_scannet": 348,
+            "MansionWorld": 19496,
+            "MultiScan": 17,
+            "OptiScene_holodeck": 9443,
+            "SAGE-10k": 6239,
+            "Scan2CAD": 5,
+            "SpatialLM": 26299,
+            "Structured3D": 8775
+          },
+          "bytes": 427938557,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 107090,
+          "fields": {
+            "_comparison_protocol": 107090,
+            "boundary": 107090,
+            "boundary_type": 107090,
+            "fixed": 107090,
+            "group": 107090,
+            "height": 107090,
+            "meta": 107090,
+            "objects": 107090,
+            "room_type": 107090,
+            "source": 107090,
+            "split": 107090,
+            "subset": 107090,
+            "uid": 107090
+          },
+          "bytes": 427938557,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 107090,
+          "fields": {
+            "_comparison_protocol": 107090,
+            "boundary": 107090,
+            "boundary_type": 107090,
+            "fixed": 107090,
+            "group": 107090,
+            "height": 107090,
+            "meta": 107090,
+            "objects": 107090,
+            "room_type": 107090,
+            "source": 107090,
+            "split": 107090,
+            "subset": 107090,
+            "uid": 107090
+          },
+          "bytes": 427938557,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/rooms.jsonl": {
+      "sha256": "37a541e2cc05656f808ff4fc03e197f929723d29b2e6ca9fc0aa474a3cf5a6ad",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "subset": 8647,
+            "group": 8647,
+            "room_type": 8647,
+            "boundary": 8647,
+            "boundary_type": 8647,
+            "height": 8647,
+            "objects": 8647,
+            "meta": 8647,
+            "fixed": 8647,
+            "split": 8647,
+            "_comparison_protocol": 8647,
+            "component": 8647
+          },
+          "by_source": {
+            "HSSD200": 138,
+            "InternScenes_3rscan": 70,
+            "InternScenes_arkit": 229,
+            "InternScenes_gen": 660,
+            "InternScenes_mp3d": 18,
+            "InternScenes_scannet": 104,
+            "MansionWorld": 1313,
+            "MultiScan": 6,
+            "SAGE-10k": 489,
+            "Scan2CAD": 1,
+            "SceneSmith": 364,
+            "IL3D_synthetic": 316,
+            "IL3D_3dfront": 872,
+            "InteriorGS": 311,
+            "OptiScene_holodeck": 503,
+            "SpatialGen": 45,
+            "SpatialLM": 2461,
+            "Structured3D": 747
+          },
+          "bytes": 38056113,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "subset": 8647,
+            "group": 8647,
+            "room_type": 8647,
+            "boundary": 8647,
+            "boundary_type": 8647,
+            "height": 8647,
+            "objects": 8647,
+            "meta": 8647,
+            "fixed": 8647,
+            "split": 8647,
+            "_comparison_protocol": 8647,
+            "component": 8647
+          },
+          "bytes": 38056113,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "subset": 8647,
+            "group": 8647,
+            "room_type": 8647,
+            "boundary": 8647,
+            "boundary_type": 8647,
+            "height": 8647,
+            "objects": 8647,
+            "meta": 8647,
+            "fixed": 8647,
+            "split": 8647,
+            "_comparison_protocol": 8647,
+            "component": 8647
+          },
+          "bytes": 38056113,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/train.jsonl": {
+      "sha256": "e35674f0149e1df5d122f2803e410f0a038ed8777a96316d346a0f6207be111c",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "by_source": {
+            "HSSD200": 956,
+            "IL3D_3dfront": 9237,
+            "IL3D_synthetic": 6090,
+            "InteriorGS": 2458,
+            "InternScenes_3rscan": 297,
+            "InternScenes_arkit": 2098,
+            "InternScenes_gen": 11870,
+            "InternScenes_mp3d": 562,
+            "InternScenes_scannet": 268,
+            "MansionWorld": 18343,
+            "MultiScan": 15,
+            "OptiScene_holodeck": 8946,
+            "SAGE-10k": 5736,
+            "Scan2CAD": 5,
+            "SpatialLM": 24060,
+            "Structured3D": 7982
+          },
+          "bytes": 333473541,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "bytes": 333473541,
+          "complete_scan": true
+        },
+        {
+          "phase": "p_targets",
+          "records": 98923,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "bytes": 333473541,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/train.jsonl": {
+      "sha256": "92d8ec98e65cd5279b94fd6c2a353349b2cf8514ebb2100d1dee8ad5b8ac582d",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "by_source": {
+            "HSSD200": 956,
+            "IL3D_3dfront": 9237,
+            "IL3D_synthetic": 6090,
+            "InteriorGS": 2458,
+            "InternScenes_3rscan": 297,
+            "InternScenes_arkit": 2098,
+            "InternScenes_gen": 11870,
+            "InternScenes_mp3d": 562,
+            "InternScenes_scannet": 268,
+            "MansionWorld": 18343,
+            "MultiScan": 15,
+            "OptiScene_holodeck": 8946,
+            "SAGE-10k": 5736,
+            "Scan2CAD": 5,
+            "SpatialLM": 24060,
+            "Structured3D": 7982
+          },
+          "bytes": 336728079,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "bytes": 336728079,
+          "complete_scan": true
+        },
+        {
+          "phase": "p_targets",
+          "records": 98923,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 98923,
+          "fields": {
+            "flags": 98923,
+            "group": 98923,
+            "messages": 98923,
+            "source": 98923,
+            "split": 98923,
+            "target_policy": 98923,
+            "target_qualified": 98923,
+            "uid": 98923
+          },
+          "bytes": 336728079,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/dev.jsonl": {
+      "sha256": "1faf7340d8fd1ecadcdadeb17f498d19cf0ef9ca30fa5dacd553d2a380dc459e",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "by_source": {
+            "HSSD200": 86,
+            "IL3D_3dfront": 939,
+            "IL3D_synthetic": 349,
+            "InteriorGS": 268,
+            "InternScenes_3rscan": 61,
+            "InternScenes_arkit": 280,
+            "InternScenes_gen": 828,
+            "InternScenes_mp3d": 89,
+            "InternScenes_scannet": 80,
+            "MansionWorld": 1153,
+            "MultiScan": 2,
+            "OptiScene_holodeck": 497,
+            "SAGE-10k": 503,
+            "SpatialLM": 2239,
+            "Structured3D": 793
+          },
+          "bytes": 29392213,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "bytes": 29392213,
+          "complete_scan": true
+        },
+        {
+          "phase": "p_targets",
+          "records": 8167,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "bytes": 29392213,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/dev.jsonl": {
+      "sha256": "36d85a82e83260096cf8a97a5e799a858fd6892e99077f56387fc992374be73c",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "by_source": {
+            "HSSD200": 86,
+            "IL3D_3dfront": 939,
+            "IL3D_synthetic": 349,
+            "InteriorGS": 268,
+            "InternScenes_3rscan": 61,
+            "InternScenes_arkit": 280,
+            "InternScenes_gen": 828,
+            "InternScenes_mp3d": 89,
+            "InternScenes_scannet": 80,
+            "MansionWorld": 1153,
+            "MultiScan": 2,
+            "OptiScene_holodeck": 497,
+            "SAGE-10k": 503,
+            "SpatialLM": 2239,
+            "Structured3D": 793
+          },
+          "bytes": 29663290,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "bytes": 29663290,
+          "complete_scan": true
+        },
+        {
+          "phase": "p_targets",
+          "records": 8167,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8167,
+          "fields": {
+            "flags": 8167,
+            "group": 8167,
+            "messages": 8167,
+            "source": 8167,
+            "split": 8167,
+            "target_policy": 8167,
+            "target_qualified": 8167,
+            "uid": 8167
+          },
+          "bytes": 29663290,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/joint/requests.jsonl": {
+      "sha256": "3574a825fc4631e0273cc128efef13d5e0955eb0dab66166bc0792ee6d23cdb9",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "group": 8647,
+            "component": 8647,
+            "split": 8647,
+            "room_type": 7974,
+            "messages": 8647
+          },
+          "by_source": {
+            "HSSD200": 138,
+            "InternScenes_3rscan": 70,
+            "InternScenes_arkit": 229,
+            "InternScenes_gen": 660,
+            "InternScenes_mp3d": 18,
+            "InternScenes_scannet": 104,
+            "MansionWorld": 1313,
+            "MultiScan": 6,
+            "SAGE-10k": 489,
+            "Scan2CAD": 1,
+            "SceneSmith": 364,
+            "IL3D_synthetic": 316,
+            "IL3D_3dfront": 872,
+            "InteriorGS": 311,
+            "OptiScene_holodeck": 503,
+            "SpatialGen": 45,
+            "SpatialLM": 2461,
+            "Structured3D": 747
+          },
+          "bytes": 20911283,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "group": 8647,
+            "component": 8647,
+            "split": 8647,
+            "room_type": 7974,
+            "messages": 8647
+          },
+          "bytes": 20911283,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/placement/requests.jsonl": {
+      "sha256": "1ef83b089cd30968f9d562e3aaba4b9248c1a173c0d60e23fde11bbccd9a5f0b",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "group": 8647,
+            "component": 8647,
+            "split": 8647,
+            "room_type": 7974,
+            "messages": 8647
+          },
+          "by_source": {
+            "HSSD200": 138,
+            "InternScenes_3rscan": 70,
+            "InternScenes_arkit": 229,
+            "InternScenes_gen": 660,
+            "InternScenes_mp3d": 18,
+            "InternScenes_scannet": 104,
+            "MansionWorld": 1313,
+            "MultiScan": 6,
+            "SAGE-10k": 489,
+            "Scan2CAD": 1,
+            "SceneSmith": 364,
+            "IL3D_synthetic": 316,
+            "IL3D_3dfront": 872,
+            "InteriorGS": 311,
+            "OptiScene_holodeck": 503,
+            "SpatialGen": 45,
+            "SpatialLM": 2461,
+            "Structured3D": 747
+          },
+          "bytes": 23958420,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "group": 8647,
+            "component": 8647,
+            "split": 8647,
+            "room_type": 7974,
+            "messages": 8647
+          },
+          "bytes": 23958420,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/common-admission.jsonl": {
+      "sha256": "d33581f64819be8d69329ff0c17eb0acbeaf297f7237cf235dcd71fe87c3f3fe",
+      "evidence": [
+        {
+          "phase": "inputs",
+          "records": 144150,
+          "fields": {
+            "accepted": 144150,
+            "component": 144150,
+            "eligible": 144150,
+            "fold": 144150,
+            "joint": 144150,
+            "placement": 144150,
+            "reasons": 144150,
+            "source": 144150,
+            "uid": 144150,
+            "repair": 124843
+          },
+          "by_source": {
+            "HSSD200": 1876,
+            "InternScenes_3rscan": 1200,
+            "InternScenes_arkit": 4528,
+            "InternScenes_gen": 12552,
+            "InternScenes_mp3d": 1258,
+            "InternScenes_scannet": 1309,
+            "MansionWorld": 19396,
+            "MultiScan": 114,
+            "SAGE-10k": 8977,
+            "Scan2CAD": 18,
+            "IL3D_synthetic": 6277,
+            "IL3D_3dfront": 18054,
+            "InteriorGS": 4877,
+            "SpatialLM": 42068,
+            "Structured3D": 12700,
+            "OptiScene_holodeck": 8946
+          },
+          "bytes": 289323207,
+          "complete_scan": true
+        },
+        {
+          "phase": "geometry",
+          "records": 144150,
+          "fields": {
+            "accepted": 144150,
+            "component": 144150,
+            "eligible": 144150,
+            "fold": 144150,
+            "joint": 144150,
+            "placement": 144150,
+            "reasons": 144150,
+            "source": 144150,
+            "uid": 144150,
+            "repair": 124843
+          },
+          "bytes": 289323207,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 144150,
+          "fields": {
+            "accepted": 144150,
+            "component": 144150,
+            "eligible": 144150,
+            "fold": 144150,
+            "joint": 144150,
+            "placement": 144150,
+            "reasons": 144150,
+            "source": 144150,
+            "uid": 144150,
+            "repair": 124843
+          },
+          "by_source": {
+            "HSSD200": 1876,
+            "InternScenes_3rscan": 1200,
+            "InternScenes_arkit": 4528,
+            "InternScenes_gen": 12552,
+            "InternScenes_mp3d": 1258,
+            "InternScenes_scannet": 1309,
+            "MansionWorld": 19396,
+            "MultiScan": 114,
+            "SAGE-10k": 8977,
+            "Scan2CAD": 18,
+            "IL3D_synthetic": 6277,
+            "IL3D_3dfront": 18054,
+            "InteriorGS": 4877,
+            "SpatialLM": 42068,
+            "Structured3D": 12700,
+            "OptiScene_holodeck": 8946
+          },
+          "bytes": 289323207,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 144150,
+          "fields": {
+            "accepted": 144150,
+            "component": 144150,
+            "eligible": 144150,
+            "fold": 144150,
+            "joint": 144150,
+            "placement": 144150,
+            "reasons": 144150,
+            "source": 144150,
+            "uid": 144150,
+            "repair": 124843
+          },
+          "bytes": 289323207,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-known-cases.json": {
+      "sha256": "4397d135e66d568cbf968339bb05a30da475e3c1e79712015cd7745716ff8495",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "bytes": 7873031,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/train.jsonl": {
+      "sha256": "4663157aeed9b5919a77471f971d730a1b6ec228f5e1ec7d145b4d4ebf4f0217",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 144150,
+          "fields": {
+            "uid": 144150,
+            "source": 144150,
+            "flags": 144150,
+            "messages": 144150
+          },
+          "bytes": 535618763,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 144150,
+          "fields": {
+            "uid": 144150,
+            "source": 144150,
+            "flags": 144150,
+            "messages": 144150
+          },
+          "by_source": {
+            "HSSD200": 1876,
+            "IL3D_3dfront": 18054,
+            "IL3D_synthetic": 6277,
+            "InteriorGS": 4877,
+            "InternScenes_3rscan": 1200,
+            "InternScenes_arkit": 4528,
+            "InternScenes_gen": 12552,
+            "InternScenes_mp3d": 1258,
+            "InternScenes_scannet": 1309,
+            "Scan2CAD": 18,
+            "MansionWorld": 19396,
+            "MultiScan": 114,
+            "OptiScene_holodeck": 8946,
+            "SAGE-10k": 8977,
+            "SpatialLM": 42068,
+            "Structured3D": 12700
+          },
+          "bytes": 535618763,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 144150,
+          "fields": {
+            "uid": 144150,
+            "source": 144150,
+            "flags": 144150,
+            "messages": 144150
+          },
+          "bytes": 535618763,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/dev.jsonl": {
+      "sha256": "1e7739941f2385aeaf42c68fecff9a6fed83eb120cfbbba7d12f6f9d4b41c147",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 8167,
+          "fields": {
+            "uid": 8167,
+            "source": 8167,
+            "flags": 8167,
+            "messages": 8167
+          },
+          "bytes": 32524325,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 8167,
+          "fields": {
+            "uid": 8167,
+            "source": 8167,
+            "flags": 8167,
+            "messages": 8167
+          },
+          "by_source": {
+            "HSSD200": 86,
+            "IL3D_3dfront": 939,
+            "IL3D_synthetic": 349,
+            "InteriorGS": 268,
+            "InternScenes_3rscan": 61,
+            "InternScenes_arkit": 280,
+            "InternScenes_gen": 828,
+            "InternScenes_mp3d": 89,
+            "InternScenes_scannet": 80,
+            "MansionWorld": 1153,
+            "MultiScan": 2,
+            "OptiScene_holodeck": 497,
+            "SAGE-10k": 503,
+            "SpatialLM": 2239,
+            "Structured3D": 793
+          },
+          "bytes": 32524325,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8167,
+          "fields": {
+            "uid": 8167,
+            "source": 8167,
+            "flags": 8167,
+            "messages": 8167
+          },
+          "bytes": 32524325,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/test.jsonl": {
+      "sha256": "12a9268b6ffb6a26d647e566a279168e55e0d78add606a42c019bde37335db98",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "flags": 8647,
+            "messages": 8647
+          },
+          "bytes": 34194647,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "flags": 8647,
+            "messages": 8647
+          },
+          "by_source": {
+            "HSSD200": 138,
+            "IL3D_3dfront": 872,
+            "IL3D_synthetic": 316,
+            "InteriorGS": 311,
+            "InternScenes_3rscan": 70,
+            "InternScenes_arkit": 229,
+            "InternScenes_gen": 660,
+            "InternScenes_mp3d": 18,
+            "InternScenes_scannet": 104,
+            "Scan2CAD": 1,
+            "MansionWorld": 1313,
+            "MultiScan": 6,
+            "OptiScene_holodeck": 503,
+            "SAGE-10k": 489,
+            "SceneSmith": 364,
+            "SpatialGen": 45,
+            "SpatialLM": 2461,
+            "Structured3D": 747
+          },
+          "bytes": 34194647,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "source": 8647,
+            "flags": 8647,
+            "messages": 8647
+          },
+          "bytes": 34194647,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/HSSD200.jsonl": {
+      "sha256": "6af6bb3e622d5bdad1381e3f9229261b3ea86b27df7c7636b05fcf2c7b8fe74a",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 2351,
+          "fields": {
+            "uid": 2351,
+            "source": 2351,
+            "subset": 2351,
+            "group": 2351,
+            "room_type": 2351,
+            "boundary": 2351,
+            "boundary_type": 2351,
+            "height": 2351,
+            "objects": 2351,
+            "meta": 2351
+          },
+          "bytes": 13320988,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 2351,
+          "fields": {
+            "uid": 2351,
+            "source": 2351,
+            "subset": 2351,
+            "group": 2351,
+            "room_type": 2351,
+            "boundary": 2351,
+            "boundary_type": 2351,
+            "height": 2351,
+            "objects": 2351,
+            "meta": 2351
+          },
+          "by_source": {
+            "HSSD200": 2351
+          },
+          "bytes": 13320988,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 2351,
+          "fields": {
+            "uid": 2351,
+            "source": 2351,
+            "subset": 2351,
+            "group": 2351,
+            "room_type": 2351,
+            "boundary": 2351,
+            "boundary_type": 2351,
+            "height": 2351,
+            "objects": 2351,
+            "meta": 2351
+          },
+          "by_source": {
+            "HSSD200": 2351
+          },
+          "bytes": 13320988,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/IL3D_3dfront.jsonl": {
+      "sha256": "7aa9309d776ecfea09b8e872dd8c21526b668f07dc8553d781ce0add840a852f",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 21832,
+          "fields": {
+            "uid": 21832,
+            "source": 21832,
+            "subset": 21832,
+            "group": 21832,
+            "room_type": 21832,
+            "boundary": 21832,
+            "boundary_type": 21832,
+            "height": 21832,
+            "objects": 21832,
+            "meta": 21832
+          },
+          "bytes": 104673139,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 21832,
+          "fields": {
+            "uid": 21832,
+            "source": 21832,
+            "subset": 21832,
+            "group": 21832,
+            "room_type": 21832,
+            "boundary": 21832,
+            "boundary_type": 21832,
+            "height": 21832,
+            "objects": 21832,
+            "meta": 21832
+          },
+          "by_source": {
+            "IL3D_3dfront": 21832
+          },
+          "bytes": 104673139,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 21832,
+          "fields": {
+            "uid": 21832,
+            "source": 21832,
+            "subset": 21832,
+            "group": 21832,
+            "room_type": 21832,
+            "boundary": 21832,
+            "boundary_type": 21832,
+            "height": 21832,
+            "objects": 21832,
+            "meta": 21832
+          },
+          "by_source": {
+            "IL3D_3dfront": 21832
+          },
+          "bytes": 104673139,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/IL3D_synthetic.jsonl": {
+      "sha256": "2f021ea40220b96ea69a29b9bba42151866938832ff1bd807a6f660a29e70df2",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 6954,
+          "fields": {
+            "uid": 6954,
+            "source": 6954,
+            "subset": 6954,
+            "group": 6954,
+            "room_type": 6954,
+            "boundary": 6954,
+            "boundary_type": 6954,
+            "height": 6954,
+            "objects": 6954,
+            "meta": 6954
+          },
+          "bytes": 24833593,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 6954,
+          "fields": {
+            "uid": 6954,
+            "source": 6954,
+            "subset": 6954,
+            "group": 6954,
+            "room_type": 6954,
+            "boundary": 6954,
+            "boundary_type": 6954,
+            "height": 6954,
+            "objects": 6954,
+            "meta": 6954
+          },
+          "by_source": {
+            "IL3D_synthetic": 6954
+          },
+          "bytes": 24833593,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 6954,
+          "fields": {
+            "uid": 6954,
+            "source": 6954,
+            "subset": 6954,
+            "group": 6954,
+            "room_type": 6954,
+            "boundary": 6954,
+            "boundary_type": 6954,
+            "height": 6954,
+            "objects": 6954,
+            "meta": 6954
+          },
+          "by_source": {
+            "IL3D_synthetic": 6954
+          },
+          "bytes": 24833593,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InteriorGS.jsonl": {
+      "sha256": "612c3afb3b80ae2fbee01b8930d05e7cec89831538d88d0308d0dbafda5c7b73",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 6607,
+          "fields": {
+            "uid": 6607,
+            "source": 6607,
+            "subset": 6607,
+            "group": 6607,
+            "room_type": 6607,
+            "boundary": 6607,
+            "boundary_type": 6607,
+            "height": 6607,
+            "objects": 6607,
+            "meta": 6607
+          },
+          "bytes": 134884013,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 6607,
+          "fields": {
+            "uid": 6607,
+            "source": 6607,
+            "subset": 6607,
+            "group": 6607,
+            "room_type": 6607,
+            "boundary": 6607,
+            "boundary_type": 6607,
+            "height": 6607,
+            "objects": 6607,
+            "meta": 6607
+          },
+          "by_source": {
+            "InteriorGS": 6607
+          },
+          "bytes": 134884013,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 6607,
+          "fields": {
+            "uid": 6607,
+            "source": 6607,
+            "subset": 6607,
+            "group": 6607,
+            "room_type": 6607,
+            "boundary": 6607,
+            "boundary_type": 6607,
+            "height": 6607,
+            "objects": 6607,
+            "meta": 6607
+          },
+          "by_source": {
+            "InteriorGS": 6607
+          },
+          "bytes": 134884013,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_3rscan.jsonl": {
+      "sha256": "bae023a964ec08795feb25b8a36ea6da0fc826ab44ccaa508da369d57a67a992",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 1334,
+          "fields": {
+            "uid": 1334,
+            "source": 1334,
+            "subset": 1334,
+            "group": 1334,
+            "room_type": 1334,
+            "boundary": 1334,
+            "boundary_type": 1334,
+            "height": 1334,
+            "objects": 1334,
+            "meta": 1334
+          },
+          "bytes": 12953429,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1334,
+          "fields": {
+            "uid": 1334,
+            "source": 1334,
+            "subset": 1334,
+            "group": 1334,
+            "room_type": 1334,
+            "boundary": 1334,
+            "boundary_type": 1334,
+            "height": 1334,
+            "objects": 1334,
+            "meta": 1334
+          },
+          "by_source": {
+            "InternScenes_3rscan": 1334
+          },
+          "bytes": 12953429,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1334,
+          "fields": {
+            "uid": 1334,
+            "source": 1334,
+            "subset": 1334,
+            "group": 1334,
+            "room_type": 1334,
+            "boundary": 1334,
+            "boundary_type": 1334,
+            "height": 1334,
+            "objects": 1334,
+            "meta": 1334
+          },
+          "by_source": {
+            "InternScenes_3rscan": 1334
+          },
+          "bytes": 12953429,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_arkit.jsonl": {
+      "sha256": "f90f2ccc4870fdf8f5c11df34d21f78a63b9917885371c0bcf3b17391b563c29",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 5040,
+          "fields": {
+            "uid": 5040,
+            "source": 5040,
+            "subset": 5040,
+            "group": 5040,
+            "room_type": 5040,
+            "boundary": 5040,
+            "boundary_type": 5040,
+            "height": 5040,
+            "objects": 5040,
+            "meta": 5040
+          },
+          "bytes": 37095038,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 5040,
+          "fields": {
+            "uid": 5040,
+            "source": 5040,
+            "subset": 5040,
+            "group": 5040,
+            "room_type": 5040,
+            "boundary": 5040,
+            "boundary_type": 5040,
+            "height": 5040,
+            "objects": 5040,
+            "meta": 5040
+          },
+          "by_source": {
+            "InternScenes_arkit": 5040
+          },
+          "bytes": 37095038,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 5040,
+          "fields": {
+            "uid": 5040,
+            "source": 5040,
+            "subset": 5040,
+            "group": 5040,
+            "room_type": 5040,
+            "boundary": 5040,
+            "boundary_type": 5040,
+            "height": 5040,
+            "objects": 5040,
+            "meta": 5040
+          },
+          "by_source": {
+            "InternScenes_arkit": 5040
+          },
+          "bytes": 37095038,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_gen.jsonl": {
+      "sha256": "75387e2527997ed051c71fad75c3e472a5efe7a128bae18dd3efe5d7ba4dd772",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 14089,
+          "fields": {
+            "uid": 14089,
+            "source": 14089,
+            "subset": 14089,
+            "group": 14089,
+            "room_type": 14089,
+            "boundary": 14089,
+            "boundary_type": 14089,
+            "height": 14089,
+            "objects": 14089,
+            "meta": 14089
+          },
+          "bytes": 170273967,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 14089,
+          "fields": {
+            "uid": 14089,
+            "source": 14089,
+            "subset": 14089,
+            "group": 14089,
+            "room_type": 14089,
+            "boundary": 14089,
+            "boundary_type": 14089,
+            "height": 14089,
+            "objects": 14089,
+            "meta": 14089
+          },
+          "by_source": {
+            "InternScenes_gen": 14089
+          },
+          "bytes": 170273967,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 14089,
+          "fields": {
+            "uid": 14089,
+            "source": 14089,
+            "subset": 14089,
+            "group": 14089,
+            "room_type": 14089,
+            "boundary": 14089,
+            "boundary_type": 14089,
+            "height": 14089,
+            "objects": 14089,
+            "meta": 14089
+          },
+          "by_source": {
+            "InternScenes_gen": 14089
+          },
+          "bytes": 170273967,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_mp3d.jsonl": {
+      "sha256": "3685a34f5406a7dd3c93de3c4d2ff8f5d051a5ef5a4183038ece4d54e7b6a84b",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 1601,
+          "fields": {
+            "uid": 1601,
+            "source": 1601,
+            "subset": 1601,
+            "group": 1601,
+            "room_type": 1601,
+            "boundary": 1601,
+            "boundary_type": 1601,
+            "height": 1601,
+            "objects": 1601,
+            "meta": 1601
+          },
+          "bytes": 9801996,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1601,
+          "fields": {
+            "uid": 1601,
+            "source": 1601,
+            "subset": 1601,
+            "group": 1601,
+            "room_type": 1601,
+            "boundary": 1601,
+            "boundary_type": 1601,
+            "height": 1601,
+            "objects": 1601,
+            "meta": 1601
+          },
+          "by_source": {
+            "InternScenes_mp3d": 1601
+          },
+          "bytes": 9801996,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1601,
+          "fields": {
+            "uid": 1601,
+            "source": 1601,
+            "subset": 1601,
+            "group": 1601,
+            "room_type": 1601,
+            "boundary": 1601,
+            "boundary_type": 1601,
+            "height": 1601,
+            "objects": 1601,
+            "meta": 1601
+          },
+          "by_source": {
+            "InternScenes_mp3d": 1601
+          },
+          "bytes": 9801996,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/InternScenes_scannet.jsonl": {
+      "sha256": "994b9edbba489599940323947dd42e5fba8da0157346e48940e45c5ab095aa3a",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 1513,
+          "fields": {
+            "uid": 1513,
+            "source": 1513,
+            "subset": 1513,
+            "group": 1513,
+            "room_type": 1513,
+            "boundary": 1513,
+            "boundary_type": 1513,
+            "height": 1513,
+            "objects": 1513,
+            "meta": 1513
+          },
+          "bytes": 14749102,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1513,
+          "fields": {
+            "uid": 1513,
+            "source": 1513,
+            "subset": 1513,
+            "group": 1513,
+            "room_type": 1513,
+            "boundary": 1513,
+            "boundary_type": 1513,
+            "height": 1513,
+            "objects": 1513,
+            "meta": 1513
+          },
+          "by_source": {
+            "InternScenes_scannet": 1513
+          },
+          "bytes": 14749102,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1513,
+          "fields": {
+            "uid": 1513,
+            "source": 1513,
+            "subset": 1513,
+            "group": 1513,
+            "room_type": 1513,
+            "boundary": 1513,
+            "boundary_type": 1513,
+            "height": 1513,
+            "objects": 1513,
+            "meta": 1513
+          },
+          "by_source": {
+            "InternScenes_scannet": 1513
+          },
+          "bytes": 14749102,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/MansionWorld.jsonl": {
+      "sha256": "3b91f38162f1b2f19e6580d3437dc853b590802291bbd008727319f7274bd40c",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 27884,
+          "fields": {
+            "uid": 27884,
+            "source": 27884,
+            "subset": 27884,
+            "group": 27884,
+            "room_type": 27884,
+            "boundary": 27884,
+            "boundary_type": 27884,
+            "height": 27884,
+            "objects": 27884,
+            "meta": 27884
+          },
+          "bytes": 225746308,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 27884,
+          "fields": {
+            "uid": 27884,
+            "source": 27884,
+            "subset": 27884,
+            "group": 27884,
+            "room_type": 27884,
+            "boundary": 27884,
+            "boundary_type": 27884,
+            "height": 27884,
+            "objects": 27884,
+            "meta": 27884
+          },
+          "by_source": {
+            "MansionWorld": 27884
+          },
+          "bytes": 225746308,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 27884,
+          "fields": {
+            "uid": 27884,
+            "source": 27884,
+            "subset": 27884,
+            "group": 27884,
+            "room_type": 27884,
+            "boundary": 27884,
+            "boundary_type": 27884,
+            "height": 27884,
+            "objects": 27884,
+            "meta": 27884
+          },
+          "by_source": {
+            "MansionWorld": 27884
+          },
+          "bytes": 225746308,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/MultiScan.jsonl": {
+      "sha256": "3fcd69d2a9363453cbeeb8b9aa6f681b1e7c3b622774ccad8d7d791c370124ca",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 273,
+          "fields": {
+            "uid": 273,
+            "source": 273,
+            "subset": 273,
+            "group": 273,
+            "room_type": 273,
+            "boundary": 273,
+            "boundary_type": 273,
+            "height": 273,
+            "objects": 273,
+            "meta": 273
+          },
+          "bytes": 3094772,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 273,
+          "fields": {
+            "uid": 273,
+            "source": 273,
+            "subset": 273,
+            "group": 273,
+            "room_type": 273,
+            "boundary": 273,
+            "boundary_type": 273,
+            "height": 273,
+            "objects": 273,
+            "meta": 273
+          },
+          "by_source": {
+            "MultiScan": 273
+          },
+          "bytes": 3094772,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 273,
+          "fields": {
+            "uid": 273,
+            "source": 273,
+            "subset": 273,
+            "group": 273,
+            "room_type": 273,
+            "boundary": 273,
+            "boundary_type": 273,
+            "height": 273,
+            "objects": 273,
+            "meta": 273
+          },
+          "by_source": {
+            "MultiScan": 273
+          },
+          "bytes": 3094772,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/OptiScene_holodeck.jsonl": {
+      "sha256": "6b50155b6c71838f8f8267c20e17cc67f49f37746ed6b92d950602d84fb31b2a",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 9977,
+          "fields": {
+            "uid": 9977,
+            "source": 9977,
+            "subset": 9977,
+            "group": 9977,
+            "room_type": 9977,
+            "boundary": 9977,
+            "boundary_type": 9977,
+            "height": 9977,
+            "objects": 9977,
+            "meta": 9977
+          },
+          "bytes": 23366829,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 9977,
+          "fields": {
+            "uid": 9977,
+            "source": 9977,
+            "subset": 9977,
+            "group": 9977,
+            "room_type": 9977,
+            "boundary": 9977,
+            "boundary_type": 9977,
+            "height": 9977,
+            "objects": 9977,
+            "meta": 9977
+          },
+          "by_source": {
+            "OptiScene_holodeck": 9977
+          },
+          "bytes": 23366829,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 9977,
+          "fields": {
+            "uid": 9977,
+            "source": 9977,
+            "subset": 9977,
+            "group": 9977,
+            "room_type": 9977,
+            "boundary": 9977,
+            "boundary_type": 9977,
+            "height": 9977,
+            "objects": 9977,
+            "meta": 9977
+          },
+          "by_source": {
+            "OptiScene_holodeck": 9977
+          },
+          "bytes": 23366829,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SAGE-10k.jsonl": {
+      "sha256": "8a1e03dddc5baa770752ae14e77298b0d3b42aab77113c119008d6ee978d06b6",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 10027,
+          "fields": {
+            "uid": 10027,
+            "source": 10027,
+            "subset": 10027,
+            "group": 10027,
+            "room_type": 10027,
+            "boundary": 10027,
+            "boundary_type": 10027,
+            "height": 10027,
+            "objects": 10027,
+            "meta": 10027
+          },
+          "bytes": 385524104,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 10027,
+          "fields": {
+            "uid": 10027,
+            "source": 10027,
+            "subset": 10027,
+            "group": 10027,
+            "room_type": 10027,
+            "boundary": 10027,
+            "boundary_type": 10027,
+            "height": 10027,
+            "objects": 10027,
+            "meta": 10027
+          },
+          "by_source": {
+            "SAGE-10k": 10027
+          },
+          "bytes": 385524104,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 10027,
+          "fields": {
+            "uid": 10027,
+            "source": 10027,
+            "subset": 10027,
+            "group": 10027,
+            "room_type": 10027,
+            "boundary": 10027,
+            "boundary_type": 10027,
+            "height": 10027,
+            "objects": 10027,
+            "meta": 10027
+          },
+          "by_source": {
+            "SAGE-10k": 10027
+          },
+          "bytes": 385524104,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/Scan2CAD.jsonl": {
+      "sha256": "8dd7b1b766ee884b7ee7d3f8657c42a18fa7af4bd3671d87ab0380c6a18eea36",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 1506,
+          "fields": {
+            "uid": 1506,
+            "source": 1506,
+            "subset": 1506,
+            "group": 1506,
+            "room_type": 1506,
+            "boundary": 1506,
+            "boundary_type": 1506,
+            "height": 1506,
+            "objects": 1506,
+            "meta": 1506
+          },
+          "bytes": 5517688,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 1506,
+          "fields": {
+            "uid": 1506,
+            "source": 1506,
+            "subset": 1506,
+            "group": 1506,
+            "room_type": 1506,
+            "boundary": 1506,
+            "boundary_type": 1506,
+            "height": 1506,
+            "objects": 1506,
+            "meta": 1506
+          },
+          "by_source": {
+            "Scan2CAD": 1506
+          },
+          "bytes": 5517688,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1506,
+          "fields": {
+            "uid": 1506,
+            "source": 1506,
+            "subset": 1506,
+            "group": 1506,
+            "room_type": 1506,
+            "boundary": 1506,
+            "boundary_type": 1506,
+            "height": 1506,
+            "objects": 1506,
+            "meta": 1506
+          },
+          "by_source": {
+            "Scan2CAD": 1506
+          },
+          "bytes": 5517688,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SceneSmith.jsonl": {
+      "sha256": "0d58aae78ff6061bf41f7d0abc2f508028940a087e10b0c04a779f5e8d92d432",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 364,
+          "fields": {
+            "uid": 364,
+            "source": 364,
+            "subset": 364,
+            "group": 364,
+            "room_type": 364,
+            "boundary": 364,
+            "boundary_type": 364,
+            "height": 364,
+            "objects": 364,
+            "meta": 364
+          },
+          "bytes": 6250766,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 364,
+          "fields": {
+            "uid": 364,
+            "source": 364,
+            "subset": 364,
+            "group": 364,
+            "room_type": 364,
+            "boundary": 364,
+            "boundary_type": 364,
+            "height": 364,
+            "objects": 364,
+            "meta": 364
+          },
+          "by_source": {
+            "SceneSmith": 364
+          },
+          "bytes": 6250766,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 364,
+          "fields": {
+            "uid": 364,
+            "source": 364,
+            "subset": 364,
+            "group": 364,
+            "room_type": 364,
+            "boundary": 364,
+            "boundary_type": 364,
+            "height": 364,
+            "objects": 364,
+            "meta": 364
+          },
+          "by_source": {
+            "SceneSmith": 364
+          },
+          "bytes": 6250766,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SpatialGen.jsonl": {
+      "sha256": "5390fd84350a3d6070842bc3c49b75fa88031f645e4c06312c7c1fe57e4096d8",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 48,
+          "fields": {
+            "uid": 48,
+            "source": 48,
+            "subset": 48,
+            "group": 48,
+            "room_type": 48,
+            "boundary": 48,
+            "boundary_type": 48,
+            "height": 48,
+            "objects": 48,
+            "meta": 48
+          },
+          "bytes": 259667,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 48,
+          "fields": {
+            "uid": 48,
+            "source": 48,
+            "subset": 48,
+            "group": 48,
+            "room_type": 48,
+            "boundary": 48,
+            "boundary_type": 48,
+            "height": 48,
+            "objects": 48,
+            "meta": 48
+          },
+          "by_source": {
+            "SpatialGen": 48
+          },
+          "bytes": 259667,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 48,
+          "fields": {
+            "uid": 48,
+            "source": 48,
+            "subset": 48,
+            "group": 48,
+            "room_type": 48,
+            "boundary": 48,
+            "boundary_type": 48,
+            "height": 48,
+            "objects": 48,
+            "meta": 48
+          },
+          "by_source": {
+            "SpatialGen": 48
+          },
+          "bytes": 259667,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/SpatialLM.jsonl": {
+      "sha256": "f582b46d45b38e59b7b593d045f946f889d08942c10147bf4f077b7f33ef4410",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 54376,
+          "fields": {
+            "uid": 54376,
+            "source": 54376,
+            "subset": 54376,
+            "group": 54376,
+            "room_type": 54376,
+            "boundary": 54376,
+            "boundary_type": 54376,
+            "height": 54376,
+            "objects": 54376,
+            "meta": 54376
+          },
+          "bytes": 209941269,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 54376,
+          "fields": {
+            "uid": 54376,
+            "source": 54376,
+            "subset": 54376,
+            "group": 54376,
+            "room_type": 54376,
+            "boundary": 54376,
+            "boundary_type": 54376,
+            "height": 54376,
+            "objects": 54376,
+            "meta": 54376
+          },
+          "by_source": {
+            "SpatialLM": 54376
+          },
+          "bytes": 209941269,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 54376,
+          "fields": {
+            "uid": 54376,
+            "source": 54376,
+            "subset": 54376,
+            "group": 54376,
+            "room_type": 54376,
+            "boundary": 54376,
+            "boundary_type": 54376,
+            "height": 54376,
+            "objects": 54376,
+            "meta": 54376
+          },
+          "by_source": {
+            "SpatialLM": 54376
+          },
+          "bytes": 209941269,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/ir/Structured3D.jsonl": {
+      "sha256": "c4b66c25ea6385de7a738311f8ee92866c12e23706e439389248bdfbaef386a4",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 22894,
+          "fields": {
+            "uid": 22894,
+            "source": 22894,
+            "subset": 22894,
+            "group": 22894,
+            "room_type": 22894,
+            "boundary": 22894,
+            "boundary_type": 22894,
+            "height": 22894,
+            "objects": 22894,
+            "meta": 22894
+          },
+          "bytes": 118260455,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 22894,
+          "fields": {
+            "uid": 22894,
+            "source": 22894,
+            "subset": 22894,
+            "group": 22894,
+            "room_type": 22894,
+            "boundary": 22894,
+            "boundary_type": 22894,
+            "height": 22894,
+            "objects": 22894,
+            "meta": 22894
+          },
+          "by_source": {
+            "Structured3D": 22894
+          },
+          "bytes": 118260455,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 22894,
+          "fields": {
+            "uid": 22894,
+            "source": 22894,
+            "subset": 22894,
+            "group": 22894,
+            "room_type": 22894,
+            "boundary": 22894,
+            "boundary_type": 22894,
+            "height": 22894,
+            "objects": 22894,
+            "meta": 22894
+          },
+          "by_source": {
+            "Structured3D": 22894
+          },
+          "bytes": 118260455,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/prepared_rooms.jsonl": {
+      "sha256": "6a56dfaa425cd9b48605cc892a9466b67debbf1324999b0ab6f6f8647caf0189",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "records": 160964,
+          "fields": {
+            "uid": 160964,
+            "source": 160964,
+            "subset": 160964,
+            "group": 160964,
+            "room_type": 160964,
+            "boundary": 160964,
+            "boundary_type": 160964,
+            "height": 160964,
+            "objects": 160964,
+            "meta": 160964,
+            "fixed": 160964,
+            "split": 160964
+          },
+          "bytes": 756383070,
+          "complete_scan": true
+        },
+        {
+          "phase": "lineage",
+          "records": 160964,
+          "fields": {
+            "uid": 160964,
+            "source": 160964,
+            "subset": 160964,
+            "group": 160964,
+            "room_type": 160964,
+            "boundary": 160964,
+            "boundary_type": 160964,
+            "height": 160964,
+            "objects": 160964,
+            "meta": 160964,
+            "fixed": 160964,
+            "split": 160964
+          },
+          "by_source": {
+            "HSSD200": 2100,
+            "IL3D_3dfront": 19865,
+            "IL3D_synthetic": 6942,
+            "InteriorGS": 5456,
+            "InternScenes_3rscan": 1331,
+            "InternScenes_arkit": 5037,
+            "InternScenes_gen": 14040,
+            "InternScenes_mp3d": 1365,
+            "InternScenes_scannet": 1493,
+            "MansionWorld": 21862,
+            "MultiScan": 122,
+            "OptiScene_holodeck": 9946,
+            "SAGE-10k": 9969,
+            "Scan2CAD": 19,
+            "SceneSmith": 364,
+            "SpatialGen": 45,
+            "SpatialLM": 46768,
+            "Structured3D": 14240
+          },
+          "bytes": 756383070,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 160964,
+          "fields": {
+            "uid": 160964,
+            "source": 160964,
+            "subset": 160964,
+            "group": 160964,
+            "room_type": 160964,
+            "boundary": 160964,
+            "boundary_type": 160964,
+            "height": 160964,
+            "objects": 160964,
+            "meta": 160964,
+            "fixed": 160964,
+            "split": 160964
+          },
+          "bytes": 756383070,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/inventory-sidecar.json": {
+      "sha256": "f5d8dd0268748637e55c6b36be749a303799485b978fcba4f3129f10c9db2b12",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "bytes": 161532073,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 107090,
+          "fields": {},
+          "bytes": 161532073,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/inventory-sidecar.json": {
+      "sha256": "acda91b08a9b798400d26e8f57b83361320b64fece913656f8864da9f0b51d98",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "bytes": 22654421,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {},
+          "bytes": 22654421,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-geometry.py": {
+      "sha256": "460f08eea3214e47d36dd4d2af78a0e041d2f51949c9d845fd0882fac6122c79",
+      "evidence": [
+        {
+          "phase": "geometry",
+          "bytes": 15146,
+          "source_read": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage.py": {
+      "sha256": "d48071aa3b008ad77a56a23d6e30f3ea23ccad10ac7af6dd361f1a438f7c3374",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 40867,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 40867,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/inputs/release/MANIFEST.json": {
+      "sha256": "664eecdcdaea593bc7f8653ea544b46e415f1c0bc8bf7e09065fbe89796caf6e",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "args": 1,
+            "files": 1,
+            "code_sha256": 1,
+            "ir_sha256": 1,
+            "build_start_code_sha256": 1
+          },
+          "by_source": {},
+          "bytes": 11319,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "bytes": 11319,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/MANIFEST.json": {
+      "sha256": "bf6444ae51f21e8f944168d985576f14029a5ecf9400f6e625ffa62ee5f636c6",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "scope": 1,
+            "source_release_manifest_sha256": 1,
+            "source_release_files": 1,
+            "ir_sha256": 1,
+            "implementation_sha256": 1,
+            "dependencies": 1,
+            "prep_args": 1,
+            "counts": 1,
+            "audit": 1,
+            "by_source": 1,
+            "split_policy": 1,
+            "training_flags_policy": 1,
+            "component_policy": 1,
+            "id_policy": 1,
+            "row_order": 1,
+            "files": 1
+          },
+          "by_source": {},
+          "bytes": 5838,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "bytes": 5838,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 0,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 0,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/anchors.py": {
+      "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 17733,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 17733,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/validate.py": {
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11838,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11838,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/build.py": {
+      "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 35292,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 35292,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/split.py": {
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 5289,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 5289,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/requirements.txt": {
+      "sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 483,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 483,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/__init__.py": {
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 203,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 203,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/data.py": {
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 12802,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 12802,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/corpus.py": {
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15194,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15194,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/main_data.py": {
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21463,
+          "complete_scan": true
+        },
+        {
+          "phase": "p_targets"
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21463,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/pose_targets.py": {
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15302,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15302,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/eval_data.py": {
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15289,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15289,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/main-data-50a274bc4c46/fastfill/comparison/train_pair_helpers.py": {
+      "sha256": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 19717,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 19717,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 0,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 0,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/__init__.py": {
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 203,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 203,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/corpus.py": {
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15194,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 15194,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/comparison/data.py": {
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 12802,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 12802,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/build.py": {
+      "sha256": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 35292,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 35292,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/split.py": {
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 5289,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 5289,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/scene.py": {
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21001,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 21001,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/anchors.py": {
+      "sha256": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 17733,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 17733,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/validate.py": {
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11838,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 11838,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/corpus-097e351ad6d3/fastfill/requirements.txt": {
+      "sha256": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 483,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": null,
+          "fields": {},
+          "by_source": {},
+          "bytes": 483,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/full-corpus-v2/identity-manifest.json": {
+      "sha256": "83f61680e491f7af6447bc6a58e37a3308c3fbd2a9b651401e5d447544686cdb",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": 160964,
+          "fields": {
+            "uid": 160964,
+            "source": 160964,
+            "split": 160964,
+            "training_flags": 160964,
+            "release_line": 160964,
+            "release_row_sha256": 160964,
+            "original_group": 160964,
+            "raw_file": 160964,
+            "raw_line": 160964,
+            "raw_sha256": 160964,
+            "content_key": 160964,
+            "layout_key": 160964,
+            "prepared_flags": 160964,
+            "prepared_sha256": 160964,
+            "component": 160964
+          },
+          "by_source": {},
+          "bytes": 114007685,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 160964,
+          "fields": {
+            "uid": 160964,
+            "source": 160964,
+            "split": 160964,
+            "training_flags": 160964,
+            "release_line": 160964,
+            "release_row_sha256": 160964,
+            "original_group": 160964,
+            "raw_file": 160964,
+            "raw_line": 160964,
+            "raw_sha256": 160964,
+            "content_key": 160964,
+            "layout_key": 160964,
+            "prepared_flags": 160964,
+            "prepared_sha256": 160964,
+            "component": 160964
+          },
+          "bytes": 114007685,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/prior-fit-pool.json": {
+      "sha256": "366611c684661d018d4c29978d49b44710b5ce2f494aac9d6b0a7348b0fea870",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": 1,
+          "fields": {
+            "uids": 1,
+            "uid_hashes": 1,
+            "components": 1,
+            "component_hashes": 1,
+            "by_source": 1,
+            "members": 1,
+            "frozen_before_decoder_admission": 1
+          },
+          "by_source": {},
+          "bytes": 53908886,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 1,
+          "fields": {
+            "uids": 1,
+            "uid_hashes": 1,
+            "components": 1,
+            "component_hashes": 1,
+            "by_source": 1,
+            "members": 1,
+            "frozen_before_decoder_admission": 1
+          },
+          "bytes": 53908886,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/split-manifest.json": {
+      "sha256": "48e60337748c1699f98d93b4b4747247004737aba1c0b95e9baad442287500dc",
+      "evidence": [
+        {
+          "phase": "lineage",
+          "records": 107090,
+          "fields": {
+            "component": 107090,
+            "fold": 107090,
+            "source": 107090,
+            "split": 107090,
+            "uid": 107090
+          },
+          "by_source": {},
+          "bytes": 18253069,
+          "complete_scan": true
+        },
+        {
+          "phase": "payloads",
+          "records": 107090,
+          "fields": {
+            "component": 107090,
+            "fold": 107090,
+            "source": 107090,
+            "split": 107090,
+            "uid": 107090
+          },
+          "bytes": 18253069,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-p-target-check.py": {
+      "sha256": "a255debda75967520f8e51751552d0c065b64457a311d1dad9f4077b6580ab0c",
+      "evidence": [
+        {
+          "phase": "p_targets"
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/dev_rooms.jsonl": {
+      "sha256": "ef6f9f9e73851bfe8a49e58dede977b98dbc6579e2bbc029ad114e817289bda1",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 8167,
+          "fields": {
+            "_comparison_protocol": 8167,
+            "boundary": 8167,
+            "boundary_type": 8167,
+            "fixed": 8167,
+            "group": 8167,
+            "height": 8167,
+            "meta": 8167,
+            "objects": 8167,
+            "room_type": 8167,
+            "source": 8167,
+            "split": 8167,
+            "subset": 8167,
+            "uid": 8167
+          },
+          "bytes": 35949839,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/MANIFEST.json": {
+      "sha256": "b960ae80bbb3be2861a3f8b42d46bf71cc11240daf272796a99544bea936e6df",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "scope": 1,
+            "seed": 1,
+            "target_policy": 1,
+            "quality_claim_allowed": 1,
+            "corpus_manifest_sha256": 1,
+            "corpus_identity_manifest_sha256": 1,
+            "input_consumed_sha256": 1,
+            "implementation_sha256": 1,
+            "source_release_manifest_sha256": 1,
+            "source_release_files": 1,
+            "ir_sha256": 1,
+            "counts": 1,
+            "dataset_counts": 1,
+            "by_source": 1,
+            "excluded_sources": 1,
+            "prior_exposure": 1,
+            "input_policy": 1,
+            "prior_policy": 1,
+            "estimated_size_precision": 1,
+            "split_policy": 1,
+            "component_policy": 1,
+            "dev_policy": 1,
+            "devlimit": 1,
+            "test_policy": 1,
+            "repair_limits": 1,
+            "arm": 1
+          },
+          "bytes": 1270685,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/placement/MANIFEST.json": {
+      "sha256": "c61abab89ba7bbdd82bbf4b2aaf9e5d41da09ab1859bae1d05e20eeb63b0ea78",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "scope": 1,
+            "seed": 1,
+            "target_policy": 1,
+            "quality_claim_allowed": 1,
+            "corpus_manifest_sha256": 1,
+            "corpus_identity_manifest_sha256": 1,
+            "input_consumed_sha256": 1,
+            "implementation_sha256": 1,
+            "source_release_manifest_sha256": 1,
+            "source_release_files": 1,
+            "ir_sha256": 1,
+            "counts": 1,
+            "dataset_counts": 1,
+            "by_source": 1,
+            "excluded_sources": 1,
+            "prior_exposure": 1,
+            "input_policy": 1,
+            "prior_policy": 1,
+            "estimated_size_precision": 1,
+            "split_policy": 1,
+            "component_policy": 1,
+            "dev_policy": 1,
+            "devlimit": 1,
+            "test_policy": 1,
+            "repair_limits": 1,
+            "arm": 1
+          },
+          "bytes": 1270689,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/train_rooms.jsonl": {
+      "sha256": "afb4ebda8122c5178ce3370d497cdec98643e3a4570a7f74fb596adced96b324",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 98923,
+          "fields": {
+            "_comparison_protocol": 98923,
+            "boundary": 98923,
+            "boundary_type": 98923,
+            "fixed": 98923,
+            "group": 98923,
+            "height": 98923,
+            "meta": 98923,
+            "objects": 98923,
+            "room_type": 98923,
+            "source": 98923,
+            "split": 98923,
+            "subset": 98923,
+            "uid": 98923
+          },
+          "bytes": 391988718,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/gpt-selection.json": {
+      "sha256": "a858922c6d05f0487351971d93a5a5dee27b94edbfceffa28d01d7f7b32951bf",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 1,
+          "fields": {
+            "version": 1,
+            "seed": 1,
+            "max_per_stratum": 1,
+            "algorithm": 1,
+            "selection_stage": 1,
+            "asset_eligibility": 1,
+            "visual_eligibility": 1,
+            "selected_uids": 1,
+            "strata": 1
+          },
+          "bytes": 18063,
+          "complete_scan": true
+        }
+      ]
+    },
+    "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1/size-estimates.jsonl": {
+      "sha256": "63c99b085799ba0ddddc81d79b14b5367781bc171afdf77c46ac863c989097b8",
+      "evidence": [
+        {
+          "phase": "payloads",
+          "records": 8647,
+          "fields": {
+            "uid": 8647,
+            "estimated_sizes": 8647
+          },
+          "bytes": 4052178,
+          "complete_scan": true
+        }
+      ]
+    }
+  },
+  "local_context_inventory": "full-audit-data-context-inventory.json",
+  "static_code_inventory": "full-audit-data-source-code-inventory.json",
+  "qualification_code_inventory": "full-audit-data-qualification-code.json",
+  "historical_case_evidence_inventory": "full-audit-data-known-cases.json"
+}

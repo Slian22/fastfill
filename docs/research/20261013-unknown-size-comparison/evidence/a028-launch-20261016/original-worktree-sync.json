@@ -1,0 +1,21 @@
+{
+  "source_commit": "7373495ca9e35391a5981653997be5485f64e9b6",
+  "copied_files": [
+    {
+      "path": "fastfill/comparison/a021_train.py",
+      "before": "8f5a1fe5fbb854b5364917e6c23c94569ce727a2aa19b5d707a68e0884fe83ad",
+      "after": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7"
+    },
+    {
+      "path": "fastfill/comparison/submit_028.sh",
+      "before": "505872737ef1d7a01616ccc6ab1b9bdf5f8e6aa406d20485d0ea9d592590086c",
+      "after": "e9a125fc525cf19239e1a9740485dff391d43e579aae04a324c96214981f3343"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_a028.py",
+      "before": "1b44861956a20df282913c7fddd6d6d29bebfc8f5180534ca13c0c22e84bbb08",
+      "after": "ae3582f7f775c5332e09b7363ea969469cca6673ee88b080a16f96bb386e7992"
+    }
+  ],
+  "unrelated_edits_preserved": true
+}

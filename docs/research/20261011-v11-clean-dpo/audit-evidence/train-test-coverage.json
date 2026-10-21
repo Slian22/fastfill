@@ -1,0 +1,18 @@
+{
+  "test_exit_code": 0,
+  "method": "stdlib line trace with executable line analysis",
+  "file": "/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/train_dpo.py",
+  "full_file": {
+    "covered": 308,
+    "executable": 320,
+    "percent": 96.25
+  },
+  "checkpoint_completion_functions": {
+    "covered": 73,
+    "executable": 74,
+    "percent": 98.64864864864865,
+    "missing": [
+      202
+    ]
+  }
+}

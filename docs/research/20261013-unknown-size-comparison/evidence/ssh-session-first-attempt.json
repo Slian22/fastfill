@@ -1,0 +1,11 @@
+{
+  "control_path": "/tmp/ff-u6uv-44da3imw/control.sock",
+  "directory_mode": "0o700",
+  "master_check": "Master running (pid=4983)",
+  "idle_timeout_seconds": 432000,
+  "purpose": "existing authenticated task connection shared by SSH and rsync; no certificate or credential modified",
+  "source": "https://man.openbsd.org/ssh_config#ControlPersist",
+  "cleanup": "launcher EXIT trap closes this task control master",
+  "created_utc": "2026-10-13T05:50:45.631486+00:00",
+  "limitation": "connection loss can still require fresh valid certificate; driver preserves partial state on SSH failure"
+}

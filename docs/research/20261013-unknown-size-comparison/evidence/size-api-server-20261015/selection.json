@@ -1,0 +1,32 @@
+{
+  "purpose": "functional smoke only, no quality claim",
+  "selection": "deterministic smallest valid dev rooms by (object count,uid); mixed requires both eligible and missing prior buckets; no-prior is a different common room type",
+  "source_file": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/main-data-v1/joint/dev.jsonl",
+  "fields_used": "uid/source/group/split plus first two model messages only; assistant labels and flags dropped",
+  "cases": {
+    "missing-category": {
+      "uid": "MansionWorld::mansionworld/residential_family_apartment_8f_150_fp002#2/F4_common_bathroom",
+      "objects": 2,
+      "room_type": "bathroom",
+      "uses_prior": true,
+      "api_objects": 1,
+      "categories": [
+        "small bathroom shelf",
+        "floor vanity cabinet"
+      ],
+      "request_sha256": "40693646acfc64f4be3f62f671519d27a7853afe8bf08acfe3abe326b689a96e"
+    },
+    "no-prior": {
+      "uid": "HSSD200:102344328:6",
+      "objects": 2,
+      "room_type": "kitchen",
+      "uses_prior": false,
+      "api_objects": 2,
+      "categories": [
+        "bench",
+        "lamp stand"
+      ],
+      "request_sha256": "684810e462dcba9f6f69c38863c8aada9623417fff8477e652e86aa6b7867505"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-13T08:31:51.359134+00:00",
+  "preflight": {
+    "python": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/bin/python",
+    "version": "3.12.15 (main, Oct  6 2026, 23:51:47) [GCC 15.3.0]",
+    "numpy": "2.4.6",
+    "shapely": "2.2.0",
+    "existing_ir_files": [
+      "HSSD200.jsonl",
+      "IL3D_3dfront.jsonl",
+      "IL3D_synthetic.jsonl",
+      "InteriorGS.jsonl",
+      "InternScenes_3rscan.jsonl",
+      "InternScenes_arkit.jsonl",
+      "InternScenes_gen.jsonl",
+      "InternScenes_mp3d.jsonl",
+      "InternScenes_scannet.jsonl",
+      "MansionWorld.jsonl",
+      "MultiScan.jsonl",
+      "OptiScene_holodeck.jsonl",
+      "SAGE-10k.jsonl",
+      "Scan2CAD.jsonl",
+      "SceneSmith.jsonl",
+      "SpatialGen.jsonl",
+      "SpatialLM.jsonl",
+      "Structured3D.jsonl"
+    ],
+    "release_manifest_exists": true,
+    "disk_free_bytes": 188801781813248
+  },
+  "proposed_job": {
+    "cpus_requested": 4,
+    "memory": "96G",
+    "gpus": 0,
+    "walltime": "02:00:00",
+    "no_requeue": true,
+    "purpose": "Isolated corrected source candidate legacy release; no training or main-data refit until exact identity gates"
+  }
+}

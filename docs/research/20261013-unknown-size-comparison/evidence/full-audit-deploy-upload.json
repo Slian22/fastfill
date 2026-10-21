@@ -1,0 +1,115 @@
+{
+  "API_calls": 0,
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/ssh",
+        "-vv",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=30",
+        "-o",
+        "ServerAliveInterval=15",
+        "-o",
+        "ServerAliveCountMax=2",
+        "-o",
+        "ControlMaster=no",
+        "-o",
+        "ProxyCommand=/usr/bin/false",
+        "-S",
+        "/tmp/ff-u6uv-koee4y6n/control.sock",
+        "u6uv.aip2.isambard",
+        "true"
+      ],
+      "finished_unix": 1791876707.104908,
+      "returncode": 0,
+      "stderr": "debug1: OpenSSH_10.3p1, LibreSSL 3.3.6\ndebug1: Reading configuration data /Users/slian/.ssh/config\ndebug1: Reading configuration data /Users/slian/.ssh/config_clifton\ndebug1: /Users/slian/.ssh/config_clifton line 14: Applying options for *.aip2.isambard\ndebug1: /Users/slian/.ssh/config_clifton line 46: Applying options for u6uv.aip2.isambard\ndebug1: Reading configuration data /etc/ssh/ssh_config\ndebug1: /etc/ssh/ssh_config line 21: include /etc/ssh/ssh_config.d/* matched no files\ndebug1: /etc/ssh/ssh_config line 54: Applying options for *\ndebug1: /etc/ssh/ssh_config line 58: Applying options for *\ndebug1: Authenticator provider $SSH_SK_PROVIDER did not resolve; disabling\ndebug2: fd 3 setting O_NONBLOCK\ndebug2: mux_client_hello_exchange: master version 4\ndebug1: Received 'info' extension\ndebug1: mux_client_request_session: master session id: 2\ndebug2: Received exit status from master 0\n",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=30",
+        "-o",
+        "ServerAliveInterval=15",
+        "-o",
+        "ServerAliveCountMax=2",
+        "-o",
+        "ControlMaster=no",
+        "-o",
+        "ProxyCommand=/usr/bin/false",
+        "-S",
+        "/tmp/ff-u6uv-koee4y6n/control.sock",
+        "u6uv.aip2.isambard",
+        "mkdir -m 700 -- /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72"
+      ],
+      "finished_unix": 1791876710.762513,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/rsync",
+        "-rt",
+        "--safe-links",
+        "--timeout=120",
+        "-e",
+        "/usr/bin/ssh -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=2 -o ControlMaster=no -o ProxyCommand=/usr/bin/false -S /tmp/ff-u6uv-koee4y6n/control.sock",
+        "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/pipeline-full-audit-a8726c726f72.tar.gz",
+        "u6uv.aip2.isambard:/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72/.upload.tar.gz"
+      ],
+      "finished_unix": 1791876715.077035,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=30",
+        "-o",
+        "ServerAliveInterval=15",
+        "-o",
+        "ServerAliveCountMax=2",
+        "-o",
+        "ControlMaster=no",
+        "-o",
+        "ProxyCommand=/usr/bin/false",
+        "-S",
+        "/tmp/ff-u6uv-koee4y6n/control.sock",
+        "u6uv.aip2.isambard",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/env/bin/python -B -c 'import hashlib,json,os,shutil,sys,tarfile\nfrom pathlib import Path\nroot=Path(sys.argv[1]); archive=root/'\"'\"'.upload.tar.gz'\"'\"'\ndef sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()\nassert sha(archive)==sys.argv[2], '\"'\"'archive hash mismatch'\"'\"'\nwith tarfile.open(archive,'\"'\"'r:gz'\"'\"') as tf:\n members=tf.getmembers(); names=[m.name for m in members]\n assert len(names)==len(set(names)) and all(m.isfile() for m in members)\n manifest=tf.extractfile('\"'\"'MANIFEST.json'\"'\"').read()\n assert hashlib.sha256(manifest).hexdigest()==sys.argv[3]\n files=json.loads(manifest)['\"'\"'files'\"'\"']; assert set(names)==set(files)|{'\"'\"'MANIFEST.json'\"'\"'}\n for member in members:\n  rel=Path(member.name);assert not rel.is_absolute() and '\"'\"'..'\"'\"' not in rel.parts\n  dest=root/rel;dest.parent.mkdir(parents=True,exist_ok=True)\n  with tf.extractfile(member) as inp,dest.open('\"'\"'xb'\"'\"') as out:shutil.copyfileobj(inp,out)\n for name,digest in files.items():assert sha(root/name)==digest,name\n assert sha(root/'\"'\"'MANIFEST.json'\"'\"')==sys.argv[3]\narchive.unlink()\nactual={p.relative_to(root).as_posix() for p in root.rglob('\"'\"'*'\"'\"') if p.is_file()}\nassert actual==set(files)|{'\"'\"'MANIFEST.json'\"'\"'}\nfor p in root.rglob('\"'\"'*'\"'\"'):\n if p.is_file():p.chmod(0o444)\nfor p in sorted(root.rglob('\"'\"'*'\"'\"'),reverse=True):\n if p.is_dir():p.chmod(0o555)\nroot.chmod(0o555)\nprint(json.dumps({'\"'\"'manifest_sha256'\"'\"':sha(root/'\"'\"'MANIFEST.json'\"'\"'),'\"'\"'verified_files'\"'\"':len(files),'\"'\"'remote_code_root'\"'\"':str(root),'\"'\"'read_only'\"'\"':True,'\"'\"'api_client_sha256'\"'\"':files['\"'\"'server_api_judge.py'\"'\"']}))\n' /lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72 2ddc0edf68d6dd6fdc71727450afe5ea94a1ffc31641923deb41638e1fc4a10e a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2"
+      ],
+      "finished_unix": 1791876719.5122728,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "{\"manifest_sha256\": \"a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2\", \"verified_files\": 33, \"remote_code_root\": \"/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72\", \"read_only\": true, \"api_client_sha256\": \"8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03\"}\n"
+    }
+  ],
+  "controller_changed": false,
+  "existing_control_path": "/tmp/ff-u6uv-koee4y6n/control.sock",
+  "finished_unix": 1791876719.512319,
+  "multiplex_evidence": [
+    "debug1: mux_client_request_session: master session id: 2",
+    "debug2: Received exit status from master 0"
+  ],
+  "new_master_started": false,
+  "slurm_jobs_changed": false,
+  "status": "uploaded_verified_not_switched",
+  "switch_gate": "waiting parent no-HIGH message",
+  "verified": {
+    "api_client_sha256": "8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03",
+    "manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2",
+    "read_only": true,
+    "remote_code_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/automation/unknownsize-20261013/snapshots/pipeline-full-audit-a8726c726f72",
+    "verified_files": 33
+  }
+}

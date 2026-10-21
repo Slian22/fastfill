@@ -1,0 +1,2323 @@
+{
+  "schema_version": "fastfill.bbox-scene.v1",
+  "frame": "right_handed_z_up",
+  "units": "meters",
+  "geometry_kind": "predicted_local_obb_envelope",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "gym",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        5,
+        0.0
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        0.0,
+        6
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.95,
+          2.05
+        ],
+        "bottom_center_m": [
+          2.25,
+          6.0,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "target_size_local_m": [
+        0.5,
+        1.1,
+        0.78
+      ],
+      "bottom_center_m": [
+        1.95,
+        0.32,
+        0.0
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "bench",
+      "description": "A distressed wooden weight bench with a rectangular seat, slatted back, and floral patterned upholstery, featuring a rugged finish and chunky legs",
+      "bbox": {
+        "center_m": [
+          1.95,
+          0.32,
+          0.39
+        ],
+        "size_local_m": [
+          0.5,
+          1.1,
+          0.78
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            2.5,
+            0.06999999999999995,
+            0.0
+          ],
+          [
+            2.5,
+            0.57,
+            0.0
+          ],
+          [
+            1.4,
+            0.5700000000000001,
+            0.0
+          ],
+          [
+            1.4,
+            0.07000000000000003,
+            0.0
+          ],
+          [
+            2.5,
+            0.06999999999999995,
+            0.78
+          ],
+          [
+            2.5,
+            0.57,
+            0.78
+          ],
+          [
+            1.4,
+            0.5700000000000001,
+            0.78
+          ],
+          [
+            1.4,
+            0.07000000000000003,
+            0.78
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0001",
+      "target_size_local_m": [
+        1.25,
+        0.68,
+        1.11
+      ],
+      "bottom_center_m": [
+        4.21,
+        1.05,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "treadmill",
+      "description": "A pastel-colored treadmill with a sleek curved console, soft pastel accents on the frame, and low\u2011profile running deck",
+      "bbox": {
+        "center_m": [
+          4.21,
+          1.05,
+          0.555
+        ],
+        "size_local_m": [
+          1.25,
+          0.68,
+          1.11
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.835,
+            1.3900000000000001,
+            0.0
+          ],
+          [
+            3.585,
+            1.3900000000000001,
+            0.0
+          ],
+          [
+            3.585,
+            0.71,
+            0.0
+          ],
+          [
+            4.835,
+            0.7100000000000001,
+            0.0
+          ],
+          [
+            4.835,
+            1.3900000000000001,
+            1.11
+          ],
+          [
+            3.585,
+            1.3900000000000001,
+            1.11
+          ],
+          [
+            3.585,
+            0.71,
+            1.11
+          ],
+          [
+            4.835,
+            0.7100000000000001,
+            1.11
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0002",
+      "target_size_local_m": [
+        0.48,
+        0.48,
+        1.05
+      ],
+      "bottom_center_m": [
+        4.69,
+        5.65,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "elliptical",
+      "description": "A floral\u2011covered elliptical machine with an oval foot platform, rounded handles, and a glossy finish that displays a continuous flower motif",
+      "bbox": {
+        "center_m": [
+          4.69,
+          5.65,
+          0.525
+        ],
+        "size_local_m": [
+          0.48,
+          0.48,
+          1.05
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.930000000000001,
+            5.890000000000001,
+            0.0
+          ],
+          [
+            4.45,
+            5.890000000000001,
+            0.0
+          ],
+          [
+            4.45,
+            5.41,
+            0.0
+          ],
+          [
+            4.930000000000001,
+            5.41,
+            0.0
+          ],
+          [
+            4.930000000000001,
+            5.890000000000001,
+            1.05
+          ],
+          [
+            4.45,
+            5.890000000000001,
+            1.05
+          ],
+          [
+            4.45,
+            5.41,
+            1.05
+          ],
+          [
+            4.930000000000001,
+            5.41,
+            1.05
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0003",
+      "target_size_local_m": [
+        0.91,
+        1.88,
+        0.78
+      ],
+      "bottom_center_m": [
+        0.52,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "sofa",
+      "description": "A floral\u2011patterned sofa with a low\u2011slung rectangular seat, rounded back cushions, and a soft fabric finish displaying pastel flowers",
+      "bbox": {
+        "center_m": [
+          0.52,
+          2.05,
+          0.39
+        ],
+        "size_local_m": [
+          0.91,
+          1.88,
+          0.78
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.065,
+            1.1099999999999999,
+            0.0
+          ],
+          [
+            0.9750000000000001,
+            1.1099999999999999,
+            0.0
+          ],
+          [
+            0.9750000000000001,
+            2.9899999999999998,
+            0.0
+          ],
+          [
+            0.065,
+            2.9899999999999998,
+            0.0
+          ],
+          [
+            0.065,
+            1.1099999999999999,
+            0.78
+          ],
+          [
+            0.9750000000000001,
+            1.1099999999999999,
+            0.78
+          ],
+          [
+            0.9750000000000001,
+            2.9899999999999998,
+            0.78
+          ],
+          [
+            0.065,
+            2.9899999999999998,
+            0.78
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0004",
+      "target_size_local_m": [
+        0.19,
+        0.6,
+        0.81
+      ],
+      "bottom_center_m": [
+        0.16,
+        0.45,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "sideboard",
+      "description": "A distressed wooden sideboard with a long rectangular top, multiple lower drawers, and a weathered finish",
+      "bbox": {
+        "center_m": [
+          0.16,
+          0.45,
+          0.405
+        ],
+        "size_local_m": [
+          0.19,
+          0.6,
+          0.81
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.065,
+            0.15000000000000002,
+            0.0
+          ],
+          [
+            0.255,
+            0.15000000000000002,
+            0.0
+          ],
+          [
+            0.255,
+            0.75,
+            0.0
+          ],
+          [
+            0.065,
+            0.75,
+            0.0
+          ],
+          [
+            0.065,
+            0.15000000000000002,
+            0.81
+          ],
+          [
+            0.255,
+            0.15000000000000002,
+            0.81
+          ],
+          [
+            0.255,
+            0.75,
+            0.81
+          ],
+          [
+            0.065,
+            0.75,
+            0.81
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0005",
+      "target_size_local_m": [
+        0.5,
+        1.07,
+        0.8
+      ],
+      "bottom_center_m": [
+        0.32,
+        4.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "cabinet",
+      "description": "A distressed storage cabinet with a rectangular body, two doors, and floral decals on the front, featuring a weathered wood texture and sturdy legs",
+      "bbox": {
+        "center_m": [
+          0.32,
+          4.05,
+          0.4
+        ],
+        "size_local_m": [
+          0.5,
+          1.07,
+          0.8
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.07,
+            3.5149999999999997,
+            0.0
+          ],
+          [
+            0.5700000000000001,
+            3.5149999999999997,
+            0.0
+          ],
+          [
+            0.5700000000000001,
+            4.585,
+            0.0
+          ],
+          [
+            0.07,
+            4.585,
+            0.0
+          ],
+          [
+            0.07,
+            3.5149999999999997,
+            0.8
+          ],
+          [
+            0.5700000000000001,
+            3.5149999999999997,
+            0.8
+          ],
+          [
+            0.5700000000000001,
+            4.585,
+            0.8
+          ],
+          [
+            0.07,
+            4.585,
+            0.8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0006",
+      "target_size_local_m": [
+        0.5,
+        1.07,
+        0.8
+      ],
+      "bottom_center_m": [
+        4.68,
+        2.25,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "cabinet",
+      "description": "A distressed storage cabinet with a rectangular body, two doors, and floral decals on the front, featuring a weathered wood texture and sturdy legs",
+      "bbox": {
+        "center_m": [
+          4.68,
+          2.25,
+          0.4
+        ],
+        "size_local_m": [
+          0.5,
+          1.07,
+          0.8
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.93,
+            2.785,
+            0.0
+          ],
+          [
+            4.43,
+            2.785,
+            0.0
+          ],
+          [
+            4.43,
+            1.7149999999999999,
+            0.0
+          ],
+          [
+            4.93,
+            1.7149999999999999,
+            0.0
+          ],
+          [
+            4.93,
+            2.785,
+            0.8
+          ],
+          [
+            4.43,
+            2.785,
+            0.8
+          ],
+          [
+            4.43,
+            1.7149999999999999,
+            0.8
+          ],
+          [
+            4.93,
+            1.7149999999999999,
+            0.8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0007",
+      "target_size_local_m": [
+        0.38,
+        1.07,
+        1.6
+      ],
+      "bottom_center_m": [
+        4.74,
+        4.05,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "bookshelf",
+      "description": "A vintage bookshelf with a tall rectangular frame, multiple open shelves, and a dark stained wood finish",
+      "bbox": {
+        "center_m": [
+          4.74,
+          4.05,
+          0.8
+        ],
+        "size_local_m": [
+          0.38,
+          1.07,
+          1.6
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.93,
+            4.585,
+            0.0
+          ],
+          [
+            4.55,
+            4.585,
+            0.0
+          ],
+          [
+            4.550000000000001,
+            3.5149999999999997,
+            0.0
+          ],
+          [
+            4.930000000000001,
+            3.5149999999999997,
+            0.0
+          ],
+          [
+            4.93,
+            4.585,
+            1.6
+          ],
+          [
+            4.55,
+            4.585,
+            1.6
+          ],
+          [
+            4.550000000000001,
+            3.5149999999999997,
+            1.6
+          ],
+          [
+            4.930000000000001,
+            3.5149999999999997,
+            1.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0008",
+      "target_size_local_m": [
+        0.47,
+        0.47,
+        1.05
+      ],
+      "bottom_center_m": [
+        3.95,
+        5.7,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966,
+      "category": "dispenser",
+      "description": "A water dispenser with a slim cylindrical body, brushed metal finish, and a small rectangular tap panel",
+      "bbox": {
+        "center_m": [
+          3.95,
+          5.7,
+          0.525
+        ],
+        "size_local_m": [
+          0.47,
+          0.47,
+          1.05
+        ],
+        "yaw_rad": -1.5707963267948966,
+        "corners_m": [
+          [
+            3.7150000000000003,
+            5.9350000000000005,
+            0.0
+          ],
+          [
+            3.7150000000000003,
+            5.465,
+            0.0
+          ],
+          [
+            4.1850000000000005,
+            5.465,
+            0.0
+          ],
+          [
+            4.1850000000000005,
+            5.9350000000000005,
+            0.0
+          ],
+          [
+            3.7150000000000003,
+            5.9350000000000005,
+            1.05
+          ],
+          [
+            3.7150000000000003,
+            5.465,
+            1.05
+          ],
+          [
+            4.1850000000000005,
+            5.465,
+            1.05
+          ],
+          [
+            4.1850000000000005,
+            5.9350000000000005,
+            1.05
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0009",
+      "target_size_local_m": [
+        0.28,
+        0.28,
+        0.6
+      ],
+      "bottom_center_m": [
+        0.21,
+        3.25,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "plant_1",
+      "description": "A potted green plant with a cylindrical pot, matte terracotta finish, and a lush leafy canopy that spreads outward",
+      "bbox": {
+        "center_m": [
+          0.21,
+          3.25,
+          0.3
+        ],
+        "size_local_m": [
+          0.28,
+          0.28,
+          0.6
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.06999999999999998,
+            3.11,
+            0.0
+          ],
+          [
+            0.35,
+            3.11,
+            0.0
+          ],
+          [
+            0.35,
+            3.39,
+            0.0
+          ],
+          [
+            0.06999999999999998,
+            3.39,
+            0.0
+          ],
+          [
+            0.06999999999999998,
+            3.11,
+            0.6
+          ],
+          [
+            0.35,
+            3.11,
+            0.6
+          ],
+          [
+            0.35,
+            3.39,
+            0.6
+          ],
+          [
+            0.06999999999999998,
+            3.39,
+            0.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0010",
+      "target_size_local_m": [
+        0.28,
+        0.28,
+        0.6
+      ],
+      "bottom_center_m": [
+        4.79,
+        3.25,
+        0.0
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "plant_2",
+      "description": "A potted green plant with a cylindrical pot, matte terracotta finish, and a lush leafy canopy that spreads outward",
+      "bbox": {
+        "center_m": [
+          4.79,
+          3.25,
+          0.3
+        ],
+        "size_local_m": [
+          0.28,
+          0.28,
+          0.6
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.93,
+            3.39,
+            0.0
+          ],
+          [
+            4.65,
+            3.39,
+            0.0
+          ],
+          [
+            4.65,
+            3.11,
+            0.0
+          ],
+          [
+            4.93,
+            3.11,
+            0.0
+          ],
+          [
+            4.93,
+            3.39,
+            0.6
+          ],
+          [
+            4.65,
+            3.39,
+            0.6
+          ],
+          [
+            4.65,
+            3.11,
+            0.6
+          ],
+          [
+            4.93,
+            3.11,
+            0.6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0011",
+      "target_size_local_m": [
+        0.38,
+        0.54,
+        0.01
+      ],
+      "bottom_center_m": [
+        0.75,
+        0.85,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "bbox": {
+        "center_m": [
+          0.75,
+          0.85,
+          0.005
+        ],
+        "size_local_m": [
+          0.38,
+          0.54,
+          0.01
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.56,
+            0.58,
+            0.0
+          ],
+          [
+            0.94,
+            0.58,
+            0.0
+          ],
+          [
+            0.94,
+            1.12,
+            0.0
+          ],
+          [
+            0.56,
+            1.12,
+            0.0
+          ],
+          [
+            0.56,
+            0.58,
+            0.01
+          ],
+          [
+            0.94,
+            0.58,
+            0.01
+          ],
+          [
+            0.94,
+            1.12,
+            0.01
+          ],
+          [
+            0.56,
+            1.12,
+            0.01
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0012",
+      "target_size_local_m": [
+        0.38,
+        0.54,
+        0.01
+      ],
+      "bottom_center_m": [
+        1.35,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "bbox": {
+        "center_m": [
+          1.35,
+          2.05,
+          0.005
+        ],
+        "size_local_m": [
+          0.38,
+          0.54,
+          0.01
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.1600000000000001,
+            1.7799999999999998,
+            0.0
+          ],
+          [
+            1.54,
+            1.7799999999999998,
+            0.0
+          ],
+          [
+            1.54,
+            2.32,
+            0.0
+          ],
+          [
+            1.1600000000000001,
+            2.32,
+            0.0
+          ],
+          [
+            1.1600000000000001,
+            1.7799999999999998,
+            0.01
+          ],
+          [
+            1.54,
+            1.7799999999999998,
+            0.01
+          ],
+          [
+            1.54,
+            2.32,
+            0.01
+          ],
+          [
+            1.1600000000000001,
+            2.32,
+            0.01
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0013",
+      "target_size_local_m": [
+        0.38,
+        0.54,
+        0.01
+      ],
+      "bottom_center_m": [
+        1.35,
+        3.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "mat",
+      "description": "A pastel exercise mat with a thin rectangular shape, soft pastel hue, and a slightly textured surface for grip",
+      "bbox": {
+        "center_m": [
+          1.35,
+          3.05,
+          0.005
+        ],
+        "size_local_m": [
+          0.38,
+          0.54,
+          0.01
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.1600000000000001,
+            2.78,
+            0.0
+          ],
+          [
+            1.54,
+            2.78,
+            0.0
+          ],
+          [
+            1.54,
+            3.32,
+            0.0
+          ],
+          [
+            1.1600000000000001,
+            3.32,
+            0.0
+          ],
+          [
+            1.1600000000000001,
+            2.78,
+            0.01
+          ],
+          [
+            1.54,
+            2.78,
+            0.01
+          ],
+          [
+            1.54,
+            3.32,
+            0.01
+          ],
+          [
+            1.1600000000000001,
+            3.32,
+            0.01
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0014",
+      "target_size_local_m": [
+        0.35,
+        0.35,
+        0.58
+      ],
+      "bottom_center_m": [
+        1.95,
+        2.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "stool",
+      "description": "A distressed wooden stool with a squat cylindrical seat, short tapered legs, and a weathered finish",
+      "bbox": {
+        "center_m": [
+          1.95,
+          2.05,
+          0.29
+        ],
+        "size_local_m": [
+          0.35,
+          0.35,
+          0.58
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.775,
+            1.8749999999999998,
+            0.0
+          ],
+          [
+            2.125,
+            1.8749999999999998,
+            0.0
+          ],
+          [
+            2.125,
+            2.2249999999999996,
+            0.0
+          ],
+          [
+            1.775,
+            2.2249999999999996,
+            0.0
+          ],
+          [
+            1.775,
+            1.8749999999999998,
+            0.58
+          ],
+          [
+            2.125,
+            1.8749999999999998,
+            0.58
+          ],
+          [
+            2.125,
+            2.2249999999999996,
+            0.58
+          ],
+          [
+            1.775,
+            2.2249999999999996,
+            0.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0015",
+      "target_size_local_m": [
+        0.35,
+        0.35,
+        0.58
+      ],
+      "bottom_center_m": [
+        1.95,
+        2.65,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "stool",
+      "description": "A distressed wooden stool with a squat cylindrical seat, short tapered legs, and a weathered finish",
+      "bbox": {
+        "center_m": [
+          1.95,
+          2.65,
+          0.29
+        ],
+        "size_local_m": [
+          0.35,
+          0.35,
+          0.58
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.775,
+            2.475,
+            0.0
+          ],
+          [
+            2.125,
+            2.475,
+            0.0
+          ],
+          [
+            2.125,
+            2.8249999999999997,
+            0.0
+          ],
+          [
+            1.775,
+            2.8249999999999997,
+            0.0
+          ],
+          [
+            1.775,
+            2.475,
+            0.58
+          ],
+          [
+            2.125,
+            2.475,
+            0.58
+          ],
+          [
+            2.125,
+            2.8249999999999997,
+            0.58
+          ],
+          [
+            1.775,
+            2.8249999999999997,
+            0.58
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0016",
+      "target_size_local_m": [
+        0.48,
+        0.35,
+        0.3
+      ],
+      "bottom_center_m": [
+        0.75,
+        5.25,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "dumbbell_1",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "bbox": {
+        "center_m": [
+          0.75,
+          5.25,
+          0.15
+        ],
+        "size_local_m": [
+          0.48,
+          0.35,
+          0.3
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.51,
+            5.075,
+            0.0
+          ],
+          [
+            0.99,
+            5.075,
+            0.0
+          ],
+          [
+            0.99,
+            5.425,
+            0.0
+          ],
+          [
+            0.51,
+            5.425,
+            0.0
+          ],
+          [
+            0.51,
+            5.075,
+            0.3
+          ],
+          [
+            0.99,
+            5.075,
+            0.3
+          ],
+          [
+            0.99,
+            5.425,
+            0.3
+          ],
+          [
+            0.51,
+            5.425,
+            0.3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0017",
+      "target_size_local_m": [
+        0.48,
+        0.35,
+        0.3
+      ],
+      "bottom_center_m": [
+        1.35,
+        1.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "dumbbell_2",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "bbox": {
+        "center_m": [
+          1.35,
+          1.05,
+          0.15
+        ],
+        "size_local_m": [
+          0.48,
+          0.35,
+          0.3
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.11,
+            0.875,
+            0.0
+          ],
+          [
+            1.59,
+            0.875,
+            0.0
+          ],
+          [
+            1.59,
+            1.225,
+            0.0
+          ],
+          [
+            1.11,
+            1.225,
+            0.0
+          ],
+          [
+            1.11,
+            0.875,
+            0.3
+          ],
+          [
+            1.59,
+            0.875,
+            0.3
+          ],
+          [
+            1.59,
+            1.225,
+            0.3
+          ],
+          [
+            1.11,
+            1.225,
+            0.3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0018",
+      "target_size_local_m": [
+        0.48,
+        0.35,
+        0.3
+      ],
+      "bottom_center_m": [
+        1.35,
+        1.65,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "dumbbell_3",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "bbox": {
+        "center_m": [
+          1.35,
+          1.65,
+          0.15
+        ],
+        "size_local_m": [
+          0.48,
+          0.35,
+          0.3
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.11,
+            1.4749999999999999,
+            0.0
+          ],
+          [
+            1.59,
+            1.4749999999999999,
+            0.0
+          ],
+          [
+            1.59,
+            1.825,
+            0.0
+          ],
+          [
+            1.11,
+            1.825,
+            0.0
+          ],
+          [
+            1.11,
+            1.4749999999999999,
+            0.3
+          ],
+          [
+            1.59,
+            1.4749999999999999,
+            0.3
+          ],
+          [
+            1.59,
+            1.825,
+            0.3
+          ],
+          [
+            1.11,
+            1.825,
+            0.3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0019",
+      "target_size_local_m": [
+        0.48,
+        0.35,
+        0.3
+      ],
+      "bottom_center_m": [
+        1.35,
+        4.45,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "dumbbell_4",
+      "description": "A set of dumbbells with a cylindrical iron weight, knurled grip, and a matte black finish, each pair differing in weight",
+      "bbox": {
+        "center_m": [
+          1.35,
+          4.45,
+          0.15
+        ],
+        "size_local_m": [
+          0.48,
+          0.35,
+          0.3
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            1.11,
+            4.275,
+            0.0
+          ],
+          [
+            1.59,
+            4.275,
+            0.0
+          ],
+          [
+            1.59,
+            4.625,
+            0.0
+          ],
+          [
+            1.11,
+            4.625,
+            0.0
+          ],
+          [
+            1.11,
+            4.275,
+            0.3
+          ],
+          [
+            1.59,
+            4.275,
+            0.3
+          ],
+          [
+            1.59,
+            4.625,
+            0.3
+          ],
+          [
+            1.11,
+            4.625,
+            0.3
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0020",
+      "target_size_local_m": [
+        0.9,
+        0.55,
+        0.9
+      ],
+      "bottom_center_m": [
+        3.15,
+        1.05,
+        0.0
+      ],
+      "yaw_rad": 0.0,
+      "category": "barbell",
+      "description": "A standard barbell with a long straight steel shaft, rotating sleeves, and a polished chrome finish",
+      "bbox": {
+        "center_m": [
+          3.15,
+          1.05,
+          0.45
+        ],
+        "size_local_m": [
+          0.9,
+          0.55,
+          0.9
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            2.6999999999999997,
+            0.775,
+            0.0
+          ],
+          [
+            3.6,
+            0.775,
+            0.0
+          ],
+          [
+            3.6,
+            1.3250000000000002,
+            0.0
+          ],
+          [
+            2.6999999999999997,
+            1.3250000000000002,
+            0.0
+          ],
+          [
+            2.6999999999999997,
+            0.775,
+            0.9
+          ],
+          [
+            3.6,
+            0.775,
+            0.9
+          ],
+          [
+            3.6,
+            1.3250000000000002,
+            0.9
+          ],
+          [
+            2.6999999999999997,
+            1.3250000000000002,
+            0.9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0021",
+      "target_size_local_m": [
+        0.3,
+        0.3,
+        0.83
+      ],
+      "bottom_center_m": [
+        3.15,
+        0.22,
+        1.2
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "mirror",
+      "description": "A single piece of thin and upright vintage wall mirror with an ornate silver frame and slightly tarnished surface",
+      "bbox": {
+        "center_m": [
+          3.15,
+          0.22,
+          1.615
+        ],
+        "size_local_m": [
+          0.3,
+          0.3,
+          0.83
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            3.3,
+            0.07,
+            1.2
+          ],
+          [
+            3.3,
+            0.37,
+            1.2
+          ],
+          [
+            3.0,
+            0.37,
+            1.2
+          ],
+          [
+            3.0,
+            0.07,
+            1.2
+          ],
+          [
+            3.3,
+            0.07,
+            2.03
+          ],
+          [
+            3.3,
+            0.37,
+            2.03
+          ],
+          [
+            3.0,
+            0.37,
+            2.03
+          ],
+          [
+            3.0,
+            0.07,
+            2.03
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0022",
+      "target_size_local_m": [
+        0.14,
+        0.6,
+        1.16
+      ],
+      "bottom_center_m": [
+        3.15,
+        5.86,
+        1.2
+      ],
+      "yaw_rad": -1.5707963267948966,
+      "category": "towelrack",
+      "description": "A single piece of thin and upright distressed towel rack with a horizontal bar and rustic metal finish, mounted on the wall",
+      "bbox": {
+        "center_m": [
+          3.15,
+          5.86,
+          1.7799999999999998
+        ],
+        "size_local_m": [
+          0.14,
+          0.6,
+          1.16
+        ],
+        "yaw_rad": -1.5707963267948966,
+        "corners_m": [
+          [
+            2.85,
+            5.930000000000001,
+            1.2
+          ],
+          [
+            2.85,
+            5.79,
+            1.2
+          ],
+          [
+            3.4499999999999997,
+            5.79,
+            1.2
+          ],
+          [
+            3.4499999999999997,
+            5.930000000000001,
+            1.2
+          ],
+          [
+            2.85,
+            5.930000000000001,
+            2.36
+          ],
+          [
+            2.85,
+            5.79,
+            2.36
+          ],
+          [
+            3.4499999999999997,
+            5.79,
+            2.36
+          ],
+          [
+            3.4499999999999997,
+            5.930000000000001,
+            2.36
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0023",
+      "target_size_local_m": [
+        0.5,
+        0.5,
+        0.03
+      ],
+      "bottom_center_m": [
+        4.682228317485882,
+        2.5,
+        0.8
+      ],
+      "yaw_rad": 0.3316125578789224,
+      "category": "clock",
+      "description": "A single piece of thin and upright pastel wall clock with a circular face, soft pastel numbers, and a minimalist metal frame",
+      "bbox": {
+        "center_m": [
+          4.682228317485882,
+          2.5,
+          0.8150000000000001
+        ],
+        "size_local_m": [
+          0.5,
+          0.5,
+          0.03
+        ],
+        "yaw_rad": 0.3316125578789224,
+        "corners_m": [
+          [
+            4.527240712200342,
+            2.1822283174858814,
+            0.8
+          ],
+          [
+            5.000000000000001,
+            2.34501239471446,
+            0.8
+          ],
+          [
+            4.837215922771422,
+            2.8177716825141186,
+            0.8
+          ],
+          [
+            4.364456634971764,
+            2.65498760528554,
+            0.8
+          ],
+          [
+            4.527240712200342,
+            2.1822283174858814,
+            0.8300000000000001
+          ],
+          [
+            5.000000000000001,
+            2.34501239471446,
+            0.8300000000000001
+          ],
+          [
+            4.837215922771422,
+            2.8177716825141186,
+            0.8300000000000001
+          ],
+          [
+            4.364456634971764,
+            2.65498760528554,
+            0.8300000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0024",
+      "target_size_local_m": [
+        0.19,
+        0.54,
+        1.08
+      ],
+      "bottom_center_m": [
+        0.16,
+        5.45,
+        1.2
+      ],
+      "yaw_rad": 0.0,
+      "category": "painting",
+      "description": "A single piece of thin and upright floral wall painting with a rectangular canvas, vibrant flower illustration, and a stretched canvas texture",
+      "bbox": {
+        "center_m": [
+          0.16,
+          5.45,
+          1.74
+        ],
+        "size_local_m": [
+          0.19,
+          0.54,
+          1.08
+        ],
+        "yaw_rad": 0.0,
+        "corners_m": [
+          [
+            0.065,
+            5.18,
+            1.2
+          ],
+          [
+            0.255,
+            5.18,
+            1.2
+          ],
+          [
+            0.255,
+            5.720000000000001,
+            1.2
+          ],
+          [
+            0.065,
+            5.720000000000001,
+            1.2
+          ],
+          [
+            0.065,
+            5.18,
+            2.2800000000000002
+          ],
+          [
+            0.255,
+            5.18,
+            2.2800000000000002
+          ],
+          [
+            0.255,
+            5.720000000000001,
+            2.2800000000000002
+          ],
+          [
+            0.065,
+            5.720000000000001,
+            2.2800000000000002
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0025",
+      "target_size_local_m": [
+        0.19,
+        0.54,
+        1.08
+      ],
+      "bottom_center_m": [
+        4.55,
+        0.16,
+        1.2
+      ],
+      "yaw_rad": 1.5707963267948966,
+      "category": "painting",
+      "description": "A single piece of thin and upright floral wall painting with a rectangular canvas, vibrant flower illustration, and a stretched canvas texture",
+      "bbox": {
+        "center_m": [
+          4.55,
+          0.16,
+          1.74
+        ],
+        "size_local_m": [
+          0.19,
+          0.54,
+          1.08
+        ],
+        "yaw_rad": 1.5707963267948966,
+        "corners_m": [
+          [
+            4.82,
+            0.06499999999999999,
+            1.2
+          ],
+          [
+            4.82,
+            0.255,
+            1.2
+          ],
+          [
+            4.279999999999999,
+            0.255,
+            1.2
+          ],
+          [
+            4.279999999999999,
+            0.06500000000000002,
+            1.2
+          ],
+          [
+            4.82,
+            0.06499999999999999,
+            2.2800000000000002
+          ],
+          [
+            4.82,
+            0.255,
+            2.2800000000000002
+          ],
+          [
+            4.279999999999999,
+            0.255,
+            2.2800000000000002
+          ],
+          [
+            4.279999999999999,
+            0.06500000000000002,
+            2.2800000000000002
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0026",
+      "target_size_local_m": [
+        0.08,
+        0.2,
+        0.3
+      ],
+      "bottom_center_m": [
+        0.25,
+        0.79,
+        0.81
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "speaker",
+      "description": "A retro speaker with a rectangular front grille, rounded corners, and a glossy black finish with chrome accents",
+      "bbox": {
+        "center_m": [
+          0.25,
+          0.79,
+          0.9600000000000001
+        ],
+        "size_local_m": [
+          0.08,
+          0.2,
+          0.3
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            0.29,
+            0.89,
+            0.81
+          ],
+          [
+            0.21,
+            0.89,
+            0.81
+          ],
+          [
+            0.21000000000000002,
+            0.6900000000000001,
+            0.81
+          ],
+          [
+            0.29000000000000004,
+            0.6900000000000001,
+            0.81
+          ],
+          [
+            0.29,
+            0.89,
+            1.11
+          ],
+          [
+            0.21,
+            0.89,
+            1.11
+          ],
+          [
+            0.21000000000000002,
+            0.6900000000000001,
+            1.11
+          ],
+          [
+            0.29000000000000004,
+            0.6900000000000001,
+            1.11
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0027",
+      "target_size_local_m": [
+        0.17,
+        0.17,
+        0.38
+      ],
+      "bottom_center_m": [
+        0.15,
+        0.6,
+        0.81
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "candle",
+      "description": "A scented candle with a cylindrical glass holder, smooth surface, and a soft pastel tinted wax inside",
+      "bbox": {
+        "center_m": [
+          0.15,
+          0.6,
+          1.0
+        ],
+        "size_local_m": [
+          0.17,
+          0.17,
+          0.38
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            0.20269578579708353,
+            0.7080423720548003,
+            0.81
+          ],
+          [
+            0.04195762794519971,
+            0.6526957857970835,
+            0.81
+          ],
+          [
+            0.09730421420291648,
+            0.4919576279451997,
+            0.81
+          ],
+          [
+            0.2580423720548003,
+            0.5473042142029164,
+            0.81
+          ],
+          [
+            0.20269578579708353,
+            0.7080423720548003,
+            1.19
+          ],
+          [
+            0.04195762794519971,
+            0.6526957857970835,
+            1.19
+          ],
+          [
+            0.09730421420291648,
+            0.4919576279451997,
+            1.19
+          ],
+          [
+            0.2580423720548003,
+            0.5473042142029164,
+            1.19
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0028",
+      "target_size_local_m": [
+        0.11,
+        0.11,
+        0.3
+      ],
+      "bottom_center_m": [
+        4.69,
+        4.5,
+        1.6
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "vase",
+      "description": "A floral vase with a tall cylindrical glass body, clear finish, and a delicate floral pattern etched around the neck",
+      "bbox": {
+        "center_m": [
+          4.69,
+          4.5,
+          1.75
+        ],
+        "size_local_m": [
+          0.11,
+          0.11,
+          0.3
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            4.745,
+            4.555,
+            1.6
+          ],
+          [
+            4.635000000000001,
+            4.555,
+            1.6
+          ],
+          [
+            4.635000000000001,
+            4.445,
+            1.6
+          ],
+          [
+            4.745,
+            4.445,
+            1.6
+          ],
+          [
+            4.745,
+            4.555,
+            1.9000000000000001
+          ],
+          [
+            4.635000000000001,
+            4.555,
+            1.9000000000000001
+          ],
+          [
+            4.635000000000001,
+            4.445,
+            1.9000000000000001
+          ],
+          [
+            4.745,
+            4.445,
+            1.9000000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0029",
+      "target_size_local_m": [
+        0.1,
+        0.1,
+        0.38
+      ],
+      "bottom_center_m": [
+        4.6,
+        4.19,
+        1.6
+      ],
+      "yaw_rad": -2.80998009571087,
+      "category": "vase",
+      "description": "A floral vase with a tall cylindrical glass body, clear finish, and a delicate floral pattern etched around the neck",
+      "bbox": {
+        "center_m": [
+          4.6,
+          4.19,
+          1.79
+        ],
+        "size_local_m": [
+          0.1,
+          0.1,
+          0.38
+        ],
+        "yaw_rad": -2.80998009571087,
+        "corners_m": [
+          [
+            4.6309975210571075,
+            4.253554336502824,
+            1.6
+          ],
+          [
+            4.536445663497176,
+            4.220997521057108,
+            1.6
+          ],
+          [
+            4.569002478942892,
+            4.126445663497177,
+            1.6
+          ],
+          [
+            4.663554336502823,
+            4.1590024789428925,
+            1.6
+          ],
+          [
+            4.6309975210571075,
+            4.253554336502824,
+            1.98
+          ],
+          [
+            4.536445663497176,
+            4.220997521057108,
+            1.98
+          ],
+          [
+            4.569002478942892,
+            4.126445663497177,
+            1.98
+          ],
+          [
+            4.663554336502823,
+            4.1590024789428925,
+            1.98
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0030",
+      "target_size_local_m": [
+        0.12,
+        0.17,
+        0.07
+      ],
+      "bottom_center_m": [
+        0.18,
+        0.2,
+        0.81
+      ],
+      "yaw_rad": -2.9670597283903604,
+      "category": "magazine",
+      "description": "A fitness magazine with a thin rectangular stack, glossy cover, and a colorful printed layout",
+      "bbox": {
+        "center_m": [
+          0.18,
+          0.2,
+          0.8450000000000001
+        ],
+        "size_local_m": [
+          0.12,
+          0.17,
+          0.07
+        ],
+        "yaw_rad": -2.9670597283903604,
+        "corners_m": [
+          [
+            0.22432837007904338,
+            0.29412754966605353,
+            0.81
+          ],
+          [
+            0.10615143971757844,
+            0.27328976834602187,
+            0.81
+          ],
+          [
+            0.1356716299209566,
+            0.1058724503339465,
+            0.81
+          ],
+          [
+            0.25384856028242153,
+            0.12671023165397816,
+            0.81
+          ],
+          [
+            0.22432837007904338,
+            0.29412754966605353,
+            0.8800000000000001
+          ],
+          [
+            0.10615143971757844,
+            0.27328976834602187,
+            0.8800000000000001
+          ],
+          [
+            0.1356716299209566,
+            0.1058724503339465,
+            0.8800000000000001
+          ],
+          [
+            0.25384856028242153,
+            0.12671023165397816,
+            0.8800000000000001
+          ]
+        ]
+      }
+    },
+    {
+      "id": "obj_0031",
+      "target_size_local_m": [
+        0.06,
+        0.2,
+        0.43
+      ],
+      "bottom_center_m": [
+        0.18,
+        0.4,
+        0.81
+      ],
+      "yaw_rad": -3.141592653589793,
+      "category": "magazine",
+      "description": "A fitness magazine with a thin rectangular stack, glossy cover, and a colorful printed layout",
+      "bbox": {
+        "center_m": [
+          0.18,
+          0.4,
+          1.0250000000000001
+        ],
+        "size_local_m": [
+          0.06,
+          0.2,
+          0.43
+        ],
+        "yaw_rad": -3.141592653589793,
+        "corners_m": [
+          [
+            0.20999999999999996,
+            0.5,
+            0.81
+          ],
+          [
+            0.14999999999999997,
+            0.5,
+            0.81
+          ],
+          [
+            0.15000000000000002,
+            0.30000000000000004,
+            0.81
+          ],
+          [
+            0.21000000000000002,
+            0.30000000000000004,
+            0.81
+          ],
+          [
+            0.20999999999999996,
+            0.5,
+            1.24
+          ],
+          [
+            0.14999999999999997,
+            0.5,
+            1.24
+          ],
+          [
+            0.15000000000000002,
+            0.30000000000000004,
+            1.24
+          ],
+          [
+            0.21000000000000002,
+            0.30000000000000004,
+            1.24
+          ]
+        ]
+      }
+    }
+  ]
+}

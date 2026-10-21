@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-11T17:04:56.646987+00:00",
+  "gpu_evaluation_smoke": "passed",
+  "persisted_generated_rows": 256,
+  "persisted_scored_rows": 256,
+  "ordered_uids_match": true,
+  "generation_score_digest_match": true,
+  "manifest_identity_match": true,
+  "full_cohort_complete": false,
+  "training_smoke": "pending_scheduler_resources",
+  "progress": {
+    "chunk": 3,
+    "completed_rows": 1024,
+    "expected_rows": 8167,
+    "identity_sha256": "4726649f9a73d425911e36e5f6d997eb25e74fbdc8753f328f9d7c2604085629",
+    "status": "running"
+  }
+}

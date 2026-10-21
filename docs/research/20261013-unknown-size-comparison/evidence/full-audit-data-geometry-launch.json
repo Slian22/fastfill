@@ -1,0 +1,15 @@
+{
+  "job_id": "7367978",
+  "utc": "2026-10-13T07:25:55.576997+00:00",
+  "resources": {
+    "cpu": 4,
+    "mem_gb": 32,
+    "time_minutes": 30,
+    "gpu": 0
+  },
+  "files": {
+    "full-audit-data-geometry.py": "460f08eea3214e47d36dd4d2af78a0e041d2f51949c9d845fd0882fac6122c79",
+    "full-audit-data-geometry.sbatch": "ef796bb57e6825a174a7ee10b872ad516286ff91ab8252374d6337fdf3b281eb",
+    "full-audit-data-known-cases.json": "4397d135e66d568cbf968339bb05a30da475e3c1e79712015cd7745716ff8495"
+  }
+}

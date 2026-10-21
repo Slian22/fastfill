@@ -1,0 +1,13 @@
+{
+  "control_path": "/tmp/ff-u6uv-koee4y6n/control.sock",
+  "master_pid": 41826,
+  "directory_mode": "0o700",
+  "control_persist": false,
+  "lifetime": "foreground child of detached bounded local controller, cleanup on exit",
+  "maximum_controller_seconds": 432000,
+  "actual_multiplex_evidence": "ssh-multiplex-launchd-verification.json",
+  "credentials_modified": false,
+  "permission_changes": false,
+  "limitation": "network/session loss can require renewed certificate; failures remain partial",
+  "documentation": "https://man.openbsd.org/ssh_config#ControlMaster"
+}

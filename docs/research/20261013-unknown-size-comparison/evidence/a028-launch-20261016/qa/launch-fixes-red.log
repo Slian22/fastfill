@@ -1,0 +1,121 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+__ test_submit_028_all_chains_every_stage_under_the_gpu_cap_and_refuses_reuse __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-1420/test_submit_028_all_chains_eve0')
+
+    def test_submit_028_all_chains_every_stage_under_the_gpu_cap_and_refuses_reuse(tmp_path):
+        for name in ('isambard_021_train.sbatch', 'isambard_021_eval.sbatch', 'submit_028.sh'):
+            subprocess.run(['bash', '-n', str(SCRIPTS / name)], check=True)
+        env = stubs(tmp_path)
+        script, project, a28, code = submit_world(tmp_path)
+        sent = []
+    
+        def submit(*argv, **extra):
+            before = len(sent)
+            done = subprocess.run(['bash', str(script), str(code), *argv], env={**env, **extra}, capture_output=True, text=True)
+            log = tmp_path / 'log'
+            sent[:] = log.read_text().splitlines() if log.exists() else []
+            return done, [x.replace(f'{code}/fastfill/comparison/', '').replace(f' {code}', ' CODE').replace(str(project), 'P')
+                          for x in sent[before:]]
+    
+        def head(name, dep=None):
+            return ('--parsable --account=brics.u6uv --partition=workq --qos=normal --job-name=unknownsize-028-' + name +
+                    f' --output=P/runs/isambard/unknownsize-028-{name}-%j.out')
+        gpu4, gpu1 = '--gpus-per-node=4 --cpus-per-task=72 --mem=0', '--gpus-per-node=1 --cpus-per-task=16'
+        TR, EV, kill = 'isambard_021_train.sbatch CODE', 'isambard_021_eval.sbatch CODE', '--kill-on-invalid-dep=yes --dependency='
+        done, log = submit('all', SACCT_OUT='1|unknownsize-021-train|COMPLETED|36000|720|gres/gpu=4|gres/gpu=4\n'
+                                            '2|unknownsize-028-smoke|COMPLETED|3600|90|gres/gpu=4|gres/gpu=4\n')
+        assert done.returncode == 0, done.stderr
+        assert 'GPU-h: used 4.00 + ceiling 73 <= 80' in done.stdout  # Only unknownsize-028* jobs count; 7 + 56 + 2 + 8.
+>       assert log == [f'{head("rows")} --hold {TR} rows J27',
+                       f'{head("smoke")} {gpu4} --time=01:30:00 {kill}afterok:101 {TR} smoke J27',
+                       f'{head("smoke-vllm")} {gpu1} --mem=200G --time=01:00:00 {kill}afterok:102 {TR} smoke-vllm J27',
+                       f'{head("train")} {gpu4} --time=7:00:00 {kill}afterok:103 {TR} train J27 7',
+                       f'{head("train")} {gpu4} --time=7:00:00 {kill}afterok:103,afternotok:104 {TR} train J27 7',
+                       f'{head("infer-dev-select")} {gpu1} --mem=100G --time=02:00:00 {kill}afterok:104?afterok:105 {EV} a028 greedy dev-select 2',
+                       f'{head("infer-test")} {gpu1} --mem=100G --time=08:00:00 {kill}afterok:104?afterok:105 {EV} a028 greedy test 8',
+                       f'{head("compare")} --cpus-per-task=72 --mem=200G --time=06:00:00 {kill}afterok:106:107 {EV} a028 compare 6']
+E       AssertionError: assert ['--parsable ...elect 2', ...] == ['--parsable ...elect 2', ...]
+E         
+E         At index 4 diff: '--parsable --account=brics.u6uv --partition=workq --qos=normal --job-name=unknownsize-028-train --output=P/runs/isambard/unknownsize-028-train-%j.out --gpus-per-node=4 --cpus-per-task=72 --mem=0 --time=7:00:00 --kill-on-invalid-dep=yes --dependency=afternotok:104 isambard_021_train.sbatch CODE train J27 7' != '--parsable --account=brics.u6uv --partition=workq --qos=normal --job-name=unknownsize-028-train --output=P/runs/isambard/unknownsize-028-train-%j.out --gpus-per-node=4 --cpus-per-task=72 --mem=0 --time=7:00:00 --kill-on-invalid-dep=yes --dependen...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+fastfill/comparison/tests/test_a028.py:305: AssertionError
+_ test_j27_slow_smoke_reduces_n_without_bypassing_memory[53687091200-SMOKE_PASS-expected_reasons0] _
+
+peak = 53687091200, expected_status = 'SMOKE_PASS', expected_reasons = []
+
+    @pytest.mark.parametrize('peak, expected_status, expected_reasons', [
+        (50 * TA.GIB, t.SMOKE_PASS, []),
+        (90 * TA.GIB + 1, t.SMOKE_STOP, ['peak_memory']),
+    ])
+    def test_j27_slow_smoke_reduces_n_without_bypassing_memory(peak, expected_status, expected_reasons):
+        tokens = [3000] * 50_000  # Full N projects to 16.7 h; 24,000 rooms fit the locked ten-hour window.
+>       measured = t.smoke_verdict(TA.perf(peak=peak), tokens, arm='J27')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: smoke_verdict() got an unexpected keyword argument 'arm'
+
+fastfill/comparison/tests/test_a028.py:378: TypeError
+_ test_j27_slow_smoke_reduces_n_without_bypassing_memory[96636764161-SMOKE_STOP-expected_reasons1] _
+
+peak = 96636764161, expected_status = 'SMOKE_STOP'
+expected_reasons = ['peak_memory']
+
+    @pytest.mark.parametrize('peak, expected_status, expected_reasons', [
+        (50 * TA.GIB, t.SMOKE_PASS, []),
+        (90 * TA.GIB + 1, t.SMOKE_STOP, ['peak_memory']),
+    ])
+    def test_j27_slow_smoke_reduces_n_without_bypassing_memory(peak, expected_status, expected_reasons):
+        tokens = [3000] * 50_000  # Full N projects to 16.7 h; 24,000 rooms fit the locked ten-hour window.
+>       measured = t.smoke_verdict(TA.perf(peak=peak), tokens, arm='J27')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: smoke_verdict() got an unexpected keyword argument 'arm'
+
+fastfill/comparison/tests/test_a028.py:378: TypeError
+___________ test_j27_smoke_stops_if_no_room_fits_the_training_window ___________
+
+    def test_j27_smoke_stops_if_no_room_fits_the_training_window():
+>       result = t.smoke_verdict(TA.perf(seconds=60_000), [3000] * 4, arm='J27')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: smoke_verdict() got an unexpected keyword argument 'arm'
+
+fastfill/comparison/tests/test_a028.py:389: TypeError
+___________ test_j27_smoke_dispatches_its_recorded_reduced_n_policy ____________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-1420/test_j27_smoke_dispatches_its_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x3274e7fb0>
+
+    def test_j27_smoke_dispatches_its_recorded_reduced_n_policy(tmp_path, monkeypatch):
+        w = rows_world(tmp_path, monkeypatch)
+        b27 = TA.fake_base(tmp_path / 'project/models/Qwen3.8-27B')
+        a.rows(w.args)
+        monkeypatch.setattr(t, 'SMOKE_STEPS', 1)
+        tokens = [e['tokens']['27b']['total'] for e in t.load_pool(w.args.out)['ledger']
+                  if e['pool'] and e['tokens']['27b']['fits']]
+        rate = sum(t.step_tokens(tokens)) / (16 * 3600)
+        calls = []
+    
+        def measured_run(command):
+            completed = TA.fake_torchrun(calls)(command)
+            output = Path(command[command.index('--perf_out') + 1])
+            for record in TA.perf(seconds=1000 / rate):
+                (output / f"perf-rank{record['rank']}.json").write_text(json.dumps(record))
+            return completed
+    
+        verdict = t.smoke(ns(pool=w.args.out, base=b27, out=w.run / 'a028/smoke', arm='J27'), measured_run)
+>       assert verdict['status'] == t.SMOKE_PASS
+E       AssertionError: assert 'SMOKE_STOP' == 'SMOKE_PASS'
+E         
+E         - SMOKE_PASS
+E         + SMOKE_STOP
+
+fastfill/comparison/tests/test_a028.py:412: AssertionError
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_a028.py::test_submit_028_all_chains_every_stage_under_the_gpu_cap_and_refuses_reuse
+FAILED fastfill/comparison/tests/test_a028.py::test_j27_slow_smoke_reduces_n_without_bypassing_memory[53687091200-SMOKE_PASS-expected_reasons0]
+FAILED fastfill/comparison/tests/test_a028.py::test_j27_slow_smoke_reduces_n_without_bypassing_memory[96636764161-SMOKE_STOP-expected_reasons1]
+FAILED fastfill/comparison/tests/test_a028.py::test_j27_smoke_stops_if_no_room_fits_the_training_window
+FAILED fastfill/comparison/tests/test_a028.py::test_j27_smoke_dispatches_its_recorded_reduced_n_policy
+5 failed, 20 deselected in 9.61s

@@ -1,0 +1,59 @@
+{
+  "observed_utc": "2026-10-13T07:49:46.330512+00:00",
+  "sacct": "7365659|unknownsize-main-data|COMPLETED|03:36:08|2026-10-13T00:54:39|2026-10-13T04:30:47|0:0|billing=72,cpu=72,mem=192G,node=1\n7365681|unknownsize-sft|RUNNING|03:18:56|2026-10-13T04:30:50|Unknown|0:0|billing=72,cpu=72,gres/gpu=1,mem=96G,node=1\n7365682|unknownsize-sft|RUNNING|03:18:56|2026-10-13T04:30:50|Unknown|0:0|billing=72,cpu=72,gres/gpu=1,mem=96G,node=1\n7367626|unknownsize-infer|PENDING|00:00:00|Unknown|Unknown|0:0|\n7367628|unknownsize-infer|PENDING|00:00:00|Unknown|Unknown|0:0|\n7367629|unknownsize-geometry|CANCELLED by 1483807663|00:00:00|None|2026-10-13T07:37:10|0:0|\n7367962|full-audit-data-inputs|COMPLETED|00:08:16|2026-10-13T07:14:33|2026-10-13T07:22:49|0:0|billing=72,cpu=72,mem=32G,node=1\n7367978|full-audit-data-geometry|COMPLETED|00:01:10|2026-10-13T07:25:56|2026-10-13T07:27:06|0:0|billing=72,cpu=72,mem=32G,node=1\n7368003|full-audit-data-lineage|FAILED|00:03:02|2026-10-13T07:37:11|2026-10-13T07:40:13|2:0|billing=72,cpu=72,mem=32G,node=1\n7368009|unknownsize-geometry-audit|PENDING|00:00:00|Unknown|Unknown|0:0|\n7368012|full-audit-data-payloads|COMPLETED|00:00:22|2026-10-13T07:42:27|2026-10-13T07:42:49|0:0|billing=72,cpu=72,mem=8G,node=1\n",
+  "queue": "7368009|unknownsize-geometry-audit|PENDING|0:00|2:00:00|(Dependency)\n7367628|unknownsize-infer|PENDING|0:00|22:00:00|(Dependency)\n7367626|unknownsize-infer|PENDING|0:00|22:00:00|(Dependency)\n7365681|unknownsize-sft|RUNNING|3:18:56|1-00:00:00|nid010012\n7365682|unknownsize-sft|RUNNING|3:18:56|1-00:00:00|nid010014\n",
+  "training": {
+    "7365681": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365681.out",
+      "mtime_utc": "2026-10-13T07:49:44+00:00",
+      "read_tail_sha256": "fc0228582be2ec8718c42e122bff4fb5228ba3324cbb831581beff04c8ff6ea5",
+      "step": 4881,
+      "total_steps": 24689,
+      "training_elapsed": "3:11:30",
+      "displayed_eta": "12:18:02",
+      "last_metric_line": "{'loss': '0.2966', 'grad_norm': '0.4248', 'learning_rate': '4.64e-05', 'epoch': '0.1977'}",
+      "error_markers_in_tail": {
+        "Traceback (most recent call last)": 0,
+        "CUDA out of memory": 0
+      }
+    },
+    "7365682": {
+      "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365682.out",
+      "mtime_utc": "2026-10-13T07:49:44+00:00",
+      "read_tail_sha256": "e884eb4fec704d098cd5c26bdb80d64abe098372160bfac69f43fcd147f8fb6e",
+      "step": 4550,
+      "total_steps": 24689,
+      "training_elapsed": "3:11:37",
+      "displayed_eta": "13:24:27",
+      "last_metric_line": "{'loss': '0.3129', 'grad_norm': '0.1806', 'learning_rate': '4.694e-05', 'epoch': '0.1843'}",
+      "error_markers_in_tail": {
+        "Traceback (most recent call last)": 0,
+        "CUDA out of memory": 0
+      }
+    }
+  },
+  "controller_status": {
+    "api_submission_attempted": false,
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 389.07339045799745,
+    "failures": [],
+    "pid": 96318,
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "running",
+    "updated_unix": 1791877727.1960452
+  },
+  "controller_status_mtime_utc": "2026-10-13T07:48:47.196179+00:00",
+  "processes": "  PID  PPID  PGID ELAPSED STAT COMM\n40191     1 40191   15:14 Ss   /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python\n40239 40191 40239   15:14 Ss   /usr/bin/ssh\n96318 40191 96318   07:28 Ss   /Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python\n96319 40191 96319   07:28 Ss   /usr/bin/caffeinate\n",
+  "config_path": "docs/research/20261013-unknown-size-comparison/automation-config-run003.json",
+  "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+  "code_snapshot": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72",
+  "interpretation": "Frozen corpus diagnostic; source corrections and paired retraining required before clean-geometry scientific claims. ETA is trainer estimate, not completion guarantee."
+}

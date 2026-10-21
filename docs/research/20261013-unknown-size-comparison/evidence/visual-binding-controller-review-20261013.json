@@ -1,0 +1,1250 @@
+{
+  "reviewed_utc": "2026-10-13T08:20:30.026543+00:00",
+  "status": "PASS_SOURCE_REVIEW; PRIOR_FINDINGS_RESOLVED; NOT_A_DEPLOYMENT_RECEIPT",
+  "scope": "Read-only controller/test review. No controller main, driver instance, subprocess, SSH, API, scheduler query/submission, or process signaling executed. Only offline pure/mocked functions and unittest temporary fixtures.",
+  "unit_tests": {
+    "count": 6,
+    "passed": true,
+    "output": "test_absolute_original_deadline_cannot_be_extended_in_both_fields (review_controller_fixed_tests.HandoffContract.test_absolute_original_deadline_cannot_be_extended_in_both_fields) ... ok\ntest_any_remote_or_budget_change_is_rejected (review_controller_fixed_tests.HandoffContract.test_any_remote_or_budget_change_is_rejected) ... ok\ntest_no_timeout_extension_and_no_output_reuse (review_controller_fixed_tests.HandoffContract.test_no_timeout_extension_and_no_output_reuse) ... ok\ntest_release_rejects_unbound_empty_or_wrong_process_ids (review_controller_fixed_tests.HandoffContract.test_release_rejects_unbound_empty_or_wrong_process_ids) ... ok\ntest_release_requires_exact_false_and_current_base_identity (review_controller_fixed_tests.HandoffContract.test_release_requires_exact_false_and_current_base_identity) ... ok\ntest_visual_only_switch_preserves_existing_geometry_job (review_controller_fixed_tests.HandoffContract.test_visual_only_switch_preserves_existing_geometry_job) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.008s\n\nOK\n"
+  },
+  "independent_checks": [
+    {
+      "name": "actual_run003_receipt_identity_and_local_only_candidate",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    },
+    {
+      "name": "same_receipt_copied_to_staged_path_and_pinned",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    },
+    {
+      "name": "reordered_four_owned_pids_allowed",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    },
+    {
+      "name": "reject_non_false_api_flag_None",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_non_false_api_flag_0",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_non_false_api_flag_''",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_non_false_api_flag_True",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_non_false_api_flag_'false'",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_missing_api_flag",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_empty",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_short",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_long",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_wrong",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_bool",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_float",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_zero",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_negative",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_duplicate",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_pid_list_tuple",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_old_endstate",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_old_process_receipt_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_base_config_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_old_config_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_old_pid",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_receipt_config_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_receipt_driver_pid",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_receipt_master_pid",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_receipt_wake_pid",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "live_owned_pid_blocks_release",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "missing_parent_ready_blocks",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_release_candidate_config_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_release_test_evidence_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_release_geometry_submission_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_release_snapshot_manifest_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_geometry_job_id",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_geometry_dependency",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_geometry_submission_attempts",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_geometry_job_id",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_prerequisite_job_ids",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_remote_api_code",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_api_client_path",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_api_client_sha256",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_remote_run_root",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_api_timeout_seconds",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_render_timeout_seconds",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_poll_seconds",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_protected_config_read_retries",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_plus_one",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_plus_hour",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_bool",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_string",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_nan",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_deadline_inf",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_dual_extended_deadlines",
+      "expected": "ValueError",
+      "observed": "ValueError",
+      "passed": true
+    },
+    {
+      "name": "reject_startup_gap_10",
+      "expected": "TimeoutError",
+      "observed": "TimeoutError",
+      "passed": true
+    },
+    {
+      "name": "reject_startup_gap_1",
+      "expected": "TimeoutError",
+      "observed": "TimeoutError",
+      "passed": true
+    },
+    {
+      "name": "reject_startup_gap_0",
+      "expected": "TimeoutError",
+      "observed": "TimeoutError",
+      "passed": true
+    },
+    {
+      "name": "reject_startup_gap_-1",
+      "expected": "TimeoutError",
+      "observed": "TimeoutError",
+      "passed": true
+    },
+    {
+      "name": "hard_ceiling_and_shorter_deadline_valid_budgets",
+      "expected": "100_99_90",
+      "observed": "100_99_90",
+      "passed": true
+    },
+    {
+      "name": "old_frozen_overnight_config_compatibility",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    }
+  ],
+  "deadline_unix": 1792302800,
+  "geometry_job_id": "7368009",
+  "prerequisite_job_ids": [
+    "7365659",
+    "7365681",
+    "7365682",
+    "7367626",
+    "7367628"
+  ],
+  "config_caps": {
+    "total_timeout_seconds_max": 432000,
+    "current_base_total_timeout_seconds": 425451,
+    "render_timeout_seconds": 86400,
+    "api_timeout_seconds": 36000,
+    "api_cases": 348,
+    "per_case_timeout_seconds": 90,
+    "read_retries": 3,
+    "poll_seconds": 120
+  },
+  "old_run_file_observation": {
+    "api_submission_attempted": false,
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "counts": {
+      "jobs_completed": 1,
+      "jobs_known": 6,
+      "jobs_observed": 6
+    },
+    "elapsed_seconds": 1912.9670636660012,
+    "failures": [],
+    "pid": 96318,
+    "reason": "driver_active_or_interrupted",
+    "remote_batch": null,
+    "remote_job": null,
+    "schema_version": 1,
+    "stage": "jobs",
+    "status": "partial",
+    "updated_unix": 1791879251.090579
+  },
+  "old_process_receipt": {
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "deadline_unix": 1792302800,
+    "driver_pid": 96318,
+    "effective_driver_budget_seconds": 425451,
+    "launcher_pid": 40191,
+    "master_pid": 40239,
+    "wake_pid": 96319
+  },
+  "prohibited_actions_performed": [],
+  "source_guard_followup": {
+    "scope": "Read-only follow-up of parent finite guard patch, after controller review probes.",
+    "assessment": "Only finite_vector changed in production helper; excludes bool before isfinite and catches OverflowError. Geometry projection unchanged.",
+    "original_helper_sha256": "37bc56b0b48bce50f800d0a78ddb84eb2fb1ab40f65658b5ac6be45e1dfaf0d9",
+    "recovered_pre_parent_helper_hash_matches": true,
+    "independent_test_result": "61 passed",
+    "files": [
+      {
+        "path": "fastfill/adapters/upright_bounds.py",
+        "sha256": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f"
+      },
+      {
+        "path": "fastfill/tests/test_source_tilt_correction.py",
+        "sha256": "9a2f82645edb739d86acbb67590b0a58d937a5e35ac50cbbef47e8e941f90a71"
+      },
+      {
+        "path": "fastfill/adapters/scan2cad.py",
+        "sha256": "aef249703105ecf5003be6b3e31bc4ffcdd2492bf96bf6f7b529a29b5987688e"
+      },
+      {
+        "path": "fastfill/adapters/spatialgen.py",
+        "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "VB-01",
+      "severity": "MEDIUM",
+      "introduced_by_reviewed_diff": false,
+      "lines": [
+        96,
+        104
+      ],
+      "title": "Old-run evidence can be incomplete or refer to the wrong run",
+      "required_parent_preflight": "Bind current run003 config/endstate/process receipts; require api_submission_attempted is False and accurate nonempty absent-process identities.",
+      "status": "resolved_by_parent_and_independently_verified",
+      "resolved_controller_sha256": "f0fead883eeb50882c77dd82260733ae8ddce5dee723651162d01a86a7803c95"
+    },
+    {
+      "id": "VB-02",
+      "severity": "MEDIUM",
+      "introduced_by_reviewed_diff": false,
+      "lines": [
+        156,
+        158
+      ],
+      "title": "Both spec deadline values can drift together",
+      "required_parent_preflight": "Pin original_deadline_unix == 1792302800 and deadline_unix <= 1792302800 against the existing original-deadline receipt.",
+      "status": "resolved_by_parent_and_independently_verified",
+      "resolved_controller_sha256": "f0fead883eeb50882c77dd82260733ae8ddce5dee723651162d01a86a7803c95"
+    }
+  ],
+  "patch_introduced_high_or_critical_findings": [],
+  "release_ready": false,
+  "release_ready_reason": "Source review passed; actual stopped-process evidence and finalized copied receipt/spec/snapshot/release are operational parent gates, not unresolved code findings.",
+  "followup_review": {
+    "reviewed_utc": "2026-10-13T08:20:30.026543+00:00",
+    "verdict": "PASS_SOURCE_REVIEW; VB-01 and VB-02 resolved; no open findings in reviewed controller delta",
+    "reconstructed_initial_controller_sha256": "dd6302efaa5c02b8cf1cc04d8ed5a11d071eb80515955ccd7517e3e38659fa3e",
+    "delta_verified": "Only ORIGINAL_DEADLINE_UNIX, remaining, old_identity, and check_release changed from prior review; inverse textual reconstruction exactly matched prior reviewed hash.",
+    "unit_tests": {
+      "count": 6,
+      "passed": true,
+      "output": "test_absolute_original_deadline_cannot_be_extended_in_both_fields (review_controller_fixed_tests.HandoffContract.test_absolute_original_deadline_cannot_be_extended_in_both_fields) ... ok\ntest_any_remote_or_budget_change_is_rejected (review_controller_fixed_tests.HandoffContract.test_any_remote_or_budget_change_is_rejected) ... ok\ntest_no_timeout_extension_and_no_output_reuse (review_controller_fixed_tests.HandoffContract.test_no_timeout_extension_and_no_output_reuse) ... ok\ntest_release_rejects_unbound_empty_or_wrong_process_ids (review_controller_fixed_tests.HandoffContract.test_release_rejects_unbound_empty_or_wrong_process_ids) ... ok\ntest_release_requires_exact_false_and_current_base_identity (review_controller_fixed_tests.HandoffContract.test_release_requires_exact_false_and_current_base_identity) ... ok\ntest_visual_only_switch_preserves_existing_geometry_job (review_controller_fixed_tests.HandoffContract.test_visual_only_switch_preserves_existing_geometry_job) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.008s\n\nOK\n"
+    },
+    "independent_checks": [
+      {
+        "name": "actual_run003_receipt_identity_and_local_only_candidate",
+        "expected": "accepted",
+        "observed": "accepted",
+        "passed": true
+      },
+      {
+        "name": "same_receipt_copied_to_staged_path_and_pinned",
+        "expected": "accepted",
+        "observed": "accepted",
+        "passed": true
+      },
+      {
+        "name": "reordered_four_owned_pids_allowed",
+        "expected": "accepted",
+        "observed": "accepted",
+        "passed": true
+      },
+      {
+        "name": "reject_non_false_api_flag_None",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_non_false_api_flag_0",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_non_false_api_flag_''",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_non_false_api_flag_True",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_non_false_api_flag_'false'",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_missing_api_flag",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_empty",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_short",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_long",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_wrong",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_bool",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_float",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_zero",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_negative",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_duplicate",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_pid_list_tuple",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_old_endstate",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_old_process_receipt_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_base_config_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_old_config_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_old_pid",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_receipt_config_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_receipt_driver_pid",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_receipt_master_pid",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_receipt_wake_pid",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "live_owned_pid_blocks_release",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "missing_parent_ready_blocks",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_release_candidate_config_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_release_test_evidence_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_release_geometry_submission_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_release_snapshot_manifest_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_geometry_job_id",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_geometry_dependency",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_geometry_submission_attempts",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_geometry_job_id",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_prerequisite_job_ids",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_remote_api_code",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_api_client_path",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_api_client_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_remote_run_root",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_api_timeout_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_render_timeout_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_poll_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_protected_config_read_retries",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_plus_one",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_plus_hour",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_bool",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_string",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_nan",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_deadline_inf",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_dual_extended_deadlines",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_startup_gap_10",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "reject_startup_gap_1",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "reject_startup_gap_0",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "reject_startup_gap_-1",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "hard_ceiling_and_shorter_deadline_valid_budgets",
+        "expected": "100_99_90",
+        "observed": "100_99_90",
+        "passed": true
+      },
+      {
+        "name": "old_frozen_overnight_config_compatibility",
+        "expected": "accepted",
+        "observed": "accepted",
+        "passed": true
+      }
+    ],
+    "actual_process_receipt": {
+      "path": "/tmp/ff-audit-controller-2m973_n1/state/processes.json",
+      "sha256": "949ba8681397ba9c961b6c9354f2ab9c25b6c7cd6dd7d1fcab318e68a53825f6",
+      "base_config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+      "owned_pids": [
+        40191,
+        96318,
+        40239,
+        96319
+      ],
+      "identity_check_passed": true,
+      "liveness_was_not_queried": true
+    },
+    "controller_sha256": "f0fead883eeb50882c77dd82260733ae8ddce5dee723651162d01a86a7803c95",
+    "test_sha256": "a95df45131c029aa707f99d3ca1a0d8f0fa1c72f475364c9d6c5da20951e3a23",
+    "deployment_limit": "No controller main, real PID liveness, SSH/API/jobs, or release. Staged copied receipt/spec/snapshot and actual stop still require parent handoff validation."
+  },
+  "open_findings": [],
+  "initial_review_files": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/resource-binding-deploy-001/controller.py",
+      "bytes": 12428,
+      "sha256": "dd6302efaa5c02b8cf1cc04d8ed5a11d071eb80515955ccd7517e3e38659fa3e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/resource-binding-deploy-001/test_controller.py",
+      "bytes": 3038,
+      "sha256": "5de50c0d9bfbf09140969c9c08c3d525a6e36b97b7f9139c3c5e68b888db7a17"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/controller.py",
+      "bytes": 12432,
+      "sha256": "083083f2035dad664599468c10911c4eb79de0ebd7af13622e6341b789bf6b56"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/test_staging.py",
+      "bytes": 6609,
+      "sha256": "8142031c4fccf636274d44c54c1d3d330505cbc85392ee37ced41d65e94a4a29"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/full-audit-deploy-001/base-config.json",
+      "bytes": 3103,
+      "sha256": "fd5070980a171ab0cea022cc8d11a41c7ee2f8536939d3187c5b01ffb1bf3ab7"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72/fastfill/comparison/overnight.py",
+      "bytes": 40140,
+      "sha256": "663d33c6ae3cf629d0b6ae0277bc98be1dc0bdd05b5e8fab73a11b76dd05c492"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72/fastfill/comparison/judge_batch.py",
+      "bytes": 27561,
+      "sha256": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72/server_api_judge.py",
+      "bytes": 25361,
+      "sha256": "8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-config-run003.json",
+      "bytes": 3153,
+      "sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/config.json",
+      "bytes": 3153,
+      "sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-deadline.json",
+      "bytes": 661,
+      "sha256": "8c4ad5dcd7491e1cdc6984a06c681c0a8f0a6081fdf49764dbc14a2e475dae77"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-geometry-submission.json",
+      "bytes": 1831,
+      "sha256": "ad57ab0e2720f7c6e7c34fce175c34daf347521ec3fd1aa2d2576674ddaf4bbe"
+    },
+    {
+      "path": "/tmp/ff-audit-controller-2m973_n1/controller.py",
+      "bytes": 12432,
+      "sha256": "083083f2035dad664599468c10911c4eb79de0ebd7af13622e6341b789bf6b56"
+    },
+    {
+      "path": "/tmp/ff-audit-controller-2m973_n1/state/processes.json",
+      "bytes": 258,
+      "sha256": "949ba8681397ba9c961b6c9354f2ab9c25b6c7cd6dd7d1fcab318e68a53825f6"
+    }
+  ],
+  "files": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/resource-binding-deploy-001/controller.py",
+      "bytes": 13856,
+      "sha256": "f0fead883eeb50882c77dd82260733ae8ddce5dee723651162d01a86a7803c95"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/resource-binding-deploy-001/test_controller.py",
+      "bytes": 6311,
+      "sha256": "a95df45131c029aa707f99d3ca1a0d8f0fa1c72f475364c9d6c5da20951e3a23"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-003/config.json",
+      "bytes": 3153,
+      "sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743"
+    },
+    {
+      "path": "/tmp/ff-audit-controller-2m973_n1/state/processes.json",
+      "bytes": 258,
+      "sha256": "949ba8681397ba9c961b6c9354f2ab9c25b6c7cd6dd7d1fcab318e68a53825f6"
+    }
+  ],
+  "initial_review_results": {
+    "reviewed_utc": "2026-10-13T08:14:39.095070+00:00",
+    "unit_tests": {
+      "count": 3,
+      "passed": true,
+      "output": "test_any_remote_or_budget_change_is_rejected (review_visual_controller_tests.HandoffContract.test_any_remote_or_budget_change_is_rejected) ... ok\ntest_no_timeout_extension_and_no_output_reuse (review_visual_controller_tests.HandoffContract.test_no_timeout_extension_and_no_output_reuse) ... ok\ntest_visual_only_switch_preserves_existing_geometry_job (review_visual_controller_tests.HandoffContract.test_visual_only_switch_preserves_existing_geometry_job) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.002s\n\nOK\n"
+    },
+    "independent_checks": [
+      {
+        "name": "actual_run003_config_accepts_local_only_handoff_and_old_overnight_validation",
+        "expected": "accepted_budget_90",
+        "observed": "accepted_budget_90",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_geometry_job_id",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_prerequisite_job_ids",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_remote_api_code",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_api_client_path",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_api_client_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_remote_run_root",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_remote_env_file",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_api_timeout_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_render_timeout_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_poll_seconds",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_read_retries",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_local_python",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_slurm_account",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_slurm_partition",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_slurm_qos",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_expected_manifest_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_reference_data",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_weights",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_vendor",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_blender",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_receipt_paths",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "reject_changed_final_tables",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "deadline_gap_10",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "deadline_gap_1",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "deadline_gap_0",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "deadline_gap_-1",
+        "expected": "TimeoutError",
+        "observed": "TimeoutError",
+        "passed": true
+      },
+      {
+        "name": "existing_output",
+        "expected": "FileExistsError",
+        "observed": "FileExistsError",
+        "passed": true
+      },
+      {
+        "name": "release_accepts_existing_geometry_receipt_old_remote_snapshot",
+        "expected": "accepted",
+        "observed": "accepted",
+        "passed": true
+      },
+      {
+        "name": "release_requires_parent_ready",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "release_rejects_candidate_config_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "release_rejects_test_evidence_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "release_rejects_geometry_submission_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "release_rejects_snapshot_manifest_sha256",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "old_state_rejects_status",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "old_state_rejects_stage",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "old_state_rejects_api_submission_attempted",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "old_live_pid_blocks",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "geometry_rejects_job_id",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "geometry_rejects_dependency",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      },
+      {
+        "name": "geometry_rejects_submission_attempts",
+        "expected": "ValueError",
+        "observed": "ValueError",
+        "passed": true
+      }
+    ],
+    "inherited_gate_probe_results": [
+      {
+        "name": "non_boolean_api_unattempted",
+        "value": null,
+        "observed": "accepted"
+      },
+      {
+        "name": "non_boolean_api_unattempted",
+        "value": 0,
+        "observed": "accepted"
+      },
+      {
+        "name": "non_boolean_api_unattempted",
+        "value": "",
+        "observed": "accepted"
+      },
+      {
+        "name": "missing_api_submission_attempted",
+        "observed": "accepted"
+      },
+      {
+        "name": "empty_old_process_ids",
+        "observed": "accepted_without_pid_checks"
+      },
+      {
+        "name": "stale_old_run002_identity_with_empty_pid_list",
+        "observed": "accepted_without_matching_base_config_or_old_pid"
+      },
+      {
+        "name": "both_deadline_fields_extended_by_3600",
+        "observed": "inherited_main_guard_does_not_reject",
+        "original_authorized_unix": 1792302800
+      }
+    ]
+  }
+}

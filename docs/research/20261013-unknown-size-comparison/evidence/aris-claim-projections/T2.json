@@ -1,0 +1,10 @@
+{
+  "id": "T2",
+  "description": "Statement coverage percent",
+  "value": 90.80136573609158,
+  "source": "docs/research/20261013-unknown-size-comparison/evidence/full-audit-input-fix-validation.json",
+  "json_pointer": "/coverage/percent_covered",
+  "sha256": "174cb923ed183c77909e8f44ed2647e2d1b29aa3121cf92a527f390a755c74af",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

@@ -1,0 +1,367 @@
+{
+  "schema_version": "fastfill.v2",
+  "room": {
+    "frame": "right_handed_z_up",
+    "room_type": "livingroom",
+    "floor_polygon_xy_m": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        4.5,
+        0.0
+      ],
+      [
+        4.5,
+        5
+      ],
+      [
+        0.0,
+        5
+      ]
+    ],
+    "floor_z_m": 0.0,
+    "height_m": 2.7,
+    "boundary_known": true,
+    "floor_known": true,
+    "fixed_objects": [
+      {
+        "id": "door_1",
+        "category": "door",
+        "size_local_m": [
+          0.1,
+          0.9,
+          2.05
+        ],
+        "bottom_center_m": [
+          2.82,
+          5.0,
+          0.0
+        ],
+        "yaw_rad": -1.5707963267948966
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "category": "sofa",
+      "description": "A low-profile teak sofa with organic curves, tapered legs, and a sleek rectangular silhouette, finished in natural teak with a warm honey tone and a subtle grain texture",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0001",
+      "category": "mediaconsole",
+      "description": "A low teak media console with a long rectangular footprint, flat top surface, and subtle recessed storage compartments, finished in natural teak with a smooth matte texture",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0002",
+      "category": "coffeetable",
+      "description": "A rectangular teak coffee table with clean straight edges, a thin top slab, and tapered legs, showcasing a natural teak finish with a light amber hue",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0003",
+      "category": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0004",
+      "category": "armchair",
+      "description": "A tapered teak armchair featuring a gently sloping back, rounded seat, and slender tapered legs, finished in natural teak with a smooth polished surface",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0005",
+      "category": "sideboard",
+      "description": "A low teak sideboard with a sleek rectangular shape, flat top, and narrow legs, featuring a single drawer front and a natural teak finish with a soft grain pattern",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0006",
+      "category": "bookshelf",
+      "description": "A tall teak bookshelf with a narrow rectangular profile, multiple open shelves, and slender vertical legs, finished in natural teak with a warm, slightly textured surface",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0007",
+      "category": "lamp",
+      "description": "A tripod floor lamp with three slender tapered legs that spread outward, supporting a tall cylindrical shade, finished in brushed metal with a matte black finish",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0008",
+      "category": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0009",
+      "category": "endtable",
+      "description": "A small teak end table with a compact square top, rounded corners, and short tapered legs, showcasing a natural teak finish with a subtle sheen",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0010",
+      "category": "ottoman",
+      "description": "A mustard upholstered ottoman with a low-slung rectangular shape, soft padded top, and short stubby legs, covered in a velvety fabric with a muted mustard hue",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0011",
+      "category": "pouf",
+      "description": "An olive fabric pouf with a rounded, squat silhouette, plush cushioning, and a smooth woven texture in an olive green shade",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0012",
+      "category": "plant",
+      "description": "A large leafy plant in a simple ceramic pot, featuring a tall, slender trunk and abundant broad green foliage that creates a lush, organic presence",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0013",
+      "category": "plant3",
+      "description": "A modest floor plant in a tall narrow pot, featuring a single stalk of long, arching foliage with a deep green hue",
+      "support_parent": "floor"
+    },
+    {
+      "id": "obj_0014",
+      "category": "remote",
+      "description": "A small rectangular plastic remote control with ergonomic curves, matte black finish and a grid of tactile buttons",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0015",
+      "category": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0016",
+      "category": "book",
+      "description": "A slim rectangular hardcover book with a mid\u2011century modern design cover, warm walnut tone and clean straight\u2011edged pages",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0017",
+      "category": "coffeebook_7",
+      "description": "A thick square coffee table book with a 1950s retro cover, vibrant colors and a glossy finish, rectangular shape with slightly rounded corners",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0018",
+      "category": "magazine_1",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0019",
+      "category": "magazine_2",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0020",
+      "category": "magazine_3",
+      "description": "A glossy rectangular magazine with a colorful cover and slightly fanned pages, thin and lightweight",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0021",
+      "category": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0022",
+      "category": "cup",
+      "description": "A small round ceramic cup with a 1950s retro handle, pastel teal glaze and a smooth lip",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0023",
+      "category": "openbook",
+      "description": "An open hardcover book with visible pages, classic binding and a neutral cover, rectangular shape with slightly rounded corners",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0024",
+      "category": "book_1",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0025",
+      "category": "book_2",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0026",
+      "category": "book_3",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0027",
+      "category": "book_4",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0028",
+      "category": "book_8",
+      "description": "A vintage 1950s style coffee table book with a rectangular shape, clothbound cover, pastel colors and decorative gold edging, slightly worn pages giving it a nostalgic feel",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0029",
+      "category": "plant",
+      "description": "A small potted succulent with a round terracotta pot, smooth green leaves and a compact growth habit",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0030",
+      "category": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0031",
+      "category": "cup",
+      "description": "A ceramic coffee cup with a cylindrical shape, smooth white surface and a delicate speckled pattern around the rim",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0032",
+      "category": "magazine",
+      "description": "A glossy magazine with a rectangular shape, vibrant cover artwork and thin, glossy pages",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0033",
+      "category": "remote",
+      "description": "A plastic remote control with an ergonomic rectangular shape, matte black finish and tactile raised buttons",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0034",
+      "category": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0035",
+      "category": "book3",
+      "description": "A small hardcover book with a rectangular shape, vintage leather\u2011like cover and subtle embossing on the spine",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0036",
+      "category": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0037",
+      "category": "vase3",
+      "description": "A small ceramic vase with a squat cylindrical shape, matte pastel pink finish and a hand\u2011painted leaf motif around its rim",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0038",
+      "category": "wallart",
+      "description": "A single piece of thin and upright geometric mustard wall art with bold angular shapes, a flat rectangular panel, and a matte mustard finish that adds a graphic accent",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0039",
+      "category": "wallart",
+      "description": "A single piece of thin and upright geometric wall art composed of interlocking triangles, bold primary colors on a matte background",
+      "support_parent": "wall"
+    },
+    {
+      "id": "obj_0040",
+      "category": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0041",
+      "category": "novel",
+      "description": "A rectangular 1950s style book with a slightly worn cloth cover, rounded corners, and a subtle embossed title strip",
+      "support_parent": "obj_0006"
+    },
+    {
+      "id": "obj_0042",
+      "category": "magazine_1",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0043",
+      "category": "magazine_3",
+      "description": "A thin rectangular magazine with a glossy cover, vibrant colors and a slightly curved top edge",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0044",
+      "category": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0045",
+      "category": "cup",
+      "description": "A smooth ceramic cup with a rounded body, a gently flared rim and a small curved handle, white with a subtle speckled glaze",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0046",
+      "category": "hardcover",
+      "description": "A thick hardcover book with a stiff rectangular spine, a slightly textured cloth cover and rounded page edges",
+      "support_parent": "obj_0002"
+    },
+    {
+      "id": "obj_0047",
+      "category": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0048",
+      "category": "volume",
+      "description": "A rectangular book with a simple matte cover, clean lines and a modest thickness, typical of a modern paperback",
+      "support_parent": "obj_0001"
+    },
+    {
+      "id": "obj_0049",
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0050",
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0051",
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "support_parent": "obj_0005"
+    },
+    {
+      "id": "obj_0052",
+      "category": "tome",
+      "description": "A rectangular book with a dark leather cover, gold\u2011stamped title and slightly rounded corners, giving it a classic appearance",
+      "support_parent": "obj_0005"
+    }
+  ],
+  "constraints": []
+}

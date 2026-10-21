@@ -1,0 +1,1861 @@
+{
+  "schema_version": 1,
+  "batch": "v2-2",
+  "audit_date": "2026-10-13",
+  "status": "complete",
+  "ledger": {
+    "path": "evidence/agency-full-test-source-coverage-20261013.json",
+    "sha256_at_selection": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc",
+    "batch_status_at_selection": "unassigned",
+    "selection": "delegation_ready_batches[batch == 'v2-2'].paths",
+    "modified_by_this_audit": false,
+    "sha256_at_final_validation": "22eb3fa5c68b63e62230e0301a5936ce97b839ef23f17b79b00e4c095099d4fc",
+    "unchanged_since_selection": true
+  },
+  "scope": {
+    "mode": "local_static_full_source_review",
+    "files_expected": 25,
+    "lines_expected": 4358,
+    "read_scope": "Only the 25 explicit v2-2 test-source paths were displayed and reviewed. Shared ledger metadata supplied exact hashes and scope. Parent reviewed 16 files/2694 lines; delegated data reviewer reviewed 9 files/1664 lines.",
+    "no_other_batches_read": true,
+    "no_assigned_comparison_tests_read": true,
+    "no_production_sources_read": true,
+    "no_external_fixtures_read": true,
+    "tests_executed": 0,
+    "project_modules_imported": 0,
+    "remote_calls": 0,
+    "production_changes": 0,
+    "shared_ledger_edits": 0,
+    "allowed_writes": [
+      "evidence/agency-test-source-v2-2-20261013.json",
+      "evidence/agency-test-source-v2-2-20261013.md"
+    ],
+    "graph_discovery": "Not repeated: user supplied completed discovery and prior unindexed-root result."
+  },
+  "methodology": {
+    "read_method": "Numbered full-file display in bounded chunks without truncation; inclusive spans recorded per file. Before display, bytes were checked against ledger hashes; final primary digest checks cover all 25 paths after all review.",
+    "classification": {
+      "concrete_test_source_finding": "An observable oracle weakness with a concrete incorrect result the cited assertions do not reject; not a confirmed production bug.",
+      "coverage_limitation": "A scenario, independence check or research inference not established by the cited cases; no repository-wide absence claim."
+    },
+    "statistical_basis": "Complete census of the 25 selected source files, not sampled test outcomes. Read counts are exact descriptive counts. No tests, mutations, benchmarks or model experiments ran; confidence intervals, significance, failure probabilities and release readiness are not estimable and are not asserted.",
+    "assumptions": [
+      "Source assertions are interpreted statically; imported helper behavior and production code were not inspected.",
+      "Source comments/test names do not constitute execution evidence.",
+      "Suggested improvements are recommendations only; no test or production edits were made."
+    ]
+  },
+  "summary": {
+    "files_fresh_full": 25,
+    "lines_fresh_full": 4358,
+    "unread_files": 0,
+    "concrete_test_source_findings": 9,
+    "coverage_limitations": 11,
+    "confirmed_production_defects": 0,
+    "execution_status": "not_run_by_instruction",
+    "coverage_claim": "All listed source lines reviewed at pinned hashes; this is not code-execution coverage or a test pass-rate claim.",
+    "final_hash_matches": 25
+  },
+  "reviewers": [
+    {
+      "id": "primary",
+      "files": 16,
+      "lines": 2694
+    },
+    {
+      "id": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "files": 9,
+      "lines": 1664,
+      "full_read_assertion": {
+        "sha256_semantics": "Each listed sha256 was observed both before and after review.",
+        "before_checks": "Every file matched ledger sha256, inventory_sha256, and line count before source display.",
+        "final_checks": "Every file matched its before-review sha256 and line count, and the final ledger sha256, inventory_sha256, and line count.",
+        "display_spans": "Inclusive numbered ranges, each displayed in a separate call without truncation."
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "Combined-loss backward does not prove each geometry regularizer is differentiable",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_execution.py",
+          "lines": [
+            36,
+            49
+          ]
+        }
+      ],
+      "observation": "The test checks collision, boundary and box values are positive, then backpropagates only result['loss'] and requires finite position gradients.",
+      "undetected_regression": "A detached positive constant for one or all optional regularizers can satisfy these assertions while another active loss supplies the position gradient. A zero gradient also satisfies isfinite.",
+      "claim_impact": "This case cannot substantiate that each optional geometry penalty contributes a useful training gradient.",
+      "suggested_oracle": "Use separate nondegenerate fixtures with other loss terms disabled; differentiate each regularizer and require finite nonzero gradients with an analytically expected direction.",
+      "confidence": "Direct static assertion evidence; no production defect or executed mutation established."
+    },
+    {
+      "id": "F02",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "Shuffle test loses the identity of the chair with invalid position labels",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+          "lines": [
+            23,
+            50
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+          "lines": [
+            210,
+            245
+          ]
+        }
+      ],
+      "observation": "Both chairs share description/category. The original dictionary is keyed by description, geometry equality explicitly excludes chairs, and the invalid-mask check only verifies that exactly one chair is invalid.",
+      "undetected_regression": "Moving the invalid position mask from chair_b to chair_a during shuffling, or mismatching the two chair geometries with masks, preserves the asserted category, group membership and invalid count.",
+      "claim_impact": "Incorrect supervision eligibility can survive this regression test and affect geometry losses and matching metrics.",
+      "suggested_oracle": "Track each original target and its full validity tuple through the ID permutation, using distinct target coordinates as a test-only identity witness; verify both chairs, not only category/count.",
+      "confidence": "Direct static assertion evidence; production behavior not inspected."
+    },
+    {
+      "id": "F03",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "Five-room handoff oracle checks child height but not parent footprint containment",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+          "lines": [
+            238,
+            248
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+          "lines": [
+            251,
+            285
+          ]
+        }
+      ],
+      "observation": "For on_object placements the loop verifies parent metadata and either top height or an interior z interval. It does not compare the child's x/y footprint with its parent, nor its top with an interior support volume; only the bathroom is subsequently assembled.",
+      "undetected_regression": "An on_object child horizontally outside its parent at the accepted z satisfies this loop's placement assertions. An interior child can also extend above the parent while its bottom remains inside the accepted interval.",
+      "claim_impact": "The 313-object handoff checks do not by themselves certify physical support or containment across the five rooms.",
+      "suggested_oracle": "Independently check oriented child-footprint containment/contact against the declared parent's support surface, and for interior placements check full vertical bounds. Include deliberately displaced and over-tall children.",
+      "confidence": "Direct static assertion evidence; no claim that the current decoder produces these failures."
+    },
+    {
+      "id": "F04",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "Hungarian shifted-error assertion accepts invalid negative distance metrics",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+          "lines": [
+            72,
+            87
+          ]
+        }
+      ],
+      "observation": "The Hungarian branch requires only mean <= 0.10 + 1e-9. The fixed-ID branch checks an exact approximately 0.10 error.",
+      "undetected_regression": "Any negative mean passes the Hungarian inequality; an incorrectly zero-valued matched error also is not challenged by this assertion.",
+      "claim_impact": "This shifted-prediction case supplies no independent nonzero matching-error oracle for research metrics.",
+      "suggested_oracle": "Add a small known-cost exchangeable fixture with an independently enumerated optimal assignment and a strictly positive expected mean; assert finite nonnegative errors in this branch.",
+      "confidence": "Direct static assertion evidence; no executed negative mutation or production failure."
+    },
+    {
+      "id": "F05",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "The rotated-constraint identity test asserts endpoint membership, not source identity.",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_legacy_bridge.py",
+          "lines": [
+            85,
+            93
+          ]
+        }
+      ],
+      "observation": "The only output checks are type == 'near' and membership of object_id and target_id in the condition ID set.",
+      "undetected_regression": "Both endpoints can be the same existing ID. A changed distance threshold is also unexamined.",
+      "claim_impact": "A constraint can bind the wrong source objects while the migration test appears to preserve relations.",
+      "suggested_oracle": "Derive expected endpoints from source identity and assert the complete converted constraint, including its distance.",
+      "confidence": "Direct static assertion evidence from the delegated full-file review; no production defect or executed mutation established."
+    },
+    {
+      "id": "F06",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "The precise-target test does not bind geometry to source identity.",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_legacy_bridge.py",
+          "lines": [
+            17,
+            24
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_legacy_bridge.py",
+          "lines": [
+            51,
+            59
+          ]
+        }
+      ],
+      "observation": "Its numeric target oracle only requires 1.1234 to appear among first size components. It does not compare complete size, position, or yaw per source object.",
+      "undetected_regression": "Swapping the two complete geometry records between their object identities preserves the checked scalar membership. Changes to the unchecked coordinates and yaw also leave that assertion unchanged.",
+      "claim_impact": "Geometry identity/order corruption can evade the legacy migration oracle and compromise reference supervision.",
+      "suggested_oracle": "Use target_source_ids to compare every target's size, bottom center, and yaw with the corresponding fixture object.",
+      "confidence": "Direct static assertion evidence from the delegated full-file review; no production defect or executed mutation established."
+    },
+    {
+      "id": "F07",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "The degenerate-size preservation oracle compares against the parent after the call.",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_data_builder_fix20261006.py",
+          "lines": [
+            135,
+            144
+          ]
+        }
+      ],
+      "observation": "No pre-call snapshot is retained. Line 140 compares row.target with parent.target, while the original size is checked only in qualification_changes.value_m.",
+      "undetected_regression": "Changing both returned and parent target sizes to another degenerate size, while recording the original [1.4, 0.0029, 0.75] in the journal, satisfies these equality and journal assertions.",
+      "claim_impact": "Clamping or rewriting evidence can masquerade as qualification without mutation being detected by this case.",
+      "suggested_oracle": "Snapshot the parent before qualification, then compare both the parent and returned target against that snapshot.",
+      "confidence": "Direct static assertion evidence from the delegated full-file review; no production defect or executed mutation established."
+    },
+    {
+      "id": "F08",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "Two facing-qualification tests check remaining constraint count without checking constraint identity.",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            20,
+            23
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            79,
+            83
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            111,
+            115
+          ]
+        }
+      ],
+      "observation": "The fixture contains faces and against_wall. Both tests assert only that one constraint remains.",
+      "undetected_regression": "Retaining faces while removing against_wall satisfies these assertions, including the target-order case.",
+      "claim_impact": "Evidence qualification can remove a valid spatial relation while retaining an unsupported facing relation.",
+      "suggested_oracle": "Assert that the retained list is exactly the original against_wall constraint and that omission provenance identifies faces.",
+      "confidence": "Direct static assertion evidence from the delegated full-file review; no production defect or executed mutation established."
+    },
+    {
+      "id": "F09",
+      "classification": "concrete_test_source_finding",
+      "priority": "medium",
+      "title": "The implementation-provenance test checks a path key without checking its digest.",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_round3_data.py",
+          "lines": [
+            122,
+            134
+          ]
+        }
+      ],
+      "observation": "Line 134 only tests membership of the resolved legacy_bridge path in implementation_sha256.",
+      "undetected_regression": "That key can contain an empty, stale, or all-zero digest without failing the assertion.",
+      "claim_impact": "Presence of a provenance entry alone cannot substantiate binding research data to the actual conversion implementation.",
+      "suggested_oracle": "Compare the recorded value with an independently computed file digest when this test is executed.",
+      "confidence": "Direct static assertion evidence from the delegated full-file review; no production defect or executed mutation established."
+    }
+  ],
+  "coverage_limitations": [
+    {
+      "id": "L01",
+      "classification": "coverage_limitation",
+      "title": "Real distributed training verifies activity rather than numeric update equivalence",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+          "lines": [
+            57,
+            89
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+          "lines": [
+            96,
+            103
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_execution.py",
+          "lines": [
+            98,
+            108
+          ]
+        }
+      ],
+      "limitation": "Real Gloo cases assert update counts, positive head gradients and changed parameter-tensor counts; final rank artifacts are only checked for existence. The separate global-count test mocks collectives. Neither provides an independent rank-to-rank and single-process parameter/gradient comparison in these files.",
+      "implication": "Incorrect global normalization or rank divergence can satisfy the activity observations; this is an untested numerical-equivalence claim, not a detected training bug.",
+      "recommended_follow_up": "Compare full resulting tensors on both ranks to a deterministic single-process update on the same active labels, including uneven per-rank counts and empty accumulation windows."
+    },
+    {
+      "id": "L02",
+      "classification": "coverage_limitation",
+      "title": "Unequal-population metric pooling lacks a discriminating numerical oracle in the reviewed evaluation cases",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+          "lines": [
+            48,
+            87
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_eval_r2.py",
+          "lines": [
+            57,
+            81
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_eval_r2.py",
+          "lines": [
+            238,
+            254
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_eval_r2.py",
+          "lines": [
+            300,
+            307
+          ]
+        }
+      ],
+      "limitation": "Exact evaluation cases largely use zero/common errors or equal-sized rows; term logging uses equal per-add counts. These examples do not distinguish pooled per-object errors from a mean of row/source means when valid counts and errors both differ. The explicitly named mean-of-batches selection contract is not assumed to be a bug.",
+      "implication": "These cases alone do not establish correct aggregation under heterogeneous source supervision.",
+      "recommended_follow_up": "Use two sources/rows with unequal valid counts and unequal known errors; independently compute the intended global and per-source means and zero-label behavior. Assert selection weighting according to its documented contract."
+    },
+    {
+      "id": "L03",
+      "classification": "coverage_limitation",
+      "title": "Several real-data and provenance checks are conditional on local assets",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+          "lines": [
+            17,
+            17
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+          "lines": [
+            64,
+            72
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_structured.py",
+          "lines": [
+            62,
+            71
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_structured.py",
+          "lines": [
+            108,
+            124
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+          "lines": [
+            19,
+            20
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+          "lines": [
+            62,
+            91
+          ]
+        }
+      ],
+      "limitation": "Real-row coverage can skip without an external disk/qualifying row; LLM baseline history and train-demo checks can skip without their commit/dataset; the context-length case can skip without the cached tokenizer. RoomGenBench geometry tests require an external reference checkout. Fixtures and external assets were not opened in this audit.",
+      "implication": "Source presence/full reading does not establish that any conditional case ran or that the local assets match research data; no observed skip count is reported.",
+      "recommended_follow_up": "In a separately authorized execution audit, record asset fingerprints and explicit passed/skipped outcomes for each conditional gate."
+    },
+    {
+      "id": "L04",
+      "classification": "coverage_limitation",
+      "title": "Tiny-model, mocked-answer and synthetic-head cases do not measure research generalization or physical model quality",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_execution.py",
+          "lines": [
+            52,
+            72
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_structured.py",
+          "lines": [
+            127,
+            141
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_llm_structured.py",
+          "lines": [
+            216,
+            246
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+          "lines": [
+            238,
+            248
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_eval_r2.py",
+          "lines": [
+            57,
+            81
+          ]
+        }
+      ],
+      "limitation": "The train/eval smoke test changes provenance but retains the same geometry; structured answers are generated from labels or a relay stand-in; benchmark layouts use seeded synthetic heads; validation runs use tiny models.",
+      "implication": "These are useful plumbing/oracle checks, but furnish no held-out quality, learned-model comparison, effect size, uncertainty interval or release-readiness estimate.",
+      "recommended_follow_up": "Keep these regression tests, and substantiate research claims with separately authorized held-out experiments, dataset identity checks, repeated seeds and uncertainty appropriate to the sampling unit."
+    },
+    {
+      "id": "L05",
+      "classification": "coverage_limitation",
+      "title": "A low collapse score explicitly does not certify room containment",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_round3_eval_handoff.py",
+          "lines": [
+            93,
+            107
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_train_eval_r2.py",
+          "lines": [
+            187,
+            188
+          ]
+        }
+      ],
+      "limitation": "The test intentionally asserts two out-of-room objects with collapse_score == 0; the checked score combines overlap and central-quarter fractions.",
+      "implication": "Interpreting that scalar alone as layout physical validity would exceed the tested contract. This is an explicit metric limitation, not an implementation defect.",
+      "recommended_follow_up": "Report out-of-room/validator status alongside collapse score and test any research-facing summary that presents them together."
+    },
+    {
+      "id": "L06",
+      "classification": "coverage_limitation",
+      "title": "Rotated-box boundary discrimination is absent from the minimal-data fixture",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_minimal_data.py",
+          "lines": [
+            14,
+            16
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_minimal_data.py",
+          "lines": [
+            188,
+            196
+          ]
+        }
+      ],
+      "limitation": "The OBB boundary test uses yaw zero. It checks box extent rather than center-only containment, but does not distinguish rotated-corner containment from an axis-aligned calculation that ignores yaw.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "An anisotropic, rotated box whose containment differs when yaw is ignored."
+    },
+    {
+      "id": "L07",
+      "classification": "coverage_limitation",
+      "title": "Review manifest event counts are not distinguished from affected-row counts",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            142,
+            157
+          ]
+        }
+      ],
+      "limitation": "Each affected row contains one omitted face or one floor-conflicting object. Event counts therefore equal affected-row counts in every asserted aggregate.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "Multiple omitted constraints and multiple floor-conflicting objects in one row, producing distinct event and row totals."
+    },
+    {
+      "id": "L08",
+      "classification": "coverage_limitation",
+      "title": "Large-inventory fixture is not an identity/alignment stress case",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_multisource_data.py",
+          "lines": [
+            126,
+            141
+          ]
+        }
+      ],
+      "limitation": "The 623-object fixture repeats one geometry record and uniform masks. Assertions check condition length and slot count, without establishing per-object label/mask alignment.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "Distinct geometry and heterogeneous masks near and beyond the usual object budget, with exact source-to-target-to-batch correspondence."
+    },
+    {
+      "id": "L09",
+      "classification": "coverage_limitation",
+      "title": "House-level split exclusion is not distinguished from group-level exclusion",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_minimal_data.py",
+          "lines": [
+            202,
+            215
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_minimal_data.py",
+          "lines": [
+            235,
+            241
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_multisource_data.py",
+          "lines": [
+            144,
+            158
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_multisource_data.py",
+          "lines": [
+            182,
+            187
+          ]
+        }
+      ],
+      "limitation": "Cross-split leakage fixtures set house_id, group, and raw group to the same shared value. They do not distinguish enforcement of house identity from enforcement of group identity alone.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "Distinct groups in different splits sharing one house_id."
+    },
+    {
+      "id": "L10",
+      "classification": "coverage_limitation",
+      "title": "Named IR-duplication coverage has no duplicated IR-record fixture",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_multisource_data.py",
+          "lines": [
+            182,
+            190
+          ]
+        }
+      ],
+      "limitation": "The test name includes IR duplication, but the body exercises cross-split groups and duplicate JSON keys only; it never duplicates an IR record.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "Repeated IR identity under an updated valid source seal, so duplicate detection is exercised independently of hash rejection."
+    },
+    {
+      "id": "L11",
+      "classification": "coverage_limitation",
+      "title": "Reviewed-build expectations reuse the same qualification function",
+      "evidence": [
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            54,
+            68
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            118,
+            126
+          ]
+        },
+        {
+          "path": "fastfill/v2/tests/test_review_data.py",
+          "lines": [
+            159,
+            163
+          ]
+        }
+      ],
+      "limitation": "The build test generates expected rows by calling review_sample again. This establishes agreement with that function, not an independent row-transformation oracle. Separate unit tests do assert preservation for their fixtures.",
+      "implication": "This specific oracle/scenario is not established by the cited test cases; absence elsewhere is not claimed.",
+      "recommended_follow_up": "An independently specified expected build row containing distinguishable geometry, masks, retained constraints, and omitted constraints."
+    }
+  ],
+  "files": [
+    {
+      "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+      "lines": 103,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          103
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Real two-rank Gloo training entry point covers peer-empty, trailing-empty, empty-then-valid and all-empty objective windows, per-rank update/no-update observations and manifest counts.",
+      "coverage_limitations": "Checks changed-tensor counts and positive gradients, without comparing resulting parameter values between ranks or against an independent single-process globally normalized update.",
+      "finding_ids": [
+        "L01"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          103
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+        "lines": 103,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "1d8e8eca995806a5a997779b7a95d23bd9a9c0e6632fe59fd0caf5da2614d5ac",
+        "lines": 103,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_asset_attribute_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+      "lines": 97,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          97
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Nonempty typed attributes require evidence; claimed metadata cannot establish verification; an external resolver cannot partially commit an attribute-bearing request. Empty attributes retain capability and fixed-size checks, with explicit target-versus-actual dimensions.",
+      "coverage_limitations": "Lines 94-97 assert target-stage success and bbox metadata, but do not inspect individual checks for an erroneous attribute-verification success claim.",
+      "finding_ids": [],
+      "reviewer_final_hash_validation": {
+        "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+        "lines": 97,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          97
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+        "lines": 97,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "266589152c8c6c9ba3a468190f8c060b9b6ac218894eab6d07070ac2c667f88a",
+        "lines": 97,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_augment_repair_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+      "lines": 125,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          125
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Quarter-turn numeric precision, token-budget fallback, description/support-drop regrouping, incomplete-position exclusion and build-time group preservation.",
+      "coverage_limitations": "Finite synthetic geometries/seeds; does not quantify augmentation fallback rates or changes in source representation during real training.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          125
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+        "lines": 125,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "0f73865d3cbc9351c6430587964a142592cf3e13d5ee1296077c49290e52701c",
+        "lines": 125,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+      "lines": 324,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          110
+        ],
+        [
+          111,
+          220
+        ],
+        [
+          221,
+          324
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Validity-group migration and slot order, strict rendering, rigid-transform distance/yaw invariants, null-mask transforms, shuffle references, drops, opening preservation and flag filters.",
+      "coverage_limitations": "Same-category shuffle mask identity is underasserted; real-row case can skip when its external disk or qualifying row is absent. Drop-probability assertions use endpoints 0 and 1.",
+      "finding_ids": [
+        "F02",
+        "L03"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          324
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+        "lines": 324,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "b58d4d6d5579be3e370fd3c7ca72503f9c74a5f92aa2b7d1da2de07370c2a0af",
+        "lines": 324,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_data_builder_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+      "lines": 261,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          140
+        ],
+        [
+          141,
+          261
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Target-ordered group migration; yaw validity and symmetry policy; grouping with unavailable size supervision; description provenance; 3 mm size threshold; height-conflict diagnostics; benchmark holdout movement, journals, manifests, CLI forwarding, and builder/verifier composition.",
+      "coverage_limitations": "Several geometry fixtures and verifier implementations are imported from outside this assignment. The axis-policy assertions at lines 57-70 check validity and symmetry order, not the resulting numeric yaw.",
+      "finding_ids": [
+        "F07"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+        "lines": 261,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          261
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+        "lines": 261,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "8afaa459a33a47aedbb6b8fe475c01a67b118139b755f311b2aa1f68b24f6ed2",
+        "lines": 261,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+      "lines": 171,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          90
+        ],
+        [
+          91,
+          171
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Exact perfect-label errors/counts, fixed-ID 10 cm error, yaw symmetry, synthetic collapse counts, leave-one-out/fit-file baselines, per-source eligibility and direct-request fields.",
+      "coverage_limitations": "Hungarian shifted-error oracle only imposes an upper bound. Aggregation examples use zero or common errors, limiting unequal-denominator evidence; fixture contents were not read.",
+      "finding_ids": [
+        "F04",
+        "L02"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          171
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+        "lines": 171,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "115ee5be2f6af24d6a5d90dbce83b9c67b7f3da35e9b41423fc2a9e13315f31d",
+        "lines": 171,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_execution.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+      "lines": 117,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          117
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Output/split guards, regularizer presence, tiny train-checkpoint-evaluation flow, failed-request denominators, asset-stage evidence, mocked DDP normalization and schema-vs-geometry failures.",
+      "coverage_limitations": "Combined-loss backward does not isolate each regularizer's gradient. End-to-end evaluation reuses the training geometry with altered provenance and is a wiring/overfit smoke case.",
+      "finding_ids": [
+        "F01",
+        "L01",
+        "L04"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          117
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+        "lines": 117,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "65f46de0054eecda1ae652ee079e00959f93a5222214b8dd09b2642ff41cce3f",
+        "lines": 117,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_integrator_fix20261006.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+      "lines": 146,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          146
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Dataset-verifier group/count policies, partial-position rejection, legacy-group migration, axis-policy CLI defaults, config parsing and cohort compatibility.",
+      "coverage_limitations": "Uses miniature builds and imported mutation helpers. The source-description test simultaneously removes groups and changes descriptions, then asserts only the group error; independent description rejection is not established by that case.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          146
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+        "lines": 146,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "ff4372dddd64fa809ca1bef06f5089b992f405beee2f189d5a9b5a88449ebf4d",
+        "lines": 146,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_bridge.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+      "lines": 97,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          97
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Migration readability and batching, lineage and split preservation, geometry-independent conditions, tilted size/yaw masking, preservation of unsupported-object height, and rotated legacy constraint conversion.",
+      "coverage_limitations": "Batching checks two occupied slots without comparing batched geometry or masks to source identities.",
+      "finding_ids": [
+        "F05",
+        "F06"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+        "lines": 97,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          97
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+        "lines": 97,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "ebb6d95629c0e8acde1efb7233e18fa5e221c3e9f5adac18adde1c1698b2b1e3",
+        "lines": 97,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_legacy_build.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+      "lines": 238,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          130
+        ],
+        [
+          131,
+          238
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Frozen-input and code hash checks, exact selected UID/split assignments, flagged-training policy, input preservation, output protection, missing/repeated UID rejection, concurrent-change detection, unreliable-label rejection, required evidence, and CLI routing.",
+      "coverage_limitations": "The release fixture at lines 31-64 contains only SpatialLM, with a distinct house/group per scene. Its saved messages and code hashes are generated from current production helpers; this checks internal consistency rather than agreement with an independently frozen historical geometry oracle.",
+      "finding_ids": [],
+      "reviewer_final_hash_validation": {
+        "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+        "lines": 238,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          238
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+        "lines": 238,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "39ad57a3a887ccf9cf4cb4967727a4ac3b66ef5ea9287add9e9352685987d451",
+        "lines": 238,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_llm_structured.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+      "lines": 246,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          125
+        ],
+        [
+          126,
+          246
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Protocol-only prompts, train-demo provenance gate, answer/scorer conversion, repair retention/retries, floor/ceiling/support diagnostics and deterministic mocked token usage.",
+      "coverage_limitations": "LLM answers/relay are injected; no model-quality or live API result. Demo provenance and historical-byte checks depend on local dataset/history and can skip.",
+      "finding_ids": [
+        "L03",
+        "L04"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          246
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+        "lines": 246,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "936f6f72291d25b32ce25120aa752695a8d57a6815d72bf7d01251a9bf96547e",
+        "lines": 246,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_minimal_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+      "lines": 241,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          130
+        ],
+        [
+          131,
+          241
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Explicit frame translation and target size; XY/XYZ conditioning and batch height scale; removal of target-derived request fields; geometric yaw semantics; object budgets; source/parent consistency; invalid geometry; ceiling qualification; split preservation and hash rejection.",
+      "coverage_limitations": "L06: The OBB boundary test uses yaw zero. It checks box extent rather than center-only containment, but does not distinguish rotated-corner containment from an axis-aligned calculation that ignores yaw. L09: Cross-split leakage fixtures set house_id, group, and raw group to the same shared value. They do not distinguish enforcement of house identity from enforcement of group identity alone.",
+      "finding_ids": [
+        "L06",
+        "L09"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+        "lines": 241,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          241
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+        "lines": 241,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "675acab4e21d3b4597360c3ba31ae520caa4fbae7a95be1c3ff1b7421dac7236",
+        "lines": 241,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_multisource_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+      "lines": 219,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          120
+        ],
+        [
+          121,
+          219
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Source-specific partial supervision, reference extents, negative/null coordinates, size masking without geometry repair, Scan2CAD position quarantine, MultiScan vertical reframing, source geometry mismatch rejection, test-only source roles, large inventories, reproducible output bytes, source seals, and float32 range constraints.",
+      "coverage_limitations": "L08: The 623-object fixture repeats one geometry record and uniform masks. Assertions check condition length and slot count, without establishing per-object label/mask alignment. L09: Cross-split leakage fixtures set house_id, group, and raw group to the same shared value. They do not distinguish enforcement of house identity from enforcement of group identity alone. L10: The test name includes IR duplication, but the body exercises cross-split groups and duplicate JSON keys only; it never duplicates an IR record.",
+      "finding_ids": [
+        "L08",
+        "L09",
+        "L10"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+        "lines": 219,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          219
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+        "lines": 219,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "14fb10f3750f6479d18ce2abcaaea14628ce08cc43f07a91ab078f8916ddd76e",
+        "lines": 219,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_reference_extent.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+      "lines": 157,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          157
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Reference-vs-measured room semantics, unknown diagnostics, request immutability, raw negative-coordinate CLI export, handoff metadata and early incompatible-flag rejection.",
+      "coverage_limitations": "CLI asserts coordinate signs and GLB/SVG existence; does not independently inspect exported mesh transforms or require exact numeric raw output.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          157
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+        "lines": 157,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "83186d292c2f568e622acd75ecb2d5a1b6ec9628ed28fac6d6c707c364d14eeb",
+        "lines": 157,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_review_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+      "lines": 260,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          140
+        ],
+        [
+          141,
+          260
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Facing-evidence qualification, preservation of explicit user constraints, malformed-parent rejection, floor diagnostics and tolerance, label preservation, manifest aggregates, source immutability, atomic publication, and rejection of modified outputs even after resealing hashes.",
+      "coverage_limitations": "L07: Each affected row contains one omitted face or one floor-conflicting object. Event counts therefore equal affected-row counts in every asserted aggregate. L11: The build test generates expected rows by calling review_sample again. This establishes agreement with that function, not an independent row-transformation oracle. Separate unit tests do assert preservation for their fixtures.",
+      "finding_ids": [
+        "F08",
+        "L07",
+        "L11"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+        "lines": 260,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          260
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+        "lines": 260,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "b74926553c2c6777652fb331cea228461c4d507a66e233615fb4c0cc6baa0522",
+        "lines": 260,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_round10_wall_decode.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+      "lines": 140,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          140
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Oracle-grid wall height/axis equivalence, turned-footprint overlap, inner-shelf height, support inference, wall-gap diagnostics, structured-answer checks and openings augmentation.",
+      "coverage_limitations": "Inner-shelf case checks position/height without an actual shelf-surface/contact witness; fixed square-room oracle heads do not establish learned-scene physical validity.",
+      "finding_ids": [
+        "L04"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          140
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+        "lines": 140,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "f7df05ecef2e0ceabf561cbc8527a6ce18ba4de3f32bfa67edc9cb5ad45300e8",
+        "lines": 140,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_data.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+      "lines": 163,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          100
+        ],
+        [
+          101,
+          163
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "Exchangeable subsets under constraints and support relationships, complete-position requirements, symmetric referenced groups, rejection of dropped groups, target-independent room height, exact height-conflict flags, and qualification-driven flag removal.",
+      "coverage_limitations": "Lines 88-102 check condition independence and height diagnostics, but the final 'labels untouched' assertion is only truthiness of _geometry(tall); there is no equality comparison against original geometry or masks.",
+      "finding_ids": [
+        "F09"
+      ],
+      "reviewer_final_hash_validation": {
+        "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+        "lines": 163,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          163
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+        "lines": 163,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "ebd6806eb4f0c400d51efc70aaf81f47992bd0ad2c2e6dd309cf60a4fc8192c5",
+        "lines": 163,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_round3_eval_handoff.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+      "lines": 140,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          140
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Exchange-invariant matching/collapse, matched-label population parity, masked-source zero distribution penalty, out-of-room fraction, per-target axis swap flags and unique door nodes.",
+      "coverage_limitations": "Out-of-room objects explicitly leave collapse_score at zero; that scalar is not a physical-validity certificate. Door check verifies node names and two x means, not all mesh dimensions/orientations.",
+      "finding_ids": [
+        "L05"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          140
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+        "lines": 140,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "411d49d5ef3eff075bd7957d7ba4f8150fdb4b99e05988ebfb98bbbfd37bd5df",
+        "lines": 140,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_round4_spread.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+      "lines": 135,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          135
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Declared/fixed-parent support, floor/fixed-z behavior, fixed obstacles, parent-point fallback, crowded support and support-input rejection.",
+      "coverage_limitations": "Analytic cases use axis-aligned parents and small support graphs; no independent rotated irregular support-surface containment matrix in this file.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          135
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+        "lines": 135,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "330a6a02fddca63a43d44be220c698554ba05c0b51b31f6c17a7c659f63a5050",
+        "lines": 135,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+      "lines": 285,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          145
+        ],
+        [
+          146,
+          285
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Support declarations/cycles, benchmark object/parent mapping, context gate, CLI/request freshness, wall projection, height obstacles and five-room synthetic-head handoff.",
+      "coverage_limitations": "Benchmark on-object assertion admits any horizontal placement at accepted z. Predictions are seeded synthetic heads; only bathroom is assembled and external scene assets/tokenizer are prerequisites.",
+      "finding_ids": [
+        "F03",
+        "L03",
+        "L04"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          285
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+        "lines": 285,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "b022f1f860561fbb1d4f3b79f058196830f73b33679b544e1a73ededce7ba23c",
+        "lines": 285,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_preflight.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+      "lines": 15,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          15
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Unknown validation-level rejection before sample reading, with no output directory.",
+      "coverage_limitations": "Uses supplied predictions and a read_samples sentinel; does not independently exercise checkpoint loading order or a model-loader sentinel.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          15
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+        "lines": 15,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "83d709adfaf41ab285cccf9a85175d32193f16dd32031e8b16eeb1981b4fd451",
+        "lines": 15,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_runtime_support_contract.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+      "lines": 171,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          90
+        ],
+        [
+          91,
+          171
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Hard/soft effective supports, actual-vs-target heights, conflict/cycle pre-resolution rejection, descendant repair, malformed capability metadata, complete wall-edge and between relations.",
+      "coverage_limitations": "Repair checks the child's final x and global ok, without independently verifying the parent-child displacement vector or every descendant's geometry.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          171
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+        "lines": 171,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "691b354b37d8107d55220e19e546788a470434f5ed7a6e4fc824db96769f6e69",
+        "lines": 171,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_text_record_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+      "lines": 88,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          88
+        ]
+      ],
+      "reviewer": "delegated:data:01a13440-b5cf-7b32-9dcb-8898510dd109",
+      "coverage_observed": "A later overlong condition must fail before model loading; source changes during reading or loss evaluation prevent publication; metadata precedes reading and records the initial data fingerprint.",
+      "coverage_limitations": "The context-overflow fixture at lines 29-40 enlarges a condition description only. It does not distinguish prompt-only budgeting from budgeting that includes serialized target geometry. No numeric loss or prediction-quality assertions occur here.",
+      "finding_ids": [],
+      "reviewer_final_hash_validation": {
+        "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+        "lines": 88,
+        "status": "match"
+      },
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          88
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+        "lines": 88,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "931dc5804053cf087de362bc67ac7fb413b4fedce8b105b6aa6dc0d46e39451d",
+        "lines": 88,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_train_eval_r2.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+      "lines": 315,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          110
+        ],
+        [
+          111,
+          215
+        ],
+        [
+          216,
+          315
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Run/checkpoint provenance binding, minimal projection and selection bookkeeping, hash rejection, collapse parity, box equivalence, validator status counts and generic term logging.",
+      "coverage_limitations": "Tiny/equal-count validation and internally compared metrics do not independently establish unequal-denominator aggregation or learned-model quality; projection exclusions are explicitly reported.",
+      "finding_ids": [
+        "L02",
+        "L04"
+      ],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          315
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+        "lines": 315,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "014e7ac8a4f722c93c2ab04b6132e342426b682d985d95f719d1d75209f9bad7",
+        "lines": 315,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    },
+    {
+      "path": "fastfill/v2/tests/test_validation_floor_front_review.py",
+      "scope": "primary",
+      "role": "test",
+      "inventory_sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+      "lines": 104,
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          104
+        ]
+      ],
+      "reviewer": "primary",
+      "coverage_observed": "Canonical support bbox tolerances, new-vs-existing floor rules, unknown floors, invalid fixed-surface no-commit and horizontal semantic-front evidence.",
+      "coverage_limitations": "Finite axis-aligned canonical cases; no broad arbitrary-yaw transformed-surface or mesh-contact guarantee from these assertions.",
+      "finding_ids": [],
+      "read_scope": {
+        "kind": "whole_file",
+        "inclusive_lines": [
+          1,
+          104
+        ],
+        "includes": "Every source line: imports, helpers/fixtures, setup, assertions, skip gates, comments, blank lines and entry points.",
+        "excluded": "Out-of-batch transitive imports, production implementation, external assets and all non-batch test sources."
+      },
+      "initial_hash_validation": {
+        "sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+        "lines": 104,
+        "matches_ledger": true,
+        "matches_inventory": true
+      },
+      "final_hash_validation": {
+        "status": "match",
+        "sha256": "0165b259244617fb307cc6333e6b5934699b99c5e7b8f96158d6758dadfc4fb3",
+        "lines": 104,
+        "matches_ledger_sha256_at_selection": true,
+        "matches_inventory_sha256": true,
+        "matches_initial_read_sha256": true,
+        "validated_at_utc": "2026-10-13T08:00:20.753454+00:00"
+      }
+    }
+  ],
+  "final_hash_validation": {
+    "status": "all_match",
+    "validated_at_utc": "2026-10-13T08:00:20.753454+00:00",
+    "matched_files": 25,
+    "matched_lines": 4358,
+    "mismatched_files": [],
+    "baseline": "Pinned ledger SHA256 and inventory_sha256 captured before review",
+    "ledger_unchanged_since_selection": true
+  }
+}

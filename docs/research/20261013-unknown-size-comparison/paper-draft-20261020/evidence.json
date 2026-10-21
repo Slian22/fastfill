@@ -1,0 +1,296 @@
+{
+  "created": "2026-10-20",
+  "scope": "Retrospective bilingual evaluation section; no new experiments or preregistration.",
+  "stages": [
+    {
+      "label": "placer, no escalation",
+      "scope": "test",
+      "subset": "all",
+      "system": "system",
+      "stage": "raw",
+      "requests": "8647",
+      "complete_rooms": "8643",
+      "complete_rate": "0.999537411819128",
+      "checker_rate": "0.4433907713657916",
+      "strict_rate": "0.21614432751243207",
+      "noreq_rate": "0.5331328784549555",
+      "oor": "0.25595189922109307",
+      "size_log_mae": "0.28241882345596314",
+      "size_iou": "0.5582651519205971",
+      "bias_fp": "0.016102577526563504"
+    },
+    {
+      "label": "placer, no escalation",
+      "scope": "test",
+      "subset": "all",
+      "system": "system",
+      "stage": "s1",
+      "requests": "8647",
+      "complete_rooms": "8643",
+      "complete_rate": "0.999537411819128",
+      "checker_rate": "0.7422227362090899",
+      "strict_rate": "0.2913149069041286",
+      "noreq_rate": "0.6372152191511506",
+      "oor": "0.1526373948339497",
+      "size_log_mae": "0.28241882345596314",
+      "size_iou": "0.5582651519205971",
+      "bias_fp": "0.016102577526563504"
+    },
+    {
+      "label": "system with free O2 escalation",
+      "scope": "test",
+      "subset": "all",
+      "system": "system",
+      "stage": "system",
+      "requests": "8647",
+      "complete_rooms": "8647",
+      "complete_rate": "1.0",
+      "checker_rate": "0.890135307042905",
+      "strict_rate": "0.3434717242974442",
+      "noreq_rate": "0.6668208627269573",
+      "oor": "0.10807408831966488",
+      "size_log_mae": "0.28244658078965523",
+      "size_iou": "0.5582263425816721",
+      "bias_fp": "0.016064899577243708"
+    },
+    {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "system": "system",
+      "stage": "system",
+      "requests": "8647",
+      "complete_rooms": "8647",
+      "complete_rate": "1.0",
+      "checker_rate": "0.8954550711229328",
+      "strict_rate": "0.4941598242164913",
+      "noreq_rate": "0.718399444894183",
+      "oor": "0.09963335578164476",
+      "size_log_mae": "0.28244658078965523",
+      "size_iou": "0.5582263425816721",
+      "bias_fp": "0.016064899577243708"
+    }
+  ],
+  "contrasts": {
+    "complete": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "complete",
+      "estimate": "0.0",
+      "ci_low": "0.0",
+      "ci_high": "0.0",
+      "p": "1.0"
+    },
+    "checker": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "checker",
+      "estimate": "0.0053197640800277555",
+      "ci_low": "0.0008985094089935496",
+      "ci_high": "0.009844061855296118",
+      "p": "0.021"
+    },
+    "strict": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "strict",
+      "estimate": "0.15068809991904708",
+      "ci_low": "0.14195736406308895",
+      "ci_high": "0.15948989377781947",
+      "p": "0.0"
+    },
+    "noreq": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "noreq",
+      "estimate": "0.05157858216722563",
+      "ci_low": "0.044134056844249335",
+      "ci_high": "0.05899541151137843",
+      "p": "0.0"
+    },
+    "oor": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "oor",
+      "estimate": "-0.008440732538020116",
+      "ci_low": "-0.011926501627547343",
+      "ci_high": "-0.004885838466358198",
+      "p": "0.0"
+    },
+    "size_log_mae": {
+      "label": "system with free O2 escalation, escalation on checker or strict-admission failure",
+      "scope": "test",
+      "subset": "all",
+      "comparison": "system - checker-trigger system",
+      "rooms": "8647",
+      "components": "3056",
+      "field": "size_log_mae",
+      "estimate": "0.0",
+      "ci_low": "0.0",
+      "ci_high": "0.0",
+      "p": "1.0"
+    }
+  },
+  "visual": {
+    "A": {
+      "n": 1005,
+      "fid": 22.88270225756594,
+      "kid": {
+        "kid": 0.000678292332741375,
+        "se": 0.00014036901873949663
+      },
+      "mesh": {
+        "ci95": [
+          0.5335826931823198,
+          0.6132409846761884
+        ],
+        "estimate": 0.5751243781094527,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    },
+    "S": {
+      "n": 1005,
+      "fid": 22.785702272544654,
+      "kid": {
+        "kid": 0.0006997950712891966,
+        "se": 0.00014202303617693655
+      },
+      "mesh": {
+        "ci95": [
+          0.7429861663708147,
+          0.8061772093720975
+        ],
+        "estimate": 0.7751243781094528,
+        "n": 1005,
+        "p": 0.0,
+        "warnings": []
+      }
+    }
+  },
+  "macros": {
+    "NumRooms": "8,647",
+    "NumClusters": "3,056",
+    "Escalated": "6,155",
+    "EscalatedPct": "71.18",
+    "OtwoRounds": "11,578",
+    "SizeError": "0.2824",
+    "StrictGain": "15.07",
+    "StrictLo": "14.20",
+    "StrictHi": "15.95",
+    "CheckerGain": "0.53",
+    "CheckerLo": "0.09",
+    "CheckerHi": "0.98"
+  },
+  "source_files": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/levels.csv",
+      "bytes": 16415,
+      "sha256": "29fe05444368b3bea08334cd9bfbf62ec3d1ef6315d18aea363546ed5bbce8a3"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/contrasts.csv",
+      "bytes": 79624,
+      "sha256": "3952acaf540c563937070d7dc44eb77416d288ca85815d8c3cc99d74f0f1fe7e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/report.md",
+      "bytes": 10155,
+      "sha256": "164aacff2984c3b71f7f643a1734c87cd5b2efd0d86aa260b47dbc61d7c84c30"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/results.json",
+      "bytes": 183939,
+      "sha256": "b6438e44fb7b5d74539af3a5d7c9d90c2bbae07fccb1c3937eef3220f0c5337b"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/LOCAL_VERIFICATION.json",
+      "bytes": 1112,
+      "sha256": "f43d2d0bcf618ac226eb739602278140955fcf6995a0949e69fcc711d74f326a"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/levels.csv",
+      "bytes": 14545,
+      "sha256": "84f37dc7b2b3035018429a6789d18face8997dca21ef260517963a2b5df96a40"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/fid-summary-A-S.json",
+      "bytes": 56144,
+      "sha256": "7bde8b4ac22dba0c903e0090f05c38c0ebab9f1be689dfb7964ec85515b56626"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-A.json",
+      "bytes": 14415,
+      "sha256": "3ef499b63ed97e43f50ead05f67d12c25bdd1131f6a37416891600b7a78067b1"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/mesh-summary-S.json",
+      "bytes": 14385,
+      "sha256": "d841d32e4dcea5f344a40ffa301370f4c00abff26e369f9da990c0d899be7054"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/visual-024/judge-A-S-aggregate.csv",
+      "bytes": 1985,
+      "sha256": "63dc01ba7f9d671972e7f5e1cf1f4244e0cea58b2e51d2a5e852d37c2851d3e5"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/protocol.md",
+      "bytes": 5797,
+      "sha256": "f2fc11ec56d927f551a438fd14e83ff4ca64e5e4a0e60d4b5e47968e7853706e"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/amendment-017-metric-roles-roomgenbench-20261014.md",
+      "bytes": 3781,
+      "sha256": "692a75b66afaa705d20a42e7cb4caf691ad3b96d3aaf3aa2aaf93fbb3cec8dce"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/amendment-019-mesh-collisions-20261014.md",
+      "bytes": 3848,
+      "sha256": "582ca63dd4fbf9d9616908f019c51a9db54e178e46dd82e0248f8da864112f52"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/amendment-024-visual-metrics-delivered-system-20261015.md",
+      "bytes": 2448,
+      "sha256": "ab1b584a8783404d5d3618aeda5be9748883139b9dd9f6c88bae7b85d7bb005f"
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/amendment-027-strict-trigger-full-test-20261015.md",
+      "bytes": 1994,
+      "sha256": "fd9b2ffba44903bd15cb59adce2bf7e4a4b682dc3c37fa43a548df0d8e7a6481"
+    },
+    {
+      "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/visual-024/S/source/summary.json",
+      "bytes": 592,
+      "sha256": "b047ad87a8be750b3ef861d51c34b1239ac0996e641cb244ebd47644dc44f77b"
+    }
+  ],
+  "checks": [
+    "All full-test rows have N=8647",
+    "Complete counts are 8643,8643,8647,8647",
+    "Stored paired checker/strict estimates equal stage differences",
+    "Both visual rows have N=1005",
+    "A/S mesh missing-room UID sets match",
+    "Raw/S1/new rows from a027; old system from frozen checker-only run"
+  ]
+}

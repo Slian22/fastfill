@@ -1,0 +1,6 @@
+\contentsline {paragraph}{Metric boundaries / 指标边界。}{1}{paragraph*.2}%
+\contentsline {paragraph}{Evidence status / 证据状态。}{1}{paragraph*.3}%
+\contentsline {subsection}{\numberline {0.1}Historical v2: actual N=300 reports / 旧v2实测：同一300请求，原始报告}{3}{subsection.0.1}%
+\contentsline {subsection}{\numberline {0.2}Historical v2 minimal test, N=4455 / 旧v2 minimal测试：4455请求，含朴素基线}{3}{subsection.0.2}%
+\contentsline {subsection}{\numberline {0.3}V1.1 downstream examples, before and after clean DPO / V1.1 下游5房间：原版与clean final}{5}{subsection.0.3}%
+\contentsline {subsection}{\numberline {0.4}RoomGenBench asset benchmark (2) / RoomGenBench 历史资产比较（2）}{6}{subsection.0.4}%

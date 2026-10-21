@@ -1,0 +1,61 @@
+{
+  "commit": "26b95cfa0d8747078e9e43b42e20952709e561b8",
+  "files": [
+    {
+      "upstream_path": "skills/experiment-audit/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/experiment-audit/SKILL.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/experiment-audit/SKILL.md",
+      "sha256": "dd5c2405aaae472cf2020f16fbd1b02b431874d8353a65a8aa4c102a65f5aef2",
+      "lines": 311
+    },
+    {
+      "upstream_path": "skills/novelty-check/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/novelty-check/SKILL.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/novelty-check/SKILL.md",
+      "sha256": "7738e665e8a7ad358e016ea3fcfa0f994e1f064f3626fe2fa454217a2750f3a0",
+      "lines": 142
+    },
+    {
+      "upstream_path": "skills/research-review/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/research-review/SKILL.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/research-review/SKILL.md",
+      "sha256": "85c75d2bef1f08e2e7d2e6a7f6bc0ae42faecf942d5314d25f17376e1292597f",
+      "lines": 223
+    },
+    {
+      "upstream_path": "skills/result-to-claim/SKILL.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/result-to-claim/SKILL.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/result-to-claim/SKILL.md",
+      "sha256": "ba53865e333fb05271ad116b94879d567d1e681f592dec2a7e8ae7eac6ef13d6",
+      "lines": 311
+    },
+    {
+      "upstream_path": "skills/shared-references/experiment-integrity.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/experiment-integrity.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/shared-references/experiment-integrity.md",
+      "sha256": "22150fbdc5867e7790c88f968bccb367079c2db4c190ddce980709aea7e76f60",
+      "lines": 49
+    },
+    {
+      "upstream_path": "skills/shared-references/reviewer-independence.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/reviewer-independence.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/shared-references/reviewer-independence.md",
+      "sha256": "fbbfcb6e7ff53010b596e8e01ce456d1906734f5bd198745f76ccd62787af3e3",
+      "lines": 79
+    },
+    {
+      "upstream_path": "skills/shared-references/review-scope-limits.md",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/review-scope-limits.md",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/skills/shared-references/review-scope-limits.md",
+      "sha256": "e383dbaa57aed6f8fd2c2bb6bcaefc6806648126d11b21cb6c39eeeec76100f6",
+      "lines": 81
+    },
+    {
+      "upstream_path": "tools/evidence_check.py",
+      "local_path": "docs/research/20261013-unknown-size-comparison/evidence/aris-reference/tools/evidence_check.py",
+      "url": "https://raw.githubusercontent.com/wanshuiyin/auto-claude-code-research-in-sleep/26b95cfa0d8747078e9e43b42e20952709e561b8/tools/evidence_check.py",
+      "sha256": "2edbd901d760d22e7e43a14e8e88ab0e089303f489055cd9b5e9d1f4dce50382",
+      "lines": 212
+    }
+  ]
+}

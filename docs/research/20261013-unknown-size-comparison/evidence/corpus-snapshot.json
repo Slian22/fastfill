@@ -1,0 +1,18 @@
+{
+  "snapshot": "corpus-ca0ffbbeeb82",
+  "archive": "/tmp/corpus-ca0ffbbeeb82.tar.gz",
+  "archive_sha256": "dbbc5b7a57b0f1d7ead7a43c9c90319cc931f0205ee5f277ac5edab5c08cc240",
+  "code_sha256": {
+    "__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+    "anchors.py": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+    "validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+    "build.py": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+    "split.py": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+    "requirements.txt": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+    "comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+    "comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+    "comparison/data.py": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+    "comparison/corpus.py": "9429d305250e17c195c46f8faef1fa10027ce9bef02d419f3cbd11820a94daa6"
+  }
+}

@@ -1,0 +1,198 @@
+% Standalone bilingual audit. Compile with XeLaTeX (twice).
+% All report text and tables are embedded; no external .tex/.bib inputs.
+\documentclass[10pt,a4paper,fontset=fandol]{ctexart}
+\usepackage[margin=18mm]{geometry}
+\usepackage{booktabs,longtable,array,amsmath,enumitem,xurl}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.13}
+\setlist{nosep,leftmargin=*}
+\newcommand{\src}[1]{\par{\footnotesize\textbf{Source / 来源:} #1}\par}
+\begin{document}
+\begin{center}
+{\Large\bfseries FastFill: Complete Comparison Audit}\\[4pt]
+{\large 全部历史对比结果审计（英文＋中文）}\\[4pt]
+20 October 2026
+\end{center}
+\section*{Scope and reading guide / 审计范围与阅读说明}
+This report inventories the locally available FastFill comparison records in the repository and mounted hard disk. It preserves unfavorable results, earlier variants and incomplete runs. It is an audit of saved outputs and their provenance, not a new inference run or an independent recomputation of every geometric metric. Different cohorts, tasks, model versions and denominators are reported separately. The complete CSV/JSON exports retain all strata and sensitivity analyses; the tables below show the overall comparisons and diagnostic summaries.
+
+本报告清点仓库与已挂载硬盘中可访问的 FastFill 历史对比，保留不利结果、旧版本和未完成记录。本次核对的是已保存输出与来源，没有重新生成布局，也没有重新计算全部几何指标。不同队列、任务、模型版本及统计分母分别报告。完整 CSV／JSON 导出保留所有分层及敏感性分析；下表汇总各类整体对照与诊断。
+
+The current experiment archive contains 34 result families plus the completed a027 evidence. All 87 CSV files (61,295 logical data rows) were exported without changes and independently checked against their sources. A further 35,465 rate/count consistency assertions across 18 applicable CSVs passed. Historical repository and hard-disk evidence is recorded separately; duplicate copies and report revisions are not independent replications.
+
+当前实验存档包含 34 类结果及已完成的 a027 证据。87 份 CSV、61,295 行数据已无损导出，并逐行对回原文件；18 份适用 CSV 的 35,465 项比例／计数一致性校验通过。较早的仓库和硬盘结果另行登记；副本与报告修订不能当作独立重复实验。
+
+Displayed decimals are rounded to five significant digits; the exports preserve full recorded precision. Rates remain on the scale stated in each table; decimal rates such as 0.85 mean 85\%.
+
+表中小数显示为五位有效数字；全量导出保留原始精度。比例按各表标注的尺度展示，例如 0.85 表示 85\%。
+
+\paragraph{Metric boundaries / 指标边界。}
+For the current unknown-size study, GSR and strict-admission rates use all requests as the denominator. OOR is object-overlap area divided by total footprint area, averaged over complete rooms; it is not an out-of-room rate. Size log-MAE is conditional on complete outputs. Historical v2 ``known-check clean'' excludes unknown mesh/physics checks and must not be relabeled as current strict admission. GPT-judge scores are automated judgments, not human usability scores. FID/KID, asset-generation scores and layout metrics belong to different protocols.
+
+当前未知尺寸实验中，GSR 与严格准入率以全部请求为分母；OOR 是物体交叠面积与总占地面积之比，对完整房间取均值，不是越界率。尺寸 log-MAE 也以完整输出为条件。历史 v2 的“已知检查无失败”不包括未知的网格／物理检查，不能改称当前严格准入。GPT 裁判分数不是人工可用性；FID／KID、资产生成及布局指标采用不同协议。
+
+\paragraph{Evidence status / 证据状态。}
+Measured LLM-agent comparisons exist, including early v2 tests and the later fixed-size and self-size cohorts. The OptiScene014 reproduction was launched, but no completed comparable layout score was found in the local records or searched hard-disk archives. Training-resume toy tests and request manifests are not layout results. ATISS, DiffuScene and LayoutGPT are literature references in these records. RoomGenBench contains separate historical asset-generation scores for seven methods plus a reference, evaluated on 184 assets; they do not establish FastFill layout superiority over those methods. These are statements about the available archive, not the live status of a remote server.
+
+确实存在 LLM 代理实测对照，包括早期 v2、后期固定尺寸及自选尺寸队列。OptiScene014 已有复现启动记录，但本地及已检查硬盘归档中未发现完成的可比布局评分；训练恢复单测和请求清单不是布局成绩。ATISS、DiffuScene、LayoutGPT 在这些记录中属于参考文献。RoomGenBench 还保存 184 个资产上七种方法加参考资产的独立评分，不能用于声称 FastFill 布局胜过这些方法。本结论仅针对可访问存档，不代表远程服务器实时状态。
+\tableofcontents
+\clearpage
+
+\subsection{Historical v2: actual N=300 reports / 旧v2实测：同一300请求，原始报告}
+Same request hash e02da65e...; reference geometry conditional on valid labels and completed layouts, so GPT prompt has 293 layouts vs 300 for other rows. Clean denominator here is all 300 requests. All old strict rates are 0 because unchecked mesh/\allowbreak{}physics/\allowbreak{}solver hard checks count unknown as failure. This is not modern admission. FastFill checkpoint-\allowbreak{}selection cohorts include these 300 scenes; do not call this held-\allowbreak{}out FastFill test. Original OOR is a different proxy from modern soft OOR.
+原始实测同一300请求（SHA e02da65e…）。GPT prompt只完成293间，其余完成300间；几何误差仅对完成且标签有效对象统计，故完成分母不同。clean\_\allowbreak{}rate\_\allowbreak{}all统一除以300。旧strict把mesh/\allowbreak{}physics/\allowbreak{}solver未检查的unknown视为失败，因此全为0，不能等同新027严格准入；旧OOR代理也不同于新版soft OOR。这300场景参与FastFill选模，不能称FastFill独立留出测试。
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}@{}}
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Complete /\allowbreak{} 完整 & Clean N /\allowbreak{} 已知无失败数 & Clean/\allowbreak{}all /\allowbreak{} 全请求无失败 & Old strict /\allowbreak{} 旧严格检查 & Old OOR /\allowbreak{} 旧重叠代理 \\
+\midrule\endfirsthead
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Complete /\allowbreak{} 完整 & Clean N /\allowbreak{} 已知无失败数 & Clean/\allowbreak{}all /\allowbreak{} 全请求无失败 & Old strict /\allowbreak{} 旧严格检查 & Old OOR /\allowbreak{} 旧重叠代理 \\
+\midrule\endhead
+\bottomrule\endfoot
+Qwen3-\allowbreak{}8B FastFill yawcls008 spread & 300 & 300 & 145 & 0.48333 & 0 & 0 \\
+Qwen3-\allowbreak{}8B FastFill yawcls008 argmax & 300 & 300 & 4 & 0.013333 & 0 & 0 \\
+Qwen3-\allowbreak{}8B FastFill yawcls05 spread & 300 & 300 & 137 & 0.45667 & 0 & 0 \\
+Qwen3-\allowbreak{}8B FastFill yawcls05 argmax & 300 & 300 & 8 & 0.026667 & 0 & 0 \\
+gpt-\allowbreak{}6.1-\allowbreak{}sol medium prompt & 300 & 293 & 252 & 0.84 & 0 & 0 \\
+gpt-\allowbreak{}6.1-\allowbreak{}sol medium harness & 300 & 300 & 284 & 0.94667 & 0 & 0 \\
+\end{longtable}
+\endgroup
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.1200\linewidth}>{\raggedright\arraybackslash}p{0.1200\linewidth}>{\raggedright\arraybackslash}p{0.1200\linewidth}>{\raggedright\arraybackslash}p{0.1200\linewidth}@{}}
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Position (m) /\allowbreak{} 位置误差 & Size log error /\allowbreak{} 尺寸误差 & Yaw (rad) /\allowbreak{} 朝向误差 & BEV IoU /\allowbreak{} 平面IoU \\
+\midrule\endfirsthead
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Position (m) /\allowbreak{} 位置误差 & Size log error /\allowbreak{} 尺寸误差 & Yaw (rad) /\allowbreak{} 朝向误差 & BEV IoU /\allowbreak{} 平面IoU \\
+\midrule\endhead
+\bottomrule\endfoot
+Qwen3-\allowbreak{}8B FastFill yawcls008 spread & 300 & 2.6871 & 0.24649 & 0.68558 & 0.04842 \\
+Qwen3-\allowbreak{}8B FastFill yawcls008 argmax & 300 & 2.6681 & 0.24516 & 0.69742 & 0.046616 \\
+Qwen3-\allowbreak{}8B FastFill yawcls05 spread & 300 & 2.6736 & 0.24763 & 0.66741 & 0.050464 \\
+Qwen3-\allowbreak{}8B FastFill yawcls05 argmax & 300 & 2.6237 & 0.24668 & 0.65994 & 0.048281 \\
+gpt-\allowbreak{}6.1-\allowbreak{}sol medium prompt & 300 & 2.6747 & 0.41167 & 0.78174 & 0.036323 \\
+gpt-\allowbreak{}6.1-\allowbreak{}sol medium harness & 300 & 2.6233 & 0.38791 & 0.76743 & 0.032391 \\
+\end{longtable}
+\endgroup
+\src{S001, S002, S003, S004, S005, S006}
+\subsection{Historical v2 minimal test, N=4455 / 旧v2 minimal测试：4455请求，含朴素基线}
+Minimal=三字段投影; full=完整条件投影. Same input file SHA212fc6bf..., different eligible subsets. main7 max128 objects vs main4 max256; this comparison changes data recipe/\allowbreak{}capacity, not a pure one-\allowbreak{}factor ablation. Clean/\allowbreak{}layout and clean/\allowbreak{}all are both retained. Old strict includes unknown hard checks and is not amendment027 strict admission. Naive baseline fits evaluation-\allowbreak{}set leave-\allowbreak{}one-\allowbreak{}out and is paired to final-\allowbreak{}spread label objects, not trained only on training data. Position means show the naive baselines outperform learned heads here. Exact per-\allowbreak{}metric N and CI preserved; 2000 bootstrap seed0.
+三字段minimal投影4455请求，不是完整条件8620请求；同一输入文件SHA212fc6bf…但合格子集不同。main7 max128对象、main4 max256，包含数据配方和容量差异，并非纯单因素消融。表同时保留clean/\allowbreak{}完成与clean/\allowbreak{}全部；旧strict包含硬检查unknown，不是027严格准入。朴素基线在评估集留一法拟合，并配对final-\allowbreak{}spread有效标签对象，不是只用训练集拟合。朴素位置误差优于学习模型，也照实保留。每指标分母和95\%CI见CSV，bootstrap2000次seed0。
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}@{}}
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Complete /\allowbreak{} 完整 & Position (m) /\allowbreak{} 位置误差 & Size log error /\allowbreak{} 尺寸误差 & Yaw (rad) /\allowbreak{} 朝向误差 & BEV IoU /\allowbreak{} 平面IoU \\
+\midrule\endfirsthead
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Complete /\allowbreak{} 完整 & Position (m) /\allowbreak{} 位置误差 & Size log error /\allowbreak{} 尺寸误差 & Yaw (rad) /\allowbreak{} 朝向误差 & BEV IoU /\allowbreak{} 平面IoU \\
+\midrule\endhead
+\bottomrule\endfoot
+Qwen3-\allowbreak{}8B main7 step6357 argmax & 4455 & 4391 & 2.7771 & 0.40256 & 0.6778 & 0.035763 \\
+Qwen3-\allowbreak{}8B main7 step6357 spread & 4455 & 4391 & 2.7438 & 0.4027 & 0.67726 & 0.036947 \\
+Qwen3-\allowbreak{}8B main4 yawcls008 step5000 argmax & 4455 & 4447 & 2.8714 & 0.34499 & 0.68404 & 0.032598 \\
+Qwen3-\allowbreak{}8B main4 yawcls008 step5000 spread & 4455 & 4447 & 2.8354 & 0.34509 & 0.6823 & 0.034653 \\
+Qwen3-\allowbreak{}8B main4 yawcls05 step5000 argmax & 4455 & 4447 & 2.8425 & 0.34967 & 0.65807 & 0.03421 \\
+Qwen3-\allowbreak{}8B main4 yawcls05 step5000 spread & 4455 & 4447 & 2.8286 & 0.35002 & 0.65805 & 0.035991 \\
+room\_\allowbreak{}center\_\allowbreak{}position (paired to final spread) & 4455 & -- & 2.4997 & -- & -- & -- \\
+category\_\allowbreak{}mean\_\allowbreak{}position (paired to final spread) & 4455 & -- & 2.4466 & -- & -- & -- \\
+category\_\allowbreak{}median\_\allowbreak{}size (paired to final spread) & 4455 & -- & -- & 0.43875 & -- & -- \\
+uniform\_\allowbreak{}yaw (paired to final spread) & 4455 & -- & -- & -- & 0.78347 & -- \\
+\end{longtable}
+\endgroup
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}@{}}
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Object collision /\allowbreak{} 物体碰撞率 & Object violation /\allowbreak{} 物体违规率 & Clean /\allowbreak{} 已知检查无失败 & Clean/\allowbreak{}all /\allowbreak{} 全请求无失败 & Old strict /\allowbreak{} 旧严格检查 \\
+\midrule\endfirsthead
+\toprule
+Method /\allowbreak{} 方法 & Requests /\allowbreak{} 请求 & Object collision /\allowbreak{} 物体碰撞率 & Object violation /\allowbreak{} 物体违规率 & Clean /\allowbreak{} 已知检查无失败 & Clean/\allowbreak{}all /\allowbreak{} 全请求无失败 & Old strict /\allowbreak{} 旧严格检查 \\
+\midrule\endhead
+\bottomrule\endfoot
+Qwen3-\allowbreak{}8B main7 step6357 argmax & 4455 & 0.71595 & 0.81314 & 0.025734 & 0.025365 & 0 \\
+Qwen3-\allowbreak{}8B main7 step6357 spread & 4455 & 0.28201 & 0.28488 & 0.38898 & 0.38339 & 0 \\
+Qwen3-\allowbreak{}8B main4 yawcls008 step5000 argmax & 4455 & 0.70504 & 0.81318 & 0.012818 & 0.012795 & 0 \\
+Qwen3-\allowbreak{}8B main4 yawcls008 step5000 spread & 4455 & 0.26654 & 0.26963 & 0.37329 & 0.37262 & 0 \\
+Qwen3-\allowbreak{}8B main4 yawcls05 step5000 argmax & 4455 & 0.75582 & 0.83813 & 0.02541 & 0.025365 & 0 \\
+Qwen3-\allowbreak{}8B main4 yawcls05 step5000 spread & 4455 & 0.30415 & 0.30648 & 0.40724 & 0.40651 & 0 \\
+room\_\allowbreak{}center\_\allowbreak{}position (paired to final spread) & 4455 & -- & -- & -- & -- & -- \\
+category\_\allowbreak{}mean\_\allowbreak{}position (paired to final spread) & 4455 & -- & -- & -- & -- & -- \\
+category\_\allowbreak{}median\_\allowbreak{}size (paired to final spread) & 4455 & -- & -- & -- & -- & -- \\
+uniform\_\allowbreak{}yaw (paired to final spread) & 4455 & -- & -- & -- & -- & -- \\
+\end{longtable}
+\endgroup
+\src{S007, S008, S009, S010, S011, S012}
+\subsection{V1.1 downstream examples, before and after clean DPO / V1.1 下游5房间：原版与clean final}
+Five rooms and 313 object instances per version; these are downstream examples, not a large benchmark. repaired\_\allowbreak{}valid does not require zero main collisions. Both versions mark mesh generation successful for four of five rooms. Reference checks also fail or contain unknowns on GT. These results are not an external free-\allowbreak{}layout method comparison.
+每版5房间/\allowbreak{}313实例，非大样本benchmark。repaired\_\allowbreak{}valid不要求main碰撞为0；reference\_\allowbreak{}check中GT也有unknown/\allowbreak{}失败。两版均4/\allowbreak{}5mesh生成标记成功；不可改称自由布局外部方法胜负。
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}>{\raggedright\arraybackslash}p{0.0960\linewidth}@{}}
+\toprule
+Version & Room & Objects & Parsed & Raw main & Repaired main & Support fail \\
+\midrule\endfirsthead
+\toprule
+Version & Room & Objects & Parsed & Raw main & Repaired main & Support fail \\
+\midrule\endhead
+\bottomrule\endfoot
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & bathroom & 55 & True & 1 & 0 & 1 \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & bedroom & 51 & True & 2 & 0 & 1 \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & gym & 32 & True & 0 & 0 & 1 \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & livingroom & 53 & True & 3 & 2 & 0 \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & restaurant & 122 & True & 10 & 1 & 0 \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & bathroom & 55 & True & 4 & 0 & 5 \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & bedroom & 51 & True & 5 & 1 & 3 \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & gym & 32 & True & 4 & 0 & 0 \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & livingroom & 53 & True & 6 & 3 & 0 \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & restaurant & 122 & True & 8 & 0 & 0 \\
+\end{longtable}
+\endgroup
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.2800\linewidth}>{\raggedright\arraybackslash}p{0.1300\linewidth}>{\raggedright\arraybackslash}p{0.1600\linewidth}>{\raggedright\arraybackslash}p{0.1600\linewidth}>{\raggedright\arraybackslash}p{0.1600\linewidth}@{}}
+\toprule
+Version & Room & Repaired valid & Mesh success & Reference ok \\
+\midrule\endfirsthead
+\toprule
+Version & Room & Repaired valid & Mesh success & Reference ok \\
+\midrule\endhead
+\bottomrule\endfoot
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & bathroom & False & True & False \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & bedroom & False & False & False \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & gym & False & True & False \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & livingroom & True & True & False \\
+roomgenbench\_\allowbreak{}v1\_\allowbreak{}1 & restaurant & True & True & False \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & bathroom & False & True & False \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & bedroom & False & False & False \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & gym & True & True & False \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & livingroom & True & True & False \\
+roomgenbench\_\allowbreak{}clean\_\allowbreak{}final & restaurant & True & True & False \\
+\end{longtable}
+\endgroup
+\src{S013, S014}
+\subsection{RoomGenBench asset benchmark (2) / RoomGenBench 历史资产比较（2）}
+Eight rows are seven asset methods plus SAGE reference: 184 assets per method, 154 distinct descriptions, five rooms with 313 instances. The task supplies boxes and placements; it is not free-\allowbreak{}layout prediction or N=8 single-\allowbreak{}sample testing. Original means, 95\% intervals, and applicable n are retained; room VQA has five rooms and support denominators differ. Archived sidecars and per-\allowbreak{}asset scores exist, but meshes/\allowbreak{}renders/\allowbreak{}features are absent locally. InfinigenV2 has 60 status changes between its scored CSV and current sidecars; this table retains the historical score snapshot.
+8行=7方法+SAGE reference；每方法184资产、154描述，5房间共313实例；不是N=8单样本。资产指标均值及原95\%区间；room\_\allowbreak{}vqa为5房间；support只用可用支撑对，分母因方法不同。既有逐资产CSV和sidecar证明保存了历史运行记录；当前仓库没有原mesh/\allowbreak{}render/\allowbreak{}features，未重算核验。InfinigenV2评分与60份当前sidecar状态漂移，保留旧评分快照。
+\begingroup\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.3000\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}>{\raggedright\arraybackslash}p{0.0983\linewidth}@{}}
+\toprule
+Method & support & room vqa & dino gt & fscore 2 & fscore 5 & chamfer \\
+\midrule\endfirsthead
+\toprule
+Method & support & room vqa & dino gt & fscore 2 & fscore 5 & chamfer \\
+\midrule\endhead
+\bottomrule\endfoot
+sage\_\allowbreak{}gt & 100.000000 [100.000000, 100.000000], n=146 & 0.68233 & 1.000000 [1.000000, 1.000000] & 0.999791 [0.999715, 0.999858] & 0.999998 [0.999993, 1.000000] & 0.005241 [0.005083, 0.005403] \\
+infinigen\_\allowbreak{}v1 & 74.725275 [64.835165, 82.445055], n=91 & 0.34166 & 0.402411 [0.378364, 0.425465] & 0.563431 [0.519047, 0.608189] & 0.770756 [0.733875, 0.806633] & 0.033644 [0.030001, 0.037485] \\
+infinigen\_\allowbreak{}v2 & 98.591549 [95.774648, 100.000000], n=71 & 0.31888 & 0.371168 [0.344901, 0.395739] & 0.534877 [0.492484, 0.578696] & 0.769109 [0.734055, 0.802994] & 0.034035 [0.030534, 0.037767] \\
+holodeck\_\allowbreak{}retrieval & 81.506849 [75.342466, 87.671233], n=146 & 0.46618 & 0.463290 [0.437776, 0.489338] & 0.581801 [0.544902, 0.618911] & 0.821827 [0.793525, 0.847620] & 0.028856 [0.026172, 0.031922] \\
+shap\_\allowbreak{}e & 82.876712 [76.712329, 88.356164], n=146 & 0.60315 & 0.469723 [0.445700, 0.492090] & 0.609168 [0.572535, 0.644252] & 0.835199 [0.808834, 0.860161] & 0.026491 [0.024067, 0.029183] \\
+trellis\_\allowbreak{}text & 83.561644 [77.397260, 89.726027], n=146 & 0.52726 & 0.604060 [0.578416, 0.630077] & 0.679770 [0.646358, 0.712421] & 0.893916 [0.873093, 0.912055] & 0.021316 [0.019456, 0.023410] \\
+embodiedgen\_\allowbreak{}v2 & 86.301370 [80.821918, 91.780822], n=146 & 0.58226 & 0.517655 [0.490881, 0.544234] & 0.653482 [0.616382, 0.688231] & 0.865484 [0.837031, 0.890491] & 0.023572 [0.021408, 0.026155] \\
+hunyuan3d\_\allowbreak{}21 & 84.246575 [78.082192, 89.726027], n=146 & 0.64908 & 0.470067 [0.442871, 0.495912] & 0.610629 [0.573011, 0.647416] & 0.835554 [0.806738, 0.861508] & 0.026498 [0.024057, 0.029117] \\
+\end{longtable}
+\endgroup
+\src{S015, S016, S017, S018}
+\end{document}

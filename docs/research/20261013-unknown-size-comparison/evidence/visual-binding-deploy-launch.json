@@ -1,0 +1,23 @@
+{
+  "controller_dir": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-vis-controller-4m_t3twa",
+  "state_dir": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-vis-controller-4m_t3twa/state",
+  "control_dir": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/ff-vis-ssh-6bbn9h2i",
+  "spec_sha256": "668a7e5ff70ea2d90eb0e6be0bb39a897c852f08a73af341ac513b3802f48b51",
+  "controller_sha256": "f0fead883eeb50882c77dd82260733ae8ddce5dee723651162d01a86a7803c95",
+  "old_processes": {
+    "config_sha256": "13b9ac01984c4842992a8e5af6c828f9bbe1d5f21803905ce10d0dbfb09b6743",
+    "deadline_unix": 1792302800,
+    "driver_pid": 96318,
+    "effective_driver_budget_seconds": 425451,
+    "launcher_pid": 40191,
+    "master_pid": 40239,
+    "wake_pid": 96319
+  },
+  "new_output": "/Volumes/harddisk/fastfillout/unknownsize-20261013/automation-run-004",
+  "deadline_unix": 1792302800,
+  "driver_released": false,
+  "candidate_config": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-staging/resource-binding-deploy-001/candidate-config.json",
+  "snapshot": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-code/pipeline-resource-bound-86e4e3bfc30f",
+  "at_unix": 1791879932.858523,
+  "controller_pid": 84994
+}

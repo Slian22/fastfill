@@ -1,0 +1,80 @@
+{
+  "scope": "Mechanical checks on all current-results CSVs with recognized rate/count columns; not a rerun of geometry, generation or human evaluation. NaN/empty historical placeholders are retained.",
+  "files_checked": 18,
+  "numeric_assertions": 35465,
+  "files": [
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/families-015/levels.csv",
+      "numeric_assertions": 396
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-ablation-o2nt/levels.csv",
+      "numeric_assertions": 3916
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v3/levels.csv",
+      "numeric_assertions": 3916
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/frontier-026-v4/levels.csv",
+      "numeric_assertions": 5181
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T2.csv",
+      "numeric_assertions": 58
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-001/T5.csv",
+      "numeric_assertions": 16
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T2.csv",
+      "numeric_assertions": 58
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-JPL-002/T5.csv",
+      "numeric_assertions": 16
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-dpo1-001/T2.csv",
+      "numeric_assertions": 58
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T2.csv",
+      "numeric_assertions": 58
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/report-v2-selected-001/T5.csv",
+      "numeric_assertions": 72
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/scale-curve-016/reasons.csv",
+      "numeric_assertions": 792
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_dev.csv",
+      "numeric_assertions": 14
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/stage-table-010-001/stage_stages.csv",
+      "numeric_assertions": 6
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-cohort/levels.csv",
+      "numeric_assertions": 11321
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/system-022-test-sharded/levels.csv",
+      "numeric_assertions": 621
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/results/test-apply-012/levels.csv",
+      "numeric_assertions": 8318
+    },
+    {
+      "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/a027-resume-20261015/completed/eval/levels.csv",
+      "numeric_assertions": 648
+    }
+  ],
+  "issues": []
+}

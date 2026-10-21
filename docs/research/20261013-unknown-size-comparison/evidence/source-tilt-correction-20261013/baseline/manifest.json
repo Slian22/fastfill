@@ -1,0 +1,25 @@
+{
+  "baseline_basis": "Initial git status --short showed no modifications to either owned tracked adapter; both complete working files were read before any edits. The first adapter git diff identified these original blobs, matching the observed prepatch source. Recovered with git cat-file by those exact blob IDs, not the current HEAD. No pre-existing working edits were replaced.",
+  "files": [
+    {
+      "adapter": "fastfill/adapters/scan2cad.py",
+      "baseline_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/source-tilt-correction-20261013/baseline/scan2cad.py",
+      "git_blob": "bfed6b4ff547f249fb674d473d95b5380b96dd47",
+      "sha256": "eb82a6a602c4e6689d9871a4baa443b69502b376b6b751c4fd3e869271b7ac04",
+      "bytes": 5735
+    },
+    {
+      "adapter": "fastfill/adapters/spatialgen.py",
+      "baseline_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/source-tilt-correction-20261013/baseline/spatialgen.py",
+      "git_blob": "c54b6bd9aa0ec33eb690cdca0dc1fdad515a851b",
+      "sha256": "b9344dd58586de328ab25a3d9c66f8da7c75b22d3c7c1714674b38de8a139995",
+      "bytes": 910
+    }
+  ],
+  "helper": {
+    "path": "fastfill/adapters/upright_bounds.py",
+    "existed_before_patch": false,
+    "baseline_copy": null
+  },
+  "scope": "Source adapter baseline only. Parent owns identical-raw before/after regeneration; no frozen IR has been used as the prepatch code baseline."
+}

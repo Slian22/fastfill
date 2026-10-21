@@ -1,0 +1,15 @@
+{
+  "submitted_at_utc": "2026-10-13T05:33:56.444250+00:00",
+  "snapshot": "eval-context-f1218f816e4b",
+  "superseded_pending_jobs": [
+    7367601,
+    7367602,
+    7367603
+  ],
+  "reason": "pretest user-requested full-context inference amendment",
+  "jobs": {
+    "infer_joint": 7367626,
+    "infer_placement": 7367628,
+    "geometry": 7367629
+  }
+}

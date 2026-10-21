@@ -1,0 +1,1320 @@
+{
+  "scope": "target_bbox_proxy",
+  "tolerance_m": 0.001,
+  "checks": [
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0000"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0000"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0000"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0001"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0001"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0001"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0002"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0002"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0002"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0003"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0003"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0003"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0004"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0004"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0004"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0005"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0005"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0005"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0006"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0006"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0006"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0007"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0007"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0007"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0008"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0008"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0008"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0009"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0009"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0009"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0010"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0010"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0010"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0011"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0011"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0011"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0012"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0012"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0012"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0013"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0013"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0013"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0014"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0014"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0014"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0015"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0015"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0015"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0016"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0016"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0016"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0017"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0017"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0017"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0018"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0018"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0018"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0019"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0019"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0019"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0020"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0020"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0020"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0021"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0021"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0021"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0022"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0022"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0022"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0023"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0023"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0023"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0024"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0024"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0024"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0025"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0025"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0025"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0026"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0026"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0026"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0027"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0027"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0027"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0028"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0028"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0028"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0029"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0029"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0029"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0030"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0030"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0030"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0031"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0031"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0031"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0032"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0032"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0032"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0033"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0033"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0033"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0034"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0034"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0034"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0035"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0035"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0035"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0036"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0036"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0036"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0037"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0037"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0037"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0038"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0038"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0038"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0039"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0039"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0039"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0040"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0040"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0040"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0041"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0041"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0041"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0042"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0042"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0042"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0043"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0043"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0043"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0044"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0044"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0044"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0045"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0045"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0045"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0046"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0046"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0046"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0047"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0047"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0047"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0048"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0048"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0048"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0049"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0049"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0049"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "boundary",
+      "object_ids": [
+        "obj_0050"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "floor_lower_bound",
+      "object_ids": [
+        "obj_0050"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "ceiling",
+      "object_ids": [
+        "obj_0050"
+      ],
+      "status": "pass"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0001"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0002"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0016"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0021"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0024"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0026"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0027"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0028"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0029"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0039"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0044"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0000",
+        "obj_0047"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0001",
+        "obj_0003"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0003",
+        "obj_0033"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0003",
+        "obj_0039"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0005",
+        "obj_0007"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0020",
+        "obj_0038"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0025",
+        "obj_0034"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0025",
+        "obj_0039"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0027",
+        "obj_0044"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0027",
+        "obj_0047"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0033",
+        "obj_0034"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0033",
+        "obj_0039"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0034",
+        "obj_0039"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0041",
+        "obj_0043"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    },
+    {
+      "code": "obb_overlap",
+      "object_ids": [
+        "obj_0044",
+        "obj_0047"
+      ],
+      "status": "fail",
+      "interpretation": "proxy overlap; support/contact semantics unknown"
+    }
+  ],
+  "counts": {
+    "pass": 153,
+    "fail": 26
+  },
+  "asset_retrieval": "not_attempted",
+  "mesh": "not_checked",
+  "support": "unknown",
+  "physics": "not_checked",
+  "commit": "not_attempted"
+}

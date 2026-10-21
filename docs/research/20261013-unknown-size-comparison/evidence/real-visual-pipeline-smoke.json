@@ -1,0 +1,219 @@
+{
+  "actual_blender_processes": 1,
+  "api_calls": 0,
+  "asset_ids": [
+    "800d3c5569b94abfa2da7976504d589d",
+    "21f34649-749e-4481-aef4-abf73263c950"
+  ],
+  "asset_mesh_sha256": {
+    "21f34649-749e-4481-aef4-abf73263c950": "658ebfc02d0c6b87521712f3e01a204c6000289a59886594099a3509b522674e",
+    "800d3c5569b94abfa2da7976504d589d": "e0457898d11b591072224345a4c809d88dcb5f6a7bc6d4a230c346ac0cd3f6b2"
+  },
+  "blender_version": "5.2.1 LTS",
+  "client_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/api-smoke/server_api_judge.py",
+  "client_sha256": "8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03",
+  "code_sha256_after": {
+    "fastfill/comparison/fid.py": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+    "fastfill/comparison/judge_batch.py": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+    "fastfill/comparison/overnight.py": "4ff251d8ce8b223470425408ad9bf896ddcda4f7cd1d647efad3f6f69a7ae5a6",
+    "fastfill/comparison/render_assets.py": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+    "fastfill/comparison/visual_cases.py": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+    "fastfill/comparison/visual_pipeline.py": "4cd83a00fa503aecda90041848eb631c1fcd025b002b3ab1aac7edac023c4f61"
+  },
+  "code_sha256_before": {
+    "fastfill/comparison/fid.py": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+    "fastfill/comparison/judge_batch.py": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+    "fastfill/comparison/overnight.py": "4ff251d8ce8b223470425408ad9bf896ddcda4f7cd1d647efad3f6f69a7ae5a6",
+    "fastfill/comparison/render_assets.py": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+    "fastfill/comparison/visual_cases.py": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+    "fastfill/comparison/visual_pipeline.py": "4cd83a00fa503aecda90041848eb631c1fcd025b002b3ab1aac7edac023c4f61"
+  },
+  "code_unchanged_during_smoke": true,
+  "elapsed_seconds": 24.05872541700228,
+  "engineering_only": true,
+  "eval_dir": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/eval",
+  "fid_image_preflight": "passed_no_features_or_scores_computed",
+  "finished_utc": "2026-10-13T05:41:47.296006+00:00",
+  "geometry_dir": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/geometry",
+  "images": [
+    {
+      "arm": "reference",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/reference/perspective.png",
+      "sha256": "b9a66b09c08ff65f5144355c5d5225f31b33d44162a2623cc980c1a374143dd3",
+      "size": [
+        512,
+        512
+      ],
+      "view": "perspective"
+    },
+    {
+      "arm": "reference",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/reference/top.png",
+      "sha256": "7a78a67efccc0a035bb95edea352cc1c35ca8f285d532d20b5b288070988ac99",
+      "size": [
+        512,
+        512
+      ],
+      "view": "top"
+    },
+    {
+      "arm": "joint",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/joint/perspective.png",
+      "sha256": "6118419e4c44189d3abaeeeaa7f078fdcd44aaab04f52fed83cd5f67f557b285",
+      "size": [
+        512,
+        512
+      ],
+      "view": "perspective"
+    },
+    {
+      "arm": "joint",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/joint/top.png",
+      "sha256": "908abb4025d1a426b8e74eef21adfbaeeb657a688fefdb90e2155970d5a81320",
+      "size": [
+        512,
+        512
+      ],
+      "view": "top"
+    },
+    {
+      "arm": "placement",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/placement/perspective.png",
+      "sha256": "63b329a4db0d06bac4dac112371343d1175377ef3d8902e4d6faa38a4798d818",
+      "size": [
+        512,
+        512
+      ],
+      "view": "perspective"
+    },
+    {
+      "arm": "placement",
+      "mode": "RGB",
+      "path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/render/0000-41813c2030d5/placement/top.png",
+      "sha256": "0f552f82877e1467cbde81f0d675b0cedbbd3893deada3b8d074f92184639f08",
+      "size": [
+        512,
+        512
+      ],
+      "view": "top"
+    }
+  ],
+  "judge_preflight": {
+    "binding": {
+      "bundle_files": {
+        "images/c32ccba0a6daf764e1d5ad75ad42ceca737969eeede214eaa07235de7f10348c/perspective.png": "63b329a4db0d06bac4dac112371343d1175377ef3d8902e4d6faa38a4798d818",
+        "images/c32ccba0a6daf764e1d5ad75ad42ceca737969eeede214eaa07235de7f10348c/top.png": "0f552f82877e1467cbde81f0d675b0cedbbd3893deada3b8d074f92184639f08",
+        "images/f533ce5fd6614c9f0b30568a128b7e8c1a4245f1d6b1fab314da8027d88c786a/perspective.png": "6118419e4c44189d3abaeeeaa7f078fdcd44aaab04f52fed83cd5f67f557b285",
+        "images/f533ce5fd6614c9f0b30568a128b7e8c1a4245f1d6b1fab314da8027d88c786a/top.png": "908abb4025d1a426b8e74eef21adfbaeeb657a688fefdb90e2155970d5a81320",
+        "manifest.json": "1b94df792020b7968d93bfe8a636462148ca1bbc6c5d9a58fb1579f54efb9e60",
+        "prompts/1e39eeca29757be34a656ab78f67e06ec62094f491adefb14d413e13f7ade3b0.txt": "b91a1778876f6e12259a0c52f786c01ada9950f4fd5eb5a79ea3981108d4226c",
+        "provenance.json": "f187e6e9c5bb7276c88b54bd2019aefe303beba04c27e0c3e0d7d913260715d0"
+      },
+      "bundle_manifest_sha256": "1b94df792020b7968d93bfe8a636462148ca1bbc6c5d9a58fb1579f54efb9e60",
+      "failures_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "geometry_manifest_sha256": "bbbdee8bfb0c3e78f33ddd33109732244c9f0195d914c9007fd8d8e7129abb26",
+      "mapping_sha256": "dfde9696e8f7c48c0e057686a8c643e8b09a3ed87be90c458b75f3f388b13466",
+      "provenance": {
+        "corpus_link": "verified",
+        "corpus_manifest_sha256": "3a17b0421059b2b4889a23024f2ac3d6bc3cab39fe2152f5ede48612e09977c1",
+        "data_manifest_sha256": "39cc417ec8effb7b32b3b8a87195ce014af5181e7778f921fd2c2c47e4ded43f",
+        "geometry_manifest_sha256": "bbbdee8bfb0c3e78f33ddd33109732244c9f0195d914c9007fd8d8e7129abb26",
+        "reference_manifest_sha256": "e995f8cbc62b72680e822480388e31310f2a9207e4210a7a0c7652c3f0c41f03",
+        "schema_version": 1
+      },
+      "provenance_sha256": "f187e6e9c5bb7276c88b54bd2019aefe303beba04c27e0c3e0d7d913260715d0",
+      "visual_manifest_sha256": "647f19cc1c72cf714bd22b5c0cc4e3624b3a59f8ccdde9299a5cb21be7a1cd87"
+    },
+    "failed": 0,
+    "network_guard": "socket_connections_forbidden",
+    "payload_checks": [
+      {
+        "content_sha256": "d2928ec110c41d3a4ccbed8578e87c09d11cb6c20aaaa2aa633eae4fe1c5c3ac",
+        "id": "c32ccba0a6daf764e1d5ad75ad42ceca737969eeede214eaa07235de7f10348c",
+        "images": 2,
+        "request_body_bytes": 601192,
+        "request_sha256": "9adf9da6c85cc0427516cc9c6fe3f4b6668f9dc514c75444e275dcbcd1492ffd",
+        "sent": false
+      },
+      {
+        "content_sha256": "e4d7997c02a0676d9cbcd29443b94a932cfc63978521d12dbe68f61b0e4a62c3",
+        "id": "f533ce5fd6614c9f0b30568a128b7e8c1a4245f1d6b1fab314da8027d88c786a",
+        "images": 2,
+        "request_body_bytes": 601192,
+        "request_sha256": "549e8d1a009ffee841c01f09a0f173fc3e744248983f15c296fbe8e950db01e6",
+        "sent": false
+      }
+    ],
+    "requested": 2,
+    "runnable": 2,
+    "status": "passed"
+  },
+  "ledger": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/ledger.json",
+  "limits": [
+    "One synthetic non-test room with two existing real assets.",
+    "Reference/joint/placement intentionally contain identical copied synthetic geometry.",
+    "Engineering integration only; no learned outputs, FID scores, GPT scores or API calls.",
+    "Temporary render/upload artifacts remain at the recorded local paths."
+  ],
+  "metrics_computed": false,
+  "not_a_new_score": true,
+  "portable_bundle_files": 7,
+  "prepare_counts": {
+    "api_cases": 2,
+    "failed": 0,
+    "frozen": 1,
+    "gpt_selected": 1,
+    "rendered": 1
+  },
+  "production_code_edited": false,
+  "production_test_data_read": false,
+  "reference_dir": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/reference",
+  "render_preset": {
+    "denoise": true,
+    "resolution": 512,
+    "samples": 32,
+    "unknown_height_m": 3.0,
+    "views": [
+      "perspective",
+      "top"
+    ]
+  },
+  "render_seconds": 23.810737125000742,
+  "root": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7",
+  "schema_version": 1,
+  "script_path": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/run_smoke.py",
+  "script_sha256": "800f7b0e8aa6d42e6dc697e3fac6d99595f4a35881d8fccf22d13bf9eee1b9f9",
+  "server_jobs": 0,
+  "source_case": "/private/tmp/unknownsize-render-smoke/case.json",
+  "source_case_sha256": "277282770b26e893d46eb1fbd5e366806be1341fde42e2492945340b6edc08d1",
+  "source_preserved": true,
+  "source_provenance": "Existing hand-posed synthetic fixture; prior non-test asset evidence reused; no production membership scan.",
+  "stage": "complete",
+  "started_utc": "2026-10-13T05:41:23.238326+00:00",
+  "status": "passed",
+  "stdout_log": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual/chunks/00/stdout.log",
+  "stratum": "synthetic/non_test_room",
+  "synthetic_non_test": true,
+  "threads": 3,
+  "timeout_seconds": 600,
+  "uid": "synthetic-non-test-real-visual-pipeline-smoke",
+  "upload_dir": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/api-upload",
+  "upload_manifest_files": 9,
+  "upload_manifest_sha256": "647f19cc1c72cf714bd22b5c0cc4e3624b3a59f8ccdde9299a5cb21be7a1cd87",
+  "visual_dir": "/private/tmp/real-visual-pipeline-smoke-y0xzf0m7/visual",
+  "visual_inspection": {
+    "arm": "joint",
+    "observed": "Both real furniture assets and fixed door context visible in both views; engineering visibility check only, no quality scoring.",
+    "views": [
+      "perspective",
+      "top"
+    ]
+  },
+  "visual_manifest_sha256": "42569c9518a763e9121f75ff8066dc95eac40b588352c3782c637b6a6a221044",
+  "workers": 1
+}

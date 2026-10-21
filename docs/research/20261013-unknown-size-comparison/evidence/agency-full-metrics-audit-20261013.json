@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-13",
+  "completed_at_utc": "2026-10-13T07:25:10.115374+00:00",
+  "report": {
+    "path": "docs/research/20261013-unknown-size-comparison/evidence/agency-full-metrics-audit-20261013.md",
+    "sha256": "e4d85e8bf8d6b08c518eb15b386ed3f2ca3c23c5dd2e537d123b19e2ac0c950a"
+  },
+  "scope": "independent scientific/statistical metric-contract review, followed by coordinator-authorized bounded TDD fixes",
+  "code_files_read": [
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "sha256": "567bd7455be1a5efe245c52faa01f49938ad97216b3a02de30d1840479fd2796",
+      "bytes": 13521,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/geometry.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "changed_since_read": true,
+      "change_attribution": "authorized_local_patch"
+    },
+    {
+      "path": "fastfill/comparison/evaluate_pair.py",
+      "sha256": "ace47c4a55394d7d2fc5f8b374706e66608ed8738c878a51c917c067ea949ccf",
+      "bytes": 9868,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/evaluate_pair.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "ace47c4a55394d7d2fc5f8b374706e66608ed8738c878a51c917c067ea949ccf",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "sha256": "3e35637fd2c3953a9bbd90d2ec424f7239aa9ca9c9c1fcad175158de207550e7",
+      "bytes": 9941,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/final_tables.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "b9758ce30311973e812035bd6b2c1a8b525ae2cc3682540dbcbde8ccf28ab0f9",
+      "changed_since_read": true,
+      "change_attribution": "authorized_local_patch"
+    },
+    {
+      "path": "fastfill/comparison/fid.py",
+      "sha256": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+      "bytes": 18255,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/fid.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "b6c62df6f4a603e43e586814561bff811357c27b855f028515b3f58e5031a36d",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "sha256": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+      "bytes": 17915,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/visual_cases.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "dd9b51883357aab474d5bc46c7986940c61a9011f8aa6fdad2667f0b27911a21",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "sha256": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+      "bytes": 27561,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/judge_batch.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "0d93b727e99118261be14868779a557854afc08a5adf084b2ac7d5545546d7c8",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_geometry.py",
+      "sha256": "638448c5505c9e31c87a87043753b8d3af25a867011847637a9bd2f0e9c86d1c",
+      "bytes": 12049,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_geometry.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f",
+      "changed_since_read": true,
+      "change_attribution": "authorized_local_patch"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_evaluate_pair.py",
+      "sha256": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "bytes": 4688,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_evaluate_pair.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "da5b85b480edb2851640c0d3df7758b5b79d6734dafa88dcb0c4b6c236b7f71d",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_final_tables.py",
+      "sha256": "5518576d0b6240aa3706b155af58710783197800421a5c70c8dfcc5d478f5289",
+      "bytes": 4037,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_final_tables.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901",
+      "changed_since_read": true,
+      "change_attribution": "authorized_local_patch"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_fid.py",
+      "sha256": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "bytes": 12918,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_fid.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "e70920f8982fa9061f973eb4468df6aa67ea20d7ae1525b5152e760ae5d193fa",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_visual_cases.py",
+      "sha256": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "bytes": 11836,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_visual_cases.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "d6eac368715fca073da52e4d3464c726b4af9e91b10acb3ce49e2ac6dc6cd310",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_judge_batch.py",
+      "sha256": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "bytes": 27098,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/tests/test_judge_batch.py",
+      "read_scope": "full",
+      "sha256_at_handoff": "91ade4ab01d488a131fa83064491dcff5eb9c812cf9b088f969ea3f285e73cea",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/validate.py",
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "bytes": 11838,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/validate.py",
+      "read_scope": "1-177",
+      "sha256_at_handoff": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/interface.py",
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "bytes": 48155,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/interface.py",
+      "read_scope": "71-72,255-326",
+      "sha256_at_handoff": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "bytes": 13793,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/contract.py",
+      "read_scope": "211-296 and size/schema symbol search",
+      "captured_at_utc": "2026-10-13T07:22:21.051357+00:00",
+      "sha256_at_handoff": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "fastfill/comparison/train_pair_helpers.py",
+      "sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "bytes": 20149,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/fastfill/comparison/train_pair_helpers.py",
+      "read_scope": "72-95",
+      "captured_at_utc": "2026-10-13T07:22:21.052399+00:00",
+      "sha256_at_handoff": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    }
+  ],
+  "documents_read": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/protocol.md",
+      "sha256": "f2fc11ec56d927f551a438fd14e83ff4ca64e5e4a0e60d4b5e47968e7853706e",
+      "bytes": 5797,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/docs/research/20261013-unknown-size-comparison/protocol.md",
+      "read_scope": "full",
+      "sha256_at_handoff": "f2fc11ec56d927f551a438fd14e83ff4ca64e5e4a0e60d4b5e47968e7853706e",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/current-results.md",
+      "sha256": "3c32d96479dc6327864eafbabc19eb1d5f29a547d51eee40c5de107cc8acedd9",
+      "bytes": 16911,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/docs/research/20261013-unknown-size-comparison/current-results.md",
+      "read_scope": "full",
+      "sha256_at_handoff": "3c32d96479dc6327864eafbabc19eb1d5f29a547d51eee40c5de107cc8acedd9",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/execution-lock.json",
+      "sha256": "432158fcf1b4b91a9a98f85a3f3cdb0a5ad74d59b4d79b319d38dbfd1349b8bf",
+      "bytes": 2332,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/docs/research/20261013-unknown-size-comparison/execution-lock.json",
+      "read_scope": "full",
+      "sha256_at_handoff": "432158fcf1b4b91a9a98f85a3f3cdb0a5ad74d59b4d79b319d38dbfd1349b8bf",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "tmp/pdfs/optiscene-paper/paper.txt",
+      "sha256": "024b76675a48c5a97440dc53cd3dbac8073f3e8357313d7c4c1b0243dc01255c",
+      "bytes": 89210,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/tmp/pdfs/optiscene-paper/paper.txt",
+      "read_scope": "task/method, evaluation, tables 1-3, ablations, appendix D, rubric; keyword navigation elsewhere",
+      "sha256_at_handoff": "024b76675a48c5a97440dc53cd3dbac8073f3e8357313d7c4c1b0243dc01255c",
+      "changed_since_read": false,
+      "change_attribution": "other_collaborator_or_unchanged"
+    },
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/contribution-and-evaluation-audit.md",
+      "sha256": "accc5612e43d5b61ad2d6768e0f7e971b251bff1c9012161199dbd75401a5b04",
+      "bytes": 17678,
+      "snapshot": "/tmp/agency-full-metrics-20261013-5a6h75xu/docs/research/20261013-unknown-size-comparison/contribution-and-evaluation-audit.md",
+      "read_scope": "full, with review focus on section 4 and table denominators",
+      "captured_at_utc": "2026-10-13T07:22:21.053373+00:00",
+      "sha256_at_handoff": "3da705557a0b71632730c2dd278c0508109603db5a802dc14523b25e58cc07fd",
+      "changed_since_read": true,
+      "change_attribution": "other_collaborator_or_unchanged"
+    }
+  ],
+  "authorization": {
+    "patch_scope": [
+      "fastfill/comparison/geometry.py",
+      "fastfill/comparison/final_tables.py",
+      "fastfill/comparison/tests/test_geometry.py",
+      "fastfill/comparison/tests/test_final_tables.py"
+    ],
+    "implementation_choice": "whole candidate rollback on raw-relative cumulative displacement > 0.10m",
+    "choice_by": "main coordinator under user autonomous-fix authorization"
+  },
+  "owned_code_changes": [
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "sha256_before": "567bd7455be1a5efe245c52faa01f49938ad97216b3a02de30d1840479fd2796",
+      "sha256_after": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "sha256_before": "3e35637fd2c3953a9bbd90d2ec424f7239aa9ca9c9c1fcad175158de207550e7",
+      "sha256_after": "b9758ce30311973e812035bd6b2c1a8b525ae2cc3682540dbcbde8ccf28ab0f9"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_geometry.py",
+      "sha256_before": "638448c5505c9e31c87a87043753b8d3af25a867011847637a9bd2f0e9c86d1c",
+      "sha256_after": "f976be18879d54b2cd8faec6d9e8dcdbbcebb5c4d2c6b012e6ad6b919722c49f"
+    },
+    {
+      "path": "fastfill/comparison/tests/test_final_tables.py",
+      "sha256_before": "5518576d0b6240aa3706b155af58710783197800421a5c70c8dfcc5d478f5289",
+      "sha256_after": "ac0bb5752b21cfdfe63638fb931ea5ef325302fe30095ebe72efa73f89c95901"
+    }
+  ],
+  "deployment_status": "local_patch_ready; active frozen snapshots and jobs untouched; parent handles integration/deployment",
+  "apis": {
+    "small_repair": "small_repair(predicted): unchanged signature and room return shape; whole candidate rollback above .10 + 1e-9 m",
+    "paired_intervals": "paired_intervals(joint, placement, repeats=2000, seed=42): unchanged parameters, estimands, fields",
+    "final_tables_build": "build(geometry, fid, judge, out): unchanged parameters/output dictionaries for valid inputs; rejects invalid judge summaries or stratum coverage",
+    "additional_import": "final_tables imports judge_batch.validate_summary; include judge_batch in deployment bundle"
+  },
+  "findings": [
+    {
+      "id": "P2-1",
+      "status": "fixed_locally_not_deployed",
+      "title": "Repair allowed cumulative support-descendant displacement beyond 10cm",
+      "files": [
+        "fastfill/comparison/geometry.py",
+        "fastfill/interface.py"
+      ],
+      "impact": "repaired metrics only; no real-data incidence measured"
+    },
+    {
+      "id": "P2-2",
+      "status": "fixed_locally_not_deployed",
+      "title": "Publication accepted missing judge stratum counts and substituted zero requested",
+      "files": [
+        "fastfill/comparison/final_tables.py"
+      ],
+      "impact": "malformed/truncated/legacy input rejected; valid all-failed cohorts retain requested counts"
+    }
+  ],
+  "tests": {
+    "baseline": {
+      "summary": "127 passed in 4.70s",
+      "scope": "six requested module test files",
+      "real_data": false
+    },
+    "tdd_red": {
+      "summary": "7 failed, 20 passed in 0.57s",
+      "note": "two failures are depth=2/depth=3 subtests in one geometry regression; five publication regressions"
+    },
+    "tdd_green": {
+      "summary": "25 passed, 2 subtests passed in 0.43s",
+      "scope": "test_geometry.py and test_final_tables.py"
+    },
+    "post_patch_regression": {
+      "summary": "134 passed, 2 subtests passed in 4.11s",
+      "scope": "same six requested module test files"
+    },
+    "parent_reported_full_suite": {
+      "passed": 674,
+      "statement_coverage_percent": 90.8,
+      "independently_rerun": false
+    },
+    "coverage_remeasured": false
+  },
+  "pre_patch_synthetic_probes": {
+    "repair_cumulative_displacement": {
+      "original": [
+        [
+          0.45,
+          2,
+          0
+        ],
+        [
+          0.85,
+          2,
+          1
+        ]
+      ],
+      "repaired": [
+        [
+          0.5,
+          2.0,
+          0
+        ],
+        [
+          0.9999999999999999,
+          2.0,
+          1
+        ]
+      ],
+      "distance_m": [
+        0.04999999999999999,
+        0.1499999999999999
+      ],
+      "before": {
+        "oor": 0.14285714285714296,
+        "geometry_valid": false,
+        "geometry_success": false,
+        "oob_objects": 1,
+        "support_fail": 0,
+        "ceiling_fail": 0,
+        "main_collisions": 0,
+        "severe_collisions": 0,
+        "fixed_blocking": 0
+      },
+      "after": {
+        "oor": 0.14285714285714296,
+        "geometry_valid": true,
+        "geometry_success": true,
+        "oob_objects": 0,
+        "support_fail": 0,
+        "ceiling_fail": 0,
+        "main_collisions": 0,
+        "severe_collisions": 0,
+        "fixed_blocking": 0
+      }
+    },
+    "shrink_example": {
+      "oor_before": 0.125,
+      "oor_after": 0.0,
+      "dimension_iou_logmae": [
+        0.125,
+        0.6931471805599453
+      ]
+    },
+    "judge_missing_stratum": {
+      "status": "MEASURED_TABLES_PUBLISHED",
+      "global_judge_counts": {
+        "selected": 4,
+        "success": 0
+      },
+      "sum_table_GPT_requested": 0,
+      "first_row": {
+        "stratum": "IL3D_3dfront/bedroom",
+        "arm": "joint",
+        "requested": 10,
+        "OOR_complete_n": 8,
+        "OOR": 0.1,
+        "FID": 12.3,
+        "FID_shared_n": 5,
+        "GPT_requested": 0,
+        "GPT_success": 0,
+        "functionality_score": null,
+        "layout_score": null,
+        "aesthetics_score": null,
+        "overall_score": null,
+        "UR": null
+      }
+    }
+  },
+  "post_patch_synthetic_impact": {
+    "joint": {
+      "all_non_repair_fields_identical": true,
+      "geometry_success_raw": false,
+      "geometry_success_repaired_before": true,
+      "geometry_success_repaired_after": false,
+      "repaired_layout_equals_raw": true
+    },
+    "placement": {
+      "all_non_repair_fields_identical": true,
+      "geometry_success_raw": false,
+      "geometry_success_repaired_before": true,
+      "geometry_success_repaired_after": false,
+      "repaired_layout_equals_raw": true
+    }
+  },
+  "parent_document_review": {
+    "path": "docs/research/20261013-unknown-size-comparison/contribution-and-evaluation-audit.md",
+    "edited": false,
+    "corrections_in_report_section": 12,
+    "high_priority_wording": [
+      "UR numerator/denominator count scenes, not people",
+      "Do not assign geometry micro/macro bootstrap CIs to FID/GPT",
+      "Conditional paired deltas use common-complete cohort and fixed eligible source universe",
+      "Disclose singleton/undefined bootstrap draws and qualified geometry checks"
+    ]
+  },
+  "primary_external_sources": [
+    {
+      "url": "https://arxiv.org/abs/1911.07023",
+      "use": "finite-sample model-dependent FID bias"
+    },
+    {
+      "url": "https://arxiv.org/abs/2306.05685",
+      "use": "LLM judge limitations; no transfer of text-domain validation to this visual judge"
+    },
+    {
+      "url": "https://arxiv.org/abs/2103.03098",
+      "use": "training and benchmark variance"
+    },
+    {
+      "url": "https://cameron.econ.ucdavis.edu/research/Cameron_Miller_JHR_2015.pdf",
+      "use": "cluster dependence and few-cluster limits; not a proof of this implementation coverage"
+    }
+  ],
+  "evidence_artifacts": [
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/tests.log",
+      "sha256": "62d55c8a8e7e49f343caefc58ba2e857f4ad86892670b959dc7ded6aad2beb6f",
+      "bytes": 180
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/tests.xml",
+      "sha256": "fda2cbba3837396e92b04b4696083df0841b2e4ac0d56ced84d670bf4e833237",
+      "bytes": 19297
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/probes.json",
+      "sha256": "946b500d4a8c63ee0fd2698ecbdf026b24aa818b945fe9e0d6c273b2f312d196",
+      "bytes": 1677
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/patch-red.log",
+      "sha256": "f79278bbc5e2ba379a347606bb502335ca18b8e4d2df8539d580d89e64fb8976",
+      "bytes": 10059
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/patch-green.log",
+      "sha256": "c52c5dc2995a467dc1df74faf9f21e27bad79a6ad8f643d4939f02795dfe3857",
+      "bytes": 116
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/patch-regression.log",
+      "sha256": "49f9c0160346d4070d40876fe47ee5ae3b73ed0cc3358566a52c41c49b3272d0",
+      "bytes": 197
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/patch-regression.xml",
+      "sha256": "339100ff0df111409f95e0d7b080fa28dcb46644d2513a610c3d4292a302e682",
+      "bytes": 20437
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/patch-impact.json",
+      "sha256": "04a1805910db74ddf0920a76de53a255bb2e34bf58990e065c580be31b035eac",
+      "bytes": 465
+    },
+    {
+      "path": "/tmp/agency-full-metrics-20261013-5a6h75xu/bounded-metric-fixes.patch",
+      "sha256": "a0b576d0bd2b28d5ff5a50b837f182cd7e278f344e99b6c560edda124deb68c2",
+      "bytes": 8983
+    }
+  ],
+  "limitations": [
+    "No new-model quality measured or imputed",
+    "No real dataset scan, API, rendering, training, inference or nested agents",
+    "No remote frozen archive verification/deployment",
+    "No full prior-fitting/data leakage certification",
+    "Synthetic tests do not establish bootstrap coverage, human validity or unknown-source generalization",
+    "Historical exposed test and single training seed retained",
+    "Original paper UR denominator/rounding ambiguous; no successful-scene counts inferred"
+  ],
+  "unexpected_changes_to_preexisting_review_inputs": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/contribution-and-evaluation-audit.md",
+      "sha256_read": "accc5612e43d5b61ad2d6768e0f7e971b251bff1c9012161199dbd75401a5b04",
+      "sha256_now": "3da705557a0b71632730c2dd278c0508109603db5a802dc14523b25e58cc07fd"
+    }
+  ]
+}

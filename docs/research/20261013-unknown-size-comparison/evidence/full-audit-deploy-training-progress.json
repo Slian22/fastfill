@@ -1,0 +1,31 @@
+{
+  "checkpoint_reload_validation": "not yet performed; trained checkpoint not yet complete",
+  "interpretation": "run retained diagnostic; corrected data and paired retraining required before clean scientific claims",
+  "observed_unix": 1791877421.5111194,
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "sacct": "7365681|RUNNING|03:12:51|2026-10-13T04:30:50\n7365681.batch|RUNNING|03:12:51|2026-10-13T04:30:50\n7365682|RUNNING|03:12:51|2026-10-13T04:30:50\n7365682.batch|RUNNING|03:12:51|2026-10-13T04:30:50\n",
+  "training": {
+    "7365681": {
+      "displayed_eta": "12:00:03",
+      "epoch": 0.1914,
+      "log_mtime_unix": 1791877420.0,
+      "log_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365681.out",
+      "log_size_bytes": 1270940,
+      "read_tail_sha256": "21fea0a4ab8dd3c32640a7756f583e2eb8e31405e399bd92ad4d2276d0a633e5",
+      "step": 4725,
+      "total_steps": 24689,
+      "training_loop_elapsed": "3:05:26"
+    },
+    "7365682": {
+      "displayed_eta": "13:24:04",
+      "epoch": 0.1785,
+      "log_mtime_unix": 1791877420.0,
+      "log_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/isambard/unknownsize-sft-7365682.out",
+      "log_size_bytes": 1184644,
+      "read_tail_sha256": "30a3553f1a872ab783336be189cbfce181b7537be1dfcf672f88c54ce207e18d",
+      "step": 4407,
+      "total_steps": 24689,
+      "training_loop_elapsed": "3:05:33"
+    }
+  }
+}

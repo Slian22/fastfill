@@ -1,0 +1,28 @@
+{
+  "scope": "Resumed parent source review of the active snapshot-only API transport helper, all606lines read including repeated281-336 after truncated display. No API execution or credentials read.",
+  "observed_utc": "2026-10-13T07:54:21.360971+00:00",
+  "files": [
+    {
+      "path": "docs/research/20261013-unknown-size-comparison/automation-code/pipeline-full-audit-a8726c726f72/server_api_judge.py",
+      "lines": 606,
+      "sha256": "8bfd7bc4f2e55b53f3d8701d78bcf00861336c091bdc3132ba10903b61f26b03",
+      "read_status": "fresh_full",
+      "fresh_read_spans": [
+        [
+          1,
+          606
+        ]
+      ]
+    }
+  ],
+  "findings": [],
+  "verified_behaviors": [
+    "Expected/returned model equality",
+    "Strict 0-10 component score schema",
+    "Image/prompt content checked before calls and repeated at consumption",
+    "Immutable attempt reservations block automatic duplicate calls",
+    "SSE completion required, timeout and error ledgers retained",
+    "No API key printed or copied by review"
+  ],
+  "limits": "Static review; external service behavior and formal quality unmeasured. Not a full re-review of all frozen copies or vendor source."
+}

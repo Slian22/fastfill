@@ -1,0 +1,1495 @@
+                                         PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+
+                                         Weixing Chen * 1 Zhuoqian Feng * 1 Yang Liu 1 2 Yexin Zhang 1 Yifan Wen 1 Yinghong Liao 3 Weichao Qiu 3
+                                                                              Guanbin Li 1 2 Liang Lin † 1 2 4
+
+
+                                                                  Abstract                                    tions (Liu et al., 2025). To cultivate such generalist agents,
+                                                                                                              researchers require simulation environments that reflect
+                                               Generating physically consistent 3D tabletop
+                                                                                                              diverse physical causalities and semantic richness (Torne
+                                               scenes is a fundamental yet underexplored prob-
+                                                                                                              et al., 2024), i.e., the interactive scenes1 . However, tradi-
+arXiv:2606.01649v2 [cs.CV] 3 Jun 2026
+
+
+
+
+                                               lem for interactive and generalist robotic learning.
+                                                                                                              tional scene construction methods, relying on manual heuris-
+                                               The challenge stems from dense object hierarchies
+                                                                                                              tics (Raistrick et al., 2024) or random arrangements (Jia &
+                                               and irregular affordances. Here, an interactive
+                                                                                                              Chen, 2024), fail to provide the scalability required for ro-
+                                               scene denotes a physically valid, collision-free
+                                                                                                              bust policy learning. Consequently, automated scene genera-
+                                               environment directly loadable into physics simu-
+                                                                                                              tion driven by Large Language Models (LLMs) has emerged
+                                               lators. Existing methods, ranging from decoupled
+                                                                                                              as a promising paradigm, leveraging the extensive world
+                                               symbolic solvers to end-to-end regression models,
+                                                                                                              knowledge embedded in pre-trained models (Yang et al.,
+                                               often suffer from error propagation or overfitting
+                                                                                                              2024).
+                                               to noisy supervision containing widespread physi-
+                                               cal violations. To address these limitations, we in-           While progress has been made in generating sparse indoor
+                                               troduce PhyScene3D, a framework that reformu-                  scenes, tabletop manipulation remains among the most
+                                               lates generation as a Human-Mimetic Construc-                  challenging subsets of indoor environment synthesis, char-
+                                               tive Process. The proposed Cognitive Topologi-                 acterized by dense object hierarchies and irregular affor-
+                                               cal Reasoning Chain (CTRC) factorizes scene                    dances (Hao et al., 2025; Wang et al., 2025). Unlike room-
+                                               synthesis into a sequential, anchor-conditioned                level furniture arrangement on a 2D ground plane, desktop
+                                               process. It employs a 3D AABB-based placement                  organization demands rigorous 3D spatial topology, e.g., a
+                                               scheme that imposes a strong structural inductive              pen must rest inside a holder that sits on a book. These com-
+                                               bias. To address imperfect supervision and phys-               plex physical dependencies expose fundamental limitations
+                                               ical infeasibility, we introduce Physics-Aware                 in existing paradigms.
+                                               Denoising Alignment (PADA). It integrates a
+                                                                                                              Agent-based solvers (Yang et al., 2024; Çelen et al., 2024)
+                                               differentiable Signed Distance Field (SDF) with
+                                                                                                              attempt to address this by decoupling semantic planning
+                                               Test-Time Optimization (TTO) to project gen-
+                                                                                                              (LLM) from geometric grounding (Solver), as shown in
+                                               erated scenes onto a physics-feasible manifold
+                                                                                                              Figure 1(a). However, this creates a “symbolic bottleneck”:
+                                               while preserving semantic intent. Experiments
+                                                                                                              lacking fine-grained spatial awareness, the LLM often gen-
+                                               demonstrate that PhyScene3D outperforms state-
+                                                                                                              erates physically infeasible graphs (e.g., floating stacks)
+                                               of-the-art approaches in both semantic accuracy
+                                                                                                              that downstream solvers cannot resolve without breaking
+                                               and physical validity, achieving a 40% reduction
+                                                                                                              the semantic intent (Sun et al., 2025). Conversely, image-
+                                               in scene-wise collision rate relative to the human-
+                                                                                                              mediated pipelines suffer from high latency and error ac-
+                                               annotated training data.
+                                                                                                              cumulation inherent in their multi-stage “generate-parse-
+                                                                                                              retrieve” workflow (Figure 1(b)).
+
+                                        1. Introduction                                                       Direct end-to-end regression models provide an alternative
+                                                                                                              but face a fundamental ceiling: blind mimicry. Since real-
+                                        The generalization capability of robotic agents in manipula-          world datasets are rife with noise, ranging from physical
+                                        tion tasks hinges on their ability to perceive complex envi-          collisions to unstable placements, naive supervised learning
+                                        ronments and execute actions grounded in human instruc-               forces models to copy these patterns rather than learning the
+                                           1                                                                  underlying physical laws (Figure 1(c)). Consequently, they
+                                            Sun Yat-sen University, China 2 Guangdong Key Laboratory
+                                        of Big Data Analysis and Processing 3 Huawei 4 Peng Cheng Labo-           1
+                                                                                                                    kinematically and physically valid, free of interpenetration,
+                                        ratory. Correspondence to: Liang Lin <linliang@ieee.org>.             directly importable into physics engines (Xiang et al., 2020;
+                                                                                                              Makoviychuk et al., 2021)
+                                        Preprint. June 4, 2026.
+
+                                                                                                          1
+                                         PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+
+       (a)                                                                      (d)                          printer           monitor       glove box
+                                                            Contradictory
+                                                             Subgraph                                        alarm clock
+                                                                                                                                         keyboard                      ①        ②
+                                                                                       Instruction
+                                                                                                                                                                      ③
+                                        Scene Graph        Failed Generation                                           pen 2     pen 1   mouse                              ④
+
+                                                                                                       Scene               Hierarchical
+                      LLM
+                                                                                                      Caption              Scene Graph                    Cognitive Topological Reasoning Chain
+
+
+       (b)
+
+
+
+                                                              Defective
+                   Scene Caption         Reference Image
+       (c)                                                  Reconstruction
+
+                                                                                             Physically Implausible Scenes                          Physics-Aware Denoising Alignment
+
+                                              LLM
+
+
+
+                                                                                      A desk with a monitor,
+                                                                                      printer, a glove box, a
+                                                                                      keyboard, a mouse, p e n s
+                                                                                      and an alarm clock in front
+                                                                                      of the screen
+                                                           Physically–Invalid
+             Inter-Penetrating Assets                           Scenes
+
+
+
+Figure 1. The current paradigms for desktop scene generation: (a) agent-based solvers, (b) image-based approaches, (c) end-to-end
+models, and (d) our proposed PhyScene3D.
+
+
+fail to generate the high-fidelity, collision-free environments                                 to rigorously optimize physical plausibility while faithfully
+required for reliable robotic simulation.                                                       adhering to the user’s semantic intent.
+To overcome these limitations, we propose PhyScene3D,                                           Our contributions are threefold:
+a framework that rethinks generation not as distribution
+matching, but as a “Human-Mimetic Constructive Process”.                                             • We propose PhyScene3D, the first framework to inject
+We argue that internalizing the explicit planning pipeline                                             a differentiable 3D physics engine into the training loop
+into the VLM’s implicit reasoning activates its geometric                                              of a vision-language model. This enables generative
+priors. Crucially, we treat the noisy training data not as a                                           models to surpass the physical quality of their training
+ground truth to be replicated, but as an imperfect reference                                           data through self-supervised denoising.
+to be “denoised”. By integrating a differentiable physical
+                                                                                                     • We introduce Cognitive Topological Reasoning Chain
+signal, the model is enabled to transcend its supervision and
+                                                                                                       (CTRC), a hierarchical sequencer that imposes a strong
+learn layouts that are physically more plausible than the
+                                                                                                       structural inductive bias by linearizing complex scene
+human demonstrations on which it was trained.
+                                                                                                       graphs into anchor-relative assembly sequences.
+We realize this goal through two core mechanisms (Figure                                             • We develop Physics-Aware Denoising Alignment
+1(d)). First, the Cognitive Topological Reasoning Chain                                                (PADA), a hybrid RL strategy that resolves the reward-
+(CTRC) acts as a structural sequencer. It reformulates                                                 hacking and semantic-drift trade-off by distilling dif-
+flat generation into an anchor-based hierarchical planning                                             ferentiable SDF-based physical priors into the VLM
+pipeline. By mapping abstract Scene Graphs to the 3D                                                   through TTO-refined semantic anchors.
+AABB-based placement scheme, CTRC imposes a strong
+inductive bias that enforces geometric dependencies (e.g.,
+placing containers before their contents), effectively elimi-                                   2. Related Work
+nating causal hallucinations. Second, to guide the planner                                      2.1. Interactive 3D scene Generation
+through noisy data, we introduce Physics-Aware Denoising
+Alignment (PADA). Unlike standard reinforcement learn-                                          Automated scene synthesis can be categorized into multi-
+ing, which often leads to “semantic drift” (sacrificing logic                                   stage agentic pipelines and end-to-end regression ap-
+for collision avoidance), PADA employs a Hybrid Opti-                                           proaches. Text-centric agents, such as Holodeck (Yang
+mization strategy. It utilizes a differentiable SDF engine                                      et al., 2024) and I-Design (Çelen et al., 2024), translate
+to perform Test-Time Optimization (TTO) on model hy-                                            prompts into symbolic constraints. Yet, they suffer from a
+potheses, generating physically projected semantic anchors                                      “symbolic bottleneck”, where the lack of spatial grounding
+that guide the policy. This approach enables PhyScene3D                                         of LLM causes geometrically infeasible hallucinations (e.g.,
+                                                                                                intersecting volumes) that deterministic solvers cannot re-
+
+                                                                                            2
+                                          PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+                  PhyScene3D                               Cognitive Topological Reasoning Chain                                                                         Physics-Aware Denoising Alignment
+                     Instruction
+                                                                Generate some Office Table scenes
+
+
+                                                                A desktop featuring a desk lamp, four books, a bowl containing some
+                                                                                                                                                        ⑤                                           ① Sampling k Candidate
+                                                                                                                                                         Policy Update
+                 Qwen-3 VL 8B                                   fruit, and of course a cup of coffee.                                                                                                       {𝑆1 , … , 𝑆𝑘 }
+
+                                                    Scene Description                                                 Scene Graph
+                                                                                                                            banana   lamp         cup
+                 Cognitive Topological              In the center of the desktop lie four books, neatly              orange_1
+                   Reasoning Chain                  stacked. To their left sits a glass bowl holding one                         bowl       coaster
+                                                                                                             apple
+                                                    apple, two oranges, and a banana; to their right,
+                                                    a coaster supports a coffee cup. A desk lamp
+                                                                                                                                 book_1                                           ④
+                                                                                                                     orange_2
+                                                                                                                                                                                  Physical Reward
+         {𝑆1 , … , 𝑆𝑘 }            𝑆𝑠𝑓𝑡             occupies the upper-left corner of the table.                                book_2       book_3
+
+
+                                                    Sub-Instruction
+                                                    step 1: Place the book_1 slightly above the center of the desk.
+         Physics-Aware           Test-Time          step 2: Place the lamp to the left of the book_1.
+       Denoising Alignment      Optimization        …
+                                                    step n-1: Place book_3 on top of book_2.
+                                                    step n: Place the orange_2 inside the bowl.
+                                                    Scene Layout
+                                                    {book_1: {refs: table,
+                                                    bbox: [84.15,113.25, 24.85,53.95, 0.00,2.20]},                                                      ③                                                  ②
+           Qwen-3 VL 8B                   LoRA      lamp: {refs: book_1,                                                                                 Semantic & Physical                          Test-Time Optimization
+                                                    bbox: [20.05,44.55, 35.50,65.90, 0.00,2.60] },
+                                                                                                                                                        Differentiable Guidance                        on the samplewwwww
+                                                                                                                                                                                                                      𝑆𝑠𝑓𝑡
+                                                    …}
+
+
+
+
+Figure 2. The PhyScene3D framework illustrates our two-stage training paradigm: (a) first, supervised fine-tuning equips the model with
+the Cognitive Topological Reasoning Chain mindset; (b) then, Physics-Aware Denoising Alignment further mitigates physical noise in the
+data to achieve superior semantic consistency and physical plausibility.
+
+
+solve (Sun et al., 2025). Image-mediated approaches (Ling                                                                         (PADA). By integrating a Differentiable Signed Distance
+et al., 2025; Wang et al., 2025) attempt to bridge this by                                                                        Field (SDF) into reinforcement learning, we provide dense,
+lifting generated or real-world 2D images (Yu et al., 2025;                                                                       gradient-based feedback, enabling PhyScene3D to actively
+El Amine Boudjoghra et al., 2025) to 3D. However, this                                                                            “denoise” its policy against data imperfections.
+“generate-parse-retrieve” workflow introduces high latency
+and irreversible error propagation. Conversely, end-to-end                                                                           3. Methodology
+methods like MesaTask (Hao et al., 2025) model joint dis-
+tributions directly from data. While efficient, this paradigm                                                                        We present PhyScene3D, a unified framework designed
+is bounded by supervision quality: naive training encour-                                                                            to bridge the gap between abstract user instructions and
+ages models to replicate dataset artifacts, including physical                                                                       physically plausible, hierarchically dense 3D desktop en-
+collisions. Unlike PhyScene3D, these methods lack intrin-                                                                            vironments. As illustrated in Figure 2, rather than treating
+sic mechanisms to transcend imperfect demonstrations via                                                                             scene generation as a static regression task, we reformulate
+physical self-correction.                                                                                                            it as a Human-Mimetic Constructive Process.
+                                                                                                                                     The framework consists of two organically integrated mod-
+2.2. Physically Grounded Reasoning and Alignment                                                                                     ules: 1) Cognitive Topological Reasoning Chain (CTRC):
+While Vision-Language Models (VLMs) demonstrate spa-                                                                                 A sequencer that imposes a strong inductive bias by lineariz-
+tial awareness in perceptual tasks (Bai et al., 2025; Hurst                                                                          ing scene generation into an anchor-based, hierarchically
+et al., 2024), leveraging these priors for constructive gener-                                                                       dependent planning stream, 2) Physics-Aware Denoising
+ation remains challenging. Current embodied AI research                                                                              Alignment (PADA): A grounding mechanism that utilizes a
+predominantly utilizes VLMs for semantic planning (Driess                                                                            differentiable physics engine to project semantic plans onto
+et al., 2023), visual navigation (Huang et al., 2023a), or ma-                                                                       physically valid manifolds, enabling robust policy optimiza-
+nipulation policies (Huang et al., 2023b). Although recent                                                                           tion without explicit semantic reward modeling.
+efforts (Chen et al., 2024; Jiang et al., 2025; Karamcheti
+et al., 2024) explicitly tune models for spatial reasoning,                                                                          3.1. Problem Formulation
+they typically focus on analyzing existing scenes via vi-
+                                                                                                                                     Given a natural language instruction I, our objective is to
+sual input (Wang et al., 2024). Deploying VLM geometric
+                                                                                                                                     generate a desktop scene layout S = {ei }N        i=1 , where N is
+priors as an implicit planner without runtime visual cues
+                                                                                                                                     the number of objects. We define each entity ei as a tuple
+remains underexplored. A critical barrier is aligning se-
+                                                                                                                                     ei = (ci , pi , si , θi ), where ci denotes the semantic category,
+mantic reasoning with physical laws. Prior methods rely
+                                                                                                                                     pi ∈ R3 is the absolute center position, si ∈ R3 represents
+on non-differentiable rejection sampling via rigid simula-
+                                                                                                                                     spatial dimensions, and θi ∈ R is the yaw rotation.
+tors (Todorov et al., 2012; Xiang et al., 2020) or heuristic
+filters (Paschalidou et al., 2021; Tang et al., 2024), which                                                                         To represent the complex structural dependencies of the
+sever gradient flow and force expensive trial-and-error. We                                                                          desktop scene layout and facilitate hierarchical reasoning
+bridge this gap via Physics-Aware Denoising Alignment                                                                                detailed in Sec. 3.2, we re-parameterize the explicit position
+
+                                                                                                                         3
+                        PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+pi and dimensions si into a 3D Axis-Aligned Bounding                 This formulation creates geometric invariants: even if the
+Box (AABB) representation defined by coordinate extrema:             parent moves, the child’s relative parameterization remains
+bi = [xmin , xmax , . . . , zmax ] ∈ R6 . Unlike the 6D pose         constant. This drastically reduces the search space, ren-
+and the object size commonly used in previous work (Hao              dering ’inside’ and ’on’ as mathematically distinct relative
+et al., 2025), this object representation unifies position and       placements. AABB here serves as a macro-topology in-
+scale, allowing the model to explicitly predict spatial oc-          ductive bias for hierarchical planning, while true physical
+cupancy boundaries and measure the relative placement                fidelity is enforced in the subsequent PADA stage via gradi-
+relations between the objects. Thus, the task is to model the        ents on high-precision mesh SDFs. For extremely irregular
+conditional distribution P (S|I), mapping instructions to a          shapes such as baskets with handles, AABB may conser-
+sequence of semantic-geometric attributes.                           vatively overestimate occupied volume; the SDF engine
+                                                                     corrects this at fine-grained contact points.
+3.2. Cognitive Topological Reasoning Chain (CTRC)
+                                                                     3.2.3. A NCHOR -BASED S EQUENTIAL P LANNING
+Naive generative models often treat objects as independent
+entities, resulting in “floating” artifacts or geometric hal-        The core innovation of CTRC is utilizing the HSG and rela-
+lucinations. CTRC addresses this issue by emulating the              tive AABB to linearize generation into an Anchor-Based
+human cognitive process of hierarchical decomposition. It            Sequential Plan. Drawing on cognitive science findings
+seamlessly integrates a topological graph structure with the         that humans organize spatial tasks hierarchically (Tversky,
+3D AABB-based placement scheme, culminating in a se-                 1981), we enforce a specific generation order:
+quential planning strategy.
+                                                                                                  N
+                                                                                                  Y
+                                                                                      P (S|I) =         P (et |e<t , I)           (2)
+3.2.1. H IERARCHICAL S CENE G RAPH (HSG)
+                                                                                                  t=1
+The foundation of our reasoning chain is the HSG, a directed
+                                                                     The sequence e1...N is deterministically ordered by our
+acyclic graph G = (V, E) that abstracts the scene into
+                                                                     Anchor-Expansion Strategy: 1. Anchor Identification: The
+geometric dependencies rather than mere semantic labels.
+                                                                     process begins with the “Base Anchor”, the object on the
+We extract edges E based on geometric heuristics (In ≻
+                                                                     table closest to the center. 2. Horizontal Expansion: We
+On ≻ Near):
+                                                                     iteratively generate objects on the table surface, referencing
+                                                                     existing neighbors (e.g., “Place the lamp left of the laptop”).
+   • Containment (in): Defined by volume ratio                       3. Recursive Stacking: Critically, once a container or sup-
+     (VB /VA ≥ 1.5) and high footprint overlap (IoUxy ≥              port is generated, its children are immediately planned in a
+     0.9), where A is content, and B is container.                   bottom-up sequence.
+   • Vertical Support (on): Defined by vertical adjacency            This strategy provides a strong inductive bias that respects
+       A       B                                                     physical causality. During training, the generation order is
+     (zmin ≈ zmax ) and stability.
+                                                                     deterministically derived from the scene graph via bottom-
+   • Horizontal Proximity (near): Defined by the domi-               up geometric heuristics, ensuring supports precede their
+     nant separation axis relative to the table center.              contents. In inference, the model autoregressively predicts
+                                                                     this order from SFT priors without any external rule en-
+This graph serves as the “cognitive map”, establishing that          gine. Even if an incorrect order is predicted, the relative-
+a pen is not merely “at (x, y)” but is “inside the holder”.          coordinate parameterization immediately exposes the error
+                                                                     through floating or penetration, allowing the SDF engine in
+3.2.2. 3D AABB- BASED P LACEMENT S CHEME                             PADA to penalize such violations during RL and force the
+                                                                     policy to recover physical causality.
+Building upon the HSG, we introduce the 3D AABB-based
+placement scheme that enforces the graph’s structural con-           3.3. Physics-Aware Denoising Alignment (PADA)
+straints. We define the pose of a child object ech strictly
+in the local frame of its parent epa . Let babs denote abso-         While CTRC provides a structurally coherent plan, the raw
+lute coordinates. We compute relative coordinates brel as            predictions of VLMs are inherently bounded by the “physi-
+offsets. Crucially, we decouple the vertical dimension to            cal noise” (e.g., collisions, levitation) present in the training
+encode physical affordance:                                          data. PADA addresses this by grounding the VLM via a
+                (                                                    differentiable physics engine.
+                   abs                  abs
+ rel             z{min,max}   (ech ) − zmin (epa ) if r = in         However, a critical limitation exists: optimizing solely for
+z{min,max} =       abs                  abs
+                 z{min,max} (ech ) − zmax (epa ) if r = on           physical validity (e.g., zero collision) often induces seman-
+                                                         (1)         tic drift, where the model satisfies physical constraints by
+
+                                                                 4
+                        PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+destroying the intended arrangement (e.g., scattering objects       3.3.3. P HYSICALLY-P ROJECTED S EMANTIC
+far apart). To resolve this, we propose a hybrid optimization              A NCHORING
+strategy where the 3D AABB-based placement scheme
+                                                                    Finally, we address the challenge of training the VLM to
+(Sec. 3.2) acts as a rigid constraint, ensuring that physical
+                                                                    satisfy physical constraints without a dense semantic re-
+correction does not compromise semantic fidelity.
+                                                                    ward model. We propose a Physically-Projected Seman-
+                                                                    tic Anchor strategy that generates high-quality pseudo-
+3.3.1. D IFFERENTIABLE SDF P HYSICS E NGINE
+                                                                    supervision from the SFT model itself.
+The cornerstone of our approach is a GPU-resident physics
+                                                                    Rationale of Semantic Anchoring. The SFT model
+engine that preprocesses all assets into vectorized Signed
+                                                                    (trained on instruction data) captures the correct semantic
+Distance Fields (SDFs), denoted as ϕ. This engine serves
+                                                                    distribution Msem but suffers from physical noise. Con-
+a dual purpose: enabling fast reward computation for rein-
+                                                                    versely, pure RL exploration finds the physical manifold
+forcement learning (RL) and providing differentiable gradi-
+                                                                    Mphys but lacks semantic direction. We bridge this gap
+ents for optimization. Given a layout, for each object A, we
+                                                                    by leveraging the refinement capability of the TTO engine
+derive its world-space rotation RA and translation tA . The
+                                                                    into the VLM’s generative policy. Concretely, we generate
+collision energy against a target SDF ϕB is computed via
+                                                                    a pseudo-label from the SFT model and refine it via TTO,
+differentiable point sampling:
+                                                                    creating a physically-projected semantic anchor that guides
+                X                                                   RL exploration without requiring the model to rediscover
+                      ReLU −ϕB R⊤
+                                                           
+Lsdf (A, B) =                          B (RA p + tA − tB )
+                                                                    semantic structure from scratch:
+               p∈PA
+                                                      (3)
+where PA denotes surface points sampled in A’s canonical
+                                                                      1. Inference: Generate a layout hypothesis Ssf t using
+frame. The pose parameters are thus optimized by the gra-
+                                                                         the SFT model given the training instruction.
+dients from the physics engine, physically “pushing” the
+intersecting objects apart.
+                                                                      2. Rectification: Apply Hierarchy-Constrained TTO
+3.3.2. H IERARCHY-C ONSTRAINED T EST-T IME                               to project Ssf t onto the physical manifold, yielding
+       O PTIMIZATION (TTO)                                                 ∗
+                                                                         Sanchor  = TTO(Ssf t ).
+To utilize this engine without breaking semantics, we in-
+troduce a Hierarchy-Constrained TTO. Standard TTO opti-
+                                                                    Because TTO is constrained by the 3D AABB-based place-
+mizes absolute coordinates, which is prone to drift. Instead,                       ∗
+                                                                    ment scheme, Sanchor    retains the semantic fidelity of SFT
+we leverage the 3D AABB-based placement scheme estab-
+                                                                    while being collision-free.
+lished in CTRC to enforce structural rigidity.
+                                                                    Dual-Objective RL. We integrate this anchor into Group
+We treat the VLM’s output as an initialization and optimize
+                                                                    Relative Policy Optimization (GRPO) as a dense supervision
+the geometric parameters ξ. The objective function strictly
+                                                                    term:
+penalizes deviations in the relative frame rather than the
+global frame:                                                                                "                   #
+                                                                                                K
+                                                                                             1 X       πθ (Sk )
+      min Lsdf + λrel Lrel (G) + λreg ||ξ − ξinit ||2                        J (θ) = EL∼πθ         Ak
+                                                      
+                                                        (4)                                  K        πold (Sk )
+       ξ                                                                                       k=1
+                                                                                           |        {z           }
+                                                                                                    RL: Exploration
+Here, Lrel (G) imposes constraints based on the Scene
+                                                                                                               ∗
+Graph edge types:                                                                             + α · LCE (πθ , Sanchor )        (5)
+                                                                                                |        {z           }
+                                                                                                  Anchor: Semantic Stability
+   • For in edges, we freeze the relative position, treating
+     the child and parent as a rigid body.
+                                                                    The RL term (Ak derived from collision scores) drives the
+   • For on edges, we enforce the z rel alignment constraint        model to explore physical validity. The Anchor term pro-
+     defined in Eq. 1, ensuring the object remains on the           vides a “correction vector” pointing towards L∗anchor . This
+     surface even if the surface moves to resolve collisions.       significantly accelerates convergence because the model
+                                                                    does not need to rediscover semantic structures (e.g., “cup
+This formulation ensures that optimization resolves col-            holds pen”) through random exploration; it only needs to
+lisions by adjusting the assembly as a whole or making              learn the micro-adjustments required to satisfy physics. This
+micro-adjustments within valid affordance zones, thereby            effectively distills the analytical power of the TTO engine
+preserving the semantic intent.                                     back into the VLM’s priors.
+
+                                                                5
+                         PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Table 1. The performance of Layout generation. Reference denotes the effectiveness of the benchmark constructed from samples drawn
+from MesaTask-10k, serving as a baseline to measure the inherent quality of the data. We present the performance of three approaches,
+including Zero-shot by closed-source LLM , Agent-Based Solver , and End-to-End Model . Bold indicates the best performance, and
+underline indicates the second-best.
+
+                          Quality Pass Rate                            GPT Score                          Collision Ratio
+   Model
+                       τ =7     τ =8      τ =9      CwT     OSR        PPI    LCR    OV     Avg.    Scene-wise↓     Asset-wise↓
+   Reference          17.1%     15.1%     11.5%     7.83    9.25       9.52   8.25   9.18   8.87       81.5%           8.19%
+   GPT-4o-mini        17.9% 13.4% 8.8%              6.18    8.45       9.15   6.82   7.34   7.59       80.0%          13.61%
+   GPT-4o             27.6% 22.1% 12.7%             6.95    8.79       9.54   7.48   8.18   8.19       68.9%           7.87%
+   Holodeck-table 2.7%           0.6%       0%      2.35    6.21       7.38   3.61   3.43   4.60        2.7%           0.47%
+   I-Design-table 19.0%          9.7%      4.5%     4.39    8.20       9.20   5.34   5.55   6.53       39.1%           5.94%
+   MesaTask           21.1%     18.6%     14.8%     7.78    9.23       9.78   8.15   9.05   8.80       78.3%           8.19%
+   Ours               46.5%     39.1%     27.3%     7.85    9.45       9.91   8.29   9.15   8.93       41.6%           3.86%
+
+
+4. Experiments                                                         Asset-wise Collision Rate (ACR), the percentage of colliding
+                                                                       object pairs. 2) Semantic Fidelity: We employ GPT-Score
+4.1. Experimental Setup                                                (1-10 scale) in 5 dimensions to assess layout logic and visual
+Dataset. We introduce MesaTask-CTRC, derived from the                  appearance, including Consistency with Task (CwT), Object
+MesaTask-10k dataset (Hao et al., 2025) by augmenting raw              Size Reasonableness (OSR), Placement Plausibility & In-
+layouts with hierarchical scene graphs and goal-oriented in-           tersections (PPI), Layout Coherence & Realism (LCR), and
+structions (construction details in Appendix A). The dataset           Object Visibility (OV). Finally, we propose an evaluation
+comprises 9,429 training samples and a challenging bench-              metric to measure data usability, namely Quality Pass Rate
+mark of 866 samples. The benchmark is stratified across 6              (QPR). It measures the proportion of valid samples with a
+distinct tabletop scenarios and 5 difficulty levels based on           GPT Score greater than τ that are collision-free.
+object density and stacking complexity. The Reference data
+exhibits an 81.5% SCR, reflecting genuine human-annotated              4.2. Main Result
+interpenetration rather than AABB false positives.
+                                                                       We perform a multi-dimensional analysis to validate
+Baselines. We compare PhyScene3D against three distinct                PhyScene3D’s capability to generate physically plausible
+paradigms: (1) Zero-shot Generation with Closed-source                 and semantically faithful environments. Table 1 presents a
+LLMs: It employs state-of-the-art models, including GPT-               comprehensive evaluation of PhyScene3D against state-of-
+4o and GPT-4o-mini, for zero-shot scene generation. (2)                the-art baselines. The empirical evidence strongly supports
+Agent-Based Solver: Methods such as Holodeck (Yang                     our central hypothesis: by internalizing explicit structural
+et al., 2024) and I-Design (Çelen et al., 2024), which lever-         planning and physical feedback, a generative model can
+age LLMs to generate symbolic constraints for external                 surpass the quality of its noisy training supervision.
+solvers. (3) End-to-End Model: The supervised baseline
+from MesaTask (Hao et al., 2025), which regresses object               4.2.1. Q UANTITATIVE A NALYSIS
+poses directly without hierarchical intermediates.
+                                                                       A critical limitation in data-driven generation is blind
+Implementation Details. We utilize Qwen-3 VL 8B (Bai                   mimicry, where models learn to reproduce dataset artifacts.
+et al., 2025) as the backbone, trained on devices with 640             As shown in Table 1, the Reference data, representing the
+GB VRAM in total. Training proceeds in two stages: i)                  upper bound of human annotation, suffers from an inherent
+Supervised Fine-Tuning (SFT): Full-parameter optimization              SCR of 81.5%. The End-to-End baseline (MesaTask) sta-
+on the training set. ii) Physically-Aware RL: GRPO with                tistically mirrors this distribution. In contrast, PhyScene3D
+LoRA adapters (r = 16) to inject physical gradients. De-               significantly reduces the ACR to 3.86%, a relative reduction
+tailed hyperparameters for learning rates, batch sizes, and            of nearly 50% compared to the ground truth. Crucially, this
+TTO coefficients are provided in Appendix B.                           physical regularization does not come at the cost of seman-
+                                                                       tic expressiveness. Our method achieves a QPR (τ = 7) of
+Metrics. We evaluate performance on two dimensions:
+                                                                       46.5%, surpassing the Reference data itself (17.1%) by a
+1) Physical Plausibility: We report Scene-wise Collision
+                                                                       wide margin. Analyzing the GPT-Score dimensions reveals
+Rate (SCR), the percentage of scenes with violations, and
+                                                                       that this gain is driven by precision: PhyScene3D outper-
+
+
+                                                                   6
+                                                       PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+                                                           Table 2. The performance of Layout generation on the OOD benchmark.
+
+                                                        Quality Pass Rate                                      GPT Score                           Collision Ratio
+                Model
+                                                     τ =7        τ =8         τ =9        CwT         OSR      PPI    LCR     OV     Avg.    Scene-wise↓     Asset-wise↓
+                MesaTask      1.01% 0.51% 0.51%                                           5.02        7.96     8.50   5.75    6.17   6.68        97%           19.01%
+                Qwen-3 VL 8B  3.08% 1.54% 1.03%                                           6.51        8.88     9.44   7.01    7.77   7.92       96.4%          10.28%
+                + CTRC        10.6% 8.04% 3.02%                                           6.74        8.86     9.50   7.34    7.96   8.08       88.4%           6.62%
+                + CTRC & PADA 29.1% 15.1% 7.03%                                           6.19        8.63     9.46   6.83    7.56   7.56       63.8%           2.92%
+
+
+                                      Performance Comparison across Difficulty Level                          line. As shown in Table 3, DiffuScene (Tang et al., 2024).
+                                                          Reference
+                        70                                Holodeck                                            completely fails under dense tabletop constraints, yielding
+                                                          i-Design
+                        60                                GPT4o-Mini                                          0% QPR, 100% scene-wise collision, and 5.95 GPT Score
+                                                          GPT4o                                               on the representative Dining Table subset. While diffusion
+Quality Pass Rate (%)
+
+
+
+
+                        50                                MesaTask
+                                                          Baseline                                            models excel at global distribution modeling, their lack of
+                        40
+                                                          PhyScene3D (Ours)
+                                                                                                              explicit 3D physical boundary enforcement renders them in-
+                        30                                                                                    capable of handling dense local interactions. This validates
+                        20
+                                                                                                              that tabletop scene generation requires a physics-aligned
+                                                                                                              framework rather than pure generative modeling.
+                        10
+
+                        0
+                                                                                                              Beyond standard benchmarks, a robust generative model
+                             Level1        Level2            Level3           Level4             Level5       must exhibit zero-shot generalization to novel semantic con-
+                                                                                                              texts. To validate this, we evaluate PhyScene3D on four
+  Figure 3. QPR (τ = 7) performance of each method across
+  different difficulty levels.                                                                                unseen scenes: Cashier Counter, Nightstand, Side Table,
+                                                                                                              and TV Stand. From Table 2, the MesaTask suffers a se-
+  Table 3. Comparison between the diffusion model-based baseline                                              vere performance drop (QPR dropping to 1.01%), revealing
+  and our PhyScene3D in the dining table scene.                                                               that end-to-end regression models tend to overfit the ab-
+                                                                                                              solute spatial distributions of the training set. In contrast,
+                  Model                             QPR (τ = 7)       GPT Score        SCR     ACR            PhyScene3D demonstrates remarkable adaptability. The
+                DiffuScene                               0              5.95            100    15.6
+                                                                                                              introduction of CTRC yields a 10× improvement in QPR
+             PhyScene3D (Ours)                        0.242             8.58           73.62   5.96
+                                                                                                              (10.6%) over the baseline, suggesting that our hierarchical
+                                                                                                              relative representation captures topological invariants (e.g.,
+                                                                                                              “placement on a surface” is structurally identical whether
+   forms baselines in the PPI score (9.91 vs. 9.54 for GPT-4o)
+                                                                                                              the surface is a desk or a nightstand). Furthermore, the
+   and OSR score (9.45 vs. 9.25 for Reference), validating that
+                                                                                                              integration of PADA boosts QPR to 29.1%. This confirms
+   the PADA module effectively ensures physically realistic
+                                                                                                              that physical laws are universal. By grounding the model
+   predictions.
+                                                                                                              in fundamental constraints (gravity, non-penetration) rather
+  To investigate the robustness of CTRC, we analyze perfor-                                                   than dataset statistics, PADA enables the agent to construct
+  mance across varying difficulty levels stratified by object                                                 valid layouts even in environments it has never seen.
+  density (Figure 3). As scene complexity increases from
+  Level 1 (sparse) to Level 5 (dense), the performance of                                                     4.2.2. Q UALITATIVE A NALYSIS
+  the Reference data drops sharply, dropping to 0.0% QPR
+  at Level 4, indicating that human annotators struggle to                                                    We visually compare the generated scenes in Figure 4 to
+  maintain collision-free consistencies in dense environments.                                                better interpret the observed numerical gains. The examples
+  While GPT-4o and MesaTask exhibit sharp performance                                                         illustrate distinct failure modes in baseline methods, which
+  degradation at higher difficulties (dropping to 19.0% and                                                   are effectively circumvented by PhyScene3D.
+  7.1% at Level 5, respectively), PhyScene3D demonstrates                                                     For instance, while GPT-4o captures high-level semantics,
+  superior resilience, maintaining a QPR of 40% at Level                                                      it struggles with fine-grained spatial awareness. Objects
+  5. This suggests that the hierarchical decomposition in                                                     frequently float mid-air or exhibit severe inter-penetration
+  CTRC allows the model to manage combinatorial complex-                                                      (e.g., closely packed small objects interpenetrate, see in Fig-
+  ity effectively, preventing the “cascading errors” observed                                                 ure 4 (a)). This highlights the limitations of even powerful
+  in non-hierarchical baselines.                                                                              foundational models in precise 3D spatial reasoning when
+   Beyond regression baselines, our method also demonstrates                                                  lacking an explicit grounding mechanism like PADA.
+   superior performance compared to the diffusion-based base-
+
+                                                                                                          7
+                                PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+
+  (a)       GPT-4o                          Holodeck-table                           MesaTask                                PhyScene3D
+
+
+
+
+        Laptop centered, monitor behind. Notepad left, storage box beside. Cup right, books left, mouse and second notepad front-right, calendar near organizer.
+
+  (b)
+
+
+
+
+                     Cluster books on the left, place a plant with a candle above, center a tray, position mugs right, and set the clock on the up right
+
+  (c)
+
+
+
+
+           Position the pot at the center, scatter lemons inside, place the wooden bowl on its left, layer towels on the right, and set the cutting board in front.
+
+
+Figure 4. Qualitative comparison of generated desktop scenes. GPT-4o often hallucinates floating objects or intersects volumes.
+Holodeck produces sparse, unnatural arrangements due to symbolic bottlenecks. MesaTask mimics training noise with visible collisions.
+PhyScene3D (Ours) generates hierarchically dense, collision-free layouts with precise container-content relationships.
+
+
+In contrast, Holodeck generates physically valid but seman-                               Table 4. Robotic grasping success rates in the ManiSkill simulator.
+tically limited scenes. The layouts are often sparse and
+                                                                                                Robotic Task Success Rate                IID scene         OOD scene
+rigid, failing to naturally cluster objects. This reflects the
+                                                                                                        MesaTask                            4.6%             3.5%
+inherent trade-off in compressing rich linguistic instructions                                    PhyScene3D (Ours)                        50.4%            14.1%
+into symbolic code: while the solver satisfies physical con-
+straints, it misses subtler nuances, such as the “cluttered”
+yet realistic arrangement of objects on a typical tabletop.
+Similarly, MesaTask produces scenes with visually plausible                               and train robotic agents for cluttered target retrieval. Agents
+density but inherits the physics errors present in its train-                             trained on MesaTask baseline scenes, which contain se-
+ing set. We observe unstable stacks (e.g., the book, plant,                               vere interpenetration, suffer from simulation instabilities
+and candle balanced precariously, see in Figure 4 (b)) and                                during initialization and achieve only 4.6% success in IID
+intersecting meshes, which align with our quantitative find-                              settings and 3.5% in OOD. In contrast, agents trained on
+ings. Standard regression methods, as demonstrated, tend                                  PhyScene3D layouts succeed in 50.4% of IID episodes and
+to blindly replicate noise from the Reference distribution,                               14.1% OOD. This dramatic improvement directly validates
+resulting in these artifacts.                                                             the qualitative observations in Figure 4: the collision-free
+                                                                                          stacks and precise container content relationships produced
+In comparison, our method demonstrates the unique bene-                                   by our method are not merely visually convincing, but
+fits of the CTRC-PADA combination. In complex stacking                                    provide a stable physical foundation that enables reliable
+scenarios (e.g., “lemon in the pot” or “a plant with a candle                             robotic interaction.
+above the books”, see in Figure 4), PhyScene3D accurately
+resolves dependency chains: containers are placed first, ap-                              4.3. Ablation Study
+propriately sized, and their contents are grounded within
+them. The AABB-based placement scheme ensures co-                                         To disentangle the contributions of each component in
+herence in local assemblies, while TTO fine-tunes contact                                 PhyScene3D, we conduct a component-wise analysis us-
+points to high precision. The resulting scenes achieve a                                  ing the Qwen-3 VL 8B backbone, as shown in Table 5.
+tidily dense layout that closely mimics human organization,                               The transition from a text-only LLM (Qwen-3 8B) to a VLM
+one that is structurally sound and semantically consistent.                               (Qwen-3 VL 8B) yields modest improvements (+0.7% QPR
+Beyond static layout quality, the ultimate test of an inter-                              at τ = 7), confirming that visual pre-training aligns latent
+active scene is whether it supports physical manipulation.                                representations closer to 3D spatial concepts. However, the
+We import generated layouts into the ManiSkill simulator                                  introduction of the CTRC generates a more significant leap
+                                                                                          (+2.4% QPR), validating that explicitly modeling scene hi-
+
+                                                                                      8
+                         PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Table 5. Ablation study on the MesaTask-CTRC benchmark. CTRC denotes SFT on hierarchical sequences; +GRPO denotes SFT
+followed by pure reinforcement learning without anchors; +TTO denotes post-hoc optimization applied to SFT outputs; +PADA* denotes
+SFT with RL using raw SFT outputs as semantic anchors; and +PADA denotes SFT with RL using TTO-refined layouts as anchors.
+
+                           Quality Pass Rate                          GPT Score                       Collision Ratio
+      Model
+                         τ = 7 τ = 8 τ = 9 CwT OSR PPI LCR OV Avg. Scene-wise↓ Asset-wise↓
+      Qwen-3 8B         18.5% 15.8% 12.7% 7.74             9.44 9.83 8.21 9.11 8.86                 81.1%          8.50%
+      + CTRC            20.3% 19.0% 14.9% 7.71             9.43 9.83 8.19 9.09 8.85                 79.3%          7.46%
+      Qwen-3 VL 8B      19.2%    17.2%    13.7%     7.76   9.28       9.86   8.18   9.12   8.84     80.1%          8.18%
+      + CTRC            21.6%    20.0%    15.8%     7.91   9.51       9.88   8.34   9.18   8.96     77.8%          7.60%
+      + GRPO            28.8%    22.8%    14.1%     7.11   9.23       9.73   7.67   8.60   8.47     68.9%          6.82%
+      + TTO             38.0%    34.8%    24.2%     7.71   9.36       9.79   8.17   9.12   8.83     60.5%          4.86%
+      + PADA*           34.2%    29.9%    19.8%     7.51   9.38       9.79   8.00   8.98   8.73     64.5%          5.63%
+      + PADA            46.5%    39.1%    27.3%     7.85   9.45       9.91   8.29   9.15   8.93     41.6%          3.86%
+
+
+erarchy and relative coordinates provides a robust inductive          an anchor (PADA*) restores semantic fidelity (GPT Score
+bias. This structural constraint reduces geometric halluci-           8.73 & 5.63% collision), which means semantic anchors
+nations (Asset Collision drops from 8.18% to 7.60%) even              steer the model’s exploration beyond GRPO (GPT Score
+without explicit physical feedback, proving that hierarchical         8.47 & 6.82% collision), ensuring both semantic coherence
+planning is fundamental to handling dense layouts.                    and physical plausibility. Yet it still falls short of perfor-
+                                                                      mance from the TTO-refined anchor (3.86% collision). Fur-
+We observe a critical trade-off when introducing physical
+                                                                      thermore, tabletop scenes are extremely dense, typically
+supervision. While naive reinforcement learning (+GRPO)
+                                                                      containing 10 to 20 objects with complex contact relation-
+significantly improves physical plausibility (Asset Collision
+                                                                      ships. Requiring absolute zero collision across every scene
+decreases to 6.82%), it suffers from severe reward hacking,
+                                                                      remains extremely difficult for end-to-end generative mod-
+evidenced by a sharp drop in Average GPT Score (8.96 to
+                                                                      els; however, reducing local asset-wise interpenetration to
+8.47). This drift manifests not only in lower GPT scores
+                                                                      3.86% represents a substantial breakthrough in physical fi-
+but also in reduced spatial diversity, as shown in the Ap-
+                                                                      delity. Thus, the TTO-refined anchor (PADA) offers a better
+pendix F. The model learns to minimize collisions by gener-
+                                                                      Pareto frontier, combining the semantic richness of the SFT
+ating sparse, simplistic layouts that violate semantic instruc-
+                                                                      model with the rigorous physical validity of the SDF engine.
+tions. Test-time optimization (+TTO) effectively mitigates
+this by correcting artifacts post-hoc, achieving a strong QPR
+of 38.0%. Its value lies in generating offline training targets       5. Conclusion and Future Work
+for PADA, not in serving as a practical deployment-time so-
+                                                                      In this work, we presented PhyScene3D, a framework that
+lution. However, TTO is computationally expensive during
+                                                                      reformulates 3D tabletop scene generation from a static
+deployment and limited by initialization quality; it serves
+                                                                      regression problem into a Human-Mimetic Constructive
+as local repair rather than fundamental correction of the
+                                                                      Process. By combining the CTRC for hierarchical plan-
+generative policy.
+                                                                      ning with (PADA) for geometric grounding, our method
+Our proposed PADA framework shows the benefit of inter-               overcomes the limitations of noisy supervision, generating
+nalizing these constraints during training. By using TTO-             environments that are physically more plausible than the
+refined layouts as semantic anchors, PADA surpasses the               human-annotated data on which it is trained. We argue that
+inference-only TTO baseline (46.5% vs 38.0% QPR) and                  the integration of high-fidelity differentiable physics en-
+achieves the lowest collision rate (3.86%). By distilling the         gines and robust semantic reward models will be critical to
+TTO engine into the generative policy rather than apply-              bridging the sim-to-real gap. These advances aim to enable
+ing local post-hoc repair, PADA achieves a better trade-off           robotic agents to perceive, reason, and manipulate within
+between semantic compactness and physical validity that               the complex and unstructured physical world.
+neither pure GRPO nor isolated TTO can achieve. This
+indicates that the VLM has successfully “learned physics”
+from the TTO teacher, generating initial proposals that are
+better globally than what local optimization can achieve
+from noisy initializations.
+Comparing anchor strategies, using the raw SFT output as
+
+                                                                  9
+                          PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Acknowledgement                                                             Proceedings of the IEEE/CVF International Conference
+                                                                            on Computer Vision (ICCV), pp. 27105–27115, October
+This work is supported by National Key Research and De-                     2025.
+velopment Program of China (2024YFE0203100), in part
+by the National Natural Science Foundation of China un-                   Hao, J., Liang, N., Luo, Z., XU, X., Zhong, W., Yi, R.,
+der Grant No. 62325605, No. 62572498, No. 62536010                          Jin, Y., Lyu, Z., Zheng, F., Ma, L., et al. Mesatask:
+and No. 62322608, in part by the open research fund of                      Towards task-driven tabletop scene generation via 3d
+Pengcheng Laboratory under Grant 2025KF1B0050, in part                      spatial reasoning. In The Thirty-ninth Annual Conference
+by the Guangdong Basic and Applied Basic Research Foun-                     on Neural Information Processing Systems, 2025.
+dation under Grant No. 2025A1515011874. This work was
+supported in part by the Key Development Project of the Ar-               Huang, C., Mees, O., Zeng, A., and Burgard, W. Visual
+tificial Intelligence Institute, Sun Yat-sen University, under              language maps for robot navigation. In 2023 IEEE Inter-
+Grant 2025RGZN009. We also thank the National Super-                        national Conference on Robotics and Automation (ICRA),
+computer Center in Guangzhou for computational support.                     pp. 10608–10615. IEEE, 2023a.
+
+                                                                          Huang, W., Wang, C., Zhang, R., Li, Y., Wu, J., and Fei-Fei,
+Impact Statement                                                            L. Voxposer: Composable 3d value maps for robotic
+                                                                            manipulation with language models. arXiv preprint
+This paper presents work whose goal is to advance the field
+                                                                            arXiv:2307.05973, 2023b.
+of Machine Learning. There are many potential societal
+consequences of our work, none of which we feel must be                   Hurst, A., Lerer, A., Goucher, A. P., Perelman, A., Ramesh,
+specifically highlighted here.                                              A., Clark, A., Ostrow, A., Welihinda, A., Hayes, A.,
+                                                                            Radford, A., et al. Gpt-4o system card. arXiv preprint
+References                                                                  arXiv:2410.21276, 2024.
+Bai, S., Cai, Y., Chen, R., Chen, K., Chen, X., Cheng, Z.,                Jia, Y. and Chen, B. Cluttergen: A cluttered scene generator
+  Deng, L., Ding, W., Gao, C., Ge, C., Ge, W., Guo, Z.,                      for robot learning. In 8th Annual Conference on Robot
+  Huang, Q., Huang, J., Huang, F., Hui, B., Jiang, S., Li, Z.,               Learning, 2024.
+  Li, M., Li, M., Li, K., Lin, Z., Lin, J., Liu, X., Liu, J., Liu,
+  C., Liu, Y., Liu, D., Liu, S., Lu, D., Luo, R., Lv, C., Men,            Jiang, K., Liu, Y., Chen, W., Luo, J., Chen, Z., Pan, L.,
+  R., Meng, L., Ren, X., Ren, X., Song, S., Sun, Y., Tang,                   Li, G., and Lin, L. Beyond the destination: A novel
+  J., Tu, J., Wan, J., Wang, P., Wang, P., Wang, Q., Wang,                   benchmark for exploration-aware embodied question an-
+  Y., Xie, T., Xu, Y., Xu, H., Xu, J., Yang, Z., Yang, M.,                   swering. In Proceedings of the IEEE/CVF International
+  Yang, J., Yang, A., Yu, B., Zhang, F., Zhang, H., Zhang,                   Conference on Computer Vision (ICCV), pp. 9091–9101,
+  X., Zheng, B., Zhong, H., Zhou, J., Zhou, F., Zhou, J.,                    October 2025.
+  Zhu, Y., and Zhu, K. Qwen3-vl technical report, 2025.
+  URL https://arxiv.org/abs/2511.21631.                                   Karamcheti, S., Nair, S., Balakrishna, A., Liang, P., Kol-
+                                                                            lar, T., and Sadigh, D. Prismatic vlms: Investigating
+Çelen, A., Han, G., Schindler, K., Van Gool, L., Armeni, I.,               the design space of visually-conditioned language mod-
+   Obukhov, A., and Wang, X. I-design: Personalized llm                     els. In Forty-first International Conference on Machine
+   interior designer. In European Conference on Computer                    Learning, 2024.
+   Vision, pp. 217–234. Springer, 2024.
+                                                                          Ling, L., Lin, C.-H., Lin, T.-Y., Ding, Y., Zeng, Y., Sheng,
+Chen, B., Xu, Z., Kirmani, S., Ichter, B., Sadigh, D., Guibas,              Y., Ge, Y., Liu, M.-Y., Bera, A., and Li, Z. Scenethesis:
+  L., and Xia, F. Spatialvlm: Endowing vision-language                      A language and vision agentic framework for 3d scene
+  models with spatial reasoning capabilities. In Proceed-                   generation. arXiv preprint arXiv:2505.02836, 2025.
+  ings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition, pp. 14455–14465, 2024.                         Liu, Y., Chen, W., Bai, Y., Liang, X., Li, G., Gao, W.,
+                                                                            and Lin, L. Aligning cyber space with physical world:
+Driess, D., Xia, F., Sajjadi, M. S., Lynch, C., Chowdhery,                  A comprehensive survey on embodied ai. IEEE/ASME
+  A., Ichter, B., Wahid, A., Tompson, J., Vuong, Q., Yu, T.,                Transactions on Mechatronics, 2025.
+  et al. Palm-e: an embodied multimodal language model.
+  In Proceedings of the 40th International Conference on                  Makoviychuk, V., Wawrzyniak, L., Guo, Y., Lu, M., Storey,
+  Machine Learning, pp. 8469–8488, 2023.                                   K., Macklin, M., Hoeller, D., Rudin, N., Allshire, A.,
+                                                                           Handa, A., et al. Isaac gym: High performance gpu-based
+El Amine Boudjoghra, M., Laptev, I., and Dai, A. Scanedit:                 physics simulation for robot learning. arXiv preprint
+  Hierarchically-guided functional 3d scan editing. In                     arXiv:2108.10470, 2021.
+
+                                                                     10
+                         PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Paschalidou, D., Kar, A., Shugrina, M., Kreis, K., Geiger,             Yang, Y., Sun, F.-Y., Weihs, L., VanderBilt, E., Herrasti, A.,
+  A., and Fidler, S. Atiss: Autoregressive transformers for              Han, W., Wu, J., Haber, N., Krishna, R., Liu, L., et al.
+  indoor scene synthesis. In Advances in Neural Informa-                 Holodeck: Language guided generation of 3d embodied
+  tion Processing Systems (NeurIPS), 2021.                               ai environments. In Proceedings of the IEEE/CVF Con-
+                                                                         ference on Computer Vision and Pattern Recognition, pp.
+Raistrick, A., Mei, L., Kayan, K., Yan, D., Zuo, Y., Han,                16227–16237, 2024.
+  B., Wen, H., Parakh, M., Alexandropoulos, S., Lip-
+  son, L., et al. Infinigen indoors: Photorealistic indoor             Yu, H., Jia, B., Chen, Y., Yang, Y., Li, P., Su, R., Li, J., Li,
+  scenes using procedural generation. In Proceedings of the              Q., Liang, W., Zhu, S.-C., et al. Metascenes: Towards
+  IEEE/CVF Conference on Computer Vision and Pattern                     automated replica creation for real-world 3d scans. In
+  Recognition, pp. 21783–21794, 2024.                                    Proceedings of the Computer Vision and Pattern Recog-
+                                                                         nition Conference, pp. 1667–1679, 2025.
+Sun, F.-Y., Liu, W., Gu, S., Lim, D., Bhat, G., Tombari, F.,
+  Li, M., Haber, N., and Wu, J. Layoutvlm: Differentiable
+  optimization of 3d layout via vision-language models. In
+  Proceedings of the Computer Vision and Pattern Recog-
+  nition Conference, pp. 29469–29478, 2025.
+
+Tang, J., Nie, Y., Markhasin, L., Dai, A., Thies, J., and
+  Nießner, M. Diffuscene: Denoising diffusion models for
+  generative indoor scene synthesis. In Proceedings of the
+  IEEE/CVF conference on computer vision and pattern
+  recognition, pp. 20507–20518, 2024.
+
+Todorov, E., Erez, T., and Tassa, Y. Mujoco: A physics
+  engine for model-based control. In 2012 IEEE/RSJ inter-
+  national conference on intelligent robots and systems, pp.
+  5026–5033. IEEE, 2012.
+
+Torne, M., Simeonov, A., Li, Z., Chan, A., Chen, T., Gupta,
+  A., and Agrawal, P. Reconciling reality through simula-
+  tion: A real-to-sim-to-real approach for robust manipula-
+  tion, 2024. URL https://arxiv.org/abs/2403.
+  03949.
+
+Tversky, B. Distortions in memory for maps. Cognitive
+  psychology, 13(3):407–433, 1981.
+
+Wang, Y., Xian, Z., Chen, F., Wang, T.-H., Wang, Y., Fragki-
+ adaki, K., Erickson, Z., Held, D., and Gan, C. Robo-
+ gen: Towards unleashing infinite data for automated robot
+ learning via generative simulation. In International Con-
+ ference on Machine Learning, pp. 51936–51983. PMLR,
+ 2024.
+
+Wang, Z., He, Y., Yang, L., Zou, W., Ma, H., Liu, L., Sui,
+ W., Guo, Y., and Su, H. Tabletopgen: Instance-level in-
+ teractive 3d tabletop scene generation from text or single
+ image. arXiv preprint arXiv:2512.01204, 2025.
+
+Xiang, F., Qin, Y., Mo, K., Xia, Y., Zhu, H., Liu, F., Liu, M.,
+  Jiang, H., Yuan, Y., Wang, H., et al. Sapien: A simulated
+  part-based interactive environment. In Proceedings of the
+  IEEE/CVF conference on computer vision and pattern
+  recognition, pp. 11097–11107, 2020.
+
+                                                                  11
+                        PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+A. Dataset
+We curate MesaTask-CTRC, a dataset explicitly designed to train hierarchical spatial reasoning, derived from the MesaTask-
+10k repository (Hao et al., 2025). While the original dataset provides high-quality 3D assets and raw layout JSONs, it lacks
+the semantic annotations required for instruction-following tasks. Our pipeline consists of three stages:
+
+A.1. Geometric Relationship Extraction
+To construct the ground-truth Hierarchical Scene Graph (HSG), we parse the raw absolute coordinates using geometric
+heuristics. Let A and B be two objects with bounding boxes BA , BB . We define relationships as follows:
+
+   • Containment (in): A is inside B if the volume ratio V ol(B)/V ol(A) ≥ 1.5 and the intersection over union on the
+     XY-plane IoUxy ≥ 0.9.
+   • Support (on): A is on B if the vertical gap |zmin (A) − zmax (B)| < δ (where δ = 1cm) and IoUxy > 0.3.
+   • Proximity (near): If no vertical relationship exists, we classify spatial relations (left/right/front/back) based on the
+     vector connecting their centroids projected onto the table plane.
+
+A.2. VLM-Augmented Instruction Synthesis
+We employ a “Caption-then-Instruct” pipeline using the current state-of-the-art Vision-Language Model (VLM) to bridge
+the modality gap:
+
+  1. Multi-View Captioning: We render the scene from four orthographic angles (Front, Top, Left, Right). The VLM
+     receives these images along with the textual Scene Graph and generates a dense description D (< 200 words) focusing
+     on spatial configurations (e.g., ”A cluttered study desk where a laptop sits centrally on a stand, flanked by a stack of
+     books to the right...”).
+  2. Instruction Generation: Conditioned on D, we prompt the VLM to act as a user and issue a goal-oriented command
+     I (< 30 words). We enforce an ”actionable” constraint: the instruction must imply the arrangement rather than listing
+     coordinates (e.g., ”Set up a workstation for coding with reference materials within reach”).
+
+This process yields 9,429 training pairs and 866 benchmark pairs. The benchmark is manually verified to ensure no data
+leakage.
+
+A.3. Benchmark Statistics
+Our benchmark is rigorously stratified to evaluate model performance across varying degrees of complexity. Table 6 details
+the distribution of the 866 test samples across 6 functional scene categories and 5 difficulty levels based on the number of
+objects (N ). Level 5 (N ≥ 17) represents extreme clutter scenarios that challenge the stability of physical reasoning.
+Additionally, we built the OOD benchmark, including 4 desktop types, e.g., Cashier Counter, Nightstand, Side Table, and
+TV Stand. This OOD benchmark counts 50 cases per desktop type, totally 200 cases.
+
+A.4. Integrated Data Generation Algorithm
+The construction of the Hierarchical Scene Graph (HSG), the Unified Relative Coordinate System, and the Object-Level
+Sub-instructions is a simultaneous, unified process. We employ a recursive parsing strategy centered on anchor identification.
+Algorithm 1 outlines this procedure.
+Reference Example. Below is a sample output segment illustrating the mapping from instruction to relative geometric
+targets:
+The tabletop features a woven basket positioned in the back right corner, facing
+forward. To the left of the basket, there are two lotion bottles placed closely
+together in the back left area. The first lotion bottle, which is a soapenser lo-
+tion bottle, is situated behind the second lotion bottle, which is also facing f-
+
+
+                                                             12
+                          PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Table 6. Statistics of the MesaTask-CTRC Benchmark. Samples are categorized by scene function and difficulty level (object count range).
+
+
+  Scene Type              Level 1 (1-4)      Level 2 (5-8)      Level 3 (9-12)       Level 4 (13-16)       Level 5 (17+)       Total
+  Coffee Table                   6                 47                  41                   15                    6             115
+  Office Table                   3                 54                  57                   25                   10             149
+  Dressing Table                 7                 59                  60                   22                    8             156
+  Dining Table                   7                 63                  56                   26                   11             163
+  Kitchen Counter                5                 56                  52                   16                    5             134
+  Bathroom Vanity                7                 59                  58                   23                    2             149
+  Total                         35                 338                 324                  127                  42             866
+
+
+orward. The arrangement creates a densely packed area on the left side of the ta-
+ble, while the right side remains relatively empty, dominated by the basket. The
+overall layout is asymmetric, with the basket providing a focal point on the rig-
+ht and the lotion bottles creating a cluster on the left, leaving ample space in
+the center of the tabletop.
+
+**Object List**: woven basket (1), lotion bottle (1), soapenser lotion bottle (1)
+**Scene Graph:**
+# ========== Stack-level Horizontal Relationships ==========
+(1_soapenser_lotion_bottle_0, left of, 10_lotion_bottle_1)
+# ========== Within-Stack Relationships ==========
+
+# ========== Object Absolute Properties ==========
+(2_woven_basket_0, face to, front)
+\n(2_woven_basket_0, is at, behind_right)
+(1_soapenser_lotion_bottle_0, face to, front)
+(1_soapenser_lotion_bottle_0, is at, behind_left)
+(10_lotion_bottle_1, face to, front)
+(10_lotion_bottle_1, is at, behind_left)
+
+**Sub-instruction:**
+[
+    {
+        "step": 1,
+        "instance_id": "10_lotion_bottle_1",
+        "instruction": "Place 10_lotion_bottle_1 at the left back of center of t
+                        he table, approximately 28cm from center.",
+        "reference_objects": []
+    },
+    {
+        "step": 2,
+        "instance_id": "1_soapenser_lotion_bottle_0",
+        "instruction": "Place 1_soapenser_lotion_bottle_0 to the left of 10_loti
+                        on_bottle_1.",
+        "reference_objects": ["10_lotion_bottle_1"]
+    },
+    {
+        "step": 3,
+        "instance_id": "2_woven_basket_0",
+
+
+
+                                                                  13
+                      PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+Algorithm 1 Integrated Generation of HSG, Relative Coordinates, and Instructions
+ 1: Input: Raw Layout L = {(oi , babsi )}
+ 2: Output: Sequence of instructions Iseq and relative targets Tseq
+ 3: Function P ROCESS N ODE(parent, candidates):
+ 4:   Iseq ← [], Tseq ← []
+ 5:   Sort candidates by z-axis (bottom-up) and proximity to parent
+ 6: for child ∈ candidates do
+ 7:      // 1. Determine Geometric Relationship
+ 8:      relation ← ClassifyRelation(child, parent) {in / on / near}
+ 9:      // 2. Compute Relative Coordinate (Unified System)
+10:      brel ← ComputeRelativeBBox(child.babs , parent.babs , relation)
+11:      // 3. Generate Sub-Instruction
+12:   if parent is Root then
+13:      text ← Template(”Place child.name at brel .coarse loc on the table.”)
+14:   else
+15:      text ← Template(”Place child.name relation parent.name.”)
+16:   end if
+17:      Append (text) to Iseq , Append (brel ) to Tseq
+18:      // 4. Recursive Expansion (Stacking)
+19:      grandchildren ← FindChildren(child, L)
+20:      Isub , Tsub ← P ROCESS N ODE(child, grandchildren)
+21:      Extend Iseq with Isub , Tseq with Tsub
+22: end for
+23:   return Iseq , Tseq
+24: Main Process:
+25: Anchor ← FindClosestToCenter(L)
+26: Run P ROCESS N ODE(RootTable, [Anchor])
+27: Run P ROCESS N ODE(RootTable, RemainingObjects)
+
+
+
+            "instruction": "Place 2_woven_basket_0 near 10_lotion_bottle_1, about 53
+                            cm away.",
+            "reference_objects": ["10_lotion_bottle_1"]
+      }
+]
+
+**Scene Layout:**
+{
+    "objects": [
+                            {
+                                     "layer": 0,
+                                     "instance_id": "root_zone",
+                                     "type": "zone",
+                                     "bbox": [0.0, 80.5, 0.0, 41.9, 0.0, 0.0],
+                                     "z_rotation": 0.0
+                                },
+                                {
+                                     "layer": 1,
+                                     "instance_id": "2_woven_basket_0",
+                                     "parent_id": "root_zone",
+                                     "relation_type": "on_surface",
+                                     "description": "Rectangular woven basket of natural fiber
+
+
+
+                                                         14
+                      PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+                                                  s, light brown color with darker accents
+                                                  and distinctive texture.",
+                                  "relative_bbox": [57.05, 78.75, 20.7, 35.5, 0.0, 15.0],
+                                  "relative_rotation_deg": 0.0
+                             },
+
+                             {
+                                  "layer": 1,
+                                  "instance_id": "1_soapenser_lotion_bottle_0",
+                                  "parent_id": "root_zone",
+                                  "relation_type": "on_surface",
+                                  "description": "Tall, cylindrical, smooth surface, pastel
+                                                  colors, slightly tapered base, labeled wi
+                                                  th brand information.",
+                                  "relative_bbox": [2.75, 12.85, 30.9, 36.1, 0.0, 22.0],
+                                  "relative_rotation_deg": 0.0
+                             },
+                             {
+                                  "layer": 1,
+                                  "instance_id": "10_lotion_bottle_1",
+                                  "parent_id": "root_zone",
+                                  "relation_type": "on_surface",
+                                  "description": "Tall, cylindrical, smooth surface, pastel
+                                                  colors, slightly tapered base, labeled wi
+                                                  th brand information.",
+                                  "relative_bbox": [13.8, 21.6, 31.75, 35.65, 0.0, 16.2],
+                                  "relative_rotation_deg": 0.0}],
+                                  "item_placement_zone": [0.0, 80.5, 0.0, 41.9]
+                             }
+
+B. Implementation Details.
+B.1. Model Architecture and Training
+We utilize Qwen3-VL-8B (Bai et al., 2025) as our backbone. All experiments are conducted on 640 GB VRAM within a
+cluster of 8× GPUs using DeepSpeed ZeRO-2 optimization.
+Stage 1: Supervised Fine-Tuning (SFT). We perform full-parameter fine-tuning to align the model with the CTRC format.
+
+  • Optimizer: AdamW with β1 = 0.9, β2 = 0.95.
+  • Learning Rate: 1 × 10−5 with Cosine Decay (warmup ratio 0.03).
+  • Batch Size: Global batch size of 64.
+  • Epochs: 5.
+
+Stage 2: Physically-Aware RL (PADA). We freeze the backbone and train LoRA adapters to inject physical gradients.
+
+  • LoRA Configuration: Rank r = 16, Alpha α = 32, applied to q proj, k proj, v proj, o proj,
+    gate proj, up proj, down proj.
+  • Algorithm: Group Relative Policy Optimization (GRPO).
+  • Group Size (G): 4 samples per prompt.
+  • Learning Rate: 5 × 10−4 (constant).
+
+                                                         15
+                       PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+   • Batch Size: Global batch size of 128.
+   • Epochs: 1.
+   • KL Coefficient (β): 0.04 (initial) with adaptive adjustment.
+   • Semantic Anchor Weight (γ): 0.1 (weight of the semantic consistency loss).
+
+Note that in PADA*, we apply a mask when computing the CE loss for anchor samples, supervising only the semantic part.
+This is because the BBox and rotation values need to be explored by GRPO and should not be aligned with pseudo-labels
+that contain collisions.
+Reward Formulation. To guide the policy towards physically plausible and structurally valid generation, we design a
+discontinuous reward function R(L) that strictly penalizes formatting errors and physical violations while incentivizing
+collision-free solutions. Let Epen denote the total penetration depth (accumulated collision energy) calculated by our SDF
+engine. The reward is defined as:
+                                   
+                                   −100
+                                                           if Parsing Failed (Format Error)
+                             R(L) = − min(0.01 · Epen , 50) if Epen > 0                                                (6)
+                                   
+                                    +50                     if Epen = 0
+                                   
+
+             P
+where Epen = i<j pen(i, j) sums the penetration depths of all colliding pairs. This formulation ensures that: 1) Format
+Compliance is the prerequisite (−100 penalty); 2) Collision Minimization provides a dense gradient for partial failures,
+clipped at −50 to prevent reward explosion; 3) Perfect Physics yields a sparse positive signal (+50) to reinforce the
+generated ”Golden Samples.”
+
+B.2. SDF and TTO Configuration
+The Physics Engine preprocesses assets into 643 SDF grids. During Test-Time Optimization (TTO) and Anchor Generation:
+
+   • Optimization Steps: 100 iterations using Adam (lr = 0.01).
+   • Loss Weights: λsdf = 10.0 (Collision), λrel = 5.0 (Structure), λreg = 1.0 (Drift).
+   • Collision Threshold: A penetration depth > 1cm is considered a collision.
+
+C. Metric
+C.1. Physical Plausibility
+We quantify physical violations using the precomputed SDFs. Let S be a generated scene with N objects.
+
+   • Asset-wise Collision Rate (ACR): The percentage of object pairs (i, j) that intersect:
+                                                1 X     2     X
+                                      ACR =                       I(pen(i, j) > 0cm)
+                                               |D|  N (N − 1) i<j
+                                                   s∈D
+
+
+   • Scene-wise Collision Rate (SCR): The percentage of scenes containing at least one collision:
+                                                1 X
+                                       SCR =            I(∃i, j : pen(i, j) > 0cm)
+                                               |D|
+                                                         s∈D
+
+
+The collision metric relies on the function pen(i, j). We define pen(i, j) as the Penetration Depth, representing the
+maximum distance one object’s geometry overlaps into another’s. Formally, for two signed distance fields ϕi and ϕj , the
+penetration depth is approximated by the maximum negative SDF value of points from object i queried in object j’s field.
+We set a tolerance threshold of 0cm to account for mesh surface noise; only penetrations exceeding this value contribute to
+the Scene Collision Rate (SCR) and Asset Collision Rate (ACR).
+
+                                                               16
+                        PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+C.2. Semantic Fidelity (GPT-Score)
+We employ GPT-4o as an external evaluator. The model is provided with the text instruction and the generated JSON
+layout (parsed into natural language descriptions of relative positions). It scores the layout on a scale of 1-10 across five
+dimensions:
+
+  1. Consistency with Task (CwT): Does the scene serve the function implied by the instruction?
+  2. Object Size Reasonableness (OSR): Are objects scaled realistically relative to each other?
+  3. Placement Plausibility & Intersections (PPI): Are objects placed logically (e.g., mouse near keyboard) without
+     obvious overlapping descriptions?
+  4. Layout Coherence & Realism (LCR): Does the global arrangement reflect a human-like workspace?
+  5. Object Visibility (OV): Are smaller objects obscured or hidden inside unrelated containers?
+
+The Average GPT Score is the arithmetic mean of these five components.
+
+C.3. Quality Pass Rate (QPR)
+To measure the practical usability of the generated data, we define QPR as the intersection of semantic success and physical
+validity. For a threshold τ (e.g., 7):
+                                            1 X
+                              QP R(τ ) =           (I(Scoreavg (s) ≥ τ ) × I(collisions(s) = 0))
+                                           |D|
+                                              s∈D
+
+This metric is strict; a scene must be both semantically high-quality and physically perfect to pass.
+
+D. More Result
+Additionally, we further assess generalization across six distinct functional scenarios (Figure 5). PhyScene3D consistently
+encloses the performance polygons of competing methods. Notably, in the Office Table scenario, characterized by high
+object density and strict logical constraints (e.g., monitors aligned, peripherals anchored), our method achieves a QPR
+of more than 45%, significantly outperforming MesaTask (13.4%) and Reference (22.8%). Even in the Dressing Table
+scenario, which requires precise clutter arrangement, PhyScene3D achieves 65%, effectively doubling the performance of
+GPT-4o-Mini (30.1%). This cross-scenario robustness validates that our method learns a generalized physical-semantic
+grammar rather than overfitting to specific layout patterns.
+
+E. Prompt
+Prompt 1. Description Generation
+The given images are the front view (in which the table is symmetric) and the sc-
+ene graph. Only describe the layout on the tabletop; do not include the descript-
+ion of the table. Please describe the scene in detail, including the objects (do
+not describe the color/material/color of the object), their positions, and the o-
+verall layout of the desktop, including empty and densely packed are as Output t-
+he description in a paragraph between the token <description>, no more than 200
+words.
+
+## Scene Graph
+{scene_graph}
+
+Prompt 2. Instruction Generation
+<description>{description}<description>
+
+If I provide the assets and tabletops needed to place the task, how can I guide
+
+
+                                                             17
+                  PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+                                                Quality Pass Rate across Scene Types
+                                                            Coffee Table
+                                                                  60%
+
+                                                                  50%
+
+                                                                  40%
+                         Dressing                                                               Bathroom
+                          Table                                   30%                            Vanity
+
+                                                                  20%
+
+                                                                  10%
+
+
+
+
+                          Dining                                                                 Kitchen
+                          Table                                                                  Counter
+
+
+
+
+                                                            Office Table
+                                    Reference      i-Design          GPT-4o       Baseline
+                                    Holodeck       GPT-4o-mini       MesaTask     PhyScene3D (Ours)
+
+                 Figure 5. QPR (τ = 7) performance of each method across different scene settings.
+
+
+you through a short and concise instruction (less than 30 words) to arrange this
+layout (the layout that matches the above scenario description)?
+
+You said that the proposed instruction should not refer to the description, such
+as "as described", "Arrange items as described" and so on. Because in the real
+world, I only provide commands, assets, and desktops.
+
+Output the instruction between the token <instruction>
+
+Prompt 3. Layout Generation by Zero-shot LLM
+You are tasked with generating a scene graph layout for a tabletop arrangement
+based on the following instructions and parameters.
+
+### TASK:
+Your primary goal is to output a **VALID JSON OBJECT** that strictly follows the
+specified format between the ‘<json>‘ tokens. This JSON must represent the scene
+graph layout for objects placed on a tabletop.
+
+### INPUT PARAMETERS:
+1. **Tabletop Information:**
+   - The tabletop’s dimensions are defined by the "item_placement_zone" with the
+   following boundaries:
+     **item_placement_zone**: <item_placement_zone>
+     Units are in centimeters (cm).
+
+2. **Placement Instructions:**
+
+
+                                                                18
+               PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+   - Follow the natural language instructions to determine the placement of obje-
+     cts:
+     **Instructions**: "<instructions>"
+
+3. **Objects Cluster:**
+   - The objects to be placed on the tabletop are listed below. Each object must
+     have:
+     - A **unique instance name**.
+     - **Reasonable dimensions** (width, depth, height in cm).
+     - A **position** within the specified tabletop boundaries.
+     - A **z_rotation** (rotation around the vertical axis in radians). If not s-
+     pecified, assume ‘z_rotation = 0.0‘.
+     - A **short description** that explains the object’s purpose or appearance.
+     **Objects cluster**: <Objects cluster>
+
+### OUTPUT REQUIREMENTS:
+- You must output a **VALID JSON OBJECT** strictly between the ‘<json>‘ tokens.
+  (not <json>xxx</json>)
+- The JSON must have the following structure:
+
+<json>
+{
+    "item_placement_zone": [
+        x_min,
+        x_max,
+        y_min,
+        y_max
+    ],
+    "objects": [
+        {
+            "instance": "unique_object_name",
+            "z_rotation": float,
+            "size": [width, depth, height],
+            "position": [x, y, z],
+            "description": "short description of the object"
+        },
+        ...
+    ]
+}
+<json>
+
+### DETAILED GUIDELINES:
+1. **Object Placement:**
+   - Ensure that all objects are placed within the boundaries of the ‘item_place-
+     ment_zone‘.
+   - Follow the placement logic specified in the instructions. For example:
+     - If an object should be placed in a corner, position it near the respective
+       boundary.
+     - If objects need to be grouped closely, ensure their positions are adjacent
+       within reasonable spacing (e.g., 2-5 cm).
+
+2. **Object Properties:**
+   - Assign **realistic dimensions** to each object based on its type. For insta-
+
+
+
+                                                  19
+                  PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+     nce:
+     - A woven basket might have dimensions like ‘[20.0, 15.0, 12.0]‘ (width, de-
+       pth, height).
+     - A lotion bottle might have dimensions like ‘[5.0, 5.0, 15.0]‘.
+   - Use **intuitive and consistent instance names** (e.g., "woven_basket_0", "l-
+     otion_bottle_1").
+   - Set the ‘z_rotation‘ to ‘0.0‘ unless the object is explicitly rotated in the
+     instructions.
+
+3. **Avoid Overlapping:**
+   - Ensure objects do not overlap or extend beyond the tabletop boundaries.
+   - Maintain logical spacing between objects unless the instructions specify ot-
+     herwise.
+
+4. **Avoid Suspension:**
+    - Ensure that the items are firmly placed on the table. The position of each
+      asset is the center coordinate, so the z value cannot be zero. If it is on
+      the table, it should be half of the asset’s height.
+    - If there is a stacking situation, the z coordinate of the upper asset sho-
+      uld be the sum of the z coordinate of the lower asset and half of the hei-
+      ght of both assets.
+
+5. **Output Validation:**
+   - Ensure the JSON is valid by checking for correct syntax (e.g., no trailing
+     commas, proper nesting of keys and values).
+
+IMPORTANT:
+The JSON output MUST be placed between the <json> tokens.
+If you encounter ambiguity, use logical reasoning to infer the most likely pla-
+cement or dimensions.
+DO NOT include any additional text or explanations outside the <json> tokens in
+the output.
+
+Prompt 4. GPT Score (System prompt)
+You are an expert evaluator for 3D desktop scene layouts. Your task is to analyze
+desktop scenes and provide a detailed assessment based on specific criteria. Ple-
+ase carefully examine the provided front and perspective views of the desktop sc-
+ene, along with the task description.
+Analyze how well the scene layout aligns with the intended task. Consider both t-
+he visible objects and their arrangement in relation to the task requirements.
+You must provide numerical scores (1-10) for each criterion along with brief exp-
+lanations to justify your ratings.
+Be objective and consistent in your evaluation across different scenes.
+
+Prompt 5. GPT Score (user prompt)
+You are an expert at evaluating desktop scene layouts. Given both a front and a
+perspective view of a desktop scene, and a description of the tasks that can be
+performed on the desktop, please rate the scene‘s quality on a scale from 1 (poo-
+r) to 10 (excellent) according to the following criteria. For each criterion, co-
+nsider both views:
+
+1. **Consistency with Task:** Does the scene layout (objects present, their arra-
+ngement and relevance) align well with the provided task description (environment
+
+
+                                                     20
+               PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+, objects, goals)?
+- High score (7-10): All key objects are present, their arrangement is entirely
+logical and directly contributes to the task. The scene perfectly reflects the t-
+ask requirements.
+- Mid score (4-6): Most key objects are present and generally align with the task
+, but there might be minor inconsistencies or some less relevant elements.
+- Low score (1-3): Significant deviations from the task description. Important o-
+bjects are missing, or the arrangement is largely unrelated or illogical for the
+task.
+
+2. **Object Size Reasonableness:** Are the sizes of the objects in the scene hig-
+hly realistic, both relative to each other and to the overall desktop environmen-
+t? Are they consistent across all objects?
+- High score (7-10): All objects have highly realistic and perfectly proportiona-
+te sizes. No inconsistencies are noticeable.
+- Mid score (4-6): Most objects have reasonable sizes, but there might be slight
+or occasional inaccuracies in proportion for some items.
+- Low score (1-3): Multiple or glaring inconsistencies in object sizes. Some obj-
+ects are obviously and significantly too large or too small, severely impacting
+realism.
+
+3. **Placement Plausibility & Intersections:** Are objects placed stably and nat-
+urally on surfaces (e.g., not floating)? Are there any signs of unnatural inters-
+ection or penetration between objects? Objects should appear physically grounded
+and interact realistically.
+- High score (7-10): All objects rest naturally and stably on surfaces. No aphys-
+ical interactions or intersections are visible. Objects are well-supported.
+- Mid score (4-6): Most objects are placed plausibly, but there might be minor,
+subtle issues like slight floating or minimal, non-critical intersections.
+- Low score (1-3): Obvious or frequent issues with object placement. Objects flo-
+at, unnaturally overlap, or clearly penetrate each other, indicating a lack of p-
+hysical realism.
+
+4. **Layout Coherence & Realism:** Does the overall arrangement look highly func-
+tional, convincingly realistic, and typical for the task context? Does it avoid
+being overly staged, unnaturally sparse, or chaotically cluttered?
+- High score (7-10): Layout is highly functional, convincingly realistic, and we-
+ll-suited for the described task. The scene feels authentic and natural.
+- Mid score (4-6): The layout is generally coherent and functional, but might la-
+ck some fine-tuning for optimal realism or could appear somewhat staged.
+- Low score (1-3): Layout is chaotic, illogical, too empty, overly cluttered, or
+looks clearly artificial and unrealistic for the task.
+
+5. **Object Visibility:** Are important objects mentioned in the task easily and
+unambiguously identifiable in at least one of the views? Are they sufficiently w-
+ell-lit and resolved?
+- High score (7-10): All key objects are clearly and unambiguously visible and i-
+dentifiable. Their details are well-resolved.
+- Mid score (4-6): Most important objects are visible, but some might require cl-
+oser inspection to identify.
+- Low score (1-3): Critical objects are very difficult to identify, or completel-
+y missing from view, hindering task understanding.
+
+
+
+
+                                                  21
+                        PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+**Task Description:**
+
+{task_description}
+
+**Please provide a single score (1-10) for each criterion.**
+**Strictly output in the following JSON format with no additional text:**
+
+{
+      "Evaluation": [
+          {
+              "criterion": "Consistency with Task",
+              "explanation": "Your detailed explanation here",
+              "score": X
+          },
+          {
+              "criterion": "Object Size Reasonableness",
+              "explanation": "Your detailed explanation here",
+              "score": X
+          },
+          {
+              "criterion": "Placement Plausibility & Intersections",
+              "explanation": "Your detailed explanation here",
+              "score": X
+          },
+          {
+              "criterion": "Layout Coherence & Realism",
+              "explanation": "Your detailed explanation here",
+              "score": X
+          },
+          {
+              "criterion": "Object Visibility",
+              "explanation": "Your detailed explanation here",
+              "score": X
+          }
+      ]
+}
+
+**Where X is an integer score from 1 to 10. Do not output anything else.**
+
+F. Generative Diversity Analysis
+Conventional reinforcement learning is known to cause mode collapse, and conservative layouts with reduced positional
+variance are frequently produced. To verify whether PADA preserves generative diversity, the number of distinct asset
+types and the spatial standard deviations along the X and Y axes were measured for both IID and OOD scenarios. As
+shown in Tables 7 and 8, a noticeable decline in diversity is observed for pure GRPO without semantic anchors, reflected by
+smaller positional standard deviations. In contrast, spatial diversity comparable to that of the SFT baseline and MesaTask is
+maintained by PADA, which employs semantic anchors refined by TTO together with KL divergence constraints.
+
+G. Computational Overhead and Latency Analysis
+The computational overhead introduced by the physics engine is incurred solely during training. At inference time, only a
+single forward pass is required by the model to produce a complete layout, and the need for iterative LLM calls or lengthy
+denoising processes is thereby eliminated. The latency and memory consumption for each stage, measured on a cluster of
+eight GPUs, are summarized in Table 9.
+
+                                                             22
+                            PhyScene3D: Physically Consistent Interactive 3D Tabletop Scene Generation
+
+                                            Table 7. Generative diversity comparison on IID scenes.
+
+                                     Model                               Asset Types           Pos Std X / Y (cm)
+                                     GPT-4o                                   1207                36.24 / 14.6
+                                     MesaTask                                 844                37.17 / 11.94
+                                     SFT Only                                 932                 35.11 / 11.4
+                                     Pure GRPO (No Anchor)                    924                33.83 / 11.31
+                                     PADA (Ours)                               927               36.99 / 12.03
+
+                                           Table 8. Generative diversity comparison on OOD scenes.
+
+                                     Model                               Asset Types           Pos Std X / Y (cm)
+                                     GPT-4o                                   303                29.99 / 15.64
+                                     MesaTask                                 287                33.63 / 11.45
+                                     SFT Only                                 290                 32.71 / 10.8
+                                     Pure GRPO (No Anchor)                    281                31.47 / 10.14
+                                     PADA (Ours)                              287                 33.7 / 12.61
+
+                                                 Table 9. Latency and VRAM overhead per stage.
+
+ Stage / Module                          Time          VRAM per GPU (Peak)    VRAM per GPU (Avg)                             Remarks
+ SFT Training                        31.8 min/epoch          34.5 GB                 32.3 GB                         Full parameter fine tuning
+ TTO (Offline Data Preparation)        1.64 s/scene           8.4 GB                  5.4 GB            Executed only once; does not occupy training time
+ SDF Reward Computation (RL Stage)   305.6 ms/batch          35.5 GB                 33.4 GB         Highly parallelized operator; minimal additional overhead
+ PADA Overall Training (GRPO)        5.3 hours/batch         80.7 GB                 60.3 GB                            LoRA adapters only
+ Inference (Generation)                0.67 s/scene          71.7 GB                 62.4 GB                    Single forward pass; extremely fast
+
+
+
+H. Robustness to Collision Thresholds
+The 81.5% collision rate in the reference data was strictly computed using high precision mesh SDFs rather than coarse
+AABB approximations. To examine robustness under varying evaluation criteria, the scene wise collision rate was evaluated
+again with penetration thresholds of 0.0 cm, 0.5 cm, and 1.0 cm.
+As shown in Table 10, a substantially lower collision rate is still achieved by PhyScene3D when the threshold is relaxed to
+1.0 cm, compared with both MesaTask and the reference data. This indicates that the improvement stems from genuine
+physical geometric reasoning rather than fitting to bounding box errors.
+
+                                                Table 10. SCR under varying collision thresholds.
+
+                                     Collision Threshold           Ref        GPT-4o       MesaTask           Ours
+                                     0.0 cm (Strict)             81.5%            68.9%         78.3%        41.6%
+                                     0.5 cm                      76.1%            61.9%         76.1%        38.4%
+                                     1.0 cm                      63.4%            52.3%         61.8%        34.1%
+
+
+I. Failure Cases and Limitations of AABB
+The limitations of AABB representations are fully acknowledged, particularly for objects with extreme irregular shapes.
+For instance, occupied volumes that are significantly larger than the actual physical extents are assigned to objects with
+large cavities or C shaped structures, such as woven baskets with tall handles or over ear headphones. In rare cases, overly
+conservative behavior is induced in the PADA engine during optimization, and surrounding objects are pushed farther apart
+than necessary, producing locally sparse layouts.
+
+
+
+
+                                                                             23
+

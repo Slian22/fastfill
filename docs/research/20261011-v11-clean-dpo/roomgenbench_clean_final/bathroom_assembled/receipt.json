@@ -1,0 +1,2377 @@
+{
+  "schema_version": "fastfill.roomgenbench-assembly.v1",
+  "scene_key": "fastfill_f5afdfbf933c395d",
+  "scene": "fastfill_f5afdfbf933c395d",
+  "room_type": "bathroom",
+  "walls": [
+    {
+      "name": "shell_wall_0",
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_1",
+      "normal": [
+        1.0,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_2",
+      "normal": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "name": "shell_wall_3",
+      "normal": [
+        -1.0,
+        -0.0,
+        0.0
+      ]
+    }
+  ],
+  "method": "embodiedgen_v2",
+  "assembly_complete": true,
+  "generated_mesh_success": true,
+  "requested_objects": 55,
+  "counts": {
+    "ok": 55
+  },
+  "objects": [
+    {
+      "id": "obj_0000",
+      "asset_key": "toilet_9f8a690c",
+      "type": "toilet",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_000",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5039008259773254,
+        0.9149572801752583,
+        0.7282073795795441
+      ],
+      "native_size_sage_local_m": [
+        0.5039008259773254,
+        0.7282073795795441,
+        0.9149572801752583
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.933,
+        0.961,
+        0.929
+      ],
+      "fitted_size_sage_local_m": [
+        0.47,
+        0.7,
+        0.85
+      ],
+      "source_glb_sha256": "3b03f412717cae33a3427a1b68b06af878ac36692670e0bbf8afcde80f73da73",
+      "source_sidecar_sha256": "ef69832d890594354bcbfb03e4a2be2abde02a6d7f519c3ffe72cb0019ac9f09"
+    },
+    {
+      "id": "obj_0001",
+      "asset_key": "bin_a650b5a6",
+      "type": "bin",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_001",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.37526434659957886,
+        0.44283816218376154,
+        0.3724533021450043
+      ],
+      "native_size_sage_local_m": [
+        0.37526434659957886,
+        0.3724533021450043,
+        0.44283816218376154
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.466,
+        1.477,
+        2.01
+      ],
+      "fitted_size_sage_local_m": [
+        0.55,
+        0.55,
+        0.89
+      ],
+      "source_glb_sha256": "65507db31589e3054dfffbb5e3f437b3e087e052a65e0385504033a5b208aeb5",
+      "source_sidecar_sha256": "d2cea0fbac46e00b674d321591af5fa781d14a8e4348db72512590ccb44a4447"
+    },
+    {
+      "id": "obj_0002",
+      "asset_key": "sink_89fbff49",
+      "type": "sink",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_002",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.6390249729156494,
+        0.5912058301764773,
+        0.4178517609834671
+      ],
+      "native_size_sage_local_m": [
+        0.6390249729156494,
+        0.4178517609834671,
+        0.5912058301764773
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.158,
+        1.268,
+        1.201
+      ],
+      "fitted_size_sage_local_m": [
+        0.74,
+        0.53,
+        0.71
+      ],
+      "source_glb_sha256": "93e108517962470b4240fdd4359dfd845c19accbe9c6cab99ce9f1d0c68582c7",
+      "source_sidecar_sha256": "cb395e9b676740e015a42bcaf294f4f2f00db3aae779f2d12b7baf2ada7ffa14"
+    },
+    {
+      "id": "obj_0003",
+      "asset_key": "cabinet_f6cc1959",
+      "type": "cabinet",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_003",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8875360488891602,
+        0.9654381871223449,
+        0.23299921303987503
+      ],
+      "native_size_sage_local_m": [
+        0.8875360488891602,
+        0.23299921303987503,
+        0.9654381871223449
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.239,
+        2.146,
+        1.046
+      ],
+      "fitted_size_sage_local_m": [
+        1.1,
+        0.5,
+        1.01
+      ],
+      "source_glb_sha256": "4bd8a83ef62d6b26084cff05f7a2a04ecef470e68f37560f88060f99814e1f56",
+      "source_sidecar_sha256": "446d62645aeb891b985919600fa1434fdcb92b717e5684b177059035be5b01b8"
+    },
+    {
+      "id": "obj_0004",
+      "asset_key": "lamp_79aaceea",
+      "type": "lamp",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_004",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.44412028789520264,
+        2.483359997982916,
+        0.4801955968141556
+      ],
+      "native_size_sage_local_m": [
+        0.44412028789520264,
+        0.4801955968141556,
+        2.483359997982916
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.225,
+        0.625,
+        0.27
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.29999999999999993,
+        0.67
+      ],
+      "source_glb_sha256": "4abbb4f4dab94d6c28be1da41cd362a104316fc05c8ba0221d8cc9b7a7d32919",
+      "source_sidecar_sha256": "4e4e18afa509f79fd87b8fc6218200c1c649da02a783d7e73ce114f8c6fd75cb"
+    },
+    {
+      "id": "obj_0005",
+      "asset_key": "trashcan_cb44bd0d",
+      "type": "trashcan",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_005",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.49479934573173523,
+        0.6862393160627107,
+        0.49488310515880585
+      ],
+      "native_size_sage_local_m": [
+        0.49479934573173523,
+        0.49488310515880585,
+        0.6862393160627107
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.748,
+        0.748,
+        0.991
+      ],
+      "fitted_size_sage_local_m": [
+        0.37,
+        0.37,
+        0.6799999999999999
+      ],
+      "source_glb_sha256": "9d04b7fddc7456d2d26fbf7acce3f14b8c8df4bcd3e04d1078bffcb82bd6774e",
+      "source_sidecar_sha256": "5672e63763266220160541019cd599e1b2fd1c25279cd8c4fa1223c1e9492301"
+    },
+    {
+      "id": "obj_0006",
+      "asset_key": "trashcan_9eeaa81c",
+      "type": "trashcan",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_006",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4623095393180847,
+        0.6701095700263977,
+        0.4808788299560547
+      ],
+      "native_size_sage_local_m": [
+        0.4623095393180847,
+        0.4808788299560547,
+        0.6701095700263977
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.649,
+        0.811,
+        1.015
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.39,
+        0.6800000000000002
+      ],
+      "source_glb_sha256": "d2d7dc7536f22479cf63441be2fd3da46f57c0fdd606551fcc6b9a84308f3517",
+      "source_sidecar_sha256": "fd910250cc3c5eeea2e2d5cbcc6a117a75aed4b1b5e87d3ccc075ee6c15500db"
+    },
+    {
+      "id": "obj_0007",
+      "asset_key": "shower_7e76e042",
+      "type": "shower",
+      "place": "floor",
+      "support_parent": "floor",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_007",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.9709181189537048,
+        2.092342853546143,
+        0.9647879898548126
+      ],
+      "native_size_sage_local_m": [
+        0.9709181189537048,
+        0.9647879898548126,
+        2.092342853546143
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.061,
+        1.005,
+        0.946
+      ],
+      "fitted_size_sage_local_m": [
+        1.03,
+        0.97,
+        1.98
+      ],
+      "source_glb_sha256": "a12c52340d86866d020b80e6344c39333764348b3ed6d71fe3ccaeb5d1be5346",
+      "source_sidecar_sha256": "267d5a959dd7ae91c5689418359a018ab4370efd0a268e99c9e0a853996b570b"
+    },
+    {
+      "id": "obj_0008",
+      "asset_key": "holder_457eada0",
+      "type": "holder",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_008",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.13297821581363678,
+        0.2695836451239302,
+        0.27965453267097473
+      ],
+      "native_size_sage_local_m": [
+        0.13297821581363678,
+        0.27965453267097473,
+        0.2695836451239302
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.677,
+        0.322,
+        0.445
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.12000000000000001
+      ],
+      "source_glb_sha256": "12c716c0273151374ad04cf6d9a03d6b5f39bf140112e68c0d09fef9bf07ca95",
+      "source_sidecar_sha256": "a30659808da1a3c749095070daf880f806fadfec6cb577258421a83f8c77afec"
+    },
+    {
+      "id": "obj_0009",
+      "asset_key": "cosmeticbag_ef037bf1",
+      "type": "cosmeticbag",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_009",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.22521616518497467,
+        0.08979916106727615,
+        0.09524278715252876
+      ],
+      "native_size_sage_local_m": [
+        0.22521616518497467,
+        0.09524278715252876,
+        0.08979916106727615
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.332,
+        1.05,
+        3.341
+      ],
+      "fitted_size_sage_local_m": [
+        0.3,
+        0.1,
+        0.3
+      ],
+      "source_glb_sha256": "1ceb9b35cebd6b55a5c1395bc61287f9bed1eaac91f36485eb90927250b5cbcb",
+      "source_sidecar_sha256": "6233b5f0c3afe9ac02d1338d952467ad87fb53fa69cad2c745341317d35dd081"
+    },
+    {
+      "id": "obj_0010",
+      "asset_key": "shampoobottle_f5f8d8d1",
+      "type": "shampoobottle",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_010",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1262396275997162,
+        0.3694287694816012,
+        0.10991427302360535
+      ],
+      "native_size_sage_local_m": [
+        0.1262396275997162,
+        0.10991427302360535,
+        0.3694287694816012
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.634,
+        0.728,
+        0.596
+      ],
+      "fitted_size_sage_local_m": [
+        0.07999999999999999,
+        0.08,
+        0.21999999999999997
+      ],
+      "source_glb_sha256": "8c1d428ebca814cbe8f1c2df87b7f0dc787a090d6c3cea78fd82cdbd722d9b67",
+      "source_sidecar_sha256": "9e8be53223c751c63b68a5d73885128fe32b16dbab9aca22085fe288b16b7050"
+    },
+    {
+      "id": "obj_0011",
+      "asset_key": "shampoobottle_f5f8d8d1",
+      "type": "shampoobottle",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_011",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.1262396275997162,
+        0.3694287694816012,
+        0.10991427302360535
+      ],
+      "native_size_sage_local_m": [
+        0.1262396275997162,
+        0.10991427302360535,
+        0.3694287694816012
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.634,
+        0.728,
+        0.596
+      ],
+      "fitted_size_sage_local_m": [
+        0.07999999999999999,
+        0.08,
+        0.21999999999999997
+      ],
+      "source_glb_sha256": "8c1d428ebca814cbe8f1c2df87b7f0dc787a090d6c3cea78fd82cdbd722d9b67",
+      "source_sidecar_sha256": "9e8be53223c751c63b68a5d73885128fe32b16dbab9aca22085fe288b16b7050"
+    },
+    {
+      "id": "obj_0012",
+      "asset_key": "toothbrushholder_afd3110c",
+      "type": "toothbrushholder",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_012",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.17685993015766144,
+        0.25612875819206227,
+        0.05968807637691498
+      ],
+      "native_size_sage_local_m": [
+        0.17685993015766144,
+        0.05968807637691498,
+        0.25612875819206227
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.113,
+        0.335,
+        0.273
+      ],
+      "fitted_size_sage_local_m": [
+        0.02,
+        0.020000000000000004,
+        0.07
+      ],
+      "source_glb_sha256": "6731810262f144af50fec34514dd36b0ef19bb18274e2288f3a776f90a443949",
+      "source_sidecar_sha256": "54612dfa452511fa655d934775f7cff5954b2d6026db305b540d4825d01691e7"
+    },
+    {
+      "id": "obj_0013",
+      "asset_key": "handsoapdispenser_7c1ae682",
+      "type": "handsoapdispenser",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_013",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.18334925174713135,
+        0.2115200757980347,
+        0.06809671968221664
+      ],
+      "native_size_sage_local_m": [
+        0.18334925174713135,
+        0.06809671968221664,
+        0.2115200757980347
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.436,
+        1.468,
+        0.946
+      ],
+      "fitted_size_sage_local_m": [
+        0.08,
+        0.1,
+        0.2
+      ],
+      "source_glb_sha256": "dfc68bad958b8fe4afe3f358d22325c5326cbaec80e5faf8cb910ed679d1c551",
+      "source_sidecar_sha256": "2d25d146e88b0f90b38bd1788d253a1b126412b3b15dc8b4a94683725958cff3"
+    },
+    {
+      "id": "obj_0014",
+      "asset_key": "toothbrush_a1d7b951",
+      "type": "toothbrush",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_014",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.060351356863975525,
+        0.034803759789340916,
+        0.23938178271055222
+      ],
+      "native_size_sage_local_m": [
+        0.060351356863975525,
+        0.23938178271055222,
+        0.034803759789340916
+      ],
+      "yaw_snap_deg": 90.0,
+      "tip": "x",
+      "scale": [
+        0.418,
+        0.575,
+        0.663
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.02,
+        0.04
+      ],
+      "source_glb_sha256": "695d82963ce25703d74cbb78a46f230936c8af94a86647b0682cbd5fa2647e8b",
+      "source_sidecar_sha256": "e44d739e04203f7df3869addb49cb9ceaf26f7f0991e6cc778d8f58104842252"
+    },
+    {
+      "id": "obj_0015",
+      "asset_key": "shampoo2_236c88c7",
+      "type": "shampoo2",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_015",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10954990983009338,
+        0.27635860443115234,
+        0.10938122868537903
+      ],
+      "native_size_sage_local_m": [
+        0.10954990983009338,
+        0.10938122868537903,
+        0.27635860443115234
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.73,
+        0.64,
+        0.796
+      ],
+      "fitted_size_sage_local_m": [
+        0.08,
+        0.07,
+        0.21999999999999997
+      ],
+      "source_glb_sha256": "db4144cdb109d4811074779b42b6b15a80915ca87f753bfafa0b91b194a700f3",
+      "source_sidecar_sha256": "345b2fbc1f076ab2c6329ba6c8cd46525ccea09ef1491a2860b0e3e09e4d509b"
+    },
+    {
+      "id": "obj_0016",
+      "asset_key": "razorcabinet_54578fa0",
+      "type": "razorcabinet",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_016",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.03083229996263981,
+        0.2860367915891402,
+        0.1309499740600586
+      ],
+      "native_size_sage_local_m": [
+        0.03083229996263981,
+        0.1309499740600586,
+        0.2860367915891402
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "y",
+      "scale": [
+        0.458,
+        0.35,
+        0.324
+      ],
+      "fitted_size_sage_local_m": [
+        0.06,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "8c99be57cc51e4d992839b6f421b0e1169d89b0db6a41cf1f9c634d3bed267b1",
+      "source_sidecar_sha256": "63a675548141bc03ac654ea2983ae671877dfae7b24958b0cb03ea590c7da213"
+    },
+    {
+      "id": "obj_0017",
+      "asset_key": "mirror_151c2fc9",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_017",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.23134902119636536,
+        0.4387436915658327,
+        0.03379586525261402
+      ],
+      "native_size_sage_local_m": [
+        0.23134902119636536,
+        0.03379586525261402,
+        0.4387436915658327
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.297,
+        0.888,
+        0.684
+      ],
+      "fitted_size_sage_local_m": [
+        0.29999999999999993,
+        0.03,
+        0.3
+      ],
+      "source_glb_sha256": "23ee099d5c95016f1144f02eec01a76fa9d6e2eb3a90b35bc7b39c885bbe4c13",
+      "source_sidecar_sha256": "30705dda37fa246a0df2304dad109991516e4aef88986c7a0e33b5454a18120e"
+    },
+    {
+      "id": "obj_0018",
+      "asset_key": "shampoobottle_0521af54",
+      "type": "shampoobottle",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_018",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10227374359965324,
+        0.17159260955486388,
+        0.07344542816281319
+      ],
+      "native_size_sage_local_m": [
+        0.10227374359965324,
+        0.07344542816281319,
+        0.17159260955486388
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.782,
+        1.089,
+        1.282
+      ],
+      "fitted_size_sage_local_m": [
+        0.08,
+        0.08,
+        0.21999999999999997
+      ],
+      "source_glb_sha256": "341c8a964e0331079dad6d87fb7bcf3ac0a084c6f640ca5f9f416052946e9286",
+      "source_sidecar_sha256": "d9ea41714e07940b25312f6ac819a053a49f0b5fc5ff7ee789d246cbfa953163"
+    },
+    {
+      "id": "obj_0019",
+      "asset_key": "hairbrush_0ed294c9",
+      "type": "hairbrush",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_019",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.160331591963768,
+        0.06882118576845642,
+        0.02937806025147438
+      ],
+      "native_size_sage_local_m": [
+        0.160331591963768,
+        0.02937806025147438,
+        0.06882118576845642
+      ],
+      "yaw_snap_deg": 86.6,
+      "tip": "y",
+      "scale": [
+        1.017,
+        1.06,
+        0.771
+      ],
+      "fitted_size_sage_local_m": [
+        0.07,
+        0.17000000000000004,
+        0.019999999999999997
+      ],
+      "source_glb_sha256": "badabc77875df0704573fcccba81a68950cb09b72c9629cf5782325ef64d8ad5",
+      "source_sidecar_sha256": "44e92b7eeea535c1a59990bae18fdcd20e4730e51879f4b0a82129e671b4eb78"
+    },
+    {
+      "id": "obj_0020",
+      "asset_key": "shampoo_86e26723",
+      "type": "shampoo",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_020",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.10182507336139679,
+        0.26220056272723014,
+        0.10185707733035088
+      ],
+      "native_size_sage_local_m": [
+        0.10182507336139679,
+        0.10185707733035088,
+        0.26220056272723014
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.786,
+        0.785,
+        0.801
+      ],
+      "fitted_size_sage_local_m": [
+        0.08,
+        0.08,
+        0.21000000000000002
+      ],
+      "source_glb_sha256": "d6824083bb1fd41be31dc2b5a34f1fedd31dade72f463aa7139b3e0cb58e0d23",
+      "source_sidecar_sha256": "8ad0e635df9fe1ab37767a44e6bf1a28cc8160a1483d4a98169c1f9b8df4ac66"
+    },
+    {
+      "id": "obj_0021",
+      "asset_key": "handsoap_1c5ab7d8",
+      "type": "handsoap",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_021",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.11904419586062431,
+        0.33428067065324285,
+        0.11965630203485489
+      ],
+      "native_size_sage_local_m": [
+        0.11904419586062431,
+        0.11965630203485489,
+        0.33428067065324285
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.84,
+        0.836,
+        0.628
+      ],
+      "fitted_size_sage_local_m": [
+        0.1,
+        0.1,
+        0.20999999999999996
+      ],
+      "source_glb_sha256": "c82742525bcf0750ab782cb285732a68f523d5ba9ba8ec43fdb0f0211fac3ae5",
+      "source_sidecar_sha256": "d002b598277655a98e61e2cc81065a3824070b2e23a965676e547255eafc3bcf"
+    },
+    {
+      "id": "obj_0022",
+      "asset_key": "mirror_5c178106",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_022",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2552681565284729,
+        0.523394763469696,
+        0.01840115897357464
+      ],
+      "native_size_sage_local_m": [
+        0.2552681565284729,
+        0.01840115897357464,
+        0.523394763469696
+      ],
+      "yaw_snap_deg": 90.0,
+      "tip": "y",
+      "scale": [
+        1.371,
+        0.917,
+        2.174
+      ],
+      "fitted_size_sage_local_m": [
+        0.35,
+        0.48,
+        0.039999999999999994
+      ],
+      "source_glb_sha256": "65e4288fd89bdbb2f2f8ec24039603a66cabaa16315d5b09aba002f2e3771ea3",
+      "source_sidecar_sha256": "e3c88b2cd46e2cc04f283255e329df5e97d036af00437323feaa28df663350a6"
+    },
+    {
+      "id": "obj_0023",
+      "asset_key": "sign_81411300",
+      "type": "sign",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_023",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.29743441939353943,
+        0.7394001411666977,
+        0.055871905758976936
+      ],
+      "native_size_sage_local_m": [
+        0.29743441939353943,
+        0.055871905758976936,
+        0.7394001411666977
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.217,
+        0.336,
+        0.179
+      ],
+      "fitted_size_sage_local_m": [
+        0.8999999999999999,
+        0.1,
+        0.010000000000000002
+      ],
+      "source_glb_sha256": "86f4a158b19c6dc5e833229812a0d136f736fa42080a6de501b8fe423bb2cad6",
+      "source_sidecar_sha256": "430aaca39eb7750ffc1ddef1321665dce5139fecdaeadd910d22616e04c8ceb4"
+    },
+    {
+      "id": "obj_0024",
+      "asset_key": "strip_5fdb8114",
+      "type": "strip",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_024",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.165542833507061,
+        0.4475160586662241,
+        0.1651604250073433
+      ],
+      "native_size_sage_local_m": [
+        0.165542833507061,
+        0.1651604250073433,
+        0.4475160586662241
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        5.437,
+        0.605,
+        0.022
+      ],
+      "fitted_size_sage_local_m": [
+        0.8999999999999999,
+        0.1,
+        0.009999999999999998
+      ],
+      "source_glb_sha256": "7e4442c7fdd4eaa7b335938544a0bff7ecabf7d0c4fad8d0fca9ac4858b1b034",
+      "source_sidecar_sha256": "3c36611b4b5f97809cd8181b13c29177095a69a4710024f15aeae7d775e447b0"
+    },
+    {
+      "id": "obj_0025",
+      "asset_key": "wiring_2be16bcf",
+      "type": "wiring",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_025",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4090638756752014,
+        0.4490835279211751,
+        0.2695296108722687
+      ],
+      "native_size_sage_local_m": [
+        0.4090638756752014,
+        0.2695296108722687,
+        0.4490835279211751
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.222,
+        0.371,
+        0.022
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "614dab11efa60ef9fc9e1eb22186fdb83b19e5bba7076b04c8e5ca81dce1c5d5",
+      "source_sidecar_sha256": "7e4f738ef5d21cf70ab539c40bef07809644f3f89cd75c5f0f39d421c8a25ba5"
+    },
+    {
+      "id": "obj_0026",
+      "asset_key": "wiring_2be16bcf",
+      "type": "wiring",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_026",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4090638756752014,
+        0.4490835279211751,
+        0.2695296108722687
+      ],
+      "native_size_sage_local_m": [
+        0.4090638756752014,
+        0.2695296108722687,
+        0.4490835279211751
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.222,
+        0.371,
+        0.022
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "614dab11efa60ef9fc9e1eb22186fdb83b19e5bba7076b04c8e5ca81dce1c5d5",
+      "source_sidecar_sha256": "7e4f738ef5d21cf70ab539c40bef07809644f3f89cd75c5f0f39d421c8a25ba5"
+    },
+    {
+      "id": "obj_0027",
+      "asset_key": "wiring_2be16bcf",
+      "type": "wiring",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_027",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4090638756752014,
+        0.4490835279211751,
+        0.2695296108722687
+      ],
+      "native_size_sage_local_m": [
+        0.4090638756752014,
+        0.2695296108722687,
+        0.4490835279211751
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.222,
+        0.371,
+        0.022
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "614dab11efa60ef9fc9e1eb22186fdb83b19e5bba7076b04c8e5ca81dce1c5d5",
+      "source_sidecar_sha256": "7e4f738ef5d21cf70ab539c40bef07809644f3f89cd75c5f0f39d421c8a25ba5"
+    },
+    {
+      "id": "obj_0028",
+      "asset_key": "wiring_2be16bcf",
+      "type": "wiring",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_028",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.4090638756752014,
+        0.4490835279211751,
+        0.2695296108722687
+      ],
+      "native_size_sage_local_m": [
+        0.4090638756752014,
+        0.2695296108722687,
+        0.4490835279211751
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.222,
+        0.371,
+        0.022
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "614dab11efa60ef9fc9e1eb22186fdb83b19e5bba7076b04c8e5ca81dce1c5d5",
+      "source_sidecar_sha256": "7e4f738ef5d21cf70ab539c40bef07809644f3f89cd75c5f0f39d421c8a25ba5"
+    },
+    {
+      "id": "obj_0029",
+      "asset_key": "panel_10e70c27",
+      "type": "panel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_029",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8336020708084106,
+        0.832991522107827,
+        0.024829725734889507
+      ],
+      "native_size_sage_local_m": [
+        0.8336020708084106,
+        0.024829725734889507,
+        0.832991522107827
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.08,
+        0.12,
+        0.403
+      ],
+      "fitted_size_sage_local_m": [
+        0.8999999999999999,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "584a134890f80a7acacdae8aed7f28343cc0faa4d441920169bf6f4dc556bd8c",
+      "source_sidecar_sha256": "2bbc870829bf298ee4a82b014775ed557ef19939aa0eeb6fa3566ca9adeb44e4"
+    },
+    {
+      "id": "obj_0030",
+      "asset_key": "panel_10e70c27",
+      "type": "panel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_030",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.8336020708084106,
+        0.832991522107827,
+        0.024829725734889507
+      ],
+      "native_size_sage_local_m": [
+        0.8336020708084106,
+        0.024829725734889507,
+        0.832991522107827
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.08,
+        0.12,
+        0.403
+      ],
+      "fitted_size_sage_local_m": [
+        0.8999999999999999,
+        0.1,
+        0.01
+      ],
+      "source_glb_sha256": "584a134890f80a7acacdae8aed7f28343cc0faa4d441920169bf6f4dc556bd8c",
+      "source_sidecar_sha256": "2bbc870829bf298ee4a82b014775ed557ef19939aa0eeb6fa3566ca9adeb44e4"
+    },
+    {
+      "id": "obj_0031",
+      "asset_key": "towelrack_4666594b",
+      "type": "towelrack",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_031",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.874804824590683,
+        1.032182093738811,
+        0.08895785734057426
+      ],
+      "native_size_sage_local_m": [
+        0.874804824590683,
+        0.08895785734057426,
+        1.032182093738811
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.914,
+        1.237,
+        1.066
+      ],
+      "fitted_size_sage_local_m": [
+        0.8,
+        0.10999999999999999,
+        1.1
+      ],
+      "source_glb_sha256": "bb6ce0df77e366339aa1c35b00cf5a3aec40e41665153c0b9ccfc245b7c9a1a0",
+      "source_sidecar_sha256": "0486663b763d31b3820a331c9769412f8eac076cfa90ec83f4b4d18ab061c900"
+    },
+    {
+      "id": "obj_0032",
+      "asset_key": "neonstrip_f9d71da0",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_032",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.018019729293882847,
+        0.46129098534584045,
+        0.01756923645734787
+      ],
+      "native_size_sage_local_m": [
+        0.018019729293882847,
+        0.01756923645734787,
+        0.46129098534584045
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.301,
+        11.099,
+        1.708
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.20000000000000004,
+        0.03
+      ],
+      "source_glb_sha256": "e78ac4ccf728eb3ee049c3ae89854e818ac26481f0073144951fea0d0df26dac",
+      "source_sidecar_sha256": "329497ade27ca7eda2f0e873d05d7c93a195c5d7fde5a399ac5cb70be8cfec11"
+    },
+    {
+      "id": "obj_0033",
+      "asset_key": "neonstrip_f9d71da0",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_033",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.018019729293882847,
+        0.46129098534584045,
+        0.01756923645734787
+      ],
+      "native_size_sage_local_m": [
+        0.018019729293882847,
+        0.01756923645734787,
+        0.46129098534584045
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.301,
+        11.099,
+        1.708
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.20000000000000004,
+        0.03
+      ],
+      "source_glb_sha256": "e78ac4ccf728eb3ee049c3ae89854e818ac26481f0073144951fea0d0df26dac",
+      "source_sidecar_sha256": "329497ade27ca7eda2f0e873d05d7c93a195c5d7fde5a399ac5cb70be8cfec11"
+    },
+    {
+      "id": "obj_0034",
+      "asset_key": "neonstrip_f9d71da0",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_034",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.018019729293882847,
+        0.46129098534584045,
+        0.01756923645734787
+      ],
+      "native_size_sage_local_m": [
+        0.018019729293882847,
+        0.01756923645734787,
+        0.46129098534584045
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.301,
+        11.099,
+        1.708
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.20000000000000004,
+        0.03
+      ],
+      "source_glb_sha256": "e78ac4ccf728eb3ee049c3ae89854e818ac26481f0073144951fea0d0df26dac",
+      "source_sidecar_sha256": "329497ade27ca7eda2f0e873d05d7c93a195c5d7fde5a399ac5cb70be8cfec11"
+    },
+    {
+      "id": "obj_0035",
+      "asset_key": "neonstrip_f9d71da0",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_035",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.018019729293882847,
+        0.46129098534584045,
+        0.01756923645734787
+      ],
+      "native_size_sage_local_m": [
+        0.018019729293882847,
+        0.01756923645734787,
+        0.46129098534584045
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.301,
+        11.099,
+        1.708
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.20000000000000004,
+        0.03
+      ],
+      "source_glb_sha256": "e78ac4ccf728eb3ee049c3ae89854e818ac26481f0073144951fea0d0df26dac",
+      "source_sidecar_sha256": "329497ade27ca7eda2f0e873d05d7c93a195c5d7fde5a399ac5cb70be8cfec11"
+    },
+    {
+      "id": "obj_0036",
+      "asset_key": "circuitpanel_f019eb20",
+      "type": "circuitpanel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_036",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.327685222029686,
+        0.2203902319579356,
+        0.09273431077599525
+      ],
+      "native_size_sage_local_m": [
+        0.327685222029686,
+        0.09273431077599525,
+        0.2203902319579356
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.831,
+        2.042,
+        0.539
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.45000000000000007,
+        0.05
+      ],
+      "source_glb_sha256": "117cc4ea01e1822b1d6865aea78d1b4c2b888f6532f1f5c1a39aad35a98065bc",
+      "source_sidecar_sha256": "f6ff8cb0f809ef7e5c959f6305904ae1d49f7daa024a0e6d7eca999bad818f50"
+    },
+    {
+      "id": "obj_0037",
+      "asset_key": "circuitpanel_f019eb20",
+      "type": "circuitpanel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_037",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.327685222029686,
+        0.2203902319579356,
+        0.09273431077599525
+      ],
+      "native_size_sage_local_m": [
+        0.327685222029686,
+        0.09273431077599525,
+        0.2203902319579356
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.831,
+        2.042,
+        0.539
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.45000000000000007,
+        0.05
+      ],
+      "source_glb_sha256": "117cc4ea01e1822b1d6865aea78d1b4c2b888f6532f1f5c1a39aad35a98065bc",
+      "source_sidecar_sha256": "f6ff8cb0f809ef7e5c959f6305904ae1d49f7daa024a0e6d7eca999bad818f50"
+    },
+    {
+      "id": "obj_0038",
+      "asset_key": "wirebundle_4edea756",
+      "type": "wirebundle",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_038",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14423619210720062,
+        0.17998351693131553,
+        0.04906743951141834
+      ],
+      "native_size_sage_local_m": [
+        0.14423619210720062,
+        0.04906743951141834,
+        0.17998351693131553
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.667,
+        1.387,
+        2.446
+      ],
+      "fitted_size_sage_local_m": [
+        0.30000000000000004,
+        0.2,
+        0.12
+      ],
+      "source_glb_sha256": "381be849553d35b946c9fc523bccea4e1aef2e4488f28add3b0222e925c36f02",
+      "source_sidecar_sha256": "9aabe3067476666e84f97f81caf2d781781d6db9e017d45c0ca6868822237014"
+    },
+    {
+      "id": "obj_0039",
+      "asset_key": "wirebundle_4edea756",
+      "type": "wirebundle",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_039",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14423619210720062,
+        0.17998351693131553,
+        0.04906743951141834
+      ],
+      "native_size_sage_local_m": [
+        0.14423619210720062,
+        0.04906743951141834,
+        0.17998351693131553
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.667,
+        1.387,
+        2.446
+      ],
+      "fitted_size_sage_local_m": [
+        0.30000000000000004,
+        0.2,
+        0.12
+      ],
+      "source_glb_sha256": "381be849553d35b946c9fc523bccea4e1aef2e4488f28add3b0222e925c36f02",
+      "source_sidecar_sha256": "9aabe3067476666e84f97f81caf2d781781d6db9e017d45c0ca6868822237014"
+    },
+    {
+      "id": "obj_0040",
+      "asset_key": "wirebundle_4edea756",
+      "type": "wirebundle",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_040",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.14423619210720062,
+        0.17998351693131553,
+        0.04906743951141834
+      ],
+      "native_size_sage_local_m": [
+        0.14423619210720062,
+        0.04906743951141834,
+        0.17998351693131553
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.667,
+        1.387,
+        2.446
+      ],
+      "fitted_size_sage_local_m": [
+        0.30000000000000004,
+        0.2,
+        0.12
+      ],
+      "source_glb_sha256": "381be849553d35b946c9fc523bccea4e1aef2e4488f28add3b0222e925c36f02",
+      "source_sidecar_sha256": "9aabe3067476666e84f97f81caf2d781781d6db9e017d45c0ca6868822237014"
+    },
+    {
+      "id": "obj_0041",
+      "asset_key": "neonsign_a1dba76a",
+      "type": "neonsign",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_041",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2502841502428055,
+        0.4980603184812935,
+        0.05234900116920471
+      ],
+      "native_size_sage_local_m": [
+        0.2502841502428055,
+        0.05234900116920471,
+        0.4980603184812935
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.004,
+        1.199,
+        0.573
+      ],
+      "fitted_size_sage_local_m": [
+        0.49999999999999994,
+        0.3,
+        0.03
+      ],
+      "source_glb_sha256": "d6a69d7b8b3c500a051353d2e2b528352007b256e13b41481917c8db71445629",
+      "source_sidecar_sha256": "e5ceafea62668188e41598421806ef31ad7eed5d86b84f66c764c3b0f0857d39"
+    },
+    {
+      "id": "obj_0042",
+      "asset_key": "mirror_82520368",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_042",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2942991703748703,
+        0.47583640773933666,
+        0.29412490129470825
+      ],
+      "native_size_sage_local_m": [
+        0.2942991703748703,
+        0.29412490129470825,
+        0.47583640773933666
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.869,
+        1.02,
+        0.799
+      ],
+      "fitted_size_sage_local_m": [
+        0.55,
+        0.3,
+        0.38000000000000006
+      ],
+      "source_glb_sha256": "4797ad7c85f1c66dc33e6230015993a84a4d821b8370fe270967d218f624ceaa",
+      "source_sidecar_sha256": "93dd51560870a9409921da8a85d1f1cb6072d183fd8726bdb2f5c86a2582dffa"
+    },
+    {
+      "id": "obj_0043",
+      "asset_key": "mirror_c0f9c7e7",
+      "type": "mirror",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_043",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.5256436467170715,
+        1.259323340253104,
+        0.013989492319524288
+      ],
+      "native_size_sage_local_m": [
+        0.5256436467170715,
+        0.013989492319524288,
+        1.259323340253104
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        0.951,
+        21.445,
+        0.238
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.3,
+        0.3
+      ],
+      "source_glb_sha256": "86fc1944159baf799145a845ed9eccc0ce28d475d77c21a4abe7217a891c22dc",
+      "source_sidecar_sha256": "83b5899f115ac58de24f14619ae8b21411c0d9710a24349a35b8e19d66e560d6"
+    },
+    {
+      "id": "obj_0044",
+      "asset_key": "mirror2_91bd7c83",
+      "type": "mirror2",
+      "place": "on_object",
+      "support_parent": "obj_0003",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_044",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3052140176296234,
+        0.5896089947127621,
+        0.025191583670675755
+      ],
+      "native_size_sage_local_m": [
+        0.3052140176296234,
+        0.025191583670675755,
+        0.5896089947127621
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        0.814,
+        0.983,
+        1.588
+      ],
+      "fitted_size_sage_local_m": [
+        0.48,
+        0.3,
+        0.04
+      ],
+      "source_glb_sha256": "d1ea19412f4b4f0da61f5db735d46fe41023b45bcfb5a49f1b3c8adee459ab67",
+      "source_sidecar_sha256": "6afdda0125033c74979e0405bee8fb7b9e4b0b8de9fede5be21de8055a692a22"
+    },
+    {
+      "id": "obj_0045",
+      "asset_key": "panel_9e8e0920",
+      "type": "panel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_045",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.29202336072921753,
+        0.2907756604754468,
+        0.04741246625781059
+      ],
+      "native_size_sage_local_m": [
+        0.29202336072921753,
+        0.04741246625781059,
+        0.2907756604754468
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        3.082,
+        2.109,
+        0.034
+      ],
+      "fitted_size_sage_local_m": [
+        0.9,
+        0.1,
+        0.009999999999999998
+      ],
+      "source_glb_sha256": "2a4ad288e1321804cdd5b3b77b93d24df6c1591f0110a474a9227532a858ff26",
+      "source_sidecar_sha256": "e01ee2fc5cb6fc1d0441e6f3a39734fe4f15764bed8d55f6c69e8025434dceb9"
+    },
+    {
+      "id": "obj_0046",
+      "asset_key": "wiringbundle1_1dd46a83",
+      "type": "wiringbundle1",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_046",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.46656061708927155,
+        0.25900257448097364,
+        0.13032714277505875
+      ],
+      "native_size_sage_local_m": [
+        0.46656061708927155,
+        0.13032714277505875,
+        0.25900257448097364
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.072,
+        0.691,
+        0.425
+      ],
+      "fitted_size_sage_local_m": [
+        0.5,
+        0.09,
+        0.11
+      ],
+      "source_glb_sha256": "220cf4f8badf24a75f6e1162017210eac7f51907f94903602b831da570d30b61",
+      "source_sidecar_sha256": "4cd947114bf2cc6d0a4739cbcfbefe73a3e54032f7093da15fdc0a9717e76f61"
+    },
+    {
+      "id": "obj_0047",
+      "asset_key": "lightfixture_cea5d4b7",
+      "type": "lightfixture",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_047",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.3009355664253235,
+        0.39994955062866216,
+        0.212992325425148
+      ],
+      "native_size_sage_local_m": [
+        0.3009355664253235,
+        0.212992325425148,
+        0.39994955062866216
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.495,
+        2.113,
+        1.775
+      ],
+      "fitted_size_sage_local_m": [
+        0.44999999999999996,
+        0.45,
+        0.71
+      ],
+      "source_glb_sha256": "461578a35e7fca7f99cd06f064c00e7d5b2d9a34ff3e464b28705b3d584bebbe",
+      "source_sidecar_sha256": "f5bae28b1eb7e0585a2960ed3a9023146b49e6bcb0d6a1e0b43b6d50b1a2a8f0"
+    },
+    {
+      "id": "obj_0048",
+      "asset_key": "circuitpanel_96d69324",
+      "type": "circuitpanel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_048",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2611978352069855,
+        0.39997519195094355,
+        0.009570011403411627
+      ],
+      "native_size_sage_local_m": [
+        0.2611978352069855,
+        0.009570011403411627,
+        0.39997519195094355
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.5,
+        1.531,
+        5.225
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.4,
+        0.05
+      ],
+      "source_glb_sha256": "0c62b7a09f5c5c2bb0b3d1971e29b32febfaeb85a28883f70b92201455d45786",
+      "source_sidecar_sha256": "5cc9b64846d97bc570f45527f69391c0483111e188274e17194d71dbe94ce451"
+    },
+    {
+      "id": "obj_0049",
+      "asset_key": "circuitpanel_96d69324",
+      "type": "circuitpanel",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_049",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.2611978352069855,
+        0.39997519195094355,
+        0.009570011403411627
+      ],
+      "native_size_sage_local_m": [
+        0.2611978352069855,
+        0.009570011403411627,
+        0.39997519195094355
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        1.5,
+        1.531,
+        5.225
+      ],
+      "fitted_size_sage_local_m": [
+        0.6000000000000001,
+        0.4,
+        0.05
+      ],
+      "source_glb_sha256": "0c62b7a09f5c5c2bb0b3d1971e29b32febfaeb85a28883f70b92201455d45786",
+      "source_sidecar_sha256": "5cc9b64846d97bc570f45527f69391c0483111e188274e17194d71dbe94ce451"
+    },
+    {
+      "id": "obj_0050",
+      "asset_key": "wiringbundle_1_21c45bc7",
+      "type": "wiringbundle_1",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_050",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.39422617852687836,
+        0.194436154095456,
+        0.17922872304916382
+      ],
+      "native_size_sage_local_m": [
+        0.39422617852687836,
+        0.17922872304916382,
+        0.194436154095456
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.015,
+        0.446,
+        0.514
+      ],
+      "fitted_size_sage_local_m": [
+        0.4,
+        0.08,
+        0.1
+      ],
+      "source_glb_sha256": "76fb7e4da5f1324997b6e2af3a8c3dd8d87b7389262453f28ff008cf6f235a02",
+      "source_sidecar_sha256": "8a3b9f9b7359b157c7bc1d82f7f55675b5483bdd5622feba07a3a310bbb426e2"
+    },
+    {
+      "id": "obj_0051",
+      "asset_key": "neonstrip_63be304e",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_051",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.05298403277993202,
+        0.07572746095650018,
+        0.0035036111949011683
+      ],
+      "native_size_sage_local_m": [
+        0.05298403277993202,
+        0.0035036111949011683,
+        0.07572746095650018
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        7.923,
+        2.831,
+        8.563
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.15,
+        0.03
+      ],
+      "source_glb_sha256": "96de2c8e3af687622afbe58c9b0a563c71aba40acf66cfaeda200f25f63ad737",
+      "source_sidecar_sha256": "75160568cab7f1f4db73ed11852fe7928e89641ffe02be70f4f2ea25db0ba71e"
+    },
+    {
+      "id": "obj_0052",
+      "asset_key": "neonstrip_63be304e",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_052",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.05298403277993202,
+        0.07572746095650018,
+        0.0035036111949011683
+      ],
+      "native_size_sage_local_m": [
+        0.05298403277993202,
+        0.0035036111949011683,
+        0.07572746095650018
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        7.923,
+        2.831,
+        8.563
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.15,
+        0.03
+      ],
+      "source_glb_sha256": "96de2c8e3af687622afbe58c9b0a563c71aba40acf66cfaeda200f25f63ad737",
+      "source_sidecar_sha256": "75160568cab7f1f4db73ed11852fe7928e89641ffe02be70f4f2ea25db0ba71e"
+    },
+    {
+      "id": "obj_0053",
+      "asset_key": "neonstrip_63be304e",
+      "type": "neonstrip",
+      "place": "wall",
+      "support_parent": "wall",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_053",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.05298403277993202,
+        0.07572746095650018,
+        0.0035036111949011683
+      ],
+      "native_size_sage_local_m": [
+        0.05298403277993202,
+        0.0035036111949011683,
+        0.07572746095650018
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": "x",
+      "scale": [
+        7.923,
+        2.831,
+        8.563
+      ],
+      "fitted_size_sage_local_m": [
+        0.6,
+        0.15,
+        0.03
+      ],
+      "source_glb_sha256": "96de2c8e3af687622afbe58c9b0a563c71aba40acf66cfaeda200f25f63ad737",
+      "source_sidecar_sha256": "75160568cab7f1f4db73ed11852fe7928e89641ffe02be70f4f2ea25db0ba71e"
+    },
+    {
+      "id": "obj_0054",
+      "asset_key": "handsoapdispenser_767a7d52",
+      "type": "handsoapdispenser",
+      "place": "on_object",
+      "support_parent": "obj_0002",
+      "support_status": "declared",
+      "geometry_kind": "generated_fitted_mesh",
+      "node": "obj_054",
+      "status": "ok",
+      "native_size_gltf_m": [
+        0.08756310492753983,
+        0.2913169176918018,
+        0.08603392913937569
+      ],
+      "native_size_sage_local_m": [
+        0.08756310492753983,
+        0.08603392913937569,
+        0.2913169176918018
+      ],
+      "yaw_snap_deg": 0.0,
+      "tip": null,
+      "scale": [
+        1.028,
+        1.046,
+        0.755
+      ],
+      "fitted_size_sage_local_m": [
+        0.09,
+        0.09,
+        0.22000000000000003
+      ],
+      "source_glb_sha256": "8f8af1fb3628978c29994e7b7937e72ecbeaf3c4259945abd227e2ec54ce489c",
+      "source_sidecar_sha256": "2394958df70247aa971056e3dcd4d416aa7ba539a5a7f4889ad27961ff063165"
+    }
+  ],
+  "room": {
+    "width": 3.0,
+    "length": 3.7,
+    "height": 2.7,
+    "height_source": "condition",
+    "source_height_m": 2.7,
+    "floor_known": true,
+    "boundary_known": true,
+    "shell_geometry_kind": "reference_build_shell_polygon_walls",
+    "wall_normal_source": "floor_polygon_winding",
+    "display_floor_z_m": 0.0,
+    "source_floor_z_m": 0.0
+  },
+  "fixed_bbox_proxies": 0,
+  "condition": {
+    "schema_version": "fastfill.v2",
+    "room": {
+      "frame": "right_handed_z_up",
+      "room_type": "bathroom",
+      "floor_polygon_xy_m": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          3,
+          0.0
+        ],
+        [
+          3,
+          3.7
+        ],
+        [
+          0.0,
+          3.7
+        ]
+      ],
+      "floor_z_m": 0.0,
+      "height_m": 2.7,
+      "boundary_known": true,
+      "floor_known": true,
+      "fixed_objects": [
+        {
+          "id": "door_1",
+          "category": "door",
+          "size_local_m": [
+            0.1,
+            0.95,
+            2.05
+          ],
+          "bottom_center_m": [
+            0.98,
+            3.7,
+            0.0
+          ],
+          "yaw_rad": -1.5707963267948966
+        }
+      ]
+    },
+    "objects": [
+      {
+        "id": "obj_0000",
+        "category": "toilet",
+        "description": "A futuristic toilet unit with a sleek angular bowl, matte black ceramic, electric\u2011blue trim, and a floating lid that slides silently",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0001",
+        "category": "bin",
+        "description": "A metal waste bin with a squat cylindrical body, brushed steel finish, and a subtle electric\u2011yellow accent ring",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0002",
+        "category": "sink",
+        "description": "A dark metallic sink with a deep rectangular basin, brushed steel surface, neon\u2011purple backlighting, and a low\u2011profile faucet",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0003",
+        "category": "cabinet",
+        "description": "A circuit\u2011etched storage cabinet with a tall rectangular silhouette, dark alloy frame, glowing circuit patterns, and sliding doors",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0004",
+        "category": "lamp",
+        "description": "A futuristic cyberpunk floor lamp with a tall slender pole, angular chrome arms and a glowing amber orb that emits a soft ambient light",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0005",
+        "category": "trashcan",
+        "description": "A cyberpunk style trash can, squat cylindrical container, matte black exterior with a thin vertical neon red stripe and a sensor\u2011activated lid",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0006",
+        "category": "trashcan",
+        "description": "A cylindrical floor trash can with a rugged brushed metal finish, neon\u2011red accent ring and a wide stable base",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0007",
+        "category": "shower",
+        "description": "A neon-lit shower enclosure with a rectangular frame, glowing magenta panels, chrome accents, and a built\u2011in LED rim that pulses rhythmically",
+        "support_parent": "floor"
+      },
+      {
+        "id": "obj_0008",
+        "category": "holder",
+        "description": "A toothbrush holder with an angular rectangular prism shape, matte black base, neon\u2011green edge lighting, and a recessed groove for brushes",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0009",
+        "category": "cosmeticbag",
+        "description": "A cyberpunk cosmetic bag with a compact rectangular shape, matte black exterior and a subtle circuit-board texture illuminated by soft amber LEDs",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0010",
+        "category": "shampoobottle",
+        "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0011",
+        "category": "shampoobottle",
+        "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0012",
+        "category": "toothbrushholder",
+        "description": "A sleek cyberpunk toothbrush holder with a rectangular base, angular edges, neon\u2011blue glowing strips and a matte black metallic finish, featuring a recessed slot for bristles and a small holographic display on the front",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0013",
+        "category": "handsoapdispenser",
+        "description": "A wall\u2011mounted cyberpunk hand\u2011soap dispenser, slim rectangular with a brushed steel front, amber LED glow and a touch\u2011sensitive panel",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0014",
+        "category": "toothbrush",
+        "description": "A cyberpunk toothbrush with a sleek angular handle, neon\u2011blue accents and a matte black polymer body, featuring a slightly curved head and a glowing tip.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0015",
+        "category": "shampoo2",
+        "description": "A cyberpunk shampoo bottle made of transparent acrylic with a chrome\u2011silver spray nozzle, neon\u2011green label and a tapered cylindrical shape.",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0016",
+        "category": "razorcabinet",
+        "description": "A cyberpunk style razor, slim and angular with a brushed steel blade housing and a glowing amber strip along its side",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0017",
+        "category": "mirror",
+        "description": "A single piece of thin and upright cyberpunk mirror with a reflective chrome surface, faint neon\u2011green grid overlay, and beveled edges",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0018",
+        "category": "shampoobottle",
+        "description": "A cyberpunk style shampoo bottle with a sleek cylindrical shape, neon teal glossy finish, polymer body and an integrated LED ring that pulses softly",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0019",
+        "category": "hairbrush",
+        "description": "A cyberpunk style hairbrush, compact cylindrical body, brushed steel bristles, electric blue glow along the handle and a detachable magnetic tip",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0020",
+        "category": "shampoo",
+        "description": "A cylindrical shampoo bottle with a glossy neon teal finish, angular cap and sleek streamlined shape",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0021",
+        "category": "handsoap",
+        "description": "A cylindrical hand\u2011soap dispenser with a brushed steel body, glowing LED ring and a smooth rounded top",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0022",
+        "category": "mirror",
+        "description": "A single piece of thin and upright framed neon mirror with a rectangular shape, glowing cyan border, and a polished chrome backing",
+        "support_parent": "obj_0002"
+      },
+      {
+        "id": "obj_0023",
+        "category": "sign",
+        "description": "A single piece of thin and upright electric\u2011blue 'BATH' sign with illuminated lettering, flat acrylic panel, and a brushed metal border",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0024",
+        "category": "strip",
+        "description": "A single piece of thin and upright LED neon strip lighting with a continuous linear form, vibrant magenta glow, and a sleek polymer housing",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0025",
+        "category": "wiring",
+        "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0026",
+        "category": "wiring",
+        "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0027",
+        "category": "wiring",
+        "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0028",
+        "category": "wiring",
+        "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0029",
+        "category": "panel",
+        "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0030",
+        "category": "panel",
+        "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0031",
+        "category": "towelrack",
+        "description": "A neon\u2011edge towel rack with a tall vertical frame, chrome arms, and a glowing pink outline that traces the rack\u2019s silhouette",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0032",
+        "category": "neonstrip",
+        "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0033",
+        "category": "neonstrip",
+        "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0034",
+        "category": "neonstrip",
+        "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0035",
+        "category": "neonstrip",
+        "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0036",
+        "category": "circuitpanel",
+        "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0037",
+        "category": "circuitpanel",
+        "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0038",
+        "category": "wirebundle",
+        "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0039",
+        "category": "wirebundle",
+        "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0040",
+        "category": "wirebundle",
+        "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0041",
+        "category": "neonsign",
+        "description": "A single piece of thin and upright neon sign with a sleek black backing, bright electric blue lettering spelling 'BATH' and a subtle flicker effect",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0042",
+        "category": "mirror",
+        "description": "A single piece of thin and upright mirror with reflective black glass, framed by a thin neon pink LED border.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0043",
+        "category": "mirror",
+        "description": "A single piece of thin and upright mirror with a rectangular frame, reflective surface edged in a thin strip of glowing cyan LED, and a brushed steel backing",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0044",
+        "category": "mirror2",
+        "description": "A single piece of thin and upright wall\u2011mounted mirror with a sleek black border, neon\u2011purple backlighting and a slightly convex surface.",
+        "support_parent": "obj_0003"
+      },
+      {
+        "id": "obj_0045",
+        "category": "panel",
+        "description": "A cyberpunk circuit panel with exposed wiring, matte black casing, silver rivets and a thin glowing green indicator strip.",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0046",
+        "category": "wiringbundle1",
+        "description": "A cyberpunk wiring bundle, thick cable with a twisted metallic sheath, neon\u2011orange insulation and small connector plugs.",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0047",
+        "category": "lightfixture",
+        "description": "A cyberpunk style light fixture, compact wall\u2011mounted unit with a curved chrome housing and an integrated strip of programmable RGB LEDs",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0048",
+        "category": "circuitpanel",
+        "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0049",
+        "category": "circuitpanel",
+        "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0050",
+        "category": "wiringbundle_1",
+        "description": "A cylindrical wiring bundle with a twisted neon\u2011orange cable sheath, rugged texture and a slightly tapered end",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0051",
+        "category": "neonstrip",
+        "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0052",
+        "category": "neonstrip",
+        "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0053",
+        "category": "neonstrip",
+        "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+        "support_parent": "wall"
+      },
+      {
+        "id": "obj_0054",
+        "category": "handsoapdispenser",
+        "description": "A single piece of thin and upright hand soap dispenser with a compact cylindrical body, matte black finish and bright cyan neon accents around the pump, giving it a cyberpunk aesthetic.",
+        "support_parent": "obj_0002"
+      }
+    ],
+    "constraints": []
+  },
+  "fit_policy": "roomgenbench_anisotropic_yaw_snap_tip",
+  "original_asset_geometry_acceptance": "not_checked",
+  "support_verification": "not_checked",
+  "validator": "not_attempted",
+  "physics": "not_attempted",
+  "host_commit": "not_attempted",
+  "reference_assembler": {
+    "source": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/RoomGenBench/bench/assemble.py",
+    "sha256": "3bb3b1a280c7074d0902a7ca0210ed433f5fc386da1bac735dc37f076763035f"
+  }
+}

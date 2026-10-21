@@ -1,0 +1,94 @@
+[
+  {
+    "name": "robocasa365",
+    "url": "https://arxiv.org/pdf/2603.04356",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/robocasa365.pdf",
+    "bytes": 28458415,
+    "sha256": "f3e6877b8de3dd471afb6951c1e067729e2a57c53fcb3d6daaa0f4af5080206b",
+    "downloaded_at": "2026-10-20T18:09:27.630023+00:00",
+    "version": "2603.04356v1",
+    "pages": 25,
+    "reviewed_pages": [
+      7,
+      8,
+      9,
+      21,
+      22,
+      23
+    ],
+    "rendered_viewed_pages": [
+      7,
+      22
+    ],
+    "status": "ICLR 2026 primary paper"
+  },
+  {
+    "name": "behavior-original",
+    "url": "https://arxiv.org/pdf/2108.03332",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/behavior-original.pdf",
+    "bytes": 25580667,
+    "sha256": "7de1cb559dc653f07b002691ef011576580ad6d65442368cf82536cf6ce508c2",
+    "downloaded_at": "2026-10-20T18:09:25.764665+00:00",
+    "version": "2108.03332v1",
+    "pages": 33,
+    "reviewed_pages": [
+      6,
+      7,
+      8,
+      20,
+      32
+    ],
+    "rendered_viewed_pages": [
+      6
+    ],
+    "status": "CoRL 2021 work; arXiv version reviewed"
+  },
+  {
+    "name": "behavior1k-2024",
+    "url": "https://arxiv.org/pdf/2403.09227",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/behavior1k-2024.pdf",
+    "bytes": 14233640,
+    "sha256": "ab4033f3e8a8187ad2cfdf11f1979d33996ecce1e81fa3d62af33a92bbb17a2b",
+    "downloaded_at": "2026-10-20T18:09:21.813284+00:00",
+    "version": "2403.09227v1",
+    "pages": 43,
+    "reviewed_pages": [
+      7,
+      8,
+      29,
+      30,
+      31
+    ],
+    "rendered_viewed_pages": [
+      8
+    ],
+    "status": "Expanded arXiv version; conference predecessor CoRL 2022/PMLR 2023"
+  },
+  {
+    "name": "embodied-agent-interface",
+    "url": "https://arxiv.org/pdf/2410.07166",
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261020-worldedge-table1/papers/embodied-agent-interface.pdf",
+    "bytes": 25615464,
+    "sha256": "d10c7fee3594c88ff9f6a061a68b64a380a82d36c6652f3b08c42179044e2a9f",
+    "downloaded_at": "2026-10-20T18:09:26.412644+00:00",
+    "version": "2410.07166v3",
+    "pages": 107,
+    "reviewed_pages": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      23,
+      24,
+      32,
+      33,
+      34
+    ],
+    "rendered_viewed_pages": [
+      8,
+      9
+    ],
+    "status": "NeurIPS 2024 Datasets and Benchmarks; revised arXiv version reviewed"
+  }
+]

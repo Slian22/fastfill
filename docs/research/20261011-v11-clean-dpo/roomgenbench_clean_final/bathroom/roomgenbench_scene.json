@@ -1,0 +1,1540 @@
+{
+  "scene_key": "fastfill_f5afdfbf933c395d",
+  "room_type": "bathroom",
+  "geometry_only": true,
+  "objects": [
+    {
+      "id": "obj_0000",
+      "type": "toilet",
+      "description": "A futuristic toilet unit with a sleek angular bowl, matte black ceramic, electric\u2011blue trim, and a floating lid that slides silently",
+      "asset_key": "toilet_9f8a690c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.58,
+        "y": 2.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.47,
+        "length": 0.7,
+        "height": 0.85
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0001",
+      "type": "bin",
+      "description": "A metal waste bin with a squat cylindrical body, brushed steel finish, and a subtle electric\u2011yellow accent ring",
+      "asset_key": "bin_a650b5a6",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.95,
+        "y": 0.34,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.55,
+        "length": 0.55,
+        "height": 0.89
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0002",
+      "type": "sink",
+      "description": "A dark metallic sink with a deep rectangular basin, brushed steel surface, neon\u2011purple backlighting, and a low\u2011profile faucet",
+      "asset_key": "sink_89fbff49",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.95,
+        "y": 3.37,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.74,
+        "length": 0.53,
+        "height": 0.71
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0003",
+      "type": "cabinet",
+      "description": "A circuit\u2011etched storage cabinet with a tall rectangular silhouette, dark alloy frame, glowing circuit patterns, and sliding doors",
+      "asset_key": "cabinet_f6cc1959",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.68,
+        "y": 1.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 1.1,
+        "length": 0.5,
+        "height": 1.01
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0004",
+      "type": "lamp",
+      "description": "A futuristic cyberpunk floor lamp with a tall slender pole, angular chrome arms and a glowing amber orb that emits a soft ambient light",
+      "asset_key": "lamp_79aaceea",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.78,
+        "y": 2.25,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.3,
+        "height": 0.67
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0005",
+      "type": "trashcan",
+      "description": "A cyberpunk style trash can, squat cylindrical container, matte black exterior with a thin vertical neon red stripe and a sensor\u2011activated lid",
+      "asset_key": "trashcan_cb44bd0d",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.75,
+        "y": 3.45,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.37,
+        "length": 0.37,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0006",
+      "type": "trashcan",
+      "description": "A cylindrical floor trash can with a rugged brushed metal finish, neon\u2011red accent ring and a wide stable base",
+      "asset_key": "trashcan_9eeaa81c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.45,
+        "y": 3.44,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.39,
+        "height": 0.68
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0007",
+      "type": "shower",
+      "description": "A neon-lit shower enclosure with a rectangular frame, glowing magenta panels, chrome accents, and a built\u2011in LED rim that pulses rhythmically",
+      "asset_key": "shower_7e76e042",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.55,
+        "y": 1.05,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 1.03,
+        "length": 0.97,
+        "height": 1.98
+      },
+      "place_id": "floor",
+      "place": "floor",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0008",
+      "type": "holder",
+      "description": "A toothbrush holder with an angular rectangular prism shape, matte black base, neon\u2011green edge lighting, and a recessed groove for brushes",
+      "asset_key": "holder_457eada0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.6,
+        "y": 3.59,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.09,
+        "length": 0.09,
+        "height": 0.12
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0009",
+      "type": "cosmeticbag",
+      "description": "A cyberpunk cosmetic bag with a compact rectangular shape, matte black exterior and a subtle circuit-board texture illuminated by soft amber LEDs",
+      "asset_key": "cosmeticbag_ef037bf1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.89,
+        "y": 1.4,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.1,
+        "height": 0.3
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0010",
+      "type": "shampoobottle",
+      "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+      "asset_key": "shampoobottle_f5f8d8d1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.49,
+        "y": 1.01,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.08,
+        "height": 0.22
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0011",
+      "type": "shampoobottle",
+      "description": "A futuristic cyberpunk shampoo bottle with elongated cylindrical form, matte black finish, pulsing violet light strips, and a detachable spray nozzle.",
+      "asset_key": "shampoobottle_f5f8d8d1",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.92,
+        "y": 0.98,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.08,
+        "height": 0.22
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0012",
+      "type": "toothbrushholder",
+      "description": "A sleek cyberpunk toothbrush holder with a rectangular base, angular edges, neon\u2011blue glowing strips and a matte black metallic finish, featuring a recessed slot for bristles and a small holographic display on the front",
+      "asset_key": "toothbrushholder_afd3110c",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.91,
+        "y": 0.78,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.02,
+        "length": 0.02,
+        "height": 0.07
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0013",
+      "type": "handsoapdispenser",
+      "description": "A wall\u2011mounted cyberpunk hand\u2011soap dispenser, slim rectangular with a brushed steel front, amber LED glow and a touch\u2011sensitive panel",
+      "asset_key": "handsoapdispenser_7c1ae682",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.1,
+        "y": 3.14,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.1,
+        "height": 0.2
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0014",
+      "type": "toothbrush",
+      "description": "A cyberpunk toothbrush with a sleek angular handle, neon\u2011blue accents and a matte black polymer body, featuring a slightly curved head and a glowing tip.",
+      "asset_key": "toothbrush_a1d7b951",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.92,
+        "y": 0.62,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.02,
+        "height": 0.04
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0015",
+      "type": "shampoo2",
+      "description": "A cyberpunk shampoo bottle made of transparent acrylic with a chrome\u2011silver spray nozzle, neon\u2011green label and a tapered cylindrical shape.",
+      "asset_key": "shampoo2_236c88c7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.2,
+        "y": 3.3,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.07,
+        "height": 0.22
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0016",
+      "type": "razorcabinet",
+      "description": "A cyberpunk style razor, slim and angular with a brushed steel blade housing and a glowing amber strip along its side",
+      "asset_key": "razorcabinet_54578fa0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.94,
+        "y": 1.57,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.06,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0017",
+      "type": "mirror",
+      "description": "A single piece of thin and upright cyberpunk mirror with a reflective chrome surface, faint neon\u2011green grid overlay, and beveled edges",
+      "asset_key": "mirror_151c2fc9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.6,
+        "y": 3.19,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.03,
+        "height": 0.3
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0018",
+      "type": "shampoobottle",
+      "description": "A cyberpunk style shampoo bottle with a sleek cylindrical shape, neon teal glossy finish, polymer body and an integrated LED ring that pulses softly",
+      "asset_key": "shampoobottle_0521af54",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.81,
+        "y": 1.6,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.08,
+        "height": 0.22
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0019",
+      "type": "hairbrush",
+      "description": "A cyberpunk style hairbrush, compact cylindrical body, brushed steel bristles, electric blue glow along the handle and a detachable magnetic tip",
+      "asset_key": "hairbrush_0ed294c9",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.89,
+        "y": 0.7000000000000001,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.07,
+        "length": 0.17,
+        "height": 0.02
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0020",
+      "type": "shampoo",
+      "description": "A cylindrical shampoo bottle with a glossy neon teal finish, angular cap and sleek streamlined shape",
+      "asset_key": "shampoo_86e26723",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.94,
+        "y": 0.9,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.08,
+        "length": 0.08,
+        "height": 0.21
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0021",
+      "type": "handsoap",
+      "description": "A cylindrical hand\u2011soap dispenser with a brushed steel body, glowing LED ring and a smooth rounded top",
+      "asset_key": "handsoap_1c5ab7d8",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.2,
+        "y": 3.5,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.1,
+        "length": 0.1,
+        "height": 0.21
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0022",
+      "type": "mirror",
+      "description": "A single piece of thin and upright framed neon mirror with a rectangular shape, glowing cyan border, and a polished chrome backing",
+      "asset_key": "mirror_5c178106",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.9,
+        "y": 3.3,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.35,
+        "length": 0.48,
+        "height": 0.04
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0023",
+      "type": "sign",
+      "description": "A single piece of thin and upright electric\u2011blue 'BATH' sign with illuminated lettering, flat acrylic panel, and a brushed metal border",
+      "asset_key": "sign_81411300",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.935,
+        "y": 1.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0024",
+      "type": "strip",
+      "description": "A single piece of thin and upright LED neon strip lighting with a continuous linear form, vibrant magenta glow, and a sleek polymer housing",
+      "asset_key": "strip_5fdb8114",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.74,
+        "y": 1.52,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0025",
+      "type": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "asset_key": "wiring_2be16bcf",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.55,
+        "y": 0.12,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0026",
+      "type": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "asset_key": "wiring_2be16bcf",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.15,
+        "y": 0.065,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0027",
+      "type": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "asset_key": "wiring_2be16bcf",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.55,
+        "y": 3.6350000000000002,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0028",
+      "type": "wiring",
+      "description": "An exposed wiring bundle with a compact rectangular cross\u2011section, neon\u2011orange sheath, and visible copper conductors",
+      "asset_key": "wiring_2be16bcf",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.15,
+        "y": 0.12,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0029",
+      "type": "panel",
+      "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+      "asset_key": "panel_10e70c27",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.55,
+        "y": 1.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0030",
+      "type": "panel",
+      "description": "A circuitry wall panel with a flat rectangular shape, dark matte finish, embedded glowing circuit traces, and a recessed mounting frame",
+      "asset_key": "panel_10e70c27",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.55,
+        "y": 0.065,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0031",
+      "type": "towelrack",
+      "description": "A neon\u2011edge towel rack with a tall vertical frame, chrome arms, and a glowing pink outline that traces the rack\u2019s silhouette",
+      "asset_key": "towelrack_4666594b",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.07,
+        "y": 1.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.8,
+        "length": 0.11,
+        "height": 1.1
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0032",
+      "type": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "asset_key": "neonstrip_f9d71da0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.17,
+        "y": 1.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0033",
+      "type": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "asset_key": "neonstrip_f9d71da0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.35,
+        "y": 3.53,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0034",
+      "type": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "asset_key": "neonstrip_f9d71da0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.15,
+        "y": 0.17,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0035",
+      "type": "neonstrip",
+      "description": "A long cyberpunk neon light strip with a thin flexible aluminum body, vibrant magenta glow and a subtle ripple pattern etched into its surface",
+      "asset_key": "neonstrip_f9d71da0",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.83,
+        "y": 2.65,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.2,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0036",
+      "type": "circuitpanel",
+      "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+      "asset_key": "circuitpanel_f019eb20",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.24,
+        "y": 2.45,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.45,
+        "height": 0.05
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0037",
+      "type": "circuitpanel",
+      "description": "A cyberpunk circuit board panel with a slim rectangular frame, exposed copper traces, glowing green LEDs and a brushed steel backing",
+      "asset_key": "circuitpanel_f019eb20",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.35,
+        "y": 0.24,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.45,
+        "height": 0.05
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0038",
+      "type": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "asset_key": "wirebundle_4edea756",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.5499999999999998,
+        "y": 3.585,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.2,
+        "height": 0.12
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0039",
+      "type": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "asset_key": "wirebundle_4edea756",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.115,
+        "y": 2.45,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.2,
+        "height": 0.12
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0040",
+      "type": "wirebundle",
+      "description": "A cyberpunk exposed wire bundle with twisted multicolored cables, each strand ending in a tiny flickering LED, encased in a clear protective sheath",
+      "asset_key": "wirebundle_4edea756",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.55,
+        "y": 0.115,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.3,
+        "length": 0.2,
+        "height": 0.12
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0041",
+      "type": "neonsign",
+      "description": "A single piece of thin and upright neon sign with a sleek black backing, bright electric blue lettering spelling 'BATH' and a subtle flicker effect",
+      "asset_key": "neonsign_a1dba76a",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.22,
+        "y": 2.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.3,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0042",
+      "type": "mirror",
+      "description": "A single piece of thin and upright mirror with reflective black glass, framed by a thin neon pink LED border.",
+      "asset_key": "mirror_82520368",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.7,
+        "y": 1.01,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.55,
+        "length": 0.3,
+        "height": 0.38
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0043",
+      "type": "mirror",
+      "description": "A single piece of thin and upright mirror with a rectangular frame, reflective surface edged in a thin strip of glowing cyan LED, and a brushed steel backing",
+      "asset_key": "mirror_c0f9c7e7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.5,
+        "y": 0.64,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 107.00000000000001
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.3,
+        "height": 0.3
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0044",
+      "type": "mirror2",
+      "description": "A single piece of thin and upright wall\u2011mounted mirror with a sleek black border, neon\u2011purple backlighting and a slightly convex surface.",
+      "asset_key": "mirror2_91bd7c83",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.53,
+        "y": 1.5,
+        "z": 1.01
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.48,
+        "length": 0.3,
+        "height": 0.04
+      },
+      "place_id": "obj_0003",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0045",
+      "type": "panel",
+      "description": "A cyberpunk circuit panel with exposed wiring, matte black casing, silver rivets and a thin glowing green indicator strip.",
+      "asset_key": "panel_9e8e0920",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 1.55,
+        "y": 3.6350000000000002,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -180.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "length": 0.1,
+        "height": 0.01
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0046",
+      "type": "wiringbundle1",
+      "description": "A cyberpunk wiring bundle, thick cable with a twisted metallic sheath, neon\u2011orange insulation and small connector plugs.",
+      "asset_key": "wiringbundle1_1dd46a83",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.94,
+        "y": 2.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.5,
+        "length": 0.09,
+        "height": 0.11
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0047",
+      "type": "lightfixture",
+      "description": "A cyberpunk style light fixture, compact wall\u2011mounted unit with a curved chrome housing and an integrated strip of programmable RGB LEDs",
+      "asset_key": "lightfixture_cea5d4b7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.76,
+        "y": 2.65,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.45,
+        "length": 0.45,
+        "height": 0.71
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0048",
+      "type": "circuitpanel",
+      "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+      "asset_key": "circuitpanel_96d69324",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.785,
+        "y": 1.85,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.4,
+        "height": 0.05
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0049",
+      "type": "circuitpanel",
+      "description": "A cyberpunk style circuit panel, flat rectangular module, dark carbon fiber backing, glowing teal circuit traces and a small tactile button array",
+      "asset_key": "circuitpanel_96d69324",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.785,
+        "y": 1.05,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.4,
+        "height": 0.05
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0050",
+      "type": "wiringbundle_1",
+      "description": "A cylindrical wiring bundle with a twisted neon\u2011orange cable sheath, rugged texture and a slightly tapered end",
+      "asset_key": "wiringbundle_1_21c45bc7",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.15,
+        "y": 0.055,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "dimensions": {
+        "width": 0.4,
+        "length": 0.08,
+        "height": 0.1
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0051",
+      "type": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "asset_key": "neonstrip_63be304e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 0.14,
+        "y": 2.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.15,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0052",
+      "type": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "asset_key": "neonstrip_63be304e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.91,
+        "y": 0.32,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.15,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0053",
+      "type": "neonstrip",
+      "description": "A single piece of thin and upright neon strip with a bright cyan glow, flat rectangular profile and smooth glossy surface",
+      "asset_key": "neonstrip_63be304e",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.86,
+        "y": 3.25,
+        "z": 1.2
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 90.0
+      },
+      "dimensions": {
+        "width": 0.6,
+        "length": 0.15,
+        "height": 0.03
+      },
+      "place_id": "wall",
+      "place": "wall",
+      "support_surface_id": null,
+      "support_status": "declared"
+    },
+    {
+      "id": "obj_0054",
+      "type": "handsoapdispenser",
+      "description": "A single piece of thin and upright hand soap dispenser with a compact cylindrical body, matte black finish and bright cyan neon accents around the pump, giving it a cyberpunk aesthetic.",
+      "asset_key": "handsoapdispenser_767a7d52",
+      "asset_key_kind": "downstream_generation_key_only",
+      "position": {
+        "x": 2.2,
+        "y": 3.17,
+        "z": 0.71
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 109.00000000000004
+      },
+      "dimensions": {
+        "width": 0.09,
+        "length": 0.09,
+        "height": 0.22
+      },
+      "place_id": "obj_0002",
+      "place": "on_object",
+      "support_surface_id": null,
+      "support_status": "declared"
+    }
+  ],
+  "fixed_objects": [
+    {
+      "id": "door_1",
+      "category": "door",
+      "size_local_m": [
+        0.1,
+        0.95,
+        2.05
+      ],
+      "bottom_center_m": [
+        0.98,
+        3.7,
+        0.0
+      ],
+      "yaw_rad": -1.5707963267948966
+    }
+  ],
+  "constraints": [],
+  "room": {
+    "dimensions": {
+      "width": 3.0,
+      "length": 3.7,
+      "height": 2.7
+    },
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "ceiling_height": 2.7,
+    "walls": [
+      {
+        "id": "wall_00",
+        "start_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 3,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_01",
+        "start_point": {
+          "x": 3,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 3,
+          "y": 3.7,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_02",
+        "start_point": {
+          "x": 3,
+          "y": 3.7,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 3.7,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      },
+      {
+        "id": "wall_03",
+        "start_point": {
+          "x": 0.0,
+          "y": 3.7,
+          "z": 0.0
+        },
+        "end_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "height": 2.7,
+        "thickness": 0.1
+      }
+    ],
+    "doors": [
+      {
+        "id": "door_1",
+        "wall_id": "wall_02",
+        "position_on_wall": 0.6733333333333333,
+        "width": 0.95,
+        "height": 2.05
+      }
+    ],
+    "windows": []
+  }
+}

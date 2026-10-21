@@ -1,0 +1,27 @@
+{
+  "snapshot": "eval-context-f3dbe861ab49",
+  "archive": "/tmp/eval-context-f3dbe861ab49.tar.gz",
+  "archive_sha256": "c74d600310cb5bb8d942a57924adb414a8af840d69321bb163d3e7248f2845b4",
+  "code_sha256": {
+    "fastfill/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fastfill/scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+    "fastfill/anchors.py": "44a3b3275ebca87d5eb126e221fcd005e4c8e1b7cd36061bcd76c73e620a8780",
+    "fastfill/validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+    "fastfill/build.py": "fbd36a4f841f4606ab0475e097077c4ea906046caa71aecba0295640c831939f",
+    "fastfill/split.py": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+    "fastfill/interface.py": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+    "fastfill/requirements.txt": "d79656a13dbaab6143a79e0ba78be72c104a6562cc67d1c257a3f43fdec8a8fe",
+    "fastfill/comparison/__init__.py": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+    "fastfill/comparison/contract.py": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+    "fastfill/comparison/data.py": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+    "fastfill/comparison/size_prior.py": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+    "fastfill/comparison/corpus.py": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+    "fastfill/comparison/eval_data.py": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+    "fastfill/comparison/train_pair_helpers.py": "6a8268dc576f34a03d79e67e876417b01b7a7e8ce76241b5299b41e50176ea76",
+    "fastfill/comparison/infer.py": "61090b654451d4663631aa9ae7643e597beb93458abd47ef32210978bec3a7bc",
+    "fastfill/comparison/geometry.py": "567bd7455be1a5efe245c52faa01f49938ad97216b3a02de30d1840479fd2796",
+    "fastfill/comparison/evaluate_pair.py": "2e2ca52c93adc107c9e7d6f8485a5cbb7a58c8f013760c87514ab6e422952e1c",
+    "fastfill/comparison/isambard_infer.sbatch": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+    "fastfill/comparison/isambard_geometry.sbatch": "90b7a9fd6b1d96ce29bc592dd89d3f4978286cdd535e1ec82174c57ab1f20732"
+  }
+}

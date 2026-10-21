@@ -1,0 +1,547 @@
+{
+  "uid": "HSSD200:107734110_175999914:3",
+  "note": "真实已有测试输入与输出摘录；仅用交付代码在CPU重建模型输入，未重新运行模型。结果来自旧checker升级规则的全测试运行。",
+  "sources": {
+    "joint_request": {
+      "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/visual-final-selected-002/inputs/eval-data-v1/joint/requests.jsonl",
+      "line": 88
+    },
+    "placement_request": {
+      "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/visual-final-selected-002/inputs/eval-data-v1/placement/requests.jsonl",
+      "line": 88
+    },
+    "final_output": {
+      "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/system-022-final/test-sharded/system/rooms.jsonl",
+      "line": 88
+    },
+    "roomgenbench_output": {
+      "path": "/Volumes/harddisk/fastfillout/unknownsize-20261013/system-022-final/test-sharded/system/roomgenbench.jsonl",
+      "line": 88
+    }
+  },
+  "external_input_information": {
+    "room_type": "bedroom",
+    "boundary_type": "polygon",
+    "boundary": [
+      [
+        0,
+        0
+      ],
+      [
+        4.44,
+        0
+      ],
+      [
+        4.44,
+        3.77
+      ],
+      [
+        0,
+        3.77
+      ]
+    ],
+    "height": 2.8,
+    "objects": [
+      {
+        "id": "obj_0001",
+        "category": "bed"
+      },
+      {
+        "id": "obj_0002",
+        "category": "dresser"
+      },
+      {
+        "id": "obj_0003",
+        "category": "cabinet"
+      },
+      {
+        "id": "obj_0004",
+        "category": "lamp"
+      }
+    ]
+  },
+  "actual_model_messages": [
+    {
+      "role": "system",
+      "content": "You are a room layout model. Place every listed movable object exactly once, in listed order.\nFrame: meters, right-handed, Z up; floor z=0. boundary is a counter-clockwise floor polygon; boundary_type polygon denotes walls, hull denotes a scanned floor hull, proxy an approximate boundary. height is the ceiling height; a missing field means unknown.\nObjects have opaque instance IDs and explicit categories. Fixed items have explicit categories and known size, pos and yaw; they cannot move, are not output placements, and must remain unobstructed.\nsize=[sx,sy,sz] denotes positive extents along local X,Y,Z; local +X is the front. pos=[x,y,z] is the bottom center. yaw is integer degrees in [0,360), counter-clockwise from room +X. on is the supporting movable or fixed ID; omit on for floor support. Supports must exist and cannot be self-references or cycles.\nUse the supplied object sizes. Output only JSON {\"placements\":[{\"id\":id,\"pos\":[x,y,z],\"yaw\":deg,\"on\":support_id},...]}. Do not output size or change supplied dimensions."
+    },
+    {
+      "role": "user",
+      "content": "{\"room_type\":\"bedroom\",\"boundary_type\":\"polygon\",\"boundary\":[[0,0],[4.44,0],[4.44,3.77],[0,3.77]],\"height\":2.8,\"objects\":[{\"id\":\"obj_0001\",\"category\":\"bed\",\"size\":[2.17,1.91,1.06]},{\"id\":\"obj_0002\",\"category\":\"dresser\",\"size\":[0.55,1.31,0.87]},{\"id\":\"obj_0003\",\"category\":\"cabinet\",\"size\":[0.39,1.59,1.58]},{\"id\":\"obj_0004\",\"category\":\"lamp\",\"size\":[0.28,0.28,0.62]}]}"
+    }
+  ],
+  "actual_model_input_decoded": {
+    "room_type": "bedroom",
+    "boundary_type": "polygon",
+    "boundary": [
+      [
+        0,
+        0
+      ],
+      [
+        4.44,
+        0
+      ],
+      [
+        4.44,
+        3.77
+      ],
+      [
+        0,
+        3.77
+      ]
+    ],
+    "height": 2.8,
+    "objects": [
+      {
+        "id": "obj_0001",
+        "category": "bed",
+        "size": [
+          2.17,
+          1.91,
+          1.06
+        ]
+      },
+      {
+        "id": "obj_0002",
+        "category": "dresser",
+        "size": [
+          0.55,
+          1.31,
+          0.87
+        ]
+      },
+      {
+        "id": "obj_0003",
+        "category": "cabinet",
+        "size": [
+          0.39,
+          1.59,
+          1.58
+        ]
+      },
+      {
+        "id": "obj_0004",
+        "category": "lamp",
+        "size": [
+          0.28,
+          0.28,
+          0.62
+        ]
+      }
+    ]
+  },
+  "final_output": {
+    "uid": "HSSD200:107734110_175999914:3",
+    "source": "HSSD200",
+    "group": "c:4cb80df90076d9ad63cb4c75e601676c9af8e1ad",
+    "room_type": "bedroom",
+    "stage": "placer",
+    "complete": true,
+    "checker_pass": true,
+    "accepted": true,
+    "violations": 0,
+    "needs_escalation": false,
+    "layout": [
+      {
+        "id": "obj_0001",
+        "category": "bed",
+        "size": [
+          2.17,
+          1.91,
+          1.06
+        ],
+        "pos": [
+          2.22,
+          2.685,
+          0
+        ],
+        "yaw": 4.71238898038469,
+        "parent": null
+      },
+      {
+        "id": "obj_0002",
+        "category": "dresser",
+        "size": [
+          0.55,
+          1.31,
+          0.87
+        ],
+        "pos": [
+          0.28,
+          0.66,
+          0
+        ],
+        "yaw": 0.0,
+        "parent": null
+      },
+      {
+        "id": "obj_0003",
+        "category": "cabinet",
+        "size": [
+          0.39,
+          1.59,
+          1.58
+        ],
+        "pos": [
+          4.14,
+          2.62,
+          0
+        ],
+        "yaw": 3.141592653589793,
+        "parent": null
+      },
+      {
+        "id": "obj_0004",
+        "category": "lamp",
+        "size": [
+          0.28,
+          0.28,
+          0.62
+        ],
+        "pos": [
+          0.25,
+          3.57,
+          0
+        ],
+        "yaw": 4.71238898038469,
+        "parent": null
+      }
+    ],
+    "candidates": [
+      {
+        "stage": "placer",
+        "complete": true,
+        "error": null,
+        "checker_pass_raw": true,
+        "checker_pass": true,
+        "violations": 0,
+        "accepted": true,
+        "s1_status": "ok"
+      }
+    ],
+    "placer": {
+      "engine": "replay:vllm",
+      "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+      "adapter": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final",
+      "adapter_sha256": "cc3e286fa715be1892d13c0e4f29721ac32324903d8bb08e81f1951fee5fd1e6"
+    }
+  },
+  "roomgenbench_output": {
+    "uid": "HSSD200:107734110_175999914:3",
+    "stage": "placer",
+    "placer": {
+      "engine": "replay:vllm",
+      "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+      "adapter": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/train/final",
+      "adapter_sha256": "cc3e286fa715be1892d13c0e4f29721ac32324903d8bb08e81f1951fee5fd1e6"
+    },
+    "condition": {
+      "schema_version": "fastfill.v2",
+      "constraints": [],
+      "room": {
+        "frame": "right_handed_z_up",
+        "floor_polygon_xy_m": [
+          [
+            0,
+            0
+          ],
+          [
+            4.44,
+            0
+          ],
+          [
+            4.44,
+            3.77
+          ],
+          [
+            0,
+            3.77
+          ]
+        ],
+        "floor_z_m": 0.0,
+        "height_m": 2.8,
+        "room_type": "bedroom",
+        "fixed_objects": []
+      },
+      "objects": [
+        {
+          "id": "obj_0001",
+          "category": "bed",
+          "description": "bed"
+        },
+        {
+          "id": "obj_0002",
+          "category": "dresser",
+          "description": "dresser"
+        },
+        {
+          "id": "obj_0003",
+          "category": "cabinet",
+          "description": "cabinet"
+        },
+        {
+          "id": "obj_0004",
+          "category": "lamp",
+          "description": "lamp"
+        }
+      ]
+    },
+    "layout": {
+      "schema_version": "fastfill.v2",
+      "objects": [
+        {
+          "id": "obj_0001",
+          "target_size_local_m": [
+            2.17,
+            1.91,
+            1.06
+          ],
+          "bottom_center_m": [
+            2.22,
+            2.685,
+            0
+          ],
+          "yaw_rad": -1.5707963267948966
+        },
+        {
+          "id": "obj_0002",
+          "target_size_local_m": [
+            0.55,
+            1.31,
+            0.87
+          ],
+          "bottom_center_m": [
+            0.28,
+            0.66,
+            0
+          ],
+          "yaw_rad": 0.0
+        },
+        {
+          "id": "obj_0003",
+          "target_size_local_m": [
+            0.39,
+            1.59,
+            1.58
+          ],
+          "bottom_center_m": [
+            4.14,
+            2.62,
+            0
+          ],
+          "yaw_rad": -3.141592653589793
+        },
+        {
+          "id": "obj_0004",
+          "target_size_local_m": [
+            0.28,
+            0.28,
+            0.62
+          ],
+          "bottom_center_m": [
+            0.25,
+            3.57,
+            0
+          ],
+          "yaw_rad": -1.5707963267948966
+        }
+      ]
+    },
+    "scene": {
+      "scene_key": "fastfill_6652d68f890b156a",
+      "room_type": "bedroom",
+      "geometry_only": true,
+      "objects": [
+        {
+          "id": "obj_0001",
+          "type": "bed",
+          "description": "bed",
+          "asset_key": "bed_fefe2393",
+          "asset_key_kind": "downstream_generation_key_only",
+          "position": {
+            "x": 2.22,
+            "y": 2.685,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -180.0
+          },
+          "dimensions": {
+            "width": 1.91,
+            "length": 2.17,
+            "height": 1.06
+          },
+          "place_id": "floor",
+          "place": "floor",
+          "support_surface_id": null,
+          "support_status": "inferred"
+        },
+        {
+          "id": "obj_0002",
+          "type": "dresser",
+          "description": "dresser",
+          "asset_key": "dresser_7bf4a0ca",
+          "asset_key_kind": "downstream_generation_key_only",
+          "position": {
+            "x": 0.28,
+            "y": 0.66,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -90.0
+          },
+          "dimensions": {
+            "width": 1.31,
+            "length": 0.55,
+            "height": 0.87
+          },
+          "place_id": "floor",
+          "place": "floor",
+          "support_surface_id": null,
+          "support_status": "inferred"
+        },
+        {
+          "id": "obj_0003",
+          "type": "cabinet",
+          "description": "cabinet",
+          "asset_key": "cabinet_69d203a8",
+          "asset_key_kind": "downstream_generation_key_only",
+          "position": {
+            "x": 4.14,
+            "y": 2.62,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 90.0
+          },
+          "dimensions": {
+            "width": 1.59,
+            "length": 0.39,
+            "height": 1.58
+          },
+          "place_id": "floor",
+          "place": "floor",
+          "support_surface_id": null,
+          "support_status": "inferred"
+        },
+        {
+          "id": "obj_0004",
+          "type": "lamp",
+          "description": "lamp",
+          "asset_key": "lamp_bc4edcce",
+          "asset_key_kind": "downstream_generation_key_only",
+          "position": {
+            "x": 0.25,
+            "y": 3.57,
+            "z": 0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -180.0
+          },
+          "dimensions": {
+            "width": 0.28,
+            "length": 0.28,
+            "height": 0.62
+          },
+          "place_id": "floor",
+          "place": "floor",
+          "support_surface_id": null,
+          "support_status": "inferred"
+        }
+      ],
+      "fixed_objects": [],
+      "constraints": [],
+      "room": {
+        "dimensions": {
+          "width": 4.44,
+          "length": 3.77,
+          "height": 2.8
+        },
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0.0
+        },
+        "ceiling_height": 2.8,
+        "walls": [
+          {
+            "id": "wall_00",
+            "start_point": {
+              "x": 0,
+              "y": 0,
+              "z": 0.0
+            },
+            "end_point": {
+              "x": 4.44,
+              "y": 0,
+              "z": 0.0
+            },
+            "height": 2.8,
+            "thickness": 0.1
+          },
+          {
+            "id": "wall_01",
+            "start_point": {
+              "x": 4.44,
+              "y": 0,
+              "z": 0.0
+            },
+            "end_point": {
+              "x": 4.44,
+              "y": 3.77,
+              "z": 0.0
+            },
+            "height": 2.8,
+            "thickness": 0.1
+          },
+          {
+            "id": "wall_02",
+            "start_point": {
+              "x": 4.44,
+              "y": 3.77,
+              "z": 0.0
+            },
+            "end_point": {
+              "x": 0,
+              "y": 3.77,
+              "z": 0.0
+            },
+            "height": 2.8,
+            "thickness": 0.1
+          },
+          {
+            "id": "wall_03",
+            "start_point": {
+              "x": 0,
+              "y": 3.77,
+              "z": 0.0
+            },
+            "end_point": {
+              "x": 0,
+              "y": 0,
+              "z": 0.0
+            },
+            "height": 2.8,
+            "thickness": 0.1
+          }
+        ],
+        "doors": [],
+        "windows": []
+      }
+    },
+    "error": null
+  },
+  "verification": {
+    "shipped_prior_reproduces_model_input": true,
+    "prior_sha256": "073522c18e10ce2443189dfb8ebca90074c16ff1c2a4c292dfd6f788409d2422"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/known-issues.md",
+    "sha256": "aba11d82a61b005c4e0a673f4df88cb88757ca034b9660028b77e8367d4c5595",
+    "bytes": 5652,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/fastfill-v2-data-audit.md",
+    "sha256": "ea45a24bf4a6d15e78c887ebf3d45a03be823fdd2514948606cfea8a536408b1",
+    "bytes": 15043,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/.codex/skills/get-available-resources/SKILL.md",
+    "sha256": "f048a533f291b1b6c2cb7fb426360dca8541b53aa81ab8cfe82aef470ca5563d",
+    "bytes": 10070,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/aris-reference/research-review/SKILL.md",
+    "sha256": "85c75d2bef1f08e2e7d2e6a7f6bc0ae42faecf942d5314d25f17376e1292597f",
+    "bytes": 12447,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/aris-reference/experiment-audit/SKILL.md",
+    "sha256": "dd5c2405aaae472cf2020f16fbd1b02b431874d8353a65a8aa4c102a65f5aef2",
+    "bytes": 12732,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/reviewer-independence.md",
+    "sha256": "fbbfcb6e7ff53010b596e8e01ce456d1906734f5bd198745f76ccd62787af3e3",
+    "bytes": 3473,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/aris-reference/shared-references/review-scope-limits.md",
+    "sha256": "e383dbaa57aed6f8fd2c2bb6bcaefc6806648126d11b21cb6c39eeeec76100f6",
+    "bytes": 4174,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/sft-snapshot.json",
+    "sha256": "d6ba3b267dde0ecbcbb750834ab91a9d1be5b278da59081ec4aaa4de83ca7cb7",
+    "bytes": 1222,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/main-data-snapshot-final.json",
+    "sha256": "2295bc32f98738a6f54b144e130904e393eccaa7e635b837c7c8895c19a5d8c3",
+    "bytes": 1703,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/corpus-snapshot-v2.json",
+    "sha256": "a657b0e9f83934c3a4463346f6d46e59be81ea67d742806090c3df8b7d710db3",
+    "bytes": 1189,
+    "read_scope": "full_document"
+  },
+  {
+    "path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/agency-unknownsize-data-review-20261013.md",
+    "sha256": "c85bd612630b5e8802888e070b272031615102ecaa6701ee411742dc6707501a",
+    "bytes": 10810,
+    "read_scope": "full_document"
+  }
+]

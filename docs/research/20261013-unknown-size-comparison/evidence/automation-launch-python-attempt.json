@@ -1,0 +1,21 @@
+{
+  "status": "stopped_before_driver_start",
+  "launchd_label": "org.fastfill.unknownsize.20261013.run002",
+  "domain": "gui/501",
+  "plist": "/tmp/ff-controller-zddaos0p/job.plist",
+  "plist_sha256": "83f6858a631a339a33e6cf3d34a60f83dc10bdd12cceb240d25bd40e5d3be358",
+  "launcher": "/tmp/ff-controller-zddaos0p/launcher.py",
+  "launcher_sha256": "85d6a592e1f442194788ce9ac96357fcb94893866c1dddd95d4d59d51350de8a",
+  "config_sha256": "19337c42e43af295113362779d6315525006bd53aa2a7f6488e25080867b7b28",
+  "code_snapshot": "pipeline-9c4d97dbd736",
+  "maximum_seconds": 432000,
+  "external_watchdog_grace_seconds": 30,
+  "output_root": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-002",
+  "supersedes": "automation-run-001: startup polling only, stopped before anyAPI/subsequentstage",
+  "restarts": false,
+  "survives_chat_turn": true,
+  "survives_logout_reboot": false,
+  "watchdog": "independent launcher SIGALRM120h,child termination grace30s",
+  "shell_attempt": "evidence/automation-launch-shell-attempt.json",
+  "reason": "background Python waiting before opening Desktop configuration; no master/driver/result output; no new permissions granted"
+}

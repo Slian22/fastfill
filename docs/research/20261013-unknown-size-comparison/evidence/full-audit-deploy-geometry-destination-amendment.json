@@ -1,0 +1,18 @@
+{
+  "cancellation_receipt_sha256": "0ab7e3f6472cb34fcd8ac8dfce33e8f40429410c0a75721d9778153a5890b2e9",
+  "created_unix": 1791877194.800907,
+  "destination": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/geometry-v1",
+  "no_old_output_removed_or_overwritten": true,
+  "old_geometry_job_id": 7367629,
+  "pending_never_executed": true,
+  "protected_jobs": [
+    7365659,
+    7365681,
+    7365682,
+    7367626,
+    7367628
+  ],
+  "review_report_sha256": "a7af0af942c97d0d8fa362de39986f864d857bf90c399df2fdcafb1ec948b7e3",
+  "status": "approved_reserved_unused_destination",
+  "timestamp_note": "sacct Start=None (no execution), elapsed0, no allocation/batch step/log/output. scontrol assigns equal StartTime/EndTime at cancellation; pre-cancel Start=Unknown and state=PENDING."
+}

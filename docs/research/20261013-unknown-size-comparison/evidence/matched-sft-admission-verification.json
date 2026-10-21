@@ -1,0 +1,25 @@
+{
+  "base_identity_equal": true,
+  "data_identity_equal": true,
+  "full_length_admission_equal": true,
+  "train": 98754,
+  "dev_loss_only": 8151,
+  "config_differences": {
+    "out": [
+      "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-joint-001",
+      "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/sft-placement-001"
+    ],
+    "arm": [
+      "joint",
+      "placement"
+    ]
+  },
+  "input_sha256": {
+    "sft-placement-001/lengths.json": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+    "sft-placement-001/run_receipt.json": "0c048b78bfd8009a25c14a8817010f6187a6321133de0aac00e10f9b30d6ff6e",
+    "sft-placement-001/status.json": "d93a88ea1eb718fa4bb5c788ccd827468367d6df09eb345342507ab295d9de60",
+    "sft-joint-001/lengths.json": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+    "sft-joint-001/run_receipt.json": "9bd27d9495f1a24ec6675796bf4f02c3778df4a1dc1465d7cf1f8933bd1df216",
+    "sft-joint-001/status.json": "118226aa056ca694ffb64ee1ac6474603872424074812245c9a1f8a2f2878c4b"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "cleanup_grace_seconds_max": 105,
+  "deadline_unix": 1792302800,
+  "deadline_utc": "2026-10-18T05:53:20+00:00",
+  "new_driver_duration": "computed immediately before start: floor(deadline-now)-10",
+  "original_run001_driver_start_unix": 1791870800.0616038,
+  "policy": "earliest original 120h cutoff; no reset for run003",
+  "run002_launcher_deadline_unix": 1792303313.842669,
+  "run002_launcher_started_unix": 1791871313.842669,
+  "source": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/automation-run-001/endstate.json",
+  "source_sha256": "ef8c05e9966838c11373bb5ca54b0c81485e6d70dce99648b4d4ee4120a9b97d"
+}

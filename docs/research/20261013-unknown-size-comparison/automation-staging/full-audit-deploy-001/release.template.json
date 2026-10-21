@@ -1,0 +1,10 @@
+{
+  "candidate_config_path": "PARENT_NEW_CANDIDATE_CONFIG",
+  "candidate_config_sha256": "PARENT_COMPUTED_SHA256",
+  "geometry_submission_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-deploy-geometry-submission.json",
+  "geometry_submission_sha256": "PARENT_COMPUTED_SHA256",
+  "parent_snapshot_ready": false,
+  "snapshot_manifest_sha256": "a8726c726f722c88797f0e652ec38c29237afa561a997b41428129ea7d1fb0c2",
+  "test_evidence_path": "/Users/slian/Desktop/3D/Worldedge/OptiScene/docs/research/20261013-unknown-size-comparison/evidence/full-audit-final-validation.json",
+  "test_evidence_sha256": "b7cdc906d98182a73e20ff66b3bb434ceb05d5e64019a10f06c4a242bff16824"
+}

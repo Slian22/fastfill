@@ -1,0 +1,10 @@
+{
+  "id": "D1",
+  "description": "Common qualified train count",
+  "value": 98923,
+  "source": "docs/research/20261013-unknown-size-comparison/evidence/server-main-start/main-data-v1/MANIFEST.json",
+  "json_pointer": "/counts/train",
+  "sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

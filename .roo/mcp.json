@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "claude-mem": {
+      "command": "/usr/local/bin/node",
+      "args": [
+        "/Users/slian/.claude/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs"
+      ]
+    }
+  }
+}

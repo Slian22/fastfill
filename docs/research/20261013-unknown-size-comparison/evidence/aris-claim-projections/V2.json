@@ -1,0 +1,10 @@
+{
+  "id": "V2",
+  "description": "Legacy v2 raw position error",
+  "value": 2.6426894846586415,
+  "source": "outputs/fastfill_v2/comparison-20261007b/test-main7-cell05-main-20261007b-e5-argmax/report.json",
+  "json_pointer": "/model/reference/bottom_center_error_m/mean",
+  "sha256": "03169160933a56b4bf1cddcd5682bf766997018726d9b3d2bb2d4009ebc89a37",
+  "pointer_verified": true,
+  "meaning": "Artifact-value verified; not a causal or superiority claim."
+}

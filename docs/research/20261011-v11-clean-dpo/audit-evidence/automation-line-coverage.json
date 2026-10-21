@@ -1,0 +1,51 @@
+{
+  "automate.py": {
+    "method": "stdlib trace executable source lines, excludes synthetic line 0",
+    "covered": 248,
+    "executable": 260,
+    "percent": 95.38461538461539,
+    "missing": [
+      39,
+      69,
+      71,
+      73,
+      91,
+      93,
+      158,
+      172,
+      179,
+      196,
+      315,
+      323
+    ]
+  },
+  "research_report.py": {
+    "method": "stdlib trace executable source lines, excludes synthetic line 0",
+    "covered": 207,
+    "executable": 210,
+    "percent": 98.57142857142857,
+    "missing": [
+      45,
+      104,
+      262
+    ]
+  },
+  "training_guard.py": {
+    "method": "stdlib trace executable source lines, excludes synthetic line 0",
+    "covered": 265,
+    "executable": 275,
+    "percent": 96.36363636363636,
+    "missing": [
+      42,
+      98,
+      132,
+      140,
+      160,
+      172,
+      202,
+      222,
+      248,
+      327
+    ]
+  }
+}
