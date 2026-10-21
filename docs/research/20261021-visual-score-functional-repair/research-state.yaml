@@ -1,0 +1,18 @@
+project:
+  title: "Visual score and functional-relation-aware repair for FastFill"
+  question: "Which automatic score tracks rendered layout quality, and can repair keep checker/strict gains without breaking furniture function?"
+  status: active
+  started: "2026-10-21"
+  domain: "3D layout evaluation / post-hoc repair"
+hypotheses:
+  - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: pending, priority: high}
+  - {id: H1b, statement: "CLIP prefers GT over raw in <=60% of rooms; GT-raw CLIP difference uncorrelated with raw violations", status: pending, priority: high}
+  - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: pending, priority: high}
+  - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: pending, priority: high}
+agents:
+  s2f_builder: pending
+  clip_metric: pending
+  gpt_judge: pending
+  literature: pending
+api: {cap_calls: 200, used_calls: 0, status: "busy since ~05:40 local 2026-10-21"}
+next_step: "launch the four agents; render S2-F when its layouts exist; judge; synthesize"
