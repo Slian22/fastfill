@@ -19,3 +19,4 @@
 - 2026-10-21: MoMa survey done (93 notes); verified ManiSkill-HAB fridge-door claim. Waiting for s2f_task agent.
 - 2026-10-21: user asked to clone and run published methods as baselines (not only Holodeck). Addendum D locked (5a1995001). Created /Users/slian/Desktop/3D/Worldedge/baselines (common/llm.py, README, pilot100 on harddisk). Launched 4 method agents + 1 scout.
 - 2026-10-21: s2f_task done: H4 not supported (0.896); nightstand-side rule needed.
+- 2026-10-21: scout done; top-3 next baselines ReSpace / PolyLayout / DirectLayout; R3L code exists (scout missed it).

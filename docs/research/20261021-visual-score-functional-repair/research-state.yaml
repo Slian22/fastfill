@@ -17,7 +17,7 @@ agents:
   baseline_layoutgpt: running (baselines/layoutgpt)
   baseline_layoutvlm: running (baselines/layoutvlm)
   baseline_idesign: running (baselines/idesign)
-  baseline_scout: running (baselines/SCOUT.md)
+  baseline_scout: done (baselines/SCOUT.md: next ReSpace, PolyLayout (no code), DirectLayout; R3L has code)
   clip_systems: running (probes-20261021/clip-systems)
   moma_survey: done (literature/moma/survey.md)
   s2f_task: done (s2f-task/REPORT.md)
