@@ -5,7 +5,7 @@ project:
   started: "2026-10-21"
   domain: "3D layout evaluation / post-hoc repair"
 hypotheses:
-  - {id: H4, statement: "task-reachability S2-F raises task-scoped admission 0.845 -> >=0.90, 0 checker regressions, companions >=0.95", status: pending}
+  - {id: H4, statement: "task-reachability S2-F raises task-scoped admission 0.845 -> >=0.90, 0 checker regressions, companions >=0.95", status: not_supported, evidence: "0.896; renders worse 9/20 (nightstand side)"}
   - {id: H5, statement: "descriptive pass rates of MoMa checks (visibility, base pose, approach/opening clearance) for GT/raw/S1/S2F", status: done, evidence: "task_all S1 0.604 / S2F 0.645; front clearance main failure (moma-checks/report.md)"}
   - {id: H1c, statement: "judge v2 (pros/cons, both orders): order-consistency >=70% and GT wins >=70% of consistent rooms", status: supported_marginal, evidence: "18/20 consistent; GT 13/18 = 0.72"}
   - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: refuted, evidence: "13/20 = 65% [0.43,0.82]; ref>S1 0.58", priority: high}
@@ -13,8 +13,14 @@ hypotheses:
   - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: refuted, evidence: "10/20 = 50%; position A 75%", priority: high}
   - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge vs S1 19-3-18, vs S2 10-30-0", priority: high}
 agents:
+  baseline_holodeck: running (baselines/holodeck)
+  baseline_layoutgpt: running (baselines/layoutgpt)
+  baseline_layoutvlm: running (baselines/layoutvlm)
+  baseline_idesign: running (baselines/idesign)
+  baseline_scout: running (baselines/SCOUT.md)
+  clip_systems: running (probes-20261021/clip-systems)
   moma_survey: done (literature/moma/survey.md)
-  s2f_task: running (probes-20261021/s2f-task/)
+  s2f_task: done (s2f-task/REPORT.md)
   moma_checks: done (probes-20261021/moma-checks/report.md)
   s2f_builder: done (probes-20261021/s2f/REPORT.md)
   clip_metric: done (probes-20261021/clip-metric/report.md)

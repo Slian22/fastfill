@@ -17,3 +17,5 @@
 - 2026-10-21: phase 2 reframed for mobile manipulation (user). Addendum C locked (50e7da6a9). Launched 3 agents: MoMa literature survey, task-reachability S2-F, MoMa symbolic checks.
 - 2026-10-21: MoMa checks agent done (H5). Robot contract is symbolic; front approach clearance is the main MoMa failure.
 - 2026-10-21: MoMa survey done (93 notes); verified ManiSkill-HAB fridge-door claim. Waiting for s2f_task agent.
+- 2026-10-21: user asked to clone and run published methods as baselines (not only Holodeck). Addendum D locked (5a1995001). Created /Users/slian/Desktop/3D/Worldedge/baselines (common/llm.py, README, pilot100 on harddisk). Launched 4 method agents + 1 scout.
+- 2026-10-21: s2f_task done: H4 not supported (0.896); nightstand-side rule needed.
