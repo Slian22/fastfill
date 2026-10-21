@@ -49,3 +49,9 @@ when both orders agree, else tie. Sanity set: GT vs raw on the 20 R20 rooms (40 
 Pass iff order-consistency ≥ 70% of rooms and GT wins ≥ 70% of the consistent rooms. If it passes, v2 is re-run on
 S2F vs S1 (sets A+B) with the remaining budget; if it fails, no VLM judge is adopted as an endpoint and human pairwise
 labels become the visual endpoint.
+
+## Addendum B (locked 2026-10-21, after the v2 sanity result, before the v2 S2F runs)
+
+v2 sanity: order-consistent 18/20, GT wins 13/18 = 0.72 → passes addendum A (marginally; n = 18).
+Budget raised from 200 to 300 successful calls (192 used) to run v2 on S2F vs S1 over sets A + B (40 rooms × 2 orders
+= 80 calls). Reading: S2F non-inferior to S1 iff S2F wins ≥ 50% of decisive (order-consistent, non-tie) rooms.
