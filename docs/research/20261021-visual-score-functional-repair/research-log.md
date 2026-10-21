@@ -11,3 +11,5 @@
 - 2026-10-21: teacher proxy full run done: 0.915 -> 0.795 pairs kept; 21-50 0.848 -> 0.596; sofa group 0.49. Added to report.
 - 2026-10-21 ~15:40: API back; judge set B: S2F vs S1 7 win / 10 loss / 3 tie; S2F vs S2 (17/20 so far) 4 win / 13 tie / 0 loss. Combined S2F vs S1 (A+B): 19-18-3.
 - 2026-10-21: judge v2 sanity passed marginally (18/20 consistent, GT 13/18). Addendum B: cap 300, v2 on S2F vs S1 (A+B, 80 calls) running.
+- 2026-10-21 17:45: API busy/400 since ~15:40 (judge v2 S2F vs S1 stuck at 15/40). Deleted the 20-min cron (idle ticks); the judge script keeps retrying and its completion notification resumes the work.
+- 2026-10-21: user said skip; judge v2 stopped at 15/40 (S2F 6 / S1 5 / tie 4; 224 ok, 94 busy, 134 error calls in total). Phase concluded.

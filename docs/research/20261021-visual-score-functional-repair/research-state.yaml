@@ -1,7 +1,7 @@
 project:
   title: "Visual score and functional-relation-aware repair for FastFill"
   question: "Which automatic score tracks rendered layout quality, and can repair keep checker/strict gains without breaking furniture function?"
-  status: active
+  status: concluded
   started: "2026-10-21"
   domain: "3D layout evaluation / post-hoc repair"
 hypotheses:
@@ -13,7 +13,7 @@ hypotheses:
 agents:
   s2f_builder: done (probes-20261021/s2f/REPORT.md)
   clip_metric: done (probes-20261021/clip-metric/report.md)
-  gpt_judge: done (judge/report.md); judge v2 sanity running (addendum A)
+  gpt_judge: done (judge/report.md); judge v2 S2F vs S1 stopped at 15/40 (user: skip)
   literature: done (literature/survey.md)
 api: {cap_calls: 200, used_calls: 0, status: "busy since ~05:40 local 2026-10-21"}
-next_step: "judge v2 sanity (addendum A); then final report; training-target rebuild needs server auth"
+next_step: "phase concluded; next phase = rebuild training targets with a companion-preserving teacher on Isambard (needs clifton auth), plus 50-100 human pairwise labels"

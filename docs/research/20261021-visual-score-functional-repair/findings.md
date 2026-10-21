@@ -1,6 +1,7 @@
 # Findings
 
 ## Current understanding
+- **Concluded 2026-10-21 (this phase).** Adopt: frozen checker + strict for geometry, symbolic companion-relation score for function; CLIP rejected (measured + literature); GPT pairwise judge only as a secondary signal (v1 failed its sanity check, v2 passed marginally 13/18; v2 S2F vs S1 stopped at 15/40 rooms by the user's decision after ~2 h of API outage: S2F 6 / S1 5 / tie 4 — inconclusive). Replace S2 with S2-F. Training next: function-preserving targets, then function-aware GDPO with symbolic rewards (needs server).
 - S2-F numbers (interim, agent not finished): cohort 1,009 — checker S1 0.924 / S2 0.986 / S2F 0.987; strict 0.534 / 0.814 / 0.812; companion retention of S1 pairs 1.000 / 0.853 / 0.966; GT companion score 0.757 / 0.650 / 0.735; median displacement of moved objects S2 1.00 m vs S2F 0.72 m. Dev 600: S2F keeps 0.989 of S2's checker gain and 0.978 of its strict gain; retention 0.809 -> 0.965.
 - But by eye on three of the previously bad rooms (A#06, A#09, A#19) S2-F looks like S2: the nightstand still leaves the bed head (#06) and the TV bench still sits beside the bed (#19); the facing rule is satisfied on paper while the result is still wrong.
 - GPT pairwise judge (interim): reference beats raw only 13/20 (65%, below the locked 70% bar); S1 vs S2 10/10; the first-shown layout is chosen 15/20 -> strong position bias.
