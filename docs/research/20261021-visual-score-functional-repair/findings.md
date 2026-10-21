@@ -19,6 +19,8 @@
 - Judge interim (101 ok / 18 busy calls): ref>raw 13/20 (65%, H1a bar 70% not met); S1 vs S2 10/10 with 75% first-position picks; flipped 8/10 consistent; S2F vs S1 (set A) 12-8; S2F vs S2 (set A) 6 wins / 14 ties / 0 losses. Agreement with by-eye 9/13 (S1 vs S2).
 - **Decision (interim):** adopt checker+strict (geometry) + symbolic companion score as the primary metrics; GPT pairwise only as a secondary, order-flipped, human-calibrated signal; CLIP rejected. Adopt S2-F over S2.
 
+- **Training-target finding (exploratory, smoke 200 test rooms, probes-20261021/teacher-companions/smoke):** the delivered pose-only teacher that builds the placer's SFT targets (pose_targets.repair 200/4, prior sizes) keeps only 0.764 of GT companion pairs vs 0.909 when only sizes are swapped (sofa group 0.33, TV facing 0.60, nightstand 0.88). The model is trained on geometry-repaired targets that break furniture function -> proposed training direction 1 (function-preserving targets), then 2 (function-aware GDPO with symbolic rewards), 3 (anchor-relative coordinates). FULL RUN (8,647 test rooms, teacher-companions/test8647): pairs kept with prior sizes only 0.915 -> after teacher 0.795 (teacher-ok rooms); 21-50 objects 0.848 -> 0.596; by role sofa group 0.49, TV facing 0.82, nightstand 0.88, desk chair 0.84, dining chair 0.93; teacher success 0.915 overall but 0.807 at 21-50 and 0.608 at 51+ (dense rooms drop out of the training pool).
+
 ## Lessons and constraints
 - The API (krill-code) returned "servers are currently busy" for every call from ~05:40 local; text calls worked at ~05:32.
 - Python urllib needs a User-Agent header (else HTTP 403).

@@ -7,3 +7,5 @@
 - 2026-10-21: CLIP agent done: H1b supported (CLIP/SigLIP cannot separate GT from raw; no correlation with violations).
 - 2026-10-21: S2-F agent done; REPORT.md saved by me (subagent could not write it). H3 partly supported. Waiting for judge on S2F renders.
 - 2026-10-21 ~14:50: API busy again; judge set B 9/20 done. Wrote to_human/report.html (interim) and opened it.
+- 2026-10-21 ~15:20: user asked for training-side innovation; searched papers; ran teacher-companion proxy (smoke 200: 0.909 -> 0.764). Full run in background. Judge B set stalled on API busy (9/20).
+- 2026-10-21: teacher proxy full run done: 0.915 -> 0.795 pairs kept; 21-50 0.848 -> 0.596; sofa group 0.49. Added to report.

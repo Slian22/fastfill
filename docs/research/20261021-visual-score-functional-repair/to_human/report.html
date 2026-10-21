@@ -85,11 +85,31 @@ code { font-size:13px; }
 <img src="file:///Volumes/harddisk/fastfillout/unknownsize-20261013/probes-20261021/s2f/compare-A-small/01-fix-checker.png" alt="A01">
 <img src="file:///Volumes/harddisk/fastfillout/unknownsize-20261013/probes-20261021/s2f/compare-A-small/19-still-fail.png" alt="A19">
 
-<h2>4. 下一步</h2>
+<h2>5. 训练侧：训练目标本身在拆散家具搭配</h2>
+<p>训练目标的做法：先换成先验尺寸，再用一个只看几何的修复器改位置，修好的房间才进训练集。用同一个修复器在 test 全部 8,647 间 GT 房上复现：</p>
+<div class="wrap"><table>
+<tr><th>物体数</th><th>修复成功率</th><th>只换先验尺寸时搭配仍保持</th><th>修复后仍保持</th></tr>
+<tr><td>1–10</td><td>0.958</td><td>0.935</td><td>0.846</td></tr>
+<tr><td>11–20</td><td>0.906</td><td>0.914</td><td>0.768</td></tr>
+<tr><td>21–50</td><td>0.807</td><td>0.848</td><td class="no">0.596</td></tr>
+<tr><td>51+</td><td class="no">0.608</td><td>0.850</td><td>0.714</td></tr>
+<tr><td>全部</td><td>0.915</td><td>0.915</td><td>0.795</td></tr>
+</table></div>
+<p>
+分角色看修复后的保持率：沙发组 0.49，电视朝向 0.82，床头柜 0.88，书桌椅 0.84，餐椅 0.93。“修复后”只统计修复成功的房间。
+</p>
+<p>
+结论：模型学的是“为不碰撞而拆散搭配”的目标，而且大房间有很多因修复失败没进训练集。
+</p>
+<p>
+建议顺序：① 用保搭配的修复器（S2-F 思路）重建训练目标，并把大房间纳入；② 在此基础上做功能感知强化学习，用 GDPO，奖励包括 checker、strict、搭配关系分，以及尺寸和数量保护，全部用规则计算；③ 可选：锚点相对坐标。
+</p>
+<h2>6. 下一步</h2>
 <ol>
 <li>人工标 50–100 对（S1 对 S2-F），用来校准 GPT 评委和规则分。每对约 10 秒，总共 10–15 分钟。</li>
 <li>给 S2-F 补规则：卫浴靠角落、梳妆台配椅子、电视柜与床保持 1.5–4 m 距离。之后在 S2-F 和 S2 不同的 218 间房里重新抽样渲染。</li>
 <li>把“搭配关系保持率”写进表 2，作为新的一列。</li>
+<li>服务器认证后，用保搭配的修复器重建训练目标，然后重训 27B（约 5 小时，4 张 GH200）。</li>
 </ol>
 
 <p class="sub">文件：实验方案 <code>protocol.md</code> · 结论汇总 <code>findings.md</code> · 文献 <code>literature/survey.md</code> · 数据在硬盘 <code>probes-20261021/{clip-metric,judge,s2f}/</code></p>
