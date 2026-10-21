@@ -1,0 +1,4 @@
+# Infinigen Indoors: Photorealistic Indoor Scenes using Procedural Generation
+- Authors: Raistrick et al., CVPR 2024. https://arxiv.org/abs/2406.11824 ; API doc https://infinigen.cs.princeton.edu/docs/latest/api/infinigen.core.constraints.html
+- Verified: relations Touching, SupportedBy, CoPlanar(margin=0), StableAgainst(margin=0, check_z), NegatedRelation, AnyRelation; functions distance, min_dist_2d, focus_score, accessibility_cost(dist=1.0), angle_alignment_cost, freespace_2d, rotational_asymmetry, reflectional_asymmetry. Text examples: sofa stable against floor (margin 0) and wall with 10 cm margin; "Sofas should face TVs or paintings" (focus_score); bedside tables symmetric on either side of bed (reflectional asymmetry); 2 to 6 chairs per table; narrow passages via erode/buffer of room contour.
+- NOT verified: concrete nightstand-bed, chair-table, TV-seat distances (code in home.py and figures not retrievable; GitHub 404). Do not cite numbers for these.

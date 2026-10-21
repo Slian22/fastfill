@@ -1,0 +1,6 @@
+# PolyLayout: Hierarchical VLM-Guided Layout Generation Beyond Rectangular Rooms
+- Authors: Yutong Jiang, Zahra Atashgahi, Carlos Soto Garcia Delgado, Ruben Brokkelkamp, Davide Zanutto, Efsan Sokmen, Shahin Shahkarami (IKEA Retail). Aug 2026. https://arxiv.org/abs/2608.10838
+- Human forced choice (Sec. 4.4): 5 annotators, 58 conditions, 290 votes. PolyLayout 177 (61.0%), LayoutVLM 62 (21.4%), Holodeck 38 (13.1%), tie 13 (4.5%). Fleiss kappa 0.26 (fair). (Table caption says "55 raters" vs 5 in text - inconsistency.)
+- Plausibility judge: Gemini 3.1 Pro, 1-4 scale: 1 critical physical/boundary failure, 2 main functional group broken, 3 coherent and functional with minor flaws (default), 4 polished. Means: Holodeck 2.63, LayoutVLM 2.49, PolyLayout 2.74. Judge top choice equals human collective preference on 72% of conditions (chance 33%). Prompt (App. 0.B) and views not read (unverified).
+- Structure: 212 product types -> 43 functional roles, 6 area types; bundles require a mandatory anchor role; zero overlap required; search step 100 mm, cap 3000 mm. No numeric functional thresholds in the text read.
+- Relevance: rubric anchoring "main functional group broken" is a good ordinal scale for polygon rooms; 72% agreement is the realistic ceiling for an LLM judge.
