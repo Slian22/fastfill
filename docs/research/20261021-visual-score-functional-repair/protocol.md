@@ -55,3 +55,17 @@ labels become the visual endpoint.
 v2 sanity: order-consistent 18/20, GT wins 13/18 = 0.72 → passes addendum A (marginally; n = 18).
 Budget raised from 200 to 300 successful calls (192 used) to run v2 on S2F vs S1 over sets A + B (40 rooms × 2 orders
 = 80 calls). Reading: S2F non-inferior to S1 iff S2F wins ≥ 50% of decisive (order-consistent, non-tie) rooms.
+
+## Addendum C (locked 2026-10-21) — phase 2: placement for mobile manipulation (MoMa)
+
+Context: WorldEdge rooms are for a mobile manipulator; EmbodiedGen derives robot tasks from the built room
+(open door + enter; be in room and see each task object; goal relation born false; reach-back). Human-activity verbs
+(read_in_bed, ...) only choose furniture. Task objects = 2 hash-picked floor categories per room (upstream emulation,
+`task_reach_headroom.task_cats`) until a real upstream task set is wired in.
+- **H4:** S2-F with task-object reachability in its objective (relocate the unreachable task object itself, then
+  blockers) raises task-scoped admission on the visual cohort from 0.845 to ≥ 0.90, with 0 checker regressions and
+  companion retention ≥ 0.95 on changed rooms. Parameters fixed on dev-select 600; cohort run once.
+- **H5 (descriptive, no threshold):** pass rates of symbolic MoMa checks — task-object visibility from the reachable
+  region, a collision-free robot base pose within arm reach of each task object, and front approach / opening clearance
+  of receptacles and articulated furniture — for GT, raw, S1, S2F. Thresholds come from the literature survey and the
+  EmbodiedGen robot contract, fixed before the GT/raw/S1/S2F numbers are computed.
