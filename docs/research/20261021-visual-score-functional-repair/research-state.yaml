@@ -13,7 +13,7 @@ hypotheses:
   - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: refuted, evidence: "10/20 = 50%; position A 75%", priority: high}
   - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge vs S1 19-3-18, vs S2 10-30-0", priority: high}
 agents:
-  moma_survey: running (literature/moma/)
+  moma_survey: done (literature/moma/survey.md)
   s2f_task: running (probes-20261021/s2f-task/)
   moma_checks: done (probes-20261021/moma-checks/report.md)
   s2f_builder: done (probes-20261021/s2f/REPORT.md)

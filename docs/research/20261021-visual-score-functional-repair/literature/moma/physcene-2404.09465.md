@@ -1,0 +1,11 @@
+# PhyScene: Physically Interactable 3D Scene Synthesis for Embodied AI
+- Authors: Yandan Yang, Baoxiong Jia, Peiyuan Zhi, Siyuan Huang (BIGAI). CVPR 2024 (CVF open access, pp. 16262-16272). https://arxiv.org/abs/2404.09465 (read: arXiv HTML v2)
+- What: conditional diffusion over 3D-FRONT layouts with test-time guidance: phi_coll = -sum IoU3D(b_i, b_j); phi_layout = -sum IoU3D(object box, wall box) (walls = boxes of "infinite thickness" from the floor polygon); phi_reach = -sum IoU3D(object box, agent box) over L agent boxes placed along an A* path (Gaussian cost map over objects) between the centres of the two largest walkable connected regions.
+- Agent: abstract box agent, sizes tested 0.2, 0.3, 0.5 m; no robot model, no arm, no height. Grid resolution, L, lambda, gamma1-3 not given (unverified).
+- Articulated (App. G): articulated boxes enlarged to the fully-opened joint state; paths planned to handles; obstacles on the path moved. Interactiveness rate 0.101 -> 0.143.
+- Metrics: Col_obj (fraction of objects colliding), Col_scene (fraction of scenes with >= 1 collision), R_out (fraction of objects outside floor plan), R_walkable (largest connected walkable area / all walkable area), R_reach (fraction of objects reachable from a random start point). Collisions computed on re-meshed CAD models.
+- Floor-conditioned results (Table 3, PhyScene): bedroom Col_obj 0.187 / Col_scene 0.36 / R_out 0.245 / R_walkable 0.865 / R_reach 0.762; living 0.191 / 0.63 / 0.219 / 0.815 / 0.771; dining 0.151 / 0.53 / 0.217 / 0.852 / 0.789. Best baseline Col_obj (DiffuScene) 0.228 / 0.198 / 0.160.
+- Articulated scenes (Table 4): Col_obj 0.251, Col_scene 0.76, R_out 0.229, R_reach 0.755 (collision with articulated objects much higher than rigid).
+- Stated limits: no small objects (so no pick-and-place), reachability = walkable area only, interaction extension "preliminary"; occupancy-field variant ~55x slower.
+- Relevance: the closest generator-side precedent for our checks: (i) swept-open boxes for articulated parts, (ii) agent-box path IoU as a differentiable navigability term. Even with guidance about a quarter of objects stay unreachable (R_reach 0.76-0.79) and 36-63% of scenes keep a collision; no arm reach, base pose or visibility.
+- Tags: scene-gen-for-robots, articulated-objects

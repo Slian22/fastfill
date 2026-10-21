@@ -1,0 +1,9 @@
+# SimVLA: Zero-Shot Sim-to-Real VLA Learning for Mobile Manipulation
+- Authors: Kyoungin Baik, Youngwoon Lee (Yonsei University). arXiv 8 Oct 2026. https://arxiv.org/abs/2610.11248 (ICRA 2026 workshop per a search snippet; unverified)
+- What: VLA trained on simulated data only. SimAction: ~200K trajectories (2,778 hours), 35 tasks, no teleop, skill composition + cuRobo planning in Isaac Lab, in 100 procedurally generated houses (Scene Synthesizer) with five kitchen layout types (island, L-shaped, peninsula, single-wall, U-shaped). SimDeploy: 22K policy-rollout trajectories (460 hours) in RoboCasa, MolmoSpaces and SceneSmith scenes.
+- Robot: Anubis bimanual mobile manipulator (two 6-DoF arms, 3-wheel omnidirectional base); sim also RB-Y1 and ROBOTIS AI Worker. Height not stated.
+- Scene generation details: base spawned "anywhere in the room without collision" with random yaw; furniture heights, cabinet configurations and materials randomized; cabinet height sampled around 0.85 m. No explicit reachability/visibility filter described; search skill uses collision-checked approach waypoints and a standoff point.
+- Real eval: mock kitchen, pantry, real home; put mug/bowl/bottle in sink, bowl in drawer, pour; 20 trials per task-policy (10 in the home), 2,120 rollouts; metric = % subgoals. SimVLA 54.4% average task progress; π0.5 fine-tuned on 200 real demos 67.8% (mock kitchen, in-domain), 21.3% (pantry), 29% (real home).
+- Scene causes: L-shaped corners hard, U-shaped layouts need precise base positioning; targets outside the initial view require search (MolmoBot 0% there); small over-rotation misaligns gripper with drawer handle.
+- Relevance: 2026 evidence that generated layouts (incl. SceneSmith) are now training data for real MoMa; layout type (U/L kitchens) is a named difficulty factor via base-positioning space.
+- Tags: VLA-policy, data-generation, scene-gen-for-robots, real-home-deploy, whole-body-wheeled-bimanual

@@ -1,0 +1,9 @@
+# MoMa-Pos: Where Should Mobile Manipulators Stand in Cluttered Environment Before Task Execution? (v2 title: An Efficient Object-Kinematic-Aware Base Placement Optimization Framework for Mobile Manipulation)
+- Authors: Beichen Shao, Nieqing Cao, Yan Ding, Xingchen Wang, Fuqiang Gu, Chao Chen. arXiv 2403.19940 (v2 29 Oct 2024); no peer-reviewed venue listed. https://arxiv.org/html/2403.19940
+- What: GNN predicts the task-relevant objects; candidate base region from arm reach delta_r = sqrt((r_l)^2 - (z-offset)^2) (r_l from the DH model, z-offset = target height relative to the arm base); positions drawn from a precomputed inverse reachability map, must be collision-free; score = reachability + potential field (1/dist_xy, zero if the line to the target hits furniture) summed along the articulated-object opening trajectory; Latin-hypercube sampling + open TSP; RRT* (OMPL) feasibility check.
+- Robots: sim Fetch, Segway+UR5e, Husky+UR5e (30 objects, 500 tasks); real AgileX base + Realman 63-F arm. Baselines M3* and Reuleaux use 5 x 5 cm cells.
+- Real results (5 trials each, success): grasp apple/cup all methods 100%; open fridge MoMa-Pos 100% vs Habitat 18%, M3* 26%, Reuleaux 70%; open microwave 100% vs 22% / 44% / 82%.
+- Articulated model accuracy (fridge): URDFormer 0.38 m error, +Omni3D 0.13 m, +Mask3D 0.04 m. Feasible solution within ~18 s.
+- Not covered: scenes where no base pose exists (completeness only as M -> infinity).
+- Relevance: base placement for articulated targets fails most often (18-82% for baselines) because the swing trajectory, not just the handle, must be reachable from a free pose -> layout checks must reserve the opening sweep plus a base region beside it. delta_r gives a closed-form planar reach radius for a target at height z.
+- Tags: base-placement, articulated-objects
