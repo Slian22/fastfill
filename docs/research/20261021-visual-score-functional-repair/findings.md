@@ -29,4 +29,9 @@
 - The API (krill-code) returned "servers are currently busy" for every call from ~05:40 local; text calls worked at ~05:32.
 - Python urllib needs a User-Agent header (else HTTP 403).
 
+## Phase 2 (started 2026-10-21): task-aware placement (user approved adding task text + required_relations)
+- Upstream reality (EmbodiedGen outputs, 23,187 SemanticSpecs): `task` is a short template — room-type names ("dining_room" 1,755, "bathroom" 1,368, ...) or "verb obj1, obj2" ("find shelf", "watch_tv media_console, tv"); 95.3% have no required_relations, 4.6% have one, all `on` supports (tv on tv_stand, sink on kitchen_counter). EntityReq.reason is a tag (task_required / task_dependency), not text. So rich LLM-written task text would not match upstream; the usable signal is WHICH objects are task objects (they must be reachable: downstream A3 required set) plus rare `on` pairs. FastFill's model input currently drops all of it (contract.py).
+- Headroom (cohort 1,009; 2 hash-picked floor categories per room as task objects; probes-20261021/task-reach/cohort): task-scoped admission GT 0.525, raw 0.406, S1 0.538, S2F 0.845 (vs all-category 0.812). Of the 156 S2F rooms failing task-scoped admission, 77 fail only on task-object reachability (A3), 109 involve it -> ceiling +0.08 to +0.11.
+- LabBuilder-style blocker push scoped to task objects (task-reach/cohort-nav): fixes 16/126 (+0.016), no checker regressions, companions 255/264 kept; 87 still A3 -> blocker pushing is too weak; next = relocate the unreachable task object itself inside S2-F with reachability in the objective.
+
 ## Open questions
