@@ -6,3 +6,4 @@
 - 2026-10-21 ~14:10: API back 13:56 (image input ok). Judge: ref-vs-raw 13/20, S1-vs-S2 10/10, position A 15/20. S2-F cohort+renders done; interim numbers in findings. Agents S2-F, CLIP, judge still running.
 - 2026-10-21: CLIP agent done: H1b supported (CLIP/SigLIP cannot separate GT from raw; no correlation with violations).
 - 2026-10-21: S2-F agent done; REPORT.md saved by me (subagent could not write it). H3 partly supported. Waiting for judge on S2F renders.
+- 2026-10-21 ~14:50: API busy again; judge set B 9/20 done. Wrote to_human/report.html (interim) and opened it.

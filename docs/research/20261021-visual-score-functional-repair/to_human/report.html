@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>画面评分与功能修复</title>
+<style>
+:root { --bg:#fafaf8; --fg:#1d1d1f; --muted:#66676b; --line:#e2e2de; --accent:#b4361f; --good:#1f7a3a; --card:#ffffff; }
+@media (prefers-color-scheme: dark) { :root { --bg:#151517; --fg:#ececec; --muted:#a0a0a6; --line:#33343a; --accent:#ff8a6b; --good:#6fd08c; --card:#1e1f23; } }
+body { background:var(--bg); color:var(--fg); font:16px/1.6 -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; margin:0; }
+main { max-width:980px; margin:0 auto; padding:24px 16px 64px; }
+h1 { font-size:26px; margin:8px 0 4px; } h2 { font-size:20px; margin:32px 0 8px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.sub { color:var(--muted); font-size:14px; }
+.box { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0; }
+.rec li { margin:6px 0; }
+table { border-collapse:collapse; width:100%; font-size:14px; margin:8px 0; }
+th, td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:right; }
+th:first-child, td:first-child { text-align:left; }
+.no { color:var(--accent); font-weight:600; } .yes { color:var(--good); font-weight:600; }
+img { width:100%; border:1px solid var(--line); border-radius:6px; margin:6px 0; }
+.wrap { overflow-x:auto; }
+code { font-size:13px; }
+</style>
+</head>
+<body><main>
+<h1>画面评分与功能修复：结论</h1>
+<div class="sub">2026-10-21 · 自动研究（4 个 agent）· 方案先锁定再跑（git 4e74dc257）· GPT 盲评 B 组仍在跑，数字为中间值</div>
+
+<div class="box rec">
+<b>我们采用什么</b>
+<ol>
+<li><b>不用 CLIP。</b>实测在 1,005 间房上分不出 GT 和模型原始输出，和碰撞数也毫无关系。</li>
+<li><b>几何用规则判：</b>碰撞、越界由现有 checker 和 strict 负责，与人的一致率最高。</li>
+<li><b>功能关系也用规则判：</b>新加“搭配关系保持率”，检查床头柜是否在床头、椅子是否在桌旁、沙发组是否完整、电视是否朝向床或沙发。它是确定性的，几乎零成本。</li>
+<li><b>GPT 成对盲评只作辅助：</b>必须交换顺序各评一次。正式使用前，要先用 50–100 对人工标注校准，目前它还不够可靠。</li>
+<li><b>修复用 S2-F 替代 S2：</b>checker 和 strict 一样高，搭配关系守住更多，挪动更小，盲评对 S2 是 6 胜 14 平 0 负。</li>
+</ol>
+</div>
+
+<h2>1. 为什么不用 CLIP</h2>
+<p>
+别人用 CLIP，是为了衡量渲染图像不像输入的文字描述（Holodeck、HDSL 都是“文字生成场景”）。布局好不好，他们另外用规则检查，再加 GPT 或人工评。我们的输入没有文字描述，同一间房的几种摆法家具完全一样。
+</p>
+<div class="wrap"><table>
+<tr><th>1,005 间房，相机和设置完全相同</th><th>CLIP ViT-L/14</th><th>SigLIP</th><th>要能用至少需要</th></tr>
+<tr><td>GT 得分高于原始输出的房间比例</td><td>44.6–53.3%</td><td>43.7–52.9%</td><td>明显高于 50%</td></tr>
+<tr><td>分差与碰撞数的相关（Spearman）</td><td>≤ 0.05</td><td>≤ 0.04</td><td>明显为正</td></tr>
+<tr><td>区分 checker 通过 / 失败的 AUC</td><td>0.46–0.52</td><td>0.48–0.58</td><td>远高于 0.5</td></tr>
+<tr><td>打乱家具清单后分数变化 / 房间之间的差异</td><td>0.25–0.35 / 2.5–4.1</td><td>—</td><td>—</td></tr>
+</table></div>
+<p class="sub">
+文献结果一致：与人工评分的 Kendall τ，CLIP 0.06、VQAScore 0.13、GPT-4o 看俯视图 0.27、看多视角 0.39（VIPScene 表 2，已核对原文）。CLIP 在空间关系测试上接近随机（ARO 0.59，随机 0.50）。
+</p>
+
+<h2>2. GPT 成对盲评（gpt-6.1-sol medium）</h2>
+<div class="wrap"><table>
+<tr><th>对比</th><th>次数</th><th>结果</th><th>选了第一张的比例</th><th>与目测一致</th></tr>
+<tr><td>GT 对 27B 原始（检验评委）</td><td>20</td><td>GT 胜 13，负 7（65%）</td><td>60%</td><td>—</td></tr>
+<tr><td>S1 对 S2</td><td>20</td><td>10 比 10</td><td class="no">75%</td><td>9/13</td></tr>
+<tr><td>交换顺序再评 10 对</td><td>10</td><td>8/10 结论不变</td><td>50%</td><td>6/8</td></tr>
+<tr><td>S2-F 对 S1（A 组）</td><td>20</td><td>S2-F 胜 12，负 8</td><td>55%</td><td>—</td></tr>
+<tr><td>S2-F 对 S2（A 组）</td><td>20</td><td>S2-F 胜 6，平 14，负 0</td><td>—</td><td>—</td></tr>
+</table></div>
+<p>GT 对原始只赢了 65%，低于事先定的 70%。单次评判还有明显的位置偏差，所以只能作辅助。共 119 次请求：101 次成功，18 次服务器忙。</p>
+
+<h2>3. S2-F：修碰撞时保住家具之间的搭配</h2>
+<div class="wrap"><table>
+<tr><th>1,009 间可视化房（test）</th><th>S1</th><th>S2</th><th>S2-F</th></tr>
+<tr><td>checker</td><td>0.924</td><td>0.986</td><td>0.987</td></tr>
+<tr><td>strict</td><td>0.534</td><td>0.814</td><td>0.812</td></tr>
+<tr><td>S1 里的搭配关系保住比例</td><td>1.000</td><td>0.853</td><td class="yes">0.966</td></tr>
+<tr><td>按 GT 搭配关系的得分</td><td>0.757</td><td>0.650</td><td>0.735</td></tr>
+<tr><td>被挪物体位移中位数</td><td>—</td><td>1.00 m</td><td>0.72 m</td></tr>
+</table></div>
+<p>
+分类看（S2 → S2-F）：床头柜 0.81 → 0.94，餐椅 0.82 → 0.98，沙发组 0.88 → 0.99，书桌椅 0.85 → 1.00。参数只在 dev 600 间上调，在 test 上只跑了一次。
+</p>
+<p>
+<b>没达标的部分：</b>保持率仍略低于 S1（0.943 对 0.974）。还缺几条规则：马桶要靠角落，梳妆台要配椅子，电视柜不能贴在床边。
+</p>
+<p>
+<b>目测 40 间</b>（agent 目测，非盲）：S2-F 对 S1 是更好 14 / 一样 19 / 更差 7；对 S2 是更好 7 / 一样 32 / 更差 1。两位目测者在 12 间共同房上有 5 间意见不同，所以要靠人工标注定论。
+</p>
+<p class="sub">每张图从左到右：GT、S1、S2、S2-F；上排透视，下排俯视。</p>
+<img src="file:///Volumes/harddisk/fastfillout/unknownsize-20261013/probes-20261021/s2f/compare-A-small/01-fix-checker.png" alt="A01">
+<img src="file:///Volumes/harddisk/fastfillout/unknownsize-20261013/probes-20261021/s2f/compare-A-small/19-still-fail.png" alt="A19">
+
+<h2>4. 下一步</h2>
+<ol>
+<li>人工标 50–100 对（S1 对 S2-F），用来校准 GPT 评委和规则分。每对约 10 秒，总共 10–15 分钟。</li>
+<li>给 S2-F 补规则：卫浴靠角落、梳妆台配椅子、电视柜与床保持 1.5–4 m 距离。之后在 S2-F 和 S2 不同的 218 间房里重新抽样渲染。</li>
+<li>把“搭配关系保持率”写进表 2，作为新的一列。</li>
+</ol>
+
+<p class="sub">文件：实验方案 <code>protocol.md</code> · 结论汇总 <code>findings.md</code> · 文献 <code>literature/survey.md</code> · 数据在硬盘 <code>probes-20261021/{clip-metric,judge,s2f}/</code></p>
+</main></body></html>

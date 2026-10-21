@@ -5,9 +5,9 @@ project:
   started: "2026-10-21"
   domain: "3D layout evaluation / post-hoc repair"
 hypotheses:
-  - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: pending, priority: high}
+  - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: refuted_interim, evidence: "13/20 = 65%", priority: high}
   - {id: H1b, statement: "CLIP prefers GT over raw in <=60% of rooms; GT-raw CLIP difference uncorrelated with raw violations", status: supported, evidence: "GT>raw 43.7-53.3%, |rho|<=0.05, AUC 0.46-0.58 (clip-metric/report.md)", priority: high}
-  - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: pending, priority: high}
+  - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: refuted, evidence: "10/20 = 50%; position A 75%", priority: high}
   - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge pending (s2f/REPORT.md)", priority: high}
 agents:
   s2f_builder: done (probes-20261021/s2f/REPORT.md)

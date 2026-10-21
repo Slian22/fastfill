@@ -16,6 +16,9 @@
 - Rater noise is large: the two by-eye raters disagree on 5 of 12 shared S2-vs-S1 rooms. With a position-biased judge as well, no single visual signal here is reliable yet; human pairwise labels are needed to calibrate.
 - Remaining visual failures need rules S2-F lacks: toilet/sink corner, dressing table + chair, generic chair/table, and a TV-stand rule stricter than a facing cone (distance band 1.5-4 m and not adjacent to the bed side).
 
+- Judge interim (101 ok / 18 busy calls): ref>raw 13/20 (65%, H1a bar 70% not met); S1 vs S2 10/10 with 75% first-position picks; flipped 8/10 consistent; S2F vs S1 (set A) 12-8; S2F vs S2 (set A) 6 wins / 14 ties / 0 losses. Agreement with by-eye 9/13 (S1 vs S2).
+- **Decision (interim):** adopt checker+strict (geometry) + symbolic companion score as the primary metrics; GPT pairwise only as a secondary, order-flipped, human-calibrated signal; CLIP rejected. Adopt S2-F over S2.
+
 ## Lessons and constraints
 - The API (krill-code) returned "servers are currently busy" for every call from ~05:40 local; text calls worked at ~05:32.
 - Python urllib needs a User-Agent header (else HTTP 403).
