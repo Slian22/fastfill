@@ -5,14 +5,15 @@ project:
   started: "2026-10-21"
   domain: "3D layout evaluation / post-hoc repair"
 hypotheses:
-  - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: refuted_interim, evidence: "13/20 = 65%", priority: high}
+  - {id: H1c, statement: "judge v2 (pros/cons, both orders): order-consistency >=70% and GT wins >=70% of consistent rooms", status: supported_marginal, evidence: "18/20 consistent; GT 13/18 = 0.72"}
+  - {id: H1a, statement: "pairwise gpt-6.1-sol judge prefers GT over 27B raw in >=70% of non-tie rooms", status: refuted, evidence: "13/20 = 65% [0.43,0.82]; ref>S1 0.58", priority: high}
   - {id: H1b, statement: "CLIP prefers GT over raw in <=60% of rooms; GT-raw CLIP difference uncorrelated with raw violations", status: supported, evidence: "GT>raw 43.7-53.3%, |rho|<=0.05, AUC 0.46-0.58 (clip-metric/report.md)", priority: high}
   - {id: H2, statement: "judge win rate of S2 over S1 on the 20 rendered rooms <=45%", status: refuted, evidence: "10/20 = 50%; position A 75%", priority: high}
-  - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge pending (s2f/REPORT.md)", priority: high}
+  - {id: H3, statement: "S2-F keeps >=80% of S2 checker gain, >=60% strict gain, companion retention >= S1, judge win vs S1 >=50%", status: partly_supported, evidence: "gains kept ~99-102%; retention 0.943 < S1 0.974; judge vs S1 19-3-18, vs S2 10-30-0", priority: high}
 agents:
   s2f_builder: done (probes-20261021/s2f/REPORT.md)
   clip_metric: done (probes-20261021/clip-metric/report.md)
-  gpt_judge: running, waits for API (outputs probes-20261021/judge/)
+  gpt_judge: done (judge/report.md); judge v2 sanity running (addendum A)
   literature: done (literature/survey.md)
 api: {cap_calls: 200, used_calls: 0, status: "busy since ~05:40 local 2026-10-21"}
-next_step: "wait for agents; then synthesize findings, decide metric (Q1) and S2-F (Q2), write to_human/report.html"
+next_step: "judge v2 sanity (addendum A); then final report; training-target rebuild needs server auth"

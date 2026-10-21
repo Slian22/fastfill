@@ -53,16 +53,22 @@ code { font-size:13px; }
 </p>
 
 <h2>2. GPT 成对盲评（gpt-6.1-sol medium）</h2>
+<p><b>第一版：</b>每对只评一次，A/B 顺序随机。</p>
 <div class="wrap"><table>
-<tr><th>对比</th><th>次数</th><th>结果</th><th>选了第一张的比例</th><th>与目测一致</th></tr>
-<tr><td>GT 对 27B 原始（检验评委）</td><td>20</td><td>GT 胜 13，负 7（65%）</td><td>60%</td><td>—</td></tr>
-<tr><td>S1 对 S2</td><td>20</td><td>10 比 10</td><td class="no">75%</td><td>9/13</td></tr>
-<tr><td>交换顺序再评 10 对</td><td>10</td><td>8/10 结论不变</td><td>50%</td><td>6/8</td></tr>
-<tr><td>S2-F 对 S1（A 组）</td><td>20</td><td>S2-F 胜 12，负 8</td><td>55%</td><td>—</td></tr>
-<tr><td>S2-F 对 S2（A 组）</td><td>20</td><td>S2-F 胜 6，平 14，负 0</td><td>—</td><td>—</td></tr>
+<tr><th>对比</th><th>胜 / 平 / 负</th><th>胜率（不计平局，95% 区间）</th><th>选了第一张的比例</th></tr>
+<tr><td>GT 对 27B 原始（检验评委）</td><td>13 / 0 / 7</td><td class="no">0.65 [0.43, 0.82]</td><td>60%</td></tr>
+<tr><td>GT 对 S1（B 组）</td><td>11 / 1 / 8</td><td>0.58 [0.36, 0.77]</td><td>35%</td></tr>
+<tr><td>S2 对 S1</td><td>10 / 0 / 10</td><td>0.50</td><td class="no">75%</td></tr>
+<tr><td>S2-F 对 S1（A+B 组 40 间）</td><td>19 / 3 / 18</td><td>约 0.51</td><td>—</td></tr>
+<tr><td>S2-F 对 S2（A+B 组 40 间）</td><td>10 / 30 / 0</td><td class="yes">从未输</td><td>—</td></tr>
 </table></div>
-<p>GT 对原始只赢了 65%，低于事先定的 70%。单次评判还有明显的位置偏差，所以只能作辅助。共 119 次请求：101 次成功，18 次服务器忙。</p>
-
+<p>第一版连 GT 和原始输出都分不清，没通过自检。</p>
+<p><b>第二版（文献做法）：</b>先写两边的优缺点再判，正反顺序各评一次，两次一致才算赢。</p>
+<ul>
+<li>自检：正反顺序一致 18/20，GT 胜 13/18（72%），刚过事先定的 70% 线。</li>
+<li>S2-F 对 S1：API 一直回“服务器忙”，只评完 15/40 间。已评的部分 S2-F 胜 6、S1 胜 5、平 4。</li>
+</ul>
+<p><b>结论：</b>GPT 评委只能作辅助信号。要定论，需要 50–100 对人工标注。</p>
 <h2>3. S2-F：修碰撞时保住家具之间的搭配</h2>
 <div class="wrap"><table>
 <tr><th>1,009 间可视化房（test）</th><th>S1</th><th>S2</th><th>S2-F</th></tr>

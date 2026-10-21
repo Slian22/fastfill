@@ -9,3 +9,5 @@
 - 2026-10-21 ~14:50: API busy again; judge set B 9/20 done. Wrote to_human/report.html (interim) and opened it.
 - 2026-10-21 ~15:20: user asked for training-side innovation; searched papers; ran teacher-companion proxy (smoke 200: 0.909 -> 0.764). Full run in background. Judge B set stalled on API busy (9/20).
 - 2026-10-21: teacher proxy full run done: 0.915 -> 0.795 pairs kept; 21-50 0.848 -> 0.596; sofa group 0.49. Added to report.
+- 2026-10-21 ~15:40: API back; judge set B: S2F vs S1 7 win / 10 loss / 3 tie; S2F vs S2 (17/20 so far) 4 win / 13 tie / 0 loss. Combined S2F vs S1 (A+B): 19-18-3.
+- 2026-10-21: judge v2 sanity passed marginally (18/20 consistent, GT 13/18). Addendum B: cap 300, v2 on S2F vs S1 (A+B, 80 calls) running.
