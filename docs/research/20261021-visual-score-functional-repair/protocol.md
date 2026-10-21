@@ -39,3 +39,13 @@ candidates that keep the relation. Same frozen sizes, yaw, parents, ids, every o
   parameters. Parameters are fixed in the S2-F code before its cohort run.
 
 Outputs: harddisk `probes-20261021/{clip-metric,judge,s2f}/`; summaries here in `findings.md`.
+
+## Addendum A (locked 2026-10-21, after judge v1 results, before any v2 call)
+
+Judge v1 failed its sanity check (GT over raw 13/20 = 65% < 70%; first position chosen 75% on S1 vs S2).
+**H1c (judge v2):** same model, images and rooms; the prompt asks for pros and cons of each layout before the verdict
+(R³L / Procedural Scene Programs style), and every pair is judged in both A/B orders; the room verdict is the winner
+when both orders agree, else tie. Sanity set: GT vs raw on the 20 R20 rooms (40 calls; total API cap stays 200).
+Pass iff order-consistency ≥ 70% of rooms and GT wins ≥ 70% of the consistent rooms. If it passes, v2 is re-run on
+S2F vs S1 (sets A+B) with the remaining budget; if it fails, no VLM judge is adopted as an endpoint and human pairwise
+labels become the visual endpoint.
