@@ -1,0 +1,8 @@
+{
+  "job_id": "7682225",
+  "submitted_utc": "2026-10-24T13:08:16.987630+00:00",
+  "script_sha256": "97ae619d4e8acd9de418688e0aca47308c7aee263ac052b25ec9177185897e54",
+  "cpu_only": true,
+  "api_calls_planned": 0,
+  "new_model_training": false
+}

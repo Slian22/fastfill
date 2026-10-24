@@ -18,9 +18,13 @@ model and checkpoint; a 422 after generation also the model's text (raw_text) an
 Greedy decoding, one request at a time.
 The JSON body requires a positive Content-Length of at most MAX_REQUEST_BYTES (1 MiB). Missing/invalid lengths
 and malformed or excessively nested JSON receive 400; oversized bodies receive 413 before any body read.
+Headers and body share a fixed input deadline (default 10 s); body timeouts receive 408. Model generation is
+outside that deadline, remains serial, and is followed by a bounded response write.
 """
 import argparse
+import io
 import json
+import math
 import os
 import sys
 import time
@@ -30,6 +34,24 @@ from fastfill.interface import placements_from_text, request_to_room
 from fastfill.scene import messages, prompt_text
 
 MAX_REQUEST_BYTES = 1024 * 1024
+REQUEST_READ_TIMEOUT = 10.0
+
+
+class _DeadlineReader(io.RawIOBase):
+    """Recompute the remaining input budget for every socket read, including slowly dripped bytes."""
+    def __init__(self, connection, deadline):
+        super().__init__()
+        self.connection, self.deadline = connection, deadline
+
+    def readable(self):
+        return True
+
+    def readinto(self, buffer):
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('request input deadline exceeded')
+        self.connection.settimeout(remaining)
+        return self.connection.recv_into(buffer)
 
 
 class PromptTooLong(ValueError):
@@ -59,8 +81,19 @@ def answer(req, generate):
     return 200, out
 
 
-def make_handler(generate, name, checkpoint):
+def make_handler(generate, name, checkpoint, request_timeout=None):
+    read_timeout = REQUEST_READ_TIMEOUT if request_timeout is None else request_timeout
+    if type(read_timeout) not in (int, float) or not math.isfinite(read_timeout) or read_timeout <= 0:
+        raise ValueError('request_timeout must be positive and finite')
+
     class Handler(BaseHTTPRequestHandler):
+        timeout = read_timeout
+
+        def setup(self):
+            super().setup()
+            self.rfile.close()
+            self.rfile = io.BufferedReader(_DeadlineReader(self.connection, time.monotonic() + read_timeout))
+
         def do_POST(self):
             if not self.path.endswith("/chat/completions"):
                 return self.reply(404, {"error": {"message": "POST .../v1/chat/completions"}})
@@ -71,8 +104,14 @@ def make_handler(generate, name, checkpoint):
                 if length > MAX_REQUEST_BYTES:
                     return self.reply(413, {"error": {"message": f"body exceeds {MAX_REQUEST_BYTES} bytes",
                                                       "type": "invalid_request_error"}})
-                body = json.loads(self.rfile.read(length))
+                raw = self.rfile.read(length)
+                if len(raw) != length:
+                    raise ValueError('incomplete request body')
+                body = json.loads(raw)
                 req = json.loads(body["messages"][-1]["content"])
+            except TimeoutError:
+                return self.reply(408, {"error": {"message": "request input deadline exceeded",
+                                                  "type": "invalid_request_error"}})
             except (ValueError, KeyError, IndexError, TypeError, RecursionError) as e:
                 return self.reply(400, {"error": {"message": f"bad body: {e!r}", "type": "invalid_request_error"}})
             try:
@@ -88,6 +127,7 @@ def make_handler(generate, name, checkpoint):
             self.reply(status, out)
 
         def reply(self, status, obj):
+            self.connection.settimeout(read_timeout)
             if status != 200:
                 obj["error"].update(model=name, checkpoint=checkpoint)
             data = json.dumps(obj).encode()
@@ -107,7 +147,11 @@ def main():
     ap.add_argument("--host", default="0.0.0.0")
     ap.add_argument("--port", type=int, default=8001)
     ap.add_argument("--max_len", type=int, default=40960, help="model sequence limit; the answer may use what the prompt leaves")
+    ap.add_argument("--request_timeout", type=float, default=REQUEST_READ_TIMEOUT,
+                    help="seconds to receive complete request headers and body (generation excluded)")
     a = ap.parse_args()
+    if not math.isfinite(a.request_timeout) or a.request_timeout <= 0:
+        ap.error('--request_timeout must be positive and finite')
     from vllm import LLM, SamplingParams
     llm = LLM(model=a.model, max_model_len=a.max_len)
     tok = llm.get_tokenizer()
@@ -122,7 +166,7 @@ def main():
     ckpt = os.path.abspath(a.model) if os.path.isdir(a.model) else a.model      # a dir, or a hub id as given
     name = a.name or os.path.basename(os.path.normpath(ckpt))
     print(f"FastFill endpoint: http://{a.host}:{a.port}/v1  model {name} = {ckpt}", flush=True)
-    HTTPServer((a.host, a.port), make_handler(generate, name, ckpt)).serve_forever()
+    HTTPServer((a.host, a.port), make_handler(generate, name, ckpt, a.request_timeout)).serve_forever()
 
 
 if __name__ == "__main__":

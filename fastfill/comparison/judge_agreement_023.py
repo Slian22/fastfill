@@ -32,7 +32,8 @@ def means(done, arms, ids=None):
     for arm in arms:
         rows = [r for cid, r in done.items() if r['arm'] == arm and (ids is None or cid in ids)]
         out[arm] = {m: statistics.fmean(v) if (v := [score(r, m) for r in rows if score(r, m) is not None]) else None
-                    for m in METRICS} | {'n': len(rows)}
+                    for m in METRICS} | {'n': len(rows),
+                        'metric_n': {m: sum(score(r, m) is not None for r in rows) for m in METRICS}}
     return out
 
 
@@ -46,8 +47,10 @@ def compare(a_path, b_path, names):
     for m in METRICS:
         pairs = [(score(a[c], m), score(b[c], m)) for c in sorted(common)
                  if score(a[c], m) is not None and score(b[c], m) is not None]
-        x, y = zip(*pairs)
-        corr[m] = {'n': len(pairs), 'spearman': spearmanr(x, y).statistic, 'pearson': pearsonr(x, y).statistic}
+        defined = len(pairs) >= 2 and all(len({p[k] for p in pairs}) > 1 for k in (0, 1))
+        x, y = zip(*pairs) if pairs else ([], [])
+        corr[m] = {'n': len(pairs), 'spearman': float(spearmanr(x, y).statistic) if defined else None,
+                   'pearson': float(pearsonr(x, y).statistic) if defined else None}
     rooms = {}
     for cid in common:
         rooms.setdefault(a[cid]['uid'], {})[a[cid]['arm']] = (score(a[cid], 'overall'), score(b[cid], 'overall'))
@@ -59,11 +62,14 @@ def compare(a_path, b_path, names):
            'room_kendall_tau': {'rooms': len(taus), 'mean': statistics.fmean(taus) if taus else None}}
     for name, done in zip(names, (a, b)):
         own, shared = means(done, arms), means(done, arms, common)
-        ranking = sorted(arms, key=lambda arm: -shared[arm]['overall'])
+        defined = bool(arms) and all(shared[arm]['overall'] is not None for arm in arms)
+        ranking = sorted(arms, key=lambda arm: -shared[arm]['overall']) if defined else None
         others = [shared[arm]['overall'] for arm in arms if arm != 'L']
         out[name] = {'means_own': own, 'means_common': shared, 'ranking_common': ranking,
-                     'L_margin_common': shared['L']['overall'] - statistics.fmean(others) if 'L' in arms else None}
-    out['same_ranking'] = out[names[0]]['ranking_common'] == out[names[1]]['ranking_common']
+                     'L_margin_common': shared['L']['overall'] - statistics.fmean(others)
+                     if defined and 'L' in arms and others else None}
+    ranks = [out[name]['ranking_common'] for name in names]
+    out['same_ranking'] = ranks[0] == ranks[1] if len(arms) >= 2 and all(r is not None for r in ranks) else None
     return out
 
 

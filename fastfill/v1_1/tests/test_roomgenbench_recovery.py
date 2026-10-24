@@ -207,3 +207,66 @@ def test_model_parse_failure_exports_truthful_fallback_end_to_end(tmp_path, monk
     assert (output / "simple" / "layout.glb").is_file()
     layout = json.loads((output / "simple" / "layout.json").read_text())
     assert layout["objects"][0]["bottom_center_m"] == [2., 2., 0.]
+
+
+def _declared_support_scene(tmp_path):
+    path = tmp_path / "support.json"
+    path.write_text(json.dumps({"scene_key": "support", "room": {
+        "dimensions": {"width": 5., "length": 5., "height": 3.}}, "objects": [
+        {"id": "source_table", "type": "table", "description": "table", "place_id": "floor",
+         "position": {"x": 1.5, "y": 1.5, "z": 0.}, "rotation": {"z": 270.},
+         "dimensions": {"length": 1., "width": 1., "height": 1.}},
+        {"id": "source_lamp", "type": "lamp", "description": "lamp", "place_id": "source_table",
+         "position": {"x": 1.5, "y": 1.5, "z": 1.}, "rotation": {"z": 270.},
+         "dimensions": {"length": .2, "width": .2, "height": .4}}]}))
+    return path
+
+
+def test_handoff_preserves_requested_support_when_prediction_omits_it(tmp_path):
+    from fastfill.v1_1.postprocess import repair_v1_1
+    from fastfill.v2.direct_layout import export_handoff
+    from fastfill.v2.roomgenbench import reference_check
+
+    source = _declared_support_scene(tmp_path)
+    room, meta = showcase.roomgenbench_scene_to_v1_1_room(source)
+    placements = gt_placements_v1_1(room)
+    placements["lamp_1"] = {**placements["lamp_1"], "on": None, "pos": [3., 3., 0.]}
+    condition, layout = showcase.placements_to_v2_handoff(room, meta, repair_v1_1(room, placements))
+    assert condition["objects"][1]["support_parent"] == "obj_0000"
+    assert condition["constraints"] == [{"type": "on", "object_id": "obj_0001", "parent_id": "obj_0000"}]
+    out = tmp_path / "export"
+    export_handoff(out, condition, layout)
+    checks = reference_check(out, source)["checks"]
+    assert checks["fastfill"]["ok"] is False
+    # V2 deliberately treats unverified tabletop surfaces as unknown, even for GT.
+    assert checks["ground_truth"]["counts"]["violation"] == 0
+    assert checks["ground_truth"]["by_code"]["support_surface_unknown"]["unknown"] == 2
+
+
+@pytest.mark.parametrize("obeys_support", [False, True])
+def test_showcase_requested_support_controls_validity(tmp_path, monkeypatch, obeys_support):
+    from fastfill.v1_1 import evaluate_v1_1
+    import transformers
+
+    source = _declared_support_scene(tmp_path)
+    room, _ = showcase.roomgenbench_scene_to_v1_1_room(source)
+    placements = gt_placements_v1_1(room)
+    if not obeys_support:
+        placements["lamp_1"] = {**placements["lamp_1"], "on": None, "pos": [3., 3., 0.]}
+    raw = json.dumps({"placements": [{"id": oid, **p} for oid, p in placements.items()]})
+
+    class Tokenizer:
+        def apply_chat_template(self, messages, **kwargs):
+            return json.dumps(messages)
+
+    monkeypatch.setattr(transformers.AutoTokenizer, "from_pretrained", lambda *a, **k: Tokenizer())
+    monkeypatch.setattr(evaluate_v1_1, "generate_v1_1", lambda *a, **k: [raw])
+    monkeypatch.setattr(showcase, "ensure_roomgenbench_assets", lambda *a, **k: None)
+    output = tmp_path / "out"
+    monkeypatch.setattr(sys, "argv", ["showcase", "--model", "fake", "--scenes-dir", str(tmp_path),
+                                    "--out-dir", str(output)])
+    showcase.main()
+    result = json.loads((output / "summary.json").read_text())["support"]
+    assert result["model_generation_succeeded"] is True
+    assert result["repaired_valid"] is obeys_support
+    assert result["reference_check"]["fastfill"]["ok"] is False

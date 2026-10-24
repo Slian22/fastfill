@@ -1,0 +1,1 @@
+Root sent SIGINT after remote F17 was confirmed, before any production source mutation. This interim run is incomplete:2524 passed,6 skipped,281 subtests passed in331.54s. It is not the final acceptance run.

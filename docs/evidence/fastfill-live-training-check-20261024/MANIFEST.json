@@ -1,0 +1,224 @@
+{
+  "created_utc": "2026-10-24T12:49:17.091920+00:00",
+  "purpose": "Read-only live verification of existing FastFill a021/a028 training runs",
+  "remote_host": "u6uv.aip2.isambard",
+  "server_text_copies_verified": 29,
+  "report_links_verified": 15,
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 6919,
+      "sha256": "529725df744e2337e03c4edc02b964d63b842227786aa04dec8987264ee57160"
+    },
+    {
+      "path": "base-verification-stderr.txt",
+      "bytes": 219,
+      "sha256": "94dbeecfedf57900fced12d73898498aca6d71ec748d21eae0e0cf23f3c901ad"
+    },
+    {
+      "path": "base-verification.json",
+      "bytes": 10247,
+      "sha256": "c70e8a3b5dfbe8b5b060a67d236de18e713bda0bbd0cff7b5ce8693b89cc6b17"
+    },
+    {
+      "path": "completion-verification.json",
+      "bytes": 6407,
+      "sha256": "884f4b68ad1119f79bb5580401ae4186fe53c2c9f75b47dd7e85416af809305c"
+    },
+    {
+      "path": "connection-stderr.txt",
+      "bytes": 219,
+      "sha256": "94dbeecfedf57900fced12d73898498aca6d71ec748d21eae0e0cf23f3c901ad"
+    },
+    {
+      "path": "local-code-verification.json",
+      "bytes": 7996,
+      "sha256": "b018743e3640616513cd44e87274f6cafb6bf562a5332cc1167fc687a57b551d"
+    },
+    {
+      "path": "remote-base-verify.py",
+      "bytes": 926,
+      "sha256": "8e1fb89583a452b38998314daf1ddf83b26e1bf1988b16e38fd4e3f89122e4af"
+    },
+    {
+      "path": "remote-inventory.py",
+      "bytes": 1363,
+      "sha256": "7596e21e5785497c78e56ebffd19d790551ad1c5cb3c38ef15435ebcb077aa36"
+    },
+    {
+      "path": "remote-records.py",
+      "bytes": 1688,
+      "sha256": "4665d8d0b00e86e29a6fd5d6363a748def4a7f0978ad85237d983ead93823d42"
+    },
+    {
+      "path": "remote-verify.py",
+      "bytes": 6467,
+      "sha256": "292e0dfd30e5152c8cce3303504f26d43adba67ed22e8255fe362ad2a1e540ff"
+    },
+    {
+      "path": "server/runs/isambard/unknownsize-021-train-7419267.out",
+      "bytes": 91050,
+      "sha256": "9d6c5318fe8a165d975ebf13e3984e694450bb50fd853adfbe474abc713cb3b7"
+    },
+    {
+      "path": "server/runs/isambard/unknownsize-028-train-7461666.out",
+      "bytes": 91100,
+      "sha256": "c8544c1ae229344c8ee04844150c82759f79e1148219dd595ad6f2c4d2e7d331"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/a021-policy.json",
+      "bytes": 5919,
+      "sha256": "4d3c427b0c23f6fab8b4a8b6c673085afce08ad40153c33479d13f9eeaf741bf"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/rows/MANIFEST.json",
+      "bytes": 111,
+      "sha256": "86232e937d9d34751299cbc66603a9c24cc0f7a47c8b0cdce936d5885557937e"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/run_receipt.json",
+      "bytes": 5957,
+      "sha256": "05dd071b0f93af86bae6baf6b762df42dbe7e592d483683c0b04c3f8a5a5bdda"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/train/final/adapter_config.json",
+      "bytes": 1264,
+      "sha256": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/train/final/completion.json",
+      "bytes": 1009,
+      "sha256": "13e9dd71e9cf8664f2f205cb3f2f13b44d52909eab947deb8a2f987b215b01a3"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/train/run_manifest.json",
+      "bytes": 1080,
+      "sha256": "904566aedba3b11e6cd911d2cb36f4f0599d612c03363352d9ba9501c1337b51"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/27b/train/training_guard.json",
+      "bytes": 7158,
+      "sha256": "6028433d51b7adcc0be9da012d86adfc0932a43cde2128f0c230bcbdede973af"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/final-selection.json",
+      "bytes": 5486,
+      "sha256": "063403903c3b7e280567777bb0de05ee1d95828508559f4107a3fc202d3d2b5b"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/pool/MANIFEST.json",
+      "bytes": 286,
+      "sha256": "3f32e64526f0c05832612fe48e707228799af6d541304ce6a4da528b124561c5"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/pool/summary.json",
+      "bytes": 5089,
+      "sha256": "6d38654cf9d9a80334cd58809cc5f0575d020baf7df8498b5b424a876da50694"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/smoke/verdict.json",
+      "bytes": 2820,
+      "sha256": "1b2572f1f922defc9af293bd558888e83c5b1b040b2e545de97291b95b203e0e"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a021/smoke/vllm-load.json",
+      "bytes": 3992,
+      "sha256": "ec1cf515f3726a2b2437dfd5da8e22df51604ef43bfecc9b8348eb0189b4bccc"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/a021-policy.json",
+      "bytes": 5933,
+      "sha256": "110b234c0b0935c85d19ff351edcb53ce3f752d969129e840541d7a3a98e7be2"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/rows/MANIFEST.json",
+      "bytes": 107,
+      "sha256": "273bab876ae9e7c4a83691827df989209093bb909d67dc35c14d9d7be9d241ec"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/run_receipt.json",
+      "bytes": 5959,
+      "sha256": "c77cc56f26b802596052304c16b9037c31ca83cd8cffe6102123b1d463386ebe"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/train/final/adapter_config.json",
+      "bytes": 1264,
+      "sha256": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/train/final/completion.json",
+      "bytes": 1009,
+      "sha256": "a24a9cff8f7e369841088a8b5cce4a5a0a7a4a4f02bc14866e28238aed8d6866"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/train/run_manifest.json",
+      "bytes": 1088,
+      "sha256": "d26c90268426860217e3de44f2f29d5cb4de6d87c5c84294189a52e3063207eb"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/27b-joint/train/training_guard.json",
+      "bytes": 7163,
+      "sha256": "928525c273cc916d97284e487dde23612e7e2a03273bf7a5cd21b35c443ec687"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/compare/report.md",
+      "bytes": 6042,
+      "sha256": "23a56fe06ebeb2447c233819a16ea50f916ee2bfcb4a24a75f8180356be64540"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/compare/results.json",
+      "bytes": 56919,
+      "sha256": "6011a8a4b6e8f98df9cd71795f738b97c8c11f41354b5b7f6bbb1b41560083ff"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/rows/MANIFEST.json",
+      "bytes": 286,
+      "sha256": "364ee6cd7aefbb98c0befcd7657f6b7da13d2ca8b3b1f4fc46a5a2ceb77a8c75"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/rows/summary.json",
+      "bytes": 2532,
+      "sha256": "d1d003620b9089af61bf5d0c87432a7cc5ebc6c612e80ae74511ef69af9196f8"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/smoke/verdict.json",
+      "bytes": 2858,
+      "sha256": "277209ce0a89ceac6eb7c60cd715ab9662454a36cfefbd551b960b4e1c0a4f31"
+    },
+    {
+      "path": "server/runs/unknownsize-20261013/a028/smoke/vllm-load.json",
+      "bytes": 4681,
+      "sha256": "aaaae8b6345706881b097a0d0ef4d3745924ffa8661a4d9d3b1c251476137924"
+    },
+    {
+      "path": "server/snapshots/main-5bc501b3d/fastfill/v1_1/training_guard.py",
+      "bytes": 16003,
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98"
+    },
+    {
+      "path": "server/snapshots/main-7373495ca9/fastfill/v1_1/training_guard.py",
+      "bytes": 16003,
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98"
+    },
+    {
+      "path": "server-inventory.json",
+      "bytes": 14128,
+      "sha256": "d6f6afb1686fe9098615522007225e65d61d87ec574b9f2aafaf6d818bd26d74"
+    },
+    {
+      "path": "server-records.json",
+      "bytes": 168555,
+      "sha256": "65041829df799dd558fe6e8374082750076b758b562f6ca9e553e0092e20f7b6"
+    },
+    {
+      "path": "server-verification.json",
+      "bytes": 313317,
+      "sha256": "824ed0279ddc0774a5739722517dd33f0a20be05e40ea152d0bc3ae8a85ac0bf"
+    },
+    {
+      "path": "verification-stderr.txt",
+      "bytes": 219,
+      "sha256": "94dbeecfedf57900fced12d73898498aca6d71ec748d21eae0e0cf23f3c901ad"
+    }
+  ]
+}

@@ -1,0 +1,660 @@
+FFFFFF.F..FFFF..FFF                                                      [100%]
+=================================== FAILURES ===================================
+_ test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.0-True] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_s2_joint_requires_absolut0')
+bias = 0.0, passed = True
+
+    @pytest.mark.parametrize('bias, passed', [(0., True), (.03, True), (-.03, True), (.031, False), (-.031, False)])
+    def test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary(tmp_path, bias, passed):
+        data, s1 = decision_inputs(tmp_path, bias)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['estimate'] == .5 and joint['ci95'][0] > 0  # The acceptance gain alone passes.
+        assert joint['passed'] is passed
+>       assert joint['bias_check']['passed'] is passed
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+fastfill/comparison/tests/test_decide_012.py:47: TypeError
+_ test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.03-True] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_s2_joint_requires_absolut1')
+bias = 0.03, passed = True
+
+    @pytest.mark.parametrize('bias, passed', [(0., True), (.03, True), (-.03, True), (.031, False), (-.031, False)])
+    def test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary(tmp_path, bias, passed):
+        data, s1 = decision_inputs(tmp_path, bias)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['estimate'] == .5 and joint['ci95'][0] > 0  # The acceptance gain alone passes.
+        assert joint['passed'] is passed
+>       assert joint['bias_check']['passed'] is passed
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+fastfill/comparison/tests/test_decide_012.py:47: TypeError
+_ test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[-0.03-True] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_s2_joint_requires_absolut2')
+bias = -0.03, passed = True
+
+    @pytest.mark.parametrize('bias, passed', [(0., True), (.03, True), (-.03, True), (.031, False), (-.031, False)])
+    def test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary(tmp_path, bias, passed):
+        data, s1 = decision_inputs(tmp_path, bias)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['estimate'] == .5 and joint['ci95'][0] > 0  # The acceptance gain alone passes.
+        assert joint['passed'] is passed
+>       assert joint['bias_check']['passed'] is passed
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+fastfill/comparison/tests/test_decide_012.py:47: TypeError
+_ test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.031-False] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_s2_joint_requires_absolut3')
+bias = 0.031, passed = False
+
+    @pytest.mark.parametrize('bias, passed', [(0., True), (.03, True), (-.03, True), (.031, False), (-.031, False)])
+    def test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary(tmp_path, bias, passed):
+        data, s1 = decision_inputs(tmp_path, bias)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['estimate'] == .5 and joint['ci95'][0] > 0  # The acceptance gain alone passes.
+>       assert joint['passed'] is passed
+E       assert True is False
+
+fastfill/comparison/tests/test_decide_012.py:46: AssertionError
+_ test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[-0.031-False] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_s2_joint_requires_absolut4')
+bias = -0.031, passed = False
+
+    @pytest.mark.parametrize('bias, passed', [(0., True), (.03, True), (-.03, True), (.031, False), (-.031, False)])
+    def test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary(tmp_path, bias, passed):
+        data, s1 = decision_inputs(tmp_path, bias)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['estimate'] == .5 and joint['ci95'][0] > 0  # The acceptance gain alone passes.
+>       assert joint['passed'] is passed
+E       assert True is False
+
+fastfill/comparison/tests/test_decide_012.py:46: AssertionError
+_ test_bias_uses_each_variants_complete_rooms_without_dropping_failures_from_rates _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_bias_uses_each_variants_c0')
+
+    def test_bias_uses_each_variants_complete_rooms_without_dropping_failures_from_rates(tmp_path):
+        data, s1 = decision_inputs(tmp_path, .02, incomplete=True)
+        result = d.decide(data, s1, tmp_path / 'decision')
+        joint = result['decisions']['s2_joint']
+        assert joint['passed']
+>       assert joint['bias_check']['greedy']['complete_rooms'] == 10
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+fastfill/comparison/tests/test_decide_012.py:63: TypeError
+_____________ test_o2nt_semantic_failure_survives_evaluation[True] _____________
+
+world = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_o2nt_semantic_fai...}, 'il-bed-2': {'uid': 'il-bed-2', 'source': 'IL3D_3dfront', 'group': 'g-il-b', 'boundary_type': 'polygon', ...}, ...})
+reasoning = True
+
+    @pytest.mark.parametrize('reasoning', [False, True])
+    def test_o2nt_semantic_failure_survives_evaluation(world, reasoning):
+        root, rooms = world
+        answer = '<think>plan</think>{valid}' if reasoning else '{valid}'
+        fake = FakeLLM(rooms, default=answer, arm='placement')
+        assert O.main(argv(root, 'O2nt', 'run', '--arm', 'placement'), loader(fake)) == 0
+        run = json.loads((root / 'run/result.json').read_text())
+        expected = 0 if reasoning else run['rooms']
+        assert run['valid_final'] == expected
+        result = ev.evaluate(root / 'data', root / 'cohort.json', root / 'run', root / 'eval', repeats=2)
+        for variant in L.VARIANTS:
+>           assert result['arms'][variant]['all']['complete_count'] == expected
+E           assert 36 == 0
+
+fastfill/comparison/tests/test_llm_open.py:119: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+{"rooms": 36, "uids_sha256": "9750c5f73763a6497637c332ce8ebbcd6e1e36107e01f9d4a92896a9f37b6a25"}
+----------------------------- Captured stdout call -----------------------------
+{"status": "LLM_COMPLETE", "rooms": 36, "valid_first": 0, "valid_final": 0, "reached_token_cap": 0, "tokens": {"input_tokens": 3600, "output_tokens": 4248, "reasoning_tokens": 720, "total_tokens": 7848}, "smoke_failure": null}
+_ test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[1e309-pos] _
+
+field = 'pos', number = '1e309'
+
+    @pytest.mark.parametrize('field', ['pos', 'yaw'])
+    @pytest.mark.parametrize('number', ['1e309', '-1e309'])
+    def test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure(field, number):
+        room = _supported_room()
+        request = {'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        if field == 'pos':
+            value['placements'][0]['pos'][0] = 'overflow'
+        else:
+            value['placements'][0]['yaw'] = 'overflow'
+        raw = json.dumps(value).replace('"overflow"', number)
+>       parsed = L.parse(raw, request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:190: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:185: in enforce_sizes
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x119dbc290>
+o = {'placements': [{'id': 'obj_0001', 'pos': [inf, 3, 0], 'yaw': 0}, {'id': 'obj_0002', 'pos': [3, 3, 0.75], 'yaw': 0, 'on': 'obj_0001'}, {'id': 'obj_0003', 'pos': [1, 1, 1], 'yaw': 0, 'on': 'fixed_0001'}]}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: inf
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+_ test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[1e309-yaw] _
+
+field = 'yaw', number = '1e309'
+
+    @pytest.mark.parametrize('field', ['pos', 'yaw'])
+    @pytest.mark.parametrize('number', ['1e309', '-1e309'])
+    def test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure(field, number):
+        room = _supported_room()
+        request = {'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        if field == 'pos':
+            value['placements'][0]['pos'][0] = 'overflow'
+        else:
+            value['placements'][0]['yaw'] = 'overflow'
+        raw = json.dumps(value).replace('"overflow"', number)
+>       parsed = L.parse(raw, request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:190: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:185: in enforce_sizes
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x119dbe180>
+o = {'placements': [{'id': 'obj_0001', 'pos': [3, 3, 0], 'yaw': inf}, {'id': 'obj_0002', 'pos': [3, 3, 0.75], 'yaw': 0, 'on': 'obj_0001'}, {'id': 'obj_0003', 'pos': [1, 1, 1], 'yaw': 0, 'on': 'fixed_0001'}]}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: inf
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+_ test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[-1e309-pos] _
+
+field = 'pos', number = '-1e309'
+
+    @pytest.mark.parametrize('field', ['pos', 'yaw'])
+    @pytest.mark.parametrize('number', ['1e309', '-1e309'])
+    def test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure(field, number):
+        room = _supported_room()
+        request = {'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        if field == 'pos':
+            value['placements'][0]['pos'][0] = 'overflow'
+        else:
+            value['placements'][0]['yaw'] = 'overflow'
+        raw = json.dumps(value).replace('"overflow"', number)
+>       parsed = L.parse(raw, request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:190: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:185: in enforce_sizes
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x119dbe2a0>
+o = {'placements': [{'id': 'obj_0001', 'pos': [-inf, 3, 0], 'yaw': 0}, {'id': 'obj_0002', 'pos': [3, 3, 0.75], 'yaw': 0, 'on': 'obj_0001'}, {'id': 'obj_0003', 'pos': [1, 1, 1], 'yaw': 0, 'on': 'fixed_0001'}]}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: -inf
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+_ test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[-1e309-yaw] _
+
+field = 'yaw', number = '-1e309'
+
+    @pytest.mark.parametrize('field', ['pos', 'yaw'])
+    @pytest.mark.parametrize('number', ['1e309', '-1e309'])
+    def test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure(field, number):
+        room = _supported_room()
+        request = {'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        if field == 'pos':
+            value['placements'][0]['pos'][0] = 'overflow'
+        else:
+            value['placements'][0]['yaw'] = 'overflow'
+        raw = json.dumps(value).replace('"overflow"', number)
+>       parsed = L.parse(raw, request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:190: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:185: in enforce_sizes
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x119bb15e0>
+o = {'placements': [{'id': 'obj_0001', 'pos': [3, 3, 0], 'yaw': -inf}, {'id': 'obj_0002', 'pos': [3, 3, 0.75], 'yaw': 0, 'on': 'obj_0001'}, {'id': 'obj_0003', 'pos': [1, 1, 1], 'yaw': 0, 'on': 'fixed_0001'}]}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: -inf
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+______ test_limit_samples_each_available_room_at_most_once[100-expected2] ______
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_limit_samples_each_availa2')
+limit = 100, expected = ['r0', 'r1']
+
+    @pytest.mark.parametrize('limit, expected', [(1, ['r0']), (2, ['r0', 'r1']), (100, ['r0', 'r1'])])
+    def test_limit_samples_each_available_room_at_most_once(tmp_path, limit, expected):
+        run = visual_run(tmp_path)
+        out = tmp_path / 'limited'
+>       summary = m.run(run, out, workers=1, limit=limit, repeats=2)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_mesh_collision.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/mesh_collision.py:491: in run
+    summary = {**summarize(results, groups, cohort, ledger, repeats), 'wall_seconds': wall, 'workers': workers,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/mesh_collision.py:306: in summarize
+    levels = report_v2.contrasts(mine, [{**r, **dict.fromkeys(fields + ['checker_collision_free'], 0.0)}
+fastfill/comparison/report_v2.py:220: in contrasts
+    components, strata = g._paired_design(first, second)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+joint = [{'uid': 'r0', 'source': 'IL3D_3dfront', 'stratum': 'IL3D_3dfront/bedroom', 'system': 'GT', ...}, {'uid': 'r0', 'source': 'IL3D_3dfront', 'stratum': 'IL3D_3dfront/bedroom', 'system': 'GT', ...}]
+placement = [{'uid': 'r0', 'source': 'IL3D_3dfront', 'stratum': 'IL3D_3dfront/bedroom', 'system': 'GT', ...}, {'uid': 'r0', 'source': 'IL3D_3dfront', 'stratum': 'IL3D_3dfront/bedroom', 'system': 'GT', ...}]
+
+    def _paired_design(joint, placement):
+        """Freeze membership/signatures using every request, before metric filtering."""
+        maps = [{r['uid']: r for r in rows} for rows in (joint, placement)]
+        if any(len(m) != len(rows) for m, rows in zip(maps, (joint, placement))) or maps[0].keys() != maps[1].keys():
+>           raise ValueError('paired UID coverage mismatch or duplicates')
+E           ValueError: paired UID coverage mismatch or duplicates
+
+fastfill/comparison/geometry.py:163: ValueError
+----------------------------- Captured stderr call -----------------------------
+2/2 rooms, 0 s
+___ test_no_successful_mesh_analysis_still_publishes_missing_reasons[False] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_no_successful_mesh_analys0')
+rendered = False
+
+    @pytest.mark.parametrize('rendered', [False, True])
+    def test_no_successful_mesh_analysis_still_publishes_missing_reasons(tmp_path, rendered):
+        run = visual_run(tmp_path)
+        visual = run / 'visual'
+        if rendered:
+            cases = [json.loads(line) for line in (visual / 'cases.jsonl').read_text().splitlines()]
+            for case in cases:
+                for asset in case['asset_mapping']:
+                    asset['mesh_path'] = str(tmp_path / 'missing.obj')
+            (visual / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
+            (visual / 'chunks/00/input.json').write_text(json.dumps({'cases': cases[:2]}))
+        else:
+            (visual / 'chunks/00/input.json').unlink()
+        out = tmp_path / 'failed'
+>       summary = m.run(run, out, workers=1, repeats=2)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_mesh_collision.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/mesh_collision.py:501: in run
+    'report.md': report(summary, wall, workers, command)}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+summary = {'amendment': '019', 'status': 'EXPLORATORY_DESCRIPTIVE', 'pitch_m': 0.02, 'voxel_cm3': 8.0, ...}
+wall_seconds = 0.00020654103718698025, workers = 1, command = ''
+
+    def report(summary, wall_seconds, workers, command):
+        s, lines = summary, []
+        add = lines.append
+        add('# 修订 019：渲染房间的网格级碰撞（探索性、描述性，无决策规则）\n')
+        add(f"方案：`{SPEC}`（锁定于任何输出之前）。体素边长 {PITCH * 100:.0f} cm（每体素 {VOXEL_CM3:.0f} cm³），"
+            f"三角形采样间距 ≤ {SAMPLE_M * 100:g} cm，阈值 τ ∈ {{{', '.join(map(str, TAUS))}}} cm³，主阈值 τ = {PRIMARY} cm³；"
+            f"CI 为房屋连通组聚类自举（report_v2.contrasts，{s['repeats']} 次，种子 {s['seed']}）。\n")
+        add('## 覆盖与缺失\n')
+        add(f"- 冻结队列 {s['cohort_rooms']} 个房间，分析成功 {s['analysed_rooms']} 个；缺失 {len(s['missing_rooms'])} 个（原因见下，从不补齐）。")
+        for u, why in sorted(s['missing_rooms'].items()):
+            add(f'  - `{u}`：{why}')
+        add(f"- 系统：{', '.join(s['systems_present'])}。修订列出的系统为 {', '.join(AMENDMENT_SYSTEMS)}；"
+            f"运行中另外渲染了 {', '.join(s['systems_beyond_amendment_list']) or '无'}，按“该运行渲染的每个系统”一并报告。")
+>       add(f"- 放置核验：每个网格反变换回物体坐标系后与布局包围盒的最大误差 {s['bbox_max_err_m']:.2e} m（阈值 {BBOX_TOL_M:g} m）。")
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported format string passed to NoneType.__format__
+
+fastfill/comparison/mesh_collision.py:395: TypeError
+____ test_no_successful_mesh_analysis_still_publishes_missing_reasons[True] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-466/test_no_successful_mesh_analys1')
+rendered = True
+
+    @pytest.mark.parametrize('rendered', [False, True])
+    def test_no_successful_mesh_analysis_still_publishes_missing_reasons(tmp_path, rendered):
+        run = visual_run(tmp_path)
+        visual = run / 'visual'
+        if rendered:
+            cases = [json.loads(line) for line in (visual / 'cases.jsonl').read_text().splitlines()]
+            for case in cases:
+                for asset in case['asset_mapping']:
+                    asset['mesh_path'] = str(tmp_path / 'missing.obj')
+            (visual / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
+            (visual / 'chunks/00/input.json').write_text(json.dumps({'cases': cases[:2]}))
+        else:
+            (visual / 'chunks/00/input.json').unlink()
+        out = tmp_path / 'failed'
+>       summary = m.run(run, out, workers=1, repeats=2)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_mesh_collision.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/mesh_collision.py:501: in run
+    'report.md': report(summary, wall, workers, command)}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+summary = {'amendment': '019', 'status': 'EXPLORATORY_DESCRIPTIVE', 'pitch_m': 0.02, 'voxel_cm3': 8.0, ...}
+wall_seconds = 0.0004343340406194329, workers = 1, command = ''
+
+    def report(summary, wall_seconds, workers, command):
+        s, lines = summary, []
+        add = lines.append
+        add('# 修订 019：渲染房间的网格级碰撞（探索性、描述性，无决策规则）\n')
+        add(f"方案：`{SPEC}`（锁定于任何输出之前）。体素边长 {PITCH * 100:.0f} cm（每体素 {VOXEL_CM3:.0f} cm³），"
+            f"三角形采样间距 ≤ {SAMPLE_M * 100:g} cm，阈值 τ ∈ {{{', '.join(map(str, TAUS))}}} cm³，主阈值 τ = {PRIMARY} cm³；"
+            f"CI 为房屋连通组聚类自举（report_v2.contrasts，{s['repeats']} 次，种子 {s['seed']}）。\n")
+        add('## 覆盖与缺失\n')
+        add(f"- 冻结队列 {s['cohort_rooms']} 个房间，分析成功 {s['analysed_rooms']} 个；缺失 {len(s['missing_rooms'])} 个（原因见下，从不补齐）。")
+        for u, why in sorted(s['missing_rooms'].items()):
+            add(f'  - `{u}`：{why}')
+        add(f"- 系统：{', '.join(s['systems_present'])}。修订列出的系统为 {', '.join(AMENDMENT_SYSTEMS)}；"
+            f"运行中另外渲染了 {', '.join(s['systems_beyond_amendment_list']) or '无'}，按“该运行渲染的每个系统”一并报告。")
+>       add(f"- 放置核验：每个网格反变换回物体坐标系后与布局包围盒的最大误差 {s['bbox_max_err_m']:.2e} m（阈值 {BBOX_TOL_M:g} m）。")
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unsupported format string passed to NoneType.__format__
+
+fastfill/comparison/mesh_collision.py:395: TypeError
+----------------------------- Captured stderr call -----------------------------
+2/2 rooms, 0 s
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_decide_012.py::test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.0-True]
+FAILED fastfill/comparison/tests/test_decide_012.py::test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.03-True]
+FAILED fastfill/comparison/tests/test_decide_012.py::test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[-0.03-True]
+FAILED fastfill/comparison/tests/test_decide_012.py::test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[0.031-False]
+FAILED fastfill/comparison/tests/test_decide_012.py::test_s2_joint_requires_absolute_bias_change_with_inclusive_boundary[-0.031-False]
+FAILED fastfill/comparison/tests/test_decide_012.py::test_bias_uses_each_variants_complete_rooms_without_dropping_failures_from_rates
+FAILED fastfill/comparison/tests/test_llm_open.py::test_o2nt_semantic_failure_survives_evaluation[True]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[1e309-pos]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[1e309-yaw]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[-1e309-pos]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure[-1e309-yaw]
+FAILED fastfill/comparison/tests/test_mesh_collision.py::test_limit_samples_each_available_room_at_most_once[100-expected2]
+FAILED fastfill/comparison/tests/test_mesh_collision.py::test_no_successful_mesh_analysis_still_publishes_missing_reasons[False]
+FAILED fastfill/comparison/tests/test_mesh_collision.py::test_no_successful_mesh_analysis_still_publishes_missing_reasons[True]
+14 failed, 5 passed in 5.84s

@@ -1,0 +1,917 @@
+FFFF.FF.FFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_______ test_incomplete_request_cannot_block_next_request[False-headers] _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10380d940>
+phase = 'headers', drip = False
+
+    @pytest.mark.parametrize('phase', ['headers', 'body'])
+    @pytest.mark.parametrize('drip', [False, True])
+    def test_incomplete_request_cannot_block_next_request(monkeypatch, phase, drip):
+        with running_server(monkeypatch, lambda _: model_text()) as (server, ready):
+            first = socket.create_connection(server.server_address, timeout=2)
+            stop = threading.Event()
+            writer = None
+            try:
+                prefix = b'POST /v1/chat/completions HTTP/1.0\r\nHost: localhost\r\n'
+                first.sendall(prefix + (b'X-Slow: ' if phase == 'headers' else b'Content-Length: 100000\r\n\r\n{'))
+                assert ready.wait(1)
+                if drip:
+                    def keep_sending():
+                        while not stop.wait(.03):
+                            try:
+                                first.sendall(b' ')
+                            except OSError:
+                                return
+                    writer = threading.Thread(target=keep_sending, daemon=True)
+                    writer.start()
+>               status, response = post(server)
+                                   ^^^^^^^^^^^^
+
+fastfill/tests/test_http_deadlines.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/tests/test_http_deadlines.py:47: in post
+    response = connection.getresponse()
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:1430: in getresponse
+    response.begin()
+../../../../miniforge3/lib/python3.12/http/client.py:331: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:292: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x11b06dcf0>, b = <memory at 0x106dc3580>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               TimeoutError: timed out
+
+../../../../miniforge3/lib/python3.12/socket.py:720: TimeoutError
+________ test_incomplete_request_cannot_block_next_request[False-body] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11b0a2c60>
+phase = 'body', drip = False
+
+    @pytest.mark.parametrize('phase', ['headers', 'body'])
+    @pytest.mark.parametrize('drip', [False, True])
+    def test_incomplete_request_cannot_block_next_request(monkeypatch, phase, drip):
+        with running_server(monkeypatch, lambda _: model_text()) as (server, ready):
+            first = socket.create_connection(server.server_address, timeout=2)
+            stop = threading.Event()
+            writer = None
+            try:
+                prefix = b'POST /v1/chat/completions HTTP/1.0\r\nHost: localhost\r\n'
+                first.sendall(prefix + (b'X-Slow: ' if phase == 'headers' else b'Content-Length: 100000\r\n\r\n{'))
+                assert ready.wait(1)
+                if drip:
+                    def keep_sending():
+                        while not stop.wait(.03):
+                            try:
+                                first.sendall(b' ')
+                            except OSError:
+                                return
+                    writer = threading.Thread(target=keep_sending, daemon=True)
+                    writer.start()
+>               status, response = post(server)
+                                   ^^^^^^^^^^^^
+
+fastfill/tests/test_http_deadlines.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/tests/test_http_deadlines.py:47: in post
+    response = connection.getresponse()
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:1430: in getresponse
+    response.begin()
+../../../../miniforge3/lib/python3.12/http/client.py:331: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:292: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x11b0a1990>, b = <memory at 0x11afbabc0>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               TimeoutError: timed out
+
+../../../../miniforge3/lib/python3.12/socket.py:720: TimeoutError
+_______ test_incomplete_request_cannot_block_next_request[True-headers] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11b0a3d10>
+phase = 'headers', drip = True
+
+    @pytest.mark.parametrize('phase', ['headers', 'body'])
+    @pytest.mark.parametrize('drip', [False, True])
+    def test_incomplete_request_cannot_block_next_request(monkeypatch, phase, drip):
+        with running_server(monkeypatch, lambda _: model_text()) as (server, ready):
+            first = socket.create_connection(server.server_address, timeout=2)
+            stop = threading.Event()
+            writer = None
+            try:
+                prefix = b'POST /v1/chat/completions HTTP/1.0\r\nHost: localhost\r\n'
+                first.sendall(prefix + (b'X-Slow: ' if phase == 'headers' else b'Content-Length: 100000\r\n\r\n{'))
+                assert ready.wait(1)
+                if drip:
+                    def keep_sending():
+                        while not stop.wait(.03):
+                            try:
+                                first.sendall(b' ')
+                            except OSError:
+                                return
+                    writer = threading.Thread(target=keep_sending, daemon=True)
+                    writer.start()
+>               status, response = post(server)
+                                   ^^^^^^^^^^^^
+
+fastfill/tests/test_http_deadlines.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/tests/test_http_deadlines.py:47: in post
+    response = connection.getresponse()
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:1430: in getresponse
+    response.begin()
+../../../../miniforge3/lib/python3.12/http/client.py:331: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:292: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x11b0a32b0>, b = <memory at 0x11afbb640>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               TimeoutError: timed out
+
+../../../../miniforge3/lib/python3.12/socket.py:720: TimeoutError
+_________ test_incomplete_request_cannot_block_next_request[True-body] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11b0a3a40>
+phase = 'body', drip = True
+
+    @pytest.mark.parametrize('phase', ['headers', 'body'])
+    @pytest.mark.parametrize('drip', [False, True])
+    def test_incomplete_request_cannot_block_next_request(monkeypatch, phase, drip):
+        with running_server(monkeypatch, lambda _: model_text()) as (server, ready):
+            first = socket.create_connection(server.server_address, timeout=2)
+            stop = threading.Event()
+            writer = None
+            try:
+                prefix = b'POST /v1/chat/completions HTTP/1.0\r\nHost: localhost\r\n'
+                first.sendall(prefix + (b'X-Slow: ' if phase == 'headers' else b'Content-Length: 100000\r\n\r\n{'))
+                assert ready.wait(1)
+                if drip:
+                    def keep_sending():
+                        while not stop.wait(.03):
+                            try:
+                                first.sendall(b' ')
+                            except OSError:
+                                return
+                    writer = threading.Thread(target=keep_sending, daemon=True)
+                    writer.start()
+>               status, response = post(server)
+                                   ^^^^^^^^^^^^
+
+fastfill/tests/test_http_deadlines.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/tests/test_http_deadlines.py:47: in post
+    response = connection.getresponse()
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:1430: in getresponse
+    response.begin()
+../../../../miniforge3/lib/python3.12/http/client.py:331: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/http/client.py:292: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x11b5ae770>, b = <memory at 0x11afbbc40>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               TimeoutError: timed out
+
+../../../../miniforge3/lib/python3.12/socket.py:720: TimeoutError
+___ test_training_qa_cannot_claim_repair_by_breaking_a_satisfied_constraint ____
+
+    def test_training_qa_cannot_claim_repair_by_breaking_a_satisfied_constraint():
+        room = {
+            'uid': 'qa-parity', 'source': 'synthetic', 'group': 'g',
+            'boundary': [[0, 0], [4, 0], [4, 4], [0, 4]], 'boundary_type': 'polygon', 'height': 3,
+            'objects': [
+                {'id': 'chair_1', 'category': 'chair', 'size': [.5, .5, .9],
+                 'pos': [.25, .22, 0], 'yaw': 0, 'parent': None},
+                {'id': 'box_1', 'category': 'box', 'size': [.06, .06, .3],
+                 'pos': [.60, .03, 0], 'yaw': 0, 'parent': None}],
+            'constraints': [['faces', 'chair_1', 'box_1']],
+        }
+        row = {'messages': messages(room, room['constraints'])}
+        original = copy.deepcopy(row)
+        qa, runtime = _train_metrics([row]), score(copy.deepcopy(room), None)
+        assert qa['constraint_reference_validation']['train'] == '1/1'
+        assert runtime['inside_1mm_repaired'] is False
+>       assert qa['train reference inside walls within 1 mm']['repaired'] == '0/1'
+E       AssertionError: assert '1/1' == '0/1'
+E         
+E         - 0/1
+E         + 1/1
+
+fastfill/tests/test_qa_constraint_parity.py:25: AssertionError
+_________ test_batch_answers_feed_next_round_and_reject_stale_identity _________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_batch_answers_feed_next_r0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11b0a3950>
+
+    def test_batch_answers_feed_next_round_and_reject_stale_identity(tmp_path, monkeypatch):
+        previous = tmp_path / 'round0'
+        critic._publish_state(previous, [state('u1', bedroom()), state('u2', bedroom())],
+                              {'round': 0, 'b_manifest_sha256': None}, 1)
+        responses = iter([json.dumps({'scores': {'functionality': 6, 'layout': 6}, 'edits': []}), 'bad JSON'])
+        monkeypatch.setattr(fixtures.judge, 'open_response',
+                            lambda request, timeout: fixtures.Response(fixtures.sse(next(responses))))
+        calls = []
+        fixtures.in_process(monkeypatch, calls)
+        output = tmp_path / 'batch'
+        summary = batch.evaluate(previous, output, fixtures.env_file(tmp_path), workers=1)
+        assert summary['counts']['completed'] == summary['counts']['failed'] == 1
+>       result = critic.round_(previous, output / 'answers', tmp_path / 'round1')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_critic_batch_handoff.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+prev = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_batch_answers_feed_next_r0/round0')
+answers = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_batch_answers_feed_next_r0/batch/answers')
+out = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_batch_answers_feed_next_r0/round1')
+workers = 1
+
+    def round_(prev, answers, out, workers=1):
+        prev, out = Path(prev), Path(out)
+        if os.path.lexists(out):
+            raise FileExistsError(out)
+        rows_, summary, prev_sha = _state(prev)
+        k = summary['round'] + 1
+        expected = {case_id(r['uid'], k): r['uid'] for r in rows_ if r['active']}
+        if not expected:
+            raise ValueError('no room continues to round %d' % k)
+        if h.strict_json((prev / 'critic-mapping.json').read_text()) != expected:
+            raise ValueError('critic-mapping.json differs from the active rooms')
+        got = load_answers(answers)
+        unknown = sorted(map(str, set(got) - set(expected)))
+        if unknown:
+            raise ValueError(f'answers for cases outside round {k}: {unknown[:3]}')
+        content = {c['id']: judge_batch.content_hash(c)
+                   for c in h.strict_json((prev / 'critic-manifest.json').read_text())['cases']}
+        stale = sorted(i for i, x in got.items() if x.get('content_sha256') != content.get(i)
+                       or x.get('expected_model') != CRITIC_MODEL)
+        if stale:
+>           raise ValueError(f'answers not made on this round\'s cases or model: {stale[:3]}')
+E           ValueError: answers not made on this round's cases or model: ['a025:r1:u1', 'a025:r1:u2']
+
+fastfill/comparison/critic_025.py:688: ValueError
+----------------------------- Captured stdout call -----------------------------
+{"examined": 1, "completed": 1, "failed": 0}
+{"examined": 1, "completed": 0, "failed": 1}
+___ test_missing_or_insufficient_scores_have_defined_missingness[no_overall] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s0')
+mode = 'no_overall'
+
+    @pytest.mark.parametrize('mode', ['no_overall', 'none_completed', 'one_completed', 'constant', 'only_l'])
+    def test_missing_or_insufficient_scores_have_defined_missingness(tmp_path, mode):
+        path = records(tmp_path / 'records.jsonl', 0)
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        for index, row in enumerate(rows):
+            if mode == 'none_completed' or (mode == 'one_completed' and index != 1):
+                row['status'], row['scores'] = 'failed', None
+            elif row['status'] == 'completed':
+                if mode == 'no_overall':
+                    row['scores'].pop('overall_score')
+                if mode == 'constant':
+                    row['scores'] = {key: 5 for key in row['scores']}
+        if mode == 'only_l':
+            rows = [row for row in rows if row['arm'] == 'L']
+        path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+>       result = compare(path, path, ['a', 'b'])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_judge_agreement_023.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s0/records.jsonl')
+b_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s0/records.jsonl')
+names = ['a', 'b']
+
+    def compare(a_path, b_path, names):
+        (a, a_all), (b, b_all) = load(a_path), load(b_path)
+        if set(a_all) != set(b_all):
+            raise ValueError('the two runs judged different case sets')
+        arms = sorted({r['arm'] for r in a_all.values()})
+        common = set(a) & set(b)
+        corr = {}
+        for m in METRICS:
+            pairs = [(score(a[c], m), score(b[c], m)) for c in sorted(common)
+                     if score(a[c], m) is not None and score(b[c], m) is not None]
+>           x, y = zip(*pairs)
+            ^^^^
+E           ValueError: not enough values to unpack (expected 2, got 0)
+
+fastfill/comparison/judge_agreement_023.py:49: ValueError
+_ test_missing_or_insufficient_scores_have_defined_missingness[none_completed] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s1')
+mode = 'none_completed'
+
+    @pytest.mark.parametrize('mode', ['no_overall', 'none_completed', 'one_completed', 'constant', 'only_l'])
+    def test_missing_or_insufficient_scores_have_defined_missingness(tmp_path, mode):
+        path = records(tmp_path / 'records.jsonl', 0)
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        for index, row in enumerate(rows):
+            if mode == 'none_completed' or (mode == 'one_completed' and index != 1):
+                row['status'], row['scores'] = 'failed', None
+            elif row['status'] == 'completed':
+                if mode == 'no_overall':
+                    row['scores'].pop('overall_score')
+                if mode == 'constant':
+                    row['scores'] = {key: 5 for key in row['scores']}
+        if mode == 'only_l':
+            rows = [row for row in rows if row['arm'] == 'L']
+        path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+>       result = compare(path, path, ['a', 'b'])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_judge_agreement_023.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s1/records.jsonl')
+b_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s1/records.jsonl')
+names = ['a', 'b']
+
+    def compare(a_path, b_path, names):
+        (a, a_all), (b, b_all) = load(a_path), load(b_path)
+        if set(a_all) != set(b_all):
+            raise ValueError('the two runs judged different case sets')
+        arms = sorted({r['arm'] for r in a_all.values()})
+        common = set(a) & set(b)
+        corr = {}
+        for m in METRICS:
+            pairs = [(score(a[c], m), score(b[c], m)) for c in sorted(common)
+                     if score(a[c], m) is not None and score(b[c], m) is not None]
+>           x, y = zip(*pairs)
+            ^^^^
+E           ValueError: not enough values to unpack (expected 2, got 0)
+
+fastfill/comparison/judge_agreement_023.py:49: ValueError
+_ test_missing_or_insufficient_scores_have_defined_missingness[one_completed] __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s2')
+mode = 'one_completed'
+
+    @pytest.mark.parametrize('mode', ['no_overall', 'none_completed', 'one_completed', 'constant', 'only_l'])
+    def test_missing_or_insufficient_scores_have_defined_missingness(tmp_path, mode):
+        path = records(tmp_path / 'records.jsonl', 0)
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        for index, row in enumerate(rows):
+            if mode == 'none_completed' or (mode == 'one_completed' and index != 1):
+                row['status'], row['scores'] = 'failed', None
+            elif row['status'] == 'completed':
+                if mode == 'no_overall':
+                    row['scores'].pop('overall_score')
+                if mode == 'constant':
+                    row['scores'] = {key: 5 for key in row['scores']}
+        if mode == 'only_l':
+            rows = [row for row in rows if row['arm'] == 'L']
+        path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+>       result = compare(path, path, ['a', 'b'])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_judge_agreement_023.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/judge_agreement_023.py:50: in compare
+    corr[m] = {'n': len(pairs), 'spearman': spearmanr(x, y).statistic, 'pearson': pearsonr(x, y).statistic}
+                                                                                  ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = array([5]), y = array([5]), alternative = 'two-sided', method = None
+axis = 0
+
+    def pearsonr(x, y, *, alternative='two-sided', method=None, axis=0):
+        r"""
+        Pearson correlation coefficient and p-value for testing non-correlation.
+    
+        The Pearson correlation coefficient [1]_ measures the linear relationship
+        between two datasets. Like other correlation
+        coefficients, this one varies between -1 and +1 with 0 implying no
+        correlation. Correlations of -1 or +1 imply an exact linear relationship.
+        Positive correlations imply that as x increases, so does y. Negative
+        correlations imply that as x increases, y decreases.
+    
+        This function also performs a test of the null hypothesis that the
+        distributions underlying the samples are uncorrelated and normally
+        distributed. (See Kowalski [3]_
+        for a discussion of the effects of non-normality of the input on the
+        distribution of the correlation coefficient.)
+        The p-value roughly indicates the probability of an uncorrelated system
+        producing datasets that have a Pearson correlation at least as extreme
+        as the one computed from these datasets.
+    
+        Parameters
+        ----------
+        x : array_like
+            Input array.
+        y : array_like
+            Input array.
+        axis : int or None, default
+            Axis along which to perform the calculation. Default is 0.
+            If None, ravel both arrays before performing the calculation.
+    
+            .. versionadded:: 1.13.0
+        alternative : {'two-sided', 'greater', 'less'}, optional
+            Defines the alternative hypothesis. Default is 'two-sided'.
+            The following options are available:
+    
+            * 'two-sided': the correlation is nonzero
+            * 'less': the correlation is negative (less than zero)
+            * 'greater':  the correlation is positive (greater than zero)
+    
+            .. versionadded:: 1.9.0
+        method : ResamplingMethod, optional
+            Defines the method used to compute the p-value. If `method` is an
+            instance of `PermutationMethod`/`MonteCarloMethod`, the p-value is
+            computed using
+            `scipy.stats.permutation_test`/`scipy.stats.monte_carlo_test` with the
+            provided configuration options and other appropriate settings.
+            Otherwise, the p-value is computed as documented in the notes.
+    
+            .. versionadded:: 1.11.0
+    
+        Returns
+        -------
+        result : `~scipy.stats._result_classes.PearsonRResult`
+            An object with the following attributes:
+    
+            statistic : float
+                Pearson product-moment correlation coefficient.
+            pvalue : float
+                The p-value associated with the chosen alternative.
+    
+            The object has the following method:
+    
+            confidence_interval(confidence_level, method)
+                This computes the confidence interval of the correlation
+                coefficient `statistic` for the given confidence level.
+                The confidence interval is returned in a ``namedtuple`` with
+                fields `low` and `high`. If `method` is not provided, the
+                confidence interval is computed using the Fisher transformation
+                [1]_. If `method` is an instance of `BootstrapMethod`, the
+                confidence interval is computed using `scipy.stats.bootstrap` with
+                the provided configuration options and other appropriate settings.
+                In some cases, confidence limits may be NaN due to a degenerate
+                resample, and this is typical for very small samples (~6
+                observations).
+    
+        Raises
+        ------
+        ValueError
+            If `x` and `y` do not have length at least 2.
+    
+        Warns
+        -----
+        `~scipy.stats.ConstantInputWarning`
+            Raised if an input is a constant array.  The correlation coefficient
+            is not defined in this case, so ``np.nan`` is returned.
+    
+        `~scipy.stats.NearConstantInputWarning`
+            Raised if an input is "nearly" constant.  The array ``x`` is considered
+            nearly constant if ``norm(x - mean(x)) < 1e-13 * abs(mean(x))``.
+            Numerical errors in the calculation ``x - mean(x)`` in this case might
+            result in an inaccurate calculation of r.
+    
+        See Also
+        --------
+        spearmanr : Spearman rank-order correlation coefficient.
+        kendalltau : Kendall's tau, a correlation measure for ordinal data.
+    
+        Notes
+        -----
+        The correlation coefficient is calculated as follows:
+    
+        .. math::
+    
+            r = \frac{\sum (x - m_x) (y - m_y)}
+                     {\sqrt{\sum (x - m_x)^2 \sum (y - m_y)^2}}
+    
+        where :math:`m_x` is the mean of the vector x and :math:`m_y` is
+        the mean of the vector y.
+    
+        Under the assumption that x and y are drawn from
+        independent normal distributions (so the population correlation coefficient
+        is 0), the probability density function of the sample correlation
+        coefficient r is ([1]_, [2]_):
+    
+        .. math::
+            f(r) = \frac{{(1-r^2)}^{n/2-2}}{\mathrm{B}(\frac{1}{2},\frac{n}{2}-1)}
+    
+        where n is the number of samples, and B is the beta function.  This
+        is sometimes referred to as the exact distribution of r.  This is
+        the distribution that is used in `pearsonr` to compute the p-value when
+        the `method` parameter is left at its default value (None).
+        The distribution is a beta distribution on the interval [-1, 1],
+        with equal shape parameters a = b = n/2 - 1.  In terms of SciPy's
+        implementation of the beta distribution, the distribution of r is::
+    
+            dist = scipy.stats.beta(n/2 - 1, n/2 - 1, loc=-1, scale=2)
+    
+        The default p-value returned by `pearsonr` is a two-sided p-value. For a
+        given sample with correlation coefficient r, the p-value is
+        the probability that abs(r') of a random sample x' and y' drawn from
+        the population with zero correlation would be greater than or equal
+        to abs(r). In terms of the object ``dist`` shown above, the p-value
+        for a given r and length n can be computed as::
+    
+            p = 2*dist.cdf(-abs(r))
+    
+        When n is 2, the above continuous distribution is not well-defined.
+        One can interpret the limit of the beta distribution as the shape
+        parameters a and b approach a = b = 0 as a discrete distribution with
+        equal probability masses at r = 1 and r = -1.  More directly, one
+        can observe that, given the data x = [x1, x2] and y = [y1, y2], and
+        assuming x1 != x2 and y1 != y2, the only possible values for r are 1
+        and -1.  Because abs(r') for any sample x' and y' with length 2 will
+        be 1, the two-sided p-value for a sample of length 2 is always 1.
+    
+        For backwards compatibility, the object that is returned also behaves
+        like a tuple of length two that holds the statistic and the p-value.
+    
+        References
+        ----------
+        .. [1] "Pearson correlation coefficient", Wikipedia,
+               https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+        .. [2] Student, "Probable error of a correlation coefficient",
+               Biometrika, Volume 6, Issue 2-3, 1 September 1908, pp. 302-310.
+        .. [3] C. J. Kowalski, "On the Effects of Non-Normality on the Distribution
+               of the Sample Product-Moment Correlation Coefficient"
+               Journal of the Royal Statistical Society. Series C (Applied
+               Statistics), Vol. 21, No. 1 (1972), pp. 1-12.
+    
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from scipy import stats
+        >>> x, y = [1, 2, 3, 4, 5, 6, 7], [10, 9, 2.5, 6, 4, 3, 2]
+        >>> res = stats.pearsonr(x, y)
+        >>> res
+        PearsonRResult(statistic=-0.828503883588428, pvalue=0.021280260007523286)
+    
+        To perform an exact permutation version of the test:
+    
+        >>> rng = np.random.default_rng(7796654889291491997)
+        >>> method = stats.PermutationMethod(n_resamples=np.inf, random_state=rng)
+        >>> stats.pearsonr(x, y, method=method)
+        PearsonRResult(statistic=-0.828503883588428, pvalue=0.028174603174603175)
+    
+        To perform the test under the null hypothesis that the data were drawn from
+        *uniform* distributions:
+    
+        >>> method = stats.MonteCarloMethod(rvs=(rng.uniform, rng.uniform))
+        >>> stats.pearsonr(x, y, method=method)
+        PearsonRResult(statistic=-0.828503883588428, pvalue=0.0188)
+    
+        To produce an asymptotic 90% confidence interval:
+    
+        >>> res.confidence_interval(confidence_level=0.9)
+        ConfidenceInterval(low=-0.9644331982722841, high=-0.3460237473272273)
+    
+        And for a bootstrap confidence interval:
+    
+        >>> method = stats.BootstrapMethod(method='BCa', rng=rng)
+        >>> res.confidence_interval(confidence_level=0.9, method=method)
+        ConfidenceInterval(low=-0.9983163756488651, high=-0.22771001702132443)  # may vary
+    
+        If N-dimensional arrays are provided, multiple tests are performed in a
+        single call according to the same conventions as most `scipy.stats` functions:
+    
+        >>> rng = np.random.default_rng(2348246935601934321)
+        >>> x = rng.standard_normal((8, 15))
+        >>> y = rng.standard_normal((8, 15))
+        >>> stats.pearsonr(x, y, axis=0).statistic.shape  # between corresponding columns
+        (15,)
+        >>> stats.pearsonr(x, y, axis=1).statistic.shape  # between corresponding rows
+        (8,)
+    
+        To perform all pairwise comparisons between slices of the arrays,
+        use standard NumPy broadcasting techniques. For instance, to compute the
+        correlation between all pairs of rows:
+    
+        >>> stats.pearsonr(x[:, np.newaxis, :], y, axis=-1).statistic.shape
+        (8, 8)
+    
+        There is a linear dependence between x and y if y = a + b*x + e, where
+        a,b are constants and e is a random error term, assumed to be independent
+        of x. For simplicity, assume that x is standard normal, a=0, b=1 and let
+        e follow a normal distribution with mean zero and standard deviation s>0.
+    
+        >>> rng = np.random.default_rng()
+        >>> s = 0.5
+        >>> x = stats.norm.rvs(size=500, random_state=rng)
+        >>> e = stats.norm.rvs(scale=s, size=500, random_state=rng)
+        >>> y = x + e
+        >>> stats.pearsonr(x, y).statistic
+        0.9001942438244763
+    
+        This should be close to the exact value given by
+    
+        >>> 1/np.sqrt(1 + s**2)
+        0.8944271909999159
+    
+        For s=0.5, we observe a high level of correlation. In general, a large
+        variance of the noise reduces the correlation, while the correlation
+        approaches one as the variance of the error goes to zero.
+    
+        It is important to keep in mind that no correlation does not imply
+        independence unless (x, y) is jointly normal. Correlation can even be zero
+        when there is a very simple dependence structure: if X follows a
+        standard normal distribution, let y = abs(x). Note that the correlation
+        between x and y is zero. Indeed, since the expectation of x is zero,
+        cov(x, y) = E[x*y]. By definition, this equals E[x*abs(x)] which is zero
+        by symmetry. The following lines of code illustrate this observation:
+    
+        >>> y = np.abs(x)
+        >>> stats.pearsonr(x, y)
+        PearsonRResult(statistic=-0.05444919272687482, pvalue=0.22422294836207743)
+    
+        A non-zero correlation coefficient can be misleading. For example, if X has
+        a standard normal distribution, define y = x if x < 0 and y = 0 otherwise.
+        A simple calculation shows that corr(x, y) = sqrt(2/Pi) = 0.797...,
+        implying a high level of correlation:
+    
+        >>> y = np.where(x < 0, x, 0)
+        >>> stats.pearsonr(x, y)
+        PearsonRResult(statistic=0.861985781588, pvalue=4.813432002751103e-149)
+    
+        This is unintuitive since there is no dependence of x and y if x is larger
+        than zero which happens in about half of the cases if we sample x and y.
+    
+        """
+        xp = array_namespace(x, y)
+        x = xp.asarray(x)
+        y = xp.asarray(y)
+    
+        if not is_numpy(xp) and method is not None:
+            method = 'invalid'
+    
+        if axis is None:
+            x = xp.reshape(x, (-1,))
+            y = xp.reshape(y, (-1,))
+            axis = -1
+    
+        axis_int = int(axis)
+        if axis_int != axis:
+            raise ValueError('`axis` must be an integer.')
+        axis = axis_int
+    
+        n = x.shape[axis]
+        if n != y.shape[axis]:
+            raise ValueError('`x` and `y` must have the same length along `axis`.')
+    
+        if n < 2:
+>           raise ValueError('`x` and `y` must have length at least 2.')
+E           ValueError: `x` and `y` must have length at least 2.
+
+../../../../miniforge3/lib/python3.12/site-packages/scipy/stats/_stats_py.py:4552: ValueError
+____ test_missing_or_insufficient_scores_have_defined_missingness[constant] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s3')
+mode = 'constant'
+
+    @pytest.mark.parametrize('mode', ['no_overall', 'none_completed', 'one_completed', 'constant', 'only_l'])
+    def test_missing_or_insufficient_scores_have_defined_missingness(tmp_path, mode):
+        path = records(tmp_path / 'records.jsonl', 0)
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        for index, row in enumerate(rows):
+            if mode == 'none_completed' or (mode == 'one_completed' and index != 1):
+                row['status'], row['scores'] = 'failed', None
+            elif row['status'] == 'completed':
+                if mode == 'no_overall':
+                    row['scores'].pop('overall_score')
+                if mode == 'constant':
+                    row['scores'] = {key: 5 for key in row['scores']}
+        if mode == 'only_l':
+            rows = [row for row in rows if row['arm'] == 'L']
+        path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+        result = compare(path, path, ['a', 'b'])
+>       json.dumps(result, allow_nan=False)
+
+fastfill/comparison/tests/test_judge_agreement_023.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x11fa56840>
+o = {'judges': ['a', 'b'], 'cases': 16, 'completed': {'a': 15, 'b': 15}, 'common_completed': 15, ...}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: nan
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+_____ test_missing_or_insufficient_scores_have_defined_missingness[only_l] _____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-467/test_missing_or_insufficient_s4')
+mode = 'only_l'
+
+    @pytest.mark.parametrize('mode', ['no_overall', 'none_completed', 'one_completed', 'constant', 'only_l'])
+    def test_missing_or_insufficient_scores_have_defined_missingness(tmp_path, mode):
+        path = records(tmp_path / 'records.jsonl', 0)
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        for index, row in enumerate(rows):
+            if mode == 'none_completed' or (mode == 'one_completed' and index != 1):
+                row['status'], row['scores'] = 'failed', None
+            elif row['status'] == 'completed':
+                if mode == 'no_overall':
+                    row['scores'].pop('overall_score')
+                if mode == 'constant':
+                    row['scores'] = {key: 5 for key in row['scores']}
+        if mode == 'only_l':
+            rows = [row for row in rows if row['arm'] == 'L']
+        path.write_text('\n'.join(json.dumps(row) for row in rows) + '\n')
+>       result = compare(path, path, ['a', 'b'])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_judge_agreement_023.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/judge_agreement_023.py:65: in compare
+    'L_margin_common': shared['L']['overall'] - statistics.fmean(others) if 'L' in arms else None}
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = [], weights = None
+
+    def fmean(data, weights=None):
+        """Convert data to floats and compute the arithmetic mean.
+    
+        This runs faster than the mean() function and it always returns a float.
+        If the input dataset is empty, it raises a StatisticsError.
+    
+        >>> fmean([3.5, 4.0, 5.25])
+        4.25
+        """
+        if weights is None:
+            try:
+                n = len(data)
+            except TypeError:
+                # Handle iterators that do not define __len__().
+                n = 0
+                def count(iterable):
+                    nonlocal n
+                    for n, x in enumerate(iterable, start=1):
+                        yield x
+                data = count(data)
+            total = fsum(data)
+            if not n:
+>               raise StatisticsError('fmean requires at least one data point')
+E               statistics.StatisticsError: fmean requires at least one data point
+
+../../../../miniforge3/lib/python3.12/statistics.py:512: StatisticsError
+=============================== warnings summary ===============================
+OptiScene/fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[constant]
+  /Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/judge_agreement_023.py:50: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+    corr[m] = {'n': len(pairs), 'spearman': spearmanr(x, y).statistic, 'pearson': pearsonr(x, y).statistic}
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED fastfill/tests/test_http_deadlines.py::test_incomplete_request_cannot_block_next_request[False-headers]
+FAILED fastfill/tests/test_http_deadlines.py::test_incomplete_request_cannot_block_next_request[False-body]
+FAILED fastfill/tests/test_http_deadlines.py::test_incomplete_request_cannot_block_next_request[True-headers]
+FAILED fastfill/tests/test_http_deadlines.py::test_incomplete_request_cannot_block_next_request[True-body]
+FAILED fastfill/tests/test_qa_constraint_parity.py::test_training_qa_cannot_claim_repair_by_breaking_a_satisfied_constraint
+FAILED fastfill/comparison/tests/test_critic_batch_handoff.py::test_batch_answers_feed_next_round_and_reject_stale_identity
+FAILED fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[no_overall]
+FAILED fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[none_completed]
+FAILED fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[one_completed]
+FAILED fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[constant]
+FAILED fastfill/comparison/tests/test_judge_agreement_023.py::test_missing_or_insufficient_scores_have_defined_missingness[only_l]
+11 failed, 2 passed, 1 warning in 5.97s

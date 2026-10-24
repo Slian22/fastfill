@@ -1,0 +1,193 @@
+{
+  "checks": [
+    {
+      "check": "a021:completion_step",
+      "actual": 10000,
+      "expected": 10000,
+      "passed": true
+    },
+    {
+      "check": "a021:expected_steps",
+      "actual": 10000,
+      "expected": 10000,
+      "passed": true
+    },
+    {
+      "check": "a021:admitted_rows",
+      "actual": 40000,
+      "expected": 40000,
+      "passed": true
+    },
+    {
+      "check": "a021:world_size",
+      "actual": 4,
+      "expected": 4,
+      "passed": true
+    },
+    {
+      "check": "a021:completion_guard",
+      "actual": {
+        "sha256": "6028433d51b7adcc0be9da012d86adfc0932a43cde2128f0c230bcbdede973af",
+        "size_bytes": 7158
+      },
+      "expected": {
+        "sha256": "6028433d51b7adcc0be9da012d86adfc0932a43cde2128f0c230bcbdede973af",
+        "size_bytes": 7158
+      },
+      "passed": true
+    },
+    {
+      "check": "a021:completion_adapter_matches_policy",
+      "actual": {
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "expected": {
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "passed": true
+    },
+    {
+      "check": "a021:latest_is_final",
+      "actual": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+      "expected": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+      "passed": true
+    },
+    {
+      "check": "a021:previous_differs_final",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "a021:trainer_model_pairs",
+      "actual": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/rows/placement.jsonl"
+      ],
+      "expected": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a021/27b/rows/placement.jsonl"
+      ],
+      "passed": true
+    },
+    {
+      "check": "a021:logged_nll_and_loss_finite",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "a021:resume_lines",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "check": "a021:guard_source_matches_frozen_git",
+      "actual": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "expected": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "passed": true
+    },
+    {
+      "check": "a028:completion_step",
+      "actual": 10000,
+      "expected": 10000,
+      "passed": true
+    },
+    {
+      "check": "a028:expected_steps",
+      "actual": 10000,
+      "expected": 10000,
+      "passed": true
+    },
+    {
+      "check": "a028:admitted_rows",
+      "actual": 40000,
+      "expected": 40000,
+      "passed": true
+    },
+    {
+      "check": "a028:world_size",
+      "actual": 4,
+      "expected": 4,
+      "passed": true
+    },
+    {
+      "check": "a028:completion_guard",
+      "actual": {
+        "sha256": "928525c273cc916d97284e487dde23612e7e2a03273bf7a5cd21b35c443ec687",
+        "size_bytes": 7163
+      },
+      "expected": {
+        "sha256": "928525c273cc916d97284e487dde23612e7e2a03273bf7a5cd21b35c443ec687",
+        "size_bytes": 7163
+      },
+      "passed": true
+    },
+    {
+      "check": "a028:completion_adapter_matches_policy",
+      "actual": {
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "0414a53c0bc99dfedeb048f05b23b48d54918c6f1dec18f1fbc1cb4b542cbb54",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "expected": {
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "0414a53c0bc99dfedeb048f05b23b48d54918c6f1dec18f1fbc1cb4b542cbb54",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "passed": true
+    },
+    {
+      "check": "a028:latest_is_final",
+      "actual": "0414a53c0bc99dfedeb048f05b23b48d54918c6f1dec18f1fbc1cb4b542cbb54",
+      "expected": "0414a53c0bc99dfedeb048f05b23b48d54918c6f1dec18f1fbc1cb4b542cbb54",
+      "passed": true
+    },
+    {
+      "check": "a028:previous_differs_final",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "a028:trainer_model_pairs",
+      "actual": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a028/27b-joint/rows/joint.jsonl"
+      ],
+      "expected": [
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+        "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/a028/27b-joint/rows/joint.jsonl"
+      ],
+      "passed": true
+    },
+    {
+      "check": "a028:logged_nll_and_loss_finite",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "check": "a028:resume_lines",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "check": "a028:guard_source_matches_frozen_git",
+      "actual": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "expected": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

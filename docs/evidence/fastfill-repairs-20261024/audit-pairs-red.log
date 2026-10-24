@@ -1,0 +1,98 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model[over_length] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-553/test_dpo_refuses_all_filtered_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11513e0f0>
+reason = 'over_length'
+
+    @pytest.mark.parametrize('reason', ['over_length', 'prefix_mismatch'])
+    def test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model(tmp_path, monkeypatch, reason):
+        import sys
+        from fastfill.v1_1 import train_dpo
+    
+        class TinyTokenizer:
+            eos_token, pad_token, pad_token_id = '<end>', '<pad>', 0
+    
+            def apply_chat_template(self, messages, **kwargs):
+                return 'prompt:'
+    
+            def __call__(self, texts, **kwargs):
+                ids = [[ord(c) for c in text] for text in texts]
+                if reason == 'prefix_mismatch':
+                    ids = [[999] + row[1:] if len(row) > len('prompt:') else row for row in ids]
+                return {'input_ids': ids}
+    
+        _, pair = example(); pairs = tmp_path / 'pairs.jsonl'
+        pairs.write_text(json.dumps(pair) + '\n')
+        monkeypatch.setenv('WORLD_SIZE', '2'); monkeypatch.setenv('RANK', '0')
+        monkeypatch.setenv('LOCAL_RANK', '0')
+        monkeypatch.setattr(train_dpo.dist, 'init_process_group', lambda **kwargs: None)
+        monkeypatch.setattr(train_dpo.torch.cuda, 'set_device', lambda value: None)
+        monkeypatch.setattr(train_dpo.torch.cuda, 'is_available', lambda: False)
+        monkeypatch.setattr(train_dpo.AutoTokenizer, 'from_pretrained', lambda *args, **kwargs: TinyTokenizer())
+    
+        def forbidden(*args, **kwargs):
+            pytest.fail('An empty tokenized preference dataset must fail before loading model weights')
+    
+        monkeypatch.setattr(train_dpo.AutoModelForCausalLM, 'from_pretrained', forbidden)
+        monkeypatch.setattr(sys, 'argv', ['train_dpo', '--model', 'unused', '--pairs', str(pairs),
+                                        '--out', str(tmp_path / 'run'), '--max_len', '1' if reason == 'over_length' else '8192'])
+>       with pytest.raises(ValueError, match='No valid DPO pairs'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'No valid DPO pairs'
+E         Actual message: 'Default process group has not been initialized, please make sure to call init_process_group.'
+
+fastfill/tests/test_v1_1_audit_pairs.py:168: AssertionError
+_ test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model[prefix_mismatch] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-553/test_dpo_refuses_all_filtered_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x3273bf9b0>
+reason = 'prefix_mismatch'
+
+    @pytest.mark.parametrize('reason', ['over_length', 'prefix_mismatch'])
+    def test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model(tmp_path, monkeypatch, reason):
+        import sys
+        from fastfill.v1_1 import train_dpo
+    
+        class TinyTokenizer:
+            eos_token, pad_token, pad_token_id = '<end>', '<pad>', 0
+    
+            def apply_chat_template(self, messages, **kwargs):
+                return 'prompt:'
+    
+            def __call__(self, texts, **kwargs):
+                ids = [[ord(c) for c in text] for text in texts]
+                if reason == 'prefix_mismatch':
+                    ids = [[999] + row[1:] if len(row) > len('prompt:') else row for row in ids]
+                return {'input_ids': ids}
+    
+        _, pair = example(); pairs = tmp_path / 'pairs.jsonl'
+        pairs.write_text(json.dumps(pair) + '\n')
+        monkeypatch.setenv('WORLD_SIZE', '2'); monkeypatch.setenv('RANK', '0')
+        monkeypatch.setenv('LOCAL_RANK', '0')
+        monkeypatch.setattr(train_dpo.dist, 'init_process_group', lambda **kwargs: None)
+        monkeypatch.setattr(train_dpo.torch.cuda, 'set_device', lambda value: None)
+        monkeypatch.setattr(train_dpo.torch.cuda, 'is_available', lambda: False)
+        monkeypatch.setattr(train_dpo.AutoTokenizer, 'from_pretrained', lambda *args, **kwargs: TinyTokenizer())
+    
+        def forbidden(*args, **kwargs):
+            pytest.fail('An empty tokenized preference dataset must fail before loading model weights')
+    
+        monkeypatch.setattr(train_dpo.AutoModelForCausalLM, 'from_pretrained', forbidden)
+        monkeypatch.setattr(sys, 'argv', ['train_dpo', '--model', 'unused', '--pairs', str(pairs),
+                                        '--out', str(tmp_path / 'run'), '--max_len', '1' if reason == 'over_length' else '8192'])
+>       with pytest.raises(ValueError, match='No valid DPO pairs'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'No valid DPO pairs'
+E         Actual message: 'Default process group has not been initialized, please make sure to call init_process_group.'
+
+fastfill/tests/test_v1_1_audit_pairs.py:168: AssertionError
+------------------------------ Captured log call -------------------------------
+DEBUG    c10d-NullHandler-default:c10d_logger.py:87 {'func_name': 'broadcast_object_list', 'error': 'Default process group has not been initialized, please make sure to call init_process_group.'}
+=========================== short test summary info ============================
+FAILED fastfill/tests/test_v1_1_audit_pairs.py::test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model[over_length]
+FAILED fastfill/tests/test_v1_1_audit_pairs.py::test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model[prefix_mismatch]
+2 failed in 12.41s

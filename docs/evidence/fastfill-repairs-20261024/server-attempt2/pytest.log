@@ -1,0 +1,314 @@
+................F........................................F.............. [ 18%]
+............................................................................. [ 37%]
+......................................................s................. [ 55%]
+...........................................................FF........... [ 73%]
+...............F........F...................FF.......................... [ 91%]
+....s.............................                                       [100%]
+=================================== FAILURES ===================================
+_________ test_batch_answers_feed_next_round_and_reject_stale_identity _________
+
+tmp_path = PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_batch_answers_feed_next_r0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x400047996060>
+
+    def test_batch_answers_feed_next_round_and_reject_stale_identity(tmp_path, monkeypatch):
+        previous = tmp_path / 'round0'
+>       critic._publish_state(previous, [state('u1', bedroom()), state('u2', bedroom())],
+                              {'round': 0, 'b_manifest_sha256': None}, 1)
+
+fastfill/comparison/tests/test_critic_batch_handoff.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/critic_025.py:563: in _publish_state
+    built = r2._map(case_files, [(r, k) for r in rows if r['active']], workers)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/report_v2.py:213: in _map
+    return [function(t) for t in tasks]
+            ^^^^^^^^^^^
+fastfill/comparison/critic_025.py:485: in case_files
+    top, oblique = render_views(row['room'], row['layout'], flag, f"{row['uid'][-48:]} r{k}")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+room = {'uid': 'u1', 'source': 's', 'group': 'g-u1', 'room_type': 'bedroom', ...}
+layout = [{'id': 'bed', 'category': 'bed', 'size': [2.0, 1.6, 0.5], 'pos': [1.0, 2.2, 0.0], ...}, {'id': 'desk', 'category': 'd...': [3.75, 1.7, 0.75], ...}, {'id': 'chair', 'category': 'chair', 'size': [0.5, 0.5, 0.9], 'pos': [2.8, 1.5, 0.0], ...}]
+flag = {'bed': 'ok', 'desk': 'ok', 'lamp': 'ok', 'chair': 'ok'}, title = 'u1 r1'
+flag_legend = True
+
+    def render_views(room, layout, flag, title, flag_legend=True):
+        """(top PNG bytes, oblique PNG bytes), VIEW_INCHES x VIEW_DPI px each; flag_legend=False drops the checker-flag
+        legend entries (the judge's neutral views, all boxes 'ok')."""
+        # Imported here: only rendering needs matplotlib (the server env has none; it never renders).
+>       from matplotlib.figure import Figure
+E       ModuleNotFoundError: No module named 'matplotlib'
+
+fastfill/comparison/critic_025.py:339: ModuleNotFoundError
+_ test_submit_016_refuses_existing_outputs_queued_chains_missing_inputs_and_old_code _
+
+tmp_path = PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_submit_016_refuses_existi0')
+
+    def test_submit_016_refuses_existing_outputs_queued_chains_missing_inputs_and_old_code(tmp_path):
+        code, script, run, env = _submit_016(tmp_path)
+        for setup, extra_env, message in (
+                (lambda: (run / 's1-016-size-fixed/agent-O7-P-pilot-raw').mkdir(parents=True), {}, 'agent-O7-P-pilot-raw exists'),
+                (lambda: (run / 's1-016-size-fixed/agent-O7-P-pilot-raw').rmdir(), {'SQUEUE_OUT': '7400001 unknownsize-llm-agent\n'},
+                 'scancel 7400001'),
+                (lambda: None, {'SQUEUE_OUT': '7400002 other-job\n', 'PILOT_RC': '1'}, 'agents_016 pilot'),
+                (lambda: (run / 'infer-placement-005/MANIFEST.json').unlink(), {}, 'missing')):
+            setup()
+            bad = subprocess.run(['bash', str(script), str(code)], env={**env, **extra_env}, capture_output=True, text=True)
+            assert bad.returncode == 1 and message in bad.stderr and 'nothing submitted' in bad.stderr, bad.stderr
+            assert not (tmp_path / 'bin/log').exists()
+        for system in ('O9', 'O3'):  # unknown, and no amendment-016 GPU budget
+            assert subprocess.run(['bash', str(script), str(code), system], env=env, capture_output=True).returncode == 2
+        old = tmp_path / 'old'  # A CODE_ROOT whose evaluate_llm cannot score size-fixed runs.
+        (old / 'fastfill').mkdir(parents=True)
+        import shutil
+        shutil.copytree(code / 'fastfill/comparison', old / 'fastfill/comparison',
+                        ignore=shutil.ignore_patterns('tests', '__pycache__'))
+        target = old / 'fastfill/comparison/evaluate_llm.py'
+>       target.write_text(target.read_text().replace('enforce_sizes', 'enforce'))
+
+fastfill/comparison/tests/test_llm_open.py:716: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../env/lib/python3.12/pathlib.py:1047: in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_submit_016_refuses_existi0/old/fastfill/comparison/evaluate_llm.py')
+mode = 'w', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       PermissionError: [Errno 13] Permission denied: '/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_submit_016_refuses_existi0/old/fastfill/comparison/evaluate_llm.py'
+
+../../../env/lib/python3.12/pathlib.py:1013: PermissionError
+__ test_case_views_are_deterministic_bounded_and_the_prompt_carries_the_tools __
+
+    def test_case_views_are_deterministic_bounded_and_the_prompt_carries_the_tools():
+        row = state('u1', bedroom())
+>       (files, case), (again, _) = c.case_files((row, 1)), c.case_files((row, 1))
+                                    ^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_critic_025.py:233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/critic_025.py:485: in case_files
+    top, oblique = render_views(row['room'], row['layout'], flag, f"{row['uid'][-48:]} r{k}")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+room = {'uid': 'u1', 'source': 's', 'group': 'g-u1', 'room_type': 'bedroom', ...}
+layout = [{'id': 'bed', 'category': 'bed', 'size': [2.0, 1.6, 0.5], 'pos': [1.0, 2.2, 0.0], ...}, {'id': 'desk', 'category': 'd...': [3.75, 1.7, 0.75], ...}, {'id': 'chair', 'category': 'chair', 'size': [0.5, 0.5, 0.9], 'pos': [2.8, 1.5, 0.0], ...}]
+flag = {'bed': 'ok', 'desk': 'ok', 'lamp': 'ok', 'chair': 'ok'}, title = 'u1 r1'
+flag_legend = True
+
+    def render_views(room, layout, flag, title, flag_legend=True):
+        """(top PNG bytes, oblique PNG bytes), VIEW_INCHES x VIEW_DPI px each; flag_legend=False drops the checker-flag
+        legend entries (the judge's neutral views, all boxes 'ok')."""
+        # Imported here: only rendering needs matplotlib (the server env has none; it never renders).
+>       from matplotlib.figure import Figure
+E       ModuleNotFoundError: No module named 'matplotlib'
+
+fastfill/comparison/critic_025.py:339: ModuleNotFoundError
+____________________ test_rounds_and_evaluation_end_to_end _____________________
+
+tmp_path = PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_rounds_and_evaluation_end0')
+
+    def test_rounds_and_evaluation_end_to_end(tmp_path):
+        rows = [state('u1', bedroom()), state('u2', bedroom()), state('u3', bedroom())]
+        per_family = {f: 3 * (f == 'bedroom') for f in c.FAMILIES}
+>       c._publish_state(tmp_path / 'r0', rows, {'status': 'A025_B_COMPLETE', 'round': 0, 'b_manifest_sha256': None,
+                                                 'selection': {'per_family': per_family}}, 1)
+
+fastfill/comparison/tests/test_critic_025.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/critic_025.py:563: in _publish_state
+    built = r2._map(case_files, [(r, k) for r in rows if r['active']], workers)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/report_v2.py:213: in _map
+    return [function(t) for t in tasks]
+            ^^^^^^^^^^^
+fastfill/comparison/critic_025.py:485: in case_files
+    top, oblique = render_views(row['room'], row['layout'], flag, f"{row['uid'][-48:]} r{k}")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+room = {'uid': 'u1', 'source': 's', 'group': 'g-u1', 'room_type': 'bedroom', ...}
+layout = [{'id': 'bed', 'category': 'bed', 'size': [2.0, 1.6, 0.5], 'pos': [1.0, 2.2, 0.0], ...}, {'id': 'desk', 'category': 'd...': [3.75, 1.7, 0.75], ...}, {'id': 'chair', 'category': 'chair', 'size': [0.5, 0.5, 0.9], 'pos': [2.8, 1.5, 0.0], ...}]
+flag = {'bed': 'ok', 'desk': 'ok', 'lamp': 'ok', 'chair': 'ok'}, title = 'u1 r1'
+flag_legend = True
+
+    def render_views(room, layout, flag, title, flag_legend=True):
+        """(top PNG bytes, oblique PNG bytes), VIEW_INCHES x VIEW_DPI px each; flag_legend=False drops the checker-flag
+        legend entries (the judge's neutral views, all boxes 'ok')."""
+        # Imported here: only rendering needs matplotlib (the server env has none; it never renders).
+>       from matplotlib.figure import Figure
+E       ModuleNotFoundError: No module named 'matplotlib'
+
+fastfill/comparison/critic_025.py:339: ModuleNotFoundError
+____________ test_resume_rejects_changed_training_identity[weights] ____________
+
+inputs = (PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/py...repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_resume_rejects_changed_tr1/run'))
+changed = 'weights'
+
+    @pytest.mark.parametrize("changed", ["pairs", "weights", "settings", "code"])
+    def test_resume_rejects_changed_training_identity(inputs, changed):
+        model, pairs, code, out = inputs
+        guard_training(model, pairs, out, {"epochs": 2}, [code])
+        if changed == "pairs":
+            pairs.write_text('{"uid":"b","chosen":"good","rejected":"bad"}\n')
+        elif changed == "weights":
+            p = model / "model.safetensors"
+            p.write_bytes(p.read_bytes()[:-4] + b"1234")
+        elif changed == "code":
+            code.write_text("# changed trainer\n")
+        settings = {"epochs": 3 if changed == "settings" else 2}
+>       with pytest.raises(ValueError, match="identity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_training_guard.py:52: Failed
+_________ test_merged_output_must_match_exact_base_adapter_and_output __________
+
+inputs = (PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/py...repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_merged_output_must_match_0/run'))
+tmp_path = PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_merged_output_must_match_0')
+
+    def test_merged_output_must_match_exact_base_adapter_and_output(inputs, tmp_path):
+        from fastfill.v1_1.training_guard import seal_merge, merge_complete
+        import shutil
+    
+        model, _, _, _ = inputs
+        adapter = tmp_path / "adapter"
+        adapter.mkdir()
+        for name in ("adapter_config.json", "tokenizer_config.json", "tokenizer.json"):
+            (adapter / name).write_text("{}")
+        weight(adapter / "adapter_model.safetensors")
+        merged = tmp_path / "merged"
+        shutil.copytree(model, merged)
+        assert not merge_complete(model, adapter, merged)
+        seal_merge(model, adapter, merged)
+        assert merge_complete(model, adapter, merged)
+        p = merged / "model.safetensors"
+        p.write_bytes(p.read_bytes()[:-4] + b"1234")
+>       assert not merge_complete(model, adapter, merged)
+E       AssertionError: assert not True
+E        +  where True = <function merge_complete at 0x40011eb5ca40>(PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_merged_output_must_match_0/base'), PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_merged_output_must_match_0/adapter'), PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_merged_output_must_match_0/merged'))
+
+fastfill/v1_1/tests/test_training_guard.py:155: AssertionError
+_____ test_lineage_rejects_independently_corrupted_evidence[wrong_output] ______
+
+lineage_run = (PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/py...ation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_lineage_rejects_independe1/frozen/fastfill'))
+change = 'wrong_output'
+
+    @pytest.mark.parametrize('change', ['no_merge', 'wrong_output', 'wrong_base', 'wrong_adapter',
+                                         'wrong_pair', 'wrong_guard', 'wrong_code', 'wrong_recipe',
+                                         'wrong_manifest', 'wrong_step', 'wrong_world', 'wrong_count'])
+    def test_lineage_rejects_independently_corrupted_evidence(lineage_run, change):
+        run, frozen = lineage_run
+        final = run / 'dpo1_lora/final'
+        if change == 'no_merge':
+            (run / 'dpo1_merged.merge.json').unlink()
+        elif change in ('wrong_output', 'wrong_base', 'wrong_adapter'):
+            path = {'wrong_output': run / 'dpo1_merged/model.safetensors',
+                    'wrong_base': run / 'sft_merged/model.safetensors',
+                    'wrong_adapter': final / 'adapter_model.safetensors'}[change]
+            path.write_bytes(path.read_bytes()[:-4] + b'1234')
+        elif change == 'wrong_pair':
+            (run / 'pairs/stage1.cleaned.jsonl').write_text('{"uid":"changed"}\n')
+        elif change == 'wrong_code':
+            (frozen / 'v1_1/train_dpo.py').write_text('# changed frozen trainer\n')
+        elif change in ('wrong_guard', 'wrong_recipe'):
+            path = run / 'dpo1_lora/training_guard.json'
+            value = json.loads(path.read_text())
+            value['settings']['lr'] = 1.0
+            write_json_atomic(path, value)
+            if change == 'wrong_recipe':
+                completion = json.loads((final / 'completion.json').read_text())
+                write_json_atomic(final / 'completion.json', {**completion, 'training_guard': file_identity(path)})
+        elif change == 'wrong_manifest':
+            path = run / 'dpo1_lora/run_manifest.json'
+            value = json.loads(path.read_text())
+            value['args']['grad_accum'] = 100
+            write_json_atomic(path, value)
+        else:
+            path = final / 'completion.json'
+            value = json.loads(path.read_text())
+            if change == 'wrong_step':
+                value['position']['step'] = 1
+            elif change == 'wrong_world':
+                value['world_size'] = 2
+            else:
+                value['admitted_pairs'] = 0
+            write_json_atomic(path, value)
+>       with pytest.raises((ValueError, FileNotFoundError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (ValueError, FileNotFoundError)
+
+fastfill/v1_1/tests/test_automation_lineage.py:137: Failed
+______ test_lineage_rejects_independently_corrupted_evidence[wrong_base] _______
+
+lineage_run = (PosixPath('/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235/tmp/py...ation-20261024-0870dad7e235/tmp/pytest-of-shanliantian.u6uv/pytest-0/test_lineage_rejects_independe2/frozen/fastfill'))
+change = 'wrong_base'
+
+    @pytest.mark.parametrize('change', ['no_merge', 'wrong_output', 'wrong_base', 'wrong_adapter',
+                                         'wrong_pair', 'wrong_guard', 'wrong_code', 'wrong_recipe',
+                                         'wrong_manifest', 'wrong_step', 'wrong_world', 'wrong_count'])
+    def test_lineage_rejects_independently_corrupted_evidence(lineage_run, change):
+        run, frozen = lineage_run
+        final = run / 'dpo1_lora/final'
+        if change == 'no_merge':
+            (run / 'dpo1_merged.merge.json').unlink()
+        elif change in ('wrong_output', 'wrong_base', 'wrong_adapter'):
+            path = {'wrong_output': run / 'dpo1_merged/model.safetensors',
+                    'wrong_base': run / 'sft_merged/model.safetensors',
+                    'wrong_adapter': final / 'adapter_model.safetensors'}[change]
+            path.write_bytes(path.read_bytes()[:-4] + b'1234')
+        elif change == 'wrong_pair':
+            (run / 'pairs/stage1.cleaned.jsonl').write_text('{"uid":"changed"}\n')
+        elif change == 'wrong_code':
+            (frozen / 'v1_1/train_dpo.py').write_text('# changed frozen trainer\n')
+        elif change in ('wrong_guard', 'wrong_recipe'):
+            path = run / 'dpo1_lora/training_guard.json'
+            value = json.loads(path.read_text())
+            value['settings']['lr'] = 1.0
+            write_json_atomic(path, value)
+            if change == 'wrong_recipe':
+                completion = json.loads((final / 'completion.json').read_text())
+                write_json_atomic(final / 'completion.json', {**completion, 'training_guard': file_identity(path)})
+        elif change == 'wrong_manifest':
+            path = run / 'dpo1_lora/run_manifest.json'
+            value = json.loads(path.read_text())
+            value['args']['grad_accum'] = 100
+            write_json_atomic(path, value)
+        else:
+            path = final / 'completion.json'
+            value = json.loads(path.read_text())
+            if change == 'wrong_step':
+                value['position']['step'] = 1
+            elif change == 'wrong_world':
+                value['world_size'] = 2
+            else:
+                value['admitted_pairs'] = 0
+            write_json_atomic(path, value)
+>       with pytest.raises((ValueError, FileNotFoundError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (ValueError, FileNotFoundError)
+
+fastfill/v1_1/tests/test_automation_lineage.py:137: Failed
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_critic_batch_handoff.py::test_batch_answers_feed_next_round_and_reject_stale_identity
+FAILED fastfill/comparison/tests/test_llm_open.py::test_submit_016_refuses_existing_outputs_queued_chains_missing_inputs_and_old_code
+FAILED fastfill/comparison/tests/test_critic_025.py::test_case_views_are_deterministic_bounded_and_the_prompt_carries_the_tools
+FAILED fastfill/comparison/tests/test_critic_025.py::test_rounds_and_evaluation_end_to_end
+FAILED fastfill/v1_1/tests/test_training_guard.py::test_resume_rejects_changed_training_identity[weights]
+FAILED fastfill/v1_1/tests/test_training_guard.py::test_merged_output_must_match_exact_base_adapter_and_output
+FAILED fastfill/v1_1/tests/test_automation_lineage.py::test_lineage_rejects_independently_corrupted_evidence[wrong_output]
+FAILED fastfill/v1_1/tests/test_automation_lineage.py::test_lineage_rejects_independently_corrupted_evidence[wrong_base]
+8 failed, 389 passed, 2 skipped, 67 subtests passed in 77.51s (0:01:17)

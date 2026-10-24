@@ -1,0 +1,25 @@
+Missing-bias fixture corrected to avoid manifest self-hash; checking original HEAD decision implementation in memory.
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________ test_missing_complete_bias_cannot_authorize_s2 ________________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-479/test_missing_complete_bias_can0')
+
+    def test_missing_complete_bias_cannot_authorize_s2(tmp_path):
+        data, s1 = decision_inputs(tmp_path, 0.)
+        root = s1 / 'joint-sft-greedy'
+        path = root / 'joint-greedy-geometry-s1.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows = [{**r, 'complete': False, 'raw_layout': None,
+                 's1': {**r['s1'], 'strict_ok_s1': False, 'geometry_success_s1': False}} for r in rows]
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        h.write_json(root / 'MANIFEST.json', {'files': {path.name: h.sha256(path)}})
+        joint = d.decide(data, s1, tmp_path / 'decision')['decisions']['s2_joint']
+        assert joint['estimate'] == 1. and joint['ci95'][0] > 0
+>       assert not joint['passed'] and not joint['bias_check']['passed']
+E       assert (not True)
+
+fastfill/comparison/tests/test_decide_012.py:82: AssertionError
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_decide_012.py::test_missing_complete_bias_cannot_authorize_s2
+1 failed in 0.89s

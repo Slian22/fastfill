@@ -214,6 +214,154 @@ def test_real_cpu_train_and_complete_checkpoint_resume(tiny_training_run, capsys
     assert "step=2/2" in capsys.readouterr().out
 
 
+@pytest.mark.parametrize("change", ["pairs", "model", "recipe"])
+def test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest(tiny_training_run, monkeypatch, change):
+    out = tiny_training_run
+    manifest = out / "run_manifest.json"
+    before = manifest.read_bytes()
+    args = json.loads(before)["args"]
+    if change == "pairs":
+        path = Path(args["pairs"])
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        path.write_text("".join(json.dumps({**r, "chosen": r["rejected"], "rejected": r["chosen"]}) + "\n" for r in rows))
+    elif change == "model":
+        path = Path(args["model"]) / "model.safetensors"
+        from safetensors.torch import load_file
+        weights = load_file(path)
+        key = next(iter(weights))
+        weights[key] = weights[key] + .1
+        save_file(weights, path)
+    else:
+        monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+    with pytest.raises(ValueError, match="[Ii]dentity"):
+        train_dpo.main()
+    assert manifest.read_bytes() == before
+
+
+def test_unbound_legacy_checkpoint_requires_explicit_provenance(tiny_training_run):
+    out = tiny_training_run
+    identity = out / "trainer_identity.json"
+    if identity.exists():
+        identity.unlink()  # Simulate the historical direct CLI, which did not write a guard.
+    with pytest.raises(ValueError, match="unbound"):
+        train_dpo.main()
+
+
+def _guarded_legacy_run(out):
+    """Build a real tiny run with the historical external guard and frozen trainer copy."""
+    from fastfill.v1_1.training_guard import guard_training
+
+    pairs, base = out.parent / "pairs.jsonl", out.parent / "base"
+    pairs.write_text("".join(json.dumps({**json.loads(line), "uid": f"row-{i}"}) + "\n"
+                             for i, line in enumerate(pairs.read_text().splitlines())))
+    frozen = out.parent / "frozen_train_dpo.py"
+    frozen.write_bytes(Path(train_dpo.__file__).read_bytes())
+    guard_training(base, pairs, out, {"world_size": 1, "epochs": 1, "grad_accum": 2, "max_len": 32,
+                                    "lora_r": 2, "lora_alpha": 4, "save_steps": 1,
+                                    "loss": "historical DPO", "dtype": "float32"}, [frozen])
+    train_dpo.main()
+    identity = out / "trainer_identity.json"
+    if identity.exists():
+        identity.unlink()
+    return frozen
+
+
+def test_guarded_legacy_resume_retains_guard_and_run_manifest(tiny_training_inputs, capsys):
+    out = tiny_training_inputs
+    _guarded_legacy_run(out)
+    originals = {name: (out / name).read_bytes() for name in ("training_guard.json", "run_manifest.json")}
+    train_dpo.main()
+    assert (out / "trainer_identity.json").is_file()
+    assert all((out / name).read_bytes() == value for name, value in originals.items())
+    assert "step=2/2" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings", "manifest_type"])
+def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+    out = tiny_training_inputs
+    frozen = _guarded_legacy_run(out)
+    if change == "pairs":
+        path = out.parent / "pairs.jsonl"
+        path.write_text(path.read_text().replace('"good"', '"bad"'))
+    elif change == "recipe":
+        monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+    elif change == "frozen_code":
+        frozen.write_text(frozen.read_text() + "\n# changed\n")
+    elif change == "guard_settings":
+        path = out / "training_guard.json"
+        guard = json.loads(path.read_text())
+        guard["settings"]["world_size"] = 2
+        path.write_text(json.dumps(guard))
+    else:
+        (out / "run_manifest.json").write_text("[]")
+    before = (out / "run_manifest.json").read_bytes()
+    with pytest.raises(ValueError, match="[Ii]dentity"):
+        train_dpo.main()
+    assert not (out / "trainer_identity.json").exists()
+    assert (out / "run_manifest.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("change", ["world_size", "init_adapter", "audit", "code"])
+def test_direct_trainer_binding_rejects_other_resume_drift(tiny_training_inputs, change):
+    from fastfill.v1_1.training_guard import bind_trainer_identity
+
+    out = tiny_training_inputs
+    initial = out.parent / "initial"
+    initial.mkdir()
+    Adapter().save_pretrained(initial)
+    code = out.parent / "code.py"
+    code.write_text("# trainer snapshot\n")
+    audit = out.parent / "audit.json"
+    audit.write_text('{"version":1}')
+    parser = train_dpo.argument_parser()
+    args = parser.parse_args([*sys.argv[1:], "--init_adapter", str(initial)])
+    defaults = {k: parser.get_default(k) for k in vars(args)}
+    bind_trainer_identity(args, defaults, 1, "float32", [code])
+    before = (out / "trainer_identity.json").read_bytes()
+    world = 1
+    if change == "world_size":
+        world = 2
+    elif change == "init_adapter":
+        save_file({"adapter": torch.zeros(1)}, initial / "adapter_model.safetensors")
+    elif change == "audit":
+        audit.write_text('{"version":2}')
+    else:
+        code.write_text("# changed snapshot\n")
+    with pytest.raises(ValueError, match="[Ii]dentity"):
+        bind_trainer_identity(args, defaults, world, "float32", [code])
+    assert (out / "trainer_identity.json").read_bytes() == before
+
+
+def test_guarded_initial_adapter_and_explicit_default_warmup_are_compatible(tiny_training_inputs):
+    import hashlib
+    from fastfill.v1_1.training_guard import bind_trainer_identity, guard_training
+    from fastfill.v1_1.evaluation_protocol import file_identity
+
+    out = tiny_training_inputs
+    pairs, base = out.parent / "pairs.jsonl", out.parent / "base"
+    pairs.write_text("".join(json.dumps({**json.loads(line), "uid": str(i)}) + "\n"
+                             for i, line in enumerate(pairs.read_text().splitlines())))
+    initial = out.parent / "initial"
+    initial.mkdir()
+    Adapter().save_pretrained(initial)
+    code = out.parent / "train.py"
+    code.write_text("# original trainer\n")
+    parser = train_dpo.argument_parser()
+    args = parser.parse_args([*sys.argv[1:], "--init_adapter", str(initial), "--warmup_ratio", "0.05"])
+    defaults = {k: parser.get_default(k) for k in vars(args)}
+    files = {p.name: file_identity(p)["sha256"] for p in initial.iterdir()}
+    digest = hashlib.sha256(json.dumps(files, sort_keys=True, allow_nan=False).encode()).hexdigest()
+    settings = {"world_size": 1, "epochs": 1, "grad_accum": 2, "max_len": 32, "lora_r": 2,
+                "lora_alpha": 4, "save_steps": 1,
+                "init_adapter": {"path": str(initial), "sha256": digest, "of": "rpo-dpo1"}}
+    guard_training(base, pairs, out, settings, [code])
+    original = (out / "training_guard.json").read_bytes()
+    bind_trainer_identity(args, defaults, 1, "float32", [code])
+    args.warmup_ratio = None
+    bind_trainer_identity(args, defaults, 1, "float32", [code])
+    assert (out / "training_guard.json").read_bytes() == original
+
+
 def test_real_cpu_final_receipt_binds_actual_completion_and_artifacts(tiny_training_run):
     from fastfill.v1_1.evaluation_protocol import file_identity
 

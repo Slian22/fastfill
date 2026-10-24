@@ -1,0 +1,139 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_model_identity_rehashes_changed_bytes_with_unchanged_stat[model.safetensors] _
+
+inputs = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_re...ate/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_rehashes_c0/model'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1021eab70>
+name = 'model.safetensors'
+
+    @pytest.mark.parametrize("name", ["model.safetensors", "tokenizer.json"])
+    def test_model_identity_rehashes_changed_bytes_with_unchanged_stat(inputs, monkeypatch, name):
+        model = inputs[1]
+        target = model / name
+        if name == "tokenizer.json":
+            target.write_text('{"v":1}')
+        pin_stat(target, monkeypatch)
+        before = protocol.model_identity(model)
+        if name == "model.safetensors":
+            safetensors(target, b"changed bytes")  # Same length as "model weights".
+        else:
+            target.write_text('{"v":2}')
+        actual = protocol.file_identity(target)
+        assert actual != before["files"][name]
+        after = protocol.model_identity(model)
+>       assert after["files"][name] == actual
+E       AssertionError: assert {'sha256': '2...ze_bytes': 88} == {'sha256': '3...ze_bytes': 88}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'sha256': '243499f6b7d6b07d1d3aa71c5974aa1ff5764a6941ed0f1c672316c84e1b8ac3'} != {'sha256': '370f6e4a9017891c185f18e2433d44555c52a6797b1cbe1e1efba0d0ea42f04b'}
+E         Use -v to get more diff
+
+fastfill/v1_1/tests/test_evaluation_protocol.py:142: AssertionError
+_ test_model_identity_rehashes_changed_bytes_with_unchanged_stat[tokenizer.json] _
+
+inputs = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_re...ate/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_rehashes_c1/model'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107b49af0>
+name = 'tokenizer.json'
+
+    @pytest.mark.parametrize("name", ["model.safetensors", "tokenizer.json"])
+    def test_model_identity_rehashes_changed_bytes_with_unchanged_stat(inputs, monkeypatch, name):
+        model = inputs[1]
+        target = model / name
+        if name == "tokenizer.json":
+            target.write_text('{"v":1}')
+        pin_stat(target, monkeypatch)
+        before = protocol.model_identity(model)
+        if name == "model.safetensors":
+            safetensors(target, b"changed bytes")  # Same length as "model weights".
+        else:
+            target.write_text('{"v":2}')
+        actual = protocol.file_identity(target)
+        assert actual != before["files"][name]
+        after = protocol.model_identity(model)
+>       assert after["files"][name] == actual
+E       AssertionError: assert {'sha256': 'a...ize_bytes': 7} == {'sha256': '2...ize_bytes': 7}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'sha256': 'afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91'} != {'sha256': '2b5442799fccc3af2e7e790017697373913b7afcac933d72fb5876de994f659a'}
+E         Use -v to get more diff
+
+fastfill/v1_1/tests/test_evaluation_protocol.py:142: AssertionError
+__________ test_model_identity_revalidates_header_with_unchanged_stat __________
+
+inputs = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_re...ate/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_model_identity_revalidate0/model'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107b4c4d0>
+
+    def test_model_identity_revalidates_header_with_unchanged_stat(inputs, monkeypatch):
+        model = inputs[1]
+        target = model / "model.safetensors"
+        pin_stat(target, monkeypatch)
+        protocol.model_identity(model)
+        target.write_bytes(b"\0" * 8 + target.read_bytes()[8:])
+>       with pytest.raises(ValueError, match="weight header"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_evaluation_protocol.py:152: Failed
+____________ test_resume_rejects_changed_training_identity[weights] ____________
+
+inputs = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_resume_rejects_ch...ivate/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_resume_rejects_changed_tr0/run'))
+changed = 'weights'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107b4d850>
+
+    @pytest.mark.parametrize("changed", ["pairs", "weights", "settings", "code"])
+    def test_resume_rejects_changed_training_identity(inputs, changed, monkeypatch):
+        model, pairs, code, out = inputs
+        if changed == "weights":
+            pin_stat(model / "model.safetensors", monkeypatch)
+        guard_training(model, pairs, out, {"epochs": 2}, [code])
+        if changed == "pairs":
+            pairs.write_text('{"uid":"b","chosen":"good","rejected":"bad"}\n')
+        elif changed == "weights":
+            p = model / "model.safetensors"
+            p.write_bytes(p.read_bytes()[:-4] + b"1234")
+        elif changed == "code":
+            code.write_text("# changed trainer\n")
+        settings = {"epochs": 3 if changed == "settings" else 2}
+>       with pytest.raises(ValueError, match="identity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_training_guard.py:55: Failed
+_________ test_merged_output_must_match_exact_base_adapter_and_output __________
+
+inputs = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_mus...ivate/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_must_match_0/run'))
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_must_match_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107b4fe60>
+
+    def test_merged_output_must_match_exact_base_adapter_and_output(inputs, tmp_path, monkeypatch):
+        from fastfill.v1_1.training_guard import seal_merge, merge_complete
+        import shutil
+    
+        model, _, _, _ = inputs
+        adapter = tmp_path / "adapter"
+        adapter.mkdir()
+        for name in ("adapter_config.json", "tokenizer_config.json", "tokenizer.json"):
+            (adapter / name).write_text("{}")
+        weight(adapter / "adapter_model.safetensors")
+        merged = tmp_path / "merged"
+        shutil.copytree(model, merged)
+        pin_stat(merged / "model.safetensors", monkeypatch)
+        assert not merge_complete(model, adapter, merged)
+        seal_merge(model, adapter, merged)
+        assert merge_complete(model, adapter, merged)
+        p = merged / "model.safetensors"
+        p.write_bytes(p.read_bytes()[:-4] + b"1234")
+>       assert not merge_complete(model, adapter, merged)
+E       AssertionError: assert not True
+E        +  where True = <function merge_complete at 0x107b62840>(PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_must_match_0/base'), PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_must_match_0/adapter'), PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-565/test_merged_output_must_match_0/merged'))
+
+fastfill/v1_1/tests/test_training_guard.py:159: AssertionError
+=========================== short test summary info ============================
+FAILED fastfill/v1_1/tests/test_evaluation_protocol.py::test_model_identity_rehashes_changed_bytes_with_unchanged_stat[model.safetensors]
+FAILED fastfill/v1_1/tests/test_evaluation_protocol.py::test_model_identity_rehashes_changed_bytes_with_unchanged_stat[tokenizer.json]
+FAILED fastfill/v1_1/tests/test_evaluation_protocol.py::test_model_identity_revalidates_header_with_unchanged_stat
+FAILED fastfill/v1_1/tests/test_training_guard.py::test_resume_rejects_changed_training_identity[weights]
+FAILED fastfill/v1_1/tests/test_training_guard.py::test_merged_output_must_match_exact_base_adapter_and_output
+5 failed in 4.64s

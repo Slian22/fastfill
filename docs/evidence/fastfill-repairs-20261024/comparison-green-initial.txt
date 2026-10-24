@@ -1,0 +1,44 @@
+......F..............                                                    [100%]
+=================================== FAILURES ===================================
+________________ test_missing_complete_bias_cannot_authorize_s2 ________________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-473/test_missing_complete_bias_can0')
+
+    def test_missing_complete_bias_cannot_authorize_s2(tmp_path):
+        data, s1 = decision_inputs(tmp_path, 0.)
+        root = s1 / 'joint-sft-greedy'
+        path = root / 'joint-greedy-geometry-s1.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows = [{**r, 'complete': False, 'raw_layout': None,
+                 's1': {**r['s1'], 'strict_ok_s1': False, 'geometry_success_s1': False}} for r in rows]
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        h.write_json(root / 'MANIFEST.json', {'files': h.artifact_manifest(root)})
+>       joint = d.decide(data, s1, tmp_path / 'decision')['decisions']['s2_joint']
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_decide_012.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/decide_012.py:86: in decide
+    rows, sha = _rows(s1_root, arm, variant)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/decide_012.py:37: in _rows
+    manifest = e._verified(d)
+               ^^^^^^^^^^^^^^
+fastfill/comparison/evaluate_pair.py:23: in _verified
+    h.verify_artifacts(root, manifest['files'])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-473/test_missing_complete_bias_can0/s1/joint-sft-greedy')
+manifest = {'MANIFEST.json': '13bf4221edee645953e2f6457a4a0d3906cde45fefb0fca0f79efb106c68b25d', 'joint-greedy-geometry-s1.jsonl': '6d2f152dbf5abf0c31e6a1578b4212dbf0051c517c892c0a4fdcebb6f646ffac'}
+
+    def verify_artifacts(root, manifest):
+        for name, expected in manifest.items():
+            path = _inside(Path(root), name)
+            if not path.is_file() or sha256(path) != _expected_hash(expected):
+>               raise ValueError(f'artifact hash mismatch: {name}')
+E               ValueError: artifact hash mismatch: MANIFEST.json
+
+fastfill/comparison/train_pair_helpers.py:82: ValueError
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_decide_012.py::test_missing_complete_bias_cannot_authorize_s2
+1 failed, 20 passed in 7.25s

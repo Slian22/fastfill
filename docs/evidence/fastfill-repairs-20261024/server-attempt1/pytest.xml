@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="0" skipped="0" tests="3" time="17.021" timestamp="2026-10-24T13:08:28.308051+00:00" hostname="nid010072"><testcase classname="" name="fastfill.v1_1.tests.test_dpo_checkpoint_recovery" time="0.000"><error message="collection failure">fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:11: in &lt;module&gt;
+    from fastfill.v1_1 import train_dpo
+fastfill/v1_1/train_dpo.py:43: in &lt;module&gt;
+    from peft import LoraConfig, get_peft_model
+../../../env/lib/python3.12/site-packages/peft/__init__.py:17: in &lt;module&gt;
+    from .auto import (
+../../../env/lib/python3.12/site-packages/peft/auto.py:21: in &lt;module&gt;
+    from transformers import (
+&lt;frozen importlib._bootstrap&gt;:1412: in _handle_fromlist
+    ???
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2342: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2576: in _get_module
+    raise e
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2574: in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/models/auto/modeling_auto.py:21: in &lt;module&gt;
+    from .auto_factory import (
+../../../env/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py:42: in &lt;module&gt;
+    from ...generation import GenerationMixin
+&lt;frozen importlib._bootstrap&gt;:1412: in _handle_fromlist
+    ???
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2342: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2576: in _get_module
+    raise e
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2574: in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/generation/utils.py:44: in &lt;module&gt;
+    from ..masking_utils import create_masks_for_generate
+../../../env/lib/python3.12/site-packages/transformers/masking_utils.py:42: in &lt;module&gt;
+    from torch._dynamo._trace_wrapped_higher_order_op import TransformGetItemToIndex
+../../../env/lib/python3.12/site-packages/torch/_dynamo/__init__.py:13: in &lt;module&gt;
+    from . import (
+../../../env/lib/python3.12/site-packages/torch/_dynamo/aot_compile.py:19: in &lt;module&gt;
+    from torch._dynamo.package import SystemInfo
+../../../env/lib/python3.12/site-packages/torch/_dynamo/package.py:1267: in &lt;module&gt;
+    DynamoCache = DiskDynamoCache(os.path.join(cache_dir(), "dynamo"))
+                                               ^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/_dynamo/package.py:1264: in cache_dir
+    return cache_dir()
+           ^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/_inductor/runtime/cache_dir_utils.py:20: in cache_dir
+    os.makedirs(cache_dir, exist_ok=True)
+&lt;frozen os&gt;:215: in makedirs
+    ???
+&lt;frozen os&gt;:225: in makedirs
+    ???
+E   PermissionError: [Errno 13] Permission denied: '/local/user/1483807663'</error></testcase><testcase classname="" name="fastfill.v1_1.tests.test_train_dpo_a021" time="0.000"><error message="collection failure">fastfill/v1_1/tests/test_train_dpo_a021.py:11: in &lt;module&gt;
+    pytest.importorskip('peft', reason='train_dpo needs peft')
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+&lt;frozen importlib._bootstrap_external&gt;:999: in exec_module
+    ???
+&lt;frozen importlib._bootstrap&gt;:488: in _call_with_frames_removed
+    ???
+../../../env/lib/python3.12/site-packages/peft/__init__.py:17: in &lt;module&gt;
+    from .auto import (
+../../../env/lib/python3.12/site-packages/peft/auto.py:31: in &lt;module&gt;
+    from .config import PeftConfig
+../../../env/lib/python3.12/site-packages/peft/config.py:30: in &lt;module&gt;
+    from .utils import CONFIG_NAME, PeftType, TaskType
+../../../env/lib/python3.12/site-packages/peft/utils/__init__.py:15: in &lt;module&gt;
+    from .constants import ALLOWED_COMPUTE_DTYPES, UPCAST_DTYPES
+../../../env/lib/python3.12/site-packages/peft/utils/constants.py:16: in &lt;module&gt;
+    from transformers import BloomPreTrainedModel
+&lt;frozen importlib._bootstrap&gt;:1412: in _handle_fromlist
+    ???
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2342: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2576: in _get_module
+    raise e
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2574: in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/models/bloom/modeling_bloom.py:26: in &lt;module&gt;
+    from ...modeling_layers import GradientCheckpointingLayer
+../../../env/lib/python3.12/site-packages/transformers/modeling_layers.py:35: in &lt;module&gt;
+    from .modeling_utils import LoadStateDictConfig, PreTrainedModel, _get_resolved_checkpoint_files
+../../../env/lib/python3.12/site-packages/transformers/modeling_utils.py:69: in &lt;module&gt;
+    from .integrations.finegrained_fp8 import ALL_FP8_EXPERTS_FUNCTIONS
+../../../env/lib/python3.12/site-packages/transformers/integrations/finegrained_fp8.py:36: in &lt;module&gt;
+    from .deepgemm import (
+../../../env/lib/python3.12/site-packages/transformers/integrations/deepgemm.py:262: in &lt;module&gt;
+    @torch._dynamo.allow_in_graph
+     ^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/__init__.py:2954: in __getattr__
+    return importlib.import_module(f".{name}", __name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/_dynamo/__init__.py:13: in &lt;module&gt;
+    from . import (
+../../../env/lib/python3.12/site-packages/torch/_dynamo/aot_compile.py:19: in &lt;module&gt;
+    from torch._dynamo.package import SystemInfo
+../../../env/lib/python3.12/site-packages/torch/_dynamo/package.py:494: in &lt;module&gt;
+    @CacheArtifactFactory.register
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/compiler/_cache.py:74: in register
+    raise AssertionError(
+E   AssertionError: Artifact of type=precompile already registered in mega-cache artifact factory</error></testcase><testcase classname="" name="fastfill.v1_1.tests.test_train_dpo_init_adapter" time="0.000"><error message="collection failure">fastfill/v1_1/tests/test_train_dpo_init_adapter.py:16: in &lt;module&gt;
+    pytest.importorskip('peft', reason='train_dpo needs peft')
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+&lt;frozen importlib._bootstrap_external&gt;:999: in exec_module
+    ???
+&lt;frozen importlib._bootstrap&gt;:488: in _call_with_frames_removed
+    ???
+../../../env/lib/python3.12/site-packages/peft/__init__.py:17: in &lt;module&gt;
+    from .auto import (
+../../../env/lib/python3.12/site-packages/peft/auto.py:31: in &lt;module&gt;
+    from .config import PeftConfig
+../../../env/lib/python3.12/site-packages/peft/config.py:30: in &lt;module&gt;
+    from .utils import CONFIG_NAME, PeftType, TaskType
+../../../env/lib/python3.12/site-packages/peft/utils/__init__.py:15: in &lt;module&gt;
+    from .constants import ALLOWED_COMPUTE_DTYPES, UPCAST_DTYPES
+../../../env/lib/python3.12/site-packages/peft/utils/constants.py:16: in &lt;module&gt;
+    from transformers import BloomPreTrainedModel
+&lt;frozen importlib._bootstrap&gt;:1412: in _handle_fromlist
+    ???
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2342: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2576: in _get_module
+    raise e
+../../../env/lib/python3.12/site-packages/transformers/utils/import_utils.py:2574: in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/transformers/models/bloom/modeling_bloom.py:26: in &lt;module&gt;
+    from ...modeling_layers import GradientCheckpointingLayer
+../../../env/lib/python3.12/site-packages/transformers/modeling_layers.py:35: in &lt;module&gt;
+    from .modeling_utils import LoadStateDictConfig, PreTrainedModel, _get_resolved_checkpoint_files
+../../../env/lib/python3.12/site-packages/transformers/modeling_utils.py:69: in &lt;module&gt;
+    from .integrations.finegrained_fp8 import ALL_FP8_EXPERTS_FUNCTIONS
+../../../env/lib/python3.12/site-packages/transformers/integrations/finegrained_fp8.py:36: in &lt;module&gt;
+    from .deepgemm import (
+../../../env/lib/python3.12/site-packages/transformers/integrations/deepgemm.py:262: in &lt;module&gt;
+    @torch._dynamo.allow_in_graph
+     ^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/__init__.py:2954: in __getattr__
+    return importlib.import_module(f".{name}", __name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/_dynamo/__init__.py:13: in &lt;module&gt;
+    from . import (
+../../../env/lib/python3.12/site-packages/torch/_dynamo/aot_compile.py:19: in &lt;module&gt;
+    from torch._dynamo.package import SystemInfo
+../../../env/lib/python3.12/site-packages/torch/_dynamo/package.py:494: in &lt;module&gt;
+    @CacheArtifactFactory.register
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../env/lib/python3.12/site-packages/torch/compiler/_cache.py:74: in register
+    raise AssertionError(
+E   AssertionError: Artifact of type=precompile already registered in mega-cache artifact factory</error></testcase></testsuite></testsuites>

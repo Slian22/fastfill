@@ -1,0 +1,63 @@
+{
+ "status": "A021_POOL_COMPLETE",
+ "protocol": "amendment-028-j27-rows",
+ "order": "sha256('a021-27b:' + uid)",
+ "max_len": 8192,
+ "format": "J's SFT rows (main-data-v1 joint/train.jsonl): request without movable sizes; target size, pos, yaw, parent",
+ "pool": {
+  "rooms": 98754,
+  "rule": "SFT common length admission (dpo_stages._admitted, train)",
+  "fits": {
+   "27b": 98754
+  },
+  "prefix_failures": {
+   "27b": 0
+  }
+ },
+ "selection": {
+  "n_max": 40000,
+  "rooms": 40000,
+  "uids_sha256": "198ecd5d0b37bed71f5555b8d68810c5ba43e09fcc4c1a8c3b48884370a1bd42",
+  "overlap_with_arm_a": 33509,
+  "arm_a_rooms": 40000,
+  "arm_a_rows_manifest_sha256": "86232e937d9d34751299cbc66603a9c24cc0f7a47c8b0cdce936d5885557937e",
+  "render_check": "train_dpo.check_render on every selected row"
+ },
+ "held_out": [
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-select-v1",
+   "manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a"
+  },
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-full-v1",
+   "manifest_sha256": "c3c030ae3d75e804aa0ed300a7703834af0ceead87e3dc0f501159e0261f0180"
+  },
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1",
+   "manifest_sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604"
+  }
+ ],
+ "leaks": 0,
+ "tokenizers": {
+  "27b": {
+   "base_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+   "base_files_sha256": "a4fca2a27a330e7510b09d7535d92352a6b19917b4b44251cd9a3aa20036db36",
+   "eos_token": "<|im_end|>"
+  }
+ },
+ "inputs": {
+  "main_manifest_sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+  "sft_lengths_sha256": {
+   "joint": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f",
+   "placement": "d3dd6be2fe3af27c4ee6157fa2da04028d55b91f0015d7759b19447a0e4a950f"
+  }
+ },
+ "code_sha256": {
+  "a028.py": "13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47",
+  "a021_train.py": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+  "a021_select.py": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50",
+  "evaluate_pair.py": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+  "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+  "report_v2.py": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0"
+ }
+}

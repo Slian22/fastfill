@@ -1,0 +1,239 @@
+Evidence replay after the fix: only _vec is restored in memory from HEAD; no source file is rewritten.
+Original pre-fix RED observations: 4 failed in 0.42s; full-run case 1 failed in 0.61s.
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_____ test_size_enforcement_handles_integers_too_large_for_float[-1-size] ______
+
+field = 'size', sign = -1
+
+    @pytest.mark.parametrize('field', ['size', 'pos'])
+    @pytest.mark.parametrize('sign', [-1, 1])
+    def test_size_enforcement_handles_integers_too_large_for_float(field, sign):
+        room = _supported_room()
+        prior = {o['id']: [.5, .5, .5] for o in room['objects']}
+        request = {'messages': messages(room, 'placement', prior)[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        # A huge parent z used to overflow when the supported object's bottom was recomputed.
+        value['placements'][0][field][2 if field == 'pos' else 0] = sign * 10 ** 400
+>       parsed = L.parse(json.dumps(value), request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:197: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:165: in enforce_sizes
+    and all(abs(a - b) <= SIZE_TOL for a, b in zip(size, want)))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <zip object at 0x117f3a080>
+
+>   and all(abs(a - b) <= SIZE_TOL for a, b in zip(size, want)))
+                ^^^^^
+E   OverflowError: int too large to convert to float
+
+fastfill/comparison/llm_agent.py:165: OverflowError
+______ test_size_enforcement_handles_integers_too_large_for_float[-1-pos] ______
+
+field = 'pos', sign = -1
+
+    @pytest.mark.parametrize('field', ['size', 'pos'])
+    @pytest.mark.parametrize('sign', [-1, 1])
+    def test_size_enforcement_handles_integers_too_large_for_float(field, sign):
+        room = _supported_room()
+        prior = {o['id']: [.5, .5, .5] for o in room['objects']}
+        request = {'messages': messages(room, 'placement', prior)[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        # A huge parent z used to overflow when the supported object's bottom was recomputed.
+        value['placements'][0][field][2 if field == 'pos' else 0] = sign * 10 ** 400
+>       parsed = L.parse(json.dumps(value), request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:197: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in enforce_sizes
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in <genexpr>
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+i = 'obj_0002', seen = frozenset()
+
+    def bottom(i, seen):
+        """z after the recompute; None when undefined (bad parent, cycle: left for the parser)."""
+        if i in fixed:
+            return fixed[i]['pos'][2]
+        if i not in movable or i in seen:
+            return None
+        if i not in bottoms:
+            parent = movable[i].get('on')
+            if 'on' not in movable[i]:
+                bottoms[i] = movable[i]['pos'][2]
+            else:
+                below = bottom(parent, seen | {i}) if isinstance(parent, str) else None
+                height = (sizes.get(parent) or fixed.get(parent, {}).get('size')) if below is not None else None
+>               bottoms[i] = below + height[2] if height else None
+                             ^^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+fastfill/comparison/llm_agent.py:182: OverflowError
+______ test_size_enforcement_handles_integers_too_large_for_float[1-size] ______
+
+field = 'size', sign = 1
+
+    @pytest.mark.parametrize('field', ['size', 'pos'])
+    @pytest.mark.parametrize('sign', [-1, 1])
+    def test_size_enforcement_handles_integers_too_large_for_float(field, sign):
+        room = _supported_room()
+        prior = {o['id']: [.5, .5, .5] for o in room['objects']}
+        request = {'messages': messages(room, 'placement', prior)[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        # A huge parent z used to overflow when the supported object's bottom was recomputed.
+        value['placements'][0][field][2 if field == 'pos' else 0] = sign * 10 ** 400
+>       parsed = L.parse(json.dumps(value), request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:197: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:165: in enforce_sizes
+    and all(abs(a - b) <= SIZE_TOL for a, b in zip(size, want)))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = <zip object at 0x1244d3c00>
+
+>   and all(abs(a - b) <= SIZE_TOL for a, b in zip(size, want)))
+                ^^^^^
+E   OverflowError: int too large to convert to float
+
+fastfill/comparison/llm_agent.py:165: OverflowError
+______ test_size_enforcement_handles_integers_too_large_for_float[1-pos] _______
+
+field = 'pos', sign = 1
+
+    @pytest.mark.parametrize('field', ['size', 'pos'])
+    @pytest.mark.parametrize('sign', [-1, 1])
+    def test_size_enforcement_handles_integers_too_large_for_float(field, sign):
+        room = _supported_room()
+        prior = {o['id']: [.5, .5, .5] for o in room['objects']}
+        request = {'messages': messages(room, 'placement', prior)[:2]}
+        value = json.loads(base.target(None, 'joint', room))
+        # A huge parent z used to overflow when the supported object's bottom was recomputed.
+        value['placements'][0][field][2 if field == 'pos' else 0] = sign * 10 ** 400
+>       parsed = L.parse(json.dumps(value), request, 'placement')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_agents_016.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_agent.py:197: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in enforce_sizes
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in <genexpr>
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+i = 'obj_0002', seen = frozenset()
+
+    def bottom(i, seen):
+        """z after the recompute; None when undefined (bad parent, cycle: left for the parser)."""
+        if i in fixed:
+            return fixed[i]['pos'][2]
+        if i not in movable or i in seen:
+            return None
+        if i not in bottoms:
+            parent = movable[i].get('on')
+            if 'on' not in movable[i]:
+                bottoms[i] = movable[i]['pos'][2]
+            else:
+                below = bottom(parent, seen | {i}) if isinstance(parent, str) else None
+                height = (sizes.get(parent) or fixed.get(parent, {}).get('size')) if below is not None else None
+>               bottoms[i] = below + height[2] if height else None
+                             ^^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+fastfill/comparison/llm_agent.py:182: OverflowError
+_ test_nonfinite_placement_is_one_room_failure_not_run_abort[integer_overflow] _
+
+world = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-549/test_nonfinite_placeme...}, 'il-bed-2': {'uid': 'il-bed-2', 'source': 'IL3D_3dfront', 'group': 'g-il-b', 'boundary_type': 'polygon', ...}, ...})
+number = '100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000...0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+
+    @pytest.mark.parametrize('number', ['1e309', str(10 ** 400)], ids=['float_overflow', 'integer_overflow'])
+    def test_nonfinite_placement_is_one_room_failure_not_run_abort(world, number):
+        root, rooms = world
+        uid, room = next(iter(rooms.items()))
+        value = json.loads(base.target(None, 'joint', room))
+        value['placements'][0]['pos'][2] = 'overflow'
+        value['placements'][1]['on'] = value['placements'][0]['id']
+        raw = json.dumps(value).replace('"overflow"', number)
+        fake = FakeLLM(rooms, script={uid: [raw] * 3}, arm='placement')
+>       assert O.main(argv(root, 'O2nt', 'run', '--arm', 'placement'), loader(fake)) == 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_llm_open.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_open.py:455: in main
+    result = run(args, load)
+             ^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:361: in run
+    bodies = _chunk(llm, params, tok, spec, chunk, log, args.arm)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:249: in _chunk
+    answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs), arm)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:213: in _answer
+    return {'raw': text, 'schema': L.parse(text, record, arm), 'reasoning': reasoning,
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:197: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in enforce_sizes
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:184: in <genexpr>
+    moved = {i: z for i, z in ((i, bottom(i, frozenset())) for i in movable)
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+i = 'obj_0002', seen = frozenset()
+
+    def bottom(i, seen):
+        """z after the recompute; None when undefined (bad parent, cycle: left for the parser)."""
+        if i in fixed:
+            return fixed[i]['pos'][2]
+        if i not in movable or i in seen:
+            return None
+        if i not in bottoms:
+            parent = movable[i].get('on')
+            if 'on' not in movable[i]:
+                bottoms[i] = movable[i]['pos'][2]
+            else:
+                below = bottom(parent, seen | {i}) if isinstance(parent, str) else None
+                height = (sizes.get(parent) or fixed.get(parent, {}).get('size')) if below is not None else None
+>               bottoms[i] = below + height[2] if height else None
+                             ^^^^^^^^^^^^^^^^^
+E               OverflowError: int too large to convert to float
+
+fastfill/comparison/llm_agent.py:182: OverflowError
+---------------------------- Captured stdout setup -----------------------------
+{"rooms": 36, "uids_sha256": "9750c5f73763a6497637c332ce8ebbcd6e1e36107e01f9d4a92896a9f37b6a25"}
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_handles_integers_too_large_for_float[-1-size]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_handles_integers_too_large_for_float[-1-pos]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_handles_integers_too_large_for_float[1-size]
+FAILED fastfill/comparison/tests/test_agents_016.py::test_size_enforcement_handles_integers_too_large_for_float[1-pos]
+FAILED fastfill/comparison/tests/test_llm_open.py::test_nonfinite_placement_is_one_room_failure_not_run_abort[integer_overflow]
+5 failed in 0.57s

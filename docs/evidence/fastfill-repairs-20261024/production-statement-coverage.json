@@ -1,0 +1,1665 @@
+{
+  "scope": "Every manifest fastfill/**/*.py production file; exclude only /tests/ directories; include unimported files as zero. Tests, RoomGenBench and other vendored source are excluded.",
+  "basis": "Final complete local CPU suite after all F01-F17 repairs:3505 passed,6 skipped,305 subtests.",
+  "source_manifest": "source-snapshot-manifest.json",
+  "source_content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+  "raw_coverage": "coverage-final.json",
+  "raw_coverage_sha256": "cc04f4d32da8bdca75d570d2c12e19bc54f171aef2e1c02e843e19a6de8cecbd",
+  "coverage_version": "7.17.0",
+  "files": [
+    {
+      "path": "fastfill/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/__init__.py",
+      "sha256": "fabd6ee3dd917ac07e284ed9044a1932d2826208f8bd9b51a0cdaecbec6b031d",
+      "statements": 46,
+      "covered": 26,
+      "missing": 20,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/__main__.py",
+      "sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "statements": 2,
+      "covered": 0,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/ase.py",
+      "sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "statements": 24,
+      "covered": 5,
+      "missing": 19,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/hssd200.py",
+      "sha256": "e2dcb05c2e75f37331208cf7d74b38a87be131d05a8489654af78fc5de58df9c",
+      "statements": 254,
+      "covered": 230,
+      "missing": 24,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "sha256": "212dcec472fc55f4f562924fe8ce5e89e523ff6a79c179e0bbcea511b842e823",
+      "statements": 311,
+      "covered": 211,
+      "missing": 100,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/il3d_synthetic.py",
+      "sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "statements": 49,
+      "covered": 16,
+      "missing": 33,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/interiorgs.py",
+      "sha256": "d33559c4ea75c954b806943028fc7bd51dc0fc8a01d2a6bd7ec527fa64303f23",
+      "statements": 216,
+      "covered": 212,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/internscenes.py",
+      "sha256": "2e1afec9ff5950a3ef7907f9304d7ea555a6a28f66f1dcddd94e6a41f63a3e75",
+      "statements": 123,
+      "covered": 69,
+      "missing": 54,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/internscenes_3rscan.py",
+      "sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "statements": 5,
+      "covered": 3,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/internscenes_arkit.py",
+      "sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "statements": 5,
+      "covered": 3,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/internscenes_mp3d.py",
+      "sha256": "5e061adc04baac1c9cc492f234795323ca5ccd646698377097f183dd478ef1cd",
+      "statements": 13,
+      "covered": 4,
+      "missing": 9,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/internscenes_scannet.py",
+      "sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "statements": 4,
+      "covered": 3,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/m3dlayout_infinigen.py",
+      "sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "statements": 22,
+      "covered": 8,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/mansionworld.py",
+      "sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "statements": 132,
+      "covered": 23,
+      "missing": 109,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/multiscan.py",
+      "sha256": "e5a426bd60df4a10efdaf509e188f2c095db93c9542849e61d6bb269bc5125fd",
+      "statements": 64,
+      "covered": 64,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/optiscene_holodeck.py",
+      "sha256": "a5f55bd45162d9d62e5b1401cd5b0cc9ee8210d5f019a43c8f79f9b3d05a4d88",
+      "statements": 25,
+      "covered": 17,
+      "missing": 8,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/sage10k.py",
+      "sha256": "c2c124e3925c051a13fcd4599e03d30f61de45ed5db514eaf02fef84f7f04d26",
+      "statements": 151,
+      "covered": 33,
+      "missing": 118,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "sha256": "c0674bb111e5bc533804ccd448f29ea50ade14d56f285225f6b2cdaafe7d9bbf",
+      "statements": 69,
+      "covered": 64,
+      "missing": 5,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/scannetpp.py",
+      "sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "statements": 23,
+      "covered": 9,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/scenesmith.py",
+      "sha256": "e3f8d9e2c0a00d6937b93db7f37d4bd801962e8573f6a4789bfeae6912ca0452",
+      "statements": 68,
+      "covered": 13,
+      "missing": 55,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+      "statements": 20,
+      "covered": 20,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/spatiallm.py",
+      "sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "statements": 76,
+      "covered": 14,
+      "missing": 62,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/structured3d.py",
+      "sha256": "287877698b90d51fbe2330aac158fc893c0892078d3c2a77d7fbd1a1bf934ca7",
+      "statements": 87,
+      "covered": 84,
+      "missing": 3,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "statements": 61,
+      "covered": 51,
+      "missing": 10,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "sha256": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f",
+      "statements": 25,
+      "covered": 25,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "sha256": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5",
+      "statements": 150,
+      "covered": 147,
+      "missing": 3,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/build.py",
+      "sha256": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d",
+      "statements": 534,
+      "covered": 480,
+      "missing": 54,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/__init__.py",
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "statements": 2,
+      "covered": 2,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/a021_diag.py",
+      "sha256": "9bec2bacff5f8ee7bdaa62a4876389956e8213ccf5d0b3ca19f216e56ab6fd88",
+      "statements": 323,
+      "covered": 317,
+      "missing": 6,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/a021_select.py",
+      "sha256": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50",
+      "statements": 644,
+      "covered": 607,
+      "missing": 37,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/a021_train.py",
+      "sha256": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+      "statements": 566,
+      "covered": 481,
+      "missing": 85,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/a028.py",
+      "sha256": "13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47",
+      "statements": 203,
+      "covered": 195,
+      "missing": 8,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/ablation_016.py",
+      "sha256": "7e7d814a8919a8d8db41b04909da725fb95a5439477cfbdbe242565bbb342079",
+      "statements": 265,
+      "covered": 238,
+      "missing": 27,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/agents_016.py",
+      "sha256": "de5544f996644a8d9f242a46e0233bd4ad50c12bafd3dd0abfe97e1729a0a5c4",
+      "statements": 224,
+      "covered": 181,
+      "missing": 43,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/best_of_n.py",
+      "sha256": "690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894",
+      "statements": 188,
+      "covered": 159,
+      "missing": 29,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "statements": 181,
+      "covered": 181,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/corpus.py",
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "statements": 240,
+      "covered": 222,
+      "missing": 18,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/critic_025.py",
+      "sha256": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca",
+      "statements": 492,
+      "covered": 426,
+      "missing": 66,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/critic_batch_025.py",
+      "sha256": "06fbc8a1d7304f398658e42147195b5a78f534b8518f1dca2a4664164bd2fa57",
+      "statements": 121,
+      "covered": 92,
+      "missing": 29,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/critic_client_025.py",
+      "sha256": "2af1f839334228283ecc2cee28df28e2fa56e0f4a1f9c277761033b8cb60307d",
+      "statements": 45,
+      "covered": 41,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/data.py",
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "statements": 198,
+      "covered": 177,
+      "missing": 21,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/decide_012.py",
+      "sha256": "3ccc2ad100defa13db760c8e910abd3ce46864cfd9cdfd8e0022d8f8b88b9155",
+      "statements": 110,
+      "covered": 99,
+      "missing": 11,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/delivery.py",
+      "sha256": "7af604e3ec45f829845fdcca42d2e68bf587db932be872da3683cf7415669ee3",
+      "statements": 290,
+      "covered": 283,
+      "missing": 7,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/dev_select.py",
+      "sha256": "066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db",
+      "statements": 352,
+      "covered": 333,
+      "missing": 19,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/distill_018.py",
+      "sha256": "58ee35a67b49ccc29501187c27d01f016d02facf437c0b553c44a0c42f5c56b4",
+      "statements": 293,
+      "covered": 261,
+      "missing": 32,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/distill_018_chain.py",
+      "sha256": "466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9",
+      "statements": 506,
+      "covered": 481,
+      "missing": 25,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/diverse_026.py",
+      "sha256": "981102a924216730d982d39b2c71f1b030fc66488435ffddffe32a51320e5e3b",
+      "statements": 37,
+      "covered": 36,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/downstream.py",
+      "sha256": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+      "statements": 216,
+      "covered": 210,
+      "missing": 6,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/dpo_stages.py",
+      "sha256": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "statements": 551,
+      "covered": 511,
+      "missing": 40,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/eval_data.py",
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "statements": 209,
+      "covered": 179,
+      "missing": 30,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/evaluate_llm.py",
+      "sha256": "e12696b4caebf1a77d5acb4cfb3e094f87538fdc397284252e7cd9c4755dd7f2",
+      "statements": 178,
+      "covered": 152,
+      "missing": 26,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/evaluate_pair.py",
+      "sha256": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+      "statements": 126,
+      "covered": 102,
+      "missing": 24,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/fid.py",
+      "sha256": "6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5",
+      "statements": 318,
+      "covered": 300,
+      "missing": 18,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/final_011.py",
+      "sha256": "1ead002f739de7aa346fc3ba311ca38ab5b5451a244014074788aec137dd6f77",
+      "statements": 79,
+      "covered": 75,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "sha256": "6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18",
+      "statements": 179,
+      "covered": 172,
+      "missing": 7,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/frontier_026.py",
+      "sha256": "f4f2ed2b92d148d11b222935cb4ba9e7c3fe7a23690b8a14fd8c5d01539e0582",
+      "statements": 402,
+      "covered": 285,
+      "missing": 117,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "statements": 167,
+      "covered": 164,
+      "missing": 3,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/infer.py",
+      "sha256": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "statements": 283,
+      "covered": 273,
+      "missing": 10,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/infer_shard.py",
+      "sha256": "5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3",
+      "statements": 321,
+      "covered": 288,
+      "missing": 33,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/judge_agreement_023.py",
+      "sha256": "9da3d21d6b528818e4332b2c0e6cb377ea21b8b97f83dc3f791843b98bd854ca",
+      "statements": 65,
+      "covered": 46,
+      "missing": 19,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "sha256": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf",
+      "statements": 428,
+      "covered": 397,
+      "missing": 31,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/judge_bundle_025.py",
+      "sha256": "abec92a2de6fbc233dde0cd1745d7044a415899b770672ff9b00df9e40eab59a",
+      "statements": 135,
+      "covered": 113,
+      "missing": 22,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/llm_agent.py",
+      "sha256": "611ce03b0756a96e9f590a88a0a054d66a4a2bf588702bb84a19cb5b0bcfa23f",
+      "statements": 442,
+      "covered": 404,
+      "missing": 38,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/llm_open.py",
+      "sha256": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+      "statements": 252,
+      "covered": 243,
+      "missing": 9,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/main_data.py",
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "statements": 286,
+      "covered": 263,
+      "missing": 23,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/mesh_collision.py",
+      "sha256": "3b97e511c07eb71a90e298f437b91ef685378bfb44c2c5b819405169531bc7b7",
+      "statements": 353,
+      "covered": 328,
+      "missing": 25,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/onpolicy_dpo.py",
+      "sha256": "af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb",
+      "statements": 573,
+      "covered": 536,
+      "missing": 37,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_eval.py",
+      "sha256": "68f93f7a5606e3b6fe36dd8047b3cf72320dbc6162113053944ac18f45e5e0f7",
+      "statements": 978,
+      "covered": 883,
+      "missing": 95,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/main.py",
+      "sha256": "c808d2967f5097fbec7ddf80da1ae0cfebf7f9534e97d12b5b9b336b41f69378",
+      "statements": 63,
+      "covered": 0,
+      "missing": 63,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/prompt.py",
+      "sha256": "dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/dpo_train.py",
+      "sha256": "34ba07e471a66ab95eb62a5d437d9fa6d224b8fd1465a18d471a9d7b66cee360",
+      "statements": 44,
+      "covered": 0,
+      "missing": 44,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/inference.py",
+      "sha256": "36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19",
+      "statements": 31,
+      "covered": 0,
+      "missing": 31,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/merge_lora.py",
+      "sha256": "0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6",
+      "statements": 22,
+      "covered": 0,
+      "missing": 22,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/sft_train.py",
+      "sha256": "342b854a642e58bdebe62c2048e555871261615c33443359bed8d5e68d261450",
+      "statements": 17,
+      "covered": 0,
+      "missing": 17,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/utils.py",
+      "sha256": "09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f",
+      "statements": 11,
+      "covered": 0,
+      "missing": 11,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/comparison/output_repair.py",
+      "sha256": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+      "statements": 586,
+      "covered": 548,
+      "missing": 38,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/overnight.py",
+      "sha256": "13389f273b896ea18ea6bfc454498c6742730fc9d3bb279ed5ccb63760ff6093",
+      "statements": 560,
+      "covered": 473,
+      "missing": 87,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/placers_020.py",
+      "sha256": "94553211107fc37578a3dc6213a22a81871930ac5789b267ee561514a8250add",
+      "statements": 283,
+      "covered": 234,
+      "missing": 49,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/pose_targets.py",
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "statements": 223,
+      "covered": 221,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/reference_rows.py",
+      "sha256": "9a3d5fa0226955ae57562fd9b82595d7076a2803eb853b8db83ef9b3bb47378e",
+      "statements": 101,
+      "covered": 76,
+      "missing": 25,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/render_assets.py",
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "statements": 569,
+      "covered": 462,
+      "missing": 107,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/report_v2.py",
+      "sha256": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0",
+      "statements": 666,
+      "covered": 627,
+      "missing": 39,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/room_families.py",
+      "sha256": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c",
+      "statements": 251,
+      "covered": 237,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/sample_vllm.py",
+      "sha256": "d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9",
+      "statements": 231,
+      "covered": 216,
+      "missing": 15,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/scale_curve.py",
+      "sha256": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413",
+      "statements": 418,
+      "covered": 390,
+      "missing": 28,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/server_api_judge.py",
+      "sha256": "21513b00b431809c9eaa3145f9898637112e43c6a3a0768a91c9c94f77c505e2",
+      "statements": 463,
+      "covered": 344,
+      "missing": 119,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/size_prior.py",
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "statements": 124,
+      "covered": 124,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/sizers_020.py",
+      "sha256": "a6a4ac09780fad6da6ad2f6cc43be79aa3899d79abe845f27ae8fcdaf5139f0d",
+      "statements": 491,
+      "covered": 461,
+      "missing": 30,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/stage_table.py",
+      "sha256": "e2e3d6946426c1b7750e8073f948806c69f32cfea3455a1a8242382618c8a6fc",
+      "statements": 352,
+      "covered": 332,
+      "missing": 20,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/test_apply_012.py",
+      "sha256": "59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896",
+      "statements": 207,
+      "covered": 189,
+      "missing": 18,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/train_pair.py",
+      "sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "statements": 319,
+      "covered": 300,
+      "missing": 19,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/train_pair_helpers.py",
+      "sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "statements": 308,
+      "covered": 285,
+      "missing": 23,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/visual_024.py",
+      "sha256": "cfcaff4ee05fbb90c3b95f574e79796deae04c22c06d92610f52ff50df0b7271",
+      "statements": 302,
+      "covered": 287,
+      "missing": 15,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "sha256": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298",
+      "statements": 228,
+      "covered": 220,
+      "missing": 8,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/visual_final.py",
+      "sha256": "29a7864477d4770d30eccbbc52dd989ffc45662ebd0b76295f4c8d74ed0db6d3",
+      "statements": 48,
+      "covered": 36,
+      "missing": 12,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/comparison/visual_pipeline.py",
+      "sha256": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99",
+      "statements": 370,
+      "covered": 357,
+      "missing": 13,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/download.py",
+      "sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "statements": 61,
+      "covered": 59,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "statements": 154,
+      "covered": 118,
+      "missing": 36,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/inspect_ir.py",
+      "sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "statements": 66,
+      "covered": 0,
+      "missing": 66,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/interface.py",
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "statements": 395,
+      "covered": 388,
+      "missing": 7,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "sha256": "9c8bcfc3e0e8070cebe99b1aaf57b55d19334c7b85c0bfea2d8ba2d76cf9b0c3",
+      "statements": 63,
+      "covered": 52,
+      "missing": 11,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/scene.py",
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "statements": 245,
+      "covered": 240,
+      "missing": 5,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/serve.py",
+      "sha256": "7c116d807edda0a53a721451a480bb9861d0d47ad647d5996ecbe4a96867bfec",
+      "statements": 162,
+      "covered": 113,
+      "missing": 49,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/split.py",
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "statements": 72,
+      "covered": 71,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/__init__.py",
+      "sha256": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/cli.py",
+      "sha256": "87bd5ea72b644ca61846776fcbbac94fe492c36e49aed680d7891b644736b29f",
+      "statements": 45,
+      "covered": 43,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/evaluate.py",
+      "sha256": "3e1538bca317279f01ba803a424fedb8db738b0011994494eb3f52b685c36123",
+      "statements": 527,
+      "covered": 455,
+      "missing": 72,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/package.py",
+      "sha256": "4487a9486e20307e9d5c43857d7ca939ef788a72264e9508c8533babc3cd90e0",
+      "statements": 158,
+      "covered": 135,
+      "missing": 23,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/pipeline.py",
+      "sha256": "962c3e710a2624f7fd8b4ae220059859812a51057270c2c0bbbb0475ab14676e",
+      "statements": 423,
+      "covered": 399,
+      "missing": 24,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/system/sizing.py",
+      "sha256": "b07aac5c3202917fc32a520c4951bc41b3abbdb72925905d8970861c2588182d",
+      "statements": 129,
+      "covered": 126,
+      "missing": 3,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/tools/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/tools/ablation_check.py",
+      "sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "statements": 30,
+      "covered": 29,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/tools/qa_report.py",
+      "sha256": "82393a23b9a66c43b25a5b788465fcbf60e7362bfb34fea9a8b8685f5827e3bf",
+      "statements": 304,
+      "covered": 290,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/tools/visualize.py",
+      "sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "statements": 78,
+      "covered": 0,
+      "missing": 78,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/train.py",
+      "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "statements": 176,
+      "covered": 0,
+      "missing": 176,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "statements": 181,
+      "covered": 161,
+      "missing": 20,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "statements": 105,
+      "covered": 104,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "statements": 227,
+      "covered": 215,
+      "missing": 12,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "statements": 303,
+      "covered": 270,
+      "missing": 33,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "statements": 132,
+      "covered": 128,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "statements": 446,
+      "covered": 298,
+      "missing": 148,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "sha256": "3747133048d56591cb71ad95c040141a00b2051907b34e932cd00516bba5aef2",
+      "statements": 172,
+      "covered": 161,
+      "missing": 11,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "statements": 458,
+      "covered": 170,
+      "missing": 288,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "statements": 153,
+      "covered": 150,
+      "missing": 3,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "sha256": "986ce5e8deac79727e47db45e80a523028dad5c6fcf1bcc07f63b36e095ed302",
+      "statements": 284,
+      "covered": 246,
+      "missing": 38,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "statements": 140,
+      "covered": 110,
+      "missing": 30,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "sha256": "979a44c18463e3af364ecf7976a10009ce6e80564b34af29d899a7872cddc723",
+      "statements": 440,
+      "covered": 424,
+      "missing": 16,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "sha256": "e76663854bcd3570c6e48cc92a0352d26cd1f006f8fd489eaaf8fdad3675beb5",
+      "statements": 317,
+      "covered": 298,
+      "missing": 19,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "statements": 197,
+      "covered": 185,
+      "missing": 12,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/__init__.py",
+      "sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "statements": 1,
+      "covered": 1,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/adapters.py",
+      "sha256": "d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae",
+      "statements": 105,
+      "covered": 95,
+      "missing": 10,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/audit.py",
+      "sha256": "6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b",
+      "statements": 69,
+      "covered": 65,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/autorun.py",
+      "sha256": "a267cc9bc18f2306a3b99156918d47e23b99dda0d2fb3b9b9d9884c4cd6391da",
+      "statements": 456,
+      "covered": 336,
+      "missing": 120,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/batch.py",
+      "sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "statements": 330,
+      "covered": 310,
+      "missing": 20,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/bbox_visualization.py",
+      "sha256": "65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09",
+      "statements": 90,
+      "covered": 89,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/boxes.py",
+      "sha256": "ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284",
+      "statements": 80,
+      "covered": 76,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/cohort.py",
+      "sha256": "7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138",
+      "statements": 122,
+      "covered": 111,
+      "missing": 11,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/data.py",
+      "sha256": "042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3",
+      "statements": 82,
+      "covered": 78,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/direct_layout.py",
+      "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "statements": 210,
+      "covered": 210,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/evaluate.py",
+      "sha256": "45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08",
+      "statements": 639,
+      "covered": 622,
+      "missing": 17,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/geometry.py",
+      "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "statements": 50,
+      "covered": 46,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/io.py",
+      "sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "statements": 107,
+      "covered": 102,
+      "missing": 5,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/legacy_bridge.py",
+      "sha256": "ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced",
+      "statements": 167,
+      "covered": 163,
+      "missing": 4,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/legacy_build.py",
+      "sha256": "aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f",
+      "statements": 193,
+      "covered": 183,
+      "missing": 10,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/legacy_evidence.py",
+      "sha256": "a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85",
+      "statements": 113,
+      "covered": 101,
+      "missing": 12,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/legacy_verify.py",
+      "sha256": "3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527",
+      "statements": 499,
+      "covered": 438,
+      "missing": 61,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/llm_baseline.py",
+      "sha256": "bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459",
+      "statements": 169,
+      "covered": 149,
+      "missing": 20,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/llm_baseline_v2.py",
+      "sha256": "1278a3ed85a84c083925015304223276785c7c171ec3df5a862f2e2e5d7f0599",
+      "statements": 82,
+      "covered": 68,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/llm_structured.py",
+      "sha256": "b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0",
+      "statements": 163,
+      "covered": 141,
+      "missing": 22,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/losses.py",
+      "sha256": "600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd",
+      "statements": 179,
+      "covered": 172,
+      "missing": 7,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/matching.py",
+      "sha256": "d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d",
+      "statements": 137,
+      "covered": 129,
+      "missing": 8,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/minimal_data.py",
+      "sha256": "bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975",
+      "statements": 221,
+      "covered": 187,
+      "missing": 34,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/model.py",
+      "sha256": "0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c",
+      "statements": 193,
+      "covered": 181,
+      "missing": 12,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/multisource_data.py",
+      "sha256": "43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c",
+      "statements": 374,
+      "covered": 318,
+      "missing": 56,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/multisource_verify.py",
+      "sha256": "881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230",
+      "statements": 501,
+      "covered": 432,
+      "missing": 69,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/objective.py",
+      "sha256": "54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595",
+      "statements": 39,
+      "covered": 37,
+      "missing": 2,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/ops/compare.py",
+      "sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "statements": 110,
+      "covered": 0,
+      "missing": 110,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/crosscheck.py",
+      "sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "statements": 33,
+      "covered": 0,
+      "missing": 33,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/diag_ablation.py",
+      "sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "statements": 300,
+      "covered": 0,
+      "missing": 300,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_inputs.py",
+      "sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "statements": 167,
+      "covered": 90,
+      "missing": 77,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/ops/llm_compare.py",
+      "sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "statements": 100,
+      "covered": 0,
+      "missing": 100,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/report.py",
+      "sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "statements": 349,
+      "covered": 0,
+      "missing": 349,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/sample_validation.py",
+      "sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "statements": 81,
+      "covered": 0,
+      "missing": 81,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/selftest_shift.py",
+      "sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "statements": 37,
+      "covered": 0,
+      "missing": 37,
+      "present_in_pytest_report": false,
+      "method": "coverage.analysis2; unimported module counted as zero"
+    },
+    {
+      "path": "fastfill/v2/ops/stratify.py",
+      "sha256": "260ba720d8bc38dc9027a048f1a9486e186ef7ee6f1b1fd557087184f0da8bb7",
+      "statements": 292,
+      "covered": 184,
+      "missing": 108,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/ops/vlm_judge.py",
+      "sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "statements": 360,
+      "covered": 226,
+      "missing": 134,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/predict.py",
+      "sha256": "55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b",
+      "statements": 84,
+      "covered": 70,
+      "missing": 14,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/qualified_data.py",
+      "sha256": "97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640",
+      "statements": 144,
+      "covered": 133,
+      "missing": 11,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/regularizers.py",
+      "sha256": "8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1",
+      "statements": 65,
+      "covered": 59,
+      "missing": 6,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/review_data.py",
+      "sha256": "59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184",
+      "statements": 238,
+      "covered": 209,
+      "missing": 29,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/roomgenbench.py",
+      "sha256": "7582e1a2651a5b8e2b5ff23f11817b22909546cc2103e39a5da62861bd70c87f",
+      "statements": 287,
+      "covered": 278,
+      "missing": 9,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/runtime.py",
+      "sha256": "8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993",
+      "statements": 312,
+      "covered": 272,
+      "missing": 40,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/schema.py",
+      "sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "statements": 265,
+      "covered": 219,
+      "missing": 46,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/serve.py",
+      "sha256": "66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3",
+      "statements": 65,
+      "covered": 60,
+      "missing": 5,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/size_range.py",
+      "sha256": "0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165",
+      "statements": 22,
+      "covered": 22,
+      "missing": 0,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/text_sft.py",
+      "sha256": "0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da",
+      "statements": 187,
+      "covered": 159,
+      "missing": 28,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/train.py",
+      "sha256": "5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8",
+      "statements": 497,
+      "covered": 479,
+      "missing": 18,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/validation.py",
+      "sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "statements": 289,
+      "covered": 253,
+      "missing": 36,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/v2/verify_bundle.py",
+      "sha256": "812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a",
+      "statements": 49,
+      "covered": 42,
+      "missing": 7,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    },
+    {
+      "path": "fastfill/validate.py",
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "statements": 126,
+      "covered": 125,
+      "missing": 1,
+      "present_in_pytest_report": true,
+      "method": "final full-suite coverage JSON"
+    }
+  ],
+  "production_file_count": 183,
+  "unimported_file_count": 15,
+  "covered": 32147,
+  "statements": 38141,
+  "percent": 84.28462809050627,
+  "threshold_percent": 80,
+  "threshold_passed": true
+}

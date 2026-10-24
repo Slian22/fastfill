@@ -117,6 +117,42 @@ def test_model_hash_changes_when_weights_change(inputs):
     assert before != identity(inputs)
 
 
+def pin_stat(path, monkeypatch):
+    """Model a filesystem that reports unchanged metadata after a short write."""
+    target = path.resolve()
+    state, original = target.stat(), Path.stat
+    monkeypatch.setattr(Path, "stat", lambda self, *a, **kw: state if self == target else original(self, *a, **kw))
+
+
+@pytest.mark.parametrize("name", ["model.safetensors", "tokenizer.json"])
+def test_model_identity_rehashes_changed_bytes_with_unchanged_stat(inputs, monkeypatch, name):
+    model = inputs[1]
+    target = model / name
+    if name == "tokenizer.json":
+        target.write_text('{"v":1}')
+    pin_stat(target, monkeypatch)
+    before = protocol.model_identity(model)
+    if name == "model.safetensors":
+        safetensors(target, b"changed bytes")  # Same length as "model weights".
+    else:
+        target.write_text('{"v":2}')
+    actual = protocol.file_identity(target)
+    assert actual != before["files"][name]
+    after = protocol.model_identity(model)
+    assert after["files"][name] == actual
+    assert after != before
+
+
+def test_model_identity_revalidates_header_with_unchanged_stat(inputs, monkeypatch):
+    model = inputs[1]
+    target = model / "model.safetensors"
+    pin_stat(target, monkeypatch)
+    protocol.model_identity(model)
+    target.write_bytes(b"\0" * 8 + target.read_bytes()[8:])
+    with pytest.raises(ValueError, match="weight header"):
+        protocol.model_identity(model)
+
+
 def test_missing_indexed_model_shard_is_rejected(inputs):
     model = inputs[1]
     (model / "model.safetensors").unlink()

@@ -1,0 +1,436 @@
+{
+  "observed_utc": "2026-10-24T12:44:34.338792+00:00",
+  "host": "login42",
+  "runs": {
+    "a021": [
+      {
+        "path": "runs/unknownsize-20261013/a021/.train-A.lock",
+        "bytes": 0
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/candidates.json",
+        "bytes": 1798
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/dev-selection.json",
+        "bytes": 5523
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/final-report.md",
+        "bytes": 3135
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/final-selection.json",
+        "bytes": 5486
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/a021-policy.json",
+        "bytes": 5919
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/run_receipt.json",
+        "bytes": 5957
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/rows/MANIFEST.json",
+        "bytes": 111
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/run_manifest.json",
+        "bytes": 1080
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/training_guard.json",
+        "bytes": 7158
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/ckpt_latest/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/ckpt_latest/trainer_state.pt",
+        "bytes": 1741323483
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/ckpt_latest.previous/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/ckpt_latest.previous/trainer_state.pt",
+        "bytes": 1741323483
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/final/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/27b/train/final/tokenizer_config.json",
+        "bytes": 1123
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/cohorts/MANIFEST.json",
+        "bytes": 199
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/cohorts/confirm.json",
+        "bytes": 120945
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/cohorts/dev-select.json",
+        "bytes": 28110
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/confirm-v1/MANIFEST.json",
+        "bytes": 261273
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/confirm-v1/rooms.jsonl",
+        "bytes": 13492292
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/confirm-v1/size-estimates.jsonl",
+        "bytes": 1374714
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/engine-check/MANIFEST.json",
+        "bytes": 107
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/engine-check/engine.json",
+        "bytes": 4242
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/engine-v1/MANIFEST.json",
+        "bytes": 87605
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/engine-v1/rooms.jsonl",
+        "bytes": 4305829
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/engine-v1/size-estimates.jsonl",
+        "bytes": 444867
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/hf/confirm/plan/MANIFEST.json",
+        "bytes": 93
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/hf/engine/plan/MANIFEST.json",
+        "bytes": 93
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt/cohort/MANIFEST.json",
+        "bytes": 281918
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt/confirm/MANIFEST.json",
+        "bytes": 565212
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt/dev-select/MANIFEST.json",
+        "bytes": 117178
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt-scores/MANIFEST.json",
+        "bytes": 192
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt-scores/report.md",
+        "bytes": 1449
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/o2nt-scores/scores.json",
+        "bytes": 6693
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/pool/MANIFEST.json",
+        "bytes": 286
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/pool/ledger.jsonl",
+        "bytes": 51099987
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/pool/sft-rows.jsonl",
+        "bytes": 475478990
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/pool/summary.json",
+        "bytes": 5089
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/MANIFEST.json",
+        "bytes": 514
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/hf-receipt.json",
+        "bytes": 839
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/hf.jsonl",
+        "bytes": 102350
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/report.json",
+        "bytes": 994
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/report.md",
+        "bytes": 464
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/vllm-receipt.json",
+        "bytes": 1233
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/probe/vllm.jsonl",
+        "bytes": 93286
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/verdict.json",
+        "bytes": 2820
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/vllm-load.json",
+        "bytes": 3992
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/rows/MANIFEST.json",
+        "bytes": 111
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/train/run_manifest.json",
+        "bytes": 1196
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/train/final/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/smoke/train/final/tokenizer_config.json",
+        "bytes": 1123
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-arm/MANIFEST.json",
+        "bytes": 208
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-arm/placement-geometry.jsonl",
+        "bytes": 62252902
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-arm/summary.json",
+        "bytes": 14505
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-r/MANIFEST.json",
+        "bytes": 208
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-r/placement-geometry.jsonl",
+        "bytes": 61738357
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/test-geometry-r/summary.json",
+        "bytes": 13895
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/confirm/arm/MANIFEST.json",
+        "bytes": 564943
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/confirm/r/MANIFEST.json",
+        "bytes": 564943
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/dev-select/arm/MANIFEST.json",
+        "bytes": 116909
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/dev-select/r/MANIFEST.json",
+        "bytes": 116909
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/dev-select/r-hash/MANIFEST.json",
+        "bytes": 116909
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/engine/psft/MANIFEST.json",
+        "bytes": 188459
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/engine/r/MANIFEST.json",
+        "bytes": 188459
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/test/arm/MANIFEST.json",
+        "bytes": 1687537
+      },
+      {
+        "path": "runs/unknownsize-20261013/a021/vllm/test/r/MANIFEST.json",
+        "bytes": 1687537
+      }
+    ],
+    "a028": [
+      {
+        "path": "runs/unknownsize-20261013/a028/.train-J27.lock",
+        "bytes": 0
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/a021-policy.json",
+        "bytes": 5933
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/run_receipt.json",
+        "bytes": 5959
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/rows/MANIFEST.json",
+        "bytes": 107
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/run_manifest.json",
+        "bytes": 1088
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/training_guard.json",
+        "bytes": 7163
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/ckpt_latest/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/ckpt_latest/trainer_state.pt",
+        "bytes": 1741323483
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/ckpt_latest.previous/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/ckpt_latest.previous/trainer_state.pt",
+        "bytes": 1741323483
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/final/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/27b-joint/train/final/tokenizer_config.json",
+        "bytes": 1123
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/compare/MANIFEST.json",
+        "bytes": 193
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/compare/report.md",
+        "bytes": 6042
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/compare/results.json",
+        "bytes": 56919
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/dev-geometry-j27/MANIFEST.json",
+        "bytes": 204
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/dev-geometry-j27/joint-geometry.jsonl",
+        "bytes": 3736275
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/dev-geometry-j27/summary.json",
+        "bytes": 10283
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/rows/MANIFEST.json",
+        "bytes": 286
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/rows/ledger.jsonl",
+        "bytes": 25080007
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/rows/sft-rows.jsonl",
+        "bytes": 413211301
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/rows/summary.json",
+        "bytes": 2532
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/s1/test-geometry-arm/MANIFEST.json",
+        "bytes": 762
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/s1/test-geometry-arm/report.md",
+        "bytes": 4091
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/s1/test-geometry-j27/MANIFEST.json",
+        "bytes": 758
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/s1/test-geometry-j27/report.md",
+        "bytes": 4091
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/verdict.json",
+        "bytes": 2858
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/vllm-load.json",
+        "bytes": 4681
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/rows/MANIFEST.json",
+        "bytes": 107
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/train/run_manifest.json",
+        "bytes": 1192
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/train/final/adapter_config.json",
+        "bytes": 1264
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/smoke/train/final/tokenizer_config.json",
+        "bytes": 1123
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/test-geometry-j27/MANIFEST.json",
+        "bytes": 204
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/test-geometry-j27/joint-geometry.jsonl",
+        "bytes": 61470221
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/test-geometry-j27/summary.json",
+        "bytes": 13731
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/vllm/dev-select/j27/MANIFEST.json",
+        "bytes": 116909
+      },
+      {
+        "path": "runs/unknownsize-20261013/a028/vllm/test/j27/MANIFEST.json",
+        "bytes": 1687537
+      }
+    ]
+  },
+  "queue": {
+    "returncode": 0,
+    "stdout": "             JOBID                                       NAME        STATE         TIME                    NODELIST(REASON)\n",
+    "stderr": ""
+  },
+  "accounting": {
+    "returncode": 0,
+    "stdout": "JobID|JobName|State|ExitCode|Start|End|Elapsed|AllocTRES\n7406358|optiscene-014-dpo2-s1|TIMEOUT|0:0|2026-10-15T17:17:59|2026-10-16T17:18:02|1-00:00:03|billing=72,cpu=72,gres/gpu=1,mem=110G,node=1\n7419267|unknownsize-021-train|COMPLETED|0:0|2026-10-14T23:32:42|2026-10-15T04:38:40|05:05:58|billing=72,cpu=72,gres/gpu=4,mem=460000M,node=1\n7461663|unknownsize-028-rows|COMPLETED|0:0|2026-10-16T03:09:10|2026-10-16T03:16:19|00:07:09|billing=72,cpu=72,mem=192G,node=1\n7461664|unknownsize-028-smoke|COMPLETED|0:0|2026-10-16T03:16:21|2026-10-16T03:34:45|00:18:24|billing=72,cpu=72,gres/gpu=4,mem=460000M,node=1\n7461665|unknownsize-028-smoke-vllm|COMPLETED|0:0|2026-10-16T03:34:49|2026-10-16T03:39:47|00:04:58|billing=72,cpu=72,gres/gpu=1,mem=200G,node=1\n7461666|unknownsize-028-train|COMPLETED|0:0|2026-10-16T03:39:48|2026-10-16T08:40:04|05:00:16|billing=72,cpu=72,gres/gpu=4,mem=460000M,node=1\n7461667|unknownsize-028-train|CANCELLED|0:0|None|2026-10-16T08:40:08|00:00:00|\n7461668|unknownsize-028-infer-dev-select|COMPLETED|0:0|2026-10-16T08:40:09|2026-10-16T08:51:17|00:11:08|billing=72,cpu=72,gres/gpu=1,mem=100G,node=1\n7461669|unknownsize-028-infer-test|COMPLETED|0:0|2026-10-16T08:40:09|2026-10-16T09:53:28|01:13:19|billing=72,cpu=72,gres/gpu=1,mem=100G,node=1\n7461670|unknownsize-028-compare|COMPLETED|0:0|2026-10-16T09:53:32|2026-10-16T09:57:36|00:04:04|billing=72,cpu=72,mem=200G,node=1\n",
+    "stderr": ""
+  }
+}

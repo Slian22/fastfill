@@ -23,6 +23,7 @@ import tempfile
 from fastfill.comparison import downstream as dn
 from fastfill.comparison import evaluate_pair as e
 from fastfill.comparison import geometry as g
+from fastfill.comparison import report_v2 as r2
 from fastfill.comparison import train_pair_helpers as h
 from fastfill.comparison.corpus import _publish
 
@@ -59,6 +60,11 @@ def _diff(a, b, label):
             'complete': pick('complete')}
 
 
+def _bias(rows, rooms):
+    values = [r2.size_bias(rooms[r['uid']]['objects'], r['raw_layout'])[0] for r in rows if r.get('complete')]
+    return {'mean': statistics.mean(values) if values else None, 'complete_rooms': len(values)}
+
+
 def _gt(task):
     room = task
     verdict = dn.accept(room, room['objects'])
@@ -72,14 +78,17 @@ def decide(data, s1_root, out, workers=1):
         raise FileExistsError(out)
     manifest = e._verified(data)
     rooms = h._rows(data, 'rooms.jsonl', manifest['files']['rooms.jsonl'])
+    by_uid = h._by_uid(rooms)
     inputs, rates, contrasts, displacement = {}, {}, [], {}
-    views = {}
+    views, joint_bias = {}, {}
     for arm in ARMS:
         for variant in VARIANTS:
             rows, sha = _rows(s1_root, arm, variant)
             if {r['uid'] for r in rows} != set(manifest['expected_uids']):
                 raise ValueError(f'{arm}-{variant}: rows must cover every dev request')
             inputs[f'{arm}-{variant}'] = sha
+            if arm == 'joint':
+                joint_bias[variant] = _bias(rows, by_uid)
             for stage in ('raw', 's1'):
                 v = _view(rows, stage)
                 views[arm, variant, stage] = v
@@ -108,10 +117,16 @@ def decide(data, s1_root, out, workers=1):
         contrasts.append(c)
         est, ci = c['downstream']['estimate'], c['downstream']['ci95']
         passed = est is not None and est >= S2_GAIN - 1e-12 and ci is not None and ci[0] > 0
+        bias_check = 'P sizes are the prior: not applicable'
+        if arm == 'joint':
+            greedy, bo8 = (joint_bias[v]['mean'] for v in VARIANTS)
+            delta = abs(bo8 - greedy) if bo8 is not None and greedy is not None else None
+            bias_ok = delta is not None and delta <= BIAS_TOL + 1e-12
+            bias_check = {**joint_bias, 'absolute_difference': delta, 'tolerance': BIAS_TOL, 'passed': bias_ok,
+                          'population': 'each variant\'s own complete rooms; room mean log(pred/GT footprint)'}
+            passed = passed and bias_ok
         decisions[f's2_{arm}'] = {'passed': passed, 'estimate': est, 'ci95': ci,
-                                  'bias_check': 'not evaluated here (B8 guard keeps footprint bias within 0.03 of '
-                                                'greedy by construction for J; see best_of_n summary)' if arm == 'joint'
-                                  else 'P sizes are the prior: not applicable',
+                                  'bias_check': bias_check,
                                   'smaller_m_fallback': 'not evaluable: only B8 was repaired by S1'}
     tasks = [r for r in rooms]
     if workers == 1:
@@ -125,7 +140,7 @@ def decide(data, s1_root, out, workers=1):
     value = {'status': 'DECISION_012_COMPLETE', 'protocol': 'amendment-012 §4', 'rates': rates,
              'contrasts': contrasts, 'displacement': displacement, 'decisions': decisions, 'gt_reference': reference,
              'inputs': {'data_MANIFEST': h.sha256(data / 'MANIFEST.json'), **inputs},
-             'code_sha256': {p.name: h.sha256(p) for p in map(Path, (__file__, g.__file__, dn.__file__))}}
+             'code_sha256': {p.name: h.sha256(p) for p in map(Path, (__file__, g.__file__, dn.__file__, r2.__file__))}}
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.' + out.name + '-', dir=out.parent) as tmp:
         dest = Path(tmp)

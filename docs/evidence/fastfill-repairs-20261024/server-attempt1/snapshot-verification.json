@@ -1,0 +1,10 @@
+{
+  "status": "SNAPSHOT_BYTES_VERIFIED",
+  "observed_utc": "2026-10-24T13:07:10.367489+00:00",
+  "code_root": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/repairs-20261024-f18da4ce983c/OptiScene",
+  "content_sha256": "f18da4ce983c1af83371f646e1a389ca1e38a7dde63bf561bfde9d7c069f0b0c",
+  "archive_sha256": "a1f3260f14f23a8524044a9dd00bff1251b32828b8022f20d2a707e06bcdad03",
+  "files_verified": 494,
+  "all_match": true,
+  "read_only": true
+}

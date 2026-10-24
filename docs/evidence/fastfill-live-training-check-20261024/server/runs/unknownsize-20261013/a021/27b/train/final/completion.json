@@ -1,0 +1,36 @@
+{
+  "adapter_files": {
+    "adapter_config.json": {
+      "sha256": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+      "size_bytes": 1264
+    },
+    "adapter_model.safetensors": {
+      "sha256": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+      "size_bytes": 870439776
+    },
+    "tokenizer.json": {
+      "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+      "size_bytes": 19989325
+    },
+    "tokenizer_config.json": {
+      "sha256": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87",
+      "size_bytes": 1123
+    }
+  },
+  "admitted_pairs": 40000,
+  "epochs": 1,
+  "expected_total_steps": 10000,
+  "kind": "fastfill_v1.1_dpo_completion",
+  "loader_batches": 10000,
+  "position": {
+    "epoch": 0,
+    "it": 9999,
+    "step": 10000
+  },
+  "schema_version": 1,
+  "training_guard": {
+    "sha256": "6028433d51b7adcc0be9da012d86adfc0932a43cde2128f0c230bcbdede973af",
+    "size_bytes": 7158
+  },
+  "world_size": 4
+}

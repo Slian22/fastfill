@@ -33,7 +33,39 @@ Path(sys.argv[2]).write_text(json.dumps({"schema_version": 1, "expected_model": 
   CMD="'$PYTHON' -B '$CLIENT' --manifest '$BASE/smoke/manifest.json' --results-dir '$BASE/smoke/results' --env-file '$ENV_FILE' --limit 2 --timeout 600 $OPTS"
   TIME=00:30:00 ;;
 full)
-  test -e "$BASE/smoke/results" || { echo "run the smoke first" >&2; exit 1; }
+  # Read-only preflight: the client creates results/ before an API attempt, so its
+  # existence is not success. Reuse its strict receipt validation without calling the API.
+  PYTHONPATH="$CODE_ROOT" "$PYTHON" -B - "$BASE" "$BUNDLE/api-bundle/manifest.json" "$ENV_FILE" <<'PY'
+import sys
+from dataclasses import replace
+from pathlib import Path
+from fastfill.comparison import server_api_judge as judge
+
+base, full_path, env_file = map(Path, sys.argv[1:])
+try:
+    completion = judge.strict_json(judge.bounded_read(base / "smoke.completion.json", 4096,
+                                                    "smoke_completion_error"), "smoke_completion_error")
+    if not isinstance(completion, dict) or type(completion.get("exit_code")) is not int or completion["exit_code"] != 0:
+        raise judge.JudgeError("smoke_not_successful")
+    full = judge.load_manifest(full_path)
+    root = full_path.parent
+    cases = [{**c, "prompt_file": str(root / c["prompt_file"]),
+              "images": [{**i, "path": str(root / i["path"])} for i in c["images"]]}
+             for c in full["cases"][:2]]
+    expected = {"schema_version": 1, "expected_model": "gpt-6-astra", "cases": cases}
+    smoke_path = base / "smoke/manifest.json"
+    if len(cases) != 2 or judge.load_manifest(smoke_path) != expected:
+        raise judge.JudgeError("smoke_manifest_mismatch")
+    config = replace(judge.load_config(env_file), model="gpt-6-astra", reasoning_effort="high")
+    for case in cases:
+        identity, _ = judge.prepare_case(case, smoke_path.parent, config)
+        stem = judge.sha256(case["id"].encode())
+        results = base / "smoke/results"
+        if judge.reuse_result(results / (stem + ".attempt.json"), results / (stem + ".result.json"), identity) is None:
+            raise judge.JudgeError("smoke_result_missing")
+except (OSError, ValueError, judge.JudgeError):
+    raise SystemExit("smoke did not pass completion and receipt checks; full job not submitted") from None
+PY
   test ! -e "$BASE/results" || { echo "exists: $BASE/results" >&2; exit 1; }
   CMD="cd '$CODE_ROOT' && PYTHONPATH='$CODE_ROOT' FASTFILL_API_ENV='$ENV_FILE' '$PYTHON' -B -u '$CODE_ROOT/fastfill/comparison/judge_batch.py' --bundle '$BUNDLE' --output '$BASE/results' --client '$CLIENT' --max-cases 800 --arms J,P,L,O6 --timeout 600 --expected-total 696 $OPTS --workers 4"
   TIME=12:00:00 ;;

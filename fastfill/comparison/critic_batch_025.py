@@ -14,7 +14,8 @@ exist; the client code must not change during the run (checked before every laun
 NEW holds artifacts/ (frozen prompts and views), snapshot.json, cases/<sha256(id)>/ (reservation.json,
 manifest.json and the client's immutable results/ attempt and result files), records.jsonl in manifest order
 ({id, content_sha256, status, critic | error, returned_model, usage, launched, attempted}; attempted = an API
-call may have been made), answers/<sha256(id)>.json per case ({id, status, error, returned_model, raw_final_text},
+call may have been made), answers/<sha256(id)>.json per case ({id, expected_model, content_sha256, status, error,
+returned_model, raw_final_text},
 raw_final_text null unless the call completed), summary.json (counts, error codes, token totals) and MANIFEST.json
 (sha256 of every other file under NEW), written last. NEW/answers is the critic_025 `round --answers`: a failed call
 (even one whose stored result keeps a complete text) reaches the round as call_failed and the room stays unedited.
@@ -99,9 +100,11 @@ def _run_case(case, output, env_file, timeout, code):
     stem = judge.sha256(case['id'].encode())
     attempted = (directory / 'results' / (stem + '.attempt.json')).exists()
     judge_batch._write(output / 'answers' / (stem + '.json'), {
-        'id': case['id'], 'status': result['status'], 'error': result.get('error'),
-        'returned_model': result.get('returned_model'), 'raw_final_text': result.pop('raw_final_text', None)})
-    return {**result, 'launched': launched, 'attempted': attempted}
+        'id': case['id'], 'expected_model': critic.MODEL, 'content_sha256': judge_batch.content_hash(case),
+        'status': result['status'], 'error': result.get('error'),
+        'returned_model': result.get('returned_model'), 'raw_final_text': result.get('raw_final_text')})
+    return {**{k: v for k, v in result.items() if k != 'raw_final_text'},
+            'launched': launched, 'attempted': attempted}
 
 
 def evaluate(bundle, output, env_file, cap=CAP, limit=None, workers=4, timeout=600):

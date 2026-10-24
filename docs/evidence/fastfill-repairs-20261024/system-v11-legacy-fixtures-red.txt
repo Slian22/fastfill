@@ -1,0 +1,307 @@
+...FF.FF.                                                                [100%]
+=================================== FAILURES ===================================
+_ test_tiny_multimodal_qwen35_trains_only_language_model_linears_with_every_grad _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_tiny_multimodal_qwen35_tr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x326ea3b30>
+capsys = <_pytest.capture.CaptureFixture object at 0x326aef020>
+
+    def test_tiny_multimodal_qwen35_trains_only_language_model_linears_with_every_grad(tmp_path, monkeypatch, capsys):
+        model, rows = tiny_qwen35(tmp_path / 'qwen35'), pairs(tmp_path)
+        seen = []
+        monkeypatch.setattr(a021_train, 'base_receipt', lambda path: seen.append(path) or {'path': str(path), 'files': {'f': '0' * 64}})
+        flags = ('--sft_token_mean', '--answer_logits', '--check_render', '--image_text_model', '--base_receipt',
+                 '--lora_regex', a021_train.LORA_27B)
+        warmups, schedule = [], train_dpo.get_cosine_schedule_with_warmup
+        monkeypatch.setattr(train_dpo, 'get_cosine_schedule_with_warmup',
+                            lambda opt, **kw: warmups.append(kw['num_warmup_steps']) or schedule(opt, **kw))
+>       logs = run(monkeypatch, capsys, model, rows, tmp_path / 'out', *flags, '--perf_out', str(tmp_path / 'perf'),
+                   '--warmup_ratio', '1.0')
+
+fastfill/v1_1/tests/test_train_dpo_a021.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v1_1/tests/test_train_dpo_a021.py:148: in run
+    train_dpo.main()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def main() -> None:
+        import contextlib
+        import shutil
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+    
+        ap = argument_parser()
+        args = ap.parse_args()
+        if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
+            raise ValueError("--rpo_alpha must be finite and >= 0")
+        if args.sft_only and args.rpo_alpha:
+            raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
+        if args.sft_token_mean and not args.sft_only:
+            raise ValueError("--sft_token_mean is the --sft_only loss normalisation")
+    
+        world_size = int(os.environ.get("WORLD_SIZE", 1))
+        local_rank = int(os.environ.get("LOCAL_RANK", 0))
+        rank = int(os.environ.get("RANK", 0))
+        is_ddp = world_size > 1
+        if is_ddp:
+            dist.init_process_group(backend="nccl")
+            torch.cuda.set_device(local_rank)
+        device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
+        set_seed(args.seed)
+    
+        identity_error = None
+        if rank == 0:
+            from fastfill.v1_1.training_guard import bind_trainer_identity
+    
+            defaults = {k: ap.get_default(k) for k in vars(args)}
+            try:
+                bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+                                      [__file__, Path(__file__).with_name("training_guard.py"), prompt_text.__code__.co_filename])
+            except (OSError, ValueError, TypeError) as exc:
+                identity_error = f"Training identity validation failed: {exc}"
+        if is_ddp:
+            result = [identity_error]
+            dist.broadcast_object_list(result, src=0)
+            identity_error = result[0]
+        if identity_error is not None:
+>           raise ValueError(identity_error)
+E           ValueError: Training identity validation failed: Missing model configuration: /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_tiny_multimodal_qwen35_tr0/qwen35/tokenizer_config.json
+
+fastfill/v1_1/train_dpo.py:451: ValueError
+----------------------------- Captured stderr call -----------------------------
+[transformers] The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+------------------------------ Captured log call -------------------------------
+WARNING  transformers.models.qwen3_5.modeling_qwen3_5:logging.py:340 The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+________ test_without_init_adapter_training_is_bit_identical_to_before _________
+
+tiny = namespace(root=PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_wit...r/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_without_init_adapter_trai0/pairs.jsonl'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x326c64350>
+capsys = <_pytest.capture.CaptureFixture object at 0x326a083b0>
+
+    def test_without_init_adapter_training_is_bit_identical_to_before(tiny, monkeypatch, capsys):
+        try:
+            source = subprocess.run(['git', '-C', str(ROOT), 'show', f'{BEFORE}:fastfill/v1_1/train_dpo.py'],
+                                    capture_output=True, text=True, check=True).stdout
+        except (OSError, subprocess.CalledProcessError):
+            pytest.skip(f'needs the git history ({BEFORE}) for the pre-amendment-013 train_dpo')
+        before = types.ModuleType('train_dpo_before')
+        exec(compile(source, 'train_dpo_before.py', 'exec'), before.__dict__)
+>       logs = [run(m, monkeypatch, capsys, tiny, tiny.root / name) for m, name in ((before, 'before'), (train_dpo, 'after'))]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:85: in run
+    module.main()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def main() -> None:
+        import contextlib
+        import shutil
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+    
+        ap = argument_parser()
+        args = ap.parse_args()
+        if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
+            raise ValueError("--rpo_alpha must be finite and >= 0")
+        if args.sft_only and args.rpo_alpha:
+            raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
+        if args.sft_token_mean and not args.sft_only:
+            raise ValueError("--sft_token_mean is the --sft_only loss normalisation")
+    
+        world_size = int(os.environ.get("WORLD_SIZE", 1))
+        local_rank = int(os.environ.get("LOCAL_RANK", 0))
+        rank = int(os.environ.get("RANK", 0))
+        is_ddp = world_size > 1
+        if is_ddp:
+            dist.init_process_group(backend="nccl")
+            torch.cuda.set_device(local_rank)
+        device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
+        set_seed(args.seed)
+    
+        identity_error = None
+        if rank == 0:
+            from fastfill.v1_1.training_guard import bind_trainer_identity
+    
+            defaults = {k: ap.get_default(k) for k in vars(args)}
+            try:
+                bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+                                      [__file__, Path(__file__).with_name("training_guard.py"), prompt_text.__code__.co_filename])
+            except (OSError, ValueError, TypeError) as exc:
+                identity_error = f"Training identity validation failed: {exc}"
+        if is_ddp:
+            result = [identity_error]
+            dist.broadcast_object_list(result, src=0)
+            identity_error = result[0]
+        if identity_error is not None:
+>           raise ValueError(identity_error)
+E           ValueError: Training identity validation failed: Missing model configuration: /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_without_init_adapter_trai0/model/tokenizer_config.json
+
+fastfill/v1_1/train_dpo.py:451: ValueError
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 925.08it/s]
+Loading weights:   0%|          | 0/25 [00:00<?, ?it/s]Loading weights: 100%|██████████| 25/25 [00:00<00:00, 12946.98it/s]
+___ test_init_adapter_step_moves_only_the_policy_and_saves_one_plain_adapter ___
+
+tiny = namespace(root=PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_ini...r/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_init_adapter_step_moves_o0/pairs.jsonl'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x328a41190>
+capsys = <_pytest.capture.CaptureFixture object at 0x328ab8200>
+
+    def test_init_adapter_step_moves_only_the_policy_and_saves_one_plain_adapter(tiny, monkeypatch, capsys):
+        model = train_dpo.init_policy(base(tiny), tiny.init, train_dpo.lora_config(R, ALPHA))
+        model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant': False})
+        before = {n: lora(model, n) for n in (train_dpo.POLICY, train_dpo.REFERENCE)}
+        opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=1e-2, weight_decay=0.0)
+        b = batch(tiny)
+        model.train()
+        with torch.no_grad(), train_dpo.reference_policy(model, tiny.init):
+            ref = [logps(model, b, s) for s in 'cr']
+        loss = train_dpo.dpo_loss(*[logps(model, b, s) for s in 'cr'], *ref, 0.1)[0]
+        train_dpo.backward_finite_loss(loss)
+        opt.step()
+        after = {n: lora(model, n) for n in before}
+        assert all(torch.equal(v, after[train_dpo.REFERENCE][k]) for k, v in before[train_dpo.REFERENCE].items())
+        assert any(not torch.equal(v, after[train_dpo.POLICY][k]) for k, v in before[train_dpo.POLICY].items())
+    
+        out = tiny.root / 'op'
+>       logs = run(train_dpo, monkeypatch, capsys, tiny, out, '--init_adapter', str(tiny.init))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:85: in run
+    module.main()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def main() -> None:
+        import contextlib
+        import shutil
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+    
+        ap = argument_parser()
+        args = ap.parse_args()
+        if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
+            raise ValueError("--rpo_alpha must be finite and >= 0")
+        if args.sft_only and args.rpo_alpha:
+            raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
+        if args.sft_token_mean and not args.sft_only:
+            raise ValueError("--sft_token_mean is the --sft_only loss normalisation")
+    
+        world_size = int(os.environ.get("WORLD_SIZE", 1))
+        local_rank = int(os.environ.get("LOCAL_RANK", 0))
+        rank = int(os.environ.get("RANK", 0))
+        is_ddp = world_size > 1
+        if is_ddp:
+            dist.init_process_group(backend="nccl")
+            torch.cuda.set_device(local_rank)
+        device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
+        set_seed(args.seed)
+    
+        identity_error = None
+        if rank == 0:
+            from fastfill.v1_1.training_guard import bind_trainer_identity
+    
+            defaults = {k: ap.get_default(k) for k in vars(args)}
+            try:
+                bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+                                      [__file__, Path(__file__).with_name("training_guard.py"), prompt_text.__code__.co_filename])
+            except (OSError, ValueError, TypeError) as exc:
+                identity_error = f"Training identity validation failed: {exc}"
+        if is_ddp:
+            result = [identity_error]
+            dist.broadcast_object_list(result, src=0)
+            identity_error = result[0]
+        if identity_error is not None:
+>           raise ValueError(identity_error)
+E           ValueError: Training identity validation failed: Missing model configuration: /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_init_adapter_step_moves_o0/model/tokenizer_config.json
+
+fastfill/v1_1/train_dpo.py:451: ValueError
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1254.65it/s]
+Loading weights:   0%|          | 0/25 [00:00<?, ?it/s]Loading weights: 100%|██████████| 25/25 [00:00<00:00, 12201.26it/s]
+_ test_sft_only_trains_the_chosen_mean_token_nll_without_reference_or_rejected_pass _
+
+tiny = namespace(root=PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_sft...r/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_sft_only_trains_the_chose0/pairs.jsonl'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x328aa7fb0>
+capsys = <_pytest.capture.CaptureFixture object at 0x328ab8260>
+
+    def test_sft_only_trains_the_chosen_mean_token_nll_without_reference_or_rejected_pass(tiny, monkeypatch, capsys):
+        pol_c, tokens = torch.tensor([-6.0, -2.0]), torch.tensor([3, 2])
+        zero = torch.zeros(2)  # sft_loss is exactly dpo_loss's NLL term (RPO without the DPO term).
+        assert torch.equal(train_dpo.sft_loss(pol_c, tokens), train_dpo.dpo_loss(pol_c, zero, zero, zero, 0.1, 1.0, tokens)[2])
+        assert math.isclose(train_dpo.sft_loss(pol_c, tokens).item(), (6 / 3 + 2 / 2) / 2)
+        calls, real = [], train_dpo.sequence_logps
+    
+        def logps(model, input_ids, attention_mask, labels):
+            calls.append((torch.is_grad_enabled(), input_ids.tolist()))
+            return real(model, input_ids, attention_mask, labels)
+    
+        def no_reference(*args):
+            raise AssertionError('--sft_only must not run the reference')
+        monkeypatch.setattr(train_dpo, 'sequence_logps', logps)
+        monkeypatch.setattr(train_dpo, 'reference_policy', no_reference)
+        out = tiny.root / 'rft'
+>       logs = run(train_dpo, monkeypatch, capsys, tiny, out, '--init_adapter', str(tiny.init), '--rpo_alpha', '0', '--sft_only')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:85: in run
+    module.main()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def main() -> None:
+        import contextlib
+        import shutil
+        from peft import set_peft_model_state_dict
+        from safetensors.torch import load_file
+    
+        ap = argument_parser()
+        args = ap.parse_args()
+        if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
+            raise ValueError("--rpo_alpha must be finite and >= 0")
+        if args.sft_only and args.rpo_alpha:
+            raise ValueError("--sft_only has no DPO term; --rpo_alpha must be 0")
+        if args.sft_token_mean and not args.sft_only:
+            raise ValueError("--sft_token_mean is the --sft_only loss normalisation")
+    
+        world_size = int(os.environ.get("WORLD_SIZE", 1))
+        local_rank = int(os.environ.get("LOCAL_RANK", 0))
+        rank = int(os.environ.get("RANK", 0))
+        is_ddp = world_size > 1
+        if is_ddp:
+            dist.init_process_group(backend="nccl")
+            torch.cuda.set_device(local_rank)
+        device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
+        set_seed(args.seed)
+    
+        identity_error = None
+        if rank == 0:
+            from fastfill.v1_1.training_guard import bind_trainer_identity
+    
+            defaults = {k: ap.get_default(k) for k in vars(args)}
+            try:
+                bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+                                      [__file__, Path(__file__).with_name("training_guard.py"), prompt_text.__code__.co_filename])
+            except (OSError, ValueError, TypeError) as exc:
+                identity_error = f"Training identity validation failed: {exc}"
+        if is_ddp:
+            result = [identity_error]
+            dist.broadcast_object_list(result, src=0)
+            identity_error = result[0]
+        if identity_error is not None:
+>           raise ValueError(identity_error)
+E           ValueError: Training identity validation failed: Missing model configuration: /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-532/test_sft_only_trains_the_chose0/model/tokenizer_config.json
+
+fastfill/v1_1/train_dpo.py:451: ValueError
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1430.53it/s]
+Loading weights:   0%|          | 0/25 [00:00<?, ?it/s]Loading weights: 100%|██████████| 25/25 [00:00<00:00, 18328.54it/s]
+=========================== short test summary info ============================
+FAILED fastfill/v1_1/tests/test_train_dpo_a021.py::test_tiny_multimodal_qwen35_trains_only_language_model_linears_with_every_grad
+FAILED fastfill/v1_1/tests/test_train_dpo_init_adapter.py::test_without_init_adapter_training_is_bit_identical_to_before
+FAILED fastfill/v1_1/tests/test_train_dpo_init_adapter.py::test_init_adapter_step_moves_only_the_policy_and_saves_one_plain_adapter
+FAILED fastfill/v1_1/tests/test_train_dpo_init_adapter.py::test_sft_only_trains_the_chosen_mean_token_nll_without_reference_or_rejected_pass
+4 failed, 5 passed in 5.80s

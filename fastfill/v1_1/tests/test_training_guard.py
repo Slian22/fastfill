@@ -9,6 +9,7 @@ import pytest
 from fastfill.v1_1.training_guard import guard_training, completed_adapter, verify_pair_receipt, require_isolated_run
 from fastfill.v1_1.evaluation_protocol import file_identity
 from fastfill.v1_1 import training_guard
+from fastfill.v1_1.tests.test_evaluation_protocol import pin_stat
 
 
 def weight(path):
@@ -38,8 +39,10 @@ def test_identical_resume_is_allowed_and_returns_same_receipt(inputs):
 
 
 @pytest.mark.parametrize("changed", ["pairs", "weights", "settings", "code"])
-def test_resume_rejects_changed_training_identity(inputs, changed):
+def test_resume_rejects_changed_training_identity(inputs, changed, monkeypatch):
     model, pairs, code, out = inputs
+    if changed == "weights":
+        pin_stat(model / "model.safetensors", monkeypatch)
     guard_training(model, pairs, out, {"epochs": 2}, [code])
     if changed == "pairs":
         pairs.write_text('{"uid":"b","chosen":"good","rejected":"bad"}\n')
@@ -135,7 +138,7 @@ def test_audit_receipt_change_refuses_resume(inputs):
         guard_training(model, pairs, out, {"epochs": 2}, [code])
 
 
-def test_merged_output_must_match_exact_base_adapter_and_output(inputs, tmp_path):
+def test_merged_output_must_match_exact_base_adapter_and_output(inputs, tmp_path, monkeypatch):
     from fastfill.v1_1.training_guard import seal_merge, merge_complete
     import shutil
 
@@ -147,6 +150,7 @@ def test_merged_output_must_match_exact_base_adapter_and_output(inputs, tmp_path
     weight(adapter / "adapter_model.safetensors")
     merged = tmp_path / "merged"
     shutil.copytree(model, merged)
+    pin_stat(merged / "model.safetensors", monkeypatch)
     assert not merge_complete(model, adapter, merged)
     seal_merge(model, adapter, merged)
     assert merge_complete(model, adapter, merged)

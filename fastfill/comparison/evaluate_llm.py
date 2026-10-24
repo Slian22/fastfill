@@ -108,7 +108,10 @@ def _enforced(rows, requests):
 
 def _score_llm(task):
     room, request, record, arm = task
-    return {**e._score((room, request, {**record, 'arm': arm}, arm)), 'arm': record['arm'],
+    # Old parser failures can become valid after B2 size enforcement; runner semantic failures cannot.
+    semantic_error = (record.get('schema') or {}).get('error')
+    error = record.get('error') or (semantic_error if semantic_error == 'reasoning_in_no_reasoning_system' else None)
+    return {**e._score((room, request, {**record, 'arm': arm, 'error': error}, arm)), 'arm': record['arm'],
             **{k: record[k] for k in CAP_FLAGS if k in record}}
 
 

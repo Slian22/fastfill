@@ -1,0 +1,441 @@
+FFFFFFFFFFF                                                              [100%]
+=================================== FAILURES ===================================
+______ test_handoff_preserves_requested_support_when_prediction_omits_it _______
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_handoff_preserves_request0')
+
+    def test_handoff_preserves_requested_support_when_prediction_omits_it(tmp_path):
+        from fastfill.v1_1.postprocess import repair_v1_1
+        from fastfill.v2.direct_layout import export_handoff
+        from fastfill.v2.roomgenbench import reference_check
+    
+        source = _declared_support_scene(tmp_path)
+        room, meta = showcase.roomgenbench_scene_to_v1_1_room(source)
+        placements = gt_placements_v1_1(room)
+        placements["lamp_1"] = {**placements["lamp_1"], "on": None, "pos": [3., 3., 0.]}
+        condition, layout = showcase.placements_to_v2_handoff(room, meta, repair_v1_1(room, placements))
+>       assert condition["objects"][1]["support_parent"] == "obj_0000"
+E       AssertionError: assert 'floor' == 'obj_0000'
+E         
+E         - obj_0000
+E         + floor
+
+fastfill/v1_1/tests/test_roomgenbench_recovery.py:235: AssertionError
+_________ test_showcase_wrong_requested_support_is_not_reported_valid __________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_showcase_wrong_requested_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x329247470>
+
+    def test_showcase_wrong_requested_support_is_not_reported_valid(tmp_path, monkeypatch):
+        from fastfill.v1_1 import evaluate_v1_1
+        import transformers
+    
+        source = _declared_support_scene(tmp_path)
+        room, _ = showcase.roomgenbench_scene_to_v1_1_room(source)
+        placements = gt_placements_v1_1(room)
+        placements["lamp_1"] = {**placements["lamp_1"], "on": None, "pos": [3., 3., 0.]}
+        raw = json.dumps({"placements": [{"id": oid, **p} for oid, p in placements.items()]})
+    
+        class Tokenizer:
+            def apply_chat_template(self, messages, **kwargs):
+                return json.dumps(messages)
+    
+        monkeypatch.setattr(transformers.AutoTokenizer, "from_pretrained", lambda *a, **k: Tokenizer())
+        monkeypatch.setattr(evaluate_v1_1, "generate_v1_1", lambda *a, **k: [raw])
+        monkeypatch.setattr(showcase, "ensure_roomgenbench_assets", lambda *a, **k: None)
+        output = tmp_path / "out"
+        monkeypatch.setattr(sys, "argv", ["showcase", "--model", "fake", "--scenes-dir", str(tmp_path),
+                                        "--out-dir", str(output)])
+        showcase.main()
+        result = json.loads((output / "summary.json").read_text())["support"]
+        assert result["model_generation_succeeded"] is True
+>       assert result["repaired_valid"] is False
+E       assert True is False
+
+fastfill/v1_1/tests/test_roomgenbench_recovery.py:267: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[support] {'n_objects': 2, 'n_fixed_doors_windows': 0, 'geometry_source': 'model', 'parse_error': None, 'used_fallback': False, 'model_generation_succeeded': True, 'raw_main_collisions': 0, 'repaired_main_collisions': 0, 'repaired_severe_collisions': 0, 'repaired_support_fail': 0, 'repaired_oob': 0, 'repaired_fixed_blocking': 0, 'repaired_valid': True, 'fallback_geometry_valid': None, 'reference_check': {'fastfill': {'ok': True, 'pass': 9, 'violation': 0, 'unknown': 3}, 'ground_truth': {'ok': False, 'pass': 8, 'violation': 1, 'unknown': 3}}, 'assembled_3d_glb': None}
+_ test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[pairs] _
+
+tiny_training_run = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x329472d50>
+change = 'pairs'
+
+    @pytest.mark.parametrize("change", ["pairs", "model", "recipe"])
+    def test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest(tiny_training_run, monkeypatch, change):
+        out = tiny_training_run
+        manifest = out / "run_manifest.json"
+        before = manifest.read_bytes()
+        args = json.loads(before)["args"]
+        if change == "pairs":
+            path = Path(args["pairs"])
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            path.write_text("".join(json.dumps({**r, "chosen": r["rejected"], "rejected": r["chosen"]}) + "\n" for r in rows))
+        elif change == "model":
+            path = Path(args["model"]) / "model.safetensors"
+            from safetensors.torch import load_file
+            weights = load_file(path)
+            key = next(iter(weights))
+            weights[key] = weights[key] + .1
+            save_file(weights, path)
+        else:
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:236: Failed
+---------------------------- Captured stdout setup -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.7135, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.7135, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/run/final
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 517.11it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 11172.04it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c0/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 21540.81it/s]
+_ test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[model] _
+
+tiny_training_run = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x329793a70>
+change = 'model'
+
+    @pytest.mark.parametrize("change", ["pairs", "model", "recipe"])
+    def test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest(tiny_training_run, monkeypatch, change):
+        out = tiny_training_run
+        manifest = out / "run_manifest.json"
+        before = manifest.read_bytes()
+        args = json.loads(before)["args"]
+        if change == "pairs":
+            path = Path(args["pairs"])
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            path.write_text("".join(json.dumps({**r, "chosen": r["rejected"], "rejected": r["chosen"]}) + "\n" for r in rows))
+        elif change == "model":
+            path = Path(args["model"]) / "model.safetensors"
+            from safetensors.torch import load_file
+            weights = load_file(path)
+            key = next(iter(weights))
+            weights[key] = weights[key] + .1
+            save_file(weights, path)
+        else:
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:236: Failed
+---------------------------- Captured stdout setup -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/run/final
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1591.77it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 11734.66it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c1/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 10131.17it/s]
+_ test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[recipe] _
+
+tiny_training_run = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x329792900>
+change = 'recipe'
+
+    @pytest.mark.parametrize("change", ["pairs", "model", "recipe"])
+    def test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest(tiny_training_run, monkeypatch, change):
+        out = tiny_training_run
+        manifest = out / "run_manifest.json"
+        before = manifest.read_bytes()
+        args = json.loads(before)["args"]
+        if change == "pairs":
+            path = Path(args["pairs"])
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            path.write_text("".join(json.dumps({**r, "chosen": r["rejected"], "rejected": r["chosen"]}) + "\n" for r in rows))
+        elif change == "model":
+            path = Path(args["model"]) / "model.safetensors"
+            from safetensors.torch import load_file
+            weights = load_file(path)
+            key = next(iter(weights))
+            weights[key] = weights[key] + .1
+            save_file(weights, path)
+        else:
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:236: Failed
+---------------------------- Captured stdout setup -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/run/final
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1424.70it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 16393.15it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_real_cpu_resume_rejects_c2/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 24487.18it/s]
+_________ test_unbound_legacy_checkpoint_requires_explicit_provenance __________
+
+tiny_training_run = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/run')
+
+    def test_unbound_legacy_checkpoint_requires_explicit_provenance(tiny_training_run):
+        out = tiny_training_run
+        identity = out / "trainer_identity.json"
+        if identity.exists():
+            identity.unlink()  # Simulate the historical direct CLI, which did not write a guard.
+>       with pytest.raises(ValueError, match="unbound"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:246: Failed
+---------------------------- Captured stdout setup -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/run/final
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1569.72it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 19418.07it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_unbound_legacy_checkpoint0/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 8444.10it/s]
+__________ test_guarded_legacy_resume_retains_guard_and_run_manifest ___________
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/run')
+capsys = <_pytest.capture.CaptureFixture object at 0x329792360>
+
+    def test_guarded_legacy_resume_retains_guard_and_run_manifest(tiny_training_inputs, capsys):
+        out = tiny_training_inputs
+        _guarded_legacy_run(out)
+        originals = {name: (out / name).read_bytes() for name in ("training_guard.json", "run_manifest.json")}
+        train_dpo.main()
+>       assert (out / "trainer_identity.json").is_file()
+E       AssertionError: assert False
+E        +  where False = is_file()
+E        +    where is_file = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/run') / 'trainer_identity.json').is_file
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:273: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1745.44it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/run/final
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_ret0/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 11935.01it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 10446.59it/s]
+_________ test_guarded_legacy_resume_checks_original_provenance[pairs] _________
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x16f6ba9c0>
+change = 'pairs'
+
+    @pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings"])
+    def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+        out = tiny_training_inputs
+        frozen = _guarded_legacy_run(out)
+        if change == "pairs":
+            path = out.parent / "pairs.jsonl"
+            path.write_text(path.read_text().replace('"good"', '"bad"'))
+        elif change == "recipe":
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+        elif change == "frozen_code":
+            frozen.write_text(frozen.read_text() + "\n# changed\n")
+        else:
+            path = out / "training_guard.json"
+            guard = json.loads(path.read_text())
+            guard["settings"]["world_size"] = 2
+            path.write_text(json.dumps(guard))
+        before = (out / "run_manifest.json").read_bytes()
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:295: Failed
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1757.88it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/run/final
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che0/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 9942.47it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 24913.13it/s]
+________ test_guarded_legacy_resume_checks_original_provenance[recipe] _________
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x16b282b40>
+change = 'recipe'
+
+    @pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings"])
+    def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+        out = tiny_training_inputs
+        frozen = _guarded_legacy_run(out)
+        if change == "pairs":
+            path = out.parent / "pairs.jsonl"
+            path.write_text(path.read_text().replace('"good"', '"bad"'))
+        elif change == "recipe":
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+        elif change == "frozen_code":
+            frozen.write_text(frozen.read_text() + "\n# changed\n")
+        else:
+            path = out / "training_guard.json"
+            guard = json.loads(path.read_text())
+            guard["settings"]["world_size"] = 2
+            path.write_text(json.dumps(guard))
+        before = (out / "run_manifest.json").read_bytes()
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:295: Failed
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1501.18it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/run/final
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che1/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 10051.40it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 21114.80it/s]
+______ test_guarded_legacy_resume_checks_original_provenance[frozen_code] ______
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x16f6ba690>
+change = 'frozen_code'
+
+    @pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings"])
+    def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+        out = tiny_training_inputs
+        frozen = _guarded_legacy_run(out)
+        if change == "pairs":
+            path = out.parent / "pairs.jsonl"
+            path.write_text(path.read_text().replace('"good"', '"bad"'))
+        elif change == "recipe":
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+        elif change == "frozen_code":
+            frozen.write_text(frozen.read_text() + "\n# changed\n")
+        else:
+            path = out / "training_guard.json"
+            guard = json.loads(path.read_text())
+            guard["settings"]["world_size"] = 2
+            path.write_text(json.dumps(guard))
+        before = (out / "run_manifest.json").read_bytes()
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:295: Failed
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 1831.57it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/run/final
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che2/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 17497.10it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 9859.01it/s]
+____ test_guarded_legacy_resume_checks_original_provenance[guard_settings] _____
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x16f687b30>
+change = 'guard_settings'
+
+    @pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings"])
+    def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+        out = tiny_training_inputs
+        frozen = _guarded_legacy_run(out)
+        if change == "pairs":
+            path = out.parent / "pairs.jsonl"
+            path.write_text(path.read_text().replace('"good"', '"bad"'))
+        elif change == "recipe":
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+        elif change == "frozen_code":
+            frozen.write_text(frozen.read_text() + "\n# changed\n")
+        else:
+            path = out / "training_guard.json"
+            guard = json.loads(path.read_text())
+            guard["settings"]["world_size"] = 2
+            path.write_text(json.dumps(guard))
+        before = (out / "run_manifest.json").read_bytes()
+>       with pytest.raises(ValueError, match="[Ii]dentity"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:295: Failed
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 623.13it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.6171, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/run/final
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+[train_dpo] Resumed from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/run/ckpt_latest at epoch=1, it=4, step=2/2
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-475/test_guarded_legacy_resume_che3/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 9804.68it/s]
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 17745.62it/s]
+=========================== short test summary info ============================
+FAILED fastfill/v1_1/tests/test_roomgenbench_recovery.py::test_handoff_preserves_requested_support_when_prediction_omits_it
+FAILED fastfill/v1_1/tests/test_roomgenbench_recovery.py::test_showcase_wrong_requested_support_is_not_reported_valid
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[pairs]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[model]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_real_cpu_resume_rejects_changed_inputs_before_rewriting_manifest[recipe]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_unbound_legacy_checkpoint_requires_explicit_provenance
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_retains_guard_and_run_manifest
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_checks_original_provenance[pairs]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_checks_original_provenance[recipe]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_checks_original_provenance[frozen_code]
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_checks_original_provenance[guard_settings]
+11 failed, 59 deselected in 9.58s

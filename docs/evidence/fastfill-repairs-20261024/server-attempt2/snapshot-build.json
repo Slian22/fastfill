@@ -1,0 +1,12 @@
+{
+  "content_sha256": "0870dad7e23518463c54362a0e4bffa520f8c5c3eacb141a5b94df5a25df9c3a",
+  "archive": "/tmp/fastfill-repairs-20261024/repairs-20261024-0870dad7e235.tar.gz",
+  "archive_sha256": "de33837b0fefbb968a46c7942375d02f925463bd1fb367127052ee7870577364",
+  "files": 494,
+  "bytes": 2108673,
+  "remote_directory": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/repairs-20261024-0870dad7e235",
+  "remote_run": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-0870dad7e235",
+  "changes_from_previous_candidate": [
+    "fastfill/tests/test_v1_1_audit_pairs.py"
+  ]
+}

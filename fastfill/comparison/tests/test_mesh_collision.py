@@ -129,7 +129,7 @@ def test_split_transform_matches_render_placement_on_a_rotated_object(tmp_path):
     assert all((x == y).all() for x, y in zip(direct, one_by_one))
 
 
-def test_cli_writes_once_and_reports_missing(tmp_path):
+def visual_run(tmp_path):
     rooms = tmp_path / 'assets'
     rooms.mkdir()
     a = [obj('a', 'cabinet', (.2, .2, .2), (1.1, 1.1, 0)), obj('b', 'cabinet', (.2, .2, .2), (1.2, 1.1, 0))]
@@ -144,6 +144,11 @@ def test_cli_writes_once_and_reports_missing(tmp_path):
                                                      for i, c in enumerate(cases)))
     (visual / 'attachment-ledger.jsonl').write_text(''.join(json.dumps({'uid': c['uid'], 'errors': {}}) + '\n'
                                                             for c in cases))
+    return tmp_path / 'run'
+
+
+def test_cli_writes_once_and_reports_missing(tmp_path):
+    visual_run(tmp_path)
     out = tmp_path / 'out'
     summary = m.run(tmp_path / 'run', out, workers=1, repeats=20)
     assert summary['analysed_rooms'] == 2 and list(summary['missing_rooms']) == ['r2']
@@ -160,3 +165,39 @@ def test_cli_writes_once_and_reports_missing(tmp_path):
     assert len((out / 'rows.jsonl').read_text().splitlines()) == 6
     with pytest.raises(FileExistsError):
         m.run(tmp_path / 'run', out, workers=1, repeats=20)
+
+
+@pytest.mark.parametrize('limit, expected', [(1, ['r0']), (2, ['r0', 'r1']), (100, ['r0', 'r1'])])
+def test_limit_samples_each_available_room_at_most_once(tmp_path, limit, expected):
+    run = visual_run(tmp_path)
+    out = tmp_path / 'limited'
+    summary = m.run(run, out, workers=1, limit=limit, repeats=2)
+    rows = [json.loads(line) for line in (out / 'rows.jsonl').read_text().splitlines()]
+    assert [r['uid'] for r in rows if r['system'] == 'GT'] == expected
+    assert summary['analysed_rooms'] == summary['cohort_rooms'] == len(expected)
+    assert summary['missing_rooms'] == {}
+
+
+@pytest.mark.parametrize('rendered', [False, True])
+def test_no_successful_mesh_analysis_still_publishes_missing_reasons(tmp_path, rendered):
+    run = visual_run(tmp_path)
+    visual = run / 'visual'
+    if rendered:
+        cases = [json.loads(line) for line in (visual / 'cases.jsonl').read_text().splitlines()]
+        for case in cases:
+            for asset in case['asset_mapping']:
+                asset['mesh_path'] = str(tmp_path / 'missing.obj')
+        (visual / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
+        (visual / 'chunks/00/input.json').write_text(json.dumps({'cases': cases[:2]}))
+    else:
+        (visual / 'chunks/00/input.json').unlink()
+    out = tmp_path / 'failed'
+    summary = m.run(run, out, workers=1, repeats=2)
+    assert summary['analysed_rooms'] == 0 and len(summary['missing_rooms']) == 3
+    assert summary['bbox_max_err_m'] is None and summary['systems'] == {}
+    assert (out / 'rows.jsonl').read_text() == (out / 'pairs.jsonl').read_text() == ''
+    report = (out / 'report.md').read_text()
+    assert '最大误差 — m' in report and '分析成功 0 个' in report
+    assert all(f'`r{i}`' in report for i in range(3))
+    manifest = json.loads((out / 'MANIFEST.json').read_text())
+    assert all(m.render.file_sha256(out / name) == sha for name, sha in manifest['files'].items())

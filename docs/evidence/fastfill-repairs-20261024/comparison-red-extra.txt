@@ -1,0 +1,151 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+________________ test_missing_complete_bias_cannot_authorize_s2 ________________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-471/test_missing_complete_bias_can0')
+
+    def test_missing_complete_bias_cannot_authorize_s2(tmp_path):
+        data, s1 = decision_inputs(tmp_path, 0.)
+        root = s1 / 'joint-sft-greedy'
+        path = root / 'joint-greedy-geometry-s1.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows = [{**r, 'complete': False, 'raw_layout': None,
+                 's1': {**r['s1'], 'strict_ok_s1': False, 'geometry_success_s1': False}} for r in rows]
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        h.write_json(root / 'MANIFEST.json', {'files': h.artifact_manifest(root)})
+>       joint = d.decide(data, s1, tmp_path / 'decision')['decisions']['s2_joint']
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_decide_012.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/decide_012.py:79: in decide
+    rows, sha = _rows(s1_root, arm, variant)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/decide_012.py:36: in _rows
+    manifest = e._verified(d)
+               ^^^^^^^^^^^^^^
+fastfill/comparison/evaluate_pair.py:23: in _verified
+    h.verify_artifacts(root, manifest['files'])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-471/test_missing_complete_bias_can0/s1/joint-sft-greedy')
+manifest = {'MANIFEST.json': '13bf4221edee645953e2f6457a4a0d3906cde45fefb0fca0f79efb106c68b25d', 'joint-greedy-geometry-s1.jsonl': '6d2f152dbf5abf0c31e6a1578b4212dbf0051c517c892c0a4fdcebb6f646ffac'}
+
+    def verify_artifacts(root, manifest):
+        for name, expected in manifest.items():
+            path = _inside(Path(root), name)
+            if not path.is_file() or sha256(path) != _expected_hash(expected):
+>               raise ValueError(f'artifact hash mismatch: {name}')
+E               ValueError: artifact hash mismatch: MANIFEST.json
+
+fastfill/comparison/train_pair_helpers.py:82: ValueError
+__________ test_nonfinite_placement_is_one_room_failure_not_run_abort __________
+
+world = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-471/test_nonfinite_placeme...}, 'il-bed-2': {'uid': 'il-bed-2', 'source': 'IL3D_3dfront', 'group': 'g-il-b', 'boundary_type': 'polygon', ...}, ...})
+
+    def test_nonfinite_placement_is_one_room_failure_not_run_abort(world):
+        root, rooms = world
+        uid, room = next(iter(rooms.items()))
+        value = json.loads(base.target(None, 'joint', room))
+        value['placements'][0]['pos'][0] = 'overflow'
+        raw = json.dumps(value).replace('"overflow"', '1e309')
+        fake = FakeLLM(rooms, script={uid: [raw] * 3}, arm='placement')
+>       assert O.main(argv(root, 'O2nt', 'run', '--arm', 'placement'), loader(fake)) == 0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/comparison/tests/test_llm_open.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/comparison/llm_open.py:455: in main
+    result = run(args, load)
+             ^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:361: in run
+    bodies = _chunk(llm, params, tok, spec, chunk, log, args.arm)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:249: in _chunk
+    answer = _answer(output, cap, precount, spec, tok, by_uid[uid], wall / len(jobs), arm)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_open.py:213: in _answer
+    return {'raw': text, 'schema': L.parse(text, record, arm), 'reasoning': reasoning,
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:190: in parse
+    return infer.parse_prediction(enforce_sizes(text, record)[0] if arm == 'placement' else text, record, arm)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/comparison/llm_agent.py:185: in enforce_sizes
+    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/json/encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.encoder.JSONEncoder object at 0x1114c5b50>
+o = {'placements': [{'id': 'obj_0001', 'pos': [inf, 1, 0], 'yaw': 0}, {'id': 'obj_0002', 'pos': [3, 3, 0], 'yaw': 117}]}
+_one_shot = True
+
+    def iterencode(self, o, _one_shot=False):
+        """Encode the given object and yield each string
+        representation as available.
+    
+        For example::
+    
+            for chunk in JSONEncoder().iterencode(bigobject):
+                mysocket.write(chunk)
+    
+        """
+        if self.check_circular:
+            markers = {}
+        else:
+            markers = None
+        if self.ensure_ascii:
+            _encoder = encode_basestring_ascii
+        else:
+            _encoder = encode_basestring
+    
+        def floatstr(o, allow_nan=self.allow_nan,
+                _repr=float.__repr__, _inf=INFINITY, _neginf=-INFINITY):
+            # Check for specials.  Note that this type of test is processor
+            # and/or platform-specific, so do tests which don't depend on the
+            # internals.
+    
+            if o != o:
+                text = 'NaN'
+            elif o == _inf:
+                text = 'Infinity'
+            elif o == _neginf:
+                text = '-Infinity'
+            else:
+                return _repr(o)
+    
+            if not allow_nan:
+                raise ValueError(
+                    "Out of range float values are not JSON compliant: " +
+                    repr(o))
+    
+            return text
+    
+    
+        if (_one_shot and c_make_encoder is not None
+                and self.indent is None):
+            _iterencode = c_make_encoder(
+                markers, self.default, _encoder, self.indent,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, self.allow_nan)
+        else:
+            _iterencode = _make_iterencode(
+                markers, self.default, _encoder, self.indent, floatstr,
+                self.key_separator, self.item_separator, self.sort_keys,
+                self.skipkeys, _one_shot)
+>       return _iterencode(o, 0)
+               ^^^^^^^^^^^^^^^^^
+E       ValueError: Out of range float values are not JSON compliant: inf
+
+../../../../miniforge3/lib/python3.12/json/encoder.py:258: ValueError
+---------------------------- Captured stdout setup -----------------------------
+{"rooms": 36, "uids_sha256": "9750c5f73763a6497637c332ce8ebbcd6e1e36107e01f9d4a92896a9f37b6a25"}
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_decide_012.py::test_missing_complete_bias_cannot_authorize_s2
+FAILED fastfill/comparison/tests/test_llm_open.py::test_nonfinite_placement_is_one_room_failure_not_run_abort
+2 failed in 0.53s

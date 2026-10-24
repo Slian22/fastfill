@@ -198,7 +198,10 @@ def _train_metrics(records):
             floor = Polygon(user["boundary"])
             raw += inside(lay, floor)
             adjusted = copy.deepcopy(pl)
-            snap_inside(adjusted, room, floor)
+            constraints = user.get("constraints", [])
+            # Invalid declarations are reported above; do not invent a repair after dropping them.
+            if isinstance(constraints, list) and all(_constraint_error(c, set(pl)) is None for c in constraints):
+                snap_inside(adjusted, room, floor, constraints, room["boundary"])
             repaired += inside({**lay, "objects": [{**o, "pos": adjusted[o["id"]]["pos"]}
                                                     for o in lay["objects"]]}, floor)
     return {"train_rows_with_constraints": constrained, "object_set_closure": dict(closure),

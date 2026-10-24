@@ -1,0 +1,574 @@
+FFFFFFFFFFFFFFFFFF.                                                      [100%]
+=================================== FAILURES ===================================
+_ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[../reference/protected] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca0')
+key = '../reference/protected'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+_ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[nested/name] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca1')
+key = 'nested/name'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+        with pytest.raises(ValueError, match="scene_key"):
+>           roomgenbench.write_benchmark_requests(source, out, roomgenbench_root=reference)
+
+fastfill/v2/tests/test_repairs_20261024.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/roomgenbench.py:293: in write_benchmark_requests
+    (target / name).write_text(payload)
+../../../../miniforge3/lib/python3.12/pathlib.py:1047: in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca1/requests/nested/name.json')
+mode = 'w', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca1/requests/nested/name.json'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[..\\protected] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca2')
+key = '..\\protected'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+____ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[] _____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca3')
+key = ''
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+____ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[.] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca4')
+key = '.'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+___ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[..] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca5')
+key = '..'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+____ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[7] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca6')
+key = 7
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+__ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[None] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca7')
+key = None
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+_ test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[absolute] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca8')
+key = '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_benchmark_request_keys_ca8/reference/protected'
+
+    @pytest.mark.parametrize("key", ["../reference/protected", "nested/name", "..\\protected", "", ".", "..", 7, None, "absolute"])
+    def test_benchmark_request_keys_cannot_escape_or_create_partial_outputs(tmp_path, key):
+        reference = tmp_path / "reference"
+        source = reference / "scenes"
+        source.mkdir(parents=True)
+        victim = reference / "protected.json"
+        victim.write_text('{"original": true}\n')
+        if key == "absolute":
+            key = str(victim.with_suffix(""))
+        scene = {"scene_key": "safe_scene", "room_type": "study",
+                 "room": {"dimensions": {"width": 5., "length": 4., "height": 3.}},
+                 "objects": [{"id": "desk", "type": "desk", "description": "desk", "place_id": "floor"}]}
+        (source / "a.json").write_text(json.dumps(scene))
+        (source / "b.json").write_text(json.dumps({**scene, "scene_key": key}))
+        before = {p: p.read_bytes() for p in reference.rglob("*.json")}
+        out = tmp_path / "requests"
+>       with pytest.raises(ValueError, match="scene_key"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+fastfill/v2/tests/test_repairs_20261024.py:38: Failed
+__________ test_stratify_cache_invalidates_every_consumed_input[fit] ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_stratify_cache_invalidate0')
+changed = 'fit'
+
+    @pytest.mark.parametrize("changed", ["fit", "report"])
+    def test_stratify_cache_invalidates_every_consumed_input(tmp_path, changed):
+        rows = real_rows()
+        data, fit, predictions = (tmp_path / name for name in ("rows.jsonl", "fit.jsonl", "predictions.jsonl"))
+        data.write_text("".join(json.dumps(r) + "\n" for r in rows))
+        fit.write_bytes(data.read_bytes())
+        predictions.write_text("".join(json.dumps(r["target"]) + "\n" for r in rows))
+        out, cache = tmp_path / "evaluation", tmp_path / "cache"
+        run_evaluation(data, out, predictions=predictions, baseline_fit=fit)
+        assert collect(out, workers=1, cache=cache)[2]["reproduces_report_exactly"]
+        if changed == "fit":
+            modified = deepcopy(rows)
+            for row in modified:
+                for obj in row["target"]["objects"]:
+                    obj["target_size_local_m"] = [None if x is None else x * 2 for x in obj["target_size_local_m"]]
+            fit.write_text("".join(json.dumps(r) + "\n" for r in modified))
+        else:
+            path = out / "report.json"
+            report = json.loads(path.read_text())
+            report["model"]["reference"]["log_size_error"]["mean"] = 123.
+            path.write_text(json.dumps(report))
+        cached, fresh = collect(out, workers=1, cache=cache), collect(out, workers=1)
+        assert not fresh[2]["reproduces_report_exactly"]
+>       assert cached == fresh
+E       AssertionError: assert ({'eval_dir':...hes': 0, ...}) == ({'eval_dir':...hes': 0, ...})
+E         
+E         At index 1 diff: [{'row': 0, 'scene_id': 'HSSD200:102344328:7', 'source': 'HSSD200', 'n_objects': 4, 'layout': True, 'gt_room': {'collision_pairs': 2, 'fixed_collision_pairs': 0, 'hard_violation': True, 'hard_unknown': True}, 'over_capacity': False, 'latency_ms': None, 'objects': {'obj_0000': {'rule': 'frozen_prep', 'place': 'undeclared', 'err': {'bottom_center_error_m': 0.0, 'log_size_error': 0.0, 'yaw_error_rad': None, 'bev_iou': None, 'log_size_error_plain_convention': 0.0, 'yaw_error_rad_plain_convention': None}, 'base': {'pv': True, 'sv': True, 'yv': False, 'room_c...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+fastfill/v2/tests/test_repairs_20261024.py:67: AssertionError
+_________ test_stratify_cache_invalidates_every_consumed_input[report] _________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_stratify_cache_invalidate1')
+changed = 'report'
+
+    @pytest.mark.parametrize("changed", ["fit", "report"])
+    def test_stratify_cache_invalidates_every_consumed_input(tmp_path, changed):
+        rows = real_rows()
+        data, fit, predictions = (tmp_path / name for name in ("rows.jsonl", "fit.jsonl", "predictions.jsonl"))
+        data.write_text("".join(json.dumps(r) + "\n" for r in rows))
+        fit.write_bytes(data.read_bytes())
+        predictions.write_text("".join(json.dumps(r["target"]) + "\n" for r in rows))
+        out, cache = tmp_path / "evaluation", tmp_path / "cache"
+        run_evaluation(data, out, predictions=predictions, baseline_fit=fit)
+        assert collect(out, workers=1, cache=cache)[2]["reproduces_report_exactly"]
+        if changed == "fit":
+            modified = deepcopy(rows)
+            for row in modified:
+                for obj in row["target"]["objects"]:
+                    obj["target_size_local_m"] = [None if x is None else x * 2 for x in obj["target_size_local_m"]]
+            fit.write_text("".join(json.dumps(r) + "\n" for r in modified))
+        else:
+            path = out / "report.json"
+            report = json.loads(path.read_text())
+            report["model"]["reference"]["log_size_error"]["mean"] = 123.
+            path.write_text(json.dumps(report))
+        cached, fresh = collect(out, workers=1, cache=cache), collect(out, workers=1)
+        assert not fresh[2]["reproduces_report_exactly"]
+>       assert cached == fresh
+E       AssertionError: assert ({'eval_dir':...hes': 0, ...}) == ({'eval_dir':...hes': 0, ...})
+E         
+E         At index 2 diff: {'requests': 3, 'requests_with_layout': 3, 'over_capacity_requests': 0, 'request_reference_mismatches': 0, 'request_baseline_mismatches': 0, 'rooms_validation_differs_from_stored': 0, 'rooms_gt_validation_differs_from_stored': 0, 'rooms_gt_validation_stored': 3, 'report_reference_exact': {'bottom_center_error_m': True, 'log_size_error': True, 'yaw_error_rad': True, 'bev_iou': True, 'log_size_error_plain_convention': True, 'yaw_error_rad_plain_convention': True, 'box_equivalent_objects': True, 'yaw_error_rad_by_symmetry_order': True}, 'report_baselines_e...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+fastfill/v2/tests/test_repairs_20261024.py:67: AssertionError
+___ test_versioned_harness_retains_valid_layout_on_failed_repair[transport] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_versioned_harness_retains0')
+failure = 'transport'
+
+    @pytest.mark.parametrize("failure", ["transport", "malformed"])
+    def test_versioned_harness_retains_valid_layout_on_failed_repair(tmp_path, failure):
+>       module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v2/tests/test_repairs_20261024.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'fastfill.v2.llm_baseline_v2'
+import_ = <function _gcd_import at 0x100cd40e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'fastfill.v2.llm_baseline_v2'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+___ test_versioned_harness_retains_valid_layout_on_failed_repair[malformed] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_versioned_harness_retains1')
+failure = 'malformed'
+
+    @pytest.mark.parametrize("failure", ["transport", "malformed"])
+    def test_versioned_harness_retains_valid_layout_on_failed_repair(tmp_path, failure):
+>       module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v2/tests/test_repairs_20261024.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'fastfill.v2.llm_baseline_v2'
+import_ = <function _gcd_import at 0x100cd40e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'fastfill.v2.llm_baseline_v2'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+________ test_legacy_autorun_never_deletes_or_rebuys_unbound_baselines _________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_legacy_autorun_never_dele0')
+
+    def test_legacy_autorun_never_deletes_or_rebuys_unbound_baselines(tmp_path):
+        env, data = tmp_path / "dummy.env", tmp_path / "rows.jsonl"
+        env.write_text("OPENAI_MODEL=unused\n")
+        data.write_text("{}\n")
+        (tmp_path / "fastfill/v2").mkdir(parents=True)
+        shutil.copy(llm_baseline.__file__, tmp_path / "fastfill/v2/llm_baseline.py")
+        pilot = autorun.Autopilot(argparse.Namespace(repo=str(tmp_path), llm_env=str(env), llm_rows="300"))
+        for mode in ("prompt", "harness"):
+            path = pilot.runs / f"llm-{mode}-300"
+            path.mkdir()
+            (path / "summary.json").write_text('{"historical": true}\n')
+            (path / "predictions.jsonl").write_text('{"layout": null}\n')
+        before = {p: p.read_bytes() for p in pilot.runs.rglob("*") if p.is_file()}
+        calls = []
+        pilot.sh = lambda *a, **k: calls.append(a)
+        pilot.llm_baselines(data)
+>       assert calls == []
+E       AssertionError: assert [(['/private/...-env', ...],)] == []
+E         
+E         Left contains 2 more items, first extra item: (['/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_legacy_autorun_never_dele0...vrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_legacy_autorun_never_dele0/rows.jsonl'), '--env', ...],)
+E         Use -v to get more diff
+
+fastfill/v2/tests/test_repairs_20261024.py:116: AssertionError
+__ test_versioned_autorun_keeps_history_and_requires_new_path_for_input_drift __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_versioned_autorun_keeps_h0')
+
+    def test_versioned_autorun_keeps_history_and_requires_new_path_for_input_drift(tmp_path):
+>       module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+fastfill/v2/tests/test_repairs_20261024.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'fastfill.v2.llm_baseline_v2'
+import_ = <function _gcd_import at 0x100cd40e0>
+
+>   ???
+E   ModuleNotFoundError: No module named 'fastfill.v2.llm_baseline_v2'
+
+<frozen importlib._bootstrap>:1324: ModuleNotFoundError
+__ test_structured_wrapper_propagates_failure_and_stops_each_chain[generate] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_structured_wrapper_propag0')
+failure = 'generate'
+
+    @pytest.mark.parametrize("failure", ["generate", "rows", "evaluate", "none"])
+    def test_structured_wrapper_propagates_failure_and_stops_each_chain(tmp_path, failure):
+        (tmp_path / "env/bin").mkdir(parents=True)
+        rows = tmp_path / "runs/llm-prompt-300/rows.jsonl"
+        rows.parent.mkdir(parents=True)
+        rows.write_text("{}\n")
+        stub = tmp_path / "env/bin/python"
+        stub.write_text(f"#!{sys.executable}\n" + '''import os, sys
+    from pathlib import Path
+    args=sys.argv[1:]
+    module=args[args.index('-m')+1]
+    with open('calls.txt','a') as stream: stream.write(module+'\\n')
+    failure=os.environ['TEST_FAILURE']
+    if module.endswith('llm_structured'):
+        if failure == 'generate': raise SystemExit(42)
+        out=Path(args[args.index('--output')+1]);out.mkdir(parents=True)
+        (out/'rows.jsonl').write_text('DIFFERENT' if failure == 'rows' else '{}\\n')
+    elif failure == 'evaluate': raise SystemExit(42)
+    ''')
+        stub.chmod(0o755)
+        source = Path(__file__).parents[1] / "ops/run_structured.sh"
+        result = subprocess.run(["bash", "-c", 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'],
+                                env={**os.environ, "OPS_TEST_WORK": str(tmp_path), "OPS_SRC": str(source), "TEST_FAILURE": failure},
+                                text=True, capture_output=True)
+        calls = (tmp_path / "calls.txt").read_text().splitlines()
+>       assert (result.returncode == 0) is (failure == "none")
+E       assert (0 == 0) is ('generate' == 'none'
+E        +  where 0 = CompletedProcess(args=['bash', '-c', 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'], returncode=0, stdout...ured ROWS DIFFER\nstructured-harness ROWS DIFFER\nstructured-harness scored\nstructured scored\nALL-DONE\n', stderr='').returncode
+E         
+E         - none
+E         + generate)
+
+fastfill/v2/tests/test_repairs_20261024.py:194: AssertionError
+____ test_structured_wrapper_propagates_failure_and_stops_each_chain[rows] _____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_structured_wrapper_propag1')
+failure = 'rows'
+
+    @pytest.mark.parametrize("failure", ["generate", "rows", "evaluate", "none"])
+    def test_structured_wrapper_propagates_failure_and_stops_each_chain(tmp_path, failure):
+        (tmp_path / "env/bin").mkdir(parents=True)
+        rows = tmp_path / "runs/llm-prompt-300/rows.jsonl"
+        rows.parent.mkdir(parents=True)
+        rows.write_text("{}\n")
+        stub = tmp_path / "env/bin/python"
+        stub.write_text(f"#!{sys.executable}\n" + '''import os, sys
+    from pathlib import Path
+    args=sys.argv[1:]
+    module=args[args.index('-m')+1]
+    with open('calls.txt','a') as stream: stream.write(module+'\\n')
+    failure=os.environ['TEST_FAILURE']
+    if module.endswith('llm_structured'):
+        if failure == 'generate': raise SystemExit(42)
+        out=Path(args[args.index('--output')+1]);out.mkdir(parents=True)
+        (out/'rows.jsonl').write_text('DIFFERENT' if failure == 'rows' else '{}\\n')
+    elif failure == 'evaluate': raise SystemExit(42)
+    ''')
+        stub.chmod(0o755)
+        source = Path(__file__).parents[1] / "ops/run_structured.sh"
+        result = subprocess.run(["bash", "-c", 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'],
+                                env={**os.environ, "OPS_TEST_WORK": str(tmp_path), "OPS_SRC": str(source), "TEST_FAILURE": failure},
+                                text=True, capture_output=True)
+        calls = (tmp_path / "calls.txt").read_text().splitlines()
+>       assert (result.returncode == 0) is (failure == "none")
+E       assert (0 == 0) is ('rows' == 'none'
+E        +  where 0 = CompletedProcess(args=['bash', '-c', 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'], returncode=0, stdout...ured ROWS DIFFER\nstructured-harness ROWS DIFFER\nstructured scored\nstructured-harness scored\nALL-DONE\n', stderr='').returncode
+E         
+E         - none
+E         + rows)
+
+fastfill/v2/tests/test_repairs_20261024.py:194: AssertionError
+__ test_structured_wrapper_propagates_failure_and_stops_each_chain[evaluate] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-469/test_structured_wrapper_propag2')
+failure = 'evaluate'
+
+    @pytest.mark.parametrize("failure", ["generate", "rows", "evaluate", "none"])
+    def test_structured_wrapper_propagates_failure_and_stops_each_chain(tmp_path, failure):
+        (tmp_path / "env/bin").mkdir(parents=True)
+        rows = tmp_path / "runs/llm-prompt-300/rows.jsonl"
+        rows.parent.mkdir(parents=True)
+        rows.write_text("{}\n")
+        stub = tmp_path / "env/bin/python"
+        stub.write_text(f"#!{sys.executable}\n" + '''import os, sys
+    from pathlib import Path
+    args=sys.argv[1:]
+    module=args[args.index('-m')+1]
+    with open('calls.txt','a') as stream: stream.write(module+'\\n')
+    failure=os.environ['TEST_FAILURE']
+    if module.endswith('llm_structured'):
+        if failure == 'generate': raise SystemExit(42)
+        out=Path(args[args.index('--output')+1]);out.mkdir(parents=True)
+        (out/'rows.jsonl').write_text('DIFFERENT' if failure == 'rows' else '{}\\n')
+    elif failure == 'evaluate': raise SystemExit(42)
+    ''')
+        stub.chmod(0o755)
+        source = Path(__file__).parents[1] / "ops/run_structured.sh"
+        result = subprocess.run(["bash", "-c", 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'],
+                                env={**os.environ, "OPS_TEST_WORK": str(tmp_path), "OPS_SRC": str(source), "TEST_FAILURE": failure},
+                                text=True, capture_output=True)
+        calls = (tmp_path / "calls.txt").read_text().splitlines()
+>       assert (result.returncode == 0) is (failure == "none")
+E       assert (0 == 0) is ('evaluate' == 'none'
+E        +  where 0 = CompletedProcess(args=['bash', '-c', 'cd() { builtin cd "$OPS_TEST_WORK"; }; source "$OPS_SRC"'], returncode=0, stdout='structured rows identical\nstructured-harness rows identical\nALL-DONE\n', stderr='').returncode
+E         
+E         - none
+E         + evaluate)
+
+fastfill/v2/tests/test_repairs_20261024.py:194: AssertionError
+=========================== short test summary info ============================
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[../reference/protected]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[nested/name]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[..\\protected]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[.]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[..]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[7]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[None]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_benchmark_request_keys_cannot_escape_or_create_partial_outputs[absolute]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_stratify_cache_invalidates_every_consumed_input[fit]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_stratify_cache_invalidates_every_consumed_input[report]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_retains_valid_layout_on_failed_repair[transport]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_retains_valid_layout_on_failed_repair[malformed]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_legacy_autorun_never_deletes_or_rebuys_unbound_baselines
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_autorun_keeps_history_and_requires_new_path_for_input_drift
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_structured_wrapper_propagates_failure_and_stops_each_chain[generate]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_structured_wrapper_propagates_failure_and_stops_each_chain[rows]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_structured_wrapper_propagates_failure_and_stops_each_chain[evaluate]
+18 failed, 1 passed in 2.52s

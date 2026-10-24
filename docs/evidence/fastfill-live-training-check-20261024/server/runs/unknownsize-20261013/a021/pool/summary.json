@@ -1,0 +1,170 @@
+{
+ "status": "A021_POOL_COMPLETE",
+ "order": "sha256('a021-27b:' + uid)",
+ "max_len": 8192,
+ "admission_counts": {
+  "eligible_candidates": 124843,
+  "joint_qualified": 103316,
+  "placement_qualified": 118058,
+  "common_decoder_train": 98923
+ },
+ "p_only_expected": 19135,
+ "lineage": {
+  "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/main-06161c75b/docs/research/20261013-unknown-size-comparison/evidence/full-audit-data-lineage-7368003-result.json",
+  "sha256": "3c65c23d639d19f26081a7f0aa35eb9307ab51f88ca817a58dfc7fffc67e7f53",
+  "status": "ERROR",
+  "note": "admission_counts were computed before that audit job errored"
+ },
+ "p_only": {
+  "rooms": 19135,
+  "by_source": {
+   "HSSD200": 289,
+   "IL3D_3dfront": 5115,
+   "IL3D_synthetic": 166,
+   "InteriorGS": 562,
+   "InternScenes_3rscan": 606,
+   "InternScenes_arkit": 1695,
+   "InternScenes_gen": 221,
+   "InternScenes_mp3d": 396,
+   "InternScenes_scannet": 597,
+   "MansionWorld": 337,
+   "MultiScan": 36,
+   "SAGE-10k": 747,
+   "Scan2CAD": 5,
+   "SpatialLM": 6812,
+   "Structured3D": 1551
+  },
+  "by_bin": {
+   "1-10": 11810,
+   "11-30": 5984,
+   "31-50": 804,
+   "51+": 537
+  },
+  "by_family": {
+   "balcony": 41,
+   "bathroom": 267,
+   "bedroom": 7296,
+   "circulation": 132,
+   "dining": 364,
+   "garage": 57,
+   "kitchen": 400,
+   "laundry_utility": 62,
+   "living": 5620,
+   "meeting": 105,
+   "none": 3345,
+   "other": 121,
+   "public_commercial": 310,
+   "storage_closet": 93,
+   "study_office": 922
+  },
+  "checker_pass": 19135
+ },
+ "rebuild": {
+  "p_only_ledger_equal": 19135,
+  "accepted_sample_byte_equal": 200,
+  "rule": "main_data._candidate; ledger entry equal; accepted sample: placement/train.jsonl line and train room equal"
+ },
+ "checker": {
+  "candidates": 118058,
+  "pass": 118058,
+  "fail_by_origin": {}
+ },
+ "pool": {
+  "rooms": 118058,
+  "by_origin": {
+   "common": 98923,
+   "p_only": 19135
+  },
+  "by_source": {
+   "HSSD200": 1245,
+   "IL3D_3dfront": 14352,
+   "IL3D_synthetic": 6256,
+   "InteriorGS": 3020,
+   "InternScenes_3rscan": 903,
+   "InternScenes_arkit": 3793,
+   "InternScenes_gen": 12091,
+   "InternScenes_mp3d": 958,
+   "InternScenes_scannet": 865,
+   "MansionWorld": 18680,
+   "MultiScan": 51,
+   "OptiScene_holodeck": 8946,
+   "SAGE-10k": 6483,
+   "Scan2CAD": 10,
+   "SpatialLM": 30872,
+   "Structured3D": 9533
+  },
+  "by_bin": {
+   "1-10": 80151,
+   "11-30": 28836,
+   "31-50": 5132,
+   "51+": 3939
+  },
+  "by_family": {
+   "balcony": 2301,
+   "bathroom": 17638,
+   "bedroom": 35955,
+   "circulation": 1424,
+   "dining": 5142,
+   "garage": 1107,
+   "kitchen": 10722,
+   "laundry_utility": 1941,
+   "living": 16934,
+   "meeting": 1433,
+   "none": 9595,
+   "other": 1371,
+   "public_commercial": 3379,
+   "storage_closet": 1504,
+   "study_office": 7612
+  },
+  "fits": {
+   "27b": 117841,
+   "8b": 117841
+  },
+  "prefix_failures": {
+   "27b": 0,
+   "8b": 0
+  }
+ },
+ "held_out": [
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-select-v1",
+   "manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a"
+  },
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/dev-full-v1",
+   "manifest_sha256": "c3c030ae3d75e804aa0ed300a7703834af0ceead87e3dc0f501159e0261f0180"
+  },
+  {
+   "path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013/eval-data-v1",
+   "manifest_sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604"
+  }
+ ],
+ "leaks": 0,
+ "tokenizers": {
+  "27b": {
+   "base_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+   "base_files_sha256": "a4fca2a27a330e7510b09d7535d92352a6b19917b4b44251cd9a3aa20036db36",
+   "eos_token": "<|im_end|>"
+  },
+  "8b": {
+   "base_path": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3-8B",
+   "base_files_sha256": "69d069331c87531e7aa054e70085cef25752b3e6e3614b03e851a2e997a4b85b",
+   "eos_token": "<|im_end|>"
+  }
+ },
+ "inputs": {
+  "main_manifest_sha256": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+  "corpus_manifest_sha256": "bf6444ae51f21e8f944168d985576f14029a5ecf9400f6e625ffa62ee5f636c6"
+ },
+ "code_sha256": {
+  "comparison/a021_train.py": "305e2fe851d60a5dfee81a9aebe9400d9a895cde1e885dcfae2f46451c3c9c56",
+  "comparison/dpo_stages.py": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+  "comparison/infer.py": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+  "comparison/main_data.py": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+  "comparison/geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+  "comparison/train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+  "v1_1/train_dpo.py": "e61843a9e4dae6b6d4634cfa31b30943400fd737d2b49573762d99f76a8ab9a1",
+  "scene.py": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+  "validate.py": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158"
+ }
+}

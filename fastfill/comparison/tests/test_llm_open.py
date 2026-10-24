@@ -105,6 +105,40 @@ def rows(path):
     return [json.loads(x) for x in path.read_text().splitlines()]
 
 
+@pytest.mark.parametrize('reasoning', [False, True])
+def test_o2nt_semantic_failure_survives_evaluation(world, reasoning):
+    root, rooms = world
+    answer = '<think>plan</think>{valid}' if reasoning else '{valid}'
+    fake = FakeLLM(rooms, default=answer, arm='placement')
+    assert O.main(argv(root, 'O2nt', 'run', '--arm', 'placement'), loader(fake)) == 0
+    run = json.loads((root / 'run/result.json').read_text())
+    expected = 0 if reasoning else run['rooms']
+    assert run['valid_final'] == expected
+    result = ev.evaluate(root / 'data', root / 'cohort.json', root / 'run', root / 'eval', repeats=2)
+    for variant in L.VARIANTS:
+        assert result['arms'][variant]['all']['complete_count'] == expected
+        scored = rows(root / 'eval' / f'{variant}-geometry.jsonl')
+        assert all(r['geometry_success'] is (not reasoning) for r in scored)
+        assert all(r['error'] == ('reasoning_in_no_reasoning_system' if reasoning else None) for r in scored)
+
+
+@pytest.mark.parametrize('number', ['1e309', str(10 ** 400)], ids=['float_overflow', 'integer_overflow'])
+def test_nonfinite_placement_is_one_room_failure_not_run_abort(world, number):
+    root, rooms = world
+    uid, room = next(iter(rooms.items()))
+    value = json.loads(base.target(None, 'joint', room))
+    value['placements'][0]['pos'][2] = 'overflow'
+    value['placements'][1]['on'] = value['placements'][0]['id']
+    raw = json.dumps(value).replace('"overflow"', number)
+    fake = FakeLLM(rooms, script={uid: [raw] * 3}, arm='placement')
+    assert O.main(argv(root, 'O2nt', 'run', '--arm', 'placement'), loader(fake)) == 0
+    run = json.loads((root / 'run/result.json').read_text())
+    assert run['valid_final'] == run['rooms'] - 1
+    assert len(list((root / 'run/receipts').glob('*.json'))) == run['rooms']
+    result = ev.evaluate(root / 'data', root / 'cohort.json', root / 'run', root / 'eval', repeats=2)
+    assert result['arms']['llm_harness']['all']['complete_count'] == run['rooms'] - 1
+
+
 def test_split_reasoning_per_template():
     s = O.split_reasoning
     assert s('<think>plan</think>\n\n{"a":1}', 'think', True, True) == ('<think>plan</think>', '\n\n{"a":1}')

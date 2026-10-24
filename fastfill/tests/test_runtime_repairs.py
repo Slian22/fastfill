@@ -300,6 +300,7 @@ class HttpRepairs(unittest.TestCase):
         handler = serve.make_handler(generate, "ff-test", "/ckpt/ff-test").__new__(
             serve.make_handler(generate, "ff-test", "/ckpt/ff-test"))
         handler.path = path
+        handler.connection = Mock()
         handler.headers = {} if length is None else {"Content-Length": length}
         handler.rfile = Mock(wraps=io.BytesIO(data))
         handler.wfile = io.BytesIO()

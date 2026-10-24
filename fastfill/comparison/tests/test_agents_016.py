@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from fastfill.comparison import agents_016 as A
+from fastfill.comparison import evaluate_llm as ev
 from fastfill.comparison import geometry as g
 from fastfill.comparison import infer
 from fastfill.comparison import llm_agent as L
@@ -75,6 +76,53 @@ def test_gt_request_differs_from_p_only_in_sizes():
     assert sizes == {o['id']: o['size'] for o in room['objects']} and gt['messages'][0] == record['messages'][0]
     with pytest.raises(ValueError, match='beyond its sizes'):
         L.gt_request(record, {**room, 'height': 4})
+
+
+@pytest.mark.parametrize('runner_error', [None, 'INTERNAL_ERROR'])
+def test_rescoring_keeps_parser_failures_repairable_and_runner_failures_failed(runner_error):
+    room = _supported_room()
+    record = {k: room[k] for k in ('uid', 'source', 'group')}
+    request = {**record, 'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+    raw = base.target(None, 'joint', room)
+    old_schema = infer.parse_prediction(raw, request, 'placement')
+    assert not old_schema['valid']  # Old strict parser rejected the now-allowed returned sizes.
+    row = {**record, 'arm': 'llm_harness', 'raw': raw, 'schema': old_schema, 'error': runner_error}
+    enforced, _ = ev._enforced([row], {room['uid']: request})
+    scored = ev._score_llm((room, request, enforced[0], 'placement'))
+    assert scored['complete'] is (runner_error is None)
+    assert scored['error'] == runner_error
+
+
+@pytest.mark.parametrize('field', ['pos', 'yaw'])
+@pytest.mark.parametrize('number', ['1e309', '-1e309'])
+def test_size_enforcement_leaves_nonfinite_geometry_as_a_parse_failure(field, number):
+    room = _supported_room()
+    request = {'messages': messages(room, 'placement', {o['id']: o['size'] for o in room['objects']})[:2]}
+    value = json.loads(base.target(None, 'joint', room))
+    if field == 'pos':
+        value['placements'][0]['pos'][0] = 'overflow'
+    else:
+        value['placements'][0]['yaw'] = 'overflow'
+    raw = json.dumps(value).replace('"overflow"', number)
+    parsed = L.parse(raw, request, 'placement')
+    assert not parsed['valid'] and parsed['placements'] is None
+    assert L.enforce_sizes(raw, request) == (raw, None)
+
+
+@pytest.mark.parametrize('field', ['size', 'pos'])
+@pytest.mark.parametrize('sign', [-1, 1])
+def test_size_enforcement_handles_integers_too_large_for_float(field, sign):
+    room = _supported_room()
+    prior = {o['id']: [.5, .5, .5] for o in room['objects']}
+    request = {'messages': messages(room, 'placement', prior)[:2]}
+    value = json.loads(base.target(None, 'joint', room))
+    # A huge parent z used to overflow when the supported object's bottom was recomputed.
+    value['placements'][0][field][2 if field == 'pos' else 0] = sign * 10 ** 400
+    parsed = L.parse(json.dumps(value), request, 'placement')
+    if field == 'pos':
+        assert not parsed['valid'] and parsed['placements'] is None
+    else:  # B2 ignores returned sizes, including unusable values, and uses the request's prior.
+        assert parsed['valid'] and all(p['size'] == prior[p['id']] for p in parsed['placements'])
 
 
 class PlacementApi(base.FakeApi):

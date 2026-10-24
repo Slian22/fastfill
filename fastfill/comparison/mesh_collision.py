@@ -392,7 +392,8 @@ def report(summary, wall_seconds, workers, command):
         add(f'  - `{u}`：{why}')
     add(f"- 系统：{', '.join(s['systems_present'])}。修订列出的系统为 {', '.join(AMENDMENT_SYSTEMS)}；"
         f"运行中另外渲染了 {', '.join(s['systems_beyond_amendment_list']) or '无'}，按“该运行渲染的每个系统”一并报告。")
-    add(f"- 放置核验：每个网格反变换回物体坐标系后与布局包围盒的最大误差 {s['bbox_max_err_m']:.2e} m（阈值 {BBOX_TOL_M:g} m）。")
+    bbox_error = '—' if s['bbox_max_err_m'] is None else f"{s['bbox_max_err_m']:.2e}"
+    add(f"- 放置核验：每个网格反变换回物体坐标系后与布局包围盒的最大误差 {bbox_error} m（阈值 {BBOX_TOL_M:g} m）。")
     add('- 仅比较可移动物体之间的对；固定上下文物体（门窗等）不参与，与 validate.check 的物体对一致。\n')
     add('## 1. 各系统网格无碰撞房间比例（括号为 95% CI）\n')
     add('| 系统 | 房间 | 缺失 | 无碰撞 τ=125 | 无碰撞 τ=500（主） | 无碰撞 τ=2000 | 冻结检查器无 main/severe | A4 无碰撞 | 仅外壳（填充未增加体素） |')
@@ -475,7 +476,8 @@ def run(run_dir, out, workers=4, limit=None, repeats=2000, command=''):
     ledger = visual_cases._index(visual_cases._read_rows(visual / 'attachment-ledger.jsonl'))
     order = [u for u in cohort if u in rendered]
     if limit:
-        order = [order[round(i * len(order) / limit)] for i in range(min(limit, len(order)))]
+        count = min(limit, len(order))
+        order = [order[round(i * len(order) / count)] for i in range(count)]
         cohort = {u: cohort[u] for u in order}
     inputs = {str(p.relative_to(visual.parent)): _sha(p) for p in
               [visual / 'cases.jsonl', visual / 'J-geometry.jsonl', visual / 'attachment-ledger.jsonl', *chunks]}

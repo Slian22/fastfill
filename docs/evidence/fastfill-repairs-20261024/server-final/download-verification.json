@@ -1,0 +1,81 @@
+{
+  "remote_run": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-daca130611a9",
+  "files": [
+    {
+      "name": "completion.json",
+      "sha256": "964e7f0631d012a2fe0660f85fe13f0fc60ebc7bb340b6c1c6afa44d5ed6a349",
+      "bytes": 99
+    },
+    {
+      "name": "submission.json",
+      "sha256": "e688f507743fc5842753f7cf9ca7461c3f0e224106dbf40f529b5ba067d75e66",
+      "bytes": 332
+    },
+    {
+      "name": "snapshot-verification.json",
+      "sha256": "cf0fa6d6c5b94479e49b05b98272636599ee61c4aa20e42583fee78f9404fb9c",
+      "bytes": 461
+    },
+    {
+      "name": "validation.json",
+      "sha256": "d4768facc551ef3a01c46afe4e1006f5e2744293b6ccc4963df8bfabeef9c677",
+      "bytes": 713
+    },
+    {
+      "name": "pytest.log",
+      "sha256": "c20add3eed63ee6de1db051a3b27d8d017bf7d9aa31257d8100d937213cfe4de",
+      "bytes": 547
+    },
+    {
+      "name": "pytest.xml",
+      "sha256": "df1e5a5617d70930a6c91c603213b8028e9af70ddfbf352209e9f344860e208b",
+      "bytes": 64248
+    },
+    {
+      "name": "critic-recovery.json",
+      "sha256": "175c992972e1c1543a5101d18db055d064875cdea5d88330ea0b8bbc7c1a750b",
+      "bytes": 1852
+    },
+    {
+      "name": "training-preservation-full.json",
+      "sha256": "7b49cf5c8dd130390c96a1f56c0609877da60dcb5faaa1aa1150df203edbff0f",
+      "bytes": 313319
+    },
+    {
+      "name": "slurm-7684385.out",
+      "sha256": "67535a4f2336f42d33c61556fde88d83da69bc5cb156bf4d7a57abc346453aa4",
+      "bytes": 625
+    },
+    {
+      "name": "critic-answers/summary.json",
+      "sha256": "175c992972e1c1543a5101d18db055d064875cdea5d88330ea0b8bbc7c1a750b",
+      "bytes": 1852
+    },
+    {
+      "name": "critic-answers/MANIFEST.json",
+      "sha256": "b56c72b027ae2f8a790eee31ea0cba1ab13d4844dbf530aecdced1dcf520f7c7",
+      "bytes": 123530
+    },
+    {
+      "name": "artifact-verification.json",
+      "sha256": "e69f5c491e5cf283b533d886442e873cb7c462f7ff24b14c047b702073270927",
+      "bytes": 1965
+    },
+    {
+      "name": "scheduler-final.txt",
+      "sha256": "03976d18fbeda7cd4058e78eac14886b49b283d815c06bad87b62169361770bb",
+      "bytes": 86
+    },
+    {
+      "name": "queue-final.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "name": "test-environment.json",
+      "sha256": "9e7b3fe170216c1b1412102713fb70dbf9b37bced478f675f32945a1a04c45d4",
+      "bytes": 663
+    }
+  ],
+  "all_match": true
+}

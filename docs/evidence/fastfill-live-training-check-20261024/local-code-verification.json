@@ -1,0 +1,199 @@
+{
+  "frozen_code_checks": [
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/a021_train.py",
+      "actual": "305e2fe851d60a5dfee81a9aebe9400d9a895cde1e885dcfae2f46451c3c9c56",
+      "expected": "305e2fe851d60a5dfee81a9aebe9400d9a895cde1e885dcfae2f46451c3c9c56",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/dpo_stages.py",
+      "actual": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "expected": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/infer.py",
+      "actual": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "expected": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/main_data.py",
+      "actual": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "expected": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/geometry.py",
+      "actual": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "expected": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "comparison/train_pair_helpers.py",
+      "actual": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "expected": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "v1_1/train_dpo.py",
+      "actual": "e61843a9e4dae6b6d4634cfa31b30943400fd737d2b49573762d99f76a8ab9a1",
+      "expected": "e61843a9e4dae6b6d4634cfa31b30943400fd737d2b49573762d99f76a8ab9a1",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "scene.py",
+      "actual": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "expected": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "passed": true
+    },
+    {
+      "arm": "a021",
+      "commit": "5bc501b3d",
+      "path": "validate.py",
+      "actual": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "expected": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/a021_train.py",
+      "actual": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+      "expected": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/dpo_stages.py",
+      "actual": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "expected": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/infer.py",
+      "actual": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "expected": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/main_data.py",
+      "actual": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "expected": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/geometry.py",
+      "actual": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "expected": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "comparison/train_pair_helpers.py",
+      "actual": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "expected": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "v1_1/train_dpo.py",
+      "actual": "6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739",
+      "expected": "6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "scene.py",
+      "actual": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "expected": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "passed": true
+    },
+    {
+      "arm": "a028",
+      "commit": "7373495ca9",
+      "path": "validate.py",
+      "actual": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "expected": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "passed": true
+    }
+  ],
+  "delivery_binding": [
+    {
+      "check": "policy",
+      "actual": "4d3c427b0c23f6fab8b4a8b6c673085afce08ad40153c33479d13f9eeaf741bf",
+      "expected": "4d3c427b0c23f6fab8b4a8b6c673085afce08ad40153c33479d13f9eeaf741bf",
+      "passed": true
+    },
+    {
+      "check": "adapter_files",
+      "actual": {
+        "README.md": "41b133be7fbb02c4e00e64d37a21a62ea9bb535c5683028e14040858b0a0d1f6",
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+        "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+        "completion.json": "13e9dd71e9cf8664f2f205cb3f2f13b44d52909eab947deb8a2f987b215b01a3",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "expected": {
+        "README.md": "41b133be7fbb02c4e00e64d37a21a62ea9bb535c5683028e14040858b0a0d1f6",
+        "adapter_config.json": "5558a500b9e17a4122631be38c05086b7bb451bc675230aa78e458e9e4ec3a46",
+        "adapter_model.safetensors": "6e4a0460cbbfc1672d15c091353f618ddc7dbe664f617395b5386fa5f46c015f",
+        "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+        "completion.json": "13e9dd71e9cf8664f2f205cb3f2f13b44d52909eab947deb8a2f987b215b01a3",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "bee8eba30f0eb4af73c0fe2cd06d0f89b657d7819941c438157ec42f7c80ea87"
+      },
+      "passed": true
+    },
+    {
+      "check": "base_receipt",
+      "actual": "a4fca2a27a330e7510b09d7535d92352a6b19917b4b44251cd9a3aa20036db36",
+      "expected": "a4fca2a27a330e7510b09d7535d92352a6b19917b4b44251cd9a3aa20036db36",
+      "passed": true
+    },
+    {
+      "check": "a021:historical_main_data",
+      "actual": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "expected": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "passed": true
+    },
+    {
+      "check": "a028:historical_main_data",
+      "actual": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "expected": "e588e2f7c0def2c6515810816e0fd101b6dfdaa907274ce37cc9cd0d2c7c63e6",
+      "passed": true
+    }
+  ],
+  "delivery_source": "docs/research/20261013-unknown-size-comparison/results/delivery-022-final/delivery.json",
+  "delivery_source_sha256": "eb6564dfcb0db010da9a44eeb700749e424852ba22572a97899949068cbf8293",
+  "passed": true
+}

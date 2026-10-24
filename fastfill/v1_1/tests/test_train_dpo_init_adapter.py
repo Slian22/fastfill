@@ -63,6 +63,7 @@ def tiny(tmp_path, monkeypatch):
     config = Qwen3Config(vocab_size=64, hidden_size=32, intermediate_size=64, num_hidden_layers=2, num_attention_heads=4,
                          num_key_value_heads=2, head_dim=8, max_position_embeddings=128, tie_word_embeddings=False)
     Qwen3ForCausalLM(config).save_pretrained(tmp_path / 'model')
+    Tok().save_pretrained(tmp_path / 'model')  # The mocked tokenizer is still part of the on-disk model identity.
     w = types.SimpleNamespace(root=tmp_path, model=tmp_path / 'model', init=tmp_path / 'init', pairs=tmp_path / 'pairs.jsonl')
     adapter = get_peft_model(base(w), train_dpo.lora_config(R, ALPHA))
     with torch.no_grad():

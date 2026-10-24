@@ -1,0 +1,94 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_guarded_legacy_resume_checks_original_provenance[manifest_type] _____
+
+tiny_training_inputs = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-514/test_guarded_legacy_resume_che0/run')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x33b8f2510>
+change = 'manifest_type'
+
+    @pytest.mark.parametrize("change", ["pairs", "recipe", "frozen_code", "guard_settings", "manifest_type"])
+    def test_guarded_legacy_resume_checks_original_provenance(tiny_training_inputs, monkeypatch, change):
+        out = tiny_training_inputs
+        frozen = _guarded_legacy_run(out)
+        if change == "pairs":
+            path = out.parent / "pairs.jsonl"
+            path.write_text(path.read_text().replace('"good"', '"bad"'))
+        elif change == "recipe":
+            monkeypatch.setattr(sys, "argv", [*sys.argv, "--beta", "0.2"])
+        elif change == "frozen_code":
+            frozen.write_text(frozen.read_text() + "\n# changed\n")
+        elif change == "guard_settings":
+            path = out / "training_guard.json"
+            guard = json.loads(path.read_text())
+            guard["settings"]["world_size"] = 2
+            path.write_text(json.dumps(guard))
+        else:
+            (out / "run_manifest.json").write_text("[]")
+        before = (out / "run_manifest.json").read_bytes()
+        with pytest.raises(ValueError, match="[Ii]dentity"):
+>           train_dpo.main()
+
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v1_1/train_dpo.py:442: in main
+    bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = Namespace(model='/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-514/test_guarded_lega... answer_logits=False, check_render=False, base_receipt=False, image_text_model=False, perf_out=None, warmup_ratio=None)
+defaults = {'model': None, 'pairs': None, 'out': None, 'beta': 0.1, ...}
+world_size = 1, dtype = 'float32'
+code_files = ['/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/train_dpo.py', PosixPath('/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/training_guard.py'), '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/scene.py']
+
+    def bind_trainer_identity(args, defaults, world_size, dtype, code_files):
+        """Bind the direct CLI before loading a checkpoint or rewriting provenance.
+    
+        An older guarded run can acquire the new sidecar only after checking its
+        original guard AND run manifest. Unbound historical runs need manual review;
+        a matching checkpoint position alone cannot establish their training inputs.
+        """
+        target, pairs = Path(args.out), Path(args.pairs).resolve()
+        guard_path, manifest = target / "training_guard.json", target / "run_manifest.json"
+        sidecar = target / "trainer_identity.json"
+        audit = pairs.parent / "audit.json"
+        identity = {
+            "schema_version": 1, "kind": "fastfill_v1.1_trainer_identity",
+            "model": model_identity(args.model), "pairs": {"path": str(pairs), **file_identity(pairs)},
+            "init_adapter": _trainer_adapter(args.init_adapter), "settings": _trainer_settings(vars(args)),
+            "world_size": world_size, "dtype": dtype,
+            "audit_receipt": file_identity(audit) if audit.exists() else None,
+            "training_guard": file_identity(guard_path) if guard_path.exists() else None,
+            "code": {str(Path(p).resolve()): file_identity(p) for p in code_files},
+        }
+        if sidecar.exists():
+            if json.loads(sidecar.read_text()) != identity:
+                raise ValueError(f"Training identity changed; refusing resume: {target}")
+        # Always verify external provenance, also when a direct CLI bypasses its wrapper.
+        if guard_path.exists():
+            try:
+                _verify_external_trainer_guard(json.loads(guard_path.read_text()), identity, defaults, dtype)
+            except (OSError, TypeError, KeyError) as exc:
+                raise ValueError("Invalid training identity: external provenance unavailable") from exc
+        if sidecar.exists():
+            return identity
+        artifacts = manifest.exists() or any(target.glob("ckpt_latest*")) or (target / "final").exists()
+        if artifacts:
+            if not guard_path.exists() or not manifest.is_file():
+                raise ValueError(f"Cannot adopt unbound training artifacts: {target}")
+>           previous = json.loads(manifest.read_text()).get("args")
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'list' object has no attribute 'get'
+
+fastfill/v1_1/training_guard.py:131: AttributeError
+---------------------------- Captured stderr setup -----------------------------
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 630.06it/s]
+----------------------------- Captured stdout call -----------------------------
+[DPOPairDataset] Loaded 4 pairs from /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-514/test_guarded_legacy_resume_che0/pairs.jsonl (skipped 0 > 32)
+trainable params: 512 || all params: 3,040 || trainable%: 16.8421
+{"epoch": 1, "step": 1, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.5879, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+{"epoch": 1, "step": 2, "total_steps": 2, "dpo_loss": 0.6931, "chosen_nll": 1.5879, "loss": 0.6931, "reward_acc": 0.0, "reward_margin": 0.0}
+[train_dpo] Saved DPO adapter to /private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-514/test_guarded_legacy_resume_che0/run/final
+----------------------------- Captured stderr call -----------------------------
+Loading weights:   0%|          | 0/14 [00:00<?, ?it/s]Loading weights: 100%|██████████| 14/14 [00:00<00:00, 14095.12it/s]
+=========================== short test summary info ============================
+FAILED fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py::test_guarded_legacy_resume_checks_original_provenance[manifest_type]
+1 failed, 46 deselected in 5.32s

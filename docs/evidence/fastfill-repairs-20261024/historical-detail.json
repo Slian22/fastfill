@@ -1,0 +1,600 @@
+{
+  "observed_utc": "2026-10-24T12:57:27.319921+00:00",
+  "o2nt": {
+    "dev-select": {
+      "run_receipt": {
+        "arm": "llm_open",
+        "variants": [
+          "llm_raw",
+          "llm_harness"
+        ],
+        "config": {
+          "system": "O2nt",
+          "model": "qwen3.8-27b-nothink",
+          "reasoning_effort": "thinking off (amendment 021)",
+          "model_files_sha256": {
+            ".gitattributes": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+            "LICENSE": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+            "README.md": "57e4bdb258ee1a7d2635c5174ebd4e56abe392505cdb5f8bbb356b0dc4293641",
+            "SHA256SUMS": "a0f529ae786e405c97732cbfe24269494fb421e64ad55f7f5ca8bbd263578dfc",
+            "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+            "config.json": "191e0af232104ed8b65258cf3fb2b842e288008baca7633c11b82a1ac7203aab",
+            "crc32.txt": "b42dd291f5f98b05807e458f5b47849969a9b3326acbf0c97d28b05826740b83",
+            "generation_config.json": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e",
+            "merges.txt": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+            "model.safetensors.index.json": "77042094076611b69791a610065f28b7013b8c621795fa86ddccc8bac7d1b9df",
+            "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+            "tokenizer.json": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3",
+            "tokenizer_config.json": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27",
+            "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+            "vocab.json": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+          },
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "thinking": false,
+          "engine": {
+            "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+            "tensor_parallel_size": 2,
+            "max_model_len": 40960,
+            "seed": 0,
+            "limit_mm_per_prompt": {
+              "image": 0,
+              "video": 0
+            }
+          },
+          "sampling": {
+            "temperature": 0.0,
+            "seed": 0,
+            "skip_special_tokens": false,
+            "spaces_between_special_tokens": false
+          },
+          "cap": {
+            "base": 1024,
+            "per_object": 128,
+            "thinking_allowance": 0
+          },
+          "reasoning_split": "think",
+          "repair_rounds": 2,
+          "suffix": "Return only the JSON object specified above, with nothing before or after it: no prose, no markdown and no code fences.",
+          "input": "placement_system_user_verbatim_then_suffix_user",
+          "parser": "infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, placement)",
+          "repair_message": "parser_error_text_only",
+          "limit": null,
+          "versions": {
+            "vllm": "0.31.0",
+            "torch": "2.13.0",
+            "transformers": "5.17.0"
+          },
+          "request_arm": "placement",
+          "cohort_rule": "all_rooms",
+          "reasoning_tokens": "asserted_zero"
+        },
+        "config_sha256": "e71a1facbf406679e0fe17a0f3349278d36e96abf96954d8f79e695b6870d7cc",
+        "data": {
+          "manifest_sha256": "2b176ad83de963446dc9618149e2b9fb919c4c1ad31597eee6095354b2a4057a",
+          "placement_requests_sha256": "737416a649dd641ac71b06a452ce32474a4fa656fd2d794ba02818e70f992014"
+        },
+        "cohort": {
+          "sha256": "a09f4653f5f25f7596d2896480b98b39686f8b70ffb5effd181d88a5658fca74",
+          "uids_sha256": "2f04f2246315de81359447ae0b9d4ccb16bfd90a7de2a38923ce3b7e1104c4df",
+          "rooms": 600
+        },
+        "code_sha256": {
+          "llm_open.py": "f09b2c7112cc43b145ffef5051b852e3bcab1e29d98bf7fce2fcf4800b18e48f",
+          "llm_agent.py": "e423eab78704c12f7aed5e2f680ccf094aa604a47aff4e329d9af286713f8939",
+          "infer.py": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+          "train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83"
+        },
+        "run_sha256": "ae5e0c3fee675540e676980888ba43ed7d3d9da1b3f602969abb3164e8ff7b32"
+      },
+      "violations": []
+    },
+    "confirm": {
+      "run_receipt": {
+        "arm": "llm_open",
+        "variants": [
+          "llm_raw",
+          "llm_harness"
+        ],
+        "config": {
+          "system": "O2nt",
+          "model": "qwen3.8-27b-nothink",
+          "reasoning_effort": "thinking off (amendment 021)",
+          "model_files_sha256": {
+            ".gitattributes": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+            "LICENSE": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+            "README.md": "57e4bdb258ee1a7d2635c5174ebd4e56abe392505cdb5f8bbb356b0dc4293641",
+            "SHA256SUMS": "a0f529ae786e405c97732cbfe24269494fb421e64ad55f7f5ca8bbd263578dfc",
+            "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+            "config.json": "191e0af232104ed8b65258cf3fb2b842e288008baca7633c11b82a1ac7203aab",
+            "crc32.txt": "b42dd291f5f98b05807e458f5b47849969a9b3326acbf0c97d28b05826740b83",
+            "generation_config.json": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e",
+            "merges.txt": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+            "model.safetensors.index.json": "77042094076611b69791a610065f28b7013b8c621795fa86ddccc8bac7d1b9df",
+            "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+            "tokenizer.json": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3",
+            "tokenizer_config.json": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27",
+            "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+            "vocab.json": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+          },
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "thinking": false,
+          "engine": {
+            "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+            "tensor_parallel_size": 2,
+            "max_model_len": 40960,
+            "seed": 0,
+            "limit_mm_per_prompt": {
+              "image": 0,
+              "video": 0
+            }
+          },
+          "sampling": {
+            "temperature": 0.0,
+            "seed": 0,
+            "skip_special_tokens": false,
+            "spaces_between_special_tokens": false
+          },
+          "cap": {
+            "base": 1024,
+            "per_object": 128,
+            "thinking_allowance": 0
+          },
+          "reasoning_split": "think",
+          "repair_rounds": 2,
+          "suffix": "Return only the JSON object specified above, with nothing before or after it: no prose, no markdown and no code fences.",
+          "input": "placement_system_user_verbatim_then_suffix_user",
+          "parser": "infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, placement)",
+          "repair_message": "parser_error_text_only",
+          "limit": null,
+          "versions": {
+            "vllm": "0.31.0",
+            "torch": "2.13.0",
+            "transformers": "5.17.0"
+          },
+          "request_arm": "placement",
+          "cohort_rule": "all_rooms",
+          "reasoning_tokens": "zero_else_failure"
+        },
+        "config_sha256": "587b2ac660b718faecf689f3a7ad1a8fb7b1808178e9aba6dcee4f6202efd2ee",
+        "data": {
+          "manifest_sha256": "add764f0950b494b56c763c9a3a5af1913dbb939eea3b35950f9e5c6b6a4990b",
+          "placement_requests_sha256": "49df0b837f916c77d8c34bbe58ec06acd116d51d9101bd4b548beba81b3818ab"
+        },
+        "cohort": {
+          "sha256": "4dcd050906a0fed443ea192a6321492dbbb57f7ff5f0745ea673be2944dc7858",
+          "uids_sha256": "fe8c426d81d95af5f1cc2cc8859335106356dcce227edb495d4e5ba2b081495f",
+          "rooms": 3000
+        },
+        "code_sha256": {
+          "llm_open.py": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+          "llm_agent.py": "e423eab78704c12f7aed5e2f680ccf094aa604a47aff4e329d9af286713f8939",
+          "infer.py": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+          "train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83"
+        },
+        "run_sha256": "3b445696620a1c01be5f02e11451ac547baeed8ad9e2871a402b33cf59e9b212"
+      },
+      "violations": [
+        {
+          "path": "a021/o2nt/confirm/receipts/2d1bb76a3f6b605c89341762d8cd844edecc69510a20f56c4dd262f5ec2b7b52.json",
+          "sha256": "9d029730b58fb23cc078b3624b6af98710b010fc8b2871d2f714f09e99d7a44a",
+          "marked_indices": [
+            2
+          ],
+          "uid": "spatiallm:scene_011835::room_3",
+          "run_sha256": "3b445696620a1c01be5f02e11451ac547baeed8ad9e2871a402b33cf59e9b212",
+          "answers": [
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "95f2679e2bb2a7737aa4813b9b11d86c4f539f99d9183dc435e1fccd46e591ab",
+              "raw_bytes": 157
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "aec0d370def35c9aa6cbbb74e60c98a91249098a9104e2e2149b2c8fe585407d",
+              "raw_bytes": 137
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "reasoning_in_no_reasoning_system"
+              },
+              "no_reasoning_violation": true,
+              "raw_sha256": "d283edf2b80cb5c1d7cb561b9ddd67ce0ca553b1b9bc88a8761a7a8905d60f62",
+              "raw_bytes": 139
+            }
+          ]
+        },
+        {
+          "path": "a021/o2nt/confirm/receipts/a2042d992ff68b12b3d11a9000833461a85dd8ce2f0bbb6408c998175608f575.json",
+          "sha256": "c09bb28299597260d22c16f552ac3ead83159971a37d33b02f29fd6eb92fb742",
+          "marked_indices": [
+            2
+          ],
+          "uid": "spatiallm:scene_000207::room_3",
+          "run_sha256": "3b445696620a1c01be5f02e11451ac547baeed8ad9e2871a402b33cf59e9b212",
+          "answers": [
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "f3a5b57c5a1b55bd34ca8da79de46ef667189149b5539bf455a2785ca79bcb46",
+              "raw_bytes": 427
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "8ee5bbb49eeacac5c019b734f9d2e4a37c4b38db20558cbcedfa9c0273fbde78",
+              "raw_bytes": 191
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "reasoning_in_no_reasoning_system"
+              },
+              "no_reasoning_violation": true,
+              "raw_sha256": "14d5ef1e4650d8266ea3de62a3f7f6abb10c88de61d5f275cbd4355f5b030d25",
+              "raw_bytes": 193
+            }
+          ]
+        },
+        {
+          "path": "a021/o2nt/confirm/receipts/03c6032e2075a58d9ac6c162bb080135ce0dc2b414c60a72e38b8f5c690b3377.json",
+          "sha256": "ee57b1b508a07515b8ca4ef69c64de43084ba8bf430d21202b2e9476862f5a0d",
+          "marked_indices": [
+            2
+          ],
+          "uid": "structured3d_01422_room_20958",
+          "run_sha256": "3b445696620a1c01be5f02e11451ac547baeed8ad9e2871a402b33cf59e9b212",
+          "answers": [
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "833600bf6f1f10344732db9aedd85f0ab9818bc9713c071010771570bddf4f60",
+              "raw_bytes": 150
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "828ea4919df4391b86fcc46581eddaeaf0c2188b0e9c16bda47a9447aedc4a2a",
+              "raw_bytes": 130
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "reasoning_in_no_reasoning_system"
+              },
+              "no_reasoning_violation": true,
+              "raw_sha256": "e8c4c5e393cf391c794b0777d4d08877a6e89c128ae83d2a44d32e7866b96689",
+              "raw_bytes": 132
+            }
+          ]
+        }
+      ]
+    },
+    "cohort": {
+      "run_receipt": {
+        "arm": "llm_open",
+        "variants": [
+          "llm_raw",
+          "llm_harness"
+        ],
+        "config": {
+          "system": "O2nt",
+          "model": "qwen3.8-27b-nothink",
+          "reasoning_effort": "thinking off (amendment 021)",
+          "model_files_sha256": {
+            ".gitattributes": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+            "LICENSE": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+            "README.md": "57e4bdb258ee1a7d2635c5174ebd4e56abe392505cdb5f8bbb356b0dc4293641",
+            "SHA256SUMS": "a0f529ae786e405c97732cbfe24269494fb421e64ad55f7f5ca8bbd263578dfc",
+            "chat_template.jinja": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041",
+            "config.json": "191e0af232104ed8b65258cf3fb2b842e288008baca7633c11b82a1ac7203aab",
+            "crc32.txt": "b42dd291f5f98b05807e458f5b47849969a9b3326acbf0c97d28b05826740b83",
+            "generation_config.json": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e",
+            "merges.txt": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+            "model.safetensors.index.json": "77042094076611b69791a610065f28b7013b8c621795fa86ddccc8bac7d1b9df",
+            "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+            "tokenizer.json": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3",
+            "tokenizer_config.json": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27",
+            "video_preprocessor_config.json": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13",
+            "vocab.json": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+          },
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "thinking": false,
+          "engine": {
+            "model": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/models/Qwen3.8-27B",
+            "tensor_parallel_size": 2,
+            "max_model_len": 40960,
+            "seed": 0,
+            "limit_mm_per_prompt": {
+              "image": 0,
+              "video": 0
+            }
+          },
+          "sampling": {
+            "temperature": 0.0,
+            "seed": 0,
+            "skip_special_tokens": false,
+            "spaces_between_special_tokens": false
+          },
+          "cap": {
+            "base": 1024,
+            "per_object": 128,
+            "thinking_allowance": 0
+          },
+          "reasoning_split": "think",
+          "repair_rounds": 2,
+          "suffix": "Return only the JSON object specified above, with nothing before or after it: no prose, no markdown and no code fences.",
+          "input": "placement_system_user_verbatim_then_suffix_user",
+          "parser": "infer.parse_prediction(enforce_sizes(answer_after_reasoning), placement_request, placement)",
+          "repair_message": "parser_error_text_only",
+          "limit": null,
+          "versions": {
+            "vllm": "0.31.0",
+            "torch": "2.13.0",
+            "transformers": "5.17.0"
+          },
+          "request_arm": "placement",
+          "reasoning_tokens": "zero_else_failure"
+        },
+        "config_sha256": "14e79ada9779b5a9626e8bb4bf1d90ad2523bd994bbd64419812d3e8d9bb651d",
+        "data": {
+          "manifest_sha256": "6f9d801b9166a2561dcb6665ee3e89dd449d9cdc293bdc8570b6487af8771604",
+          "placement_requests_sha256": "1ef83b089cd30968f9d562e3aaba4b9248c1a173c0d60e23fde11bbccd9a5f0b"
+        },
+        "cohort": {
+          "sha256": "adb302cc0a1a43bbc8bb0c14fc6f2b39b9aa754ddcd6edced89d4570905984c5",
+          "uids_sha256": "4afccef701b8bca56901779de4956956faf2f347347be30bd47ac20f034581f4",
+          "rooms": 1454
+        },
+        "code_sha256": {
+          "llm_open.py": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+          "llm_agent.py": "e423eab78704c12f7aed5e2f680ccf094aa604a47aff4e329d9af286713f8939",
+          "infer.py": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+          "train_pair_helpers.py": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83"
+        },
+        "run_sha256": "323c5a67c561a997a3a26344ba8216933a83ec8eb26829dfd834c4e81d2889d5"
+      },
+      "violations": [
+        {
+          "path": "a021/o2nt/cohort/receipts/8cd29eec0060a01e274b29e48d5b6bd142ce5eb709060b28200cb5676dc7db96.json",
+          "sha256": "56718ab925e5925a226f46e4296823f625b0333e688f741543d4c6ec6f2d5435",
+          "marked_indices": [
+            2
+          ],
+          "uid": "il3d:b7f5ce40-86d4-11f0-a478-60cf84ae2082",
+          "run_sha256": "323c5a67c561a997a3a26344ba8216933a83ec8eb26829dfd834c4e81d2889d5",
+          "answers": [
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "188f5e367a625813cca69ef9a9370634ebe7b0eb4cd8d81cdc10f5456d16957c",
+              "raw_bytes": 429
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "ValueError: invalid contract output/request"
+              },
+              "no_reasoning_violation": null,
+              "raw_sha256": "e1c109ee7d3772f91ea04dda3bf98511c7402959a162536a7049ee52781f4476",
+              "raw_bytes": 193
+            },
+            {
+              "schema": {
+                "valid": false,
+                "error": "reasoning_in_no_reasoning_system"
+              },
+              "no_reasoning_violation": true,
+              "raw_sha256": "fd692d9371247736e9ff11c37ada4d9a7b32fe561a4c9ad29dcb5b536c319e01",
+              "raw_bytes": 195
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "evaluation_dirs": {
+    "llm-eval-O2nt-P-v1": [
+      "MANIFEST.json",
+      "summary.json",
+      "report.md",
+      "llm_harness-geometry.jsonl",
+      "llm_raw-geometry.jsonl"
+    ],
+    "a021/o2nt-scores": [
+      "scores.json",
+      "MANIFEST.json",
+      "report.md"
+    ]
+  },
+  "critic": {
+    "round-0": {
+      "status": "A025_B_COMPLETE",
+      "round": 0,
+      "stats": null,
+      "next_round_cases": 246,
+      "code_sha256": {
+        "critic_025.py": "72f005787d6a41b20504ffd046ae22284dda488e6d1e37edcdd8be670c94f0ba",
+        "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+        "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+        "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+      },
+      "raw_result_count": 246,
+      "sample_raw_result_keys": [
+        "content_sha256",
+        "expected_model",
+        "finished_at",
+        "id",
+        "raw_final_text",
+        "request_sha256",
+        "returned_model",
+        "schema_version",
+        "scores",
+        "status",
+        "usage"
+      ]
+    },
+    "round-1": {
+      "status": "A025_ROUND_COMPLETE",
+      "round": 1,
+      "stats": {
+        "round": 1,
+        "cases": 246,
+        "calls": {
+          "answered": 246
+        },
+        "answer_errors": {},
+        "edits_valid": 773,
+        "edits_rejected": {},
+        "edit_sets": 217,
+        "edit_sets_accepted": 217,
+        "edit_sets_unchanged": 0,
+        "set_reject_reasons": {},
+        "s1_timed_out": 0,
+        "stops": {
+          "no_valid_edits": 29,
+          "scores_ge_8": 15
+        },
+        "next_round_rooms": 202
+      },
+      "next_round_cases": 202,
+      "code_sha256": {
+        "critic_025.py": "72f005787d6a41b20504ffd046ae22284dda488e6d1e37edcdd8be670c94f0ba",
+        "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+        "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+        "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+      },
+      "raw_result_count": 202,
+      "sample_raw_result_keys": [
+        "content_sha256",
+        "expected_model",
+        "finished_at",
+        "id",
+        "raw_final_text",
+        "request_sha256",
+        "returned_model",
+        "schema_version",
+        "scores",
+        "status",
+        "usage"
+      ]
+    },
+    "test-round-0": {
+      "status": "A025_S_COMPLETE",
+      "round": 0,
+      "stats": null,
+      "next_round_cases": 174,
+      "code_sha256": {
+        "critic_025.py": "51e3c0f6360827a1caaeefa00b8ea1c8fad6433b9564abb21ba3e4b482af36dc",
+        "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+        "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+        "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+      },
+      "raw_result_count": 174,
+      "sample_raw_result_keys": [
+        "content_sha256",
+        "expected_model",
+        "finished_at",
+        "id",
+        "raw_final_text",
+        "request_sha256",
+        "returned_model",
+        "schema_version",
+        "scores",
+        "status",
+        "usage"
+      ]
+    },
+    "test-round-1": {
+      "status": "A025_ROUND_COMPLETE",
+      "round": 1,
+      "stats": {
+        "round": 1,
+        "cases": 174,
+        "calls": {
+          "answered": 174
+        },
+        "answer_errors": {},
+        "edits_valid": 456,
+        "edits_rejected": {},
+        "edit_sets": 158,
+        "edit_sets_accepted": 157,
+        "edit_sets_unchanged": 0,
+        "set_reject_reasons": {
+          "checker_worse": 1
+        },
+        "s1_timed_out": 0,
+        "stops": {
+          "edit_set_rejected": 1,
+          "no_valid_edits": 16,
+          "scores_ge_8": 22
+        },
+        "next_round_rooms": 135
+      },
+      "next_round_cases": 135,
+      "code_sha256": {
+        "critic_025.py": "dc4299f1ec2a7164616afbc4b847670f5e9c127de48de26eee8fd51346651236",
+        "output_repair.py": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+        "downstream.py": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+        "geometry.py": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a"
+      },
+      "raw_result_count": 135,
+      "sample_raw_result_keys": [
+        "content_sha256",
+        "expected_model",
+        "finished_at",
+        "id",
+        "raw_final_text",
+        "request_sha256",
+        "returned_model",
+        "schema_version",
+        "scores",
+        "status",
+        "usage"
+      ]
+    },
+    "slurm_records": [
+      "7402567|ph-r6-launch|COMPLETED|0:0",
+      "7402568|ph-r6-launch|COMPLETED|0:0",
+      "7402569|ph-r6-launch|COMPLETED|0:0",
+      "7402597|ph-smoke-r6-tok-20261014-smoke|FAILED|1:0",
+      "7440715|unknownsize-025|COMPLETED|0:0",
+      "7440812|unknownsize-025|COMPLETED|0:0",
+      "7441685|unknownsize-025|COMPLETED|0:0",
+      "7442970|unknownsize-025-judge|CANCELLED by 1483807663|0:0",
+      "7443249|unknownsize-025-judge2|FAILED|1:0",
+      "7444956|unknownsize-025|COMPLETED|0:0",
+      "7445448|unknownsize-025|COMPLETED|0:0",
+      "7446931|unknownsize-025-judgeSC|FAILED|1:0"
+    ]
+  }
+}

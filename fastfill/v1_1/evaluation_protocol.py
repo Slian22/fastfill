@@ -7,7 +7,6 @@ evaluation code, predictions, and metrics. This module has no ML dependencies.
 from __future__ import annotations
 
 import hashlib
-from functools import lru_cache
 import json
 import os
 from pathlib import Path
@@ -131,20 +130,11 @@ def _validate_safetensors(path: Path) -> None:
         raise ValueError(f"Incomplete or invalid model weight data: {path}")
 
 
-@lru_cache(maxsize=512)
-def _model_file_digest(path: str, signature: tuple[int, ...]) -> tuple[str, int]:
-    """Cache model hashing only in this process, keyed by file stat identity."""
-    if path.endswith(".safetensors"):
-        _validate_safetensors(Path(path))
-    identity = file_identity(path)
-    return identity["sha256"], identity["size_bytes"]
-
-
 def _model_file_identity(path: Path) -> dict[str, Any]:
-    state = path.stat()
-    signature = (state.st_dev, state.st_ino, state.st_size, state.st_mtime_ns, state.st_ctime_ns)
-    digest, size = _model_file_digest(str(path), signature)
-    return {"sha256": digest, "size_bytes": size}
+    """Revalidate bytes: filesystem timestamps can miss same-length rewrites."""
+    if path.suffix == ".safetensors":
+        _validate_safetensors(path)
+    return file_identity(path)
 
 
 def model_identity(path: str | Path) -> dict[str, Any]:

@@ -17,6 +17,8 @@ Phases (state in <runs>/autorun/STATUS.json, log in <runs>/autorun/autorun.log):
   LLM (background from C) once the API env file exists: prompt-only and harness LLM baselines on the
      first ``--llm-rows`` three-field rows of the validation sample, scored by evaluate --predictions; in F
      the best model is scored on the same rows. ``done`` writes <runs>/autorun/SUMMARY.md.
+     The default legacy mode only reuses bound historical outputs. New API generation requires
+     ``--llm-baseline repair-v2``; existing outputs are preserved, with ``--llm-run-tag`` for a new run.
   With --start-config (a new machine) A-D are skipped: that configuration trains on --current-data.
 
 Every decision and command is logged; a failing step stops the autopilot with STATUS phase "failed".
@@ -366,13 +368,57 @@ class Autopilot:
                           commit_message=f"FastFill v2 {name}")
         self.log("uploaded model", repo=self.a.model_repo, path=name)
 
-    def llm_baselines(self, rows_file):
-        """Prompt-only and harness LLM baselines once the API env file exists, each scored by evaluate --predictions.
+    def llm_output(self, mode):
+        version, tag = getattr(self.a, "llm_baseline", "legacy"), getattr(self.a, "llm_run_tag", "")
+        if version not in ("legacy", "repair-v2") or mode not in ("prompt", "harness"):
+            raise ValueError("unknown LLM baseline version or mode")
+        if tag and (version == "legacy" or not all(c.isalnum() or c in "-_" for c in tag)):
+            raise ValueError("--llm-run-tag requires repair-v2 and only letters, numbers, '-' or '_'")
+        rows = int(self.a.llm_rows)
+        if rows < 1:
+            raise ValueError("--llm-rows must be positive")
+        prefix = "llm" if version == "legacy" else "llm-repair-v2"
+        return self.runs / f"{prefix}-{mode}-{rows}{'-' + tag if tag else ''}"
 
-        A restarted autopilot reuses a baseline only when its summary.json records these rows, the llm_baseline.py on disk
-        and the request parameters of the env file's model, and its scored report only when that records these rows,
-        predictions and the evaluate code on disk; anything else (interrupted, older or other inputs) is removed and run again."""
-        from fastfill.v2.llm_baseline import load_env, request_parameters
+    def llm_identity(self, rows_file, values, mode):
+        from fastfill.v2.llm_baseline import request_parameters
+        version = getattr(self.a, "llm_baseline", "legacy")
+        module = "llm_baseline" if version == "legacy" else "llm_baseline_v2"
+        identity = {"data_sha256": sha256(rows_file),
+                    "implementation_sha256": sha256(self.root / f"fastfill/v2/{module}.py"),
+                    "request_parameters": request_parameters(values, values.get("OPENAI_MODEL")), "mode": mode,
+                    "endpoint": values.get("OPENAI_BASE_URL", "").rstrip("/") + "/chat/completions"}
+        if version != "legacy":
+            identity.update(harness_version=version,
+                            legacy_implementation_sha256=sha256(self.root / "fastfill/v2/llm_baseline.py"),
+                            settings={"repairs": 2, "retries": 1, "max_samples": int(self.a.llm_rows)})
+        return module, identity
+
+    def score_llm_output(self, out):
+        """Reuse an exact report or score into a fresh path; previous reports are never removed."""
+        identity = {"data_sha256": sha256(out / "rows.jsonl"),
+                    "predictions_sha256": sha256(out / "predictions.jsonl"),
+                    "implementation_sha256": implementation_sha256(self.root)}
+        scored = out.with_name(f"{out.name}-eval")
+        if not recorded(scored / "report.json", **identity) and (scored.exists() or scored.is_symlink()):
+            digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:16]
+            scored = out.with_name(f"{out.name}-eval-{digest}")
+        if not recorded(scored / "report.json", **identity):
+            if scored.exists() or scored.is_symlink():
+                raise RuntimeError(f"preserved unmatched evaluation output: {scored}; choose a new --llm-run-tag")
+            self.sh([self.python, "-m", "fastfill.v2.evaluate", "--data", out / "rows.jsonl", "--predictions",
+                     out / "predictions.jsonl", "--output", scored], log=f"{scored}.log")
+            if not recorded(scored / "report.json", **identity):
+                raise RuntimeError(f"evaluation did not record the expected inputs and implementation: {scored}")
+        return scored / "report.json"
+
+    def llm_baselines(self, rows_file):
+        """Reuse legacy baselines only; explicitly selected repair-v2 may generate into a new path.
+
+        Missing identity or input drift never deletes artifacts or silently purchases replacement answers.
+        A changed evaluator may produce a separate report over the same saved predictions.
+        """
+        from fastfill.v2.llm_baseline import load_env
         env = Path(self.a.llm_env)
         while not env.is_file():
             if self.status["phase"] in ("F-evaluate-final", "done", "failed"):
@@ -380,22 +426,20 @@ class Autopilot:
                 return
             time.sleep(300)
         for mode in ("prompt", "harness"):
-            out, scored = self.runs / f"llm-{mode}-{self.a.llm_rows}", self.runs / f"llm-{mode}-{self.a.llm_rows}-eval"
+            self.llm_reports.pop(f"LLM {mode}", None)
             try:
+                out = self.llm_output(mode)
                 values = load_env(env)  # holds the API key: never logged
-                if not recorded(out / "summary.json", data_sha256=sha256(rows_file),
-                                implementation_sha256=sha256(self.root / "fastfill/v2/llm_baseline.py"),
-                                request_parameters=request_parameters(values, values.get("OPENAI_MODEL"))):
-                    shutil.rmtree(out, ignore_errors=True)
-                    self.sh([self.python, "-m", "fastfill.v2.llm_baseline", "--data", rows_file, "--env", env, "--mode", mode,
+                module, identity = self.llm_identity(rows_file, values, mode)
+                if not recorded(out / "summary.json", **identity):
+                    if module == "llm_baseline" or out.exists() or out.is_symlink():
+                        raise RuntimeError(f"preserved missing or unmatched baseline: {out}; "
+                                           "use --llm-baseline repair-v2 with a new --llm-run-tag to generate")
+                    self.sh([self.python, "-m", f"fastfill.v2.{module}", "--data", rows_file, "--env", env, "--mode", mode,
                              "--max-samples", self.a.llm_rows, "--output", out], log=f"{out}.log")
-                if not recorded(scored / "report.json", data_sha256=sha256(out / "rows.jsonl"),
-                                predictions_sha256=sha256(out / "predictions.jsonl"),
-                                implementation_sha256=implementation_sha256(self.root)):
-                    shutil.rmtree(scored, ignore_errors=True)
-                    self.sh([self.python, "-m", "fastfill.v2.evaluate", "--data", out / "rows.jsonl", "--predictions",
-                             out / "predictions.jsonl", "--output", scored], log=f"{scored}.log")
-                self.llm_reports[f"LLM {mode}"] = scored / "report.json"
+                    if not recorded(out / "summary.json", **identity):
+                        raise RuntimeError(f"baseline did not record the expected inputs and implementation: {out}")
+                self.llm_reports[f"LLM {mode}"] = self.score_llm_output(out)
                 self.log(f"LLM {mode} baseline scored", summary=json.loads((out / "summary.json").read_text()))
             except Exception as error:
                 self.log(f"LLM {mode} baseline failed", error=f"{type(error).__name__}: {error}")
@@ -537,7 +581,7 @@ class Autopilot:
         export = self.roomgenbench(best["checkpoint"], f"best-{name}")
         llm.join(timeout=4 * 3600)
         rows_report, rows_job, raw_job = None, None, None
-        rows = self.runs / f"llm-prompt-{self.a.llm_rows}" / "rows.jsonl"
+        rows = self.llm_output("prompt") / "rows.jsonl"
         if rows.is_file():  # the trained model on exactly the rooms the LLM baselines answered
             rows_out = self.runs / f"llmrows-{name}"
             shutil.rmtree(rows_out, ignore_errors=True)
@@ -600,6 +644,9 @@ def main(argv=None):
     p.add_argument("--model-repo", default="liantian/fastfill-v2-models")
     p.add_argument("--llm-env", default="/home/jovyan/shanliantian/.fastfill_api.env")
     p.add_argument("--llm-rows", default="300")
+    p.add_argument("--llm-baseline", choices=("legacy", "repair-v2"), default="legacy",
+                   help="legacy only reuses historical outputs; repair-v2 permits new API generation")
+    p.add_argument("--llm-run-tag", default="", help="new repair-v2 output suffix; never overwrites an existing run")
     os.environ.setdefault("HF_HOME", ENV["HF_HOME"])  # the in-process Hugging Face upload uses the logged-in home
     args = p.parse_args(argv)
     if not (args.current or args.start_config):

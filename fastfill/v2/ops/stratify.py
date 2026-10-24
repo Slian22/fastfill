@@ -213,16 +213,20 @@ def run_info(eval_dir, outcomes="outcomes.jsonl"):
 
 def collect(eval_dir, outcomes="outcomes.jsonl", rows_path=None, workers=6, cache=None):
     """Room records of one evaluate output plus the reproduction checks. Refuses rows the run did not score.
-    ``cache`` (a directory): reuse the result of the same outcomes file, rows and code (this script, fastfill/v2)."""
+    ``cache`` (a directory): reuse only identical outcomes, report, rows, external fit and code."""
     eval_dir = Path(eval_dir)
     report, projection, section = run_info(eval_dir, outcomes)
     rows_path = Path(rows_path or report["data_path"])
     sha = fingerprint(rows_path)
     if sha != report["data_sha256"]:
         raise SystemExit(f"refused: {rows_path} sha256 {sha[:12]} is not the scored data {report['data_sha256'][:12]}")
+    fit_source = (section.get("baselines") or {}).get("fit") or "evaluation_set_leave_one_out"
+    fit_path = Path(fit_source.split(":", 1)[1]) if fit_source.startswith("baseline_fit_file:") else None
     if cache:
         code = [fingerprint(p) for p in (Path(__file__), *sorted(Path(E.__file__).parent.glob("*.py")))]
-        key = json.dumps([str(eval_dir.resolve()), outcomes, fingerprint(eval_dir / outcomes), sha, code])
+        fit_identity = [str(fit_path.resolve()), fingerprint(fit_path)] if fit_path else None
+        key = json.dumps([str(eval_dir.resolve()), outcomes, fingerprint(eval_dir / outcomes),
+                          fingerprint(eval_dir / "report.json"), sha, fit_identity, code])
         cached = Path(cache) / f"{hashlib.sha256(key.encode()).hexdigest()[:32]}.pkl"
         if cached.is_file():
             return pickle.loads(cached.read_bytes())
@@ -232,9 +236,8 @@ def collect(eval_dir, outcomes="outcomes.jsonl", rows_path=None, workers=6, cach
         cached.with_suffix(".tmp").rename(cached)
         return result
     rows = read_samples(rows_path, max_samples=report.get("subset_limit"))
-    fit_source = (section.get("baselines") or {}).get("fit") or "evaluation_set_leave_one_out"
-    if fit_source.startswith("baseline_fit_file:"):
-        with open(fit_source.split(":", 1)[1]) as stream:
+    if fit_path is not None:
+        with fit_path.open() as stream:
             fit = E.fit_baselines(json.loads(line) for line in stream if line.strip())
         exclude = None
     else:

@@ -309,8 +309,8 @@ def test_the_implementation_hash_is_the_one_evaluate_records():
     assert autorun.implementation_sha256(repo) == io.run_metadata(autorun.__file__)["implementation_sha256"]
 
 
-def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(tmp_path):
-    """Real llm_baseline.run / run_evaluation outputs with a stubbed LLM; the API key never reaches the log."""
+def test_legacy_llm_baselines_reuse_and_rescore_without_rebuying_or_deleting(tmp_path):
+    """Historical answers survive cache drift; only CPU rescoring may create a separate report."""
     import argparse
     import shutil
     from fastfill.v2 import autorun, llm_baseline
@@ -326,50 +326,38 @@ def test_llm_baselines_rerun_unless_rows_code_parameters_and_predictions_match(t
     sample.write_text("".join(json.dumps(r) + "\n" for r in rows))
     env.write_text("OPENAI_BASE_URL=x\nOPENAI_API_KEY=secret-test-key\nOPENAI_MODEL=m\n")
     pilot = autorun.Autopilot(argparse.Namespace(repo=str(tmp_path), llm_env=str(env), llm_rows="300"))
+    for mode in ("prompt", "harness"):
+        llm_baseline.run(sample, pilot.llm_output(mode), env, mode=mode, max_samples=300,
+                         ask=lambda env, model, messages: answers[messages[0]["content"]])
     calls = []
 
     def sh(args, **kw):
         args = list(map(str, args))
         get = lambda flag: args[args.index(flag) + 1]
         calls.append(args[2])
-        if args[2] == "fastfill.v2.llm_baseline":
-            llm_baseline.run(get("--data"), get("--output"), get("--env"), mode=get("--mode"), max_samples=int(get("--max-samples")),
-                             ask=lambda env, model, messages: answers[messages[0]["content"]])
-        else:
-            run_evaluation(get("--data"), get("--output"), predictions=get("--predictions"))
+        assert args[2] == "fastfill.v2.evaluate"
+        run_evaluation(get("--data"), get("--output"), predictions=get("--predictions"))
     pilot.sh = sh
     pilot.llm_baselines(sample)
-    assert calls == ["fastfill.v2.llm_baseline", "fastfill.v2.evaluate"] * 2 and len(pilot.llm_reports) == 2
+    assert calls == ["fastfill.v2.evaluate"] * 2 and len(pilot.llm_reports) == 2
     calls.clear()
     pilot.llm_baselines(sample)  # a restart with the same inputs
     assert calls == []
-    for change in ("rows", "parameters", "predictions", "evaluator", "old summary", "code"):
-        calls.clear()
-        if change == "rows":
-            sample.write_text("".join(json.dumps(r) + "\n" for r in rows[::-1]))
-        elif change == "parameters":
-            env.write_text(env.read_text() + "FASTFILL_LLM_REASONING_EFFORT=high\n")
-        elif change == "predictions":  # e.g. an earlier autopilot's scored report next to regenerated predictions
-            predictions = pilot.runs / "llm-prompt-300/predictions.jsonl"
-            predictions.write_text(predictions.read_text() + "\n")
-        elif change == "evaluator":  # scored by another evaluate implementation (same rows and predictions)
-            report = pilot.runs / "llm-prompt-300-eval/report.json"
-            report.write_text(json.dumps({**json.loads(report.read_text()), "implementation_sha256": "OLD_EVALUATOR"}))
-        elif change == "old summary":  # the c750c31 summary: no identity recorded
-            summary = pilot.runs / "llm-harness-300/summary.json"
-            summary.write_text(json.dumps({k: v for k, v in json.loads(summary.read_text()).items()
-                                           if k not in ("data_sha256", "implementation_sha256")}))
-        else:  # llm_baseline.py on disk changed (the stub still records the imported module's hash: no convergence check)
-            code = tmp_path / "fastfill/v2/llm_baseline.py"
-            code.write_text(code.read_text() + "\n")
-        pilot.llm_baselines(sample)
-        both = ["fastfill.v2.llm_baseline", "fastfill.v2.evaluate"]
-        assert calls == {"predictions": ["fastfill.v2.evaluate"], "evaluator": ["fastfill.v2.evaluate"],
-                         "old summary": both}.get(change, both * 2), change
-        if change != "code":
-            calls.clear()
-            pilot.llm_baselines(sample)  # converged: nothing left to redo
-            assert calls == [], change
+    report = Path(pilot.llm_reports["LLM prompt"])
+    report_bytes = report.read_bytes()
+    predictions = pilot.llm_output("prompt") / "predictions.jsonl"
+    predictions.write_text(predictions.read_text() + "\n")
+    pilot.llm_baselines(sample)
+    assert calls == ["fastfill.v2.evaluate"]
+    assert Path(pilot.llm_reports["LLM prompt"]) != report and report.read_bytes() == report_bytes
+    calls.clear()
+    pilot.llm_baselines(sample)
+    assert calls == []
+    before = {p: p.read_bytes() for p in pilot.runs.rglob("*") if p.is_file() and pilot.dir not in p.parents}
+    env.write_text(env.read_text() + "FASTFILL_LLM_REASONING_EFFORT=high\n")
+    pilot.llm_baselines(sample)
+    assert calls == [] and pilot.llm_reports == {}
+    assert all(path.read_bytes() == value for path, value in before.items())
     assert "secret-test-key" not in (pilot.dir / "autorun.log").read_text()
 
 

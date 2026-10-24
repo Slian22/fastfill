@@ -378,12 +378,7 @@ def _save_dpo_ckpt(ckpt_dir: Path, raw_peft: Any, opt: torch.optim.Optimizer, sc
         raise
 
 
-def main() -> None:
-    import contextlib
-    import shutil
-    from peft import set_peft_model_state_dict
-    from safetensors.torch import load_file
-
+def argument_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--model", required=True, help="Base/merged SFT model path")
     ap.add_argument("--pairs", type=Path, required=True, help="DPO pairs JSONL from build_dpo.py")
@@ -410,6 +405,16 @@ def main() -> None:
     ap.add_argument("--image_text_model", action="store_true", help="load --model with AutoModelForImageTextToText (text inputs)")
     ap.add_argument("--perf_out", type=Path, help="per-rank step wall seconds, input tokens and peak CUDA memory")
     ap.add_argument("--warmup_ratio", type=float, help="cosine warmup share of the total steps (default 0.05)")
+    return ap
+
+
+def main() -> None:
+    import contextlib
+    import shutil
+    from peft import set_peft_model_state_dict
+    from safetensors.torch import load_file
+
+    ap = argument_parser()
     args = ap.parse_args()
     if not (math.isfinite(args.rpo_alpha) and args.rpo_alpha >= 0):
         raise ValueError("--rpo_alpha must be finite and >= 0")
@@ -428,6 +433,23 @@ def main() -> None:
     device = torch.device(f"cuda:{local_rank}" if torch.cuda.is_available() else "cpu")
     set_seed(args.seed)
 
+    identity_error = None
+    if rank == 0:
+        from fastfill.v1_1.training_guard import bind_trainer_identity
+
+        defaults = {k: ap.get_default(k) for k in vars(args)}
+        try:
+            bind_trainer_identity(args, defaults, world_size, "bfloat16" if device.type == "cuda" else "float32",
+                                  [__file__, Path(__file__).with_name("training_guard.py"), prompt_text.__code__.co_filename])
+        except (OSError, ValueError, TypeError) as exc:
+            identity_error = f"Training identity validation failed: {exc}"
+    if is_ddp:
+        result = [identity_error]
+        dist.broadcast_object_list(result, src=0)
+        identity_error = result[0]
+    if identity_error is not None:
+        raise ValueError(identity_error)
+
     if rank == 0:
         receipt = {}
         if args.base_receipt:  # Amendment 021: the pinned 27B (or generic 8B) base, weights rehashed.
@@ -436,13 +458,14 @@ def main() -> None:
             base = a021_train.base_receipt(args.model)
             receipt = {"base_receipt": {"path": base["path"], "files_sha256": _hash(base["files"])}}
         args.out.mkdir(parents=True, exist_ok=True)
-        (args.out / "run_manifest.json").write_text(
-            json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
-                                 if not (k == "init_adapter" and v is None) and not (k == "sft_only" and not v)
-                                 and not (k in OPTIONAL and v in (None, False))}, **receipt},
-                       indent=1) + "\n",
-            encoding="utf-8",
-        )
+        if not (args.out / "run_manifest.json").exists():
+            (args.out / "run_manifest.json").write_text(
+                json.dumps({"args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
+                                     if not (k == "init_adapter" and v is None) and not (k == "sft_only" and not v)
+                                     and not (k in OPTIONAL and v in (None, False))}, **receipt},
+                           indent=1) + "\n",
+                encoding="utf-8",
+            )
 
     tok = AutoTokenizer.from_pretrained(args.model)
     if tok.pad_token is None:

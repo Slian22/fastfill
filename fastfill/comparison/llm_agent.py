@@ -50,6 +50,7 @@ from dataclasses import dataclass, field
 import hashlib
 import http.client
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -135,8 +136,11 @@ def subset(cohort, path, test=None):
 
 
 def _vec(value):
-    return (isinstance(value, list) and len(value) == 3
-            and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value))
+    try:
+        return (isinstance(value, list) and len(value) == 3
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in value))
+    except OverflowError:  # JSON integers may be too large even for isfinite's float conversion.
+        return False
 
 
 def enforce_sizes(text, record):
@@ -182,7 +186,10 @@ def enforce_sizes(text, record):
     for i, z in moved.items():  # After every bottom() call: parents are read before any z is written.
         counts['z_changed'] += abs(z - movable[i]['pos'][2]) > SIZE_TOL
         movable[i]['pos'] = [*movable[i]['pos'][:2], z]
-    return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+    try:
+        return (json.dumps(value, allow_nan=False) if counts['size_returned'] or moved else text), counts
+    except ValueError:  # A JSON exponent such as 1e309 can decode to infinity; let the contract parser reject it.
+        return text, None
 
 
 def parse(text, record, arm):

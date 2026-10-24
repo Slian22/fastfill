@@ -1,0 +1,14 @@
+{
+  "content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+  "archive": "/tmp/fastfill-repairs-20261024/repairs-20261024-daca130611a9.tar.gz",
+  "archive_sha256": "8b2e42276edf6f69e231f24427c5b13207ae2fb150ae5bcd6e474256096fa914",
+  "files": 494,
+  "bytes": 2108947,
+  "remote_directory": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/snapshots/repairs-20261024-daca130611a9",
+  "remote_run": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-daca130611a9",
+  "changes_from_previous_candidate": [
+    "fastfill/v1_1/evaluation_protocol.py",
+    "fastfill/v1_1/tests/test_evaluation_protocol.py",
+    "fastfill/v1_1/tests/test_training_guard.py"
+  ]
+}

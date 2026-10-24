@@ -1,0 +1,474 @@
+FFFFFFFFFF.                                                              [100%]
+=================================== FAILURES ===================================
+____ test_full_submission_rejects_unsuccessful_or_changed_smoke[failed_job] ____
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'failed_job'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u0/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+__ test_full_submission_rejects_unsuccessful_or_changed_smoke[no_completion] ___
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'no_completion'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u1/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+__ test_full_submission_rejects_unsuccessful_or_changed_smoke[empty_results] ___
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'empty_results'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u2/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+_____ test_full_submission_rejects_unsuccessful_or_changed_smoke[partial] ______
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'partial'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u3/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+___ test_full_submission_rejects_unsuccessful_or_changed_smoke[failed_case] ____
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'failed_case'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u4/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+__ test_full_submission_rejects_unsuccessful_or_changed_smoke[invalid_scores] __
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'invalid_scores'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u5/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+___ test_full_submission_rejects_unsuccessful_or_changed_smoke[wrong_model] ____
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'wrong_model'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u6/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+__ test_full_submission_rejects_unsuccessful_or_changed_smoke[wrong_request] ___
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'wrong_request'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u7/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+_ test_full_submission_rejects_unsuccessful_or_changed_smoke[changed_manifest] _
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'changed_manifest'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u8/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+__ test_full_submission_rejects_unsuccessful_or_changed_smoke[changed_image] ___
+
+submission = (PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/test_full_submission_r...13/judge-023-astra-high/smoke/results/64db493122d961f34e639a5c2b3c7774ffbd30f64242b44e26e70c6d51ed1c87.result.json'))])
+failure = 'changed_image'
+
+    @pytest.mark.parametrize("failure", ["failed_job", "no_completion", "empty_results", "partial", "failed_case",
+                                         "invalid_scores", "wrong_model", "wrong_request", "changed_manifest", "changed_image"])
+    def test_full_submission_rejects_unsuccessful_or_changed_smoke(submission, failure):
+        script, repo, base, env, submitted, records = submission
+        if failure == "failed_job":
+            write(base / "smoke.completion.json", {"exit_code": 1})
+        elif failure == "no_completion":
+            (base / "smoke.completion.json").unlink()
+        elif failure == "empty_results":
+            for pair in records:
+                for path in pair:
+                    path.unlink()
+        elif failure == "partial":
+            records[1][1].unlink()
+        elif failure in ("failed_case", "invalid_scores", "wrong_model", "wrong_request"):
+            path = records[0][1]
+            record = json.loads(path.read_text())
+            if failure == "failed_case":
+                record.update(status="failed", error="timeout")
+            elif failure == "invalid_scores":
+                record["scores"]["functionality_score"] = 99
+                record["raw_final_text"] = json.dumps(record["scores"])
+            elif failure == "wrong_model":
+                record["returned_model"] = "other-model"
+            else:
+                record["request_sha256"] = "a" * 64
+            write(path, record)
+        else:
+            manifest_path = base / "smoke/manifest.json"
+            manifest = judge.load_manifest(manifest_path)
+            if failure == "changed_manifest":
+                manifest["cases"].reverse()
+                write(manifest_path, manifest)
+            else:
+                Path(manifest["cases"][0]["images"][0]["path"]).write_bytes(b"changed artifact")
+        result = subprocess.run(["bash", str(script), str(repo), "full"], env=env, capture_output=True, text=True)
+>       assert result.returncode != 0
+E       AssertionError: assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['bash', '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-477/te...jects_u9/submit.sh', '/Users/slian/Desktop/3D/Worldedge/OptiScene', 'full'], returncode=0, stdout='12345\n', stderr='').returncode
+
+fastfill/comparison/tests/test_submit_023_judge.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[failed_job]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[no_completion]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[empty_results]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[partial]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[failed_case]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[invalid_scores]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[wrong_model]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[wrong_request]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[changed_manifest]
+FAILED fastfill/comparison/tests/test_submit_023_judge.py::test_full_submission_rejects_unsuccessful_or_changed_smoke[changed_image]
+10 failed, 1 passed in 3.71s

@@ -1,0 +1,88 @@
+{
+  "status": "FINAL_REPAIR_VERIFICATION_PASSED",
+  "observed_utc": "2026-10-24T15:42:13.551972+00:00",
+  "findings": "F01-F17",
+  "base_commit": "873251f0b1f299230c42d510fe5c4f732aa77ce9",
+  "source_content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+  "source_files_verified": 494,
+  "local_tests": {
+    "passed": 3505,
+    "skipped": 6,
+    "subtests_passed": 305,
+    "seconds": 591.59,
+    "junit_testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "6",
+        "tests": "3816",
+        "time": "590.119",
+        "timestamp": "2026-10-24T16:31:59.436185+01:00",
+        "hostname": "Slian22deMacBook-Pro-1217.local"
+      }
+    ],
+    "skip_reasons": [
+      {
+        "test": "OptiScene.fastfill.comparison.tests.test_optiscene_eval::test_exact_readme_dpo_command_parses_with_the_vendored_parser",
+        "reason": "trl is not installed (training venv only)"
+      },
+      {
+        "test": "OptiScene.fastfill.comparison.tests.test_optiscene_eval::test_f3_resume_past_a_partial_checkpoint_equals_an_uninterrupted_run",
+        "reason": "trl is not installed (training venv only)"
+      },
+      {
+        "test": "OptiScene.fastfill.comparison.tests.test_room_families::test_the_frozen_strings_are_the_test_set",
+        "reason": "local data copy not mounted"
+      },
+      {
+        "test": "OptiScene.fastfill.system.tests.test_pipeline::test_eval_data_v1_placement_requests_byte_for_byte",
+        "reason": "needs FASTFILL_EVAL_DATA=.../eval-data-v1"
+      },
+      {
+        "test": "OptiScene.fastfill.v2.tests.test_batch_augment_fix20261006::test_real_legacy_row_collates_renders_and_augments",
+        "reason": "external data disk is not mounted"
+      },
+      {
+        "test": "OptiScene.fastfill.v2.tests.test_batch_handoff_r2::test_minimal_projection_matches_direct_requests_on_real_rectangular_rows",
+        "reason": "external data disk is not mounted"
+      }
+    ]
+  },
+  "production_coverage": {
+    "production_file_count": 183,
+    "unimported_file_count": 15,
+    "covered": 32147,
+    "statements": 38141,
+    "percent": 84.28462809050627,
+    "threshold_passed": true
+  },
+  "server_validation": {
+    "status": "REPAIR_VALIDATION_PASSED",
+    "observed_utc": "2026-10-24T15:35:27.796037+00:00",
+    "content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+    "source_files_verified": 494,
+    "test_copy_files_verified_after_execution": 494,
+    "testsuites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "2",
+        "tests": "492",
+        "time": "81.237",
+        "timestamp": "2026-10-24T15:33:46.484958+00:00",
+        "hostname": "nid010134"
+      }
+    ],
+    "training_preservation_checks": 146,
+    "training_preservation_passed": true,
+    "critic_answers_recovered": 757,
+    "api_calls": 0,
+    "gpu_allocated": false,
+    "new_model_training": false
+  },
+  "known_dependency_advisories": "3 pre-existing local direct dependency packages; see dependency-audit-final-summary.json",
+  "no_new_gpu_jobs": true,
+  "no_paid_api_calls": true
+}

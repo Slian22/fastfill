@@ -27,6 +27,7 @@ import shutil
 from typing import Any
 
 from fastfill.scene import num, prompt_text, short_desc, slug
+from fastfill.validate import holds
 from fastfill.v1_1.postprocess import check_v1_1, repair_v1_1
 from fastfill.v1_1.scene_v1_1 import (
     apply_v1_1,
@@ -307,9 +308,10 @@ def placements_to_v2_handoff(
     orig_meta: list[dict[str, Any]],
     pl: dict[str, dict[str, Any]],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Convert repaired FastFill v1.1 placements into `(condition, layout)` matching `fastfill.v2` schema & `reference_check`."""
+    """Export predictions while retaining the original request's support contract."""
     h_room = room.get("height") or 2.8
     v11_to_orig_id = {m["v11_id"]: m["orig_id"] for m in orig_meta}
+    requested = {o["id"]: o for o in room["objects"]}
     meta_sorted = sorted(orig_meta, key=lambda m: m["orig_idx"])
 
     cond_objs = []
@@ -318,8 +320,8 @@ def placements_to_v2_handoff(
         oid = m_item["v11_id"]
         orig_id = m_item["orig_id"]
         p = pl[oid]
-        parent_v11 = p.get("on")
-        if parent_v11 and parent_v11 in v11_to_orig_id:
+        parent_v11 = requested[oid].get("parent")
+        if parent_v11:
             support_parent = v11_to_orig_id[parent_v11]
         elif m_item.get("place_id") == "wall":
             support_parent = "wall"
@@ -364,7 +366,10 @@ def placements_to_v2_handoff(
             ],
         },
         "objects": cond_objs,
-        "constraints": [],
+        "constraints": [
+            {"type": "on", "object_id": v11_to_orig_id[c[1]], "parent_id": v11_to_orig_id[c[2]]}
+            for c in room.get("constraints", []) if c[0] == "on"
+        ],
     }
     layout = {
         "schema_version": "fastfill.v2",
@@ -471,7 +476,8 @@ def main() -> None:
         if used_fallback:
             pl = _fallback_placements_v1_1(rm)
         rep_pl = repair_v1_1(rm, pl, resolve_collisions=True)
-        chk_rep = check_v1_1(apply_v1_1(rm, rep_pl))
+        rep_room = apply_v1_1(rm, rep_pl)
+        chk_rep = check_v1_1(rep_room)
 
         scene_out = args.out_dir / sf.stem
         if scene_out.exists():
@@ -511,7 +517,9 @@ def main() -> None:
             "repaired_support_fail": len(chk_rep["support_fail"]),
             "repaired_oob": len(chk_rep["oob"]),
             "repaired_fixed_blocking": len(chk_rep["fixed_blocking"]),
-            "repaired_valid": False if used_fallback else chk_rep["valid"],
+            "repaired_valid": not used_fallback and chk_rep["valid"] and all(
+                holds(c, rep_room["objects"], rm["boundary"]) for c in rm.get("constraints", [])
+            ),
             "fallback_geometry_valid": chk_rep["valid"] if used_fallback else None,
             "reference_check": {
                 k: {"ok": v["ok"], **v["counts"]} for k, v in ref_chk["checks"].items()

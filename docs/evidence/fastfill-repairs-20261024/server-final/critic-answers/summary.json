@@ -1,0 +1,43 @@
+{
+  "status": "CACHED_ANSWERS_RECOVERED",
+  "historical": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/unknownsize-20261013",
+  "output": "/lus/lfs1aip2/projects/u6uv/shanliantian.u6uv/fastfill/runs/repair-validation-20261024-daca130611a9/critic-answers",
+  "api_calls": 0,
+  "new_geometry_rounds": 0,
+  "answers": 757,
+  "batches": {
+    "round-0": {
+      "answers": 246,
+      "state_manifest_sha256": "227a453112097aff2de7306a0b3d35f34e35834b4489c69e018f76b4e437a887",
+      "batch_manifest_sha256": "e7b15976e698eedcdf17ad9e26a907a10cff70b44fdf6e5e0660c65137ac58cb",
+      "round": 1,
+      "status": "IDENTITY_VERIFIED"
+    },
+    "round-1": {
+      "answers": 202,
+      "state_manifest_sha256": "6a0831d8d15986c70c5a843adab9b44f8727b57319091fa1da9f261ba38b64e6",
+      "batch_manifest_sha256": "56211abf6278a39bc094d162bc844fe3cb495acbc18eabf92bc646f5f82ef3c0",
+      "round": 2,
+      "status": "IDENTITY_VERIFIED"
+    },
+    "test-round-0": {
+      "answers": 174,
+      "state_manifest_sha256": "afb594106abe08390236ee90a0ea641d0abc18c9162eb104dff8064b7571c1cb",
+      "batch_manifest_sha256": "4ac6264f18377dec70b1807557de91d7eea0af0899433205a3efb3cfa2a88463",
+      "round": 1,
+      "status": "IDENTITY_VERIFIED"
+    },
+    "test-round-1": {
+      "answers": 135,
+      "state_manifest_sha256": "40e9cc40a8802a6e22fadfcd2947ab44fde65ce4e1728b89c619a67ad4327392",
+      "batch_manifest_sha256": "aaf0497cde23ffac697c83bba13206e49b77b20521aeb1be7431a745547c057e",
+      "round": 2,
+      "status": "IDENTITY_VERIFIED"
+    }
+  },
+  "script_sha256": "538cecafa1d5d236ace24cd0ff32a7bcb2aa35e1e8aa0d5a2319b3dcb2546a28",
+  "code_sha256": {
+    "critic_batch_025.py": "06fbc8a1d7304f398658e42147195b5a78f534b8518f1dca2a4664164bd2fa57",
+    "critic_025.py": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca"
+  }
+}

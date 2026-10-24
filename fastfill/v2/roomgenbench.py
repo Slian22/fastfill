@@ -279,18 +279,24 @@ def write_benchmark_requests(scenes_dir, output_dir, *, roomgenbench_root=None):
     payloads, summary = {}, []
     for path in scenes:
         scene = _read_json(path)
+        key = scene.get("scene_key")
+        if (not isinstance(key, str) or not key or key in (".", "..")
+                or any(c in key for c in ("/", "\\", "\0"))
+                or (target / f"{key}.json").resolve().parent != target):
+            raise ValueError("RoomGenBench scene_key must be a nonempty filename component")
         request = benchmark_request(scene)
         request_to_condition(request)  # schema check only, with predict --request's default max_objects
         places = Counter(o["support_parent"] if o["support_parent"] in ("floor", "wall") else "on_object"
                          for o in request["furniture_list"])
-        payloads[f'{scene["scene_key"]}.json'] = json.dumps(request, indent=2) + "\n"
-        summary.append({"scene_key": scene["scene_key"], "requested": len(request["furniture_list"]),
+        payloads[f"{key}.json"] = json.dumps(request, indent=2) + "\n"
+        summary.append({"scene_key": key, "requested": len(request["furniture_list"]),
                         **{place: places[place] for place in ("floor", "wall", "on_object")}})
     if len(payloads) != len(scenes):
         raise ValueError("RoomGenBench scene keys must be unique")
     target.mkdir(parents=True, exist_ok=False)
     for name, payload in payloads.items():
-        (target / name).write_text(payload)
+        with (target / name).open("x") as stream:
+            stream.write(payload)
     return summary
 
 

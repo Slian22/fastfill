@@ -136,6 +136,8 @@ def test_reference_failure_and_floor_support_failure_drop_pairs():
 @pytest.mark.parametrize('reason', ['over_length', 'prefix_mismatch'])
 def test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model(tmp_path, monkeypatch, reason):
     import sys
+    from unittest.mock import Mock
+    from safetensors.torch import save_file
     from fastfill.v1_1 import train_dpo
 
     class TinyTokenizer:
@@ -152,9 +154,16 @@ def test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model(tmp_pat
 
     _, pair = example(); pairs = tmp_path / 'pairs.jsonl'
     pairs.write_text(json.dumps(pair) + '\n')
+    model = tmp_path / 'model'
+    model.mkdir()
+    for name in ('config.json', 'tokenizer_config.json', 'tokenizer.json'):
+        (model / name).write_text('{}')
+    save_file({'weight': train_dpo.torch.zeros(1)}, model / 'model.safetensors')
     monkeypatch.setenv('WORLD_SIZE', '2'); monkeypatch.setenv('RANK', '0')
     monkeypatch.setenv('LOCAL_RANK', '0')
     monkeypatch.setattr(train_dpo.dist, 'init_process_group', lambda **kwargs: None)
+    broadcast = Mock(return_value=None)
+    monkeypatch.setattr(train_dpo.dist, 'broadcast_object_list', broadcast)
     monkeypatch.setattr(train_dpo.torch.cuda, 'set_device', lambda value: None)
     monkeypatch.setattr(train_dpo.torch.cuda, 'is_available', lambda: False)
     monkeypatch.setattr(train_dpo.AutoTokenizer, 'from_pretrained', lambda *args, **kwargs: TinyTokenizer())
@@ -163,10 +172,12 @@ def test_dpo_refuses_all_filtered_pairs_before_loading_distributed_model(tmp_pat
         pytest.fail('An empty tokenized preference dataset must fail before loading model weights')
 
     monkeypatch.setattr(train_dpo.AutoModelForCausalLM, 'from_pretrained', forbidden)
-    monkeypatch.setattr(sys, 'argv', ['train_dpo', '--model', 'unused', '--pairs', str(pairs),
+    monkeypatch.setattr(sys, 'argv', ['train_dpo', '--model', str(model), '--pairs', str(pairs),
                                     '--out', str(tmp_path / 'run'), '--max_len', '1' if reason == 'over_length' else '8192'])
     with pytest.raises(ValueError, match='No valid DPO pairs'):
         train_dpo.main()
+    broadcast.assert_called_once_with([None], src=0)
+    assert json.loads((tmp_path / 'run/trainer_identity.json').read_text())['world_size'] == 2
     assert not (tmp_path / 'run/final').exists()
 
 

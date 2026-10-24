@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-10-24T15:39:31.279280+00:00",
+  "source_content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+  "python": "3.12.9 | packaged by conda-forge | (main, Mar  4 2025, 22:44:42) [Clang 18.1.8 ]",
+  "executable": "/Users/slian/miniforge3/bin/python",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "packages": {
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "peft": "0.21.0",
+    "pytest": "9.1.1",
+    "pytest-cov": "7.1.0",
+    "coverage": "7.17.0",
+    "numpy": "1.26.4",
+    "matplotlib": "3.10.1"
+  },
+  "pytest_arguments": [
+    "--import-mode=importlib",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--cov=fastfill",
+    "--cov-report=json:/tmp/fastfill-repairs-20261024/coverage-final.json",
+    "--junitxml=/tmp/fastfill-repairs-20261024/pytest-final-f17.xml",
+    "fastfill"
+  ],
+  "environment": {
+    "PYTHONPATH": "/tmp/fastfill-audit-20261022/qa-deps:/Users/slian/Desktop/3D/Worldedge:/Users/slian/Desktop/3D/Worldedge/OptiScene",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CUDA_VISIBLE_DEVICES": "",
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "COVERAGE_FILE": "/tmp/fastfill-repairs-20261024/.coverage-final"
+  },
+  "note": "Add both checkout root and its parent to PYTHONPATH for importlib/spawn fixtures. Coverage tooling is isolated from project dependencies."
+}

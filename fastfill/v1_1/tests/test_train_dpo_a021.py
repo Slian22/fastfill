@@ -134,6 +134,7 @@ def tiny_qwen35(path):
                   spatial_merge_size=2, temporal_patch_size=2, num_position_embeddings=16, deepstack_visual_indexes=[])
     torch.manual_seed(0)
     Qwen3_5ForConditionalGeneration(Qwen3_5Config(text_config=text, vision_config=vision, tie_word_embeddings=False)).save_pretrained(path)
+    Tok().save_pretrained(path)  # Persist the mocked tokenizer assets for the trainer's input identity.
     return path
 
 

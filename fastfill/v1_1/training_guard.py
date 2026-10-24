@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
@@ -31,6 +32,116 @@ def guard_training(model, pairs, out, settings, code_files):
         if any((target / name).exists() for name in ("ckpt_latest", "final", "run_manifest.json")):
             raise ValueError(f"Cannot adopt unbound training artifacts: {target}")
         write_json_atomic(guard, identity)
+    return identity
+
+
+def _trainer_settings(values):
+    """Only output destinations are operational; all recipe flags bind a resume."""
+    ignored = {"model", "pairs", "out", "init_adapter", "perf_out"}
+    result = {k: v for k, v in values.items() if k not in ignored}
+    if result.get("warmup_ratio") is None:
+        result["warmup_ratio"] = .05
+    return json.loads(json.dumps(result, allow_nan=False))
+
+
+def _trainer_adapter(path):
+    if path is None:
+        return None
+    root = Path(path).resolve()
+    if not completed_adapter(root):
+        raise ValueError("Invalid training identity: incomplete initial adapter")
+    return {"path": str(root), "files": {
+        str(p.relative_to(root)): file_identity(p) for p in sorted(root.rglob("*"))
+        if p.is_file() and p.name != "SHA256.json" and not p.name.endswith(".tmp")
+    }}
+
+
+def _verify_external_trainer_guard(guard, identity, defaults, dtype):
+    """Honor legacy guards in place, including their own frozen code paths.
+
+    Rich wrapper settings contain descriptions as well as trainer flags. Compare
+    executable flags (with historical defaults), and retain all guard bytes.
+    """
+    if not isinstance(guard, dict) or guard.get("schema_version") != 1:
+        raise ValueError("Invalid training identity: unsupported external guard")
+    if guard.get("model") != identity["model"] or guard.get("pairs") != dataset_identity(identity["pairs"]["path"]):
+        raise ValueError("Training identity changed: external model or pairs")
+    if guard.get("audit_receipt") != identity["audit_receipt"]:
+        raise ValueError("Training identity changed: external audit receipt")
+    settings = guard.get("settings")
+    if not isinstance(settings, dict) or settings.get("world_size") != identity["world_size"]:
+        raise ValueError("Training identity changed: external world size")
+    recipe = {k: settings.get(k, v) for k, v in defaults.items()}
+    if _trainer_settings(recipe) != identity["settings"] or settings.get("dtype", dtype) != dtype:
+        raise ValueError("Training identity changed: external recipe")
+    initial = identity["init_adapter"]
+    declared = settings.get("init_adapter")
+    if initial is None:
+        if declared is not None:
+            raise ValueError("Training identity changed: external initial adapter")
+    else:
+        digest = hashlib.sha256(json.dumps({k: v["sha256"] for k, v in initial["files"].items()},
+                                          sort_keys=True, allow_nan=False).encode()).hexdigest()
+        if (not isinstance(declared, dict) or Path(declared.get("path", "")).resolve() != Path(initial["path"])
+                or declared.get("sha256") != digest):
+            raise ValueError("Training identity changed: external initial adapter")
+    code = guard.get("code")
+    if not isinstance(code, dict) or not code:
+        raise ValueError("Invalid training identity: missing external code provenance")
+    for path, expected in code.items():
+        if file_identity(path) != expected:
+            raise ValueError("Training identity changed: external frozen code")
+
+
+def bind_trainer_identity(args, defaults, world_size, dtype, code_files):
+    """Bind the direct CLI before loading a checkpoint or rewriting provenance.
+
+    An older guarded run can acquire the new sidecar only after checking its
+    original guard AND run manifest. Unbound historical runs need manual review;
+    a matching checkpoint position alone cannot establish their training inputs.
+    """
+    target, pairs = Path(args.out), Path(args.pairs).resolve()
+    guard_path, manifest = target / "training_guard.json", target / "run_manifest.json"
+    sidecar = target / "trainer_identity.json"
+    audit = pairs.parent / "audit.json"
+    identity = {
+        "schema_version": 1, "kind": "fastfill_v1.1_trainer_identity",
+        "model": model_identity(args.model), "pairs": {"path": str(pairs), **file_identity(pairs)},
+        "init_adapter": _trainer_adapter(args.init_adapter), "settings": _trainer_settings(vars(args)),
+        "world_size": world_size, "dtype": dtype,
+        "audit_receipt": file_identity(audit) if audit.exists() else None,
+        "training_guard": file_identity(guard_path) if guard_path.exists() else None,
+        "code": {str(Path(p).resolve()): file_identity(p) for p in code_files},
+    }
+    if sidecar.exists():
+        if json.loads(sidecar.read_text()) != identity:
+            raise ValueError(f"Training identity changed; refusing resume: {target}")
+    # Always verify external provenance, also when a direct CLI bypasses its wrapper.
+    if guard_path.exists():
+        try:
+            _verify_external_trainer_guard(json.loads(guard_path.read_text()), identity, defaults, dtype)
+        except (OSError, TypeError, KeyError) as exc:
+            raise ValueError("Invalid training identity: external provenance unavailable") from exc
+    if sidecar.exists():
+        return identity
+    artifacts = manifest.exists() or any(target.glob("ckpt_latest*")) or (target / "final").exists()
+    if artifacts:
+        if not guard_path.exists() or not manifest.is_file():
+            raise ValueError(f"Cannot adopt unbound training artifacts: {target}")
+        recorded = json.loads(manifest.read_text())
+        previous = recorded.get("args") if isinstance(recorded, dict) else None
+        if not isinstance(previous, dict):
+            raise ValueError("Invalid training identity: historical run manifest")
+        old_recipe = {k: previous.get(k, v) for k, v in defaults.items()}
+        paths = {"model": identity["model"]["path"], "pairs": identity["pairs"]["path"],
+                 "init_adapter": identity["init_adapter"]["path"] if identity["init_adapter"] else None}
+        for key, expected in paths.items():
+            value = previous.get(key)
+            if (str(Path(value).resolve()) if value is not None else None) != expected:
+                raise ValueError("Training identity changed: historical input path")
+        if _trainer_settings(old_recipe) != identity["settings"]:
+            raise ValueError("Training identity changed: historical recipe")
+    write_json_atomic(sidecar, identity)
     return identity
 
 

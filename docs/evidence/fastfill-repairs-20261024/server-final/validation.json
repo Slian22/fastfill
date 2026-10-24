@@ -1,0 +1,25 @@
+{
+  "status": "REPAIR_VALIDATION_PASSED",
+  "observed_utc": "2026-10-24T15:35:27.796037+00:00",
+  "content_sha256": "daca130611a976b51193b7332c6464ad1b31214e43f2b7f29046dcc103dc17e1",
+  "source_files_verified": 494,
+  "test_copy_files_verified_after_execution": 494,
+  "testsuites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "2",
+      "tests": "492",
+      "time": "81.237",
+      "timestamp": "2026-10-24T15:33:46.484958+00:00",
+      "hostname": "nid010134"
+    }
+  ],
+  "training_preservation_checks": 146,
+  "training_preservation_passed": true,
+  "critic_answers_recovered": 757,
+  "api_calls": 0,
+  "gpu_allocated": false,
+  "new_model_training": false
+}

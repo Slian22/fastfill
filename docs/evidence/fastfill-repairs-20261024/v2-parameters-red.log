@@ -1,0 +1,676 @@
+FFFFFFFFFFFFFF                                                           [100%]
+=================================== FAILURES ===================================
+___ test_versioned_harness_rejects_invalid_counts_before_any_io[repairs--1] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects0')
+setting = 'repairs', value = -1
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects0/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects0/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_versioned_harness_rejects_invalid_counts_before_any_io[repairs-True] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects1')
+setting = 'repairs', value = True
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects1/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects1/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+___ test_versioned_harness_rejects_invalid_counts_before_any_io[repairs-1.5] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects2')
+setting = 'repairs', value = 1.5
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects2/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects2/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+___ test_versioned_harness_rejects_invalid_counts_before_any_io[retries--1] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects3')
+setting = 'retries', value = -1
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects3/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects3/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_versioned_harness_rejects_invalid_counts_before_any_io[retries-False] __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects4')
+setting = 'retries', value = False
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects4/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects4/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+____ test_versioned_harness_rejects_invalid_counts_before_any_io[retries-1] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects5')
+setting = 'retries', value = '1'
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects5/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects5/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+____ test_versioned_harness_rejects_invalid_counts_before_any_io[workers-0] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects6')
+setting = 'workers', value = 0
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects6/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects6/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+___ test_versioned_harness_rejects_invalid_counts_before_any_io[workers--1] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects7')
+setting = 'workers', value = -1
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects7/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects7/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_versioned_harness_rejects_invalid_counts_before_any_io[workers-True] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects8')
+setting = 'workers', value = True
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects8/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects8/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_versioned_harness_rejects_invalid_counts_before_any_io[workers-None] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects9')
+setting = 'workers', value = None
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects9/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects9/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+__ test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-0] __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects10')
+setting = 'max_samples', value = 0
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects10/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects10/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples--1] __
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects11')
+setting = 'max_samples', value = -1
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects11/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects11/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-True] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects12')
+setting = 'max_samples', value = True
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects12/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects12/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+_ test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-1.5] _
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects13')
+setting = 'max_samples', value = 1.5
+
+    @pytest.mark.parametrize("setting,value", [("repairs", -1), ("repairs", True), ("repairs", 1.5),
+                                              ("retries", -1), ("retries", False), ("retries", "1"),
+                                              ("workers", 0), ("workers", -1), ("workers", True), ("workers", None),
+                                              ("max_samples", 0), ("max_samples", -1),
+                                              ("max_samples", True), ("max_samples", 1.5)])
+    def test_versioned_harness_rejects_invalid_counts_before_any_io(tmp_path, setting, value):
+        module = importlib.import_module("fastfill.v2.llm_baseline_v2")
+        output = tmp_path / "out"
+        calls = []
+        with pytest.raises(ValueError, match=setting):
+>           module.run(tmp_path / "missing-data", output, tmp_path / "missing-env",
+                       ask=lambda *args: calls.append(args), **{setting: value})
+
+fastfill/v2/tests/test_repairs_20261024.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+fastfill/v2/llm_baseline_v2.py:28: in run
+    env = legacy.load_env(env_file)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+fastfill/v2/llm_baseline.py:57: in load_env
+    for line in Path(path).read_text().splitlines():
+                ^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects13/missing-env')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-523/test_versioned_harness_rejects13/missing-env'
+
+../../../../miniforge3/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[repairs--1]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[repairs-True]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[repairs-1.5]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[retries--1]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[retries-False]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[retries-1]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[workers-0]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[workers--1]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[workers-True]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[workers-None]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-0]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples--1]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-True]
+FAILED fastfill/v2/tests/test_repairs_20261024.py::test_versioned_harness_rejects_invalid_counts_before_any_io[max_samples-1.5]
+14 failed, 26 deselected in 1.86s
