@@ -1,0 +1,65 @@
+{
+  "head": "825fd13ea18f45835db1a242197359a77ea99f9e",
+  "full_run": {
+    "passed": 3376,
+    "failed": 18,
+    "skipped": 6,
+    "subtests_passed": 305,
+    "seconds": 610.09
+  },
+  "targeted_rerun": {
+    "passed": 18,
+    "failed": 0,
+    "seconds": 89.07,
+    "only_change": "Add checkout parent to PYTHONPATH so spawn children can import OptiScene"
+  },
+  "combined": {
+    "passed": 3394,
+    "failed": 0,
+    "skipped": 6,
+    "subtests_passed": 305
+  },
+  "skip_details": [
+    {
+      "test": "OptiScene.fastfill.comparison.tests.test_optiscene_eval::test_exact_readme_dpo_command_parses_with_the_vendored_parser",
+      "reason": "trl is not installed (training venv only)"
+    },
+    {
+      "test": "OptiScene.fastfill.comparison.tests.test_optiscene_eval::test_f3_resume_past_a_partial_checkpoint_equals_an_uninterrupted_run",
+      "reason": "trl is not installed (training venv only)"
+    },
+    {
+      "test": "OptiScene.fastfill.comparison.tests.test_room_families::test_the_frozen_strings_are_the_test_set",
+      "reason": "local data copy not mounted"
+    },
+    {
+      "test": "OptiScene.fastfill.system.tests.test_pipeline::test_eval_data_v1_placement_requests_byte_for_byte",
+      "reason": "needs FASTFILL_EVAL_DATA=.../eval-data-v1"
+    },
+    {
+      "test": "OptiScene.fastfill.v2.tests.test_batch_augment_fix20261006::test_real_legacy_row_collates_renders_and_augments",
+      "reason": "external data disk is not mounted"
+    },
+    {
+      "test": "OptiScene.fastfill.v2.tests.test_batch_handoff_r2::test_minimal_projection_matches_direct_requests_on_real_rectangular_rows",
+      "reason": "external data disk is not mounted"
+    }
+  ],
+  "environment": {
+    "python": "3.12.9",
+    "torch": "2.13.0",
+    "transformers": "5.14.1",
+    "pytest": "9.1.1",
+    "cuda_visible_devices": "",
+    "hub_offline": true,
+    "qa_dependencies_installed_only_under_tmp": true
+  },
+  "initial_attempt": "Default Python 3.13/older transformers had collection/import conflicts; this is kept in pytest.log and is not represented as product regression.",
+  "static_counts": {
+    "ast.parse": 353,
+    "bash -n": 70,
+    "json.loads": 17,
+    "zsh -n": 1
+  },
+  "scope": "CPU, fake external transports and temporary artifacts; no real GPU/model-scale/remote/API/Blender execution"
+}

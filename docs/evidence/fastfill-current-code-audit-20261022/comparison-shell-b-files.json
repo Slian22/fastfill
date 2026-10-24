@@ -1,0 +1,356 @@
+{
+  "head": "825fd13ea18f45835db1a242197359a77ea99f9e",
+  "scope": "Sorted relative comparison shell/sbatch paths positions 26-50",
+  "production_count": 25,
+  "production_lines": 3062,
+  "files": [
+    {
+      "path": "fastfill/comparison/submit_011.sh",
+      "lines": 77,
+      "sha256": "2a72ceeba17dea3a91dc973eee7c671e349a6697dd3f56786fb52309224bdc44",
+      "status": "fully_read",
+      "semantic_review": "All held jobs, input complete preflight, dev merged-policy check then final reporting.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_013.sh",
+      "lines": 155,
+      "sha256": "86f48e156197854bc6f15fd18041c01b2c2759f4106da98609a76c2542e02def",
+      "status": "fully_read",
+      "semantic_review": "Restart step handling, yield floors, smoke/sample/train/dev dependency graph, policy selection/test dispatch.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_014.sh",
+      "lines": 110,
+      "sha256": "db34534b9231a1fde7c7ba1c29b376978d5fb13bbd187d0ef92283d1b2d9b965",
+      "status": "fully_read",
+      "semantic_review": "Pinned env/data/plan preflight, two-segment DPO training afterany gates, merge/generate/score dependencies.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_015.sh",
+      "lines": 160,
+      "sha256": "ebe9a5bc7129f3b062da786c4ffe584ea4f5ccd29f3387ee6fc9d47b97e969b1",
+      "status": "fully_read",
+      "semantic_review": "Published/pending arm selection, 8B smoke gate, E3 job mode, afterany partial report.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_016_ablation.sh",
+      "lines": 112,
+      "sha256": "1c462a4174b34d1cb44db7f5911de51ed47c3b6b88232613162e38d08cc81571",
+      "status": "fully_read",
+      "semantic_review": "Four candidate trains, completed/partial dev reuse, AFTER_JOB verification, held roots.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_016_agents.sh",
+      "lines": 179,
+      "sha256": "448c659723f10154cade8e51ac5f0641a275a9ddc6f30f1ae0cb015df634f3d3",
+      "status": "fully_read",
+      "semantic_review": "Budgeted pilots/full/GT pilot, singleton and pilot-first ordering, size-fixed evaluation/repair contracts.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_016_scale.sh",
+      "lines": 75,
+      "sha256": "ed74ac0eb9091dc1fcd472453f11ff45dd4483f1af102f290569559b9ca1bbec",
+      "status": "fully_read",
+      "semantic_review": "GT/J/P/agent/S1 and optional OS stage cohort mappings, write-once output, CPU-only submit.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_018_chain.sh",
+      "lines": 221,
+      "sha256": "b638f6f0abd2a2b6fd25c83c820461a26deaff1e28b913318de6f93bdb7bc8d3",
+      "status": "fully_read",
+      "semantic_review": "Teacher prerequisite, restart graph, T-C sampling, not-trained DPO2 path, cap/dependency handling.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_018_teacher.sh",
+      "lines": 114,
+      "sha256": "1c30dc965f987e45c75a8004a166f56020fb322ba00924bad977433a9d9120ca",
+      "status": "fully_read",
+      "semantic_review": "Density-weighted teacher ceiling, shards and reference-config filter, safe held plan.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_020_placers.sh",
+      "lines": 288,
+      "sha256": "1a49804308f7165eec2858d7502763f9bcf446f3f203e71285daea8f4e2ac9f6",
+      "status": "fully_read",
+      "semantic_review": "Plan/OS/P inference/score/report modes, sizer status, pending dependencies, reuse and cap planning.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_020_sizers.sh",
+      "lines": 114,
+      "sha256": "faac9c5ba0fc788942347aeddcd53ae94206b82c1442aa1c0e6fdde9f1b19750",
+      "status": "fully_read",
+      "semantic_review": "L API cap preview and deferral, O2 measured-rate budget, shard/finalize dependency graph.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_021_diag.sh",
+      "lines": 122,
+      "sha256": "0ff1c5339d8cab76be9a7f9295d4ac41be19f543eabc41ee2e3d8372ad5a44e3",
+      "status": "fully_read",
+      "semantic_review": "Ledger/pool/probe modes, prerequisites and no-output reuse, held independent jobs, timeout/GPU counts.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_021_eval.sh",
+      "lines": 177,
+      "sha256": "3dd98146ab068a92b67b7a8896ecca240705cbbd43312a3e58e814af2ac4953c",
+      "status": "fully_read",
+      "semantic_review": "Plan/jobs dispatch, model and engine stages, Slurm active/completed GPU accounting, restart outputs.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_021_train.sh",
+      "lines": 177,
+      "sha256": "89bf40569036550c75af05f0e13ad12278f00582dc4cabfdfe4645aa668932ef",
+      "status": "fully_read",
+      "semantic_review": "Smoke and vLLM success gates, Arm A/B rules, segments after-failure, allocated/requested GPU ceilings.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_023_judge.sh",
+      "lines": 45,
+      "sha256": "c5bcd643b526224e0f5b8cf4c3e9ff0d6c88912fd6d989019a9250ed387b8056",
+      "status": "fully_read",
+      "semantic_review": "Confirmed CSB-01: full gate uses only smoke result-directory existence, ignores failed completion.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_025.sh",
+      "lines": 37,
+      "sha256": "502f5644eeb38c2dfbc292cb7ba22de40cb734e097d25571324344f0bc1241e5",
+      "status": "fully_read",
+      "semantic_review": "Critic paths/limits, output uniqueness and completion wrapper; no paid call executed in audit.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_026_diverse.sh",
+      "lines": 88,
+      "sha256": "7aa47d0875cc69540379c8557fa170b825bdfa127991e8ba56ff99d9d29c7d97",
+      "status": "fully_read",
+      "semantic_review": "Actual completed zero-API-failure smoke gate, bounded L calls, cohort identity and eval/S1 dependencies.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_028.sh",
+      "lines": 163,
+      "sha256": "e9a125fc525cf19239e1a9740485dff391d43e579aae04a324c96214981f3343",
+      "status": "fully_read",
+      "semantic_review": "J27 stage preflight, smoke gate retained by retry, OR train completion dependency, test/dev caps.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_dev_selection.sh",
+      "lines": 90,
+      "sha256": "19364d7f70e25a130912fb0f6d822f7e965639fc07d94fc888e565795d9c836a",
+      "status": "fully_read",
+      "semantic_review": "Frozen dev builder, both-arm candidate training and exact-policy evaluation, selection dependency.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_dpo_stages.sh",
+      "lines": 107,
+      "sha256": "bc5e0e9828ba540d7425b2c65c4177bc650c81281230f8773219a22f56254f2b",
+      "status": "fully_read",
+      "semantic_review": "SFT jobs/plans/positives/merges dependencies, per-stage training and exact-policy test merge graph.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_final_010.sh",
+      "lines": 133,
+      "sha256": "a7ab8cd0681eeef86c5d5d437f225349d9e4c2b916d41a20c1c41c95f2fcf36c",
+      "status": "fully_read",
+      "semantic_review": "Selection hash binding, agent generation readiness, paired evaluation then partial-report finalization.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_infer_v2.sh",
+      "lines": 73,
+      "sha256": "ba90c3aad57845eedb56635b0ede774c22d859cece9ec6c8acd789061416b63f",
+      "status": "fully_read",
+      "semantic_review": "Shared plan/probe/shard/merge/geometry dependency ordering, hold until complete.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_llm_open.sh",
+      "lines": 69,
+      "sha256": "cf380016279d7b86f701f02e0dccf5df3b4a7553aa2523fc14f3dd155bc9f41f",
+      "status": "fully_read",
+      "semantic_review": "Smoke/full singleton ordering, queue guard, receipt resume contract, post-run status job.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_sample_vllm.sh",
+      "lines": 84,
+      "sha256": "3df537cde16f5e0c1ec9ef4c984a179a6e3336a0816226a4c2bf3a4d31b64530",
+      "status": "fully_read",
+      "semantic_review": "Dev data creation if absent, large-room smoke, sampling arrays, finalize/best-of-N references.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    },
+    {
+      "path": "fastfill/comparison/submit_test_012.sh",
+      "lines": 92,
+      "sha256": "839c91a5a9b7d38eef80005eba4fd253350dc6f94dd3c7d2e4f9df29f001ac18",
+      "status": "fully_read",
+      "semantic_review": "Frozen dev-adoption gate, all J/P/agent S1 test jobs and dependent summary, CPU-only flags.",
+      "bash_n_exit": 0,
+      "bash_n_stderr": ""
+    }
+  ],
+  "test_index": [
+    {
+      "path": "fastfill/comparison/tests/test_a021_diag.py",
+      "relevant_tests_indexed": [
+        "test_submit_021_diag_held_steps_released_together_and_refusals",
+        "test_job_modes_validate_arguments_before_the_allocation"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_a021_select.py",
+      "relevant_tests_indexed": [
+        "test_submit_021_stages_dependencies_gpu_cap_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_a021_train.py",
+      "relevant_tests_indexed": [
+        "test_submit_021_modes_gpu_cap_held_roots_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_a028.py",
+      "relevant_tests_indexed": [
+        "test_submit_028_all_chains_every_stage_under_the_gpu_cap_and_refuses_reuse"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_ablation_016.py",
+      "relevant_tests_indexed": [
+        "test_submit_016_chain_held_trains_after_job_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_dev_select.py",
+      "relevant_tests_indexed": [
+        "test_submit_chain_dependencies_with_stub_sbatch",
+        "test_submit_final_chain_with_stub_sbatch"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_distill_018_chain.py",
+      "relevant_tests_indexed": [
+        "test_dev_score_select_later_stage_tie_test_chain_merged_check_and_test_report",
+        "test_submit_018_chain_dependencies_restart_gpu_cap_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_diverse_026.py",
+      "relevant_tests_indexed": [
+        "test_submit_026_refuses_before_submitting"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_dpo_stages.py",
+      "relevant_tests_indexed": [
+        "test_submit_chain_dependencies_with_stub_sbatch",
+        "test_submit_aborts_on_failed_sbatch_and_lists_submitted_jobs"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_final_011.py",
+      "relevant_tests_indexed": [
+        "test_submit_chain_with_stub_sbatch"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_infer_shard.py",
+      "relevant_tests_indexed": [
+        "test_submit_chain_dependencies_with_stub_sbatch",
+        "test_submit_aborts_on_any_failed_sbatch_and_lists_submitted_jobs"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_llm_open.py",
+      "relevant_tests_indexed": [
+        "test_scripts_match_system_table",
+        "test_submit_serialises_open_jobs_after_inference_with_stub_sbatch",
+        "test_submit_default_order_and_abort_lists_submitted_jobs",
+        "test_submit_refuses_while_an_open_model_chain_is_in_slurm",
+        "test_submit_016_runs_pilots_first_then_fulls_under_a_gpu_ceiling"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_onpolicy_dpo.py",
+      "relevant_tests_indexed": [
+        "test_dev_score_select_adopts_earlier_epoch_and_submits_test_chain",
+        "test_submit_013_chain_dependencies_held_root_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_optiscene_eval.py",
+      "relevant_tests_indexed": [
+        "test_scripts_parse",
+        "test_submit_015_argument_checks",
+        "test_submit_015_chain_skips_unmerged_stages_holds_releases_and_refuses"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_placers_020.py",
+      "relevant_tests_indexed": [
+        "test_submit_020_argument_checks",
+        "test_submit_020_chain_dependencies_roots_budget_and_refusals"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_sample_vllm.py",
+      "relevant_tests_indexed": [
+        "test_submit_chain_with_stub_sbatch"
+      ]
+    },
+    {
+      "path": "fastfill/comparison/tests/test_scale_curve.py",
+      "relevant_tests_indexed": [
+        "test_submit_one_cpu_job_and_refusals"
+      ]
+    }
+  ],
+  "test_sections_read": [
+    "test_a028.py:281-425",
+    "test_a021_train.py:484-615",
+    "test_onpolicy_dpo.py:842-930"
+  ],
+  "verification": "All 25 bash -n passed; local failed-smoke gate reproduction only; full suite owned by root."
+}

@@ -1,0 +1,47 @@
+{
+  "head": "825fd13ea",
+  "mode": "CPU-only synthetic inputs; no network",
+  "reproductions": [
+    {
+      "script": "/tmp/fastfill-audit-20261022/repro-v2-roomgen-path.py",
+      "exit_code": 0,
+      "output": {
+        "result": "BUG_REPRODUCED",
+        "summary": [
+          {
+            "scene_key": "../reference/protected",
+            "requested": 1,
+            "floor": 1,
+            "wall": 0,
+            "on_object": 0
+          }
+        ],
+        "output_files": [],
+        "outside_reference_file_overwritten": true,
+        "victim_after_keys": [
+          "furniture_list",
+          "room_size_m",
+          "room_type"
+        ]
+      }
+    },
+    {
+      "script": "/tmp/fastfill-audit-20261022/repro-v2-harness-repair.py",
+      "exit_code": 0,
+      "output": {
+        "result": "BUG_REPRODUCED",
+        "calls": 3,
+        "message_counts": [
+          1,
+          3,
+          1
+        ],
+        "first_answer_valid": true,
+        "layout": null,
+        "error": "ConnectionError: synthetic repair transport failure",
+        "failed": 1,
+        "attempts": 2
+      }
+    }
+  ]
+}

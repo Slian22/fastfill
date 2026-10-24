@@ -1,0 +1,240 @@
+{
+  "head": "825fd13ea18f45835db1a242197359a77ea99f9e",
+  "scope": "fastfill/v2/ops/** production Python/shell/sbatch",
+  "production_count": 23,
+  "production_lines": 3697,
+  "files": [
+    {
+      "path": "fastfill/v2/ops/compare.py",
+      "lines": 189,
+      "sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "status": "fully_read",
+      "semantic_review": "Full read: paired room bootstrap, exact sign test/Holm, input/code/alignment gates and strata filters.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/crosscheck.py",
+      "lines": 50,
+      "sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "status": "fully_read",
+      "semantic_review": "Full read: ordered row/layout comparison; diagnostic differences are reported, not treated as pass gates.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/diag_ablation.py",
+      "lines": 372,
+      "sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "status": "fully_read",
+      "semantic_review": "Full read: eligible rows, a-e variants, assignment, criterion crosschecks, training prior, bootstrap/report.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_analysis.sbatch",
+      "lines": 19,
+      "sha256": "37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_autorun.sbatch",
+      "lines": 17,
+      "sha256": "de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_dryrun.sh",
+      "lines": 123,
+      "sha256": "29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_inputs.py",
+      "lines": 289,
+      "sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "status": "fully_read",
+      "semantic_review": "Full read: arm choice, phase/cohort/code gates, pinned downloads, baseline copy, env/provenance.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_setup.sbatch",
+      "lines": 87,
+      "sha256": "d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_submit.sh",
+      "lines": 10,
+      "sha256": "344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/llm_compare.py",
+      "lines": 190,
+      "sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "status": "fully_read",
+      "semantic_review": "Full read: paired/common/failure scenarios, method identity, costs/latencies, overlap/failure rank.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/make_sample.sh",
+      "lines": 153,
+      "sha256": "52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/rebuild_and_publish.sh",
+      "lines": 47,
+      "sha256": "4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/report.py",
+      "lines": 639,
+      "sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "status": "fully_read",
+      "semantic_review": "Full read: all HTML sections, decision-only validation inputs, provenance, bias/placeholder/drift warnings.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/rescore_llm.sh",
+      "lines": 11,
+      "sha256": "ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/run_checkpoint.sh",
+      "lines": 24,
+      "sha256": "624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/run_plan.sh",
+      "lines": 322,
+      "sha256": "5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0",
+      "status": "fully_read",
+      "semantic_review": "Full read: input/resume gates, GPU lanes, CPU decodes, comparisons, LLM rescoring, report arguments.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/run_reference.sh",
+      "lines": 9,
+      "sha256": "574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/run_structured.sh",
+      "lines": 15,
+      "sha256": "42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb",
+      "status": "fully_read",
+      "semantic_review": "Full read: two background agent jobs; confirmed OPS-02 lost failure propagation.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/sample_validation.py",
+      "lines": 116,
+      "sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "status": "fully_read",
+      "semantic_review": "Full read: paired scene eligibility, proportional allocation, per-checkpoint collate guards, output counts.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/selftest_shift.py",
+      "lines": 55,
+      "sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "status": "fully_read",
+      "semantic_review": "Full read: known position-shift oracle and strata summary validation.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/start_autorun_retrain.sh",
+      "lines": 12,
+      "sha256": "a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c",
+      "status": "fully_read",
+      "semantic_review": "Full read: command sequencing, flags, paths, exit propagation, inputs/output ownership, scheduling and recovery.",
+      "bash_n": {
+        "exit_code": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "path": "fastfill/v2/ops/stratify.py",
+      "lines": 415,
+      "sha256": "a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291",
+      "status": "fully_read",
+      "semantic_review": "Full read: object correspondence/metrics/baselines, validation, cache, aggregation. Confirmed OPS-01.",
+      "bash_n": null
+    },
+    {
+      "path": "fastfill/v2/ops/vlm_judge.py",
+      "lines": 533,
+      "sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "status": "fully_read",
+      "semantic_review": "Full read: frozen sources, anchors, plan/camera/z-buffer, overlays, handoff/contact/CLI.",
+      "bash_n": null
+    }
+  ],
+  "test_files_fully_read": [
+    "fastfill/v2/tests/test_isambard_inputs.py",
+    "fastfill/v2/tests/test_vlm_judge.py",
+    "fastfill/v2/tests/test_audit_c2_uniform_yaw.py"
+  ],
+  "verification": "Actual CPU cached/uncached collect with existing test fixture; shell failure wrapper with every Python command returning 42; shell syntax check. Full suite owned by root.",
+  "documentation_fully_read": [
+    "fastfill/v2/ops/README.md (61 lines)"
+  ]
+}

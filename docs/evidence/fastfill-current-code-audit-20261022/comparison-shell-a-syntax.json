@@ -1,0 +1,127 @@
+[
+  {
+    "path": "fastfill/comparison/isambard_010_cpu.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_013.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_014.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_016.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_018.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_020.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_eval.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_train.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_cpu.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_generate.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_infer_shard.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_train.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_geometry.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_merge.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_plan.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_probe.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_shard.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_agent.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_open.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_main.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_pilot.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/isambard_sample_vllm.sbatch",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "path": "fastfill/comparison/setup_optiscene_env.sh",
+    "exit_code": 0,
+    "stderr": ""
+  }
+]

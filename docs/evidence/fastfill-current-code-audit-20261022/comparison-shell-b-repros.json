@@ -1,0 +1,11 @@
+{
+  "workspace": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet",
+  "smoke_completion_exit_code": 1,
+  "smoke_success_records": 0,
+  "full_wrapper_exit": 0,
+  "stdout": "12345",
+  "stderr": "",
+  "submitted_full_batch": true,
+  "captured_submit": "--parsable --no-requeue --nodes=1 --ntasks=1 --cpus-per-task=5 --mem=8G --gres=none --time=12:00:00 --account=brics.u6uv --partition=workq --qos=normal --job-name=unknownsize-023 --output=/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet/project/runs/isambard/unknownsize-023-full-%j.out --wrap=cd '/Users/slian/Desktop/3D/Worldedge/OptiScene' && PYTHONPATH='/Users/slian/Desktop/3D/Worldedge/OptiScene' FASTFILL_API_ENV='/home/u6uv/shanliantian.u6uv/.fastfill_api.env' '/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet/project/env/bin/python' -B -u '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/judge_batch.py' --bundle '/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet/project/runs/unknownsize-20261013/gpt-863099194937c5259a5aa8ac269f7a86f5b40cf752eabb9b789743d655ebcbb3/bundle' --output '/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet/project/runs/unknownsize-20261013/judge-023-astra-high/results' --client '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/server_api_judge.py' --max-cases 800 --arms J,P,L,O6 --timeout 600 --expected-total 696 --model gpt-6-astra --reasoning-effort high --workers 4; rc=$?; echo \"{\\\"exit_code\\\": $rc}\" > '/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-shell-b-repro-qy63lhet/project/runs/unknownsize-20261013/judge-023-astra-high/full.completion.json'; exit $rc\n",
+  "source_adaptation": "Only PROJECT_ROOT literal redirected to tmp; sbatch/squeue are local no-op stubs."
+}

@@ -1,0 +1,222 @@
+{
+  "scope": [
+    "fastfill/system/**",
+    "fastfill/v1_1/**"
+  ],
+  "head": "825fd13ea18f45835db1a242197359a77ea99f9e",
+  "production_count": 28,
+  "production_lines": 8386,
+  "files": [
+    {
+      "path": "fastfill/system/__init__.py",
+      "lines": 1,
+      "sha256": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/system/cli.py",
+      "lines": 78,
+      "sha256": "87bd5ea72b644ca61846776fcbbac94fe492c36e49aed680d7891b644736b29f",
+      "review": "full source read",
+      "notes": "Read whole file: arguments, dry-run sizing path, prior pinning and runtime dispatch."
+    },
+    {
+      "path": "fastfill/system/evaluate.py",
+      "lines": 909,
+      "sha256": "3e1538bca317279f01ba803a424fedb8db738b0011994494eb3f52b685c36123",
+      "review": "full source read",
+      "notes": "Read whole file: frozen inference replay, S1 lineage, API cap accounting, paired metrics, strict/sharded chain and summary publication."
+    },
+    {
+      "path": "fastfill/system/isambard_022.sbatch",
+      "lines": 126,
+      "sha256": "46d6608d2c6bda97ebf7df544831356f35b80dbd4ecf752c5eef587eaa72622a",
+      "review": "full source read",
+      "notes": "Read whole file: argument grammar, CPU/GPU modes, CUDA environment, execution limits; no remote/GPU work executed."
+    },
+    {
+      "path": "fastfill/system/package.py",
+      "lines": 340,
+      "sha256": "4487a9486e20307e9d5c43857d7ca939ef788a72264e9508c8533babc3cd90e0",
+      "review": "full source read",
+      "notes": "Read whole file: policy/adapter identities, code closure, base copy decisions, manifest assembly and bilingual claims."
+    },
+    {
+      "path": "fastfill/system/pipeline.py",
+      "lines": 752,
+      "sha256": "962c3e710a2624f7fd8b4ae220059859812a51057270c2c0bbbb0475ab14676e",
+      "review": "full source read",
+      "notes": "Read whole file: request binding, size-fixed serialization, score/rank/trigger, process GPU lifetime, HTTP ledger, O2 shards/resume, fallback and export."
+    },
+    {
+      "path": "fastfill/system/sizing.py",
+      "lines": 187,
+      "sha256": "b07aac5c3202917fc32a520c4951bc41b3abbdb72925905d8970861c2588182d",
+      "review": "full source read",
+      "notes": "Read whole file: whole-batch geometry preflight, eligible prior selection, API round/completion validation, rounding bounds, budgets and failure receipts."
+    },
+    {
+      "path": "fastfill/system/submit_022.sh",
+      "lines": 150,
+      "sha256": "0458e9f1c1a3dce5e98c03e530462f02bf33c4ab080409a39ffb3fd38bb94a5a",
+      "review": "full source read",
+      "notes": "Read whole file: held-root Slurm chain, dependencies, mode and shard bounds, partial output handling; no submission executed."
+    },
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "lines": 1,
+      "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "lines": 245,
+      "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "review": "full source read",
+      "notes": "Read whole file: semantic positive/negative checks, UID/source/prompt membership, whole-pair filtering and hash receipts."
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "lines": 159,
+      "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "review": "full source read",
+      "notes": "Read whole file: independent scoring + lineage gate before frozen research synthesis and diagnostic-only interpretation."
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "lines": 323,
+      "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "review": "full source read",
+      "notes": "Read whole file: frozen 12-cell evaluation contract, locks, clean lineage and failed-run invalidation."
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "lines": 446,
+      "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "review": "full source read",
+      "notes": "Read whole file: exact training/prompt membership, reference-relative positive validation, on-policy bound cache and create-only hard-negative publication."
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "lines": 215,
+      "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "review": "full source read",
+      "notes": "Read whole file: message conversion, collision flags, required cohort inputs, destination lock and atomic dataset publication."
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "lines": 687,
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "review": "full source read",
+      "notes": "Read whole file: generator backends, raw/repaired/GT scoring, failure denominators, chunk digests, cohort identities and completion publication."
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "lines": 279,
+      "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "review": "full source read",
+      "notes": "Read whole file: model shard/tensor structural checks, hashes, ordered duplicate cohort handling, atomic markers."
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+      "lines": 60,
+      "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+      "lines": 63,
+      "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+      "lines": 42,
+      "sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_pipeline.sbatch",
+      "lines": 273,
+      "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+      "lines": 51,
+      "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "review": "full source read",
+      "notes": "Read whole file; package declaration or Slurm wrapper arguments, resources and command contracts reviewed."
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "lines": 644,
+      "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "review": "full source read",
+      "notes": "Read whole file: support/wall snapping, resizing, subtree/fixed/collision repair, held-constraint fallback and anchor-aware validation."
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "lines": 262,
+      "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "review": "full source read",
+      "notes": "Read whole file: complete-cohort gating, dev-only paired cluster bootstrap, conditional vs all-request descriptive denominators."
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "lines": 529,
+      "sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "review": "full source read",
+      "notes": "Read whole file: openings/anchors, asset recovery receipts, declared support mapping, handoff and showcase; real CPU handoff/reference-check reproduction SV11-01."
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "lines": 320,
+      "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "review": "full source read",
+      "notes": "Read whole file: unknown-size prompt, priors, parser/support references, target serialization and apply."
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "lines": 654,
+      "sha256": "6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739",
+      "review": "full source read",
+      "notes": "Read whole file: masking, reference adapters, DPO/RPO/SFT losses, accumulation/DDP, checkpoint publication and resume; real tiny-Qwen CPU drift reproduction SV11-02."
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "lines": 327,
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "review": "full source read",
+      "notes": "Read whole file: input identities, audited pairs, isolated paths, final/legacy completion and merged lineage; external guard mitigation explicitly distinguished from trainer."
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "lines": 263,
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "review": "full source read",
+      "notes": "Read whole file: isolated scorer invocation, model/cohort/code receipts, full per-row CPU reproduction and cache validation."
+    }
+  ],
+  "test_review": {
+    "all_18_test_files": "AST-indexed all test names; parent runs full suite",
+    "full_read": [
+      "fastfill/system/tests/test_pipeline.py",
+      "fastfill/system/tests/test_sizing.py",
+      "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+      "fastfill/v1_1/tests/test_roomgenbench_recovery.py"
+    ],
+    "selected_read": {
+      "fastfill/v1_1/tests/test_training_guard.py": "lines 1-160",
+      "fastfill/v1_1/tests/test_automation_lineage.py": "lines 1-115"
+    }
+  },
+  "source_mutations": false,
+  "reproductions": "/tmp/fastfill-audit-20261022/system-v11-repros.json"
+}

@@ -1,0 +1,1145 @@
+{
+  "files": 182,
+  "covered": 31707,
+  "statements": 37867,
+  "percent": 83.73253756569045,
+  "groups": {
+    "adapters": {
+      "files": 25,
+      "covered": 1207,
+      "statements": 1875,
+      "percent": 64.37333333333333
+    },
+    "comparison": {
+      "files": 70,
+      "covered": 17063,
+      "statements": 19081,
+      "percent": 89.42403437974949
+    },
+    "root": {
+      "files": 13,
+      "covered": 1767,
+      "statements": 2172,
+      "percent": 81.353591160221
+    },
+    "system": {
+      "files": 6,
+      "covered": 1158,
+      "statements": 1282,
+      "percent": 90.32761310452418
+    },
+    "tools": {
+      "files": 4,
+      "covered": 317,
+      "statements": 410,
+      "percent": 77.3170731707317
+    },
+    "v1_1": {
+      "files": 15,
+      "covered": 2819,
+      "statements": 3467,
+      "percent": 81.30948947216613
+    },
+    "v2": {
+      "files": 49,
+      "covered": 7376,
+      "statements": 9580,
+      "percent": 76.9937369519833
+    }
+  },
+  "files_detail": [
+    {
+      "path": "fastfill/__init__.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/adapters/__init__.py",
+      "statements": 46,
+      "covered": 26,
+      "missing": 20
+    },
+    {
+      "path": "fastfill/adapters/__main__.py",
+      "statements": 2,
+      "covered": 0,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/adapters/ase.py",
+      "statements": 24,
+      "covered": 5,
+      "missing": 19
+    },
+    {
+      "path": "fastfill/adapters/hssd200.py",
+      "statements": 254,
+      "covered": 230,
+      "missing": 24
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "statements": 311,
+      "covered": 211,
+      "missing": 100
+    },
+    {
+      "path": "fastfill/adapters/il3d_synthetic.py",
+      "statements": 49,
+      "covered": 16,
+      "missing": 33
+    },
+    {
+      "path": "fastfill/adapters/interiorgs.py",
+      "statements": 216,
+      "covered": 212,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/adapters/internscenes.py",
+      "statements": 123,
+      "covered": 69,
+      "missing": 54
+    },
+    {
+      "path": "fastfill/adapters/internscenes_3rscan.py",
+      "statements": 5,
+      "covered": 3,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/adapters/internscenes_arkit.py",
+      "statements": 5,
+      "covered": 3,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/adapters/internscenes_mp3d.py",
+      "statements": 13,
+      "covered": 4,
+      "missing": 9
+    },
+    {
+      "path": "fastfill/adapters/internscenes_scannet.py",
+      "statements": 4,
+      "covered": 3,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/adapters/m3dlayout_infinigen.py",
+      "statements": 22,
+      "covered": 8,
+      "missing": 14
+    },
+    {
+      "path": "fastfill/adapters/mansionworld.py",
+      "statements": 132,
+      "covered": 23,
+      "missing": 109
+    },
+    {
+      "path": "fastfill/adapters/multiscan.py",
+      "statements": 64,
+      "covered": 64,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/adapters/optiscene_holodeck.py",
+      "statements": 25,
+      "covered": 17,
+      "missing": 8
+    },
+    {
+      "path": "fastfill/adapters/sage10k.py",
+      "statements": 151,
+      "covered": 33,
+      "missing": 118
+    },
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "statements": 69,
+      "covered": 64,
+      "missing": 5
+    },
+    {
+      "path": "fastfill/adapters/scannetpp.py",
+      "statements": 23,
+      "covered": 9,
+      "missing": 14
+    },
+    {
+      "path": "fastfill/adapters/scenesmith.py",
+      "statements": 68,
+      "covered": 13,
+      "missing": 55
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "statements": 20,
+      "covered": 20,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/adapters/spatiallm.py",
+      "statements": 76,
+      "covered": 14,
+      "missing": 62
+    },
+    {
+      "path": "fastfill/adapters/structured3d.py",
+      "statements": 87,
+      "covered": 84,
+      "missing": 3
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "statements": 61,
+      "covered": 51,
+      "missing": 10
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "statements": 25,
+      "covered": 25,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "statements": 150,
+      "covered": 147,
+      "missing": 3
+    },
+    {
+      "path": "fastfill/build.py",
+      "statements": 534,
+      "covered": 480,
+      "missing": 54
+    },
+    {
+      "path": "fastfill/comparison/__init__.py",
+      "statements": 2,
+      "covered": 2,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/comparison/a021_diag.py",
+      "statements": 323,
+      "covered": 317,
+      "missing": 6
+    },
+    {
+      "path": "fastfill/comparison/a021_select.py",
+      "statements": 644,
+      "covered": 607,
+      "missing": 37
+    },
+    {
+      "path": "fastfill/comparison/a021_train.py",
+      "statements": 566,
+      "covered": 481,
+      "missing": 85
+    },
+    {
+      "path": "fastfill/comparison/a028.py",
+      "statements": 203,
+      "covered": 195,
+      "missing": 8
+    },
+    {
+      "path": "fastfill/comparison/ablation_016.py",
+      "statements": 265,
+      "covered": 238,
+      "missing": 27
+    },
+    {
+      "path": "fastfill/comparison/agents_016.py",
+      "statements": 224,
+      "covered": 181,
+      "missing": 43
+    },
+    {
+      "path": "fastfill/comparison/best_of_n.py",
+      "statements": 188,
+      "covered": 159,
+      "missing": 29
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "statements": 181,
+      "covered": 181,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/comparison/corpus.py",
+      "statements": 240,
+      "covered": 222,
+      "missing": 18
+    },
+    {
+      "path": "fastfill/comparison/critic_025.py",
+      "statements": 492,
+      "covered": 426,
+      "missing": 66
+    },
+    {
+      "path": "fastfill/comparison/critic_batch_025.py",
+      "statements": 121,
+      "covered": 92,
+      "missing": 29
+    },
+    {
+      "path": "fastfill/comparison/critic_client_025.py",
+      "statements": 45,
+      "covered": 41,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/comparison/data.py",
+      "statements": 198,
+      "covered": 177,
+      "missing": 21
+    },
+    {
+      "path": "fastfill/comparison/decide_012.py",
+      "statements": 96,
+      "covered": 25,
+      "missing": 71
+    },
+    {
+      "path": "fastfill/comparison/delivery.py",
+      "statements": 290,
+      "covered": 283,
+      "missing": 7
+    },
+    {
+      "path": "fastfill/comparison/dev_select.py",
+      "statements": 352,
+      "covered": 333,
+      "missing": 19
+    },
+    {
+      "path": "fastfill/comparison/distill_018.py",
+      "statements": 293,
+      "covered": 261,
+      "missing": 32
+    },
+    {
+      "path": "fastfill/comparison/distill_018_chain.py",
+      "statements": 506,
+      "covered": 481,
+      "missing": 25
+    },
+    {
+      "path": "fastfill/comparison/diverse_026.py",
+      "statements": 37,
+      "covered": 36,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/comparison/downstream.py",
+      "statements": 216,
+      "covered": 210,
+      "missing": 6
+    },
+    {
+      "path": "fastfill/comparison/dpo_stages.py",
+      "statements": 551,
+      "covered": 511,
+      "missing": 40
+    },
+    {
+      "path": "fastfill/comparison/eval_data.py",
+      "statements": 209,
+      "covered": 179,
+      "missing": 30
+    },
+    {
+      "path": "fastfill/comparison/evaluate_llm.py",
+      "statements": 176,
+      "covered": 150,
+      "missing": 26
+    },
+    {
+      "path": "fastfill/comparison/evaluate_pair.py",
+      "statements": 126,
+      "covered": 102,
+      "missing": 24
+    },
+    {
+      "path": "fastfill/comparison/fid.py",
+      "statements": 318,
+      "covered": 300,
+      "missing": 18
+    },
+    {
+      "path": "fastfill/comparison/final_011.py",
+      "statements": 79,
+      "covered": 75,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "statements": 179,
+      "covered": 172,
+      "missing": 7
+    },
+    {
+      "path": "fastfill/comparison/frontier_026.py",
+      "statements": 402,
+      "covered": 285,
+      "missing": 117
+    },
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "statements": 167,
+      "covered": 164,
+      "missing": 3
+    },
+    {
+      "path": "fastfill/comparison/infer.py",
+      "statements": 283,
+      "covered": 273,
+      "missing": 10
+    },
+    {
+      "path": "fastfill/comparison/infer_shard.py",
+      "statements": 321,
+      "covered": 288,
+      "missing": 33
+    },
+    {
+      "path": "fastfill/comparison/judge_agreement_023.py",
+      "statements": 62,
+      "covered": 43,
+      "missing": 19
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "statements": 428,
+      "covered": 397,
+      "missing": 31
+    },
+    {
+      "path": "fastfill/comparison/judge_bundle_025.py",
+      "statements": 135,
+      "covered": 113,
+      "missing": 22
+    },
+    {
+      "path": "fastfill/comparison/llm_agent.py",
+      "statements": 435,
+      "covered": 397,
+      "missing": 38
+    },
+    {
+      "path": "fastfill/comparison/llm_open.py",
+      "statements": 252,
+      "covered": 243,
+      "missing": 9
+    },
+    {
+      "path": "fastfill/comparison/main_data.py",
+      "statements": 286,
+      "covered": 263,
+      "missing": 23
+    },
+    {
+      "path": "fastfill/comparison/mesh_collision.py",
+      "statements": 351,
+      "covered": 322,
+      "missing": 29
+    },
+    {
+      "path": "fastfill/comparison/onpolicy_dpo.py",
+      "statements": 573,
+      "covered": 536,
+      "missing": 37
+    },
+    {
+      "path": "fastfill/comparison/optiscene_eval.py",
+      "statements": 978,
+      "covered": 883,
+      "missing": 95
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/main.py",
+      "statements": 63,
+      "covered": 0,
+      "missing": 63
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/prompt.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/__init__.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/dpo_train.py",
+      "statements": 44,
+      "covered": 0,
+      "missing": 44
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/inference.py",
+      "statements": 31,
+      "covered": 0,
+      "missing": 31
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/merge_lora.py",
+      "statements": 22,
+      "covered": 0,
+      "missing": 22
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/sft_train.py",
+      "statements": 17,
+      "covered": 0,
+      "missing": 17
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/utils.py",
+      "statements": 11,
+      "covered": 0,
+      "missing": 11
+    },
+    {
+      "path": "fastfill/comparison/output_repair.py",
+      "statements": 586,
+      "covered": 548,
+      "missing": 38
+    },
+    {
+      "path": "fastfill/comparison/overnight.py",
+      "statements": 560,
+      "covered": 473,
+      "missing": 87
+    },
+    {
+      "path": "fastfill/comparison/placers_020.py",
+      "statements": 283,
+      "covered": 234,
+      "missing": 49
+    },
+    {
+      "path": "fastfill/comparison/pose_targets.py",
+      "statements": 223,
+      "covered": 221,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/comparison/reference_rows.py",
+      "statements": 101,
+      "covered": 76,
+      "missing": 25
+    },
+    {
+      "path": "fastfill/comparison/render_assets.py",
+      "statements": 569,
+      "covered": 462,
+      "missing": 107
+    },
+    {
+      "path": "fastfill/comparison/report_v2.py",
+      "statements": 666,
+      "covered": 627,
+      "missing": 39
+    },
+    {
+      "path": "fastfill/comparison/room_families.py",
+      "statements": 251,
+      "covered": 237,
+      "missing": 14
+    },
+    {
+      "path": "fastfill/comparison/sample_vllm.py",
+      "statements": 231,
+      "covered": 216,
+      "missing": 15
+    },
+    {
+      "path": "fastfill/comparison/scale_curve.py",
+      "statements": 418,
+      "covered": 390,
+      "missing": 28
+    },
+    {
+      "path": "fastfill/comparison/server_api_judge.py",
+      "statements": 463,
+      "covered": 344,
+      "missing": 119
+    },
+    {
+      "path": "fastfill/comparison/size_prior.py",
+      "statements": 124,
+      "covered": 124,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/comparison/sizers_020.py",
+      "statements": 491,
+      "covered": 461,
+      "missing": 30
+    },
+    {
+      "path": "fastfill/comparison/stage_table.py",
+      "statements": 352,
+      "covered": 332,
+      "missing": 20
+    },
+    {
+      "path": "fastfill/comparison/test_apply_012.py",
+      "statements": 207,
+      "covered": 189,
+      "missing": 18
+    },
+    {
+      "path": "fastfill/comparison/train_pair.py",
+      "statements": 319,
+      "covered": 300,
+      "missing": 19
+    },
+    {
+      "path": "fastfill/comparison/train_pair_helpers.py",
+      "statements": 308,
+      "covered": 285,
+      "missing": 23
+    },
+    {
+      "path": "fastfill/comparison/visual_024.py",
+      "statements": 302,
+      "covered": 287,
+      "missing": 15
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "statements": 228,
+      "covered": 220,
+      "missing": 8
+    },
+    {
+      "path": "fastfill/comparison/visual_final.py",
+      "statements": 48,
+      "covered": 36,
+      "missing": 12
+    },
+    {
+      "path": "fastfill/comparison/visual_pipeline.py",
+      "statements": 370,
+      "covered": 357,
+      "missing": 13
+    },
+    {
+      "path": "fastfill/download.py",
+      "statements": 61,
+      "covered": 59,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "statements": 154,
+      "covered": 118,
+      "missing": 36
+    },
+    {
+      "path": "fastfill/inspect_ir.py",
+      "statements": 66,
+      "covered": 0,
+      "missing": 66
+    },
+    {
+      "path": "fastfill/interface.py",
+      "statements": 395,
+      "covered": 388,
+      "missing": 7
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "statements": 63,
+      "covered": 52,
+      "missing": 11
+    },
+    {
+      "path": "fastfill/scene.py",
+      "statements": 245,
+      "covered": 240,
+      "missing": 5
+    },
+    {
+      "path": "fastfill/serve.py",
+      "statements": 130,
+      "covered": 87,
+      "missing": 43
+    },
+    {
+      "path": "fastfill/split.py",
+      "statements": 72,
+      "covered": 71,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/system/__init__.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/system/cli.py",
+      "statements": 45,
+      "covered": 43,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/system/evaluate.py",
+      "statements": 527,
+      "covered": 455,
+      "missing": 72
+    },
+    {
+      "path": "fastfill/system/package.py",
+      "statements": 158,
+      "covered": 135,
+      "missing": 23
+    },
+    {
+      "path": "fastfill/system/pipeline.py",
+      "statements": 423,
+      "covered": 399,
+      "missing": 24
+    },
+    {
+      "path": "fastfill/system/sizing.py",
+      "statements": 129,
+      "covered": 126,
+      "missing": 3
+    },
+    {
+      "path": "fastfill/tools/__init__.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/tools/ablation_check.py",
+      "statements": 30,
+      "covered": 29,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/tools/qa_report.py",
+      "statements": 302,
+      "covered": 288,
+      "missing": 14
+    },
+    {
+      "path": "fastfill/tools/visualize.py",
+      "statements": 78,
+      "covered": 0,
+      "missing": 78
+    },
+    {
+      "path": "fastfill/train.py",
+      "statements": 176,
+      "covered": 0,
+      "missing": 176
+    },
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "statements": 0,
+      "covered": 0,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "statements": 181,
+      "covered": 161,
+      "missing": 20
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "statements": 105,
+      "covered": 104,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "statements": 227,
+      "covered": 215,
+      "missing": 12
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "statements": 303,
+      "covered": 270,
+      "missing": 33
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "statements": 132,
+      "covered": 128,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "statements": 446,
+      "covered": 298,
+      "missing": 148
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "statements": 180,
+      "covered": 169,
+      "missing": 11
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "statements": 458,
+      "covered": 148,
+      "missing": 310
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "statements": 153,
+      "covered": 150,
+      "missing": 3
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "statements": 281,
+      "covered": 243,
+      "missing": 38
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "statements": 140,
+      "covered": 110,
+      "missing": 30
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "statements": 422,
+      "covered": 406,
+      "missing": 16
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "statements": 242,
+      "covered": 232,
+      "missing": 10
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "statements": 197,
+      "covered": 185,
+      "missing": 12
+    },
+    {
+      "path": "fastfill/v2/__init__.py",
+      "statements": 1,
+      "covered": 1,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/v2/adapters.py",
+      "statements": 105,
+      "covered": 95,
+      "missing": 10
+    },
+    {
+      "path": "fastfill/v2/audit.py",
+      "statements": 69,
+      "covered": 65,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v2/autorun.py",
+      "statements": 420,
+      "covered": 306,
+      "missing": 114
+    },
+    {
+      "path": "fastfill/v2/batch.py",
+      "statements": 330,
+      "covered": 310,
+      "missing": 20
+    },
+    {
+      "path": "fastfill/v2/bbox_visualization.py",
+      "statements": 90,
+      "covered": 89,
+      "missing": 1
+    },
+    {
+      "path": "fastfill/v2/boxes.py",
+      "statements": 80,
+      "covered": 76,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v2/cohort.py",
+      "statements": 122,
+      "covered": 111,
+      "missing": 11
+    },
+    {
+      "path": "fastfill/v2/data.py",
+      "statements": 82,
+      "covered": 78,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v2/direct_layout.py",
+      "statements": 210,
+      "covered": 210,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/v2/evaluate.py",
+      "statements": 639,
+      "covered": 622,
+      "missing": 17
+    },
+    {
+      "path": "fastfill/v2/geometry.py",
+      "statements": 50,
+      "covered": 46,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v2/io.py",
+      "statements": 107,
+      "covered": 102,
+      "missing": 5
+    },
+    {
+      "path": "fastfill/v2/legacy_bridge.py",
+      "statements": 167,
+      "covered": 163,
+      "missing": 4
+    },
+    {
+      "path": "fastfill/v2/legacy_build.py",
+      "statements": 193,
+      "covered": 183,
+      "missing": 10
+    },
+    {
+      "path": "fastfill/v2/legacy_evidence.py",
+      "statements": 113,
+      "covered": 101,
+      "missing": 12
+    },
+    {
+      "path": "fastfill/v2/legacy_verify.py",
+      "statements": 499,
+      "covered": 438,
+      "missing": 61
+    },
+    {
+      "path": "fastfill/v2/llm_baseline.py",
+      "statements": 169,
+      "covered": 148,
+      "missing": 21
+    },
+    {
+      "path": "fastfill/v2/llm_structured.py",
+      "statements": 163,
+      "covered": 141,
+      "missing": 22
+    },
+    {
+      "path": "fastfill/v2/losses.py",
+      "statements": 179,
+      "covered": 172,
+      "missing": 7
+    },
+    {
+      "path": "fastfill/v2/matching.py",
+      "statements": 137,
+      "covered": 129,
+      "missing": 8
+    },
+    {
+      "path": "fastfill/v2/minimal_data.py",
+      "statements": 221,
+      "covered": 187,
+      "missing": 34
+    },
+    {
+      "path": "fastfill/v2/model.py",
+      "statements": 193,
+      "covered": 181,
+      "missing": 12
+    },
+    {
+      "path": "fastfill/v2/multisource_data.py",
+      "statements": 374,
+      "covered": 318,
+      "missing": 56
+    },
+    {
+      "path": "fastfill/v2/multisource_verify.py",
+      "statements": 501,
+      "covered": 432,
+      "missing": 69
+    },
+    {
+      "path": "fastfill/v2/objective.py",
+      "statements": 39,
+      "covered": 37,
+      "missing": 2
+    },
+    {
+      "path": "fastfill/v2/ops/compare.py",
+      "statements": 110,
+      "covered": 0,
+      "missing": 110
+    },
+    {
+      "path": "fastfill/v2/ops/crosscheck.py",
+      "statements": 33,
+      "covered": 0,
+      "missing": 33
+    },
+    {
+      "path": "fastfill/v2/ops/diag_ablation.py",
+      "statements": 300,
+      "covered": 0,
+      "missing": 300
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_inputs.py",
+      "statements": 167,
+      "covered": 90,
+      "missing": 77
+    },
+    {
+      "path": "fastfill/v2/ops/llm_compare.py",
+      "statements": 100,
+      "covered": 0,
+      "missing": 100
+    },
+    {
+      "path": "fastfill/v2/ops/report.py",
+      "statements": 349,
+      "covered": 0,
+      "missing": 349
+    },
+    {
+      "path": "fastfill/v2/ops/sample_validation.py",
+      "statements": 81,
+      "covered": 0,
+      "missing": 81
+    },
+    {
+      "path": "fastfill/v2/ops/selftest_shift.py",
+      "statements": 37,
+      "covered": 0,
+      "missing": 37
+    },
+    {
+      "path": "fastfill/v2/ops/stratify.py",
+      "statements": 290,
+      "covered": 68,
+      "missing": 222
+    },
+    {
+      "path": "fastfill/v2/ops/vlm_judge.py",
+      "statements": 360,
+      "covered": 226,
+      "missing": 134
+    },
+    {
+      "path": "fastfill/v2/predict.py",
+      "statements": 84,
+      "covered": 70,
+      "missing": 14
+    },
+    {
+      "path": "fastfill/v2/qualified_data.py",
+      "statements": 144,
+      "covered": 133,
+      "missing": 11
+    },
+    {
+      "path": "fastfill/v2/regularizers.py",
+      "statements": 65,
+      "covered": 59,
+      "missing": 6
+    },
+    {
+      "path": "fastfill/v2/review_data.py",
+      "statements": 238,
+      "covered": 209,
+      "missing": 29
+    },
+    {
+      "path": "fastfill/v2/roomgenbench.py",
+      "statements": 283,
+      "covered": 274,
+      "missing": 9
+    },
+    {
+      "path": "fastfill/v2/runtime.py",
+      "statements": 312,
+      "covered": 272,
+      "missing": 40
+    },
+    {
+      "path": "fastfill/v2/schema.py",
+      "statements": 265,
+      "covered": 219,
+      "missing": 46
+    },
+    {
+      "path": "fastfill/v2/serve.py",
+      "statements": 65,
+      "covered": 60,
+      "missing": 5
+    },
+    {
+      "path": "fastfill/v2/size_range.py",
+      "statements": 22,
+      "covered": 22,
+      "missing": 0
+    },
+    {
+      "path": "fastfill/v2/text_sft.py",
+      "statements": 187,
+      "covered": 159,
+      "missing": 28
+    },
+    {
+      "path": "fastfill/v2/train.py",
+      "statements": 497,
+      "covered": 479,
+      "missing": 18
+    },
+    {
+      "path": "fastfill/v2/validation.py",
+      "statements": 289,
+      "covered": 253,
+      "missing": 36
+    },
+    {
+      "path": "fastfill/v2/verify_bundle.py",
+      "statements": 49,
+      "covered": 42,
+      "missing": 7
+    },
+    {
+      "path": "fastfill/validate.py",
+      "statements": 126,
+      "covered": 125,
+      "missing": 1
+    }
+  ],
+  "method": "coverage.analysis2 over every production .py in the inventory; includes never-imported modules; excludes /tests/; statement, not branch coverage; merged full run + targeted rerun"
+}

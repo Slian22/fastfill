@@ -1,0 +1,492 @@
+{
+  "files": [
+    {
+      "path": "fastfill/__init__.py",
+      "lines": 0,
+      "test": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/__init__.py",
+      "lines": 63,
+      "test": false,
+      "sha256": "fabd6ee3dd917ac07e284ed9044a1932d2826208f8bd9b51a0cdaecbec6b031d",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/__main__.py",
+      "lines": 3,
+      "test": false,
+      "sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/ase.py",
+      "lines": 46,
+      "test": false,
+      "sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/hssd200.py",
+      "lines": 442,
+      "test": false,
+      "sha256": "e2dcb05c2e75f37331208cf7d74b38a87be131d05a8489654af78fc5de58df9c",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "lines": 496,
+      "test": false,
+      "sha256": "212dcec472fc55f4f562924fe8ce5e89e523ff6a79c179e0bbcea511b842e823",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/il3d_synthetic.py",
+      "lines": 150,
+      "test": false,
+      "sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/interiorgs.py",
+      "lines": 369,
+      "test": false,
+      "sha256": "d33559c4ea75c954b806943028fc7bd51dc0fc8a01d2a6bd7ec527fa64303f23",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/internscenes.py",
+      "lines": 211,
+      "test": false,
+      "sha256": "2e1afec9ff5950a3ef7907f9304d7ea555a6a28f66f1dcddd94e6a41f63a3e75",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/internscenes_3rscan.py",
+      "lines": 12,
+      "test": false,
+      "sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/internscenes_arkit.py",
+      "lines": 14,
+      "test": false,
+      "sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/internscenes_mp3d.py",
+      "lines": 25,
+      "test": false,
+      "sha256": "5e061adc04baac1c9cc492f234795323ca5ccd646698377097f183dd478ef1cd",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/internscenes_scannet.py",
+      "lines": 10,
+      "test": false,
+      "sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/m3dlayout_infinigen.py",
+      "lines": 54,
+      "test": false,
+      "sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/mansionworld.py",
+      "lines": 234,
+      "test": false,
+      "sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/multiscan.py",
+      "lines": 122,
+      "test": false,
+      "sha256": "e5a426bd60df4a10efdaf509e188f2c095db93c9542849e61d6bb269bc5125fd",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/optiscene_holodeck.py",
+      "lines": 58,
+      "test": false,
+      "sha256": "a5f55bd45162d9d62e5b1401cd5b0cc9ee8210d5f019a43c8f79f9b3d05a4d88",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/sage10k.py",
+      "lines": 260,
+      "test": false,
+      "sha256": "c2c124e3925c051a13fcd4599e03d30f61de45ed5db514eaf02fef84f7f04d26",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "lines": 126,
+      "test": false,
+      "sha256": "c0674bb111e5bc533804ccd448f29ea50ade14d56f285225f6b2cdaafe7d9bbf",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/scannetpp.py",
+      "lines": 45,
+      "test": false,
+      "sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/scenesmith.py",
+      "lines": 129,
+      "test": false,
+      "sha256": "e3f8d9e2c0a00d6937b93db7f37d4bd801962e8573f6a4789bfeae6912ca0452",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "lines": 39,
+      "test": false,
+      "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/spatiallm.py",
+      "lines": 177,
+      "test": false,
+      "sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/structured3d.py",
+      "lines": 172,
+      "test": false,
+      "sha256": "287877698b90d51fbe2330aac158fc893c0892078d3c2a77d7fbd1a1bf934ca7",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "lines": 112,
+      "test": false,
+      "sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "lines": 43,
+      "test": false,
+      "sha256": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "lines": 280,
+      "test": false,
+      "sha256": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/build.py",
+      "lines": 769,
+      "test": false,
+      "sha256": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/critic_025.py",
+      "lines": 874,
+      "test": false,
+      "sha256": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/critic_batch_025.py",
+      "lines": 187,
+      "test": false,
+      "sha256": "e831b83d9c848293ef86bffbe76ff179cdac5fa7f181ebae77affb63c75a3149",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/critic_client_025.py",
+      "lines": 83,
+      "test": false,
+      "sha256": "2af1f839334228283ecc2cee28df28e2fa56e0f4a1f9c277761033b8cb60307d",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/judge_agreement_023.py",
+      "lines": 91,
+      "test": false,
+      "sha256": "028240144a36adc65966e007e5151dcd3109f30f3e48f8b608a9ea522e79c7d0",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "lines": 628,
+      "test": false,
+      "sha256": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/judge_bundle_025.py",
+      "lines": 232,
+      "test": false,
+      "sha256": "abec92a2de6fbc233dde0cd1745d7044a415899b770672ff9b00df9e40eab59a",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/render_assets.py",
+      "lines": 746,
+      "test": false,
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/server_api_judge.py",
+      "lines": 633,
+      "test": false,
+      "sha256": "21513b00b431809c9eaa3145f9898637112e43c6a3a0768a91c9c94f77c505e2",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/visual_024.py",
+      "lines": 487,
+      "test": false,
+      "sha256": "cfcaff4ee05fbb90c3b95f574e79796deae04c22c06d92610f52ff50df0b7271",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "lines": 375,
+      "test": false,
+      "sha256": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/comparison/visual_pipeline.py",
+      "lines": 572,
+      "test": false,
+      "sha256": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/download.py",
+      "lines": 116,
+      "test": false,
+      "sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/download_full.sh",
+      "lines": 27,
+      "test": false,
+      "sha256": "728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "lines": 230,
+      "test": false,
+      "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/inspect_ir.py",
+      "lines": 87,
+      "test": false,
+      "sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/interface.py",
+      "lines": 641,
+      "test": false,
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "lines": 86,
+      "test": false,
+      "sha256": "9c8bcfc3e0e8070cebe99b1aaf57b55d19334c7b85c0bfea2d8ba2d76cf9b0c3",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/scene.py",
+      "lines": 379,
+      "test": false,
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/serve.py",
+      "lines": 188,
+      "test": false,
+      "sha256": "24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/split.py",
+      "lines": 106,
+      "test": false,
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/tools/__init__.py",
+      "lines": 0,
+      "test": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/tools/ablation_check.py",
+      "lines": 48,
+      "test": false,
+      "sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/tools/qa_report.py",
+      "lines": 420,
+      "test": false,
+      "sha256": "c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/tools/visualize.py",
+      "lines": 146,
+      "test": false,
+      "sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/train.py",
+      "lines": 283,
+      "test": false,
+      "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    },
+    {
+      "path": "fastfill/validate.py",
+      "lines": 191,
+      "test": false,
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "review": "full production body read",
+      "reviewer": "root",
+      "notes": "Current source and producer/consumer contracts reviewed; embedded self-checks/test files are validated separately by the suite."
+    }
+  ],
+  "production_count": 54,
+  "production_lines": 12317
+}

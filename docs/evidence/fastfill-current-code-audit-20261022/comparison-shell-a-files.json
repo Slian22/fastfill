@@ -1,0 +1,202 @@
+[
+  {
+    "path": "fastfill/comparison/isambard_010_cpu.sbatch",
+    "lines": 83,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "d065f993581b43d764e26b8cd8925bfc2cdd97ab09746b711d761b8bf7dbc898"
+  },
+  {
+    "path": "fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "lines": 85,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "8a82c1a4f52f88285be742114a99084e0ecb9306e931500b574d6a97107a2f9d"
+  },
+  {
+    "path": "fastfill/comparison/isambard_013.sbatch",
+    "lines": 244,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "e2aa141ac3e0e7b19c26591c38d33d28cf180a7a57908fbaa33ee484b2b6b472"
+  },
+  {
+    "path": "fastfill/comparison/isambard_014.sbatch",
+    "lines": 120,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "7cf063aa917ac0bd98a0e71b5f0bb15344cfb173e87badd2fd5f38965fa385a4"
+  },
+  {
+    "path": "fastfill/comparison/isambard_016.sbatch",
+    "lines": 123,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "30b232ca8e219a8e3467d19af67f9275104cb18d740c512fd947b88f44fd2959"
+  },
+  {
+    "path": "fastfill/comparison/isambard_018.sbatch",
+    "lines": 258,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "11ad37766439455fb7c71ddab0a6eba5854905ddf580477ade3a30a69e1550e3"
+  },
+  {
+    "path": "fastfill/comparison/isambard_020.sbatch",
+    "lines": 87,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "464d328a95a1a8645d4fb84ad9f70cb7beb349a3156716fee7c906065401b6cd"
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_eval.sbatch",
+    "lines": 146,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "db52a25bf739990af0ffd2a8c84b8700f74410b781f4233f4c1e3c9bcb44169c"
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_train.sbatch",
+    "lines": 162,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "5ee965ccbc7f21a015107d16ee25e83d54581640e9e59c55504fa08a73540aeb"
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_cpu.sbatch",
+    "lines": 53,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "e4aeb75adbc39c666a3b8af94f6d7a35cfca2a0a0383941c2e879d8a9a71d206"
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_generate.sbatch",
+    "lines": 44,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "90c55effcd2527cd3a12841ddaec93d287805ccf1ca98889429396db1b800027"
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_infer_shard.sbatch",
+    "lines": 66,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "bbb6f26fe43c8992b1d11c9d7330fa31f0685940ee364401e26c1e7dbdb063b9"
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_train.sbatch",
+    "lines": 49,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "750986a4a140252b137b5ad38c5e96989bf440d1825145a3d692b45b8bbe9dfe"
+  },
+  {
+    "path": "fastfill/comparison/isambard_geometry.sbatch",
+    "lines": 29,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "6d4c8c7a123c5180a9d25828243d6112b35f042cbdf460cdac4d3c4624d872b3"
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer.sbatch",
+    "lines": 45,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6"
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_merge.sbatch",
+    "lines": 38,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "0ab1bd45228aa60826f5035ac0d83d91d44b93a3f060486fdae1a10ef8e1361d"
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_plan.sbatch",
+    "lines": 33,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "10a896fa03725861b2be431d52f981d126d5d9d4cfe4b3cdfef931e735d81c43"
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_probe.sbatch",
+    "lines": 38,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "f04b73de1f39a151935a1105f764a727dedeeb6f9ece81462cf520e9c806e892"
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_shard.sbatch",
+    "lines": 57,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "6870ce8f4ba058fd91b7a6faa0822696e7b8e2895c7f17b1d802a802827a5749"
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_agent.sbatch",
+    "lines": 67,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "54d352a2718b3500d83906f2293570ec97ad794bcb1979066e852d1ac05370b5"
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_open.sbatch",
+    "lines": 104,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "549701f081e404238d037de09c6bdbed45ab97689180139242382e15baf2ee23"
+  },
+  {
+    "path": "fastfill/comparison/isambard_main.sbatch",
+    "lines": 41,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee"
+  },
+  {
+    "path": "fastfill/comparison/isambard_pilot.sbatch",
+    "lines": 39,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a"
+  },
+  {
+    "path": "fastfill/comparison/isambard_sample_vllm.sbatch",
+    "lines": 93,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "6b11b0a110b6738edbdf02d28e8dd2725e7d6a88b81725d9c3465c876ea54058"
+  },
+  {
+    "path": "fastfill/comparison/setup_optiscene_env.sh",
+    "lines": 57,
+    "status": "read_full",
+    "owner": "audit_v2",
+    "validation": "bash -n passed",
+    "sha256": "dfc6445034a5c12aafe7bd3c7b2970a35b30af027f1398ed7fa9b3508e25e93c"
+  }
+]

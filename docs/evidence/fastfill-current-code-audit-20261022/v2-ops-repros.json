@@ -1,0 +1,16 @@
+{
+  "workspace": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-ops-repro-96qd1_0t",
+  "cache_omits_fit": {
+    "before_fit_change_reproduces": true,
+    "after_fit_change_cached_reproduces": true,
+    "after_fit_change_fresh_reproduces": false,
+    "fresh_baseline_mismatches": 3,
+    "cached_baseline_mismatches": 0
+  },
+  "structured_shell_failure": {
+    "all_python_commands_exit": 42,
+    "wrapper_exit": 0,
+    "stdout": "structured-harness ROWS DIFFER\nstructured ROWS DIFFER\nALL-DONE",
+    "stderr": ""
+  }
+}

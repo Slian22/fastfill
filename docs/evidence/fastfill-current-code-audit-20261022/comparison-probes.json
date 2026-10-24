@@ -1,0 +1,38 @@
+{
+  "o2nt_with_reasoning": {
+    "run_valid_final": 0,
+    "rooms": 36,
+    "scored_complete": 36,
+    "scored_geometry_success_rate": 1.0
+  },
+  "o2nt_no_reasoning_control": {
+    "run_valid_final": 36,
+    "rooms": 36,
+    "scored_complete": 36,
+    "scored_geometry_success_rate": 1.0
+  },
+  "s2_bias": {
+    "request_only_guard_pick": [
+      1,
+      "fewest_violations"
+    ],
+    "actual_bias_delta": 0.8109302162163288,
+    "required_max_abs_delta": 0.03,
+    "s2_joint": {
+      "passed": true,
+      "estimate": 0.5,
+      "ci95": [
+        0.3,
+        0.7
+      ],
+      "bias_check": "not evaluated here (B8 guard keeps footprint bias within 0.03 of greedy by construction for J; see best_of_n summary)",
+      "smaller_m_fallback": "not evaluable: only B8 was repaired by S1"
+    }
+  },
+  "nonfinite_placement": {
+    "joint_valid": false,
+    "placement_exception": "ValueError: Out of range float values are not JSON compliant: inf",
+    "run_exception": "ValueError: Out of range float values are not JSON compliant: inf",
+    "written_receipts": 0
+  }
+}

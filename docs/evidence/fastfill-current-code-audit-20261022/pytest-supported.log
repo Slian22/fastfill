@@ -1,0 +1,2706 @@
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+............................................................. [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+................ss...................................................... [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+................................................ [ 32%]
+........................................................................ [ 34%]
+.................................................................s...... [ 37%]
+.................................................................................................................................... [ 40%]
+........................................................................ [ 43%]
+.........................................................s.............. [ 45%]
+........................................................................ [ 47%]
+................................................................ [ 49%]
+.............................................................. [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+................................FFFFFFFF................................ [ 65%]
+...................................................s.s.................. [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+..........................................................F............. [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 82%]
+..................................................F..................... [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+.....................................................................FFF [ 93%]
+....F............................................................... [ 95%]
+....................................................... [ 97%]
+....................................................FF.......FF...... [ 99%]
+.................................                                        [100%]
+=================================== FAILURES ===================================
+___________ test_actual_two_rank_complete_and_tail_means[all_valid] ____________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_complete_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x3324d28a0>
+mode = 'all_valid'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["all_valid", "peer_empty", "tail_one_rank_empty", "empty_tail"])
+    def test_actual_two_rank_complete_and_tail_means(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_distributed_tail_worker,
+            args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_accumulation_tail.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x3324d22d0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+___________ test_actual_two_rank_complete_and_tail_means[peer_empty] ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_complete_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x332684f50>
+mode = 'peer_empty'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["all_valid", "peer_empty", "tail_one_rank_empty", "empty_tail"])
+    def test_actual_two_rank_complete_and_tail_means(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_distributed_tail_worker,
+            args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_accumulation_tail.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x332686360>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:42:20.567000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 49010 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 49010 via signal SIGTERM
+______ test_actual_two_rank_complete_and_tail_means[tail_one_rank_empty] _______
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_complete_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x34c3320f0>
+mode = 'tail_one_rank_empty'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["all_valid", "peer_empty", "tail_one_rank_empty", "empty_tail"])
+    def test_actual_two_rank_complete_and_tail_means(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_distributed_tail_worker,
+            args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_accumulation_tail.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x34c331010>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:42:21.677000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 49125 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 49125 via signal SIGTERM
+___________ test_actual_two_rank_complete_and_tail_means[empty_tail] ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_complete_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x332674a70>
+mode = 'empty_tail'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["all_valid", "peer_empty", "tail_one_rank_empty", "empty_tail"])
+    def test_actual_two_rank_complete_and_tail_means(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_distributed_tail_worker,
+            args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_accumulation_tail.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x332677620>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:42:22.783000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 49163 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 49163 via signal SIGTERM
+______________ test_actual_two_rank_objective_windows[peer_empty] ______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_objective0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x332676ea0>
+mode = 'peer_empty'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["peer_empty", "last_empty", "empty_then_valid", "all_empty"])
+    def test_actual_two_rank_objective_windows(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode),
+                                   nprocs=2, join=True)
+
+fastfill/v2/tests/test_active_objective_distributed.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x332674680>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:42:24.047000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 49853 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 49853 via signal SIGTERM
+______________ test_actual_two_rank_objective_windows[last_empty] ______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_objective1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x3324d2c00>
+mode = 'last_empty'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["peer_empty", "last_empty", "empty_then_valid", "all_empty"])
+    def test_actual_two_rank_objective_windows(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode),
+                                   nprocs=2, join=True)
+
+fastfill/v2/tests/test_active_objective_distributed.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x3324d21b0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+___________ test_actual_two_rank_objective_windows[empty_then_valid] ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_objective2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x332676e10>
+mode = 'empty_then_valid'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["peer_empty", "last_empty", "empty_then_valid", "all_empty"])
+    def test_actual_two_rank_objective_windows(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode),
+                                   nprocs=2, join=True)
+
+fastfill/v2/tests/test_active_objective_distributed.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x3326768d0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+______________ test_actual_two_rank_objective_windows[all_empty] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_objective3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x34c3311c0>
+mode = 'all_empty'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("mode", ["peer_empty", "last_empty", "empty_then_valid", "all_empty"])
+    def test_actual_two_rank_objective_windows(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+>       torch.multiprocessing.spawn(_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), mode),
+                                   nprocs=2, join=True)
+
+fastfill/v2/tests/test_active_objective_distributed.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x34c3304d0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:42:27.847000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 51474 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 51474 via signal SIGTERM
+______ test_real_parallel_worker_failure_never_publishes_partial_dataset _______
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_real_parallel_worker_fail0')
+
+    def test_real_parallel_worker_failure_never_publishes_partial_dataset(tmp_path):
+        release, evidence = miniature_release(tmp_path)
+        output = tmp_path / "dataset"
+        with patch("fastfill.v2.legacy_build._worker_job", failed_worker):
+>           with pytest.raises(RuntimeError, match="injected worker failure"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'injected worker failure'
+E             Actual message: 'A process in the process pool was terminated abruptly while the future was running or pending.'
+
+fastfill/v2/tests/test_legacy_verify.py:98: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Process SpawnProcess-46:
+Traceback (most recent call last):
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/slian/miniforge3/lib/python3.12/concurrent/futures/process.py", line 252, in _process_worker
+    call_item = call_queue.get(block=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Process SpawnProcess-47:
+Traceback (most recent call last):
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/slian/miniforge3/lib/python3.12/concurrent/futures/process.py", line 252, in _process_worker
+    call_item = call_queue.get(block=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+__________ test_actual_two_process_uneven_and_global_zero_box_counts ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_process_uneven0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x35ac5d940>
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo distributed backend")
+    def test_actual_two_process_uneven_and_global_zero_box_counts(tmp_path, monkeypatch):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if __import__("sys").platform == "darwin" else "lo")
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")  # CPU Gloo ranks: with one visible GPU, rank 1 would ask for cuda:1
+        rendezvous = "file://" + str(tmp_path / "rendezvous")
+>       torch.multiprocessing.spawn(_distributed_uneven_box_worker,
+            args=(rendezvous, str(tmp_path)), nprocs=2, join=True)
+
+fastfill/v2/tests/test_model_review_fixes.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x35ac5f560>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+______________ test_two_rank_diagnostics_count_every_row_once[1] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_two_rank_diagnostics_coun0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x32de87470>, count = 1
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("count", [1, 3])  # rank 1's shard is empty / one batch shorter than rank 0's
+    def test_two_rank_diagnostics_count_every_row_once(tmp_path, monkeypatch, count):
+        """Accelerate's even batches repeated rank 0's leading rows on rank 1 (3 rows counted 4 times); per-batch
+        collectives (DDP buffer broadcast, the criterion's count all_reduce) would pair different batches or hang."""
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        train_rows = _rows(2)
+        _data(tmp_path, train_rows)
+        rows = _validation_file(tmp_path / "validation.jsonl", count)
+>       torch.multiprocessing.spawn(_diagnostics_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path)),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_round5_train.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x32de863f0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:18.084000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 72363 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 72363 via signal SIGTERM
+______________ test_two_rank_diagnostics_count_every_row_once[3] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_two_rank_diagnostics_coun1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x32de20e00>, count = 3
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("count", [1, 3])  # rank 1's shard is empty / one batch shorter than rank 0's
+    def test_two_rank_diagnostics_count_every_row_once(tmp_path, monkeypatch, count):
+        """Accelerate's even batches repeated rank 0's leading rows on rank 1 (3 rows counted 4 times); per-batch
+        collectives (DDP buffer broadcast, the criterion's count all_reduce) would pair different batches or hang."""
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        train_rows = _rows(2)
+        _data(tmp_path, train_rows)
+        rows = _validation_file(tmp_path / "validation.jsonl", count)
+>       torch.multiprocessing.spawn(_diagnostics_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path)),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_round5_train.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x32de22e70>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:19.366000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 73059 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 73059 via signal SIGTERM
+_______ test_two_rank_resume_of_a_state_before_round5_restarts_selection _______
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_two_rank_resume_of_a_stat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x32de20f50>
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    def test_two_rank_resume_of_a_state_before_round5_restarts_selection(tmp_path, monkeypatch):
+        """A crashed c750c31 run resumed by this code mixes padded (old) and unpadded validation scores in one log:
+        recorded and kept out of selection, without --allow-resume-change; this code's own states resume as before."""
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        _data(tmp_path, _rows(4))
+        _validation_file(tmp_path / "validation.jsonl", 3)
+>       torch.multiprocessing.spawn(_old_state_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path)),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_round5_train.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x32de21130>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:20.609000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 73847 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 73847 via signal SIGTERM
+__ test_two_rank_validation_with_scene_regularizers_survives_a_shorter_shard ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_two_rank_validation_with_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x32de720c0>
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    def test_two_rank_validation_with_scene_regularizers_survives_a_shorter_shard(tmp_path, monkeypatch):
+        """3 validation rows: rank 1 runs one batch fewer. Before, collision/boundary all_reduced per batch and gloo aborted."""
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+        _data(tmp_path, _rows(2))
+        _validation_file(tmp_path / "validation.jsonl", 3)
+>       torch.multiprocessing.spawn(_regularizer_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path)),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_round6_leftovers.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x32de70b00>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:22.986000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 74301 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 74301 via signal SIGTERM
+_______________ test_actual_two_rank_resume_replays_each_rank[3] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_resume_re0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x32de3e030>
+kill_step = 3
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("kill_step", [3, 4])  # eight rows over two ranks: four microbatches per rank per epoch
+    def test_actual_two_rank_resume_replays_each_rank(tmp_path, monkeypatch, kill_step):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+>       torch.multiprocessing.spawn(_resume_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), kill_step),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_train_loop_fix20261006.py:396: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x34c48e450>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:34.830000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 77826 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 77826 via signal SIGTERM
+_______________ test_actual_two_rank_resume_replays_each_rank[4] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_rank_resume_re1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x3322542f0>
+kill_step = 4
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(), reason="requires Gloo")
+    @pytest.mark.parametrize("kill_step", [3, 4])  # eight rows over two ranks: four microbatches per rank per epoch
+    def test_actual_two_rank_resume_replays_each_rank(tmp_path, monkeypatch, kill_step):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if sys.platform == "darwin" else "lo")
+>       torch.multiprocessing.spawn(_resume_worker, args=("file://" + str(tmp_path / "rendezvous"), str(tmp_path), kill_step),
+                                    nprocs=2, join=True)
+
+fastfill/v2/tests/test_train_loop_fix20261006.py:396: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x34d696b70>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+____ test_actual_two_process_mixed_geometry_logging_and_validation[record] _____
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_process_mixed_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x33244c920>
+mode = 'record'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo distributed backend")
+    @pytest.mark.parametrize("mode", ["record", "validation"])
+    def test_actual_two_process_mixed_geometry_logging_and_validation(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if __import__("sys").platform == "darwin" else "lo")
+        rendezvous = "file://" + str(tmp_path / f"{mode}-rendezvous")
+>       torch.multiprocessing.spawn(_logging_worker,
+            args=(rendezvous, str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_training_record_review.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x332421820>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 0 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:38.755000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 78602 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 78602 via signal SIGTERM
+__ test_actual_two_process_mixed_geometry_logging_and_validation[validation] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/pytest-of-slian/pytest-452/test_actual_two_process_mixed_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x35a53a510>
+mode = 'validation'
+
+    @pytest.mark.skipif(not torch.distributed.is_available() or not torch.distributed.is_gloo_available(),
+                        reason="requires Gloo distributed backend")
+    @pytest.mark.parametrize("mode", ["record", "validation"])
+    def test_actual_two_process_mixed_geometry_logging_and_validation(tmp_path, monkeypatch, mode):
+        monkeypatch.setenv("GLOO_SOCKET_IFNAME", "lo0" if __import__("sys").platform == "darwin" else "lo")
+        rendezvous = "file://" + str(tmp_path / f"{mode}-rendezvous")
+>       torch.multiprocessing.spawn(_logging_worker,
+            args=(rendezvous, str(tmp_path), mode), nprocs=2, join=True)
+
+fastfill/v2/tests/test_training_record_review.py:183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:340: in spawn
+    return start_processes(fn, args, nprocs, join, daemon, start_method="spawn")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:296: in start_processes
+    while not context.join():
+              ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <torch.multiprocessing.spawn.ProcessContext object at 0x35a53a3c0>
+timeout = None, grace_period = None
+
+    def join(self, timeout: float | None = None, grace_period: float | None = None):
+        r"""Join one or more processes within spawn context.
+    
+        Attempt to join one or more processes in this spawn context.
+        If one of them exited with a non-zero exit status, this function
+        kills the remaining processes (optionally with a grace period)
+        and raises an exception with the cause of the first process exiting.
+    
+        Returns ``True`` if all processes have been joined successfully,
+        ``False`` if there are more processes that need to be joined.
+    
+        Args:
+            timeout (float): Wait this long (in seconds) before giving up on waiting.
+            grace_period (float): When any processes fail, wait this long (in seconds)
+                for others to shutdown gracefully before terminating them. If they
+                still don't exit, wait another grace period before killing them.
+        """
+        # Ensure this function can be called even when we're done.
+        if len(self.sentinels) == 0:
+            return True
+    
+        # Wait for any process to fail or all of them to succeed.
+        ready = multiprocessing.connection.wait(
+            self.sentinels.keys(),
+            timeout=timeout,
+        )
+    
+        error_index = None
+        for sentinel in ready:
+            index = self.sentinels.pop(sentinel)
+            process = self.processes[index]
+            process.join()
+            if process.exitcode != 0:
+                error_index = index
+                break
+    
+        # Return if there was no error.
+        if error_index is None:
+            # Return whether or not all processes have been joined.
+            return len(self.sentinels) == 0
+        # An error occurred. Clean-up all processes before returning.
+        # First, allow a grace period for processes to shutdown themselves.
+        if grace_period is not None:
+            self._join_procs_with_timeout(grace_period)
+        # Then, terminate processes that are still alive. Try SIGTERM first.
+        for process in self.processes:
+            if process.is_alive():
+                log.warning("Terminating process %s via signal SIGTERM", process.pid)
+                process.terminate()
+    
+        # Try SIGKILL if the process isn't going down after another grace_period.
+        # The reason is related to python signal handling is limited
+        # to main thread and if that is in c/c++ land and stuck it won't
+        # to handle it. We have seen processes getting stuck not handling
+        # SIGTERM for the above reason.
+        self._join_procs_with_timeout(30 if grace_period is None else grace_period)
+        for process in self.processes:
+            if process.is_alive():
+                log.warning(
+                    "Unable to shutdown process %s via SIGTERM , forcefully exiting via SIGKILL",
+                    process.pid,
+                )
+                process.kill()
+            process.join()
+    
+        # The file will only be created if the process crashed.
+        failed_process = self.processes[error_index]
+        if not os.access(self.error_files[error_index], os.R_OK):
+            exitcode = self.processes[error_index].exitcode
+            if exitcode < 0:
+                try:
+                    name = signal.Signals(-exitcode).name
+                except ValueError:
+                    name = f"<Unknown signal {-exitcode}>"
+                raise ProcessExitedException(
+                    f"process {error_index:d} terminated with signal {name}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                    signal_name=name,
+                )
+            else:
+>               raise ProcessExitedException(
+                    f"process {error_index:d} terminated with exit code {exitcode:d}",
+                    error_index=error_index,
+                    error_pid=failed_process.pid,
+                    exit_code=exitcode,
+                )
+E               torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 1
+
+../../../../miniforge3/lib/python3.12/site-packages/torch/multiprocessing/spawn.py:200: ProcessExitedException
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/slian/miniforge3/lib/python3.12/multiprocessing/spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'OptiScene'
+W1022 18:43:39.829000 20654 site-packages/torch/multiprocessing/spawn.py:165] Terminating process 79645 via signal SIGTERM
+------------------------------ Captured log call -------------------------------
+WARNING  torch.multiprocessing.spawn:spawn.py:165 Terminating process 79645 via signal SIGTERM
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.12.9-final-0 _______________
+
+Name                                                     Stmts   Miss  Cover
+----------------------------------------------------------------------------
+fastfill/adapters/__init__.py                               46     20    57%
+fastfill/adapters/__main__.py                                2      2     0%
+fastfill/adapters/ase.py                                    24     19    21%
+fastfill/adapters/hssd200.py                               254     24    91%
+fastfill/adapters/il3d_3dfront.py                          311    100    68%
+fastfill/adapters/il3d_synthetic.py                         49     33    33%
+fastfill/adapters/interiorgs.py                            216      4    98%
+fastfill/adapters/internscenes.py                          123     54    56%
+fastfill/adapters/internscenes_3rscan.py                     5      2    60%
+fastfill/adapters/internscenes_arkit.py                      5      2    60%
+fastfill/adapters/internscenes_mp3d.py                      13      9    31%
+fastfill/adapters/internscenes_scannet.py                    4      1    75%
+fastfill/adapters/m3dlayout_infinigen.py                    22     14    36%
+fastfill/adapters/mansionworld.py                          132    109    17%
+fastfill/adapters/optiscene_holodeck.py                     25      8    68%
+fastfill/adapters/sage10k.py                               151    118    22%
+fastfill/adapters/scan2cad.py                               69      5    93%
+fastfill/adapters/scannetpp.py                              23     14    39%
+fastfill/adapters/scenesmith.py                             68     55    19%
+fastfill/adapters/spatiallm.py                              76     62    18%
+fastfill/adapters/structured3d.py                           87      3    97%
+fastfill/adapters/unified.py                                61     10    84%
+fastfill/anchors.py                                        150      3    98%
+fastfill/build.py                                          534     54    90%
+fastfill/comparison/a021_diag.py                           323      6    98%
+fastfill/comparison/a021_select.py                         644     37    94%
+fastfill/comparison/a021_train.py                          566     85    85%
+fastfill/comparison/a028.py                                203      8    96%
+fastfill/comparison/ablation_016.py                        265     27    90%
+fastfill/comparison/agents_016.py                          224     43    81%
+fastfill/comparison/best_of_n.py                           188     29    85%
+fastfill/comparison/corpus.py                              240     18    92%
+fastfill/comparison/critic_025.py                          492     66    87%
+fastfill/comparison/critic_batch_025.py                    121     29    76%
+fastfill/comparison/critic_client_025.py                    45      4    91%
+fastfill/comparison/data.py                                198     21    89%
+fastfill/comparison/decide_012.py                           96     71    26%
+fastfill/comparison/delivery.py                            290      7    98%
+fastfill/comparison/dev_select.py                          352     19    95%
+fastfill/comparison/distill_018.py                         293     32    89%
+fastfill/comparison/distill_018_chain.py                   506     25    95%
+fastfill/comparison/diverse_026.py                          37      1    97%
+fastfill/comparison/downstream.py                          216      6    97%
+fastfill/comparison/dpo_stages.py                          551     40    93%
+fastfill/comparison/eval_data.py                           209     30    86%
+fastfill/comparison/evaluate_llm.py                        176     26    85%
+fastfill/comparison/evaluate_pair.py                       126     24    81%
+fastfill/comparison/fid.py                                 318     18    94%
+fastfill/comparison/final_011.py                            79      4    95%
+fastfill/comparison/final_tables.py                        179      7    96%
+fastfill/comparison/frontier_026.py                        402    117    71%
+fastfill/comparison/geometry.py                            167      3    98%
+fastfill/comparison/infer.py                               283     10    96%
+fastfill/comparison/infer_shard.py                         321     33    90%
+fastfill/comparison/judge_agreement_023.py                  62     19    69%
+fastfill/comparison/judge_batch.py                         428     31    93%
+fastfill/comparison/judge_bundle_025.py                    135     22    84%
+fastfill/comparison/llm_agent.py                           435     38    91%
+fastfill/comparison/llm_open.py                            252      9    96%
+fastfill/comparison/main_data.py                           286     23    92%
+fastfill/comparison/mesh_collision.py                      351     29    92%
+fastfill/comparison/onpolicy_dpo.py                        573     37    94%
+fastfill/comparison/optiscene_eval.py                      978     95    90%
+fastfill/comparison/output_repair.py                       586     38    94%
+fastfill/comparison/overnight.py                           560     87    84%
+fastfill/comparison/placers_020.py                         283     49    83%
+fastfill/comparison/pose_targets.py                        223      2    99%
+fastfill/comparison/reference_rows.py                      101     25    75%
+fastfill/comparison/render_assets.py                       569    107    81%
+fastfill/comparison/report_v2.py                           666     39    94%
+fastfill/comparison/room_families.py                       251     14    94%
+fastfill/comparison/sample_vllm.py                         231     15    94%
+fastfill/comparison/scale_curve.py                         418     28    93%
+fastfill/comparison/server_api_judge.py                    463    119    74%
+fastfill/comparison/sizers_020.py                          491     30    94%
+fastfill/comparison/stage_table.py                         352     20    94%
+fastfill/comparison/test_apply_012.py                      207     18    91%
+fastfill/comparison/tests/test_a021_select.py              507      1    99%
+fastfill/comparison/tests/test_a021_train.py               469      1    99%
+fastfill/comparison/tests/test_ablation_016.py             406      1    99%
+fastfill/comparison/tests/test_agents_016.py               184      1    99%
+fastfill/comparison/tests/test_best_of_n.py                168      1    99%
+fastfill/comparison/tests/test_corpus.py                   344      1    99%
+fastfill/comparison/tests/test_data.py                     123      1    99%
+fastfill/comparison/tests/test_distill_018_chain.py        540      1    99%
+fastfill/comparison/tests/test_downstream.py               132      1    99%
+fastfill/comparison/tests/test_geometry.py                 217      1    99%
+fastfill/comparison/tests/test_infer.py                    352      2    99%
+fastfill/comparison/tests/test_judge_batch.py              469      1    99%
+fastfill/comparison/tests/test_onpolicy_dpo.py             687      1    99%
+fastfill/comparison/tests/test_optiscene_eval.py           821     31    96%
+fastfill/comparison/tests/test_output_repair.py            317      1    99%
+fastfill/comparison/tests/test_overnight.py                491     12    98%
+fastfill/comparison/tests/test_placers_020.py              362      1    99%
+fastfill/comparison/tests/test_pose_targets.py             295      1    99%
+fastfill/comparison/tests/test_room_families.py             90      2    98%
+fastfill/comparison/tests/test_server_api_judge.py          53      1    98%
+fastfill/comparison/tests/test_size_prior.py               233      1    99%
+fastfill/comparison/tests/test_train_pair.py               766      3    99%
+fastfill/comparison/train_pair.py                          319     19    94%
+fastfill/comparison/train_pair_helpers.py                  308     23    93%
+fastfill/comparison/visual_024.py                          302     15    95%
+fastfill/comparison/visual_cases.py                        228      8    96%
+fastfill/comparison/visual_final.py                         48     12    75%
+fastfill/comparison/visual_pipeline.py                     370     13    96%
+fastfill/download.py                                        61      2    97%
+fastfill/evaluate.py                                       154     36    77%
+fastfill/inspect_ir.py                                      66     66     0%
+fastfill/interface.py                                      395      7    98%
+fastfill/merge_lora.py                                      63     11    83%
+fastfill/scene.py                                          245      5    98%
+fastfill/serve.py                                          130     43    67%
+fastfill/split.py                                           72      1    99%
+fastfill/system/cli.py                                      45      2    96%
+fastfill/system/evaluate.py                                527     72    86%
+fastfill/system/package.py                                 158     23    85%
+fastfill/system/pipeline.py                                423     24    94%
+fastfill/system/sizing.py                                  129      3    98%
+fastfill/system/tests/test_pipeline.py                     395      8    98%
+fastfill/tests/test_qa_repairs.py                          347      4    99%
+fastfill/tests/test_runtime_repairs.py                     263      1    99%
+fastfill/tests/test_training_repairs.py                    217      1    99%
+fastfill/tests/test_v1_1_audit_pairs.py                    158      1    99%
+fastfill/tools/ablation_check.py                            30      1    97%
+fastfill/tools/qa_report.py                                302     14    95%
+fastfill/tools/visualize.py                                 78     78     0%
+fastfill/train.py                                          176    176     0%
+fastfill/v1_1/audit_pairs.py                               181     20    89%
+fastfill/v1_1/audit_report.py                              105      1    99%
+fastfill/v1_1/automate.py                                  227     12    95%
+fastfill/v1_1/build_dpo.py                                 303     33    89%
+fastfill/v1_1/build_v1_1.py                                132      4    97%
+fastfill/v1_1/evaluate_v1_1.py                             446    148    67%
+fastfill/v1_1/evaluation_protocol.py                       180     11    94%
+fastfill/v1_1/postprocess.py                               458    310    32%
+fastfill/v1_1/research_report.py                           153      3    98%
+fastfill/v1_1/roomgenbench_v1_1.py                         281     38    86%
+fastfill/v1_1/scene_v1_1.py                                140     30    79%
+fastfill/v1_1/tests/test_automate.py                       200      2    99%
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py        183      1    99%
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py         179      3    98%
+fastfill/v1_1/train_dpo.py                                 422     16    96%
+fastfill/v1_1/training_guard.py                            242     10    96%
+fastfill/v1_1/verify_outputs.py                            197     12    94%
+fastfill/v2/adapters.py                                    105     10    90%
+fastfill/v2/audit.py                                        69      4    94%
+fastfill/v2/autorun.py                                     420    114    73%
+fastfill/v2/batch.py                                       330     20    94%
+fastfill/v2/bbox_visualization.py                           90      1    99%
+fastfill/v2/boxes.py                                        80      4    95%
+fastfill/v2/cohort.py                                      122     11    91%
+fastfill/v2/data.py                                         82      4    95%
+fastfill/v2/evaluate.py                                    639     17    97%
+fastfill/v2/geometry.py                                     50      4    92%
+fastfill/v2/io.py                                          107      5    95%
+fastfill/v2/legacy_bridge.py                               167      4    98%
+fastfill/v2/legacy_build.py                                193     10    95%
+fastfill/v2/legacy_evidence.py                             113     12    89%
+fastfill/v2/legacy_verify.py                               499     61    88%
+fastfill/v2/llm_baseline.py                                169     21    88%
+fastfill/v2/llm_structured.py                              163     22    87%
+fastfill/v2/losses.py                                      179      7    96%
+fastfill/v2/matching.py                                    137      8    94%
+fastfill/v2/minimal_data.py                                221     34    85%
+fastfill/v2/model.py                                       193     12    94%
+fastfill/v2/multisource_data.py                            374     56    85%
+fastfill/v2/multisource_verify.py                          501     69    86%
+fastfill/v2/objective.py                                    39      2    95%
+fastfill/v2/ops/isambard_inputs.py                         167     77    54%
+fastfill/v2/ops/stratify.py                                290    222    23%
+fastfill/v2/ops/vlm_judge.py                               360    134    63%
+fastfill/v2/predict.py                                      84     14    83%
+fastfill/v2/qualified_data.py                              144     11    92%
+fastfill/v2/regularizers.py                                 65      6    91%
+fastfill/v2/review_data.py                                 238     29    88%
+fastfill/v2/roomgenbench.py                                283      9    97%
+fastfill/v2/runtime.py                                     312     40    87%
+fastfill/v2/schema.py                                      265     46    83%
+fastfill/v2/serve.py                                        65      5    92%
+fastfill/v2/tests/test_accumulation_tail.py                130     30    77%
+fastfill/v2/tests/test_active_objective_distributed.py      85     69    19%
+fastfill/v2/tests/test_batch_augment_fix20261006.py        242     31    87%
+fastfill/v2/tests/test_batch_handoff_r2.py                 164     13    92%
+fastfill/v2/tests/test_data.py                             171      3    98%
+fastfill/v2/tests/test_direct_layout.py                    346      5    99%
+fastfill/v2/tests/test_legacy_bridge.py                     71      1    99%
+fastfill/v2/tests/test_legacy_verify.py                    196      6    97%
+fastfill/v2/tests/test_llm_baseline.py                     145      1    99%
+fastfill/v2/tests/test_llm_structured.py                   189      2    99%
+fastfill/v2/tests/test_model_review_fixes.py               101     16    84%
+fastfill/v2/tests/test_reference_extent.py                 114      1    99%
+fastfill/v2/tests/test_regularizer_support_review.py        76      1    99%
+fastfill/v2/tests/test_round5_train.py                     147     69    53%
+fastfill/v2/tests/test_round6_leftovers.py                  57     15    74%
+fastfill/v2/tests/test_round6_roomgenbench.py              194      2    99%
+fastfill/v2/tests/test_runtime.py                          153      1    99%
+fastfill/v2/tests/test_runtime_cli.py                       56      1    98%
+fastfill/v2/tests/test_runtime_evaluation.py               100      1    99%
+fastfill/v2/tests/test_runtime_support_contract.py         127      1    99%
+fastfill/v2/tests/test_text_record_review.py                68      2    97%
+fastfill/v2/tests/test_text_sft.py                          71      1    99%
+fastfill/v2/tests/test_train_loop_fix20261006.py           320     30    91%
+fastfill/v2/tests/test_training_record_review.py           142     49    65%
+fastfill/v2/tests/test_validation.py                        70      1    99%
+fastfill/v2/text_sft.py                                    187     28    85%
+fastfill/v2/train.py                                       497     18    96%
+fastfill/v2/validation.py                                  289     36    88%
+fastfill/v2/verify_bundle.py                                49      7    86%
+fastfill/validate.py                                       126      1    99%
+----------------------------------------------------------------------------
+TOTAL                                                    69672   5402    92%
+
+129 files skipped due to complete coverage.
+Coverage JSON written to file /tmp/fastfill-audit-20261022/coverage-supported.json
+=========================== short test summary info ============================
+FAILED fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[all_valid]
+FAILED fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[peer_empty]
+FAILED fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[tail_one_rank_empty]
+FAILED fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[empty_tail]
+FAILED fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[peer_empty]
+FAILED fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[last_empty]
+FAILED fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[empty_then_valid]
+FAILED fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[all_empty]
+FAILED fastfill/v2/tests/test_legacy_verify.py::test_real_parallel_worker_failure_never_publishes_partial_dataset
+FAILED fastfill/v2/tests/test_model_review_fixes.py::test_actual_two_process_uneven_and_global_zero_box_counts
+FAILED fastfill/v2/tests/test_round5_train.py::test_two_rank_diagnostics_count_every_row_once[1]
+FAILED fastfill/v2/tests/test_round5_train.py::test_two_rank_diagnostics_count_every_row_once[3]
+FAILED fastfill/v2/tests/test_round5_train.py::test_two_rank_resume_of_a_state_before_round5_restarts_selection
+FAILED fastfill/v2/tests/test_round6_leftovers.py::test_two_rank_validation_with_scene_regularizers_survives_a_shorter_shard
+FAILED fastfill/v2/tests/test_train_loop_fix20261006.py::test_actual_two_rank_resume_replays_each_rank[3]
+FAILED fastfill/v2/tests/test_train_loop_fix20261006.py::test_actual_two_rank_resume_replays_each_rank[4]
+FAILED fastfill/v2/tests/test_training_record_review.py::test_actual_two_process_mixed_geometry_logging_and_validation[record]
+FAILED fastfill/v2/tests/test_training_record_review.py::test_actual_two_process_mixed_geometry_logging_and_validation[validation]
+18 failed, 3376 passed, 6 skipped, 305 subtests passed in 610.09s (0:10:10)

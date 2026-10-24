@@ -1,0 +1,2207 @@
+[
+  {
+    "path": "fastfill/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/__main__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/ase.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/hssd200.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/il3d_3dfront.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/il3d_synthetic.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/interiorgs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/internscenes.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/internscenes_3rscan.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/internscenes_arkit.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/internscenes_mp3d.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/internscenes_scannet.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/m3dlayout_infinigen.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/mansionworld.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/multiscan.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/optiscene_holodeck.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/sage10k.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/scan2cad.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/scannetpp.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/scenesmith.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/spatialgen.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/spatiallm.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/structured3d.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/unified.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/adapters/upright_bounds.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/anchors.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/build.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/a021_diag.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/a021_select.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/a021_train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/a028.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/ablation_016.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/agents_016.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/best_of_n.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/contract.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/corpus.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/critic_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/critic_batch_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/critic_client_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/decide_012.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/delivery.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/dev_select.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/distill_018.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/distill_018_chain.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/diverse_026.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/downstream.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/dpo_stages.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/eval_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/evaluate_llm.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/evaluate_pair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/fid.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/final_011.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/final_tables.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/frontier_026.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/geometry.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/infer.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/infer_shard.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_010_cpu.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_010_infer_shard.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_013.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_014.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_016.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_018.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_020.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_eval.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_021_train.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_cpu.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_generate.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_infer_shard.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_dpo_train.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_geometry.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_merge.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_plan.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_probe.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_infer_shard.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_agent.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_llm_open.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_main.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_pilot.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/isambard_sample_vllm.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/judge_agreement_023.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/judge_batch.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/judge_bundle_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/llm_agent.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/llm_open.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/main_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/mesh_collision.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/onpolicy_dpo.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_eval.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/UPSTREAM.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/main.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/prompt.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/scripts/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/scripts/dpo_train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/scripts/inference.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/scripts/merge_lora.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/scripts/sft_train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/optiscene_official/utils.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/output_repair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/overnight.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/placers_020.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/pose_targets.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/reference_rows.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/render_assets.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/report_v2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/room_families.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/sample_vllm.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/scale_curve.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/server_api_judge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/setup_optiscene_env.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/size_prior.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/sizers_020.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/stage_table.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_011.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_013.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_014.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_015.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_016_ablation.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_016_agents.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_016_scale.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_018_chain.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_018_teacher.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_020_placers.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_020_sizers.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_021_diag.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_021_eval.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_021_train.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_023_judge.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_025.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_026_diverse.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_028.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_dev_selection.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_dpo_stages.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_final_010.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_infer_v2.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_llm_open.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_sample_vllm.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/submit_test_012.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/test_apply_012.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/train_pair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/train_pair_helpers.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/visual_024.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/visual_cases.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/visual_final.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/visual_pipeline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/download.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/download_full.sh",
+    "check": "zsh -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/evaluate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/inspect_ir.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/interface.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/merge_lora.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/scene.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/serve.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/split.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/cli.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/evaluate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/isambard_022.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/package.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/pipeline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/sizing.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/submit_022.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tools/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tools/ablation_check.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tools/qa_report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tools/visualize.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/audit_pairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/audit_report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/automate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/build_dpo.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/build_v1_1.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/evaluate_v1_1.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/evaluation_protocol.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/isambard_v1_1_pipeline.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/postprocess.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/research_report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/scene_v1_1.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/train_dpo.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/training_guard.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/verify_outputs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/__init__.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/adapters.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/audit.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/autorun.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/batch.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/bbox_visualization.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/boxes.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/cohort.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/direct_request.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/main7-cell05-main-20261007b-e5.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_bbox_full_fixed.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_bbox_pilot.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_3gpu_grid.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_3gpu_grid_cell05.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell02.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell10.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_regression.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_main_world7.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_pilot.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/qwen3_8b_pilot_1gpu.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/smoke.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/structured.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/structured_bev_box.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/configs/structured_fixed.json",
+    "check": "json.loads",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/direct_layout.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/evaluate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/geometry.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/io.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/legacy_bridge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/legacy_build.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/legacy_evidence.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/legacy_verify.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/llm_baseline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/llm_structured.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/losses.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/matching.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/minimal_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/model.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/multisource_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/multisource_verify.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/objective.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/compare.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/crosscheck.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/diag_ablation.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_analysis.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_autorun.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_dryrun.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_inputs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_setup.sbatch",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/isambard_submit.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/llm_compare.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/make_sample.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/rebuild_and_publish.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/rescore_llm.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/run_checkpoint.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/run_plan.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/run_reference.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/run_structured.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/sample_validation.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/selftest_shift.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/start_autorun_retrain.sh",
+    "check": "bash -n",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/stratify.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/ops/vlm_judge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/predict.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/qualified_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/regularizers.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/review_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/roomgenbench.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/runtime.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/schema.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/serve.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/size_range.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/text_sft.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/validation.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/verify_bundle.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/validate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_a021_diag.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_a021_select.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_a021_train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_a028.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_ablation_016.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_agents_016.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_best_of_n.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_context_plan.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_contract.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_corpus.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_critic_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_critic_client_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_delivery.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_dev_select.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_distill_018_chain.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_distill_018_teacher.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_diverse_026.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_downstream.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_dpo_stages.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_eval_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_evaluate_llm.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_evaluate_pair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_fid.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_final_011.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_final_tables.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_frontier_026.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_geometry.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_infer.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_infer_shard.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_judge_agreement_023.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_judge_batch.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_judge_bundle_025.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_llm_agent.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_llm_open.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_main_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_mesh_collision.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_onpolicy_dpo.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_optiscene_eval.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_output_repair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_overnight.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_placers_020.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_pose_targets.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_render_assets.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_report_v2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_room_families.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_sample_vllm.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_scale_curve.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_server_api_judge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_size_prior.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_sizers_020.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_stage_table.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_test_apply_012.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_train_pair.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_visual_024.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_visual_cases.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_visual_final.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_visual_pipeline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/comparison/tests/test_visual_resource_binding.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/tests/test_evaluate_package.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/tests/test_pipeline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/system/tests/test_sizing.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_adapter_repairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_build_repairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_embedded_contracts.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_qa_repairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_runtime_repairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_source_fidelity_v34.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_source_opening_correction.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_source_tilt_correction.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_training_repairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_v1_1_audit_pairs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/tests/test_v34_build.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_audit_report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_automate.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_automation_lineage.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_build_dpo_integrity.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_evaluation_protocol.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_evaluation_resume.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_research_report.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_roomgenbench_recovery.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_train_dpo_a021.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_train_dpo_init_adapter.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_train_dpo_rpo.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_training_guard.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_verified_sbatch.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v1_1/tests/test_verify_outputs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_accumulation_tail.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_active_objective_distributed.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_active_objective_training.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_asset_attribute_contract.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_audit_c2_uniform_yaw.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_augment_repair_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_autorun.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_batch.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_batch_augment_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_batch_handoff_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_bounded_io.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_complete_cohort.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_constraint_schema.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_data_builder_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_data_policy_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_direct_layout.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_evaluate_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_evaluation_failure_latency.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_execution.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_fixed_capability_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_followups_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_geometry_core.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_integrator_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_isambard_inputs.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_leak_guards_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_bridge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_bridge_geometry.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_build.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_evidence.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_verify.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_legacy_workers.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_llm_baseline.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_llm_structured.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_loss_config_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_losses_matching_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_matching.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_minimal_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_model.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_model_loss_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_model_review_fixes.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_multisource_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_multisource_verify.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_predict.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_qualified_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_reference_extent.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_regularizer_support_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_review_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_review_repairs_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_roomgenbench.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_roomgenbench_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round10_wall_decode.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round10_wall_selection.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round14_eval_math.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round3_data.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round3_eval_handoff.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round3_resume.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round4_matching.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round4_spread.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round5_spread.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round5_train.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round6_leftovers.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round6_roomgenbench.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_round7_reference.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_runtime.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_runtime_cli.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_runtime_evaluation.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_runtime_preflight.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_runtime_support_contract.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_schema_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_size_range.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_slot_pooling_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_spread_decode.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_supervision.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_text_record_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_text_sft.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_train_eval_r2.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_train_loop_fix20261006.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_training_record_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_validation.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_validation_floor_front_review.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_verify_bundle.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  },
+  {
+    "path": "fastfill/v2/tests/test_vlm_judge.py",
+    "check": "ast.parse",
+    "exit_code": 0
+  }
+]

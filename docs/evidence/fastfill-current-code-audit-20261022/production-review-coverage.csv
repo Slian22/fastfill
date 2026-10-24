@@ -1,0 +1,272 @@
+path,lines,sha256,review_records
+fastfill/__init__.py,0,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,root-files.json: full production body read
+fastfill/adapters/__init__.py,63,fabd6ee3dd917ac07e284ed9044a1932d2826208f8bd9b51a0cdaecbec6b031d,root-files.json: full production body read
+fastfill/adapters/__main__.py,3,168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea,root-files.json: full production body read
+fastfill/adapters/ase.py,46,2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef,root-files.json: full production body read
+fastfill/adapters/hssd200.py,442,e2dcb05c2e75f37331208cf7d74b38a87be131d05a8489654af78fc5de58df9c,root-files.json: full production body read
+fastfill/adapters/il3d_3dfront.py,496,212dcec472fc55f4f562924fe8ce5e89e523ff6a79c179e0bbcea511b842e823,root-files.json: full production body read
+fastfill/adapters/il3d_synthetic.py,150,0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506,root-files.json: full production body read
+fastfill/adapters/interiorgs.py,369,d33559c4ea75c954b806943028fc7bd51dc0fc8a01d2a6bd7ec527fa64303f23,root-files.json: full production body read
+fastfill/adapters/internscenes.py,211,2e1afec9ff5950a3ef7907f9304d7ea555a6a28f66f1dcddd94e6a41f63a3e75,root-files.json: full production body read
+fastfill/adapters/internscenes_3rscan.py,12,01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224,root-files.json: full production body read
+fastfill/adapters/internscenes_arkit.py,14,799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1,root-files.json: full production body read
+fastfill/adapters/internscenes_mp3d.py,25,5e061adc04baac1c9cc492f234795323ca5ccd646698377097f183dd478ef1cd,root-files.json: full production body read
+fastfill/adapters/internscenes_scannet.py,10,09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659,root-files.json: full production body read
+fastfill/adapters/m3dlayout_infinigen.py,54,0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4,root-files.json: full production body read
+fastfill/adapters/mansionworld.py,234,30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da,root-files.json: full production body read
+fastfill/adapters/multiscan.py,122,e5a426bd60df4a10efdaf509e188f2c095db93c9542849e61d6bb269bc5125fd,root-files.json: full production body read
+fastfill/adapters/optiscene_holodeck.py,58,a5f55bd45162d9d62e5b1401cd5b0cc9ee8210d5f019a43c8f79f9b3d05a4d88,root-files.json: full production body read
+fastfill/adapters/sage10k.py,260,c2c124e3925c051a13fcd4599e03d30f61de45ed5db514eaf02fef84f7f04d26,root-files.json: full production body read
+fastfill/adapters/scan2cad.py,126,c0674bb111e5bc533804ccd448f29ea50ade14d56f285225f6b2cdaafe7d9bbf,root-files.json: full production body read
+fastfill/adapters/scannetpp.py,45,ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5,root-files.json: full production body read
+fastfill/adapters/scenesmith.py,129,e3f8d9e2c0a00d6937b93db7f37d4bd801962e8573f6a4789bfeae6912ca0452,root-files.json: full production body read
+fastfill/adapters/spatialgen.py,39,57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826,root-files.json: full production body read
+fastfill/adapters/spatiallm.py,177,b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8,root-files.json: full production body read
+fastfill/adapters/structured3d.py,172,287877698b90d51fbe2330aac158fc893c0892078d3c2a77d7fbd1a1bf934ca7,root-files.json: full production body read
+fastfill/adapters/unified.py,112,6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7,root-files.json: full production body read
+fastfill/adapters/upright_bounds.py,43,2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f,root-files.json: full production body read
+fastfill/anchors.py,280,779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5,root-files.json: full production body read
+fastfill/build.py,769,da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d,root-files.json: full production body read
+fastfill/comparison/__init__.py,5,215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1,comparison-files.json: full-read
+fastfill/comparison/a021_diag.py,632,9bec2bacff5f8ee7bdaa62a4876389956e8213ccf5d0b3ca19f216e56ab6fd88,comparison-files.json: full-read
+fastfill/comparison/a021_select.py,1024,6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50,comparison-files.json: full-read
+fastfill/comparison/a021_train.py,901,53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7,comparison-files.json: full-read
+fastfill/comparison/a028.py,372,13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47,comparison-files.json: full-read
+fastfill/comparison/ablation_016.py,514,7e7d814a8919a8d8db41b04909da725fb95a5439477cfbdbe242565bbb342079,comparison-files.json: full-read
+fastfill/comparison/agents_016.py,385,de5544f996644a8d9f242a46e0233bd4ad50c12bafd3dd0abfe97e1729a0a5c4,comparison-files.json: full-read
+fastfill/comparison/best_of_n.py,345,690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894,comparison-files.json: full-read
+fastfill/comparison/contract.py,288,ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc,comparison-files.json: full-read
+fastfill/comparison/corpus.py,334,2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683,comparison-files.json: full-read
+fastfill/comparison/critic_025.py,874,0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/critic_batch_025.py,187,e831b83d9c848293ef86bffbe76ff179cdac5fa7f181ebae77affb63c75a3149,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/critic_client_025.py,83,2af1f839334228283ecc2cee28df28e2fa56e0f4a1f9c277761033b8cb60307d,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/data.py,263,8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049,comparison-files.json: full-read
+fastfill/comparison/decide_012.py,150,fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea,comparison-files.json: full-read
+fastfill/comparison/delivery.py,612,7af604e3ec45f829845fdcca42d2e68bf587db932be872da3683cf7415669ee3,comparison-files.json: full-read
+fastfill/comparison/dev_select.py,560,066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db,comparison-files.json: full-read
+fastfill/comparison/distill_018.py,498,58ee35a67b49ccc29501187c27d01f016d02facf437c0b553c44a0c42f5c56b4,comparison-files.json: full-read
+fastfill/comparison/distill_018_chain.py,838,466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9,comparison-files.json: full-read
+fastfill/comparison/diverse_026.py,64,981102a924216730d982d39b2c71f1b030fc66488435ffddffe32a51320e5e3b,comparison-files.json: full-read
+fastfill/comparison/downstream.py,364,b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6,comparison-files.json: full-read
+fastfill/comparison/dpo_stages.py,812,a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb,comparison-files.json: full-read
+fastfill/comparison/eval_data.py,280,ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b,comparison-files.json: full-read
+fastfill/comparison/evaluate_llm.py,307,d2f4f893c7af1f6f193191e108b57851718bbe4c51c5e00fabe5e690348b009f,comparison-files.json: full-read
+fastfill/comparison/evaluate_pair.py,178,1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935,comparison-files.json: full-read
+fastfill/comparison/fid.py,511,6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5,comparison-files.json: full-read
+fastfill/comparison/final_011.py,131,1ead002f739de7aa346fc3ba311ca38ab5b5451a244014074788aec137dd6f77,comparison-files.json: full-read
+fastfill/comparison/final_tables.py,307,6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18,comparison-files.json: full-read
+fastfill/comparison/frontier_026.py,708,f4f2ed2b92d148d11b222935cb4ba9e7c3fe7a23690b8a14fd8c5d01539e0582,comparison-files.json: full-read
+fastfill/comparison/geometry.py,265,0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a,comparison-files.json: full-read
+fastfill/comparison/infer.py,401,141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2,comparison-files.json: full-read
+fastfill/comparison/infer_shard.py,447,5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3,comparison-files.json: full-read
+fastfill/comparison/isambard_010_cpu.sbatch,83,d065f993581b43d764e26b8cd8925bfc2cdd97ab09746b711d761b8bf7dbc898,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_010_infer_shard.sbatch,85,8a82c1a4f52f88285be742114a99084e0ecb9306e931500b574d6a97107a2f9d,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_013.sbatch,244,e2aa141ac3e0e7b19c26591c38d33d28cf180a7a57908fbaa33ee484b2b6b472,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_014.sbatch,120,7cf063aa917ac0bd98a0e71b5f0bb15344cfb173e87badd2fd5f38965fa385a4,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_016.sbatch,123,30b232ca8e219a8e3467d19af67f9275104cb18d740c512fd947b88f44fd2959,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_018.sbatch,258,11ad37766439455fb7c71ddab0a6eba5854905ddf580477ade3a30a69e1550e3,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_020.sbatch,87,464d328a95a1a8645d4fb84ad9f70cb7beb349a3156716fee7c906065401b6cd,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_021_eval.sbatch,146,db52a25bf739990af0ffd2a8c84b8700f74410b781f4233f4c1e3c9bcb44169c,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_021_train.sbatch,162,5ee965ccbc7f21a015107d16ee25e83d54581640e9e59c55504fa08a73540aeb,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_dpo_cpu.sbatch,53,e4aeb75adbc39c666a3b8af94f6d7a35cfca2a0a0383941c2e879d8a9a71d206,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_dpo_generate.sbatch,44,90c55effcd2527cd3a12841ddaec93d287805ccf1ca98889429396db1b800027,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_dpo_infer_shard.sbatch,66,bbb6f26fe43c8992b1d11c9d7330fa31f0685940ee364401e26c1e7dbdb063b9,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_dpo_train.sbatch,49,750986a4a140252b137b5ad38c5e96989bf440d1825145a3d692b45b8bbe9dfe,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_geometry.sbatch,29,6d4c8c7a123c5180a9d25828243d6112b35f042cbdf460cdac4d3c4624d872b3,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_infer.sbatch,45,18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_infer_merge.sbatch,38,0ab1bd45228aa60826f5035ac0d83d91d44b93a3f060486fdae1a10ef8e1361d,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_infer_plan.sbatch,33,10a896fa03725861b2be431d52f981d126d5d9d4cfe4b3cdfef931e735d81c43,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_infer_probe.sbatch,38,f04b73de1f39a151935a1105f764a727dedeeb6f9ece81462cf520e9c806e892,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_infer_shard.sbatch,57,6870ce8f4ba058fd91b7a6faa0822696e7b8e2895c7f17b1d802a802827a5749,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_llm_agent.sbatch,67,54d352a2718b3500d83906f2293570ec97ad794bcb1979066e852d1ac05370b5,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_llm_open.sbatch,104,549701f081e404238d037de09c6bdbed45ab97689180139242382e15baf2ee23,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_main.sbatch,41,1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_pilot.sbatch,39,f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/isambard_sample_vllm.sbatch,93,6b11b0a110b6738edbdf02d28e8dd2725e7d6a88b81725d9c3465c876ea54058,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/judge_agreement_023.py,91,028240144a36adc65966e007e5151dcd3109f30f3e48f8b608a9ea522e79c7d0,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/judge_batch.py,628,88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/judge_bundle_025.py,232,abec92a2de6fbc233dde0cd1745d7044a415899b770672ff9b00df9e40eab59a,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/llm_agent.py,634,55245c524dbf61691c1c3ada786e551833c5c0f702842b3fade986b24e0f93fc,comparison-files.json: full-read
+fastfill/comparison/llm_open.py,469,4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2,comparison-files.json: full-read
+fastfill/comparison/main_data.py,401,f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d,comparison-files.json: full-read
+fastfill/comparison/mesh_collision.py,534,0ade41b9d0ad8e59cd5be7dd0e9c93f944e09ea15f214d6656f19df86ab2369d,comparison-files.json: full-read
+fastfill/comparison/onpolicy_dpo.py,915,af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb,comparison-files.json: full-read
+fastfill/comparison/optiscene_eval.py,1506,68f93f7a5606e3b6fe36dd8047b3cf72320dbc6162113053944ac18f45e5e0f7,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/UPSTREAM.json,74,293e00404590bca15bf59c2f7ed1df9f18bb7bb62b4b5fc93597aa6af9b4fd45,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/environment.yml,19,490ed14240ee7b21bbc46124dac2eceefd59b714874f37722f6b0f96565ce950,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/main.py,78,c808d2967f5097fbec7ddf80da1ae0cfebf7f9534e97d12b5b9b336b41f69378,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/prompt.py,174,dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/scripts/__init__.py,0,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/scripts/dpo_train.py,129,34ba07e471a66ab95eb62a5d437d9fa6d224b8fd1465a18d471a9d7b66cee360,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/scripts/inference.py,53,36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/scripts/merge_lora.py,36,0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/scripts/sft_train.py,66,342b854a642e58bdebe62c2048e555871261615c33443359bed8d5e68d261450,comparison-files.json: full-read
+fastfill/comparison/optiscene_official/utils.py,34,09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f,comparison-files.json: full-read
+fastfill/comparison/output_repair.py,900,4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c,comparison-files.json: full-read
+fastfill/comparison/overnight.py,759,13389f273b896ea18ea6bfc454498c6742730fc9d3bb279ed5ccb63760ff6093,comparison-files.json: full-read
+fastfill/comparison/placers_020.py,450,94553211107fc37578a3dc6213a22a81871930ac5789b267ee561514a8250add,comparison-files.json: full-read
+fastfill/comparison/pose_targets.py,330,0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba,comparison-files.json: full-read
+fastfill/comparison/reference_rows.py,167,9a3d5fa0226955ae57562fd9b82595d7076a2803eb853b8db83ef9b3bb47378e,comparison-files.json: full-read
+fastfill/comparison/render_assets.py,746,eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/report_v2.py,1160,b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0,comparison-files.json: full-read
+fastfill/comparison/room_families.py,446,907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c,comparison-files.json: full-read
+fastfill/comparison/sample_vllm.py,371,d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9,comparison-files.json: full-read
+fastfill/comparison/scale_curve.py,714,99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413,comparison-files.json: full-read
+fastfill/comparison/server_api_judge.py,633,21513b00b431809c9eaa3145f9898637112e43c6a3a0768a91c9c94f77c505e2,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/setup_optiscene_env.sh,57,dfc6445034a5c12aafe7bd3c7b2970a35b30af027f1398ed7fa9b3508e25e93c,comparison-files.json: full-read; comparison-shell-a-files.json: read_full
+fastfill/comparison/size_prior.py,236,e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc,comparison-files.json: full-read
+fastfill/comparison/sizers_020.py,762,a6a4ac09780fad6da6ad2f6cc43be79aa3899d79abe845f27ae8fcdaf5139f0d,comparison-files.json: full-read
+fastfill/comparison/stage_table.py,624,e2e3d6946426c1b7750e8073f948806c69f32cfea3455a1a8242382618c8a6fc,comparison-files.json: full-read
+fastfill/comparison/submit_011.sh,77,2a72ceeba17dea3a91dc973eee7c671e349a6697dd3f56786fb52309224bdc44,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_013.sh,155,86f48e156197854bc6f15fd18041c01b2c2759f4106da98609a76c2542e02def,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_014.sh,110,db34534b9231a1fde7c7ba1c29b376978d5fb13bbd187d0ef92283d1b2d9b965,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_015.sh,160,ebe9a5bc7129f3b062da786c4ffe584ea4f5ccd29f3387ee6fc9d47b97e969b1,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_016_ablation.sh,112,1c462a4174b34d1cb44db7f5911de51ed47c3b6b88232613162e38d08cc81571,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_016_agents.sh,179,448c659723f10154cade8e51ac5f0641a275a9ddc6f30f1ae0cb015df634f3d3,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_016_scale.sh,75,ed74ac0eb9091dc1fcd472453f11ff45dd4483f1af102f290569559b9ca1bbec,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_018_chain.sh,221,b638f6f0abd2a2b6fd25c83c820461a26deaff1e28b913318de6f93bdb7bc8d3,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_018_teacher.sh,114,1c30dc965f987e45c75a8004a166f56020fb322ba00924bad977433a9d9120ca,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_020_placers.sh,288,1a49804308f7165eec2858d7502763f9bcf446f3f203e71285daea8f4e2ac9f6,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_020_sizers.sh,114,faac9c5ba0fc788942347aeddcd53ae94206b82c1442aa1c0e6fdde9f1b19750,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_021_diag.sh,122,0ff1c5339d8cab76be9a7f9295d4ac41be19f543eabc41ee2e3d8372ad5a44e3,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_021_eval.sh,177,3dd98146ab068a92b67b7a8896ecca240705cbbd43312a3e58e814af2ac4953c,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_021_train.sh,177,89bf40569036550c75af05f0e13ad12278f00582dc4cabfdfe4645aa668932ef,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_023_judge.sh,45,c5bcd643b526224e0f5b8cf4c3e9ff0d6c88912fd6d989019a9250ed387b8056,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_025.sh,37,502f5644eeb38c2dfbc292cb7ba22de40cb734e097d25571324344f0bc1241e5,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_026_diverse.sh,88,7aa47d0875cc69540379c8557fa170b825bdfa127991e8ba56ff99d9d29c7d97,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_028.sh,163,e9a125fc525cf19239e1a9740485dff391d43e579aae04a324c96214981f3343,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_dev_selection.sh,90,19364d7f70e25a130912fb0f6d822f7e965639fc07d94fc888e565795d9c836a,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_dpo_stages.sh,107,bc5e0e9828ba540d7425b2c65c4177bc650c81281230f8773219a22f56254f2b,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_final_010.sh,133,a7ab8cd0681eeef86c5d5d437f225349d9e4c2b916d41a20c1c41c95f2fcf36c,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_infer_v2.sh,73,ba90c3aad57845eedb56635b0ede774c22d859cece9ec6c8acd789061416b63f,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_llm_open.sh,69,cf380016279d7b86f701f02e0dccf5df3b4a7553aa2523fc14f3dd155bc9f41f,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_sample_vllm.sh,84,3df537cde16f5e0c1ec9ef4c984a179a6e3336a0816226a4c2bf3a4d31b64530,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/submit_test_012.sh,92,839c91a5a9b7d38eef80005eba4fd253350dc6f94dd3c7d2e4f9df29f001ac18,comparison-files.json: full-read; comparison-shell-b-files.json: fully_read
+fastfill/comparison/test_apply_012.py,367,59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896,comparison-files.json: full-read
+fastfill/comparison/train_pair.py,459,daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0,comparison-files.json: full-read
+fastfill/comparison/train_pair_helpers.py,400,7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83,comparison-files.json: full-read
+fastfill/comparison/visual_024.py,487,cfcaff4ee05fbb90c3b95f574e79796deae04c22c06d92610f52ff50df0b7271,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/visual_cases.py,375,df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/comparison/visual_final.py,90,29a7864477d4770d30eccbbc52dd989ffc45662ebd0b76295f4c8d74ed0db6d3,comparison-files.json: full-read
+fastfill/comparison/visual_pipeline.py,572,da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99,comparison-files.json: full-read; root-files.json: full production body read
+fastfill/download.py,116,327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6,root-files.json: full production body read
+fastfill/download_full.sh,27,728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03,root-files.json: full production body read
+fastfill/evaluate.py,230,9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646,root-files.json: full production body read
+fastfill/inspect_ir.py,87,b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8,root-files.json: full production body read
+fastfill/interface.py,641,64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2,root-files.json: full production body read
+fastfill/merge_lora.py,86,9c8bcfc3e0e8070cebe99b1aaf57b55d19334c7b85c0bfea2d8ba2d76cf9b0c3,root-files.json: full production body read
+fastfill/scene.py,379,91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60,root-files.json: full production body read
+fastfill/serve.py,188,24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd,root-files.json: full production body read
+fastfill/split.py,106,35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f,root-files.json: full production body read
+fastfill/system/__init__.py,1,806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882,system-v11-files.json: full source read
+fastfill/system/cli.py,78,87bd5ea72b644ca61846776fcbbac94fe492c36e49aed680d7891b644736b29f,system-v11-files.json: full source read
+fastfill/system/evaluate.py,909,3e1538bca317279f01ba803a424fedb8db738b0011994494eb3f52b685c36123,system-v11-files.json: full source read
+fastfill/system/isambard_022.sbatch,126,46d6608d2c6bda97ebf7df544831356f35b80dbd4ecf752c5eef587eaa72622a,system-v11-files.json: full source read
+fastfill/system/package.py,340,4487a9486e20307e9d5c43857d7ca939ef788a72264e9508c8533babc3cd90e0,system-v11-files.json: full source read
+fastfill/system/pipeline.py,752,962c3e710a2624f7fd8b4ae220059859812a51057270c2c0bbbb0475ab14676e,system-v11-files.json: full source read
+fastfill/system/sizing.py,187,b07aac5c3202917fc32a520c4951bc41b3abbdb72925905d8970861c2588182d,system-v11-files.json: full source read
+fastfill/system/submit_022.sh,150,0458e9f1c1a3dce5e98c03e530462f02bf33c4ab080409a39ffb3fd38bb94a5a,system-v11-files.json: full source read
+fastfill/tools/__init__.py,0,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,root-files.json: full production body read
+fastfill/tools/ablation_check.py,48,3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705,root-files.json: full production body read
+fastfill/tools/qa_report.py,420,c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045,root-files.json: full production body read
+fastfill/tools/visualize.py,146,df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763,root-files.json: full production body read
+fastfill/train.py,283,a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74,root-files.json: full production body read
+fastfill/v1_1/__init__.py,1,d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08,system-v11-files.json: full source read
+fastfill/v1_1/audit_pairs.py,245,3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd,system-v11-files.json: full source read
+fastfill/v1_1/audit_report.py,159,6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5,system-v11-files.json: full source read
+fastfill/v1_1/automate.py,323,d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44,system-v11-files.json: full source read
+fastfill/v1_1/build_dpo.py,446,0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3,system-v11-files.json: full source read
+fastfill/v1_1/build_v1_1.py,215,0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd,system-v11-files.json: full source read
+fastfill/v1_1/evaluate_v1_1.py,687,2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e,system-v11-files.json: full source read
+fastfill/v1_1/evaluation_protocol.py,279,750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8,system-v11-files.json: full source read
+fastfill/v1_1/isambard_v1_1_audit.sbatch,60,2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9,system-v11-files.json: full source read
+fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch,63,7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520,system-v11-files.json: full source read
+fastfill/v1_1/isambard_v1_1_evaluate.sbatch,42,d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde,system-v11-files.json: full source read
+fastfill/v1_1/isambard_v1_1_pipeline.sbatch,273,6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b,system-v11-files.json: full source read
+fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch,51,0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2,system-v11-files.json: full source read
+fastfill/v1_1/postprocess.py,644,558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81,system-v11-files.json: full source read
+fastfill/v1_1/research_report.py,262,b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817,system-v11-files.json: full source read
+fastfill/v1_1/roomgenbench_v1_1.py,529,d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf,system-v11-files.json: full source read
+fastfill/v1_1/scene_v1_1.py,320,3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e,system-v11-files.json: full source read
+fastfill/v1_1/train_dpo.py,654,6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739,system-v11-files.json: full source read
+fastfill/v1_1/training_guard.py,327,35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98,system-v11-files.json: full source read
+fastfill/v1_1/verify_outputs.py,263,63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45,system-v11-files.json: full source read
+fastfill/v2/__init__.py,3,fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050,v2-files.json: read_full
+fastfill/v2/adapters.py,165,d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae,v2-files.json: read_full
+fastfill/v2/audit.py,247,6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b,v2-files.json: read_full
+fastfill/v2/autorun.py,616,e6826078fee1c774f9e8e1854a22d1cfc2ae309fdd0289ec1cf73b081e289d62,v2-files.json: read_full
+fastfill/v2/batch.py,487,4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0,v2-files.json: read_full
+fastfill/v2/bbox_visualization.py,127,65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09,v2-files.json: read_full
+fastfill/v2/boxes.py,123,ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284,v2-files.json: read_full
+fastfill/v2/cohort.py,163,7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138,v2-files.json: read_full
+fastfill/v2/configs/direct_request.json,10,ac60d02fd13fc77e9ca78013ba23cb8b2503254172c94202e4edf4c086a8f874,v2-files.json: read_full
+fastfill/v2/configs/main7-cell05-main-20261007b-e5.json,90,ec5ec2c077d633cf03eb366c2abe3b369624908e152a706b0f7a69d978e6806c,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_bbox_full_fixed.json,63,af286700d721fa783f826698afdc1a70d7c271503aa4ddfd2a32f608b310c94d,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_bbox_pilot.json,63,22d8527a62e48eee2d6e88135965afc151a34bd327f62eb1a921a65c4751e066,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_3gpu_grid.json,90,63fc6155a811c1f01e829e0d25889b42e7a4df3adb507880b2c13dc4e637f1df,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_3gpu_grid_cell05.json,90,55f3d2e5d31eec7a86ab15dbab69ae0204de5d25cc0a54a82894ed6d1f810e71,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell02.json,90,ef063db51c2156f31774fa50edc453111ac89b4ddc2b1bcf723bcc49f61b89ae,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell10.json,90,b5acc19a59264d948225f66611735bffac4e0fca81a2864180b6f2bdd56f0dba,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_4gpu_regression.json,90,8d7b9030a250145610b4c9e5eac8dd262fd45113857652ec103eda14f4d9c017,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_main_world7.json,90,c8a545860aad2eff8b7f1e0439a900883737c5ca020342281e9a79ff4e38a1ed,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_pilot.json,63,c61200ee1a5b4c3884d50bd8c1405e47f596ce0bbce82ca13a33ee1102dcebc4,v2-files.json: read_full
+fastfill/v2/configs/qwen3_8b_pilot_1gpu.json,90,825c2a8a04e8277b24a5902e547ab9172ac616fe5691897f230c00ed9976b8a0,v2-files.json: read_full
+fastfill/v2/configs/smoke.json,49,54f64563863decabd4487fdf85d18712e565a23f48160a2f0021096e4f84b8b4,v2-files.json: read_full
+fastfill/v2/configs/structured.json,62,be1baa6783e86cb0fd6043442b668d440107ed0a3dad602a9aac70b7fed3c6db,v2-files.json: read_full
+fastfill/v2/configs/structured_bev_box.json,63,b8c14d2c07bf2a99b6177fa50a4d4a7e4095c1e236ec88cd23d9a3b8bd857862,v2-files.json: read_full
+fastfill/v2/configs/structured_fixed.json,62,f1859b3d851215f308cfe61c14cc5fde52a1541fd7a8bb5aeaf19e83d0243d4c,v2-files.json: read_full
+fastfill/v2/data.py,127,042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3,v2-files.json: read_full
+fastfill/v2/direct_layout.py,373,5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159,v2-files.json: read_full
+fastfill/v2/evaluate.py,1079,45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08,v2-files.json: read_full
+fastfill/v2/geometry.py,78,156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c,v2-files.json: read_full
+fastfill/v2/io.py,163,79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1,v2-files.json: read_full
+fastfill/v2/legacy_bridge.py,285,ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced,v2-files.json: read_full
+fastfill/v2/legacy_build.py,267,aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f,v2-files.json: read_full
+fastfill/v2/legacy_evidence.py,157,a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85,v2-files.json: read_full
+fastfill/v2/legacy_verify.py,612,3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527,v2-files.json: read_full
+fastfill/v2/llm_baseline.py,261,bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459,v2-files.json: read_full
+fastfill/v2/llm_structured.py,320,b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0,v2-files.json: read_full
+fastfill/v2/losses.py,239,600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd,v2-files.json: read_full
+fastfill/v2/matching.py,193,d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d,v2-files.json: read_full
+fastfill/v2/minimal_data.py,313,bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975,v2-files.json: read_full
+fastfill/v2/model.py,269,0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c,v2-files.json: read_full
+fastfill/v2/multisource_data.py,536,43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c,v2-files.json: read_full
+fastfill/v2/multisource_verify.py,685,881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230,v2-files.json: read_full
+fastfill/v2/objective.py,61,54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595,v2-files.json: read_full
+fastfill/v2/ops/compare.py,189,dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/crosscheck.py,50,0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/diag_ablation.py,372,d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_analysis.sbatch,19,37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_autorun.sbatch,17,de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_dryrun.sh,123,29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_inputs.py,289,ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_setup.sbatch,87,d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/isambard_submit.sh,10,344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/llm_compare.py,190,ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/make_sample.sh,153,52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/rebuild_and_publish.sh,47,4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/report.py,639,6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/rescore_llm.sh,11,ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/run_checkpoint.sh,24,624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/run_plan.sh,322,5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/run_reference.sh,9,574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/run_structured.sh,15,42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/sample_validation.py,116,c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/selftest_shift.py,55,8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/start_autorun_retrain.sh,12,a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/stratify.py,415,a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/ops/vlm_judge.py,533,eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718,v2-files.json: read_full_by_delegate; v2-ops-files.json: fully_read
+fastfill/v2/predict.py,113,55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b,v2-files.json: read_full
+fastfill/v2/qualified_data.py,217,97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640,v2-files.json: read_full
+fastfill/v2/regularizers.py,100,8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1,v2-files.json: read_full
+fastfill/v2/review_data.py,321,59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184,v2-files.json: read_full
+fastfill/v2/roomgenbench.py,444,e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8,v2-files.json: read_full
+fastfill/v2/runtime.py,448,8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993,v2-files.json: read_full
+fastfill/v2/schema.py,324,8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108,v2-files.json: read_full
+fastfill/v2/serve.py,87,66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3,v2-files.json: read_full
+fastfill/v2/size_range.py,38,0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165,v2-files.json: read_full
+fastfill/v2/text_sft.py,242,0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da,v2-files.json: read_full
+fastfill/v2/train.py,809,5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8,v2-files.json: read_full
+fastfill/v2/validation.py,403,87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59,v2-files.json: read_full
+fastfill/v2/verify_bundle.py,76,812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a,v2-files.json: read_full
+fastfill/validate.py,191,ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158,root-files.json: full production body read

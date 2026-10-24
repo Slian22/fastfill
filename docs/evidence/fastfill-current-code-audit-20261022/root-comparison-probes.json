@@ -1,0 +1,20 @@
+{
+  "critic_batch_round_contract": {
+    "fake_api_completed": 1,
+    "answer_keys": [
+      "error",
+      "id",
+      "raw_final_text",
+      "returned_model",
+      "status"
+    ],
+    "round_error": "answers not made on this round's cases or model: ['a025:r1:audit-u1']",
+    "next_round_published": false
+  },
+  "judge_optional_overall": {
+    "completed_per_judge": 4,
+    "per_case_scores_valid": true,
+    "optional_overall_omitted": true,
+    "compare_error": "not enough values to unpack (expected 2, got 0)"
+  }
+}

@@ -1,0 +1,3595 @@
+{
+  "head": "825fd13ea18f45835db1a242197359a77ea99f9e",
+  "production_count": 271,
+  "production_lines": 68202,
+  "files": [
+    {
+      "path": "fastfill/__init__.py",
+      "lines": 0,
+      "test": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/__init__.py",
+      "lines": 63,
+      "test": false,
+      "sha256": "fabd6ee3dd917ac07e284ed9044a1932d2826208f8bd9b51a0cdaecbec6b031d",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/__main__.py",
+      "lines": 3,
+      "test": false,
+      "sha256": "168423f684e6ea52f57958cd85c310a14975d6f478b6794fa419d63d054c81ea",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/ase.py",
+      "lines": 46,
+      "test": false,
+      "sha256": "2e2289cd0a5b14dd6e27f2f00a44f3f18a3fc7d15d9978b284de2194bcd6eaef",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/hssd200.py",
+      "lines": 442,
+      "test": false,
+      "sha256": "e2dcb05c2e75f37331208cf7d74b38a87be131d05a8489654af78fc5de58df9c",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/il3d_3dfront.py",
+      "lines": 496,
+      "test": false,
+      "sha256": "212dcec472fc55f4f562924fe8ce5e89e523ff6a79c179e0bbcea511b842e823",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/il3d_synthetic.py",
+      "lines": 150,
+      "test": false,
+      "sha256": "0ac05b521162d364178495273c15cf6e3e4814e2d94150cc409d561864c8d506",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/interiorgs.py",
+      "lines": 369,
+      "test": false,
+      "sha256": "d33559c4ea75c954b806943028fc7bd51dc0fc8a01d2a6bd7ec527fa64303f23",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes.py",
+      "lines": 211,
+      "test": false,
+      "sha256": "2e1afec9ff5950a3ef7907f9304d7ea555a6a28f66f1dcddd94e6a41f63a3e75",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_3rscan.py",
+      "lines": 12,
+      "test": false,
+      "sha256": "01b27df136a8ed837572912773365370f950827c7c6f98f5d62064f507ab7224",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_arkit.py",
+      "lines": 14,
+      "test": false,
+      "sha256": "799aabad732651e18bf0488bc7c50e08a39ca0eea889a0b24c4908348a3246e1",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_mp3d.py",
+      "lines": 25,
+      "test": false,
+      "sha256": "5e061adc04baac1c9cc492f234795323ca5ccd646698377097f183dd478ef1cd",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/internscenes_scannet.py",
+      "lines": 10,
+      "test": false,
+      "sha256": "09551179b4bb936da3507478121b014e84b96c50d5d648029b37259ddb356659",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/m3dlayout_infinigen.py",
+      "lines": 54,
+      "test": false,
+      "sha256": "0c80fd506306a30ee7cd391a3297b07a1f650c781637578df25dc8fd22736ba4",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/mansionworld.py",
+      "lines": 234,
+      "test": false,
+      "sha256": "30d04a4524fb406735150e5607802adf3691243faa3a54c44d58c54ba07084da",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/multiscan.py",
+      "lines": 122,
+      "test": false,
+      "sha256": "e5a426bd60df4a10efdaf509e188f2c095db93c9542849e61d6bb269bc5125fd",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/optiscene_holodeck.py",
+      "lines": 58,
+      "test": false,
+      "sha256": "a5f55bd45162d9d62e5b1401cd5b0cc9ee8210d5f019a43c8f79f9b3d05a4d88",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/sage10k.py",
+      "lines": 260,
+      "test": false,
+      "sha256": "c2c124e3925c051a13fcd4599e03d30f61de45ed5db514eaf02fef84f7f04d26",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scan2cad.py",
+      "lines": 126,
+      "test": false,
+      "sha256": "c0674bb111e5bc533804ccd448f29ea50ade14d56f285225f6b2cdaafe7d9bbf",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scannetpp.py",
+      "lines": 45,
+      "test": false,
+      "sha256": "ce0e3a47807b4bf731600653579a877bd8db017ba6cfaebc68c0b09c46e753a5",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/scenesmith.py",
+      "lines": 129,
+      "test": false,
+      "sha256": "e3f8d9e2c0a00d6937b93db7f37d4bd801962e8573f6a4789bfeae6912ca0452",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/spatialgen.py",
+      "lines": 39,
+      "test": false,
+      "sha256": "57f4642a09420230bb568e73dbea484550e99a286b90a65c0b57a01226ae6826",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/spatiallm.py",
+      "lines": 177,
+      "test": false,
+      "sha256": "b2bd68bd525f059c4b81adea471a6db84d133b10b1485b673e67df99c3d3ecd8",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/structured3d.py",
+      "lines": 172,
+      "test": false,
+      "sha256": "287877698b90d51fbe2330aac158fc893c0892078d3c2a77d7fbd1a1bf934ca7",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/unified.py",
+      "lines": 112,
+      "test": false,
+      "sha256": "6d35be8a709047b291be41a33124febdbd4feb7090396a77d2b6d274a8a475d7",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/adapters/upright_bounds.py",
+      "lines": 43,
+      "test": false,
+      "sha256": "2e750b661fe66e7c0ffd094534b82405714de92bc3f5304887518fb60dec1c9f",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/anchors.py",
+      "lines": 280,
+      "test": false,
+      "sha256": "779485a2eefc8b7327c2e87dd659e157bafa945c2b514f9b1516a8623fc6dbd5",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/build.py",
+      "lines": 769,
+      "test": false,
+      "sha256": "da75b356fbe53141599581bfa0dbf704750a51fa2c2353e31741f155ae6bd76d",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/__init__.py",
+      "lines": 5,
+      "test": false,
+      "sha256": "215453181009e47e365023af136e63d360b076d5a68e6c13695ef721ed52e6a1",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/a021_diag.py",
+      "lines": 632,
+      "test": false,
+      "sha256": "9bec2bacff5f8ee7bdaa62a4876389956e8213ccf5d0b3ca19f216e56ab6fd88",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/a021_select.py",
+      "lines": 1024,
+      "test": false,
+      "sha256": "6429ee33d30e49572809c004c514a9b82a6b48468328735072b57f98bfd79d50",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/a021_train.py",
+      "lines": 901,
+      "test": false,
+      "sha256": "53d4597233e5bda936abe21180fc684dde964a8b6af3c5616cf2ae3d3ba38bc7",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/a028.py",
+      "lines": 372,
+      "test": false,
+      "sha256": "13181fcaabab147f923f4c4a2114b2527ec55691dfa9ff2445ee618445a5de47",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/ablation_016.py",
+      "lines": 514,
+      "test": false,
+      "sha256": "7e7d814a8919a8d8db41b04909da725fb95a5439477cfbdbe242565bbb342079",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/agents_016.py",
+      "lines": 385,
+      "test": false,
+      "sha256": "de5544f996644a8d9f242a46e0233bd4ad50c12bafd3dd0abfe97e1729a0a5c4",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/best_of_n.py",
+      "lines": 345,
+      "test": false,
+      "sha256": "690838b882449eec78ab9ffea0790a4917e7f49ad560942f15c0a2061919e894",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/contract.py",
+      "lines": 288,
+      "test": false,
+      "sha256": "ef1e2cd9e449449f5441348e16d9a2bb2bd2ff8618132e6b6ed378347e64cefc",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/corpus.py",
+      "lines": 334,
+      "test": false,
+      "sha256": "2cb3973d1cc9cd53696b7292c95cd8f12daa913b05f640e27b37ef6ec5385683",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/critic_025.py",
+      "lines": 874,
+      "test": false,
+      "sha256": "0f38fe4a3118bd67f2eb1fa38e19a751b98671c55c6cfc895d77bf0a493fe5ca",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/critic_batch_025.py",
+      "lines": 187,
+      "test": false,
+      "sha256": "e831b83d9c848293ef86bffbe76ff179cdac5fa7f181ebae77affb63c75a3149",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/critic_client_025.py",
+      "lines": 83,
+      "test": false,
+      "sha256": "2af1f839334228283ecc2cee28df28e2fa56e0f4a1f9c277761033b8cb60307d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/data.py",
+      "lines": 263,
+      "test": false,
+      "sha256": "8bd85ce71862bafd15d949b2a912edb6e8f6311fcb7d5e338ce92faf593dc049",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/decide_012.py",
+      "lines": 150,
+      "test": false,
+      "sha256": "fba97a574a32ea8685f9768248d445671efc68fdf9e3c0269d9d993c9a4c6aea",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/delivery.py",
+      "lines": 612,
+      "test": false,
+      "sha256": "7af604e3ec45f829845fdcca42d2e68bf587db932be872da3683cf7415669ee3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/dev_select.py",
+      "lines": 560,
+      "test": false,
+      "sha256": "066893fb3ae02414bad5fef46bdc39c47abaddfcaa73121740ff10d06a3916db",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/distill_018.py",
+      "lines": 498,
+      "test": false,
+      "sha256": "58ee35a67b49ccc29501187c27d01f016d02facf437c0b553c44a0c42f5c56b4",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/distill_018_chain.py",
+      "lines": 838,
+      "test": false,
+      "sha256": "466efabb14b655b8a76bb815ba6cad7e518c4a05aadfe14b7c3e421fc30644f9",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/diverse_026.py",
+      "lines": 64,
+      "test": false,
+      "sha256": "981102a924216730d982d39b2c71f1b030fc66488435ffddffe32a51320e5e3b",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/downstream.py",
+      "lines": 364,
+      "test": false,
+      "sha256": "b8bb19561e1d503b7c6a83dfe9ad55b57cb2bce5dd3addfcc0dc920de6f60fb6",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/dpo_stages.py",
+      "lines": 812,
+      "test": false,
+      "sha256": "a6486769a3723066bf56d1b0e300c342b515487d5bc840513fdccc12c803f3bb",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/eval_data.py",
+      "lines": 280,
+      "test": false,
+      "sha256": "ddd0ca5729739f4603db1e0eb5e53f851b1f02539563b663d944c418f087104b",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/evaluate_llm.py",
+      "lines": 307,
+      "test": false,
+      "sha256": "d2f4f893c7af1f6f193191e108b57851718bbe4c51c5e00fabe5e690348b009f",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/evaluate_pair.py",
+      "lines": 178,
+      "test": false,
+      "sha256": "1564b7b82d4eec3a2aa4690e6c0f1b7dccd9da5f0e2f7cf540982e34157d4935",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/fid.py",
+      "lines": 511,
+      "test": false,
+      "sha256": "6849dcdb4c10b331fa0967ddcd5b18f3afe9f78bdc75caa36ebbff439212ead5",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/final_011.py",
+      "lines": 131,
+      "test": false,
+      "sha256": "1ead002f739de7aa346fc3ba311ca38ab5b5451a244014074788aec137dd6f77",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/final_tables.py",
+      "lines": 307,
+      "test": false,
+      "sha256": "6ce717980cec45fb691f74a6b431434bbed90c455399f66b44c265c221804a18",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/frontier_026.py",
+      "lines": 708,
+      "test": false,
+      "sha256": "f4f2ed2b92d148d11b222935cb4ba9e7c3fe7a23690b8a14fd8c5d01539e0582",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/geometry.py",
+      "lines": 265,
+      "test": false,
+      "sha256": "0d3f7bee8b8f5b7c81f98af5dd4ae8cd3f1ef9eb867f631fc0b0df1451dae56a",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/infer.py",
+      "lines": 401,
+      "test": false,
+      "sha256": "141c5ffde1037a88f5bc716d065c1a1178d55ce74921a1e24f06fb0290f03da2",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/infer_shard.py",
+      "lines": 447,
+      "test": false,
+      "sha256": "5896e324b07cf3659407f25818909a83660eebae5c4121de590afe93b1c96fe3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_010_cpu.sbatch",
+      "lines": 83,
+      "test": false,
+      "sha256": "d065f993581b43d764e26b8cd8925bfc2cdd97ab09746b711d761b8bf7dbc898",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_010_infer_shard.sbatch",
+      "lines": 85,
+      "test": false,
+      "sha256": "8a82c1a4f52f88285be742114a99084e0ecb9306e931500b574d6a97107a2f9d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_013.sbatch",
+      "lines": 244,
+      "test": false,
+      "sha256": "e2aa141ac3e0e7b19c26591c38d33d28cf180a7a57908fbaa33ee484b2b6b472",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_014.sbatch",
+      "lines": 120,
+      "test": false,
+      "sha256": "7cf063aa917ac0bd98a0e71b5f0bb15344cfb173e87badd2fd5f38965fa385a4",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_016.sbatch",
+      "lines": 123,
+      "test": false,
+      "sha256": "30b232ca8e219a8e3467d19af67f9275104cb18d740c512fd947b88f44fd2959",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_018.sbatch",
+      "lines": 258,
+      "test": false,
+      "sha256": "11ad37766439455fb7c71ddab0a6eba5854905ddf580477ade3a30a69e1550e3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_020.sbatch",
+      "lines": 87,
+      "test": false,
+      "sha256": "464d328a95a1a8645d4fb84ad9f70cb7beb349a3156716fee7c906065401b6cd",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_021_eval.sbatch",
+      "lines": 146,
+      "test": false,
+      "sha256": "db52a25bf739990af0ffd2a8c84b8700f74410b781f4233f4c1e3c9bcb44169c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_021_train.sbatch",
+      "lines": 162,
+      "test": false,
+      "sha256": "5ee965ccbc7f21a015107d16ee25e83d54581640e9e59c55504fa08a73540aeb",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_dpo_cpu.sbatch",
+      "lines": 53,
+      "test": false,
+      "sha256": "e4aeb75adbc39c666a3b8af94f6d7a35cfca2a0a0383941c2e879d8a9a71d206",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_dpo_generate.sbatch",
+      "lines": 44,
+      "test": false,
+      "sha256": "90c55effcd2527cd3a12841ddaec93d287805ccf1ca98889429396db1b800027",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_dpo_infer_shard.sbatch",
+      "lines": 66,
+      "test": false,
+      "sha256": "bbb6f26fe43c8992b1d11c9d7330fa31f0685940ee364401e26c1e7dbdb063b9",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_dpo_train.sbatch",
+      "lines": 49,
+      "test": false,
+      "sha256": "750986a4a140252b137b5ad38c5e96989bf440d1825145a3d692b45b8bbe9dfe",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_geometry.sbatch",
+      "lines": 29,
+      "test": false,
+      "sha256": "6d4c8c7a123c5180a9d25828243d6112b35f042cbdf460cdac4d3c4624d872b3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer.sbatch",
+      "lines": 45,
+      "test": false,
+      "sha256": "18d082eba9bfbfaee2bd9da25c506d6e2fe2d5ace34cc9fa7658b8bc306540c6",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer_merge.sbatch",
+      "lines": 38,
+      "test": false,
+      "sha256": "0ab1bd45228aa60826f5035ac0d83d91d44b93a3f060486fdae1a10ef8e1361d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer_plan.sbatch",
+      "lines": 33,
+      "test": false,
+      "sha256": "10a896fa03725861b2be431d52f981d126d5d9d4cfe4b3cdfef931e735d81c43",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer_probe.sbatch",
+      "lines": 38,
+      "test": false,
+      "sha256": "f04b73de1f39a151935a1105f764a727dedeeb6f9ece81462cf520e9c806e892",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_infer_shard.sbatch",
+      "lines": 57,
+      "test": false,
+      "sha256": "6870ce8f4ba058fd91b7a6faa0822696e7b8e2895c7f17b1d802a802827a5749",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_llm_agent.sbatch",
+      "lines": 67,
+      "test": false,
+      "sha256": "54d352a2718b3500d83906f2293570ec97ad794bcb1979066e852d1ac05370b5",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_llm_open.sbatch",
+      "lines": 104,
+      "test": false,
+      "sha256": "549701f081e404238d037de09c6bdbed45ab97689180139242382e15baf2ee23",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_main.sbatch",
+      "lines": 41,
+      "test": false,
+      "sha256": "1d67bca0ea019b67bb168e4226c33ca1806530f23d804d4350dedad80e1eafee",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_pilot.sbatch",
+      "lines": 39,
+      "test": false,
+      "sha256": "f23c307d27fd4e930af450408da0c97a60800e8cd8e37843e260d1cc5e69d43a",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/isambard_sample_vllm.sbatch",
+      "lines": 93,
+      "test": false,
+      "sha256": "6b11b0a110b6738edbdf02d28e8dd2725e7d6a88b81725d9c3465c876ea54058",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/judge_agreement_023.py",
+      "lines": 91,
+      "test": false,
+      "sha256": "028240144a36adc65966e007e5151dcd3109f30f3e48f8b608a9ea522e79c7d0",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/judge_batch.py",
+      "lines": 628,
+      "test": false,
+      "sha256": "88c69cc59ef23947788acb74284858fb891500962b460a3f469d389d56de6baf",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/judge_bundle_025.py",
+      "lines": 232,
+      "test": false,
+      "sha256": "abec92a2de6fbc233dde0cd1745d7044a415899b770672ff9b00df9e40eab59a",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/llm_agent.py",
+      "lines": 634,
+      "test": false,
+      "sha256": "55245c524dbf61691c1c3ada786e551833c5c0f702842b3fade986b24e0f93fc",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/llm_open.py",
+      "lines": 469,
+      "test": false,
+      "sha256": "4af46a1e3ab8a3b9b76813b058253f8649598da8f9c33f3f3f6953ac60a637b2",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/main_data.py",
+      "lines": 401,
+      "test": false,
+      "sha256": "f14d8808a3358d7b80bdc559a84006e6b7cae19584759c71e8586a5a3505809d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/mesh_collision.py",
+      "lines": 534,
+      "test": false,
+      "sha256": "0ade41b9d0ad8e59cd5be7dd0e9c93f944e09ea15f214d6656f19df86ab2369d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/onpolicy_dpo.py",
+      "lines": 915,
+      "test": false,
+      "sha256": "af8ee2f07ee07ba4a57395be9e22a70a4dff9bd137cd33a5c386e463eeddaafb",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_eval.py",
+      "lines": 1506,
+      "test": false,
+      "sha256": "68f93f7a5606e3b6fe36dd8047b3cf72320dbc6162113053944ac18f45e5e0f7",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/UPSTREAM.json",
+      "lines": 74,
+      "test": false,
+      "sha256": "293e00404590bca15bf59c2f7ed1df9f18bb7bb62b4b5fc93597aa6af9b4fd45",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/environment.yml",
+      "lines": 19,
+      "test": false,
+      "sha256": "490ed14240ee7b21bbc46124dac2eceefd59b714874f37722f6b0f96565ce950",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/main.py",
+      "lines": 78,
+      "test": false,
+      "sha256": "c808d2967f5097fbec7ddf80da1ae0cfebf7f9534e97d12b5b9b336b41f69378",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/prompt.py",
+      "lines": 174,
+      "test": false,
+      "sha256": "dff6e81dfe8013975f29722780759ba3cff9fcc93e917b862ca8cc7cfd63eb56",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/__init__.py",
+      "lines": 0,
+      "test": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/dpo_train.py",
+      "lines": 129,
+      "test": false,
+      "sha256": "34ba07e471a66ab95eb62a5d437d9fa6d224b8fd1465a18d471a9d7b66cee360",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/inference.py",
+      "lines": 53,
+      "test": false,
+      "sha256": "36c259b1d7f8ea6615482116d9adff61d0b211208ae48765b6a8d3d313966c19",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/merge_lora.py",
+      "lines": 36,
+      "test": false,
+      "sha256": "0aa8bc3c60b056964ee1f999446dcb2cac38dd3cd8548b66f1a0d46704549ad6",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/scripts/sft_train.py",
+      "lines": 66,
+      "test": false,
+      "sha256": "342b854a642e58bdebe62c2048e555871261615c33443359bed8d5e68d261450",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/optiscene_official/utils.py",
+      "lines": 34,
+      "test": false,
+      "sha256": "09b46eb14a264e68e65b42b07320bd77326efadd4e082c41875e5d958254846f",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/output_repair.py",
+      "lines": 900,
+      "test": false,
+      "sha256": "4ab76ede266b98348f5e1712c4aa3731c0d8eb308fdc3fd186d9b348a97ff98c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/overnight.py",
+      "lines": 759,
+      "test": false,
+      "sha256": "13389f273b896ea18ea6bfc454498c6742730fc9d3bb279ed5ccb63760ff6093",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/placers_020.py",
+      "lines": 450,
+      "test": false,
+      "sha256": "94553211107fc37578a3dc6213a22a81871930ac5789b267ee561514a8250add",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/pose_targets.py",
+      "lines": 330,
+      "test": false,
+      "sha256": "0717748c3a794c5341595c0e310beae496497c9802bd2a49225919157af353ba",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/reference_rows.py",
+      "lines": 167,
+      "test": false,
+      "sha256": "9a3d5fa0226955ae57562fd9b82595d7076a2803eb853b8db83ef9b3bb47378e",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/render_assets.py",
+      "lines": 746,
+      "test": false,
+      "sha256": "eaf4e127aa08c985d9a53ef318cb61b892d60a7a49ff49b9fc9557aee3340583",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/report_v2.py",
+      "lines": 1160,
+      "test": false,
+      "sha256": "b8a4333866fc5467d2c0387b5ebcb1b54a599d4ebe99328468b5500bacab06f0",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/room_families.py",
+      "lines": 446,
+      "test": false,
+      "sha256": "907ffece56e2dcdfa94d14b4aeb106d980741977b1f0411df23e9d42de843a9c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/sample_vllm.py",
+      "lines": 371,
+      "test": false,
+      "sha256": "d7e50aad25c0c7747ddfcfff530e6b8612fae075bf41ab9894d3458afd9a22f9",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/scale_curve.py",
+      "lines": 714,
+      "test": false,
+      "sha256": "99f8e6210d03c2c6b1aa7b55519160570480ad850681d8e69dcdb103799a9413",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/server_api_judge.py",
+      "lines": 633,
+      "test": false,
+      "sha256": "21513b00b431809c9eaa3145f9898637112e43c6a3a0768a91c9c94f77c505e2",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/setup_optiscene_env.sh",
+      "lines": 57,
+      "test": false,
+      "sha256": "dfc6445034a5c12aafe7bd3c7b2970a35b30af027f1398ed7fa9b3508e25e93c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-a-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/size_prior.py",
+      "lines": 236,
+      "test": false,
+      "sha256": "e7a546b8af793755f3aeb8bd074e78798858f5528ca615273d5f56eef5d61ffc",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/sizers_020.py",
+      "lines": 762,
+      "test": false,
+      "sha256": "a6a4ac09780fad6da6ad2f6cc43be79aa3899d79abe845f27ae8fcdaf5139f0d",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/stage_table.py",
+      "lines": 624,
+      "test": false,
+      "sha256": "e2e3d6946426c1b7750e8073f948806c69f32cfea3455a1a8242382618c8a6fc",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_011.sh",
+      "lines": 77,
+      "test": false,
+      "sha256": "2a72ceeba17dea3a91dc973eee7c671e349a6697dd3f56786fb52309224bdc44",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_013.sh",
+      "lines": 155,
+      "test": false,
+      "sha256": "86f48e156197854bc6f15fd18041c01b2c2759f4106da98609a76c2542e02def",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_014.sh",
+      "lines": 110,
+      "test": false,
+      "sha256": "db34534b9231a1fde7c7ba1c29b376978d5fb13bbd187d0ef92283d1b2d9b965",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_015.sh",
+      "lines": 160,
+      "test": false,
+      "sha256": "ebe9a5bc7129f3b062da786c4ffe584ea4f5ccd29f3387ee6fc9d47b97e969b1",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_016_ablation.sh",
+      "lines": 112,
+      "test": false,
+      "sha256": "1c462a4174b34d1cb44db7f5911de51ed47c3b6b88232613162e38d08cc81571",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_016_agents.sh",
+      "lines": 179,
+      "test": false,
+      "sha256": "448c659723f10154cade8e51ac5f0641a275a9ddc6f30f1ae0cb015df634f3d3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_016_scale.sh",
+      "lines": 75,
+      "test": false,
+      "sha256": "ed74ac0eb9091dc1fcd472453f11ff45dd4483f1af102f290569559b9ca1bbec",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_018_chain.sh",
+      "lines": 221,
+      "test": false,
+      "sha256": "b638f6f0abd2a2b6fd25c83c820461a26deaff1e28b913318de6f93bdb7bc8d3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_018_teacher.sh",
+      "lines": 114,
+      "test": false,
+      "sha256": "1c30dc965f987e45c75a8004a166f56020fb322ba00924bad977433a9d9120ca",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_020_placers.sh",
+      "lines": 288,
+      "test": false,
+      "sha256": "1a49804308f7165eec2858d7502763f9bcf446f3f203e71285daea8f4e2ac9f6",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_020_sizers.sh",
+      "lines": 114,
+      "test": false,
+      "sha256": "faac9c5ba0fc788942347aeddcd53ae94206b82c1442aa1c0e6fdde9f1b19750",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_021_diag.sh",
+      "lines": 122,
+      "test": false,
+      "sha256": "0ff1c5339d8cab76be9a7f9295d4ac41be19f543eabc41ee2e3d8372ad5a44e3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_021_eval.sh",
+      "lines": 177,
+      "test": false,
+      "sha256": "3dd98146ab068a92b67b7a8896ecca240705cbbd43312a3e58e814af2ac4953c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_021_train.sh",
+      "lines": 177,
+      "test": false,
+      "sha256": "89bf40569036550c75af05f0e13ad12278f00582dc4cabfdfe4645aa668932ef",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_023_judge.sh",
+      "lines": 45,
+      "test": false,
+      "sha256": "c5bcd643b526224e0f5b8cf4c3e9ff0d6c88912fd6d989019a9250ed387b8056",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_025.sh",
+      "lines": 37,
+      "test": false,
+      "sha256": "502f5644eeb38c2dfbc292cb7ba22de40cb734e097d25571324344f0bc1241e5",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_026_diverse.sh",
+      "lines": 88,
+      "test": false,
+      "sha256": "7aa47d0875cc69540379c8557fa170b825bdfa127991e8ba56ff99d9d29c7d97",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_028.sh",
+      "lines": 163,
+      "test": false,
+      "sha256": "e9a125fc525cf19239e1a9740485dff391d43e579aae04a324c96214981f3343",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_dev_selection.sh",
+      "lines": 90,
+      "test": false,
+      "sha256": "19364d7f70e25a130912fb0f6d822f7e965639fc07d94fc888e565795d9c836a",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_dpo_stages.sh",
+      "lines": 107,
+      "test": false,
+      "sha256": "bc5e0e9828ba540d7425b2c65c4177bc650c81281230f8773219a22f56254f2b",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_final_010.sh",
+      "lines": 133,
+      "test": false,
+      "sha256": "a7ab8cd0681eeef86c5d5d437f225349d9e4c2b916d41a20c1c41c95f2fcf36c",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_infer_v2.sh",
+      "lines": 73,
+      "test": false,
+      "sha256": "ba90c3aad57845eedb56635b0ede774c22d859cece9ec6c8acd789061416b63f",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_llm_open.sh",
+      "lines": 69,
+      "test": false,
+      "sha256": "cf380016279d7b86f701f02e0dccf5df3b4a7553aa2523fc14f3dd155bc9f41f",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_sample_vllm.sh",
+      "lines": 84,
+      "test": false,
+      "sha256": "3df537cde16f5e0c1ec9ef4c984a179a6e3336a0816226a4c2bf3a4d31b64530",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/submit_test_012.sh",
+      "lines": 92,
+      "test": false,
+      "sha256": "839c91a5a9b7d38eef80005eba4fd253350dc6f94dd3c7d2e4f9df29f001ac18",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "comparison-shell-b-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/test_apply_012.py",
+      "lines": 367,
+      "test": false,
+      "sha256": "59aba1ddf64b0ee52a78df35187e5b891d33be6b14be5945928e4abb047a6896",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/train_pair.py",
+      "lines": 459,
+      "test": false,
+      "sha256": "daf0dcf0c545502947c44e39d41806bd436d25179c88eb08cd24032d094152b0",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/train_pair_helpers.py",
+      "lines": 400,
+      "test": false,
+      "sha256": "7968de59729f9227725679b9c8b4252b9ef3970a9d8c7f0d47e79a5cedebea83",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_024.py",
+      "lines": 487,
+      "test": false,
+      "sha256": "cfcaff4ee05fbb90c3b95f574e79796deae04c22c06d92610f52ff50df0b7271",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_cases.py",
+      "lines": 375,
+      "test": false,
+      "sha256": "df6c422080408618c6054ca3ead56db1ce76f938b3f0b8a82774d72144f68298",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_final.py",
+      "lines": 90,
+      "test": false,
+      "sha256": "29a7864477d4770d30eccbbc52dd989ffc45662ebd0b76295f4c8d74ed0db6d3",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/comparison/visual_pipeline.py",
+      "lines": 572,
+      "test": false,
+      "sha256": "da9d3c9df6cf839e5e31e6e4328d2cf02cb76c9f210b3aead9e5d1aee5beda99",
+      "reviews": [
+        {
+          "record": "comparison-files.json",
+          "review": "full-read"
+        },
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/download.py",
+      "lines": 116,
+      "test": false,
+      "sha256": "327f0e063583de0e4aed3b0211822662db7cd4c61d11232f21efb50d8114aac6",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/download_full.sh",
+      "lines": 27,
+      "test": false,
+      "sha256": "728c3412248901d4eff3c4efca18913eac5a959a3fec405930f93872b5bcbf03",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/evaluate.py",
+      "lines": 230,
+      "test": false,
+      "sha256": "9ab6f0b2711ca3ecafbc101e30a98d4fad0059c7399bb831b9bfc9956e5d3646",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/inspect_ir.py",
+      "lines": 87,
+      "test": false,
+      "sha256": "b21472bc1d6d6e40691c63ba5c2679260f36a321d3cfdf03f43166b49018aab8",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/interface.py",
+      "lines": 641,
+      "test": false,
+      "sha256": "64f851dfc5836fa11eadd7d2e75cdfd55b33fd1898018a9abb529ca4e8e639e2",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/merge_lora.py",
+      "lines": 86,
+      "test": false,
+      "sha256": "9c8bcfc3e0e8070cebe99b1aaf57b55d19334c7b85c0bfea2d8ba2d76cf9b0c3",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/scene.py",
+      "lines": 379,
+      "test": false,
+      "sha256": "91712134b9fce57a0893af25374cc8d62b0855f9374dc8f81800b43ceb00ce60",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/serve.py",
+      "lines": 188,
+      "test": false,
+      "sha256": "24fc9fdc3abacf6d910519ae9cf021126a90cc1bdb326a27e092083d9c4791dd",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/split.py",
+      "lines": 106,
+      "test": false,
+      "sha256": "35bbfe4a2ba7b364454093de4a157a2aa2e1600d5316d03c1fa19a1ce4ed3a2f",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/__init__.py",
+      "lines": 1,
+      "test": false,
+      "sha256": "806e5b79c962f2cc4485ee82c8d19811eb1d50ad2f686ca97c4527f31c048882",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/cli.py",
+      "lines": 78,
+      "test": false,
+      "sha256": "87bd5ea72b644ca61846776fcbbac94fe492c36e49aed680d7891b644736b29f",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/evaluate.py",
+      "lines": 909,
+      "test": false,
+      "sha256": "3e1538bca317279f01ba803a424fedb8db738b0011994494eb3f52b685c36123",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/isambard_022.sbatch",
+      "lines": 126,
+      "test": false,
+      "sha256": "46d6608d2c6bda97ebf7df544831356f35b80dbd4ecf752c5eef587eaa72622a",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/package.py",
+      "lines": 340,
+      "test": false,
+      "sha256": "4487a9486e20307e9d5c43857d7ca939ef788a72264e9508c8533babc3cd90e0",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/pipeline.py",
+      "lines": 752,
+      "test": false,
+      "sha256": "962c3e710a2624f7fd8b4ae220059859812a51057270c2c0bbbb0475ab14676e",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/sizing.py",
+      "lines": 187,
+      "test": false,
+      "sha256": "b07aac5c3202917fc32a520c4951bc41b3abbdb72925905d8970861c2588182d",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/system/submit_022.sh",
+      "lines": 150,
+      "test": false,
+      "sha256": "0458e9f1c1a3dce5e98c03e530462f02bf33c4ab080409a39ffb3fd38bb94a5a",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/tools/__init__.py",
+      "lines": 0,
+      "test": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/tools/ablation_check.py",
+      "lines": 48,
+      "test": false,
+      "sha256": "3a67938d6b4173f77617feb2172d83c651c50618f19342fc2fb5bbcda741c705",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/tools/qa_report.py",
+      "lines": 420,
+      "test": false,
+      "sha256": "c14defb82209c375257b93a121f9ce780610a027636c977ba9d3622f56b75045",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/tools/visualize.py",
+      "lines": 146,
+      "test": false,
+      "sha256": "df8d0f0c3c419f7b057c88ab63a53c862b5524ae6f13dd804baf6621e40ec763",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/train.py",
+      "lines": 283,
+      "test": false,
+      "sha256": "a208244735cbe2ad3297914b888df793d3319405136b763eb3eec7d3d2d2aa74",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/__init__.py",
+      "lines": 1,
+      "test": false,
+      "sha256": "d15a86d439df56a0f9d6b6c16e57995b5810d3430bba385c9bd5f8fef25b4d08",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/audit_pairs.py",
+      "lines": 245,
+      "test": false,
+      "sha256": "3881895a2ca89460f5a692a69d4935deb13983e622ffafd3bfe1212a8a3717fd",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/audit_report.py",
+      "lines": 159,
+      "test": false,
+      "sha256": "6bb1e17f704f18ab7f21e1029f2a39941aa6d4d99bdda2da990e253d6b49d5e5",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/automate.py",
+      "lines": 323,
+      "test": false,
+      "sha256": "d7999b52721ff46b131c9a5be06dafbbe3c05fb9f498f05f4be5196cd1f01b44",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/build_dpo.py",
+      "lines": 446,
+      "test": false,
+      "sha256": "0f5af21f55fd77f4a59f282a07d7ecf8ca6a848855463c13e1b6533940ed79a3",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/build_v1_1.py",
+      "lines": 215,
+      "test": false,
+      "sha256": "0c4a71dab713e44118c375a1c40cf4f6ad096f3d5b5dc3ce416ef7fb605108dd",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/evaluate_v1_1.py",
+      "lines": 687,
+      "test": false,
+      "sha256": "2693dbe240466baad2a5ab3dda65a06d513f09bba9e4808ae0dd6163c5d8cd7e",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/evaluation_protocol.py",
+      "lines": 279,
+      "test": false,
+      "sha256": "750c0582c44e0b07f7646a8a486ec9d3104d496bd3f5c1c94085c106c41699b8",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_audit.sbatch",
+      "lines": 60,
+      "test": false,
+      "sha256": "2c306129843ede29ec72bd45b8057a85e049d0d69ef14c39aa615790e47a7fc9",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_clean_dpo.sbatch",
+      "lines": 63,
+      "test": false,
+      "sha256": "7c6ef47d7fca1974ce7898e43471c0c54a0a2f9cbc721fd2d2d34040c998c520",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_evaluate.sbatch",
+      "lines": 42,
+      "test": false,
+      "sha256": "d98ceb2bca7f40b81a81fac429478410785e08316c8e8f82231362ebb05cecde",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_pipeline.sbatch",
+      "lines": 273,
+      "test": false,
+      "sha256": "6d0f32bda3b961a72de0c6fdb9b5614cbd5afbf20f49a0e0eb452ca65fb3c28b",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/isambard_v1_1_verified_evaluate.sbatch",
+      "lines": 51,
+      "test": false,
+      "sha256": "0506a238774962fe7d04c0adc61ec43ce7b529ce2e185239dff36b3e3b2c88a2",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/postprocess.py",
+      "lines": 644,
+      "test": false,
+      "sha256": "558dc48686690533d2aae22b398877dbfd10b0212153d430dd2b49eaece40c81",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/research_report.py",
+      "lines": 262,
+      "test": false,
+      "sha256": "b9587206b0c363268b053f77e91d70eb3df954c5cd0fa742dc19c67f9d02c817",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/roomgenbench_v1_1.py",
+      "lines": 529,
+      "test": false,
+      "sha256": "d9cc9fffc83e9913f35cf583777465181cb165cd67b9b3f84b6429b50d4983cf",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/scene_v1_1.py",
+      "lines": 320,
+      "test": false,
+      "sha256": "3594032e752a6ee2c7e0c80a387cb511ed99772f6f20a78d1b2983346a2d8c6e",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/train_dpo.py",
+      "lines": 654,
+      "test": false,
+      "sha256": "6ea10b257f9ded70994c6672e21bed10435173c6f4850f9ffbfe45bf05285739",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/training_guard.py",
+      "lines": 327,
+      "test": false,
+      "sha256": "35e447f7ae893027180ad56b34cc3b899cf3e79b7d6d4f6a08c624168fa77a98",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v1_1/verify_outputs.py",
+      "lines": 263,
+      "test": false,
+      "sha256": "63aeb8f5676caca493fe2c7fdfae9d75a5eee20570a42d168339af53e0ea8d45",
+      "reviews": [
+        {
+          "record": "system-v11-files.json",
+          "review": "full source read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/__init__.py",
+      "lines": 3,
+      "test": false,
+      "sha256": "fa67d3676eafd0076d102f2b16c4f49f40cedbe56c68fb414bc469b2e79c6050",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/adapters.py",
+      "lines": 165,
+      "test": false,
+      "sha256": "d204a1b483f03a1199a8183da565843bf39b274de4eefb7448afa78b594bb4ae",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/audit.py",
+      "lines": 247,
+      "test": false,
+      "sha256": "6d6cababd3fbec6d1ede58981561aa27b968c9d115ad07738bf5b269059e520b",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/autorun.py",
+      "lines": 616,
+      "test": false,
+      "sha256": "e6826078fee1c774f9e8e1854a22d1cfc2ae309fdd0289ec1cf73b081e289d62",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/batch.py",
+      "lines": 487,
+      "test": false,
+      "sha256": "4ec3563258738da5e0c44ccd7defa00798bfb1d2404a898ebef379476ec57db0",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/bbox_visualization.py",
+      "lines": 127,
+      "test": false,
+      "sha256": "65fb0898b1f65f22fa6e9ab4b95b6c0b9369efc22349bf5f267dce1cc5026a09",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/boxes.py",
+      "lines": 123,
+      "test": false,
+      "sha256": "ef0c763fd6584f5b44a2ad8d1976a3f3568b1abf57b8fdcfab562e9c0f384284",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/cohort.py",
+      "lines": 163,
+      "test": false,
+      "sha256": "7882b18ab09d7443fc854c6ed58100f94247a3cffda8201501f5cf74018ad138",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/direct_request.json",
+      "lines": 10,
+      "test": false,
+      "sha256": "ac60d02fd13fc77e9ca78013ba23cb8b2503254172c94202e4edf4c086a8f874",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/main7-cell05-main-20261007b-e5.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "ec5ec2c077d633cf03eb366c2abe3b369624908e152a706b0f7a69d978e6806c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_bbox_full_fixed.json",
+      "lines": 63,
+      "test": false,
+      "sha256": "af286700d721fa783f826698afdc1a70d7c271503aa4ddfd2a32f608b310c94d",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_bbox_pilot.json",
+      "lines": 63,
+      "test": false,
+      "sha256": "22d8527a62e48eee2d6e88135965afc151a34bd327f62eb1a921a65c4751e066",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_3gpu_grid.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "63fc6155a811c1f01e829e0d25889b42e7a4df3adb507880b2c13dc4e637f1df",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_3gpu_grid_cell05.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "55f3d2e5d31eec7a86ab15dbab69ae0204de5d25cc0a54a82894ed6d1f810e71",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell02.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "ef063db51c2156f31774fa50edc453111ac89b4ddc2b1bcf723bcc49f61b89ae",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_grid_cell10.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "b5acc19a59264d948225f66611735bffac4e0fca81a2864180b6f2bdd56f0dba",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_4gpu_regression.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "8d7b9030a250145610b4c9e5eac8dd262fd45113857652ec103eda14f4d9c017",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_main_world7.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "c8a545860aad2eff8b7f1e0439a900883737c5ca020342281e9a79ff4e38a1ed",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_pilot.json",
+      "lines": 63,
+      "test": false,
+      "sha256": "c61200ee1a5b4c3884d50bd8c1405e47f596ce0bbce82ca13a33ee1102dcebc4",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/qwen3_8b_pilot_1gpu.json",
+      "lines": 90,
+      "test": false,
+      "sha256": "825c2a8a04e8277b24a5902e547ab9172ac616fe5691897f230c00ed9976b8a0",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/smoke.json",
+      "lines": 49,
+      "test": false,
+      "sha256": "54f64563863decabd4487fdf85d18712e565a23f48160a2f0021096e4f84b8b4",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/structured.json",
+      "lines": 62,
+      "test": false,
+      "sha256": "be1baa6783e86cb0fd6043442b668d440107ed0a3dad602a9aac70b7fed3c6db",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/structured_bev_box.json",
+      "lines": 63,
+      "test": false,
+      "sha256": "b8c14d2c07bf2a99b6177fa50a4d4a7e4095c1e236ec88cd23d9a3b8bd857862",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/configs/structured_fixed.json",
+      "lines": 62,
+      "test": false,
+      "sha256": "f1859b3d851215f308cfe61c14cc5fde52a1541fd7a8bb5aeaf19e83d0243d4c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/data.py",
+      "lines": 127,
+      "test": false,
+      "sha256": "042379618ad979bc51b00dc18f3e31ceafe2b90fc06a0d5215b3fa10cce729e3",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/direct_layout.py",
+      "lines": 373,
+      "test": false,
+      "sha256": "5fbf7a1e649fba5cb722dbbb9ac64c987d985d1fd3cbde6f55576f4d9052e159",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/evaluate.py",
+      "lines": 1079,
+      "test": false,
+      "sha256": "45bb0a863d48a773e3ea8547c6fa51ec4cc12e70ac808a294df8ad312d9cac08",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/geometry.py",
+      "lines": 78,
+      "test": false,
+      "sha256": "156e3ee5fda5f9d6afc95f2cffda75c760884b25617822df794b97bedc0dae5c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/io.py",
+      "lines": 163,
+      "test": false,
+      "sha256": "79dd349e8cf4e1e7e842d998fc7190ab792267a28b2142811208692c4c3533b1",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_bridge.py",
+      "lines": 285,
+      "test": false,
+      "sha256": "ac62037fb3899f684a24bf9d685d13ed9d3f4ca73875fff37b1edd0f337ffced",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_build.py",
+      "lines": 267,
+      "test": false,
+      "sha256": "aa7f0fbf474707b68187423e1b22c28aacc6b86c0f7a6e0e7eec73a8d5d4328f",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_evidence.py",
+      "lines": 157,
+      "test": false,
+      "sha256": "a81e5700b356e5723e591dd95c4721cc28a2ad35786e24730cf8c9e6c0326a85",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/legacy_verify.py",
+      "lines": 612,
+      "test": false,
+      "sha256": "3988ed6f89cf3a34c9d0a04310c53cd20fca908eee10a2afe286a9aa7832d527",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/llm_baseline.py",
+      "lines": 261,
+      "test": false,
+      "sha256": "bc50fa57e9250fe86442ed3981c0e9eef4d6388a7303245df0324e0cd97be459",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/llm_structured.py",
+      "lines": 320,
+      "test": false,
+      "sha256": "b0c8f8d1707e392923b49d25f2a4463af8c7a96f548066d34ceaa8b588431dc0",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/losses.py",
+      "lines": 239,
+      "test": false,
+      "sha256": "600881578aaa1fb2853ef7e14bf8361e38e3cedd8f96dff5386ffa765d6c2bbd",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/matching.py",
+      "lines": 193,
+      "test": false,
+      "sha256": "d33d56b41bc4fcf0ce828b82e3184596fba412db5e393cba75a20d40c762007d",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/minimal_data.py",
+      "lines": 313,
+      "test": false,
+      "sha256": "bbaa70f46e948167040c3215c29bb2c14a65247e3a75dd1000ee78c85116b975",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/model.py",
+      "lines": 269,
+      "test": false,
+      "sha256": "0cecc46764b1f2644d83477f3304b3b8432ad7cbb200c982af56e37a92ec826c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/multisource_data.py",
+      "lines": 536,
+      "test": false,
+      "sha256": "43c9097979ac410c4ce04a9e2b7c63459f4b26a1bf524ac225219af0b3c7452c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/multisource_verify.py",
+      "lines": 685,
+      "test": false,
+      "sha256": "881cba1ec548e53010772df685ef9bab2608abeaa6cdad85e3239f2861519230",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/objective.py",
+      "lines": 61,
+      "test": false,
+      "sha256": "54bde4b67469af4551f59b69354a18a065b0ea5f7800d567043019db6401e595",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/compare.py",
+      "lines": 189,
+      "test": false,
+      "sha256": "dc5b2495d05f4cbe5a16918f4eebba92ef41db3c2a3423a18755aa7d92e2c5ac",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/crosscheck.py",
+      "lines": 50,
+      "test": false,
+      "sha256": "0d793639dc16d8da018d13d9bcdbc0828a02b02e6b0a64b757fb5b88384cc52f",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/diag_ablation.py",
+      "lines": 372,
+      "test": false,
+      "sha256": "d9a90f5a77a35fec17e47e1f76ceae33e2d3db459aca8a9fc895c80443838b9e",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_analysis.sbatch",
+      "lines": 19,
+      "test": false,
+      "sha256": "37d9691aacf411d6219cafbee16a11131462b5f800acfde9f9b354d3e1d30d61",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_autorun.sbatch",
+      "lines": 17,
+      "test": false,
+      "sha256": "de807661f2c461fc9ae39d02faf0d43b10b9e02bc7a67fe31dd9db3fc247f3ad",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_dryrun.sh",
+      "lines": 123,
+      "test": false,
+      "sha256": "29e11bb7f3bfd83fa0a2b3f801dca49476c3eb065d688433c57cb10264c5d941",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_inputs.py",
+      "lines": 289,
+      "test": false,
+      "sha256": "ac66a732760ae07a0b9b0dba79d22895aab6d08a5c34be5dfdfe7022d2ff2d0c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_setup.sbatch",
+      "lines": 87,
+      "test": false,
+      "sha256": "d2250a36b3444d46ef3c77787a7fbb7b99623f0c6b5e53294c78449c916a2b1a",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/isambard_submit.sh",
+      "lines": 10,
+      "test": false,
+      "sha256": "344961032a69c3d06d9d924a070f42f13a806fe12d36cbba9e3c98621abaa330",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/llm_compare.py",
+      "lines": 190,
+      "test": false,
+      "sha256": "ea5adc20e0d6d1cbea3090a5ff604feeb148016b579a2cc556d43b542acb087a",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/make_sample.sh",
+      "lines": 153,
+      "test": false,
+      "sha256": "52d74b2e9956118d86545e6ff08634e909fb1ab7a5a0bc8788344cfb88d9ba3a",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/rebuild_and_publish.sh",
+      "lines": 47,
+      "test": false,
+      "sha256": "4264147573eeb033ea1683e30f6a34701445235de33fa2c19fc199b5135b734b",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/report.py",
+      "lines": 639,
+      "test": false,
+      "sha256": "6f6f7a6b7752e55f612554345b8d7aa62c6fe6bf30ea58d380bd3a73e8ebe26c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/rescore_llm.sh",
+      "lines": 11,
+      "test": false,
+      "sha256": "ce1a636ca56b4e4400c034db1997899d13709dcde01ad8aae89e148ac6e5e0d0",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_checkpoint.sh",
+      "lines": 24,
+      "test": false,
+      "sha256": "624b0bdba95dcaa11d33200dbd3c5b13c4d0d16054f3367d1d0feed2228a37d8",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_plan.sh",
+      "lines": 322,
+      "test": false,
+      "sha256": "5d44f7a6b8fc9a2a3a46515b20d9abf898bea039248947c298a507f8f0591be0",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_reference.sh",
+      "lines": 9,
+      "test": false,
+      "sha256": "574e22d216ca986a0af866b47c6364ccb78ce66352b6cce7610399c4f003047b",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/run_structured.sh",
+      "lines": 15,
+      "test": false,
+      "sha256": "42423f14015f75a2f9fee9f55aeaee6d89c329dea9d3c6a8853d34f83a7d09eb",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/sample_validation.py",
+      "lines": 116,
+      "test": false,
+      "sha256": "c67851774437cd395f60e6cf0c5723aa0eddbe9d3af32983b067bba3f6cd1369",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/selftest_shift.py",
+      "lines": 55,
+      "test": false,
+      "sha256": "8ec9b47ef0df7bacbc2247add554500e8213ef3345cd908fce4fcab3f5b39ca9",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/start_autorun_retrain.sh",
+      "lines": 12,
+      "test": false,
+      "sha256": "a11a1496f95c0c907e28e21b9ee9719498f5445882a30d746becece14fae882c",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/stratify.py",
+      "lines": 415,
+      "test": false,
+      "sha256": "a9a8ecec575a8f819c71b072009bd8cce3f263a896699bd8d8236f37a3fc5291",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/ops/vlm_judge.py",
+      "lines": 533,
+      "test": false,
+      "sha256": "eb0ae5ec79880bbed1918b74b9a9600da6631c03d5487055cfa160a8ab431718",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full_by_delegate"
+        },
+        {
+          "record": "v2-ops-files.json",
+          "review": "fully_read"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/predict.py",
+      "lines": 113,
+      "test": false,
+      "sha256": "55f2859836b02fe5f21887ab7141b8f4d9aeab0c3405d97080d2a2e93fb0a46b",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/qualified_data.py",
+      "lines": 217,
+      "test": false,
+      "sha256": "97f298299ac9791282d7712d7b8588f449af738adb833f9e526626d1c1ec0640",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/regularizers.py",
+      "lines": 100,
+      "test": false,
+      "sha256": "8314c07895ae1d39f42e9daf2e906fded13025d2dd9e299eb71651cedc14aaa1",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/review_data.py",
+      "lines": 321,
+      "test": false,
+      "sha256": "59c86ec6e5679f442c6a16fb1257febe016310c02fa136d8aff91942afac3184",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/roomgenbench.py",
+      "lines": 444,
+      "test": false,
+      "sha256": "e3cdc050fd86c02243e600bfbd5dfb9c3c57af17c028887647d126dcaf47aea8",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/runtime.py",
+      "lines": 448,
+      "test": false,
+      "sha256": "8bd0c2d7e12531fd6805ce0caaa348be94402e950cf91465ffc22f8ddb4f0993",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/schema.py",
+      "lines": 324,
+      "test": false,
+      "sha256": "8df355da5bb203495b8c4b61ef2194e443c498df633ea5e2f845ef9120d39108",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/serve.py",
+      "lines": 87,
+      "test": false,
+      "sha256": "66839f204f4f0a5f12fc794a91e0ea151a9e988f8bf39efa9c046eeccb8bb0b3",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/size_range.py",
+      "lines": 38,
+      "test": false,
+      "sha256": "0ad2e26ea419068f0e92349dd0718ee3c733028711cae2822432d0f4d5b48165",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/text_sft.py",
+      "lines": 242,
+      "test": false,
+      "sha256": "0dd88d1403a421545942f3aa063a17389dcb914837ee58444ddc58d4bb3a63da",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/train.py",
+      "lines": 809,
+      "test": false,
+      "sha256": "5f0c0cbc16d2c1aecd5488bf191eb9e5f958b1b053e5b7169550393a7574afd8",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/validation.py",
+      "lines": 403,
+      "test": false,
+      "sha256": "87ed462441f1a74a0da4c6a16cdca45ee5e6dfd7155239f0a348179e26c99f59",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/v2/verify_bundle.py",
+      "lines": 76,
+      "test": false,
+      "sha256": "812c66c8544567157a3b01e75c84491d6b9886ab75d9826c3a010d97cf30f47a",
+      "reviews": [
+        {
+          "record": "v2-files.json",
+          "review": "read_full"
+        }
+      ]
+    },
+    {
+      "path": "fastfill/validate.py",
+      "lines": 191,
+      "test": false,
+      "sha256": "ddaff1e5f6dedd949c61267780b92d2a18981926d55939ed038e1e3cdbe17158",
+      "reviews": [
+        {
+          "record": "root-files.json",
+          "review": "full production body read"
+        }
+      ]
+    }
+  ]
+}

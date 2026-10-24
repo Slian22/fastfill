@@ -1,0 +1,20 @@
+[
+  "fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[all_valid]",
+  "fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[peer_empty]",
+  "fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[tail_one_rank_empty]",
+  "fastfill/v2/tests/test_accumulation_tail.py::test_actual_two_rank_complete_and_tail_means[empty_tail]",
+  "fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[peer_empty]",
+  "fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[last_empty]",
+  "fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[empty_then_valid]",
+  "fastfill/v2/tests/test_active_objective_distributed.py::test_actual_two_rank_objective_windows[all_empty]",
+  "fastfill/v2/tests/test_legacy_verify.py::test_real_parallel_worker_failure_never_publishes_partial_dataset",
+  "fastfill/v2/tests/test_model_review_fixes.py::test_actual_two_process_uneven_and_global_zero_box_counts",
+  "fastfill/v2/tests/test_round5_train.py::test_two_rank_diagnostics_count_every_row_once[1]",
+  "fastfill/v2/tests/test_round5_train.py::test_two_rank_diagnostics_count_every_row_once[3]",
+  "fastfill/v2/tests/test_round5_train.py::test_two_rank_resume_of_a_state_before_round5_restarts_selection",
+  "fastfill/v2/tests/test_round6_leftovers.py::test_two_rank_validation_with_scene_regularizers_survives_a_shorter_shard",
+  "fastfill/v2/tests/test_train_loop_fix20261006.py::test_actual_two_rank_resume_replays_each_rank[3]",
+  "fastfill/v2/tests/test_train_loop_fix20261006.py::test_actual_two_rank_resume_replays_each_rank[4]",
+  "fastfill/v2/tests/test_training_record_review.py::test_actual_two_process_mixed_geometry_logging_and_validation[record]",
+  "fastfill/v2/tests/test_training_record_review.py::test_actual_two_process_mixed_geometry_logging_and_validation[validation]"
+]

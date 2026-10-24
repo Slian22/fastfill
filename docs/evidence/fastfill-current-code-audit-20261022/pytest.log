@@ -1,0 +1,400 @@
+
+==================================== ERRORS ====================================
+___ ERROR collecting OptiScene/fastfill/comparison/tests/test_a021_train.py ____
+ImportError while importing test module '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/tests/test_a021_train.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+fastfill/comparison/tests/test_a021_train.py:23: in <module>
+    from fastfill.v1_1.tests.test_train_dpo_a021 import Tok
+fastfill/v1_1/tests/test_train_dpo_a021.py:13: in <module>
+    from transformers import Qwen3Config, Qwen3ForCausalLM  # noqa: E402
+E   ImportError: cannot import name 'Qwen3Config' from 'transformers' (/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/transformers/__init__.py)
+______ ERROR collecting OptiScene/fastfill/comparison/tests/test_a028.py _______
+ImportError while importing test module '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/tests/test_a028.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+fastfill/comparison/tests/test_a028.py:25: in <module>
+    from fastfill.comparison.tests import test_a021_train as TA
+fastfill/comparison/tests/test_a021_train.py:23: in <module>
+    from fastfill.v1_1.tests.test_train_dpo_a021 import Tok
+fastfill/v1_1/tests/test_train_dpo_a021.py:13: in <module>
+    from transformers import Qwen3Config, Qwen3ForCausalLM  # noqa: E402
+E   ImportError: cannot import name 'Qwen3Config' from 'transformers' (/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/transformers/__init__.py)
+____ ERROR collecting OptiScene/fastfill/v1_1/tests/test_train_dpo_a021.py _____
+ImportError while importing test module '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/tests/test_train_dpo_a021.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+fastfill/v1_1/tests/test_train_dpo_a021.py:13: in <module>
+    from transformers import Qwen3Config, Qwen3ForCausalLM  # noqa: E402
+E   ImportError: cannot import name 'Qwen3Config' from 'transformers' (/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/transformers/__init__.py)
+_ ERROR collecting OptiScene/fastfill/v1_1/tests/test_train_dpo_init_adapter.py _
+ImportError while importing test module '/Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v1_1/tests/test_train_dpo_init_adapter.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py:19: in <module>
+    from transformers import Qwen3Config, Qwen3ForCausalLM  # noqa: E402
+E   ImportError: cannot import name 'Qwen3Config' from 'transformers' (/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/transformers/__init__.py)
+__________ ERROR collecting OptiScene/fastfill/v2/tests/test_data.py ___________
+import file mismatch:
+imported module 'test_data' has this __file__ attribute:
+  /Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/comparison/tests/test_data.py
+which is not the same as the test file we want to collect:
+  /Users/slian/Desktop/3D/Worldedge/OptiScene/fastfill/v2/tests/test_data.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+--------- generated xml file: /tmp/fastfill-audit-20261022/pytest.xml ----------
+
+---------- coverage: platform darwin, python 3.13.1-final-0 ----------
+Name                                                        Stmts   Miss  Cover
+-------------------------------------------------------------------------------
+fastfill/adapters/__init__.py                                  46     37    20%
+fastfill/adapters/__main__.py                                   2      2     0%
+fastfill/adapters/ase.py                                       24     24     0%
+fastfill/adapters/hssd200.py                                  254    220    13%
+fastfill/adapters/il3d_3dfront.py                             311    268    14%
+fastfill/adapters/il3d_synthetic.py                            49     49     0%
+fastfill/adapters/interiorgs.py                               216    188    13%
+fastfill/adapters/internscenes.py                             123     96    22%
+fastfill/adapters/internscenes_3rscan.py                        5      5     0%
+fastfill/adapters/internscenes_arkit.py                         5      5     0%
+fastfill/adapters/internscenes_mp3d.py                         13     13     0%
+fastfill/adapters/internscenes_scannet.py                       4      4     0%
+fastfill/adapters/m3dlayout_infinigen.py                       22     22     0%
+fastfill/adapters/mansionworld.py                             132    132     0%
+fastfill/adapters/multiscan.py                                 64     49    23%
+fastfill/adapters/optiscene_holodeck.py                        25     16    36%
+fastfill/adapters/sage10k.py                                  151    135    11%
+fastfill/adapters/scan2cad.py                                  69     52    25%
+fastfill/adapters/scannetpp.py                                 23     23     0%
+fastfill/adapters/scenesmith.py                                68     68     0%
+fastfill/adapters/spatialgen.py                                20     14    30%
+fastfill/adapters/spatiallm.py                                 76     76     0%
+fastfill/adapters/structured3d.py                              87     68    22%
+fastfill/adapters/unified.py                                   61     53    13%
+fastfill/adapters/upright_bounds.py                            25     22    12%
+fastfill/anchors.py                                           150    112    25%
+fastfill/build.py                                             534    470    12%
+fastfill/comparison/a021_diag.py                              323    256    21%
+fastfill/comparison/a021_select.py                            644    536    17%
+fastfill/comparison/a021_train.py                             566    483    15%
+fastfill/comparison/a028.py                                   203    161    21%
+fastfill/comparison/ablation_016.py                           265    200    25%
+fastfill/comparison/agents_016.py                             224    187    17%
+fastfill/comparison/best_of_n.py                              188    144    23%
+fastfill/comparison/contract.py                               181    155    14%
+fastfill/comparison/corpus.py                                 240    201    16%
+fastfill/comparison/critic_025.py                             492    409    17%
+fastfill/comparison/critic_batch_025.py                       122     97    20%
+fastfill/comparison/critic_client_025.py                       46     33    28%
+fastfill/comparison/data.py                                   198    175    12%
+fastfill/comparison/decide_012.py                              96     75    22%
+fastfill/comparison/delivery.py                               290    249    14%
+fastfill/comparison/dev_select.py                             352    290    18%
+fastfill/comparison/distill_018.py                            293    229    22%
+fastfill/comparison/distill_018_chain.py                      506    428    15%
+fastfill/comparison/diverse_026.py                             37     24    35%
+fastfill/comparison/downstream.py                             216    179    17%
+fastfill/comparison/dpo_stages.py                             551    472    14%
+fastfill/comparison/eval_data.py                              209    178    15%
+fastfill/comparison/evaluate_llm.py                           176    148    16%
+fastfill/comparison/evaluate_pair.py                          126    104    17%
+fastfill/comparison/fid.py                                    318    273    14%
+fastfill/comparison/final_011.py                               79     60    24%
+fastfill/comparison/final_tables.py                           179    148    17%
+fastfill/comparison/frontier_026.py                           402    342    15%
+fastfill/comparison/geometry.py                               167    139    17%
+fastfill/comparison/infer.py                                  283    254    10%
+fastfill/comparison/infer_shard.py                            321    289    10%
+fastfill/comparison/judge_agreement_023.py                     62     49    21%
+fastfill/comparison/judge_batch.py                            429    376    12%
+fastfill/comparison/judge_bundle_025.py                       135    115    15%
+fastfill/comparison/llm_agent.py                              435    352    19%
+fastfill/comparison/llm_open.py                               252    206    18%
+fastfill/comparison/main_data.py                              286    247    14%
+fastfill/comparison/mesh_collision.py                         351    280    20%
+fastfill/comparison/onpolicy_dpo.py                           573    490    14%
+fastfill/comparison/optiscene_eval.py                         978    835    15%
+fastfill/comparison/output_repair.py                          586    503    14%
+fastfill/comparison/overnight.py                              560    501    11%
+fastfill/comparison/placers_020.py                            283    236    17%
+fastfill/comparison/pose_targets.py                           223    192    14%
+fastfill/comparison/reference_rows.py                         101     75    26%
+fastfill/comparison/render_assets.py                          569    512    10%
+fastfill/comparison/report_v2.py                              666    566    15%
+fastfill/comparison/room_families.py                          251    200    20%
+fastfill/comparison/sample_vllm.py                            231    194    16%
+fastfill/comparison/scale_curve.py                            418    351    16%
+fastfill/comparison/server_api_judge.py                       464    385    17%
+fastfill/comparison/size_prior.py                             124     44    65%
+fastfill/comparison/sizers_020.py                             491    424    14%
+fastfill/comparison/stage_table.py                            352    288    18%
+fastfill/comparison/test_apply_012.py                         207    162    22%
+fastfill/comparison/tests/test_a021_diag.py                   348    304    13%
+fastfill/comparison/tests/test_a021_select.py                 507    440    13%
+fastfill/comparison/tests/test_a021_train.py                  469    451     4%
+fastfill/comparison/tests/test_a028.py                        312    292     6%
+fastfill/comparison/tests/test_ablation_016.py                406    354    13%
+fastfill/comparison/tests/test_agents_016.py                  184    158    14%
+fastfill/comparison/tests/test_best_of_n.py                   168    140    17%
+fastfill/comparison/tests/test_context_plan.py                149    126    15%
+fastfill/comparison/tests/test_contract.py                    317    258    19%
+fastfill/comparison/tests/test_corpus.py                      344    295    14%
+fastfill/comparison/tests/test_critic_025.py                  232    199    14%
+fastfill/comparison/tests/test_critic_client_025.py           161    130    19%
+fastfill/comparison/tests/test_data.py                        123    105    15%
+fastfill/comparison/tests/test_delivery.py                    271    234    14%
+fastfill/comparison/tests/test_dev_select.py                  385    337    12%
+fastfill/comparison/tests/test_distill_018_chain.py           540    481    11%
+fastfill/comparison/tests/test_distill_018_teacher.py         354    304    14%
+fastfill/comparison/tests/test_diverse_026.py                 189    159    16%
+fastfill/comparison/tests/test_downstream.py                  132    103    22%
+fastfill/comparison/tests/test_dpo_stages.py                  555    481    13%
+fastfill/comparison/tests/test_eval_data.py                   210    182    13%
+fastfill/comparison/tests/test_evaluate_llm.py                 93     80    14%
+fastfill/comparison/tests/test_evaluate_pair.py                83     69    17%
+fastfill/comparison/tests/test_fid.py                         296    253    15%
+fastfill/comparison/tests/test_final_011.py                   126     99    21%
+fastfill/comparison/tests/test_final_tables.py                186    159    15%
+fastfill/comparison/tests/test_frontier_026.py                112     94    16%
+fastfill/comparison/tests/test_geometry.py                    217    190    12%
+fastfill/comparison/tests/test_infer.py                       352    301    14%
+fastfill/comparison/tests/test_infer_shard.py                 347    300    14%
+fastfill/comparison/tests/test_judge_agreement_023.py          19     15    21%
+fastfill/comparison/tests/test_judge_batch.py                 469    417    11%
+fastfill/comparison/tests/test_judge_bundle_025.py            132    113    14%
+fastfill/comparison/tests/test_llm_agent.py                   304    263    13%
+fastfill/comparison/tests/test_llm_open.py                    509    455    11%
+fastfill/comparison/tests/test_main_data.py                   328    289    12%
+fastfill/comparison/tests/test_mesh_collision.py              115     95    17%
+fastfill/comparison/tests/test_onpolicy_dpo.py                687    600    13%
+fastfill/comparison/tests/test_optiscene_eval.py              821    716    13%
+fastfill/comparison/tests/test_output_repair.py               317    269    15%
+fastfill/comparison/tests/test_overnight.py                   491    413    16%
+fastfill/comparison/tests/test_placers_020.py                 362    323    11%
+fastfill/comparison/tests/test_pose_targets.py                295    247    16%
+fastfill/comparison/tests/test_render_assets.py               398    316    21%
+fastfill/comparison/tests/test_report_v2.py                   533    480    10%
+fastfill/comparison/tests/test_room_families.py                90     70    22%
+fastfill/comparison/tests/test_sample_vllm.py                 272    227    17%
+fastfill/comparison/tests/test_scale_curve.py                 269    233    13%
+fastfill/comparison/tests/test_server_api_judge.py             53     46    13%
+fastfill/comparison/tests/test_size_prior.py                  233    191    18%
+fastfill/comparison/tests/test_sizers_020.py                  321    270    16%
+fastfill/comparison/tests/test_stage_table.py                 289    236    18%
+fastfill/comparison/tests/test_test_apply_012.py              189    162    14%
+fastfill/comparison/tests/test_train_pair.py                  766    680    11%
+fastfill/comparison/tests/test_visual_024.py                  177    154    13%
+fastfill/comparison/tests/test_visual_cases.py                225    190    16%
+fastfill/comparison/tests/test_visual_final.py                 31     20    35%
+fastfill/comparison/tests/test_visual_pipeline.py             442    391    12%
+fastfill/comparison/tests/test_visual_resource_binding.py     259    221    15%
+fastfill/comparison/train_pair.py                             319    281    12%
+fastfill/comparison/train_pair_helpers.py                     308    273    11%
+fastfill/comparison/visual_024.py                             302    266    12%
+fastfill/comparison/visual_cases.py                           228    185    19%
+fastfill/comparison/visual_final.py                            48     39    19%
+fastfill/comparison/visual_pipeline.py                        370    322    13%
+fastfill/download.py                                           61     61     0%
+fastfill/evaluate.py                                          154    134    13%
+fastfill/inspect_ir.py                                         66     66     0%
+fastfill/interface.py                                         395    365     8%
+fastfill/merge_lora.py                                         63     63     0%
+fastfill/scene.py                                             245    210    14%
+fastfill/serve.py                                             130    116    11%
+fastfill/split.py                                              72     64    11%
+fastfill/system/cli.py                                         45     37    18%
+fastfill/system/evaluate.py                                   527    444    16%
+fastfill/system/package.py                                    158    122    23%
+fastfill/system/pipeline.py                                   423    344    19%
+fastfill/system/sizing.py                                     129    107    17%
+fastfill/system/tests/test_evaluate_package.py                471    412    13%
+fastfill/system/tests/test_pipeline.py                        395    319    19%
+fastfill/system/tests/test_sizing.py                          256    206    20%
+fastfill/tests/test_adapter_repairs.py                        201    156    22%
+fastfill/tests/test_build_repairs.py                          154    128    17%
+fastfill/tests/test_embedded_contracts.py                      10      4    60%
+fastfill/tests/test_qa_repairs.py                             347    290    16%
+fastfill/tests/test_runtime_repairs.py                        263    218    17%
+fastfill/tests/test_source_fidelity_v34.py                    186    127    32%
+fastfill/tests/test_source_opening_correction.py              195    149    24%
+fastfill/tests/test_source_tilt_correction.py                 247    201    19%
+fastfill/tests/test_training_repairs.py                       217    183    16%
+fastfill/tests/test_v1_1_audit_pairs.py                       158    134    15%
+fastfill/tests/test_v34_build.py                              182    146    20%
+fastfill/tools/ablation_check.py                               30     22    27%
+fastfill/tools/qa_report.py                                   302    261    14%
+fastfill/tools/visualize.py                                    78     78     0%
+fastfill/train.py                                             176    176     0%
+fastfill/v1_1/audit_pairs.py                                  181    152    16%
+fastfill/v1_1/audit_report.py                                 105     85    19%
+fastfill/v1_1/automate.py                                     227    191    16%
+fastfill/v1_1/build_dpo.py                                    303    271    11%
+fastfill/v1_1/build_v1_1.py                                   132    111    16%
+fastfill/v1_1/evaluate_v1_1.py                                446    396    11%
+fastfill/v1_1/evaluation_protocol.py                          180    153    15%
+fastfill/v1_1/postprocess.py                                  458    425     7%
+fastfill/v1_1/research_report.py                              153    116    24%
+fastfill/v1_1/roomgenbench_v1_1.py                            281    257     9%
+fastfill/v1_1/scene_v1_1.py                                   140    121    14%
+fastfill/v1_1/tests/test_audit_report.py                      132    106    20%
+fastfill/v1_1/tests/test_automate.py                          200    171    14%
+fastfill/v1_1/tests/test_automation_lineage.py                188    163    13%
+fastfill/v1_1/tests/test_build_dpo_integrity.py               282    232    18%
+fastfill/v1_1/tests/test_dpo_checkpoint_recovery.py           183    143    22%
+fastfill/v1_1/tests/test_evaluation_protocol.py               174    143    18%
+fastfill/v1_1/tests/test_evaluation_resume.py                 207    179    14%
+fastfill/v1_1/tests/test_research_report.py                   141    117    17%
+fastfill/v1_1/tests/test_roomgenbench_recovery.py             164    138    16%
+fastfill/v1_1/tests/test_train_dpo_a021.py                    129    120     7%
+fastfill/v1_1/tests/test_train_dpo_init_adapter.py            179    165     8%
+fastfill/v1_1/tests/test_train_dpo_rpo.py                      38     26    32%
+fastfill/v1_1/tests/test_training_guard.py                    227    193    15%
+fastfill/v1_1/tests/test_verified_sbatch.py                   115     89    23%
+fastfill/v1_1/tests/test_verify_outputs.py                    168    136    19%
+fastfill/v1_1/train_dpo.py                                    422    372    12%
+fastfill/v1_1/training_guard.py                               242    216    11%
+fastfill/v1_1/verify_outputs.py                               197    163    17%
+fastfill/v2/adapters.py                                       105     89    15%
+fastfill/v2/audit.py                                           69     69     0%
+fastfill/v2/autorun.py                                        420    377    10%
+fastfill/v2/batch.py                                          330    288    13%
+fastfill/v2/bbox_visualization.py                              90     90     0%
+fastfill/v2/boxes.py                                           80     65    19%
+fastfill/v2/cohort.py                                         122     99    19%
+fastfill/v2/data.py                                            82     66    20%
+fastfill/v2/direct_layout.py                                  210    180    14%
+fastfill/v2/evaluate.py                                       639    569    11%
+fastfill/v2/geometry.py                                        50     39    22%
+fastfill/v2/io.py                                             107     86    20%
+fastfill/v2/legacy_bridge.py                                  167    138    17%
+fastfill/v2/legacy_build.py                                   193    161    17%
+fastfill/v2/legacy_evidence.py                                113     88    22%
+fastfill/v2/legacy_verify.py                                  499    450    10%
+fastfill/v2/llm_baseline.py                                   169    140    17%
+fastfill/v2/llm_structured.py                                 164    133    19%
+fastfill/v2/losses.py                                         179    133    26%
+fastfill/v2/matching.py                                       137    122    11%
+fastfill/v2/minimal_data.py                                   221    191    14%
+fastfill/v2/model.py                                          193    145    25%
+fastfill/v2/multisource_data.py                               374    319    15%
+fastfill/v2/multisource_verify.py                             501    455     9%
+fastfill/v2/objective.py                                       39     29    26%
+fastfill/v2/ops/isambard_inputs.py                            167    135    19%
+fastfill/v2/ops/vlm_judge.py                                  360    298    17%
+fastfill/v2/predict.py                                         84     70    17%
+fastfill/v2/qualified_data.py                                 144    123    15%
+fastfill/v2/regularizers.py                                    65     55    15%
+fastfill/v2/review_data.py                                    238    195    18%
+fastfill/v2/roomgenbench.py                                   283    254    10%
+fastfill/v2/runtime.py                                        314    243    23%
+fastfill/v2/schema.py                                         265    244     8%
+fastfill/v2/serve.py                                           65     55    15%
+fastfill/v2/size_range.py                                      22     17    23%
+fastfill/v2/tests/test_accumulation_tail.py                   130     99    24%
+fastfill/v2/tests/test_active_objective_distributed.py         85     72    15%
+fastfill/v2/tests/test_active_objective_training.py           151    124    18%
+fastfill/v2/tests/test_asset_attribute_contract.py             64     49    23%
+fastfill/v2/tests/test_audit_c2_uniform_yaw.py                 25     17    32%
+fastfill/v2/tests/test_augment_repair_fix20261006.py           87     71    18%
+fastfill/v2/tests/test_autorun.py                             308    281     9%
+fastfill/v2/tests/test_batch.py                                73     60    18%
+fastfill/v2/tests/test_batch_augment_fix20261006.py           242    207    14%
+fastfill/v2/tests/test_batch_handoff_r2.py                    164    138    16%
+fastfill/v2/tests/test_bounded_io.py                           15      8    47%
+fastfill/v2/tests/test_complete_cohort.py                     137    111    19%
+fastfill/v2/tests/test_constraint_schema.py                    18     11    39%
+fastfill/v2/tests/test_data_builder_fix20261006.py            196    164    16%
+fastfill/v2/tests/test_data_policy_r2.py                      156    121    22%
+fastfill/v2/tests/test_direct_layout.py                       346    302    13%
+fastfill/v2/tests/test_evaluate_fix20261006.py                122     99    19%
+fastfill/v2/tests/test_evaluation_failure_latency.py           60     48    20%
+fastfill/v2/tests/test_execution.py                            86     73    15%
+fastfill/v2/tests/test_fixed_capability_review.py              50     35    30%
+fastfill/v2/tests/test_followups_r2.py                         18     11    39%
+fastfill/v2/tests/test_geometry_core.py                        39     28    28%
+fastfill/v2/tests/test_integrator_fix20261006.py              114     88    23%
+fastfill/v2/tests/test_isambard_inputs.py                      85     71    16%
+fastfill/v2/tests/test_leak_guards_fix20261006.py             117     86    26%
+fastfill/v2/tests/test_legacy_bridge.py                        71     48    32%
+fastfill/v2/tests/test_legacy_bridge_geometry.py              120     90    25%
+fastfill/v2/tests/test_legacy_build.py                        177    140    21%
+fastfill/v2/tests/test_legacy_evidence.py                      85     67    21%
+fastfill/v2/tests/test_legacy_verify.py                       196    164    16%
+fastfill/v2/tests/test_legacy_workers.py                       42     34    19%
+fastfill/v2/tests/test_llm_baseline.py                        145    129    11%
+fastfill/v2/tests/test_llm_structured.py                      189    153    19%
+fastfill/v2/tests/test_loss_config_review.py                   37     19    49%
+fastfill/v2/tests/test_losses_matching_fix20261006.py          89     65    27%
+fastfill/v2/tests/test_matching.py                             86     69    20%
+fastfill/v2/tests/test_minimal_data.py                        172    146    15%
+fastfill/v2/tests/test_model.py                               111     93    16%
+fastfill/v2/tests/test_model_loss_r2.py                       194    149    23%
+fastfill/v2/tests/test_model_review_fixes.py                  101     74    27%
+fastfill/v2/tests/test_multisource_data.py                    183    154    16%
+fastfill/v2/tests/test_multisource_verify.py                  237    210    11%
+fastfill/v2/tests/test_predict.py                              55     41    25%
+fastfill/v2/tests/test_qualified_data.py                       91     74    19%
+fastfill/v2/tests/test_reference_extent.py                    114     93    18%
+fastfill/v2/tests/test_regularizer_support_review.py           76     59    22%
+fastfill/v2/tests/test_review_data.py                         195    159    18%
+fastfill/v2/tests/test_review_repairs_r2.py                   108     83    23%
+fastfill/v2/tests/test_roomgenbench.py                        209    177    15%
+fastfill/v2/tests/test_roomgenbench_fix20261006.py            148    122    18%
+fastfill/v2/tests/test_round3_data.py                         121     94    22%
+fastfill/v2/tests/test_round3_eval_handoff.py                  97     77    21%
+fastfill/v2/tests/test_round3_resume.py                        96     78    19%
+fastfill/v2/tests/test_round4_matching.py                      81     57    30%
+fastfill/v2/tests/test_round4_spread.py                        80     61    24%
+fastfill/v2/tests/test_round5_spread.py                        37     24    35%
+fastfill/v2/tests/test_round5_train.py                        147    112    24%
+fastfill/v2/tests/test_round6_leftovers.py                     57     40    30%
+fastfill/v2/tests/test_round6_roomgenbench.py                 194    159    18%
+fastfill/v2/tests/test_round7_reference.py                     50     32    36%
+fastfill/v2/tests/test_round10_wall_decode.py                  89     62    30%
+fastfill/v2/tests/test_round10_wall_selection.py              199    153    23%
+fastfill/v2/tests/test_round14_eval_math.py                   212    175    17%
+fastfill/v2/tests/test_runtime.py                             153    125    18%
+fastfill/v2/tests/test_runtime_cli.py                          56     41    27%
+fastfill/v2/tests/test_runtime_evaluation.py                  100     83    17%
+fastfill/v2/tests/test_runtime_preflight.py                     8      4    50%
+fastfill/v2/tests/test_runtime_support_contract.py            127    101    20%
+fastfill/v2/tests/test_schema_review.py                        47     35    26%
+fastfill/v2/tests/test_size_range.py                           53     33    38%
+fastfill/v2/tests/test_slot_pooling_review.py                  29     23    21%
+fastfill/v2/tests/test_spread_decode.py                        40     29    28%
+fastfill/v2/tests/test_supervision.py                         123    101    18%
+fastfill/v2/tests/test_text_record_review.py                   68     56    18%
+fastfill/v2/tests/test_text_sft.py                             71     60    15%
+fastfill/v2/tests/test_train_eval_r2.py                       250    217    13%
+fastfill/v2/tests/test_train_loop_fix20261006.py              320    268    16%
+fastfill/v2/tests/test_training_record_review.py              142    113    20%
+fastfill/v2/tests/test_validation.py                           70     53    24%
+fastfill/v2/tests/test_validation_floor_front_review.py        70     52    26%
+fastfill/v2/tests/test_verify_bundle.py                        48     37    23%
+fastfill/v2/tests/test_vlm_judge.py                           105     89    15%
+fastfill/v2/text_sft.py                                       187    160    14%
+fastfill/v2/train.py                                          497    413    17%
+fastfill/v2/validation.py                                     289    256    11%
+fastfill/v2/verify_bundle.py                                   49     38    22%
+fastfill/validate.py                                          126    113    10%
+-------------------------------------------------------------------------------
+TOTAL                                                       69218  58583    15%
+
+6 files skipped due to complete coverage.
+Coverage JSON written to file /tmp/fastfill-audit-20261022/coverage.json
+
+=========================== short test summary info ============================
+ERROR fastfill/comparison/tests/test_a021_train.py
+ERROR fastfill/comparison/tests/test_a028.py
+ERROR fastfill/v1_1/tests/test_train_dpo_a021.py
+ERROR fastfill/v1_1/tests/test_train_dpo_init_adapter.py
+ERROR fastfill/v2/tests/test_data.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+5 errors in 28.34s

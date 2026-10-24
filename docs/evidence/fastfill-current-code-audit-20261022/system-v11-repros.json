@@ -1,0 +1,158 @@
+{
+  "support_handoff": {
+    "declared_constraints": [
+      [
+        "on",
+        "lamp_1",
+        "table_1"
+      ]
+    ],
+    "constraint_satisfied": false,
+    "repair_geometry_valid": true,
+    "exported_condition_supports": [
+      "floor",
+      "floor"
+    ],
+    "exported_constraints": [],
+    "reference_check": {
+      "fastfill": {
+        "ok": true,
+        "counts": {
+          "pass": 9,
+          "violation": 0,
+          "unknown": 3
+        },
+        "by_code": {
+          "schema": {
+            "pass": 1,
+            "violation": 0,
+            "unknown": 0
+          },
+          "floor_lower_bound": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "boundary": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "ceiling": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "floor_support": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "mesh_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          },
+          "physics_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          },
+          "solver_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          }
+        }
+      },
+      "ground_truth": {
+        "ok": false,
+        "counts": {
+          "pass": 8,
+          "violation": 1,
+          "unknown": 3
+        },
+        "by_code": {
+          "schema": {
+            "pass": 1,
+            "violation": 0,
+            "unknown": 0
+          },
+          "floor_lower_bound": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "boundary": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "ceiling": {
+            "pass": 2,
+            "violation": 0,
+            "unknown": 0
+          },
+          "floor_support": {
+            "pass": 1,
+            "violation": 1,
+            "unknown": 0
+          },
+          "mesh_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          },
+          "physics_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          },
+          "solver_unchecked": {
+            "pass": 0,
+            "violation": 0,
+            "unknown": 1
+          }
+        }
+      }
+    }
+  },
+  "changed_pairs_resume": {
+    "changed_training_pairs_accepted": true,
+    "all_final_tensors_identical": true,
+    "completion": {
+      "adapter_files": {
+        "adapter_config.json": {
+          "sha256": "ffb21a4841f741c4d98431c39d57d4c65e846447e74a41f2d53d5d8b093241bc",
+          "size_bytes": 1242
+        },
+        "adapter_model.safetensors": {
+          "sha256": "70901f20cb8b7504ff7e00b095dd3a22fc23b239fbe13c8b7042eac3ec36164b",
+          "size_bytes": 3776
+        },
+        "tokenizer.json": {
+          "sha256": "3b1bee69d3d15e5219bc5f6972a372be7d91d6710cd596688b3f07a938847ecc",
+          "size_bytes": 1117
+        },
+        "tokenizer_config.json": {
+          "sha256": "6295154d5b51d4580ee7b90a818db0a3022d7fb48d581193ff78999e171389af",
+          "size_bytes": 247
+        }
+      },
+      "admitted_pairs": 4,
+      "epochs": 1,
+      "expected_total_steps": 2,
+      "kind": "fastfill_v1.1_dpo_completion",
+      "loader_batches": 4,
+      "position": {
+        "epoch": 0,
+        "it": 3,
+        "step": 2
+      },
+      "schema_version": 1,
+      "training_guard": null,
+      "world_size": 1
+    },
+    "resume_log": "/var/folders/0y/wqvrsf41449_9w1pp5j05db00000gn/T/fastfill-system-v11-repro-zs0j7qbh/resume.log"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "limit_exceeds_rendered_population": {
+    "rendered_rooms": 2,
+    "limit": 100,
+    "exception": "ValueError: paired UID coverage mismatch or duplicates",
+    "published": false
+  },
+  "no_successful_mesh_rooms": {
+    "analysed_rooms": 0,
+    "missing_rooms": {
+      "u": "FileNotFoundError: missing mesh"
+    },
+    "exception": "TypeError: unsupported format string passed to NoneType.__format__"
+  }
+}

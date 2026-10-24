@@ -1,0 +1,25 @@
+{
+  "qa_constraint_omission": {
+    "qa_inside": {
+      "raw": "0/1",
+      "repaired": "1/1"
+    },
+    "qa_constraint_reference_validation": {
+      "train": "1/1"
+    },
+    "runtime_inside_raw": false,
+    "runtime_inside_repaired": false,
+    "runtime_constraints_repaired": [
+      [
+        "faces",
+        true
+      ]
+    ],
+    "runtime_accepted": false
+  },
+  "http_stall": {
+    "second_request_blocked_until_first_finished": true,
+    "second_status_after_unblocking": "HTTP/1.0 400 Bad Request",
+    "handler_socket_timeout": null
+  }
+}
